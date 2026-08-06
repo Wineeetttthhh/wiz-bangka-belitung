@@ -737,6 +737,19 @@ Mohon dapat diverifikasi dan dikirimkan konfirmasi/bukti resi donasinya. Terima 
             const encodedMessage = encodeURIComponent(message);
             const waUrl = `https://wa.me/6282380830808?text=${encodedMessage}`;
 
+            // Save transaction to Supabase cloud if enabled
+            if (window.wizSupabase) {
+                window.wizSupabase.saveDonation({
+                    donor_name: donorName,
+                    donor_phone: donorPhone,
+                    program_title: programName,
+                    donation_type: selectedDtype,
+                    amount: finalAmount,
+                    payment_method: methodText,
+                    notes: donorNotes
+                });
+            }
+
             // Save transaction to local mutation history for real-time transparency table
             if (window.addNewDonationMutation) {
                 window.addNewDonationMutation({
@@ -753,8 +766,19 @@ Mohon dapat diverifikasi dan dikirimkan konfirmasi/bukti resi donasinya. Terima 
                 window.updateProgramFund(programName, finalAmount);
             }
 
-            // Open WhatsApp in new tab
-            window.open(waUrl, '_blank');
+            // Close donation modal
+            const modalBackdrop = document.getElementById('donation-modal');
+            if (modalBackdrop) {
+                modalBackdrop.classList.remove('show');
+                modalBackdrop.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+            }
+
+            // Open WhatsApp with popup blocker fallback
+            const waWindow = window.open(waUrl, '_blank');
+            if (!waWindow || waWindow.closed || typeof waWindow.closed === 'undefined') {
+                window.location.href = waUrl;
+            }
         });
     }
 }
