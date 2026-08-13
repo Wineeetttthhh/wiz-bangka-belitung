@@ -1900,7 +1900,47 @@
             updateBadges();
         }
 
+        function checkAdminAuth() {
+            const isAuth = sessionStorage.getItem('wiz_admin_authenticated') === 'true' || localStorage.getItem('wiz_admin_authenticated') === 'true';
+            const loginModal = document.getElementById('admin-login-modal');
+            if (!isAuth) {
+                if (loginModal) loginModal.classList.remove('hidden');
+            } else {
+                if (loginModal) loginModal.classList.add('hidden');
+            }
+        }
+
+        function handleAdminLogin(event) {
+            event.preventDefault();
+            const user = document.getElementById('login-username').value.trim();
+            const pass = document.getElementById('login-password').value.trim();
+            const errAlert = document.getElementById('login-error-alert');
+
+            if ((user === 'admin' || user === 'amil') && pass === 'wizbabel2026') {
+                sessionStorage.setItem('wiz_admin_authenticated', 'true');
+                sessionStorage.setItem('wiz_admin_user', user);
+                if (errAlert) errAlert.classList.add('hidden');
+                checkAdminAuth();
+                refreshAll();
+            } else {
+                if (errAlert) {
+                    errAlert.classList.remove('hidden');
+                    document.getElementById('login-error-text').textContent = 'Username atau Password salah!';
+                }
+            }
+        }
+
+        function handleAdminLogout() {
+            if (confirm('Apakah Anda yakin ingin keluar dari Portal Admin WIZ Babel?')) {
+                sessionStorage.removeItem('wiz_admin_authenticated');
+                sessionStorage.removeItem('wiz_admin_user');
+                localStorage.removeItem('wiz_admin_authenticated');
+                checkAdminAuth();
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
+            checkAdminAuth();
             refreshAll();
             if (wizStore.syncFromCloud) {
                 await wizStore.syncFromCloud();
