@@ -318,7 +318,7 @@
             <!-- Program Preview Card 1 -->
             <article class="bg-surface rounded-xl overflow-hidden shadow-level-1 hover:shadow-level-2 transition-all border border-surface-variant flex flex-col">
                 <div class="relative aspect-video overflow-hidden">
-                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800&auto=format&fit=crop" alt="Sedekah Beras Dhuafa"/>
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" src="assets/images/sedekah-beras-dhuafa.jpg" onerror="this.onerror=null; this.src='assets/images/sedekah-beras-dai.jpg';" alt="Sedekah Beras Dhuafa"/>
                     <span class="absolute top-sm left-sm bg-primary text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Sosial</span>
                 </div>
                 <div class="p-lg flex flex-col flex-grow">
@@ -362,7 +362,7 @@
             <!-- Program Preview Card 3 -->
             <article class="bg-surface rounded-xl overflow-hidden shadow-level-1 hover:shadow-level-2 transition-all border border-surface-variant flex flex-col">
                 <div class="relative aspect-video overflow-hidden">
-                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=800&auto=format&fit=crop';" alt="Beasiswa Pendidikan"/>
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" src="assets/images/beasiswa-tahfidz.jpg" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=800&auto=format&fit=crop';" alt="Beasiswa Pendidikan"/>
                     <span class="absolute top-sm left-sm bg-secondary-container text-on-secondary font-caption text-caption px-sm py-xs rounded-full font-semibold">Pendidikan</span>
                 </div>
                 <div class="p-lg flex flex-col flex-grow">
@@ -785,7 +785,7 @@
             return;
         }
 
-        const defaultImg = 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop';
+        const defaultImg = 'assets/images/sedekah-beras-dhuafa.jpg';
 
         grid.innerHTML = publishedNews.map(n => `
             <article class="bg-surface rounded-xl overflow-hidden shadow-level-1 hover:shadow-level-2 transition-all border border-surface-variant flex flex-col group">
@@ -820,7 +820,7 @@
         if (!article) return;
         currentShareArticle = article;
 
-        const defaultImg = 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop';
+        const defaultImg = 'assets/images/sedekah-beras-dhuafa.jpg';
         const imgEl = document.getElementById('pub-modal-image');
         imgEl.src = article.imageUrl || defaultImg;
         imgEl.onerror = () => { imgEl.src = defaultImg; };
