@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Laporan Transparansi Keuangan - WIZ Babel</title>
+    <meta name="description" content="Laporan transparansi keuangan dan pergerakan dana amil zakat, infak, sedekah secara real-time Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.">
+    <link rel="icon" href="assets/images/logo-wiz-babel.png" type="image/png">
+
+    <!-- Google Fonts & Material Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#e1e8fd",
+                        "secondary-fixed": "#ffdcbf",
+                        "primary-fixed": "#8ef9ab",
+                        "on-secondary-container": "#663800",
+                        "tertiary-fixed": "#89f5e7",
+                        "inverse-on-surface": "#edf0ff",
+                        "surface-dim": "#d3daef",
+                        "surface-container-highest": "#dce2f7",
+                        "surface-bright": "#f9f9ff",
+                        "on-primary-fixed-variant": "#005228",
+                        "on-primary-container": "#e9ffe9",
+                        "secondary-container": "#fd9923",
+                        "primary": "#006834",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#006d37",
+                        "surface-container-lowest": "#ffffff",
+                        "surface": "#f9f9ff",
+                        "tertiary-fixed-dim": "#6bd8cb",
+                        "outline": "#6e7a6e",
+                        "surface-variant": "#dce2f7",
+                        "tertiary-container": "#008176",
+                        "secondary-fixed-dim": "#ffb874",
+                        "inverse-primary": "#72dc91",
+                        "outline-variant": "#bdcabc",
+                        "inverse-surface": "#293040",
+                        "on-surface": "#141b2b",
+                        "on-tertiary-fixed": "#00201d",
+                        "on-secondary-fixed": "#2d1600",
+                        "on-secondary-fixed-variant": "#6b3b00",
+                        "on-background": "#141b2b",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#00210c",
+                        "on-surface-variant": "#3e4a3f",
+                        "on-tertiary": "#ffffff",
+                        "tertiary": "#00665d",
+                        "background": "#f9f9ff",
+                        "surface-container": "#e9edff",
+                        "on-tertiary-fixed-variant": "#005049",
+                        "primary-container": "#008444",
+                        "primary-fixed-dim": "#72dc91",
+                        "on-tertiary-container": "#e5fffa",
+                        "secondary": "#8c4f00",
+                        "on-error": "#ffffff",
+                        "surface-container-low": "#f1f3ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "margin-mobile": "16px",
+                        "lg": "24px",
+                        "container-max": "1280px",
+                        "xl": "32px",
+                        "xxl": "48px",
+                        "md": "16px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "display-lg-mobile": ["Plus Jakarta Sans", "sans-serif"],
+                        "label-md": ["Inter", "sans-serif"],
+                        "display-lg": ["Plus Jakarta Sans", "sans-serif"],
+                        "body-lg": ["Inter", "sans-serif"],
+                        "headline-md": ["Plus Jakarta Sans", "sans-serif"],
+                        "caption": ["Inter", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"],
+                        "headline-lg": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "display-lg-mobile": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "caption": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .shadow-level-1 { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); }
+        .shadow-level-2 { box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08); }
+
+        /* Modal styling */
+        .modal-backdrop {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .modal-backdrop.show { opacity: 1; pointer-events: auto; }
+        .modal-dialog {
+            background: #fff; border-radius: 20px;
+            width: 92%; max-width: 520px;
+            max-height: 90vh; overflow-y: auto;
+            transform: translateY(24px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+        }
+        .modal-backdrop.show .modal-dialog { transform: translateY(0); }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md antialiased min-h-screen flex flex-col">
+
+<!-- TopNavBar Component -->
+<nav class="bg-surface/95 dark:bg-surface-dim/95 backdrop-blur-md sticky top-0 z-50 border-b border-outline-variant/30 shadow-sm w-full">
+    <div class="flex justify-between items-center w-full px-margin-mobile md:px-gutter max-w-container-max mx-auto h-24 md:h-28">
+        <a href="index.html" class="flex items-center group py-2">
+            <img src="assets/images/logo-wiz-babel.png" alt="WIZ Wahdah Inspirasi Zakat Bangka Belitung" class="h-12 md:h-16 w-auto object-contain transition-transform group-hover:scale-105" onerror="this.onerror=null; this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');">
+            <span class="hidden font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">WIZ</span>
+        </a>
+        <div class="hidden md:flex gap-6 items-center">
+            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="index.html">Beranda</a>
+            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="index.html#tentang-kami">Tentang Kami</a>
+            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="program.html">Program</a>
+            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="laporan.html">Laporan</a>
+            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="index.html#berita">Berita</a>
+            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="index.html#kontak">Kontak</a>
+        </div>
+        <div class="flex items-center gap-sm">
+            <button onclick="openDonationModal('Donasi Umum')" class="bg-[#F7941D] text-white px-6 py-2.5 rounded-lg font-label-md text-label-md font-medium hover:opacity-90 transition-opacity shadow-sm hidden md:flex items-center gap-xs">
+                <span class="material-symbols-outlined text-sm">favorite</span>
+                <span>Donasi Sekarang</span>
+            </button>
+            <button id="mobile-menu-btn" class="md:hidden p-xs text-on-surface-variant hover:text-primary focus:outline-none">
+                <span class="material-symbols-outlined text-2xl" id="menu-icon">menu</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation Menu -->
+    <div id="mobile-menu" class="hidden md:hidden border-t border-outline-variant/30 bg-surface px-margin-mobile py-md space-y-md shadow-lg">
+        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="index.html">Beranda</a>
+        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="index.html#tentang-kami">Tentang Kami</a>
+        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="program.html">Program</a>
+        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="laporan.html">Laporan</a>
+        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="index.html#berita">Berita</a>
+        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="index.html#kontak">Kontak</a>
+    </div>
+</nav>
+
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-gutter py-xl md:py-xxl space-y-xxl flex-grow">
+
+    <!-- Header & Real-time Indicator -->
+    <section class="flex flex-col md:flex-row justify-between items-start md:items-end gap-md">
+        <div>
+            <h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary font-bold mb-sm">Transparansi Keuangan</h1>
+            <p class="font-body-lg text-body-lg text-on-surface-variant">Laporan pergerakan dana amanah umat secara real-time dan terverifikasi.</p>
+        </div>
+        <div class="flex items-center gap-sm bg-surface-container-high px-md py-xs rounded-full border border-outline-variant shadow-sm">
+            <span class="relative flex h-3 w-3">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-fixed opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+            </span>
+            <span class="font-caption text-caption text-on-surface-variant font-medium">Update Terakhir: <strong id="live-time">Real-time</strong></span>
+        </div>
+    </section>
+
+    <!-- Dashboard Metrics (Bento Grid) -->
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-lg">
+        <div class="bg-surface-container-lowest p-lg rounded-xl shadow-level-1 border border-outline-variant/30 flex flex-col gap-sm hover:shadow-level-2 transition-all">
+            <div class="flex items-center gap-sm text-primary">
+                <span class="material-symbols-outlined">account_balance_wallet</span>
+                <span class="font-label-md text-label-md font-bold">Total Dana Masuk</span>
+            </div>
+            <div class="font-headline-lg text-headline-lg text-on-surface font-bold" id="pub-total-masuk">Rp 0</div>
+            <span class="font-caption text-caption text-on-surface-variant">Donasi terverifikasi sah</span>
+        </div>
+
+        <div class="bg-surface-container-lowest p-lg rounded-xl shadow-level-1 border border-outline-variant/30 flex flex-col gap-sm hover:shadow-level-2 transition-all">
+            <div class="flex items-center gap-sm text-tertiary-container">
+                <span class="material-symbols-outlined">volunteer_activism</span>
+                <span class="font-label-md text-label-md font-bold">Total Tersalurkan</span>
+            </div>
+            <div class="font-headline-lg text-headline-lg text-on-surface font-bold" id="pub-total-salur">Rp 0</div>
+            <span class="font-caption text-caption text-on-surface-variant">Telah disalurkan ke penerima</span>
+        </div>
+
+        <div class="bg-surface-container-lowest p-lg rounded-xl shadow-level-1 border border-outline-variant/30 flex flex-col gap-sm hover:shadow-level-2 transition-all">
+            <div class="flex items-center gap-sm text-[#F7941D]">
+                <span class="material-symbols-outlined">account_balance</span>
+                <span class="font-label-md text-label-md font-bold">Saldo Saat Ini</span>
+            </div>
+            <div class="font-headline-lg text-headline-lg text-on-surface font-bold" id="pub-saldo">Rp 0</div>
+            <span class="font-caption text-caption text-on-surface-variant">Sisa saldo amanah program</span>
+        </div>
+
+        <div class="bg-surface-container-lowest p-lg rounded-xl shadow-level-1 border border-outline-variant/30 flex flex-col gap-sm hover:shadow-level-2 transition-all">
+            <div class="flex items-center gap-sm text-secondary-container">
+                <span class="material-symbols-outlined">groups</span>
+                <span class="font-label-md text-label-md font-bold">Jumlah Donatur</span>
+            </div>
+            <div class="font-headline-lg text-headline-lg text-on-surface font-bold" id="pub-donatur-count">0</div>
+            <span class="font-caption text-caption text-on-surface-variant">Donatur terverifikasi</span>
+        </div>
+    </section>
+
+    <!-- Detailed Reports Table Section -->
+    <section class="bg-surface-container-lowest rounded-xl shadow-level-1 border border-outline-variant/30 overflow-hidden">
+        <div class="p-lg border-b border-outline-variant/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+            <div>
+                <h2 class="font-headline-md text-headline-md font-bold text-primary">Rincian Pergerakan Per Program</h2>
+                <p class="font-body-md text-caption text-on-surface-variant mt-xs">Data penerimaan dan penyaluran dana publik secara transparan</p>
+            </div>
+
+            <!-- Table Search Input -->
+            <div class="relative w-full sm:w-72">
+                <span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+                <input type="text" id="report-search" oninput="filterReportTable()" placeholder="Cari nama program..." class="w-full pl-xl pr-md py-xs border border-outline-variant rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary">
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse" id="report-table">
+                <thead>
+                    <tr class="bg-surface-container text-on-surface font-label-md text-label-md border-b border-outline-variant/30">
+                        <th class="p-md font-bold">Nama Program</th>
+                        <th class="p-md font-bold text-right">Dana Masuk</th>
+                        <th class="p-md font-bold text-right">Dana Tersalurkan</th>
+                        <th class="p-md font-bold text-right">Saldo Per Program</th>
+                        <th class="p-md font-bold text-center">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="font-body-md text-body-md divide-y divide-outline-variant/20" id="report-table-body">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="p-lg bg-surface-container-low border-t border-outline-variant/30 flex flex-col sm:flex-row justify-between items-center gap-md">
+            <span class="font-caption text-caption text-on-surface-variant">Laporan ini diaudit secara berkala demi menjamin transparansi publik.</span>
+            <button onclick="downloadReportSummary()" class="inline-flex items-center gap-xs bg-primary text-on-primary px-lg py-xs rounded-lg font-label-md text-label-md font-bold hover:bg-primary-container transition-colors shadow-sm">
+                <span class="material-symbols-outlined text-sm">download</span>
+                <span>Unduh Ringkasan Laporan (PDF)</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Public Penyaluran Log / Transparansi Penyaluran Terbaru -->
+    <section class="bg-surface-container-lowest rounded-xl shadow-level-1 border border-outline-variant/30 p-lg space-y-md">
+        <h2 class="font-headline-md text-headline-md font-bold text-primary">Riwayat Penyaluran Dana Terbaru</h2>
+        <div id="disbursement-history-list" class="space-y-sm divide-y divide-outline-variant/20"></div>
+    </section>
+
+</main>
+
+<!-- Footer Component -->
+<footer class="bg-inverse-surface dark:bg-surface-container-lowest full-width border-t-0 mt-xxl">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-xl w-full px-margin-mobile md:px-gutter py-xxl max-w-container-max mx-auto">
+        <div class="col-span-1 md:col-span-1 space-y-sm">
+            <div class="font-headline-lg text-headline-lg font-bold text-surface-bright">WIZ Babel</div>
+            <p class="font-body-md text-body-md text-surface-variant/80">© 2024 Wahdah Inspirasi Zakat Bangka Belitung. Amanah &amp; Profesional.</p>
+        </div>
+        <div class="col-span-1 md:col-span-3 flex flex-wrap gap-lg md:justify-end items-center">
+            <a class="font-label-md text-label-md text-surface-variant/80 hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 focus:ring-2 focus:ring-primary-fixed rounded" href="program.html">Program Pemberdayaan</a>
+            <a class="font-label-md text-label-md text-surface-variant/80 hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 focus:ring-2 focus:ring-primary-fixed rounded" href="program.html">Zakat Fitrah</a>
+            <a class="font-label-md text-label-md text-primary-fixed font-bold focus:ring-2 focus:ring-primary-fixed rounded" href="laporan.html">Laporan Publik</a>
+            <a class="font-label-md text-label-md text-surface-variant/80 hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 focus:ring-2 focus:ring-primary-fixed rounded" href="index.html#tentang-kami">Kebijakan Privasi</a>
+            <a class="font-label-md text-label-md text-surface-variant/80 hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 focus:ring-2 focus:ring-primary-fixed rounded" href="index.html#kontak">Kontak Kami</a>
+        </div>
+    </div>
+</footer>
+
+<!-- Donation Modal -->
+<div id="donation-modal" class="modal-backdrop">
+    <div class="modal-dialog">
+        <div class="flex justify-between items-center p-lg border-b border-surface-variant sticky top-0 bg-surface rounded-t-xl z-10">
+            <h3 id="modal-program-title" class="font-headline-md text-headline-md font-bold text-primary">Formulir Donasi</h3>
+            <button onclick="closeDonationModal()" class="text-outline hover:text-on-surface p-xs focus:outline-none">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <form id="donation-form" class="p-lg space-y-md" onsubmit="handleDonationSubmit(event)">
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Pilih Nominal Donasi</label>
+                <div class="grid grid-cols-3 gap-xs mb-sm">
+                    <button type="button" onclick="setNominal(50000)" class="p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary transition-all text-center">Rp 50.000</button>
+                    <button type="button" onclick="setNominal(100000)" class="p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary transition-all text-center">Rp 100.000</button>
+                    <button type="button" onclick="setNominal(250000)" class="p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary transition-all text-center">Rp 250.000</button>
+                    <button type="button" onclick="setNominal(500000)" class="p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary transition-all text-center">Rp 500.000</button>
+                    <button type="button" onclick="setNominal(1000000)" class="p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary transition-all text-center">Rp 1.000.000</button>
+                    <button type="button" onclick="setNominal('')" class="p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary transition-all text-center">Lainnya</button>
+                </div>
+                <div class="relative">
+                    <span class="absolute left-md top-1/2 -translate-y-1/2 font-bold text-primary">Rp</span>
+                    <input type="number" id="nominal-input" required min="10000" class="w-full pl-xl pr-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary" placeholder="Masukkan nominal (Minimal Rp 10.000)"/>
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Nama Lengkap Donatur</label>
+                <input type="text" id="donor-name" required class="w-full px-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary" placeholder="Nama Anda atau hamba Allah"/>
+            </div>
+
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Nomor WhatsApp / HP</label>
+                <input type="tel" id="donor-phone" required class="w-full px-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary" placeholder="08xxxxxxxxxx"/>
+            </div>
+
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Doa / Pesan Kebaikan (Opsional)</label>
+                <textarea id="donor-message" rows="2" class="w-full px-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary" placeholder="Tuliskan doa atau niat donasi Anda..."></textarea>
+            </div>
+
+            <button type="submit" class="w-full bg-[#F7941D] text-white font-label-md text-label-md py-md rounded-lg hover:opacity-90 transition-opacity font-bold shadow-md text-center">
+                Lanjutkan Pembayaran Donasi
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Floating WhatsApp Button -->
+<a href="https://wa.me/6282380830808?text=Halo%20WIZ%20Bangka%20Belitung,%20saya%20ingin%20bertanya%20mengenai%20laporan%20keuangan" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 right-6 bg-[#25D366] text-white p-3 rounded-full shadow-lg hover:scale-110 transition-transform z-40 flex items-center justify-center">
+    <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.121 4.092 4.164-1.091z"/></svg>
+</a>
+
+<!-- Scripts -->
+<script src="assets/js/supabase-client.js"></script>
+<script src="assets/js/admin-store.js"></script>
+<script src="assets/js/nav-active.js"></script>
+
+<script>
+    // Live Time Indicator
+    const liveTime = document.getElementById('live-time');
+    if (liveTime) {
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        liveTime.textContent = `Hari ini, ${timeStr} WIB`;
+    }
+
+    // Render Realtime Data from Store
+    function renderPublicReport() {
+        if (!window.wizStore) return;
+
+        const stats = wizStore.finance.getOverviewStats();
+        const fmt = wizStore.utils.formatRupiahCompact;
+
+        document.getElementById('pub-total-masuk').textContent = fmt(stats.totalMasuk);
+        document.getElementById('pub-total-salur').textContent = fmt(stats.totalTersalurkan);
+        document.getElementById('pub-saldo').textContent = fmt(stats.saldo);
+        document.getElementById('pub-donatur-count').textContent = stats.totalDonatur.toLocaleString('id-ID');
+
+        // Table render — only show active programs with real transactions
+        const programs = wizStore.finance.getPerProgram();
+        const activePrograms = programs.filter(p => p.masuk > 0 || p.tersalurkan > 0);
+        const tbody = document.getElementById('report-table-body');
+        if (tbody) {
+            if (activePrograms.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="p-xl text-center text-on-surface-variant">
+                            <div class="flex flex-col items-center justify-center gap-xs py-md">
+                                <span class="material-symbols-outlined text-4xl text-outline mb-xs">analytics</span>
+                                <p class="font-headline-md text-headline-md font-bold text-on-surface">Belum Ada Data Penyaluran & Penerimaan</p>
+                                <p class="font-body-md text-caption text-on-surface-variant max-w-md mt-xs">Rincian pergerakan per program akan ditampilkan secara otomatis setelah ada pencatatan penyaluran atau penerimaan donasi dari admin.</p>
+                            </div>
+                        </td>
+                    </tr>`;
+            } else {
+                tbody.innerHTML = activePrograms.map(p => `
+                    <tr class="hover:bg-surface-container-low transition-colors">
+                        <td class="p-md text-on-surface font-medium">${p.label}</td>
+                        <td class="p-md text-right text-primary font-semibold">${fmt(p.masuk)}</td>
+                        <td class="p-md text-right text-tertiary-container font-semibold">${fmt(p.tersalurkan)}</td>
+                        <td class="p-md text-right font-bold text-on-surface">${fmt(p.saldo)}</td>
+                        <td class="p-md text-center"><span class="px-sm py-xs ${p.statusClass} rounded-full font-caption text-caption font-bold">${p.status}</span></td>
+                    </tr>`).join('');
+            }
+        }
+
+        // Disbursement history render
+        const disbList = wizStore.disbursements.getAll().slice(0, 5);
+        const disbContainer = document.getElementById('disbursement-history-list');
+        if (disbContainer) {
+            if (disbList.length === 0) {
+                disbContainer.innerHTML = '<p class="font-caption text-on-surface-variant p-sm">Belum ada riwayat penyaluran terbaru.</p>';
+            } else {
+                disbContainer.innerHTML = disbList.map(d => `
+                    <div class="pt-sm flex flex-col sm:flex-row justify-between sm:items-center gap-xs">
+                        <div>
+                            <span class="font-caption text-caption font-bold text-tertiary-container uppercase">${d.program}</span>
+                            <p class="font-body-md text-on-surface font-semibold">${d.description}</p>
+                            <p class="font-caption text-caption text-on-surface-variant">${wizStore.utils.formatDate(d.disbursedAt)}</p>
+                        </div>
+                        <div class="font-headline-md text-headline-md text-tertiary-container font-bold shrink-0">
+                            ${fmt(d.amount)}
+                        </div>
+                    </div>`).join('');
+            }
+        }
+    }
+
+    // Mobile Menu Toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuIcon = document.getElementById('menu-icon');
+
+    if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            if (mobileMenu.classList.contains('hidden')) {
+                menuIcon.textContent = 'menu';
+            } else {
+                menuIcon.textContent = 'close';
+            }
+        });
+    }
+
+    // Table Filter
+    function filterReportTable() {
+        const query = document.getElementById('report-search').value.toLowerCase().trim();
+        const rows = document.querySelectorAll('#report-table-body tr');
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            if (text.includes(query)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    function downloadReportSummary() {
+        alert('Mengunduh Laporan Transparansi Keuangan Realtime WIZ Bangka Belitung (Format PDF)...');
+    }
+
+    // Modal Manager
+    const donationModal = document.getElementById('donation-modal');
+    const modalTitle = document.getElementById('modal-program-title');
+    const nominalInput = document.getElementById('nominal-input');
+
+    function openDonationModal(programName) {
+        if (programName && programName !== 'Donasi Umum') {
+            window.location.href = `donasi.html?program=${encodeURIComponent(programName)}`;
+        } else {
+            window.location.href = 'donasi.html';
+        }
+    }
+
+    function closeDonationModal() {
+        if (donationModal) {
+            donationModal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+    }
+
+    function setNominal(value) {
+        if (nominalInput) {
+            nominalInput.value = value;
+        }
+    }
+
+    if (donationModal) {
+        donationModal.addEventListener('click', (e) => {
+            if (e.target === donationModal) {
+                closeDonationModal();
+            }
+        });
+    }
+
+    function handleDonationSubmit(event) {
+        event.preventDefault();
+        const nominal = nominalInput.value;
+        const name = document.getElementById('donor-name').value;
+        const phone = document.getElementById('donor-phone').value;
+        const msg = document.getElementById('donor-message').value;
+        const prog = modalTitle ? modalTitle.textContent : 'Donasi';
+
+        const text = `Bismillah, saya *${name}* (%2B${phone}) ingin berdonasi untuk *${prog}* sebesar *Rp ${Number(nominal).toLocaleString('id-ID')}*.%0A%0ANiat/Doa: ${msg || '-'}`;
+        window.open(`https://wa.me/6282380830808?text=${text}`, '_blank');
+        closeDonationModal();
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        renderPublicReport();
+        if (wizStore && wizStore.syncFromCloud) {
+            await wizStore.syncFromCloud();
+            renderPublicReport();
+        }
+    });
+</script>
+</body>
+</html>

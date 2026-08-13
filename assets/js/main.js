@@ -38,11 +38,26 @@ function initNavigation() {
                 mainNav.classList.remove('show');
             }
             
-            // Set active state
+            // Set active state for clicked link
             navLinks.forEach(n => n.classList.remove('active'));
             link.classList.add('active');
         });
     });
+
+    // Set active navigation based on current URL on page load
+    const setActiveOnLoad = () => {
+        const path = window.location.pathname.split('/').pop() || 'index.html';
+        navLinks.forEach(link => {
+            const href = link.getAttribute('href')?.split('#')[0] || '';
+            const linkPath = href || '';
+            if (linkPath === path || (path === 'index.html' && (href === '' || href === 'index.html'))) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+    };
+    setActiveOnLoad();
 }
 
 /**
@@ -562,6 +577,7 @@ function initZakatCalculator() {
         } else {
             tabProfesi.classList.add('active');
             tabMaal.classList.remove('active');
+            <img src="assets/images/logo-wiz-babel.png" alt="WIZ Wahdah Inspirasi Zakat Bangka Belitung" class="h-12 md:h-16 w-auto object-contain transition-transform group-hover:scale-105" onerror="this.onerror=null; this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');">
             panelProfesi.style.display = 'block';
             panelMaal.style.display = 'none';
         }
@@ -977,7 +993,7 @@ function initMutationTable() {
         tableBody.innerHTML = filtered.map(item => {
             const formattedAmount = item.amount.toLocaleString('id-ID');
             const statusBadge = item.status === 'verified' 
-                ? `<span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-1 rounded-full"><span class="material-symbols-outlined text-xs">check_circle</span> Verified ✅</span>`
+                ? `<span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-1 rounded-full"><a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors active:scale-95 transition-transform" href="index.html">Beranda</a>ss="material-symbols-outlined text-xs">check_circle</span> Verified ✅</span>`
                 : `<span class="inline-flex items-center gap-1 bg-amber-100 text-amber-800 text-[11px] font-bold px-2.5 py-1 rounded-full"><span class="material-symbols-outlined text-xs">pending</span> Terdaftar (Proses Audit) ⏳</span>`;
 
             return `
@@ -1031,12 +1047,15 @@ window.switchReportTab = function(targetTab) {
         const btn = document.getElementById(`tab-report-${tab}`);
         const panel = document.getElementById(`panel-report-${tab}`);
         if (btn && panel) {
-            if (tab === targetTab) {
-                btn.className = 'py-2.5 px-4 text-primary border-b-2 border-primary rounded-t-lg bg-white';
-                panel.style.display = 'block';
+            <a class="nav-link text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-label-md text-label-md" href="index.html">Beranda</a>
+            <a class="nav-link text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-label-md text-label-md" href="index.html#tentang-kami">Tentang Kami</a>
+            <a class="nav-link text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-label-md text-label-md" href="program.html">Program</a>
+            <a class="nav-link text-primary dark:text-primary-fixed font-bold border-b-2 border-primary font-label-md text-label-md pb-1" href="laporan.html">Laporan</a>
+            <a class="nav-link text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-label-md text-label-md" href="index.html#berita">Berita</a>
+            <a class="nav-link text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-label-md text-label-md" href="index.html#kontak">Kontak</a>if (tab === targetTab) {
+                <a class="nav-link font-label-md text-label-md text-primary dark:text-primary-fixed border-b-2 border-primary dark:border-primary-fixed pb-1 active:scale-95 transition-transform font-bold" href="program.html">Program</a>y = 'block';
             } else {
-                btn.className = 'py-2.5 px-4 text-slate-600 border-b-2 border-transparent hover:text-primary rounded-t-lg';
-                panel.style.display = 'none';
+                <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors active:scale-95 transition-transform" href="index.html#tentang-kami">Tentang Kami</a>= 'none';
             }
         }
     });

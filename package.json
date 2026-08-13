@@ -1,0 +1,20 @@
+{
+  "name": "web-wiz-bangka-belitung",
+  "version": "1.0.0",
+  "description": "Website Resmi Wahdah Inspirasi Zakat (WIZ) Bangka Belitung",
+  "main": "index.html",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "serve": "npx -y serve . -p 3000"
+  },
+  "keywords": [
+    "wiz",
+    "bangka-belitung",
+    "zakat",
+    "infak",
+    "sedekah"
+  ],
+  "author": "WIZ Bangka Belitung",
+  "license": "MIT"
+}

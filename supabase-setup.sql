@@ -2,23 +2,85 @@
 -- WAHDAH INSPIRASI ZAKAT (WIZ) BANGKA BELITUNG
 -- Supabase Cloud Database Schema & RLS Setup Script
 -- ========================================================
+-- Run this in Supabase SQL Editor (Dashboard → SQL Editor → New Query)
 
--- 1. Table: Donations
+-- ─── 1. Table: Donations ─────────────────────────────────
 CREATE TABLE IF NOT EXISTS public.donations (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     donor_name TEXT NOT NULL,
     donor_phone TEXT,
     donor_email TEXT,
-    program_title TEXT NOT NULL,
-    donation_type TEXT DEFAULT 'umum',
+    -- Wilayah operasional: 'Pangkalpinang' | 'Sungailiat'
+    wilayah TEXT DEFAULT '-',
+    -- Jenis donasi: Zakat | Infak Umum | Infak Terikat | Sedekah
+    donation_type TEXT DEFAULT 'Infak Terikat',
+    -- Program Utama (5 Berkah) — relevan untuk Infak Terikat
+    program_utama TEXT DEFAULT '-',
+    -- Program Spesifik — relevan untuk Infak Terikat
+    program_spesifik TEXT DEFAULT '-',
+    -- Legacy: program dipertahankan untuk kompatibilitas
+    program TEXT NOT NULL DEFAULT '-',
+    category TEXT DEFAULT '-',
     amount NUMERIC NOT NULL,
-    payment_method TEXT DEFAULT 'transfer',
+    -- Alokasi internal (khusus Infak Terikat: 12.5% dari amount)
+    alokasi_operasional NUMERIC DEFAULT 0,
+    -- Alokasi Program internal (khusus Infak Terikat: 87.5% dari amount)
+    alokasi_program NUMERIC DEFAULT 0,
+    payment_method TEXT DEFAULT 'Bank Transfer',
     notes TEXT,
     status TEXT DEFAULT 'pending',
+    verified_at TIMESTAMP WITH TIME ZONE,
+    verified_by TEXT,
+    rejected_at TIMESTAMP WITH TIME ZONE,
+    rejected_by TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 2. Table: Contact Messages
+-- ─── ALTER: Tambah kolom baru jika tabel sudah ada ───────
+-- (Jalankan bagian ini jika tabel donations sudah dibuat sebelumnya)
+ALTER TABLE public.donations ADD COLUMN IF NOT EXISTS wilayah TEXT DEFAULT '-';
+ALTER TABLE public.donations ADD COLUMN IF NOT EXISTS program_utama TEXT DEFAULT '-';
+ALTER TABLE public.donations ADD COLUMN IF NOT EXISTS program_spesifik TEXT DEFAULT '-';
+ALTER TABLE public.donations ADD COLUMN IF NOT EXISTS alokasi_operasional NUMERIC DEFAULT 0;
+ALTER TABLE public.donations ADD COLUMN IF NOT EXISTS alokasi_program NUMERIC DEFAULT 0;
+
+-- ─── 2. Table: News / Berita ─────────────────────────────
+CREATE TABLE IF NOT EXISTS public.news (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    title TEXT NOT NULL,
+    category TEXT DEFAULT 'Kegiatan & Event',
+    content TEXT NOT NULL,
+    image_url TEXT,
+    gallery JSONB DEFAULT '[]'::jsonb,
+    event_date TIMESTAMP WITH TIME ZONE,
+    status TEXT DEFAULT 'draft',
+    author TEXT DEFAULT 'Admin',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE
+);
+
+-- ─── 3. Table: Disbursements (Penyaluran Dana) ──────────
+CREATE TABLE IF NOT EXISTS public.disbursements (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    program TEXT NOT NULL,
+    amount NUMERIC NOT NULL,
+    description TEXT,
+    disbursed_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    recorded_by TEXT DEFAULT 'Admin',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE
+);
+
+-- ─── 4. Table: Activity Log ─────────────────────────────
+CREATE TABLE IF NOT EXISTS public.activity_log (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    type TEXT NOT NULL,
+    message TEXT NOT NULL,
+    actor TEXT DEFAULT 'Sistem',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- ─── 5. Table: Contact Messages ──────────────────────────
 CREATE TABLE IF NOT EXISTS public.contact_messages (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     sender_name TEXT NOT NULL,
@@ -29,7 +91,7 @@ CREATE TABLE IF NOT EXISTS public.contact_messages (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 3. Table: Zakat Calculations
+-- ─── 6. Table: Zakat Calculations ────────────────────────
 CREATE TABLE IF NOT EXISTS public.zakat_records (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     zakat_type TEXT NOT NULL,
@@ -39,29 +101,41 @@ CREATE TABLE IF NOT EXISTS public.zakat_records (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Enable Row Level Security (RLS)
+
+-- ═════════════════════════════════════════════════════════
+-- ENABLE ROW LEVEL SECURITY (RLS)
+-- ═════════════════════════════════════════════════════════
 ALTER TABLE public.donations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.news ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.disbursements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.activity_log ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.zakat_records ENABLE ROW LEVEL SECURITY;
 
--- Create Policies (Allow Public Anonymous Insert for Web Submissions)
-CREATE POLICY "Allow public insert to donations" 
-ON public.donations FOR INSERT 
-TO anon 
-WITH CHECK (true);
 
-CREATE POLICY "Allow public insert to contact_messages" 
-ON public.contact_messages FOR INSERT 
-TO anon 
-WITH CHECK (true);
+-- ═════════════════════════════════════════════════════════
+-- RLS POLICIES — Full CRUD for anon key
+-- ═════════════════════════════════════════════════════════
+CREATE POLICY "donations_select" ON public.donations FOR SELECT TO anon USING (true);
+CREATE POLICY "donations_insert" ON public.donations FOR INSERT TO anon WITH CHECK (true);
+CREATE POLICY "donations_update" ON public.donations FOR UPDATE TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "donations_delete" ON public.donations FOR DELETE TO anon USING (true);
 
-CREATE POLICY "Allow public insert to zakat_records" 
-ON public.zakat_records FOR INSERT 
-TO anon 
-WITH CHECK (true);
+CREATE POLICY "news_select" ON public.news FOR SELECT TO anon USING (true);
+CREATE POLICY "news_insert" ON public.news FOR INSERT TO anon WITH CHECK (true);
+CREATE POLICY "news_update" ON public.news FOR UPDATE TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "news_delete" ON public.news FOR DELETE TO anon USING (true);
 
--- Allow public read access to donations for live transparency (optional)
-CREATE POLICY "Allow public select donations" 
-ON public.donations FOR SELECT 
-TO anon 
-USING (true);
+CREATE POLICY "disbursements_select" ON public.disbursements FOR SELECT TO anon USING (true);
+CREATE POLICY "disbursements_insert" ON public.disbursements FOR INSERT TO anon WITH CHECK (true);
+CREATE POLICY "disbursements_update" ON public.disbursements FOR UPDATE TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "disbursements_delete" ON public.disbursements FOR DELETE TO anon USING (true);
+
+CREATE POLICY "activity_log_select" ON public.activity_log FOR SELECT TO anon USING (true);
+CREATE POLICY "activity_log_insert" ON public.activity_log FOR INSERT TO anon WITH CHECK (true);
+
+CREATE POLICY "contact_messages_select" ON public.contact_messages FOR SELECT TO anon USING (true);
+CREATE POLICY "contact_messages_insert" ON public.contact_messages FOR INSERT TO anon WITH CHECK (true);
+
+CREATE POLICY "zakat_records_select" ON public.zakat_records FOR SELECT TO anon USING (true);
+CREATE POLICY "zakat_records_insert" ON public.zakat_records FOR INSERT TO anon WITH CHECK (true);

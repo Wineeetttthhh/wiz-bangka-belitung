@@ -1,0 +1,1830 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>WIZ Babel - Admin Dashboard</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" href="assets/images/logo-wiz-babel.png" type="image/png">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-high": "#e1e8fd",
+                        "secondary-fixed": "#ffdcbf",
+                        "primary-fixed": "#8ef9ab",
+                        "on-secondary-container": "#663800",
+                        "tertiary-fixed": "#89f5e7",
+                        "inverse-on-surface": "#edf0ff",
+                        "surface-dim": "#d3daef",
+                        "surface-container-highest": "#dce2f7",
+                        "surface-bright": "#f9f9ff",
+                        "on-primary-fixed-variant": "#005228",
+                        "on-primary-container": "#e9ffe9",
+                        "secondary-container": "#fd9923",
+                        "primary": "#006834",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#006d37",
+                        "surface-container-lowest": "#ffffff",
+                        "surface": "#f9f9ff",
+                        "tertiary-fixed-dim": "#6bd8cb",
+                        "outline": "#6e7a6e",
+                        "surface-variant": "#dce2f7",
+                        "tertiary-container": "#008176",
+                        "secondary-fixed-dim": "#ffb874",
+                        "inverse-primary": "#72dc91",
+                        "outline-variant": "#bdcabc",
+                        "inverse-surface": "#293040",
+                        "on-surface": "#141b2b",
+                        "on-tertiary-fixed": "#00201d",
+                        "on-secondary-fixed": "#2d1600",
+                        "on-secondary-fixed-variant": "#6b3b00",
+                        "on-background": "#141b2b",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#00210c",
+                        "on-surface-variant": "#3e4a3f",
+                        "on-tertiary": "#ffffff",
+                        "tertiary": "#00665d",
+                        "background": "#f9f9ff",
+                        "surface-container": "#e9edff",
+                        "on-tertiary-fixed-variant": "#005049",
+                        "primary-container": "#008444",
+                        "primary-fixed-dim": "#72dc91",
+                        "on-tertiary-container": "#e5fffa",
+                        "secondary": "#8c4f00",
+                        "on-error": "#ffffff",
+                        "surface-container-low": "#f1f3ff"
+                    },
+                    borderRadius: { DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px" },
+                    spacing: { base: "4px", xs: "4px", sm: "8px", "margin-mobile": "16px", lg: "24px", "container-max": "1280px", xl: "32px", xxl: "48px", md: "16px", gutter: "24px" },
+                    fontFamily: {
+                        "display-lg-mobile": ["Plus Jakarta Sans"], "label-md": ["Inter"], "display-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Inter"], "headline-md": ["Plus Jakarta Sans"], caption: ["Inter"], "body-md": ["Inter"], "headline-lg": ["Plus Jakarta Sans"]
+                    },
+                    fontSize: {
+                        "display-lg-mobile": ["36px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "label-md": ["14px", { lineHeight: "20px", fontWeight: "500" }],
+                        "display-lg": ["48px", { lineHeight: "60px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+                        "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+                        caption: ["12px", { lineHeight: "16px", fontWeight: "400" }],
+                        "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "headline-lg": ["32px", { lineHeight: "40px", fontWeight: "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(229, 231, 235, 0.5);
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-backdrop.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-dialog {
+            background: #fff;
+            border-radius: 16px;
+            width: 94%;
+            max-width: 680px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(20px);
+            transition: transform 0.25s ease;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-backdrop.show .modal-dialog {
+            transform: translateY(0);
+        }
+
+        .sidebar-link.active {
+            background-color: #008444;
+            color: #e9ffe9;
+        }
+
+        .sidebar-link:not(.active):hover {
+            background-color: #f1f3ff;
+            color: #006834;
+        }
+
+        .tab-btn.active {
+            border-bottom-color: #006834;
+            color: #006834;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body class="bg-background text-on-surface font-body-md min-h-screen flex antialiased">
+
+    <!-- Mobile Sidebar Overlay -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/40 z-40 hidden md:hidden" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar"
+        class="w-64 bg-surface-container-lowest border-r border-outline-variant/30 flex flex-col fixed md:sticky top-0 h-screen z-50 -translate-x-full md:translate-x-0 transition-transform duration-200">
+        <div class="h-24 flex items-center justify-between px-lg border-b border-outline-variant/30">
+            <a href="index.html" class="flex items-center group py-2">
+                <img src="assets/images/logo-wiz-babel.png" alt="WIZ Wahdah Inspirasi Zakat Bangka Belitung"
+                    class="h-12 md:h-14 w-auto object-contain transition-transform group-hover:scale-105"
+                    onerror="this.onerror=null; this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');">
+                <span class="hidden font-headline-md text-headline-md font-bold text-primary">WIZ</span>
+            </a>
+            <button class="md:hidden text-outline hover:text-primary" onclick="toggleSidebar()">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-lg px-sm space-y-sm">
+            <a class="sidebar-link active flex items-center gap-sm px-md py-sm rounded-lg font-label-md text-label-md transition-colors"
+                href="#" data-section="dashboard" onclick="showSection('dashboard', this)">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                Dashboard
+            </a>
+            <a class="sidebar-link flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors"
+                href="#" data-section="donations" onclick="showSection('donations', this)">
+                <span class="material-symbols-outlined">volunteer_activism</span> Pemasukan / Donasi
+            </a>
+            <a class="sidebar-link flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors"
+                href="#" data-section="disbursements" onclick="showSection('disbursements', this)">
+                <span class="material-symbols-outlined">outbound</span> Pengeluaran / Penyaluran
+            </a>
+            <a class="sidebar-link flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors"
+                href="#" data-section="allocation-rules" onclick="showSection('allocation-rules', this)">
+                <span class="material-symbols-outlined">pie_chart</span> Aturan Alokasi Dana
+            </a>
+            <a class="sidebar-link flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors"
+                href="#" data-section="news" onclick="showSection('news', this)">
+                <span class="material-symbols-outlined">newspaper</span> Berita & Kegiatan
+            </a>
+            <a class="sidebar-link flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors"
+                href="#" data-section="finance" onclick="showSection('finance', this)">
+                <span class="material-symbols-outlined">account_balance_wallet</span> Laporan Keuangan
+            </a>
+        </nav>
+        <div class="p-lg border-t border-outline-variant/30 space-y-sm">
+            <a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors font-label-md text-label-md"
+                href="index.html">
+                <span class="material-symbols-outlined">home</span> Lihat Website Utama
+            </a>
+            <a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors font-label-md text-label-md"
+                href="laporan.html">
+                <span class="material-symbols-outlined">analytics</span> Lihat Laporan Publik
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0">
+        <!-- Header -->
+        <header
+            class="h-20 bg-surface/95 backdrop-blur-md border-b border-outline-variant/30 flex items-center justify-between px-margin-mobile md:px-gutter sticky top-0 z-30">
+            <div class="flex items-center gap-md">
+                <button class="md:hidden text-on-surface-variant" onclick="toggleSidebar()">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <div>
+                    <h1 id="section-title" class="font-headline-md text-headline-md font-bold text-on-surface">Dashboard
+                        Overview</h1>
+                    <p class="font-caption text-caption text-on-surface-variant hidden sm:block">WIZ Bangka Belitung —
+                        Pengelolaan Terpadu Pangkalpinang &amp; Sungailiat</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-md">
+                <!-- Filter Role Access Permission -->
+                <div
+                    class="flex items-center gap-xs bg-surface-container-high px-sm py-xs rounded-lg border border-outline-variant/40">
+                    <span class="material-symbols-outlined text-primary text-sm">admin_panel_settings</span>
+                    <select id="admin-role-select" onchange="handleRoleChange(this.value)"
+                        class="bg-transparent font-caption text-caption font-bold text-on-surface outline-none cursor-pointer">
+                        <option value="SUPER_ADMIN">SUPER ADMIN (Semua Data)</option>
+                        <option value="ADMIN_PANGKALPINANG">ADMIN PANGKALPINANG</option>
+                        <option value="ADMIN_SUNGAILIAT">ADMIN SUNGAILIAT</option>
+                    </select>
+                </div>
+                <button onclick="openBaselineModal()"
+                    class="hidden lg:flex items-center gap-1 bg-surface-container-high border border-outline-variant text-on-surface px-md py-xs rounded-lg font-caption text-caption font-bold hover:bg-surface-variant transition-colors">
+                    <span class="material-symbols-outlined text-[16px]">tune</span> Saldo Awal
+                </button>
+            </div>
+        </header>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- SECTION: DASHBOARD OVERVIEW                        -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <div id="section-dashboard" class="flex-1 p-margin-mobile md:p-gutter overflow-y-auto space-y-xl">
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter" id="kpi-grid"></div>
+
+            <!-- Quick Actions Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+                <div
+                    class="md:col-span-8 bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 p-lg">
+                    <div class="flex justify-between items-center mb-md">
+                        <h3 class="font-headline-md text-headline-md text-base font-bold">Aksi Kelola Pemasukan &amp;
+                            Pengeluaran</h3>
+                        <button onclick="openBaselineModal()"
+                            class="font-caption text-caption text-primary hover:underline font-bold">+ Edit Saldo
+                            Awal</button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-md">
+                        <div class="border border-outline-variant/30 rounded-lg p-md hover:border-primary/50 transition-colors cursor-pointer group bg-surface/50"
+                            onclick="openManualDonationModal()">
+                            <div class="flex items-start justify-between mb-sm">
+                                <span
+                                    class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">add_circle</span>
+                                <span class="font-caption text-caption text-primary font-bold">+ Pemasukan</span>
+                            </div>
+                            <p class="font-label-md text-label-md text-on-surface mb-xs font-bold">Input Donasi /
+                                Pemasukan</p>
+                            <p class="font-caption text-caption text-on-surface-variant">Tambah donasi terkonfirmasi</p>
+                        </div>
+
+                        <div class="border border-outline-variant/30 rounded-lg p-md hover:border-tertiary-container/50 transition-colors cursor-pointer group bg-surface/50"
+                            onclick="openDisbursementModal()">
+                            <div class="flex items-start justify-between mb-sm">
+                                <span
+                                    class="material-symbols-outlined text-tertiary-container group-hover:scale-110 transition-transform">outbound</span>
+                                <span class="font-caption text-caption text-tertiary-container font-bold">+
+                                    Pengeluaran</span>
+                            </div>
+                            <p class="font-label-md text-label-md text-on-surface mb-xs font-bold">Catat Pengeluaran</p>
+                            <p class="font-caption text-caption text-on-surface-variant">Tambah penyaluran dana program
+                            </p>
+                        </div>
+
+                        <div class="border border-outline-variant/30 rounded-lg p-md hover:border-secondary-container/50 transition-colors cursor-pointer group bg-surface/50"
+                            onclick="showSection('donations', document.querySelector('[data-section=donations]'))">
+                            <div class="flex items-start justify-between mb-sm">
+                                <span
+                                    class="material-symbols-outlined text-secondary-container group-hover:scale-110 transition-transform">edit_note</span>
+                                <span class="font-caption text-caption text-on-surface-variant"
+                                    id="pending-count-badge">0 pending</span>
+                            </div>
+                            <p class="font-label-md text-label-md text-on-surface mb-xs font-bold">Verifikasi Pemasukan
+                            </p>
+                            <p class="font-caption text-caption text-on-surface-variant font-medium">Edit &amp;
+                                verifikasi donasi</p>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="md:col-span-4 bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant/20 flex flex-col justify-between">
+                    <h3 class="font-headline-md text-headline-md mb-md text-base font-bold">Manajemen Berita</h3>
+                    <div class="space-y-sm">
+                        <button onclick="openNewsModal()"
+                            class="w-full flex items-center justify-center gap-sm bg-primary text-on-primary font-label-md text-label-md py-sm rounded-lg hover:bg-primary-container transition-colors font-bold shadow-sm">
+                            <span class="material-symbols-outlined size-[18px]">post_add</span>
+                            <span>Tulis Berita Baru</span>
+                        </button>
+                        <button onclick="showSection('news', document.querySelector('[data-section=news]'))"
+                            class="w-full flex items-center justify-center gap-sm border border-primary text-primary font-label-md text-label-md py-sm rounded-lg hover:bg-primary/5 transition-colors font-medium">
+                            <span class="material-symbols-outlined size-[18px]">newspaper</span>
+                            <span>Kelola Semua Berita</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Verification Queue + Activity + Progress -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+                <div class="lg:col-span-2 space-y-gutter">
+                    <!-- Recent Pending Donations -->
+                    <div
+                        class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden">
+                        <div class="p-lg border-b border-outline-variant/30 flex justify-between items-center">
+                            <div>
+                                <h3 class="font-headline-md text-headline-md text-base font-bold">Antrean Verifikasi
+                                    &amp; Edit Pemasukan</h3>
+                                <p class="font-caption text-caption text-on-surface-variant mt-1">Verifikasi donasi
+                                    otomatis memperbarui Saldo Keuangan Realtime.</p>
+                            </div>
+                            <button onclick="openManualDonationModal()"
+                                class="bg-primary text-on-primary text-caption font-bold px-sm py-xs rounded hover:bg-primary-container transition-colors flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[14px]">add</span> Input Donasi
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto" id="dashboard-donation-table"></div>
+                    </div>
+                    <!-- Activity Log -->
+                    <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 p-lg">
+                        <h3 class="font-headline-md text-headline-md text-base mb-md font-bold">Aktivitas &amp; Log
+                            Sistem</h3>
+                        <div class="space-y-4" id="activity-log"></div>
+                    </div>
+                </div>
+                <!-- Progress 5 Berkah -->
+                <div
+                    class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 p-lg h-fit">
+                    <h3 class="font-headline-md text-headline-md text-base mb-md font-bold">Progress 5 Berkah WIZ</h3>
+                    <div class="space-y-md" id="progress-5berkah"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- SECTION: PEMASUKAN / DONASI                        -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <div id="section-donations" class="flex-1 p-margin-mobile md:p-gutter overflow-y-auto space-y-xl hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+                <div>
+                    <h2 class="font-headline-md text-headline-md font-bold">Manajemen Pemasukan / Donasi</h2>
+                    <p class="font-caption text-caption text-on-surface-variant">Daftar transaksi terstruktur
+                        berdasarkan Wilayah Operasional, Jenis Donasi, dan Program Utama.</p>
+                </div>
+                <button onclick="openManualDonationModal()"
+                    class="flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm font-bold">
+                    <span class="material-symbols-outlined size-[18px]">add_circle</span> Tambah Pemasukan Donasi
+                </button>
+            </div>
+
+            <!-- Filter Controls Bar -->
+            <div
+                class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant/20 flex flex-wrap gap-md items-center">
+                <!-- Filter Wilayah -->
+                <div class="flex items-center gap-2">
+                    <span class="font-caption text-caption font-bold text-on-surface-variant">Wilayah:</span>
+                    <select id="filter-wilayah" onchange="applyDonationFilters()"
+                        class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 font-caption text-caption text-on-surface outline-none">
+                        <option value="Semua">Semua Wilayah</option>
+                        <option value="Pangkalpinang">Pangkalpinang</option>
+                        <option value="Sungailiat">Sungailiat</option>
+                    </select>
+                </div>
+
+                <!-- Filter Jenis Donasi -->
+                <div class="flex items-center gap-2">
+                    <span class="font-caption text-caption font-bold text-on-surface-variant">Jenis Donasi:</span>
+                    <select id="filter-jenis" onchange="applyDonationFilters()"
+                        class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 font-caption text-caption text-on-surface outline-none">
+                        <option value="Semua">Semua Jenis</option>
+                        <option value="Infak Umum">Infak Umum</option>
+                        <option value="Infak Terikat">Infak Terikat</option>
+                        <option value="Zakat">Zakat</option>
+                        <option value="Sedekah">Sedekah</option>
+                    </select>
+                </div>
+
+                <!-- Filter Program Utama -->
+                <div class="flex items-center gap-2">
+                    <span class="font-caption text-caption font-bold text-on-surface-variant">Program Utama:</span>
+                    <select id="filter-program-utama" onchange="applyDonationFilters()"
+                        class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 font-caption text-caption text-on-surface outline-none">
+                        <option value="Semua">Semua Program Utama</option>
+                        <option value="Berkah Hidayah">Berkah Hidayah (Dakwah)</option>
+                        <option value="Berkah Peduli">Berkah Peduli (Sosial)</option>
+                        <option value="Berkah Juara">Berkah Juara (Pendidikan)</option>
+                        <option value="Berkah Sehat">Berkah Sehat (Kesehatan)</option>
+                        <option value="Berkah Mandiri">Berkah Mandiri (Ekonomi)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex gap-lg border-b border-outline-variant/30">
+                <button
+                    class="tab-btn active pb-sm border-b-2 border-transparent font-label-md text-label-md text-on-surface-variant transition-colors"
+                    onclick="switchDonationTab('pending', this)">Menunggu Verifikasi</button>
+                <button
+                    class="tab-btn pb-sm border-b-2 border-transparent font-label-md text-label-md text-on-surface-variant transition-colors"
+                    onclick="switchDonationTab('verified', this)">Telah Diverifikasi</button>
+                <button
+                    class="tab-btn pb-sm border-b-2 border-transparent font-label-md text-label-md text-on-surface-variant transition-colors"
+                    onclick="switchDonationTab('all', this)">Semua Transaksi Pemasukan</button>
+            </div>
+            <!-- Donation Table -->
+            <div
+                class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden">
+                <div class="overflow-x-auto" id="full-donation-table"></div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- SECTION: PENGELUARAN / PENYALURAN                  -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <div id="section-disbursements" class="flex-1 p-margin-mobile md:p-gutter overflow-y-auto space-y-xl hidden">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="font-headline-md text-headline-md font-bold">Manajemen Pengeluaran / Penyaluran Dana</h2>
+                    <p class="font-caption text-caption text-on-surface-variant">Catat, edit, atau hapus transaksi
+                        pengeluaran program spesifik. Saldo sisa otomatis terhitung = (Total Pemasukan - Total
+                        Pengeluaran).</p>
+                </div>
+                <button onclick="openDisbursementModal()"
+                    class="flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm font-bold">
+                    <span class="material-symbols-outlined size-[18px]">outbound</span> Catat Pengeluaran Dana
+                </button>
+            </div>
+            <div
+                class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden">
+                <div class="overflow-x-auto" id="disbursement-table"></div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- SECTION: ATURAN ALOKASI (ALLOCATION RULES)         -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <div id="section-allocation-rules" class="flex-1 p-margin-mobile md:p-gutter overflow-y-auto space-y-xl hidden">
+            <div>
+                <h2 class="font-headline-md text-headline-md font-bold">Aturan Alokasi Dana (Allocation Rules)</h2>
+                <p class="font-caption text-caption text-on-surface-variant">Monitoring alokasi Infak Umum &amp;
+                    Sub-Alokasi Program per Wilayah (Pangkalpinang &amp; Sungailiat). Total alokasi harus 100% (VALID).
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter" id="allocation-rules-container">
+                <!-- Rendered dynamically by JS -->
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- SECTION: BERITA & KEGIATAN                         -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <div id="section-news" class="flex-1 p-margin-mobile md:p-gutter overflow-y-auto space-y-xl hidden">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="font-headline-md text-headline-md font-bold">Daftar Berita &amp; Dokumentasi Kegiatan
+                    </h2>
+                    <p class="font-caption text-caption text-on-surface-variant">Dilengkapi upload foto lokal &amp;
+                        galeri dokumentasi kegiatan. Berita *published* langsung tampil di web utama.</p>
+                </div>
+                <button id="btn-add-news" onclick="openNewsModal()"
+                    class="flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm font-bold">
+                    <span class="material-symbols-outlined size-[18px]">post_add</span> Tulis Berita Baru
+                </button>
+            </div>
+            <div class="space-y-md" id="news-list"></div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- SECTION: KEUANGAN (LAPORAN)                        -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <div id="section-finance" class="flex-1 p-margin-mobile md:p-gutter overflow-y-auto space-y-xl hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+                <div>
+                    <h2 class="font-headline-md text-headline-md font-bold">Laporan Keuangan WIZ Bangka Belitung</h2>
+                    <p class="font-caption text-caption text-on-surface-variant">Laporan konsolidasi keseluruhan lembaga
+                        (Pangkalpinang &amp; Sungailiat).</p>
+                </div>
+                <button onclick="openBaselineModal()"
+                    class="flex items-center gap-sm bg-surface-container-high border border-outline-variant text-on-surface px-md py-sm rounded-lg font-label-md text-label-md font-bold hover:bg-surface-variant transition-colors">
+                    <span class="material-symbols-outlined size-[18px]">tune</span> Edit Saldo Awal / Baseline
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter" id="finance-kpi-grid"></div>
+            <div
+                class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden">
+                <div class="p-lg border-b border-outline-variant/30 flex justify-between items-center">
+                    <div>
+                        <h3 class="font-headline-md text-headline-md text-primary font-bold">Rincian Pergerakan Dana Per
+                            Program</h3>
+                        <p class="font-caption text-caption text-on-surface-variant mt-1">Data otomatis ter-update saat
+                            donasi diverifikasi atau pengeluaran disalurkan.</p>
+                    </div>
+                    <a href="laporan.html" target="_blank"
+                        class="font-label-md text-label-md text-primary hover:underline flex items-center gap-1 font-bold">
+                        <span>Pratinjau Halaman Laporan</span>
+                        <span class="material-symbols-outlined text-sm">open_in_new</span>
+                    </a>
+                </div>
+                <div class="overflow-x-auto" id="finance-program-table"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- MODAL: BASELINE CONFIG (SALDO AWAL)                 -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div id="baseline-modal" class="modal-backdrop">
+        <div class="modal-dialog">
+            <div class="p-lg border-b border-surface-variant flex justify-between items-center">
+                <h3 class="font-headline-md text-body-lg font-bold text-primary">Edit Saldo Awal / Angka Baseline</h3>
+                <button type="button" onclick="closeBaselineModal()"
+                    class="text-outline hover:text-on-surface p-1"><span
+                        class="material-symbols-outlined">close</span></button>
+            </div>
+            <form id="baseline-form" class="p-lg space-y-md" onsubmit="handleBaselineSave(event)">
+                <p class="font-caption text-caption text-on-surface-variant">Ubah angka baseline historis awal di bawah
+                    ini jika ada koreksi data sebelum transaksi realtime.</p>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Baseline Total
+                        Pemasukan Awal (Rp)</label>
+                    <input type="number" id="base-masuk" required
+                        class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Baseline Total
+                        Pengeluaran Awal (Rp)</label>
+                    <input type="number" id="base-salur" required
+                        class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Baseline Total
+                        Donatur Awal</label>
+                    <input type="number" id="base-donatur" required
+                        class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
+                </div>
+                <div class="flex gap-md pt-sm">
+                    <button type="submit"
+                        class="flex-1 bg-primary text-on-primary py-3 rounded-lg font-label-md text-label-md font-bold hover:bg-primary-container transition-colors">Simpan
+                        Saldo Awal</button>
+                    <button type="button" onclick="closeBaselineModal()"
+                        class="px-lg py-3 border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- MODAL: MANUAL DONATION INPUT & EDIT                 -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div id="manual-donation-modal" class="modal-backdrop">
+        <div class="modal-dialog">
+            <div class="p-lg border-b border-surface-variant flex justify-between items-center">
+                <h3 id="manual-donation-modal-title" class="font-headline-md text-body-lg font-bold text-primary">Input
+                    Pemasukan / Donasi</h3>
+                <button type="button" onclick="closeManualDonationModal()"
+                    class="text-outline hover:text-on-surface p-1"><span
+                        class="material-symbols-outlined">close</span></button>
+            </div>
+            <form id="manual-donation-form" class="p-lg space-y-md" onsubmit="handleManualDonationSave(event)">
+                <input type="hidden" id="man-edit-id" value="">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Nama
+                            Donatur *</label>
+                        <input type="text" id="man-donor-name" required
+                            class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none"
+                            placeholder="Budi Santoso / Hamba Allah">
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">No.
+                            WhatsApp / HP</label>
+                        <input type="tel" id="man-donor-phone"
+                            class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none"
+                            placeholder="08xxxxxxxxxx">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Wilayah
+                            Operasional *</label>
+                        <select id="man-wilayah" required
+                            class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none font-bold text-primary">
+                            <option value="Pangkalpinang">Pangkalpinang</option>
+                            <option value="Sungailiat">Sungailiat</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Jenis
+                            Donasi *</label>
+                        <select id="man-type" required onchange="handleAdminTypeChange(this.value)"
+                            class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
+                            <option value="Infak Umum">Infak Umum</option>
+                            <option value="Infak Terikat">Infak Terikat</option>
+                            <option value="Zakat">Zakat</option>
+                            <option value="Sedekah">Sedekah</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Conditional Section for Infak Terikat in Admin Modal -->
+                <div id="man-terikat-section"
+                    class="hidden space-y-md border border-outline-variant/30 p-md rounded-xl bg-surface-container-low/50">
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Program
+                            Utama (5 Berkah) *</label>
+                        <select id="man-program-utama" onchange="handleAdminProgramUtamaChange(this.value)"
+                            class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
+                            <option value="">-- Pilih Program Utama --</option>
+                            <option value="Berkah Hidayah">BERKAH HIDAYAH (Dakwah)</option>
+                            <option value="Berkah Peduli">BERKAH PEDULI (Sosial)</option>
+                            <option value="Berkah Juara">BERKAH JUARA (Pendidikan)</option>
+                            <option value="Berkah Sehat">BERKAH SEHAT (Kesehatan)</option>
+                            <option value="Berkah Mandiri">BERKAH MANDIRI (Ekonomi)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Program
+                            Spesifik *</label>
+                        <select id="man-program-spesifik"
+                            class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none text-sm">
+                            <option value="">-- Pilih Program Utama Terlebih Dahulu --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Jumlah
+                            Donasi (Rp) *</label>
+                        <input type="number" id="man-amount" required min="1000" oninput="updateAdminAllocationCalc()"
+                            class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none"
+                            placeholder="Contoh: 1000000">
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Metode
+                            Pembayaran</label>
+                        <select id="man-method"
+                            class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
+                            <option value="QRIS">QRIS</option>
+                            <option value="Bank BSI (Transfer)">Bank BSI Transfer</option>
+                            <option value="Bank Mandiri (Transfer)">Bank Mandiri Transfer</option>
+                            <option value="Bank BCA (Transfer)">Bank BCA Transfer</option>
+                            <option value="Tunai / Ambil Langsung">Tunai / Kantor WIZ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Admin Internal Allocation Breakdown Preview -->
+                <div id="man-allocation-calc"
+                    class="hidden p-sm bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-900 space-y-1">
+                    <p class="font-bold text-emerald-900 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs">analytics</span>
+                        Kalkulasi Internal Infak Terikat (Alokasi Operasional 12,5%):
+                    </p>
+                    <div class="flex justify-between font-mono">
+                        <span>Total Donasi (Utuh): <strong id="man-calc-total">Rp 0</strong></span>
+                        <span>Operasional (12,5%): <strong id="man-calc-ops">Rp 0</strong></span>
+                        <span>Program (87,5%): <strong id="man-calc-prog">Rp 0</strong></span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Status
+                        Verifikasi *</label>
+                    <div class="flex gap-md">
+                        <label class="flex items-center gap-sm cursor-pointer"><input type="radio" name="man-status"
+                                value="verified" checked class="text-primary focus:ring-primary"> <span
+                                class="font-body-md font-semibold text-primary">Diverifikasi (Masuk
+                                Saldo)</span></label>
+                        <label class="flex items-center gap-sm cursor-pointer"><input type="radio" name="man-status"
+                                value="pending" class="text-primary focus:ring-primary"> <span
+                                class="font-body-md text-on-surface-variant">Menunggu Verifikasi</span></label>
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Catatan / Doa
+                        Donatur</label>
+                    <textarea id="man-notes" rows="2"
+                        class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none"
+                        placeholder="Catatan donasi atau doa donatur..."></textarea>
+                </div>
+                <div class="flex gap-md pt-sm">
+                    <button type="submit"
+                        class="flex-1 bg-primary text-on-primary py-3 rounded-lg font-label-md text-label-md font-bold hover:bg-primary-container transition-colors">Simpan
+                        Data Pemasukan</button>
+                    <button type="button" onclick="closeManualDonationModal()"
+                        class="px-lg py-3 border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- MODAL: DISBURSEMENT (CATAT PENYALURAN DANA)         -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div id="disbursement-modal" class="modal-backdrop">
+        <div class="modal-dialog">
+            <div class="p-lg border-b border-surface-variant flex justify-between items-center">
+                <h3 id="disbursement-modal-title" class="font-headline-md text-body-lg font-bold text-primary">Catat
+                    Pengeluaran / Penyaluran Dana</h3>
+                <button type="button" onclick="closeDisbursementModal()"
+                    class="text-outline hover:text-on-surface p-1"><span
+                        class="material-symbols-outlined">close</span></button>
+            </div>
+            <form id="disbursement-form" class="p-lg space-y-md" onsubmit="handleDisbursementSave(event)">
+                <input type="hidden" id="disb-edit-id" value="">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Pilih Program
+                        Spesifik *</label>
+                    <select id="disb-program" required
+                        class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none text-sm">
+                        <option value="">-- Pilih Program Spesifik Penyaluran --</option>
+
+                        <optgroup label="🕌 BERKAH HIDAYAH (Dakwah &amp; Pembinaan)">
+                            <option value="Pembangunan Markaz">Pembangunan Markaz</option>
+                            <option value="Pengadaan dan Perbaikan Kendaraan">Pengadaan dan Perbaikan Kendaraan</option>
+                            <option value="Santunan Mualaf">Santunan Mualaf</option>
+                            <option value="Pengadaan Celengan Besar">Pengadaan Celengan Besar</option>
+                            <option value="Tahfidz">Tahfidz</option>
+                            <option value="Pelatihan Public Speaking">Pelatihan Public Speaking</option>
+                            <option value="Tabligh Akbar Dzulhijjah">Tabligh Akbar Dzulhijjah</option>
+                            <option value="Pelatihan Guru Dirosa">Pelatihan Guru Dirosa</option>
+                            <option value="Pelatihan Penyelenggaraan Jenazah">Pelatihan Penyelenggaraan Jenazah</option>
+                            <option value="Pelatihan Volunteer Media Dakwah">Pelatihan Volunteer Media Dakwah</option>
+                            <option value="Lomba Desain Poster Dakwah">Lomba Desain Poster Dakwah</option>
+                            <option value="Kantor DPW WI Babel dan WIZ">Kantor DPW WI Babel dan WIZ</option>
+                            <option value="Mukerwil/Mukernas/Muktamar">Mukerwil/Mukernas/Muktamar</option>
+                            <option value="Keberangkatan dan Kepulangan Dai">Keberangkatan dan Kepulangan Dai</option>
+                        </optgroup>
+
+                        <optgroup label="🤝 BERKAH PEDULI (Sosial &amp; Kemanusiaan)">
+                            <option value="Tebar Sembako">Tebar Sembako</option>
+                            <option value="Sedekah Beras Dhuafa">Sedekah Beras Dhuafa</option>
+                            <option value="Sedekah Jumat">Sedekah Jumat</option>
+                            <option value="Santunan Yatim">Santunan Yatim</option>
+                            <option value="Tebar Qur'an Nusantara">Tebar Qur'an Nusantara</option>
+                            <option value="Bahagiakan Guru Ngaji">Bahagiakan Guru Ngaji</option>
+                            <option value="Sedekah Air">Sedekah Air</option>
+                        </optgroup>
+
+                        <optgroup label="🎓 BERKAH JUARA (Pendidikan)">
+                            <option value="Beasiswa Pendidikan Juara">Beasiswa Pendidikan Juara</option>
+                            <option value="Perlengkapan Belajar Yatim">Perlengkapan Belajar Yatim</option>
+                        </optgroup>
+
+                        <optgroup label="🏥 BERKAH SEHAT (Kesehatan)">
+                            <option value="Khitanan Massal">Khitanan Massal</option>
+                            <option value="Layanan Pengobatan Gratis">Layanan Pengobatan Gratis</option>
+                            <option value="Layanan Ambulance Ummat">Layanan Ambulance Ummat</option>
+                        </optgroup>
+
+                        <optgroup label="🏬 BERKAH MANDIRI (Ekonomi &amp; Pemberdayaan)">
+                            <option value="Bantuan Usaha Mikro">Bantuan Usaha Mikro</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Jumlah
+                        Pengeluaran (Rp) *</label>
+                    <input type="number" id="disb-amount" required min="1000"
+                        class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none"
+                        placeholder="Contoh: 15000000">
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Keterangan /
+                        Penggunaan Dana *</label>
+                    <textarea id="disb-description" required rows="3"
+                        class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none"
+                        placeholder="Rincian penyaluran, lokasi penerima manfaat, dll..."></textarea>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Tanggal
+                        Penyaluran</label>
+                    <input type="date" id="disb-date"
+                        class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
+                </div>
+                <div class="flex gap-md pt-sm">
+                    <button type="submit"
+                        class="flex-1 bg-primary text-on-primary py-3 rounded-lg font-label-md text-label-md font-bold hover:bg-primary-container transition-colors">Simpan
+                        Pengeluaran</button>
+                    <button type="button" onclick="closeDisbursementModal()"
+                        class="px-lg py-3 border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- MODAL: NEWS (TULIS / EDIT BERITA)                   -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div id="news-modal" class="modal-backdrop">
+        <div class="modal-dialog">
+            <div
+                class="p-lg border-b border-surface-variant flex justify-between items-center sticky top-0 bg-surface z-20">
+                <h3 id="news-modal-title" class="font-headline-md text-body-lg font-bold text-primary">Tulis Berita Baru
+                </h3>
+                <button type="button" onclick="closeNewsModal()" class="text-outline hover:text-on-surface p-1"><span
+                        class="material-symbols-outlined">close</span></button>
+            </div>
+            <form id="news-form" class="p-lg space-y-md" onsubmit="handleNewsSave(event)">
+                <input type="hidden" id="news-edit-id" value="">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Judul Berita
+                        *</label>
+                    <input type="text" id="news-title" required
+                        class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none"
+                        placeholder="Judul berita atau kegiatan penyaluran...">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Kategori
+                            Berita *</label>
+                        <select id="news-category" required
+                            class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
+                            <option value="Kegiatan &amp; Event" selected>Kegiatan &amp; Event</option>
+                            <option value="Pengumuman">Pengumuman</option>
+                            <option value="Laporan Publik">Laporan Publik</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Tanggal
+                            Penyaluran / Kegiatan *</label>
+                        <input type="date" id="news-event-date" required
+                            class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
+                    </div>
+                </div>
+
+                <!-- Upload Foto Dokumentasi Section -->
+                <div class="border border-outline-variant/30 rounded-xl p-md bg-surface-container-low/40 space-y-md">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="font-label-md text-label-md font-bold text-primary flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[18px]">add_a_photo</span> Upload Foto Dokumentasi
+                            </h4>
+                            <p class="font-caption text-caption text-on-surface-variant mt-0.5">Pilih foto dari folder lokal Anda. Foto akan tampil otomatis di Beranda saat berita dipublikasikan.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-surface p-sm rounded-lg border border-outline-variant/30 space-y-2">
+                        <label class="block font-caption text-caption font-bold text-on-surface">1. Foto Utama / Cover Header *</label>
+                        <!-- Drag/drop or click to upload -->
+                        <label for="news-file-main" class="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-primary/40 rounded-xl bg-primary/5 hover:bg-primary/10 cursor-pointer transition-colors group" id="photo-upload-zone">
+                            <span class="material-symbols-outlined text-primary text-3xl mb-1 group-hover:scale-110 transition-transform">cloud_upload</span>
+                            <span class="font-label-md text-label-md text-primary font-bold">Klik untuk pilih foto dari folder</span>
+                            <span class="font-caption text-caption text-on-surface-variant mt-0.5" id="photo-filename-display">JPG, PNG, WebP — maks. 5MB</span>
+                        </label>
+                        <input type="file" id="news-file-main" accept="image/*"
+                            onchange="handleLocalPhotoSelect(event, 'news-main-preview', 'news-image-url')"
+                            class="sr-only">
+                        <p class="font-caption text-caption text-outline text-center">— atau masukkan URL gambar —</p>
+                        <input type="text" id="news-image-url"
+                            oninput="updatePreviewFromUrl('news-image-url', 'news-main-preview')"
+                            class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 font-caption text-on-surface outline-none"
+                            placeholder="https://... (isi otomatis setelah upload lokal)">
+                        <div id="news-main-preview-container" class="mt-2 hidden">
+                            <img id="news-main-preview" src=""
+                                class="h-32 w-auto rounded-lg object-cover border border-outline-variant/30 shadow-xs"
+                                alt="Preview Cover">
+                            <button type="button" onclick="clearNewsPhoto()" class="ml-2 text-error font-caption text-caption hover:underline">✕ Hapus foto</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Isi Berita
+                        Lengkap *</label>
+                    <textarea id="news-content" required rows="5"
+                        class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none"
+                        placeholder="Tulis rincian berita atau laporan kegiatan penyaluran..."></textarea>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Status
+                        Publikasi</label>
+                    <div class="flex gap-md">
+                        <label class="flex items-center gap-sm cursor-pointer"><input type="radio" name="news-status"
+                                value="published" checked class="text-primary focus:ring-primary"> <span
+                                class="font-body-md font-semibold text-primary">Publikasikan (Tampil di Web
+                                Utama)</span></label>
+                        <label class="flex items-center gap-sm cursor-pointer"><input type="radio" name="news-status"
+                                value="draft" class="text-primary focus:ring-primary"> <span
+                                class="font-body-md text-on-surface-variant">Simpan Draft</span></label>
+                    </div>
+                </div>
+                <div class="flex gap-md pt-sm">
+                    <button type="submit"
+                        class="flex-1 bg-primary text-on-primary py-3 rounded-lg font-label-md text-label-md font-bold hover:bg-primary-container transition-colors">Simpan
+                        Berita</button>
+                    <button type="button" onclick="closeNewsModal()"
+                        class="px-lg py-3 border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- MODAL: DONATION DETAIL (FULL RECONCILIATION)        -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div id="donation-detail-modal" class="modal-backdrop">
+        <div class="modal-dialog">
+            <div class="p-lg border-b border-surface-variant flex justify-between items-center">
+                <h3 class="font-headline-md text-body-lg font-bold text-primary">Detail Rincian Transaksi Donasi</h3>
+                <button type="button" onclick="closeDonationDetail()"
+                    class="text-outline hover:text-on-surface p-1"><span
+                        class="material-symbols-outlined">close</span></button>
+            </div>
+            <div class="p-lg space-y-md" id="donation-detail-body"></div>
+        </div>
+    </div>
+
+    <!-- Supabase Client & Admin Store -->
+    <script src="assets/js/supabase-client.js"></script>
+    <script src="assets/js/admin-store.js"></script>
+
+    <script>
+        const SPECIFIC_PROGRAMS_MAP = {
+            'Berkah Hidayah': [
+                "Pembangunan Markaz",
+                "Pengadaan dan Perbaikan Kendaraan",
+                "Santunan Mualaf",
+                "Pengadaan Celengan Besar",
+                "Tahfidz",
+                "Pelatihan Public Speaking",
+                "Tabligh Akbar Dzulhijjah",
+                "Pelatihan Guru Dirosa",
+                "Pelatihan Penyelenggaraan Jenazah",
+                "Pelatihan Volunteer Media Dakwah",
+                "Lomba Desain Poster Dakwah",
+                "Kantor DPW WI Babel dan WIZ",
+                "Mukerwil/Mukernas/Muktamar",
+                "Keberangkatan dan Kepulangan Dai"
+            ],
+            'Berkah Peduli': [
+                "Tebar Sembako",
+                "Sedekah Beras Dhuafa",
+                "Sedekah Jumat",
+                "Santunan Yatim",
+                "Tebar Qur'an Nusantara",
+                "Bahagiakan Guru Ngaji",
+                "Sedekah Air"
+            ],
+            'Berkah Juara': [
+                "Beasiswa Pendidikan Juara",
+                "Perlengkapan Belajar Yatim"
+            ],
+            'Berkah Sehat': [
+                "Khitanan Massal",
+                "Layanan Pengobatan Gratis",
+                "Layanan Ambulance Ummat"
+            ],
+            'Berkah Mandiri': [
+                "Bantuan Usaha Mikro"
+            ]
+        };
+
+        let ADMIN_NAME = 'Admin 1';
+        let CURRENT_ROLE = 'SUPER_ADMIN'; // SUPER_ADMIN | ADMIN_PANGKALPINANG | ADMIN_SUNGAILIAT
+        let currentDonationTab = 'pending';
+
+        // ─── Local Photo Upload Handler ──────────────────
+        function handleLocalPhotoSelect(event, previewImgId, urlInputId) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            // Show filename
+            const filenameEl = document.getElementById('photo-filename-display');
+            if (filenameEl) filenameEl.textContent = `📎 ${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const dataUrl = e.target.result;
+                const urlInput = document.getElementById(urlInputId);
+                if (urlInput) urlInput.value = dataUrl;
+
+                const previewImg = document.getElementById(previewImgId);
+                if (previewImg) {
+                    previewImg.src = dataUrl;
+                    const container = document.getElementById(previewImgId + '-container');
+                    if (container) container.classList.remove('hidden');
+                    else if (previewImg.parentElement) previewImg.parentElement.classList.remove('hidden');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearNewsPhoto() {
+            document.getElementById('news-image-url').value = '';
+            const preview = document.getElementById('news-main-preview');
+            if (preview) preview.src = '';
+            const container = document.getElementById('news-main-preview-container');
+            if (container) container.classList.add('hidden');
+            const filenameEl = document.getElementById('photo-filename-display');
+            if (filenameEl) filenameEl.textContent = 'JPG, PNG, WebP — maks. 5MB';
+            const fileInput = document.getElementById('news-file-main');
+            if (fileInput) fileInput.value = '';
+        }
+
+        function updatePreviewFromUrl(inputId, previewImgId) {
+            const val = document.getElementById(inputId).value;
+            const previewImg = document.getElementById(previewImgId);
+            if (!previewImg) return;
+
+            if (val && (val.startsWith('http') || val.startsWith('data:image'))) {
+                previewImg.src = val;
+                if (previewImg.parentElement) previewImg.parentElement.classList.remove('hidden');
+            } else if (!val) {
+                if (previewImg.parentElement) previewImg.parentElement.classList.add('hidden');
+            }
+        }
+
+        function handleRoleChange(role) {
+            CURRENT_ROLE = role;
+            const filterW = document.getElementById('filter-wilayah');
+            if (role === 'ADMIN_PANGKALPINANG') {
+                filterW.value = 'Pangkalpinang';
+                filterW.disabled = true;
+            } else if (role === 'ADMIN_SUNGAILIAT') {
+                filterW.value = 'Sungailiat';
+                filterW.disabled = true;
+            } else {
+                filterW.disabled = false;
+            }
+            refreshAll();
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        function showSection(sectionId, linkEl) {
+            document.querySelectorAll('[id^="section-"]').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById('section-' + sectionId);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.sidebar-link').forEach(a => { a.classList.remove('active'); a.classList.add('text-on-surface-variant'); });
+            if (linkEl) { linkEl.classList.add('active'); linkEl.classList.remove('text-on-surface-variant'); }
+
+            const titles = {
+                dashboard: 'Dashboard Overview',
+                donations: 'Manajemen Pemasukan / Donasi',
+                disbursements: 'Manajemen Pengeluaran / Penyaluran',
+                'allocation-rules': 'Aturan Alokasi Dana (Allocation Rules)',
+                news: 'Berita & Kegiatan',
+                finance: 'Laporan Keuangan Realtime'
+            };
+            document.getElementById('section-title').textContent = titles[sectionId] || 'Dashboard';
+
+            const sidebar = document.getElementById('sidebar');
+            if (!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) toggleSidebar();
+
+            refreshAll();
+        }
+
+        // ─── KPI Cards Render ────────────────────────────
+        function renderKPI(containerId) {
+            const activeWilayah = document.getElementById('filter-wilayah') ? document.getElementById('filter-wilayah').value : 'Semua';
+            const stats = wizStore.finance.getOverviewStats(activeWilayah);
+            const fmt = wizStore.utils.formatRupiahCompact;
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            container.innerHTML = `
+            <div class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-outline-variant/20">
+                <div class="flex justify-between items-start mb-sm">
+                    <p class="font-label-md text-label-md text-on-surface-variant font-medium">Total Dana Masuk</p>
+                    <div class="w-8 h-8 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary-container"><span class="material-symbols-outlined size-[18px]">payments</span></div>
+                </div>
+                <h2 class="font-headline-md text-headline-md text-on-surface font-bold">${fmt(stats.totalMasuk)}</h2>
+                <p class="font-caption text-caption text-primary font-semibold mt-sm">Data Terverifikasi ${activeWilayah !== 'Semua' ? '(' + activeWilayah + ')' : '(Konsolidasi)'}</p>
+            </div>
+            <div class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-outline-variant/20">
+                <div class="flex justify-between items-start mb-sm">
+                    <p class="font-label-md text-label-md text-on-surface-variant font-medium">Total Dana Tersalurkan</p>
+                    <div class="w-8 h-8 rounded-lg bg-tertiary-container/20 flex items-center justify-center text-tertiary-container"><span class="material-symbols-outlined size-[18px]">outbound</span></div>
+                </div>
+                <h2 class="font-headline-md text-headline-md text-on-surface font-bold">${fmt(stats.totalTersalurkan)}</h2>
+                <p class="font-caption text-caption text-tertiary-container font-semibold mt-sm">Penyaluran Aktif</p>
+            </div>
+            <div class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-outline-variant/20">
+                <div class="flex justify-between items-start mb-sm">
+                    <p class="font-label-md text-label-md text-on-surface-variant font-medium">Saldo Sisa Dana</p>
+                    <div class="w-8 h-8 rounded-lg bg-secondary-container/20 flex items-center justify-center text-secondary-container"><span class="material-symbols-outlined size-[18px]">account_balance</span></div>
+                </div>
+                <h2 class="font-headline-md text-headline-md text-on-surface font-bold">${fmt(stats.saldo)}</h2>
+                <p class="font-caption text-caption text-on-surface-variant mt-sm font-semibold">Realtime (Masuk - Salur)</p>
+            </div>
+            <div class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-outline-variant/20">
+                <div class="flex justify-between items-start mb-sm">
+                    <p class="font-label-md text-label-md text-on-surface-variant font-medium">Total Donatur</p>
+                    <div class="w-8 h-8 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary-container"><span class="material-symbols-outlined size-[18px]">group</span></div>
+                </div>
+                <h2 class="font-headline-md text-headline-md text-on-surface font-bold">${stats.totalDonatur.toLocaleString('id-ID')}</h2>
+                <p class="font-caption text-caption text-primary font-semibold mt-sm">Donatur Terverifikasi</p>
+            </div>`;
+        }
+
+        // ─── Dashboard Donation Table ────────────────────
+        function renderDashboardDonations() {
+            const activeWilayah = document.getElementById('filter-wilayah') ? document.getElementById('filter-wilayah').value : 'Semua';
+            let pending = wizStore.donations.getPending();
+            if (activeWilayah !== 'Semua') pending = pending.filter(d => d.wilayah === activeWilayah);
+            pending = pending.slice(0, 5);
+
+            const fmt = wizStore.utils.formatRupiahCompact;
+            const container = document.getElementById('dashboard-donation-table');
+            if (!container) return;
+
+            if (pending.length === 0) {
+                container.innerHTML = '<div class="p-lg text-center text-on-surface-variant font-body-md">✅ Semua donasi telah diverifikasi! Tidak ada antrean pending.</div>';
+                return;
+            }
+
+            let rows = pending.map(d => `
+            <tr class="hover:bg-surface-container-lowest/50 transition-colors bg-secondary-container/5">
+                <td class="p-md text-on-surface-variant whitespace-nowrap">${wizStore.utils.formatDate(d.createdAt)}</td>
+                <td class="p-md font-semibold">${d.donorName}</td>
+                <td class="p-md text-center"><span class="px-2 py-0.5 text-xs font-bold rounded bg-emerald-100 text-emerald-800">${d.wilayah || 'Pangkalpinang'}</span></td>
+                <td class="p-md text-on-surface-variant truncate max-w-[180px]">${d.programSpesifik || d.program || d.type}</td>
+                <td class="p-md font-label-md text-label-md font-bold text-primary">${fmt(d.amount)}</td>
+                <td class="p-md text-right whitespace-nowrap">
+                    <button onclick="verifyDonation('${d.id}')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-on-primary hover:bg-primary/90 font-label-md text-label-md transition-colors font-bold mr-1">
+                        <span class="material-symbols-outlined size-[16px]">check_circle</span> Verifikasi
+                    </button>
+                    <button onclick="showDonationDetail('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary font-label-md text-caption font-semibold">
+                        <span class="material-symbols-outlined size-[14px]">visibility</span> Detail
+                    </button>
+                </td>
+            </tr>`).join('');
+
+            container.innerHTML = `<table class="w-full text-left border-collapse">
+            <thead><tr class="bg-surface-container-low border-b border-outline-variant/30 font-label-md text-label-md text-on-surface-variant">
+                <th class="p-md">Tanggal</th>
+                <th class="p-md">Donatur</th>
+                <th class="p-md text-center">Wilayah</th>
+                <th class="p-md">Program</th>
+                <th class="p-md">Jumlah</th>
+                <th class="p-md text-right">Aksi</th>
+            </tr></thead>
+            <tbody class="font-body-md text-body-md divide-y divide-outline-variant/20">${rows}</tbody></table>`;
+        }
+
+        // ─── Activity Log ────────────────────────────────
+        function renderActivityLog() {
+            const activities = wizStore.activity.getRecent(6);
+            const container = document.getElementById('activity-log');
+            if (!container) return;
+
+            const iconMap = { verification: 'task_alt', news: 'article', donation_in: 'payments', rejection: 'cancel', disbursement: 'outbound', baseline: 'tune', donation_edit: 'edit_note', donation_delete: 'delete' };
+            const colorMap = { verification: 'bg-primary-container/20 text-primary-container', news: 'bg-tertiary-container/20 text-tertiary-container', donation_in: 'bg-secondary-container/20 text-secondary-container', rejection: 'bg-error-container text-error', disbursement: 'bg-indigo-100 text-indigo-700', baseline: 'bg-purple-100 text-purple-700' };
+
+            container.innerHTML = activities.map(a => `
+            <div class="flex gap-md">
+                <div class="w-8 h-8 rounded-full ${colorMap[a.type] || 'bg-surface-container text-outline'} flex items-center justify-center shrink-0 mt-1">
+                    <span class="material-symbols-outlined size-[16px]">${iconMap[a.type] || 'info'}</span>
+                </div>
+                <div>
+                    <p class="font-body-md text-on-surface">${a.message}</p>
+                    <p class="font-caption text-caption text-on-surface-variant mt-1">${wizStore.utils.timeAgo(a.createdAt)} • Oleh ${a.actor}</p>
+                </div>
+            </div>`).join('');
+        }
+
+        // ─── Progress 5 Berkah ───────────────────────────
+        function renderProgress5Berkah() {
+            const activeWilayah = document.getElementById('filter-wilayah') ? document.getElementById('filter-wilayah').value : 'Semua';
+            const programs = wizStore.finance.getPerProgram(activeWilayah);
+            const fmt = wizStore.utils.formatRupiahCompact;
+            const container = document.getElementById('progress-5berkah');
+            if (!container) return;
+
+            const colors = ['bg-primary', 'bg-secondary-container', 'bg-tertiary-container', 'bg-outline', 'bg-primary-container'];
+            const textColors = ['text-primary', 'text-secondary-container', 'text-tertiary-container', 'text-outline', 'text-primary-container'];
+
+            container.innerHTML = programs.map((p, i) => `
+            <div>
+                <div class="flex justify-between font-label-md text-label-md mb-xs font-semibold">
+                    <span>${p.key}</span>
+                    <span class="${textColors[i]} font-bold">${p.percent}%</span>
+                </div>
+                <div class="w-full bg-surface-variant rounded-full h-2">
+                    <div class="${colors[i]} h-2 rounded-full transition-all duration-500" style="width: ${p.percent}%"></div>
+                </div>
+                <p class="font-caption text-caption text-on-surface-variant mt-xs">Terkumpul: ${fmt(p.masuk)} / ${fmt(p.target)}</p>
+            </div>`).join('');
+        }
+
+        // ─── Full Donation Table (Pemasukan) ─────────────
+        function renderFullDonationTable() {
+            const fmt = wizStore.utils.formatRupiahCompact;
+            const filterWilayah = document.getElementById('filter-wilayah').value;
+            const filterJenis = document.getElementById('filter-jenis').value;
+            const filterProgramUtama = document.getElementById('filter-program-utama').value;
+
+            let list = wizStore.donations.getFiltered({
+                wilayah: filterWilayah,
+                type: filterJenis,
+                programUtama: filterProgramUtama,
+                status: currentDonationTab === 'pending' ? 'pending' : currentDonationTab === 'verified' ? 'verified' : 'Semua'
+            });
+
+            const container = document.getElementById('full-donation-table');
+            if (!container) return;
+
+            if (list.length === 0) {
+                container.innerHTML = '<div class="p-xl text-center text-on-surface-variant font-body-md">Tidak ada data donasi pada filter/kategori ini.</div>';
+                return;
+            }
+
+            const rows = list.map(d => {
+                let statusBadge = d.status === 'verified'
+                    ? `<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-caption text-caption font-bold">✅ Terverifikasi</span>`
+                    : d.status === 'pending'
+                        ? `<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-caption text-caption font-bold">⏳ Menunggu</span>`
+                        : `<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-error-container text-error font-caption text-caption font-bold">❌ Ditolak</span>`;
+
+                return `<tr class="hover:bg-surface-container-lowest/50 transition-colors ${d.status === 'pending' ? 'bg-secondary-container/5' : ''} cursor-pointer" onclick="showDonationDetail('${d.id}')">
+                <td class="p-md text-on-surface-variant whitespace-nowrap">${wizStore.utils.formatDate(d.createdAt)}</td>
+                <td class="p-md font-semibold">${d.donorName} ${d.donorName === 'Hamba Allah' ? '<span class="font-caption text-caption text-outline ml-1">(Anonim)</span>' : ''}</td>
+                <td class="p-md text-center"><span class="px-2 py-1 rounded text-xs font-bold bg-primary/10 text-primary">${d.wilayah || 'Pangkalpinang'}</span></td>
+                <td class="p-md font-medium text-on-surface">${d.type}</td>
+                <td class="p-md text-on-surface-variant truncate max-w-[200px]">${d.programSpesifik || d.program || '-'}</td>
+                <td class="p-md font-label-md text-label-md font-bold whitespace-nowrap text-primary">${fmt(d.amount)}</td>
+                <td class="p-md text-center">${statusBadge}</td>
+                <td class="p-md text-right whitespace-nowrap" onclick="event.stopPropagation()">
+                    ${d.status === 'pending' ? `<button onclick="verifyDonation('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-primary text-on-primary hover:bg-primary/90 font-label-md text-caption font-bold mr-1"><span class="material-symbols-outlined text-[14px]">check_circle</span> Verifikasi</button>` : ''}
+                    <button onclick="showDonationDetail('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary font-label-md text-caption font-semibold mr-1">
+                        <span class="material-symbols-outlined text-[14px]">visibility</span> Detail
+                    </button>
+                    <button onclick="editManualDonation('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary font-label-md text-caption font-semibold mr-1">
+                        <span class="material-symbols-outlined text-[14px]">edit</span> Edit
+                    </button>
+                    <button onclick="deleteDonation('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-error/30 text-error hover:bg-error/5 font-label-md text-caption font-semibold">
+                        <span class="material-symbols-outlined text-[14px]">delete</span> Hapus
+                    </button>
+                </td>
+            </tr>`;
+            }).join('');
+
+            container.innerHTML = `<table class="w-full text-left border-collapse">
+            <thead><tr class="bg-surface-container-low border-b border-outline-variant/30 font-label-md text-label-md text-on-surface-variant">
+                <th class="p-md">Tanggal</th>
+                <th class="p-md">Donatur</th>
+                <th class="p-md text-center">Wilayah</th>
+                <th class="p-md">Jenis Donasi</th>
+                <th class="p-md">Program Spesifik</th>
+                <th class="p-md">Total Donasi</th>
+                <th class="p-md text-center">Status</th>
+                <th class="p-md text-right">Aksi</th>
+            </tr></thead>
+            <tbody class="font-body-md text-body-md divide-y divide-outline-variant/20">${rows}</tbody></table>`;
+        }
+
+        function applyDonationFilters() {
+            renderFullDonationTable();
+        }
+
+        function switchDonationTab(tab, btnEl) {
+            currentDonationTab = tab;
+            document.querySelectorAll('#section-donations .tab-btn').forEach(b => b.classList.remove('active'));
+            if (btnEl) btnEl.classList.add('active');
+            renderFullDonationTable();
+        }
+
+        // ─── Allocation Rules Section Render ────────────
+        function renderAllocationRulesSection() {
+            const container = document.getElementById('allocation-rules-container');
+            if (!container) return;
+
+            const rules = wizStore.allocationRules;
+
+            let html = '';
+            Object.entries(rules).forEach(([wilayahName, wData]) => {
+                const mainAlloc = wData.mainAllocation;
+                const mainVal = wizStore.validateAllocationRule(mainAlloc);
+
+                let mainRows = mainAlloc.map(item => `
+                <tr class="border-b border-slate-100">
+                    <td class="py-2 text-on-surface font-semibold">${item.key}</td>
+                    <td class="py-2 text-right font-bold text-primary">${item.percent}%</td>
+                </tr>
+            `).join('');
+
+                // Sub allocations
+                let subSectionsHtml = '';
+                Object.entries(wData.subAllocation).forEach(([progUtama, subData]) => {
+                    if (!subData || !subData.items) {
+                        subSectionsHtml += `
+                        <div class="p-sm bg-surface rounded-lg border border-outline-variant/30 mt-sm">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-xs text-on-surface">${progUtama}</span>
+                                <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-slate-100 text-slate-600">Belum dikonfigurasi</span>
+                            </div>
+                        </div>`;
+                        return;
+                    }
+
+                    const subVal = wizStore.validateAllocationRule(subData.items);
+                    const isInvalid = !subVal.valid;
+
+                    let subRows = subData.items.map(item => `
+                    <div class="flex justify-between text-xs py-1 border-b border-slate-100">
+                        <span class="text-slate-700">${item.key}</span>
+                        <span class="font-bold ${isInvalid ? 'text-red-600' : 'text-slate-900'}">${item.percent}%</span>
+                    </div>
+                `).join('');
+
+                    subSectionsHtml += `
+                    <div class="p-sm rounded-lg border ${isInvalid ? 'border-red-300 bg-red-50' : 'border-outline-variant/30 bg-surface'} mt-sm space-y-1">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-xs ${isInvalid ? 'text-red-900' : 'text-on-surface'}">${progUtama}</span>
+                            <span class="px-2 py-0.5 text-[10px] font-bold rounded ${isInvalid ? 'bg-red-200 text-red-900' : 'bg-emerald-100 text-emerald-800'}">
+                                ${isInvalid ? 'INVALID — TOTAL ' + subVal.total + '%' : 'VALID (100%)'}
+                            </span>
+                        </div>
+
+                        ${isInvalid ? `
+                            <div class="p-2 bg-red-100 border border-red-300 rounded text-[11px] text-red-900 font-semibold my-1">
+                                ⚠️ Total allocation ${progUtama} ${wilayahName} adalah ${subVal.total}%. Silakan periksa dan koreksi konfigurasi sebelum allocation dapat digunakan.
+                            </div>
+                        ` : ''}
+
+                        <div class="mt-2 pt-1 border-t border-slate-200/60 space-y-0.5">
+                            ${subRows}
+                        </div>
+                    </div>
+                `;
+                });
+
+                html += `
+                <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 p-lg space-y-md">
+                    <div class="flex justify-between items-center border-b border-outline-variant/30 pb-sm">
+                        <div>
+                            <h3 class="font-headline-md text-headline-md text-base font-bold text-primary">${wData.label}</h3>
+                            <p class="font-caption text-caption text-on-surface-variant">Lembaga: WIZ Bangka Belitung</p>
+                        </div>
+                        <span class="px-3 py-1 text-xs font-bold rounded-full ${mainVal.valid ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
+                            STATUS: ${mainVal.valid ? 'VALID' : 'INVALID'}
+                        </span>
+                    </div>
+
+                    <div>
+                        <h4 class="font-label-md text-label-md font-bold text-on-surface mb-xs">Alokasi Utama Infak Umum</h4>
+                        <table class="w-full text-xs">
+                            <tbody>${mainRows}</tbody>
+                        </table>
+                    </div>
+
+                    <div>
+                        <h4 class="font-label-md text-label-md font-bold text-on-surface mb-xs">Sub-Alokasi Internal Program</h4>
+                        ${subSectionsHtml}
+                    </div>
+                </div>
+            `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // ─── Manual Donation Actions (Add & Edit) ────────
+        function handleAdminTypeChange(typeVal) {
+            const terikatSec = document.getElementById('man-terikat-section');
+            if (typeVal === 'Infak Terikat') {
+                terikatSec.classList.remove('hidden');
+            } else {
+                terikatSec.classList.add('hidden');
+            }
+            updateAdminAllocationCalc();
+        }
+
+        function handleAdminProgramUtamaChange(catVal) {
+            const selectSpesifik = document.getElementById('man-program-spesifik');
+            selectSpesifik.innerHTML = '<option value="">-- Pilih Program Spesifik --</option>';
+
+            const progs = SPECIFIC_PROGRAMS_MAP[catVal] || [];
+            progs.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p;
+                opt.textContent = p;
+                selectSpesifik.appendChild(opt);
+            });
+        }
+
+        function updateAdminAllocationCalc() {
+            const typeVal = document.getElementById('man-type').value;
+            const amountVal = Number(document.getElementById('man-amount').value) || 0;
+            const calcBox = document.getElementById('man-allocation-calc');
+
+            if (typeVal === 'Infak Terikat' && amountVal > 0) {
+                const alloc = wizStore.calcInfakTerikatAllocation(amountVal);
+                document.getElementById('man-calc-total').textContent = wizStore.utils.formatRupiahCompact(amountVal);
+                document.getElementById('man-calc-ops').textContent = wizStore.utils.formatRupiahCompact(alloc.alokasiOperasional);
+                document.getElementById('man-calc-prog').textContent = wizStore.utils.formatRupiahCompact(alloc.alokasiProgram);
+                calcBox.classList.remove('hidden');
+            } else {
+                calcBox.classList.add('hidden');
+            }
+        }
+
+        function openManualDonationModal(editId) {
+            document.getElementById('man-edit-id').value = editId || '';
+            document.getElementById('manual-donation-modal-title').textContent = editId ? 'Edit Data Donasi / Pemasukan' : 'Input Donasi / Pemasukan Manual';
+            if (!editId) {
+                document.getElementById('manual-donation-form').reset();
+                handleAdminTypeChange('Infak Umum');
+            }
+            document.getElementById('manual-donation-modal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeManualDonationModal() {
+            document.getElementById('manual-donation-modal').classList.remove('show');
+            document.body.style.overflow = '';
+            document.getElementById('manual-donation-form').reset();
+            document.getElementById('man-edit-id').value = '';
+        }
+
+        function editManualDonation(id) {
+            const d = wizStore.donations.getById(id);
+            if (!d) return;
+            document.getElementById('man-edit-id').value = d.id;
+            document.getElementById('man-donor-name').value = d.donorName;
+            document.getElementById('man-donor-phone').value = d.donorPhone || '';
+            document.getElementById('man-wilayah').value = d.wilayah || 'Pangkalpinang';
+            document.getElementById('man-type').value = d.type || 'Infak Umum';
+            handleAdminTypeChange(d.type || 'Infak Umum');
+
+            if (d.type === 'Infak Terikat') {
+                document.getElementById('man-program-utama').value = d.programUtama || d.category || '';
+                handleAdminProgramUtamaChange(d.programUtama || d.category || '');
+                document.getElementById('man-program-spesifik').value = d.programSpesifik || d.program || '';
+            }
+
+            document.getElementById('man-amount').value = d.amount;
+            document.getElementById('man-method').value = d.method;
+            document.getElementById('man-notes').value = d.notes || '';
+            document.querySelector(`input[name="man-status"][value="${d.status}"]`).checked = true;
+            updateAdminAllocationCalc();
+
+            openManualDonationModal(id);
+        }
+
+        async function handleManualDonationSave(e) {
+            e.preventDefault();
+            const editId = document.getElementById('man-edit-id').value;
+            const type = document.getElementById('man-type').value;
+
+            const data = {
+                donorName: document.getElementById('man-donor-name').value,
+                donorPhone: document.getElementById('man-donor-phone').value,
+                wilayah: document.getElementById('man-wilayah').value,
+                type,
+                programUtama: type === 'Infak Terikat' ? document.getElementById('man-program-utama').value : '-',
+                programSpesifik: type === 'Infak Terikat' ? document.getElementById('man-program-spesifik').value : '-',
+                amount: Number(document.getElementById('man-amount').value),
+                method: document.getElementById('man-method').value,
+                status: document.querySelector('input[name="man-status"]:checked').value,
+                notes: document.getElementById('man-notes').value,
+                verifiedBy: ADMIN_NAME
+            };
+
+            if (editId) {
+                await wizStore.donations.update(editId, data);
+            } else {
+                await wizStore.donations.add(data);
+            }
+            closeManualDonationModal();
+            refreshAll();
+        }
+
+        async function verifyDonation(id) {
+            if (!confirm('Verifikasi donasi ini? Saldo Laporan Keuangan akan otomatis terupdate.')) return;
+            await wizStore.donations.verify(id, ADMIN_NAME);
+            refreshAll();
+        }
+
+        async function deleteDonation(id) {
+            if (!confirm('Hapus transaksi donasi ini? Total Dana Masuk & Saldo akan terupdate.')) return;
+            await wizStore.donations.delete(id);
+            refreshAll();
+        }
+
+        function showDonationDetail(id) {
+            const d = wizStore.donations.getById(id);
+            if (!d) return;
+            const fmt = wizStore.utils.formatRupiahCompact;
+
+            const isTerikat = d.type === 'Infak Terikat';
+            const opsAmount = d.alokasiOperasional || (isTerikat ? Math.round(d.amount * 0.125) : 0);
+            const progAmount = d.alokasiProgram || (isTerikat ? (d.amount - opsAmount) : d.amount);
+
+            document.getElementById('donation-detail-body').innerHTML = `
+            <div class="grid grid-cols-2 gap-md text-sm">
+                <div><p class="font-caption text-caption text-on-surface-variant">Transaction ID</p><p class="font-mono text-xs font-bold text-outline">${d.id}</p></div>
+                <div><p class="font-caption text-caption text-on-surface-variant">Lembaga</p><p class="font-label-md font-bold">WIZ Bangka Belitung</p></div>
+                <div><p class="font-caption text-caption text-on-surface-variant">Wilayah Operasional</p><p class="font-label-md font-bold text-primary">${d.wilayah || 'Pangkalpinang'}</p></div>
+                <div><p class="font-caption text-caption text-on-surface-variant">Jenis Donasi</p><p class="font-label-md font-bold">${d.type}</p></div>
+                <div><p class="font-caption text-caption text-on-surface-variant">Program Utama</p><p class="font-label-md font-semibold">${d.programUtama || d.category || '-'}</p></div>
+                <div><p class="font-caption text-caption text-on-surface-variant">Program Spesifik</p><p class="font-label-md font-semibold text-primary">${d.programSpesifik || d.program || '-'}</p></div>
+                <div class="col-span-2 p-md bg-surface-container-low rounded-xl border border-outline-variant/30 space-y-1">
+                    <p class="font-caption text-caption text-on-surface-variant font-bold">Rekonsiliasi Internal Dana:</p>
+                    <div class="flex justify-between font-bold text-base text-primary">
+                        <span>Total Donasi (Donatur):</span>
+                        <span>${fmt(d.amount)}</span>
+                    </div>
+                    ${isTerikat ? `
+                        <div class="flex justify-between text-xs text-on-surface-variant pt-1 border-t border-slate-200">
+                            <span>Alokasi Operasional (12,5%):</span>
+                            <span class="font-bold">${fmt(opsAmount)}</span>
+                        </div>
+                        <div class="flex justify-between text-xs text-emerald-800">
+                            <span>Alokasi Program (87,5%):</span>
+                            <span class="font-bold">${fmt(progAmount)}</span>
+                        </div>
+                    ` : `
+                        <p class="text-xs text-on-surface-variant italic">Infak Umum dialokasikan otomatis sesuai allocation rule wilayah ${d.wilayah || 'Pangkalpinang'}.</p>
+                    `}
+                </div>
+                <div><p class="font-caption text-caption text-on-surface-variant">Donatur</p><p class="font-label-md font-bold">${d.donorName}</p></div>
+                <div><p class="font-caption text-caption text-on-surface-variant">Telepon / WA</p><p class="font-label-md">${d.donorPhone || '-'}</p></div>
+                <div><p class="font-caption text-caption text-on-surface-variant">Metode Pembayaran</p><p class="font-label-md">${d.method || '-'}</p></div>
+                <div><p class="font-caption text-caption text-on-surface-variant">Tanggal Transaksi</p><p class="font-label-md">${wizStore.utils.formatDateTime(d.createdAt)}</p></div>
+                <div><p class="font-caption text-caption text-on-surface-variant">Status</p><p class="font-label-md font-bold ${d.status === 'verified' ? 'text-primary' : d.status === 'pending' ? 'text-secondary' : 'text-error'}">${d.status === 'verified' ? '✅ Terverifikasi' : d.status === 'pending' ? '⏳ Menunggu' : '❌ Ditolak'}</p></div>
+            </div>
+            <div class="pt-sm border-t border-outline-variant/30"><p class="font-caption text-caption text-on-surface-variant">Doa / Catatan</p><p class="font-body-md">${d.notes || '-'}</p></div>
+            ${d.verifiedBy ? `<div class="pt-sm border-t border-outline-variant/30"><p class="font-caption text-caption text-on-surface-variant">Diverifikasi oleh ${d.verifiedBy} pada ${wizStore.utils.formatDateTime(d.verifiedAt)}</p></div>` : ''}
+            <div class="flex gap-md pt-md">
+                ${d.status === 'pending' ? `<button onclick="verifyDonation('${d.id}'); closeDonationDetail();" class="flex-1 bg-primary text-on-primary py-2.5 rounded-lg font-label-md font-bold hover:bg-primary-container transition-colors">Verifikasi Donasi</button>` : ''}
+                <button onclick="editManualDonation('${d.id}'); closeDonationDetail();" class="flex-1 bg-surface-container border border-outline-variant text-on-surface py-2.5 rounded-lg font-label-md font-bold hover:bg-surface-variant transition-colors">Edit Transaksi</button>
+                <button onclick="deleteDonation('${d.id}'); closeDonationDetail();" class="px-lg py-2.5 border border-error text-error rounded-lg font-label-md font-bold hover:bg-error/5 transition-colors">Hapus</button>
+            </div>`;
+
+            document.getElementById('donation-detail-modal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDonationDetail() {
+            document.getElementById('donation-detail-modal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // ─── News & Disbursement handlers (preserved) ────
+        function renderNewsList() {
+            const allNews = wizStore.news.getAll();
+            const container = document.getElementById('news-list');
+            if (!container) return;
+
+            if (allNews.length === 0) {
+                container.innerHTML = '<div class="p-xl text-center text-on-surface-variant font-body-md">Belum ada berita. Klik "Tulis Berita Baru" untuk membuat yang pertama.</div>';
+                return;
+            }
+
+            const defaultImg = 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop';
+
+            container.innerHTML = allNews.map(n => `
+            <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 p-lg flex flex-col sm:flex-row gap-md items-start">
+                <img src="${n.imageUrl || defaultImg}" onerror="this.src='${defaultImg}'" class="w-full sm:w-36 h-28 object-cover rounded-lg shrink-0 border border-outline-variant/30" alt="${n.title}">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-sm mb-xs flex-wrap">
+                        <span class="px-sm py-xs rounded-full font-caption text-caption font-bold ${n.status === 'published' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${n.status === 'published' ? '✅ Dipublikasikan' : '⏳ Draft'}</span>
+                        <span class="px-sm py-xs bg-surface-container rounded-full font-caption text-caption text-on-surface-variant font-semibold">${n.category}</span>
+                    </div>
+                    <h4 class="font-label-md text-label-md font-bold text-on-surface truncate">${n.title}</h4>
+                    <p class="font-caption text-caption text-on-surface-variant mt-xs line-clamp-2">${n.content}</p>
+                </div>
+                <div class="flex sm:flex-col gap-sm shrink-0 w-full sm:w-auto">
+                    <button onclick="editNews('${n.id}')" class="flex-1 sm:flex-none flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary font-label-md text-label-md">Edit</button>
+                    <button onclick="deleteNews('${n.id}')" class="flex-1 sm:flex-none flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg border border-error/30 text-error font-label-md text-label-md">Hapus</button>
+                </div>
+            </div>`).join('');
+        }
+
+        function openNewsModal(editId) {
+            document.getElementById('news-edit-id').value = editId || '';
+            document.getElementById('news-modal-title').textContent = editId ? 'Edit Berita / Kegiatan' : 'Tulis Berita Baru';
+            if (!editId) {
+                document.getElementById('news-form').reset();
+                document.getElementById('news-event-date').value = new Date().toISOString().split('T')[0];
+            }
+            document.getElementById('news-modal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeNewsModal() {
+            document.getElementById('news-modal').classList.remove('show');
+            document.body.style.overflow = '';
+            document.getElementById('news-form').reset();
+        }
+
+        async function handleNewsSave(e) {
+            e.preventDefault();
+            const editId = document.getElementById('news-edit-id').value;
+            const data = {
+                title: document.getElementById('news-title').value,
+                category: document.getElementById('news-category').value,
+                content: document.getElementById('news-content').value,
+                imageUrl: document.getElementById('news-image-url').value,
+                eventDate: document.getElementById('news-event-date').value ? new Date(document.getElementById('news-event-date').value).toISOString() : new Date().toISOString(),
+                status: document.querySelector('input[name="news-status"]:checked').value,
+                author: ADMIN_NAME
+            };
+
+            if (editId) await wizStore.news.update(editId, data);
+            else await wizStore.news.add(data);
+            closeNewsModal();
+            refreshAll();
+        }
+
+        function editNews(id) {
+            const article = wizStore.news.getById(id);
+            if (!article) return;
+            document.getElementById('news-title').value = article.title;
+            document.getElementById('news-category').value = article.category;
+            document.getElementById('news-content').value = article.content;
+            const imgUrl = article.imageUrl || '';
+            document.getElementById('news-image-url').value = imgUrl;
+            // Restore image preview if there is an existing imageUrl
+            if (imgUrl) {
+                const previewImg = document.getElementById('news-main-preview');
+                const container = document.getElementById('news-main-preview-container');
+                if (previewImg) previewImg.src = imgUrl;
+                if (container) container.classList.remove('hidden');
+                const filenameEl = document.getElementById('photo-filename-display');
+                if (filenameEl) filenameEl.textContent = imgUrl.startsWith('data:image') ? '📎 Foto lokal (sudah diupload)' : '🔗 URL gambar aktif';
+            }
+            if (article.eventDate) document.getElementById('news-event-date').value = new Date(article.eventDate).toISOString().split('T')[0];
+            document.querySelector(`input[name="news-status"][value="${article.status}"]`).checked = true;
+            openNewsModal(id);
+        }
+
+        async function deleteNews(id) {
+            if (!confirm('Hapus berita ini?')) return;
+            await wizStore.news.delete(id);
+            refreshAll();
+        }
+
+        function renderDisbursementTable() {
+            const list = wizStore.disbursements.getAll();
+            const fmt = wizStore.utils.formatRupiahCompact;
+            const container = document.getElementById('disbursement-table');
+            if (!container) return;
+
+            if (list.length === 0) {
+                container.innerHTML = '<div class="p-xl text-center text-on-surface-variant font-body-md">Belum ada pencatatan pengeluaran dana.</div>';
+                return;
+            }
+
+            const rows = list.map(d => `
+            <tr class="hover:bg-surface-container-low transition-colors">
+                <td class="p-md text-on-surface-variant whitespace-nowrap">${wizStore.utils.formatDate(d.disbursedAt)}</td>
+                <td class="p-md font-semibold text-on-surface">${d.program}</td>
+                <td class="p-md font-bold text-tertiary-container whitespace-nowrap">${fmt(d.amount)}</td>
+                <td class="p-md text-on-surface-variant">${d.description}</td>
+                <td class="p-md text-on-surface-variant text-caption">${d.recordedBy || 'Admin'}</td>
+                <td class="p-md text-right whitespace-nowrap">
+                    <button onclick="editDisbursement('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded border border-outline-variant text-caption font-semibold">Edit</button>
+                    <button onclick="deleteDisbursement('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded border border-error/30 text-error text-caption font-semibold">Hapus</button>
+                </td>
+            </tr>`).join('');
+
+            container.innerHTML = `<table class="w-full text-left border-collapse">
+            <thead><tr class="bg-surface-container-low border-b border-outline-variant/30 font-label-md text-label-md text-on-surface-variant">
+                <th class="p-md">Tanggal</th>
+                <th class="p-md">Program</th>
+                <th class="p-md">Jumlah</th>
+                <th class="p-md">Keterangan</th>
+                <th class="p-md">Pencatat</th>
+                <th class="p-md text-right">Aksi</th>
+            </tr></thead>
+            <tbody class="font-body-md text-body-md divide-y divide-outline-variant/20">${rows}</tbody></table>`;
+        }
+
+        function openDisbursementModal(editId) {
+            document.getElementById('disb-edit-id').value = editId || '';
+            document.getElementById('disbursement-modal-title').textContent = editId ? 'Edit Catatan Pengeluaran' : 'Catat Pengeluaran Dana Baru';
+            if (!editId) {
+                document.getElementById('disbursement-form').reset();
+                document.getElementById('disb-date').value = new Date().toISOString().split('T')[0];
+            }
+            document.getElementById('disbursement-modal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDisbursementModal() {
+            document.getElementById('disbursement-modal').classList.remove('show');
+            document.body.style.overflow = '';
+            document.getElementById('disbursement-form').reset();
+        }
+
+        async function handleDisbursementSave(e) {
+            e.preventDefault();
+            const editId = document.getElementById('disb-edit-id').value;
+            const data = {
+                program: document.getElementById('disb-program').value,
+                amount: Number(document.getElementById('disb-amount').value),
+                description: document.getElementById('disb-description').value,
+                disbursedAt: document.getElementById('disb-date').value ? new Date(document.getElementById('disb-date').value).toISOString() : new Date().toISOString(),
+                recordedBy: ADMIN_NAME
+            };
+
+            if (editId) await wizStore.disbursements.update(editId, data);
+            else await wizStore.disbursements.add(data);
+            closeDisbursementModal();
+            refreshAll();
+        }
+
+        function editDisbursement(id) {
+            const item = wizStore.disbursements.getById(id);
+            if (!item) return;
+            document.getElementById('disb-program').value = item.program;
+            document.getElementById('disb-amount').value = item.amount;
+            document.getElementById('disb-description').value = item.description;
+            if (item.disbursedAt) document.getElementById('disb-date').value = new Date(item.disbursedAt).toISOString().split('T')[0];
+            openDisbursementModal(id);
+        }
+
+        async function deleteDisbursement(id) {
+            if (!confirm('Hapus catatan pengeluaran ini?')) return;
+            await wizStore.disbursements.delete(id);
+            refreshAll();
+        }
+
+        function renderFinanceSection() {
+            renderKPI('finance-kpi-grid');
+            const activeWilayah = document.getElementById('filter-wilayah') ? document.getElementById('filter-wilayah').value : 'Semua';
+            const programs = wizStore.finance.getPerProgram(activeWilayah);
+            const fmt = wizStore.utils.formatRupiahCompact;
+            const container = document.getElementById('finance-program-table');
+            if (!container) return;
+
+            const rows = programs.map(p => `
+            <tr class="hover:bg-surface-container-low transition-colors">
+                <td class="p-md text-on-surface font-semibold">${p.label}</td>
+                <td class="p-md text-right text-primary font-bold">${fmt(p.masuk)}</td>
+                <td class="p-md text-right text-tertiary-container font-bold">${fmt(p.tersalurkan)}</td>
+                <td class="p-md text-right font-bold text-on-surface">${fmt(p.saldo)}</td>
+                <td class="p-md text-center"><span class="px-sm py-xs ${p.statusClass} rounded-full font-caption text-caption font-bold">${p.status}</span></td>
+            </tr>`).join('');
+
+            container.innerHTML = `<table class="w-full text-left border-collapse">
+            <thead><tr class="bg-surface-container text-on-surface font-label-md text-label-md border-b border-outline-variant/30">
+                <th class="p-md font-bold">Nama Program</th>
+                <th class="p-md font-bold text-right">Total Dana Masuk</th>
+                <th class="p-md font-bold text-right">Total Dana Tersalurkan</th>
+                <th class="p-md font-bold text-right">Saldo Sisa Dana</th>
+                <th class="p-md font-bold text-center">Status Program</th>
+            </tr></thead>
+            <tbody class="font-body-md text-body-md divide-y divide-outline-variant/20">${rows}</tbody></table>`;
+        }
+
+        function openBaselineModal() {
+            const base = wizStore.baselines.get();
+            document.getElementById('base-masuk').value = base.baseMasuk;
+            document.getElementById('base-salur').value = base.baseTersalurkan;
+            document.getElementById('base-donatur').value = base.baseDonatur;
+            document.getElementById('baseline-modal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeBaselineModal() {
+            document.getElementById('baseline-modal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        function handleBaselineSave(e) {
+            e.preventDefault();
+            wizStore.baselines.update({
+                baseMasuk: Number(document.getElementById('base-masuk').value),
+                baseTersalurkan: Number(document.getElementById('base-salur').value),
+                baseDonatur: Number(document.getElementById('base-donatur').value)
+            });
+            closeBaselineModal();
+            refreshAll();
+        }
+
+        function updateBadges() {
+            const pendingCount = wizStore.donations.countPending();
+            const el = document.getElementById('pending-count-badge');
+            if (el) el.textContent = `${pendingCount} pending`;
+        }
+
+        function refreshAll() {
+            renderKPI('kpi-grid');
+            renderDashboardDonations();
+            renderActivityLog();
+            renderProgress5Berkah();
+            renderFullDonationTable();
+            renderAllocationRulesSection();
+            renderNewsList();
+            renderDisbursementTable();
+            renderFinanceSection();
+            updateBadges();
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            refreshAll();
+            if (wizStore.syncFromCloud) {
+                await wizStore.syncFromCloud();
+                refreshAll();
+            }
+        });
+    </script>
+</body>
+
+</html>

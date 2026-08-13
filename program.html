@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Daftar Program - WIZ Bangka Belitung</title>
+    <meta name="description" content="Jelajahi berbagai program kebaikan Wahdah Inspirasi Zakat (WIZ) Bangka Belitung dalam bidang Dakwah, Sosial, Pendidikan, Kesehatan, dan Ekonomi.">
+    <link rel="icon" href="assets/images/logo-wiz-babel.png" type="image/png">
+    
+    <!-- Google Fonts & Material Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-fixed": "#00201d",
+                      "tertiary": "#00665d",
+                      "surface-container-high": "#e1e8fd",
+                      "tertiary-container": "#008176",
+                      "on-secondary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "surface-bright": "#f9f9ff",
+                      "surface": "#f9f9ff",
+                      "surface-container": "#e9edff",
+                      "inverse-primary": "#72dc91",
+                      "tertiary-fixed-dim": "#6bd8cb",
+                      "secondary": "#8c4f00",
+                      "primary-fixed": "#8ef9ab",
+                      "surface-variant": "#dce2f7",
+                      "error-container": "#ffdad6",
+                      "surface-dim": "#d3daef",
+                      "on-surface-variant": "#3e4a3f",
+                      "on-error-container": "#93000a",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-low": "#f1f3ff",
+                      "surface-tint": "#006d37",
+                      "surface-container-highest": "#dce2f7",
+                      "on-surface": "#141b2b",
+                      "inverse-on-surface": "#edf0ff",
+                      "on-primary-container": "#e9ffe9",
+                      "secondary-fixed": "#ffdcbf",
+                      "on-secondary-fixed": "#2d1600",
+                      "on-secondary-container": "#663800",
+                      "on-secondary-fixed-variant": "#6b3b00",
+                      "on-primary-fixed-variant": "#005228",
+                      "on-tertiary-fixed-variant": "#005049",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary-fixed-dim": "#ffb874",
+                      "outline": "#6e7a6e",
+                      "background": "#f9f9ff",
+                      "primary": "#006834",
+                      "primary-fixed-dim": "#72dc91",
+                      "outline-variant": "#bdcabc",
+                      "secondary-container": "#fd9923",
+                      "primary-container": "#008444",
+                      "on-primary": "#ffffff",
+                      "inverse-surface": "#293040",
+                      "error": "#ba1a1a",
+                      "on-background": "#141b2b",
+                      "on-tertiary-container": "#e5fffa",
+                      "on-primary-fixed": "#00210c",
+                      "tertiary-fixed": "#89f5e7"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "xs": "4px",
+                      "xxl": "48px",
+                      "sm": "8px",
+                      "base": "4px",
+                      "lg": "24px",
+                      "container-max": "1280px",
+                      "margin-mobile": "16px",
+                      "gutter": "24px",
+                      "md": "16px"
+              },
+              "fontFamily": {
+                      "display-lg-mobile": ["Plus Jakarta Sans", "sans-serif"],
+                      "body-md": ["Inter", "sans-serif"],
+                      "headline-lg": ["Plus Jakarta Sans", "sans-serif"],
+                      "body-lg": ["Inter", "sans-serif"],
+                      "caption": ["Inter", "sans-serif"],
+                      "label-md": ["Inter", "sans-serif"],
+                      "display-lg": ["Plus Jakarta Sans", "sans-serif"],
+                      "headline-md": ["Plus Jakarta Sans", "sans-serif"]
+              },
+              "fontSize": {
+                      "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "caption": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                      "display-lg": ["48px", {"lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+              }
+            }
+          }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+        /* Custom Ambient Shadow for Level 1 & 2 */
+        .shadow-ambient-1 { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); }
+        .hover\:shadow-ambient-2:hover { box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08); }
+
+        /* Modal styling */
+        .modal-backdrop {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .modal-backdrop.show { opacity: 1; pointer-events: auto; }
+        .modal-dialog {
+            background: #fff; border-radius: 20px;
+            width: 92%; max-width: 520px;
+            max-height: 90vh; overflow-y: auto;
+            transform: translateY(24px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+        }
+        .modal-backdrop.show .modal-dialog { transform: translateY(0); }
+    </style>
+</head>
+<body class="bg-background font-body-md text-body-md text-on-background antialiased selection:bg-primary-container selection:text-on-primary-container min-h-screen flex flex-col">
+
+<!-- TopNavBar -->
+<nav class="bg-surface/95 dark:bg-surface-container-lowest/95 backdrop-blur-md sticky top-0 w-full z-50 border-b border-outline-variant/30 shadow-sm">
+    <div class="flex justify-between items-center h-24 md:h-28 px-margin-mobile md:px-lg max-w-container-max mx-auto">
+        <a href="index.html" class="flex items-center group py-2">
+            <img src="assets/images/logo-wiz-babel.png" alt="WIZ Wahdah Inspirasi Zakat Bangka Belitung" class="h-12 md:h-16 w-auto object-contain transition-transform group-hover:scale-105" onerror="this.onerror=null; this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');">
+            <span class="hidden font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">WIZ</span>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <div class="hidden md:flex gap-lg items-center">
+            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="index.html">Beranda</a>
+            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="index.html#tentang-kami">Tentang Kami</a>
+            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="program.html">Program</a>
+            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="laporan.html">Laporan</a>
+            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="index.html#berita">Berita</a>
+            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="index.html#kontak">Kontak</a>
+        </div>
+
+        <div class="flex items-center gap-sm">
+            <button onclick="openDonationModal('Donasi Umum')" class="bg-secondary-container text-on-secondary font-label-md text-label-md px-lg py-sm rounded-lg hover:opacity-90 transition-opacity active:scale-95 shadow-sm font-bold flex items-center gap-xs">
+                <span class="material-symbols-outlined text-sm">favorite</span>
+                <span>Donasi Sekarang</span>
+            </button>
+
+            <!-- Mobile Hamburger Button -->
+            <button id="mobile-menu-btn" class="md:hidden p-xs text-on-surface-variant hover:text-primary transition-colors focus:outline-none">
+                <span class="material-symbols-outlined text-2xl" id="menu-icon">menu</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Dropdown Menu -->
+    <div id="mobile-menu" class="hidden md:hidden border-t border-outline-variant/30 bg-surface px-margin-mobile py-md space-y-md shadow-lg">
+        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="index.html">Beranda</a>
+        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="index.html#tentang-kami">Tentang Kami</a>
+        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="program.html">Program</a>
+        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="laporan.html">Laporan</a>
+        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="index.html#berita">Berita</a>
+        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="index.html#kontak">Kontak</a>
+    </div>
+</nav>
+
+<!-- Header Section -->
+<header class="bg-surface-container-low py-xxl border-b border-surface-variant">
+    <div class="max-w-container-max mx-auto px-margin-mobile md:px-lg text-center flex flex-col items-center">
+        <span class="inline-flex items-center gap-xs bg-primary-container/10 text-primary-container px-md py-xs rounded-full font-label-md text-caption uppercase tracking-wider mb-sm font-bold">
+            <span class="material-symbols-outlined text-sm">auto_awesome</span>
+            Kebaikan Berkelanjutan
+        </span>
+        <h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-background mb-md font-bold">
+            Jelajahi Program Kebaikan
+        </h1>
+        <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto mb-lg">
+            Salurkan niat baik Anda melalui berbagai program unggulan yang kami jalankan dengan amanah, transparan, dan profesional untuk kemaslahatan umat.
+        </p>
+
+        <!-- Search and Filter -->
+        <div class="w-full max-w-xl mx-auto space-y-md">
+            <div class="relative w-full">
+                <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline">search</span>
+                <input id="program-search" class="w-full bg-surface border border-outline-variant rounded-full py-sm pl-xxl pr-lg font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm" placeholder="Cari program donasi (misal: Tahfidz, Sembako, Mualaf)..." type="text"/>
+            </div>
+            
+            <div class="flex flex-wrap justify-center gap-sm mt-md" id="category-filter-buttons">
+                <button data-category="all" class="category-btn active px-md py-xs rounded-full border border-primary bg-primary text-on-primary font-label-md text-label-md transition-colors shadow-sm font-medium">Semua Kategori</button>
+                <button data-category="dakwah" class="category-btn px-md py-xs rounded-full border border-outline-variant bg-surface text-on-surface-variant font-label-md text-label-md hover:border-primary hover:text-primary transition-colors font-medium">Dakwah</button>
+                <button data-category="sosial" class="category-btn px-md py-xs rounded-full border border-outline-variant bg-surface text-on-surface-variant font-label-md text-label-md hover:border-primary hover:text-primary transition-colors font-medium">Sosial</button>
+                <button data-category="pendidikan" class="category-btn px-md py-xs rounded-full border border-outline-variant bg-surface text-on-surface-variant font-label-md text-label-md hover:border-primary hover:text-primary transition-colors font-medium">Pendidikan</button>
+                <button data-category="kesehatan" class="category-btn px-md py-xs rounded-full border border-outline-variant bg-surface text-on-surface-variant font-label-md text-label-md hover:border-primary hover:text-primary transition-colors font-medium">Kesehatan</button>
+                <button data-category="ekonomi" class="category-btn px-md py-xs rounded-full border border-outline-variant bg-surface text-on-surface-variant font-label-md text-label-md hover:border-primary hover:text-primary transition-colors font-medium">Ekonomi</button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="w-full pb-xxl flex-grow">
+
+    <!-- Section 1: Berkah Hidayah -->
+    <section class="program-section max-w-container-max mx-auto px-margin-mobile md:px-lg py-xl" data-section-category="dakwah">
+        <div class="flex items-center gap-sm mb-lg">
+            <span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">mosque</span>
+            <h2 class="font-headline-lg text-headline-lg text-on-surface font-bold">BERKAH HIDAYAH <span class="font-body-md text-body-md text-on-surface-variant ml-xs font-normal">(Dakwah & Pembinaan)</span></h2>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+            <!-- Card 1 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="dakwah" data-title="Pembangunan Markaz">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Pembangunan Markaz Dakwah" src="https://images.unsplash.com/photo-1542665952-14513db15293?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1564769625905-50e93615e769?q=80&w=800&auto=format&fit=crop';" alt="Pembangunan Markaz"/>
+                    <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Dakwah</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Pembangunan Markaz</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Dukung pembangunan pusat kegiatan dakwah dan pembinaan umat di pelosok Bangka Belitung untuk mencetak generasi Rabbani.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 250.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Pembangunan Markaz')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 2 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="dakwah" data-title="Pengadaan & Perbaikan Kendaraan">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Pengadaan & Perbaikan Kendaraan" src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=800&auto=format&fit=crop';" alt="Pengadaan & Perbaikan Kendaraan"/>
+                    <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Dakwah</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Pengadaan & Perbaikan Kendaraan</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Fasilitasi mobilitas para dai dalam menyebarkan dakwah ke pelosok daerah dengan kendaraan yang layak dan memadai.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 50.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Pengadaan & Perbaikan Kendaraan')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 3 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="dakwah" data-title="Santunan Mualaf">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Santunan Mualaf" src="https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?q=80&w=800&auto=format&fit=crop';" alt="Santunan Mualaf"/>
+                    <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Dakwah</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Santunan Mualaf</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Berikan dukungan moral dan materil bagi para mualaf agar semakin teguh dalam memeluk dan mengamalkan ajaran Islam.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 20.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Santunan Mualaf')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 4 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="dakwah" data-title="Tahfidz">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Tahfidz" src="https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=800&auto=format&fit=crop';" alt="Tahfidz"/>
+                    <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Dakwah</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Tahfidz Qur'an</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Wujudkan generasi penghafal Al-Qur'an dengan memberikan beasiswa pendidikan dan biaya hidup bagi santri dhuafa berprestasi.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 50.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Program Tahfidz Qur\'an')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 5 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="dakwah" data-title="Pelatihan Public Speaking">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Pelatihan Public Speaking" src="https://images.unsplash.com/photo-1475721027785-f74eccf877e2?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1515187029135-18ee286d815b?q=80&w=800&auto=format&fit=crop';" alt="Pelatihan Public Speaking"/>
+                    <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Dakwah</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Pelatihan Public Speaking</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Tingkatkan kapasitas dai dan relawan dakwah dalam menyampaikan pesan Islam secara efektif dan menarik di tengah masyarakat.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 10.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Pelatihan Public Speaking')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 6 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="dakwah" data-title="Tabligh Akbar Dzulhijjah">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Tabligh Akbar Dzulhijjah" src="https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1542665952-14513db15293?q=80&w=800&auto=format&fit=crop';" alt="Tabligh Akbar Dzulhijjah"/>
+                    <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Dakwah</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Tabligh Akbar Dzulhijjah</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Dukung penyelenggaraan kajian akbar untuk mengedukasi umat tentang keutamaan ibadah di bulan Dzulhijjah.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 20.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Tabligh Akbar Dzulhijjah')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 7 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="dakwah" data-title="Pelatihan Guru Dirosa">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Pelatihan Guru Dirosa" src="https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=800&auto=format&fit=crop';" alt="Pelatihan Guru Dirosa"/>
+                    <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Dakwah</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Pelatihan Guru Dirosa</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Cetak pengajar Al-Qur'an metode Dirosa yang kompeten untuk memberantas buta huruf Al-Qur'an di kalangan orang dewasa.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 15.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Pelatihan Guru Dirosa')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 8 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="dakwah" data-title="Pelatihan Penyelenggaraan Jenazah">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Pelatihan Penyelenggaraan Jenazah" src="https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=800&auto=format&fit=crop';" alt="Pelatihan Penyelenggaraan Jenazah"/>
+                    <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Dakwah</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Pelatihan Penyelenggaraan Jenazah</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Bekali masyarakat dengan ilmu fardhu kifayah dalam mengurus jenazah sesuai sunnah Nabi shallallahu 'alaihi wa sallam.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 10.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Pelatihan Penyelenggaraan Jenazah')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 9 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="dakwah" data-title="Pelatihan Volunteer Media Dakwah">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Pelatihan Volunteer Media Dakwah" src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=800&auto=format&fit=crop';" alt="Pelatihan Volunteer Media Dakwah"/>
+                    <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Dakwah</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Pelatihan Volunteer Media Dakwah</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Optimalkan syiar dakwah di era digital dengan mencetak relawan media yang terampil dan kreatif.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 15.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Pelatihan Volunteer Media Dakwah')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 10 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="dakwah" data-title="Lomba Desain Poster Dakwah">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Lomba Desain Poster Dakwah" src="https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=800&auto=format&fit=crop';" alt="Lomba Desain Poster Dakwah"/>
+                    <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Dakwah</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Lomba Desain Poster Dakwah</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Wadahi kreativitas pemuda Islam dalam menyebarkan nilai-nilai kebaikan melalui karya visual yang inspiratif.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 5.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Lomba Desain Poster Dakwah')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 11 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="dakwah" data-title="Kantor DPW WI Babel & WIZ">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Kantor DPW WI Babel & WIZ" src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800&auto=format&fit=crop';" alt="Kantor DPW WI Babel & WIZ"/>
+                    <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Dakwah</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Kantor DPW WI Babel & WIZ</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Dukung operasional pusat kendali dakwah dan pengelolaan zakat untuk pelayanan umat yang lebih baik.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 100.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Kantor DPW WI Babel & WIZ')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 12 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="dakwah" data-title="Mukerwil Mukernas Muktamar">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Mukerwil Mukernas Muktamar" src="https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1475721027785-f74eccf877e2?q=80&w=800&auto=format&fit=crop';" alt="Mukerwil/Mukernas/Muktamar"/>
+                    <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Dakwah</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Mukerwil / Mukernas / Muktamar</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Bantu kelancaran musyawarah dan konsolidasi program dakwah tingkat wilayah hingga nasional.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 30.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Mukerwil / Mukernas / Muktamar')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 13 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="dakwah" data-title="Keberangkatan Kepulangan Dai">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Keberangkatan & Kepulangan Dai" src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=800&auto=format&fit=crop';" alt="Keberangkatan & Kepulangan Dai"/>
+                    <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Dakwah</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Keberangkatan & Kepulangan Dai</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Dukung biaya transportasi para dai yang diutus untuk membina umat di berbagai pelosok daerah.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 20.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Keberangkatan & Kepulangan Dai')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- Section 2: Berkah Peduli -->
+    <section class="program-section max-w-container-max mx-auto px-margin-mobile md:px-lg py-xl border-t border-surface-variant/50" data-section-category="sosial">
+        <div class="flex items-center gap-sm mb-lg">
+            <span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">volunteer_activism</span>
+            <h2 class="font-headline-lg text-headline-lg text-on-surface font-bold">BERKAH PEDULI <span class="font-body-md text-body-md text-on-surface-variant ml-xs font-normal">(Sosial & Kemanusiaan)</span></h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+            <!-- Card 1 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="sosial" data-title="Tebar Sembako">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Tebar Sembako" src="https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800&auto=format&fit=crop';" alt="Tebar Sembako"/>
+                    <span class="absolute top-sm left-sm bg-tertiary-container/90 text-on-tertiary font-caption text-caption px-sm py-xs rounded-full font-semibold">Sosial</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Tebar Sembako</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Salurkan paket sembako untuk keluarga pra-sejahtera guna meringankan beban ekonomi mereka sehari-hari.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 50.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Tebar Sembako')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 2 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="sosial" data-title="Sedekah Beras Dhuafa">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Sedekah Beras Dhuafa" src="https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1536304929831-ee1ca9d44906?q=80&w=800&auto=format&fit=crop';" alt="Sedekah Beras Dhuafa"/>
+                    <span class="absolute top-sm left-sm bg-tertiary-container/90 text-on-tertiary font-caption text-caption px-sm py-xs rounded-full font-semibold">Sosial</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Sedekah Beras Dhuafa</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Bantu penuhi kebutuhan pangan dasar bagi keluarga pra-sejahtera dan janda tua di wilayah terpelosok Bangka Belitung setiap bulannya.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 50.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Sedekah Beras Dhuafa')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 3 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="sosial" data-title="Sedekah Jumat">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Sedekah Jumat" src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=800&auto=format&fit=crop';" alt="Sedekah Jumat"/>
+                    <span class="absolute top-sm left-sm bg-tertiary-container/90 text-on-tertiary font-caption text-caption px-sm py-xs rounded-full font-semibold">Sosial</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Sedekah Jumat</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Raih keberkahan di hari raya pekanan umat Islam dengan berbagi makanan gratis untuk jamaah masjid dan masyarakat umum.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 10.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Sedekah Jumat')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 4 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="sosial" data-title="Santunan Yatim">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Santunan Yatim" src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=800&auto=format&fit=crop';" alt="Santunan Yatim"/>
+                    <span class="absolute top-sm left-sm bg-tertiary-container/90 text-on-tertiary font-caption text-caption px-sm py-xs rounded-full font-semibold">Sosial</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Santunan Yatim</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Usap air mata anak yatim dengan memberikan santunan rutin untuk kebutuhan hidup dan pendidikan mereka.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 50.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Santunan Yatim')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 5 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="sosial" data-title="Tebar Iftar Nusantara">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Tebar Iftar Nusantara" src="https://images.unsplash.com/photo-1541544741938-0af808871cc0?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=800&auto=format&fit=crop';" alt="Tebar Iftar Nusantara"/>
+                    <span class="absolute top-sm left-sm bg-tertiary-container/90 text-on-tertiary font-caption text-caption px-sm py-xs rounded-full font-semibold">Sosial</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Tebar Iftar Nusantara</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Sediakan hidangan buka puasa yang bergizi bagi kaum dhuafa, musafir, dan santri di berbagai pelosok nusantara.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 100.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Tebar Iftar Nusantara')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 6 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="sosial" data-title="Tebar Qur'an Nusantara">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Tebar Qur'an Nusantara" src="https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=800&auto=format&fit=crop';" alt="Tebar Qur'an Nusantara"/>
+                    <span class="absolute top-sm left-sm bg-tertiary-container/90 text-on-tertiary font-caption text-caption px-sm py-xs rounded-full font-semibold">Sosial</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Tebar Qur'an Nusantara</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Wakafkan mushaf Al-Qur'an baru untuk santri, masjid, dan madrasah di daerah pedalaman yang kekurangan akses.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 50.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Tebar Qur\'an Nusantara')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 7 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="sosial" data-title="Bahagiakan Guru Ngaji">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Bahagiakan Guru Ngaji" src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=800&auto=format&fit=crop';" alt="Bahagiakan Guru Ngaji"/>
+                    <span class="absolute top-sm left-sm bg-tertiary-container/90 text-on-tertiary font-caption text-caption px-sm py-xs rounded-full font-semibold">Sosial</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Bahagiakan Guru Ngaji</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Apresiasi keikhlasan para guru ngaji tradisional dengan memberikan bingkisan dan santunan tunai yang layak.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 50.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Bahagiakan Guru Ngaji')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 8 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="sosial" data-title="Sedekah Air">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Sedekah Air" src="https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=800&auto=format&fit=crop';" alt="Sedekah Air"/>
+                    <span class="absolute top-sm left-sm bg-tertiary-container/90 text-on-tertiary font-caption text-caption px-sm py-xs rounded-full font-semibold">Sosial</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Sedekah Air Bersih</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Bangun sumur bor dan fasilitas air bersih untuk daerah kekeringan dan pesantren yang krisis air wudhu.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 150.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Sedekah Air Bersih')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- Section 3: Berkah Juara -->
+    <section class="program-section max-w-container-max mx-auto px-margin-mobile md:px-lg py-xl border-t border-surface-variant/50" data-section-category="pendidikan">
+        <div class="flex items-center gap-sm mb-lg">
+            <span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">school</span>
+            <h2 class="font-headline-lg text-headline-lg text-on-surface font-bold">BERKAH JUARA <span class="font-body-md text-body-md text-on-surface-variant ml-xs font-normal">(Pendidikan)</span></h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+            <!-- Card 1 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="pendidikan" data-title="Beasiswa Pendidikan Juara">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Beasiswa Pendidikan Juara" src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=800&auto=format&fit=crop';" alt="Beasiswa Pendidikan Juara"/>
+                    <span class="absolute top-sm left-sm bg-secondary-container/90 text-on-secondary font-caption text-caption px-sm py-xs rounded-full font-semibold">Pendidikan</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Beasiswa Pendidikan Juara</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Bantuan biaya sekolah dan perlengkapan belajar untuk anak-anak yatim dan dhuafa agar mereka tidak putus sekolah dan meraih cita-cita.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 50.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Beasiswa Pendidikan Juara')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 2 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="pendidikan" data-title="Beasiswa Tahfidz & Dhuafa">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Beasiswa Tahfidz & Dhuafa" src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=800&auto=format&fit=crop';" alt="Beasiswa Tahfidz & Dhuafa"/>
+                    <span class="absolute top-sm left-sm bg-secondary-container/90 text-on-secondary font-caption text-caption px-sm py-xs rounded-full font-semibold">Pendidikan</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Beasiswa Tahfidz & Dhuafa</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Dukungan beasiswa penuh bagi santri berprestasi penghafal Al-Qur'an dari keluarga kurang mampu.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 75.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Beasiswa Tahfidz & Dhuafa')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 3 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="pendidikan" data-title="Perlengkapan Belajar Yatim">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Perlengkapan Belajar Yatim" src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop';" alt="Perlengkapan Belajar Yatim"/>
+                    <span class="absolute top-sm left-sm bg-secondary-container/90 text-on-secondary font-caption text-caption px-sm py-xs rounded-full font-semibold">Pendidikan</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Perlengkapan Belajar Yatim</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Sediakan tas, buku, alat tulis, dan seragam baru untuk anak-anak pelopor masa depan di Bangka Belitung.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 30.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Perlengkapan Belajar Yatim')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- Section 4: Berkah Sehat -->
+    <section class="program-section max-w-container-max mx-auto px-margin-mobile md:px-lg py-xl border-t border-surface-variant/50" data-section-category="kesehatan">
+        <div class="flex items-center gap-sm mb-lg">
+            <span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">medical_services</span>
+            <h2 class="font-headline-lg text-headline-lg text-on-surface font-bold">BERKAH SEHAT <span class="font-body-md text-body-md text-on-surface-variant ml-xs font-normal">(Kesehatan)</span></h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+            <!-- Card 1 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="kesehatan" data-title="Khitanan Massal Dhuafa">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Khitanan Massal" src="https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1505751172876-fa1923c5c528?q=80&w=800&auto=format&fit=crop';" alt="Khitanan Massal Dhuafa"/>
+                    <span class="absolute top-sm left-sm bg-error/80 text-on-error font-caption text-caption px-sm py-xs rounded-full font-semibold">Kesehatan</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Khitanan Massal Dhuafa</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Layanan khitan gratis beserta sarung dan uang saku bagi anak-anak yatim dan dhuafa di pelosok Bangka Belitung.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 30.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Khitanan Massal Dhuafa')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 2 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="kesehatan" data-title="Layanan Pengobatan Gratis">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Pengobatan Gratis" src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?q=80&w=800&auto=format&fit=crop';" alt="Layanan Pengobatan Gratis"/>
+                    <span class="absolute top-sm left-sm bg-error/80 text-on-error font-caption text-caption px-sm py-xs rounded-full font-semibold">Kesehatan</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Layanan Pengobatan Gratis</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Pemeriksaan kesehatan rutin, pengobatan gratis, dan vitamin bagi lansia serta warga kurang mampu.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 50.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Layanan Pengobatan Gratis')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 3 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="kesehatan" data-title="Ambulance Gratis Ummat">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Ambulance Gratis" src="https://images.unsplash.com/photo-1587745416684-47953f16f02f?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1505751172876-fa1923c5c528?q=80&w=800&auto=format&fit=crop';" alt="Ambulance Gratis Ummat"/>
+                    <span class="absolute top-sm left-sm bg-error/80 text-on-error font-caption text-caption px-sm py-xs rounded-full font-semibold">Kesehatan</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Layanan Ambulance Ummat</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Layanan pengantaran pasien darurat dan jenazah secara gratis 24 jam untuk warga kurang mampu di Bangka Belitung.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 120.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Layanan Ambulance Ummat')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- Section 5: Berkah Mandiri (Ekonomi) -->
+    <section class="program-section max-w-container-max mx-auto px-margin-mobile md:px-lg py-xl border-t border-surface-variant/50" data-section-category="ekonomi">
+        <div class="flex items-center gap-sm mb-lg">
+            <span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">storefront</span>
+            <h2 class="font-headline-lg text-headline-lg text-on-surface font-bold">BERKAH MANDIRI <span class="font-body-md text-body-md text-on-surface-variant ml-xs font-normal">(Ekonomi & Pemberdayaan)</span></h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+            <!-- Card 1 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="ekonomi" data-title="Modal Usaha Dhuafa">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Modal Usaha Dhuafa" src="https://images.unsplash.com/photo-1556742049-0a67daf4004a?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=800&auto=format&fit=crop';" alt="Modal Usaha Dhuafa"/>
+                    <span class="absolute top-sm left-sm bg-primary-container text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Ekonomi</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Modal Usaha Mandiri Dhuafa</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Bantuan modal usaha tanpa bunga dan pendampingan bisnis UMKM bagi pelaku usaha kecil pra-sejahtera.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 50.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Modal Usaha Mandiri Dhuafa')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+
+            <!-- Card 2 -->
+            <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="ekonomi" data-title="Pelatihan Keterampilan Wirausaha">
+                <div class="relative overflow-hidden aspect-video bg-surface-container">
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Pelatihan Keterampilan" src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=800&auto=format&fit=crop';" alt="Pelatihan Keterampilan Wirausaha"/>
+                    <span class="absolute top-sm left-sm bg-primary-container text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Ekonomi</span>
+                </div>
+                <div class="p-lg flex flex-col flex-grow">
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Pelatihan Keterampilan Wirausaha</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Pelatihan vokasi dan wirausaha terpadu untuk menciptakan lapangan kerja baru dan kemandirian ekonomi kepala keluarga.</p>
+                    <div class="mb-lg space-y-xs">
+                        <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                            <span>Terkumpul: <strong>Rp 0</strong></span>
+                            <span class="font-semibold text-primary">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                            <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-right font-caption text-caption text-outline">Target: Rp 30.000.000</div>
+                    </div>
+                    <button onclick="openDonationModal('Pelatihan Keterampilan Wirausaha')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- Empty Search Results State -->
+    <div id="no-results" class="hidden text-center py-xxl px-margin-mobile">
+        <span class="material-symbols-outlined text-5xl text-outline mb-md">search_off</span>
+        <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">Program Tidak Ditemukan</h3>
+        <p class="font-body-md text-body-md text-on-surface-variant max-w-md mx-auto mb-lg">Maaf, kami tidak menemukan program yang sesuai dengan kata kunci pencarian Anda.</p>
+        <button onclick="resetFilters()" class="bg-primary text-on-primary font-label-md text-label-md px-lg py-sm rounded-lg hover:bg-primary-container transition-colors shadow-sm font-bold">Tampilkan Semua Program</button>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-inverse-surface text-inverse-on-surface pt-xxl pb-lg border-t border-outline-variant/20">
+    <div class="max-w-container-max mx-auto px-margin-mobile md:px-lg grid grid-cols-1 md:grid-cols-4 gap-xl mb-xxl">
+        <div class="md:col-span-2 space-y-md">
+            <div class="font-headline-md text-headline-md font-bold text-primary-fixed">
+                WIZ Bangka Belitung
+            </div>
+            <p class="text-surface-variant font-body-md text-body-md max-w-md leading-relaxed">
+                Wahdah Inspirasi Zakat (WIZ) Bangka Belitung adalah Lembaga Amil Zakat Nasional yang berdedikasi mengelola zakat, infak, sedekah, dan wakaf secara amanah, transparan, dan profesional.
+            </p>
+
+            <!-- Social Media Icons -->
+            <div class="pt-1">
+                <p class="font-caption text-caption text-surface-variant/60 mb-3 uppercase tracking-wider font-semibold">Ikuti Kami di Sosial Media</p>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <!-- Instagram -->
+                    <a href="https://www.instagram.com/wahdahinspirasizakatbabel?igsh=dDB6bmsxbWIwbzh0" target="_blank" rel="noopener noreferrer"
+                       title="Instagram WIZ Babel"
+                       class="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-[#E1306C] transition-all duration-300 hover:scale-110 shadow-sm">
+                        <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                    </a>
+
+                    <!-- TikTok -->
+                    <a href="https://www.tiktok.com/@wizbangkabelitunglitung?is_from_webapp=1&sender_device=pc" target="_blank" rel="noopener noreferrer"
+                       title="TikTok WIZ Babel"
+                       class="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-[#010101] transition-all duration-300 hover:scale-110 shadow-sm border border-white/10">
+                        <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24">
+                            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/>
+                        </svg>
+                    </a>
+
+                    <!-- Facebook -->
+                    <a href="https://www.facebook.com/share/1CMQ9zBSob/" target="_blank" rel="noopener noreferrer"
+                       title="Facebook WIZ Babel"
+                       class="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-[#1877F2] transition-all duration-300 hover:scale-110 shadow-sm">
+                        <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                    </a>
+
+                    <!-- WhatsApp Channel -->
+                    <a href="https://whatsapp.com/channel/0029VbCkB2uA89MnYdae7D1J" target="_blank" rel="noopener noreferrer"
+                       title="Saluran WhatsApp WIZ Babel"
+                       class="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-[#25D366] transition-all duration-300 hover:scale-110 shadow-sm">
+                        <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h4 class="font-headline-md text-body-lg font-bold text-surface-lowest mb-md">Navigasi Cepat</h4>
+            <ul class="space-y-sm font-label-md text-label-md text-surface-variant">
+                <li><a href="index.html" class="hover:text-primary-fixed transition-colors">Beranda</a></li>
+                <li><a href="program.html" class="hover:text-primary-fixed transition-colors font-semibold text-primary-fixed">Program Kebaikan</a></li>
+                <li><a href="index.html#kalkulator-zakat" class="hover:text-primary-fixed transition-colors">Kalkulator Zakat</a></li>
+                <li><a href="index.html#transparansi" class="hover:text-primary-fixed transition-colors">Rekening Donasi</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <h4 class="font-headline-md text-body-lg font-bold text-surface-lowest mb-md">Kontak &amp; Alamat</h4>
+            <ul class="space-y-sm font-body-md text-caption text-surface-variant leading-relaxed">
+                <li class="flex items-start gap-xs">
+                    <span class="material-symbols-outlined text-sm mt-1 shrink-0">location_on</span>
+                    <span>Pangkalpinang, Bangka Belitung, Indonesia</span>
+                </li>
+                <li class="flex items-center gap-xs">
+                    <span class="material-symbols-outlined text-sm shrink-0">call</span>
+                    <a href="https://wa.me/6282380830808" target="_blank" class="hover:text-primary-fixed transition-colors">+62 823-8083-0808</a>
+                </li>
+                <li class="flex items-center gap-xs">
+                    <span class="material-symbols-outlined text-sm shrink-0">mail</span>
+                    <span>wiz.babel@gmail.com</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="max-w-container-max mx-auto px-margin-mobile md:px-lg border-t border-surface-variant/20 pt-lg text-center font-caption text-caption text-surface-variant">
+        &copy; <span id="footer-year-prog"></span> Wahdah Inspirasi Zakat (WIZ) Bangka Belitung. Seluruh Hak Cipta Dilindungi.
+    </div>
+</footer>
+<script>document.getElementById('footer-year-prog').textContent = new Date().getFullYear();</script>
+
+<!-- Donation Modal -->
+<div id="donation-modal" class="modal-backdrop">
+    <div class="modal-dialog">
+        <div class="flex justify-between items-center p-lg border-b border-surface-variant sticky top-0 bg-surface rounded-t-xl z-10">
+            <h3 id="modal-program-title" class="font-headline-md text-headline-md font-bold text-primary">Formulir Donasi</h3>
+            <button onclick="closeDonationModal()" class="text-outline hover:text-on-surface p-xs focus:outline-none">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <form id="donation-form" class="p-lg space-y-md" onsubmit="handleDonationSubmit(event)">
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Pilih Nominal Donasi</label>
+                <div class="grid grid-cols-3 gap-xs mb-sm">
+                    <button type="button" onclick="setNominal(50000)" class="chip-nominal p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary focus:border-primary transition-all text-center">Rp 50.000</button>
+                    <button type="button" onclick="setNominal(100000)" class="chip-nominal p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary focus:border-primary transition-all text-center">Rp 100.000</button>
+                    <button type="button" onclick="setNominal(250000)" class="chip-nominal p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary focus:border-primary transition-all text-center">Rp 250.000</button>
+                    <button type="button" onclick="setNominal(500000)" class="chip-nominal p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary focus:border-primary transition-all text-center">Rp 500.000</button>
+                    <button type="button" onclick="setNominal(1000000)" class="chip-nominal p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary focus:border-primary transition-all text-center">Rp 1.000.000</button>
+                    <button type="button" onclick="setNominal('')" class="chip-nominal p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary focus:border-primary transition-all text-center">Lainnya</button>
+                </div>
+                <div class="relative">
+                    <span class="absolute left-md top-1/2 -translate-y-1/2 font-bold text-primary">Rp</span>
+                    <input type="number" id="nominal-input" required min="10000" class="w-full pl-xl pr-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary" placeholder="Masukkan nominal (Minimal Rp 10.000)"/>
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Nama Lengkap Donatur</label>
+                <input type="text" id="donor-name" required class="w-full px-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary" placeholder="Nama Anda atau hamba Allah"/>
+            </div>
+
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Nomor WhatsApp / HP</label>
+                <input type="tel" id="donor-phone" required class="w-full px-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary" placeholder="08xxxxxxxxxx"/>
+            </div>
+
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Doa / Pesan Kebaikan (Opsional)</label>
+                <textarea id="donor-message" rows="2" class="w-full px-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary" placeholder="Tuliskan doa atau niat donasi Anda..."></textarea>
+            </div>
+
+            <button type="submit" class="w-full bg-primary text-on-primary font-label-md text-label-md py-md rounded-lg hover:bg-primary-container transition-colors font-bold shadow-md text-center">
+                Lanjutkan Pembayaran Donasi
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Floating WhatsApp Button -->
+<a href="https://wa.me/6282380830808?text=Halo%20WIZ%20Bangka%20Belitung,%20saya%20ingin%20bertanya%20mengenai%20program%20donasi" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 right-6 bg-[#25D366] text-white p-3 rounded-full shadow-lg hover:scale-110 transition-transform z-40 flex items-center justify-center">
+    <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.121 4.092 4.164-1.091z"/></svg>
+</a>
+
+<!-- Store & Supabase Scripts -->
+<script src="assets/js/supabase-client.js"></script>
+<script src="assets/js/admin-store.js"></script>
+<script src="assets/js/nav-active.js"></script>
+
+<!-- Interactive JavaScript -->
+<script>
+    // Dynamic Real-time Card Updater — 100% real data only, base always 0
+    function updateDynamicProgramCards() {
+        if (!window.wizStore) return;
+        const fmt = wizStore.utils.formatRupiahCompact;
+
+        document.querySelectorAll('.program-card').forEach(card => {
+            const titleEl = card.querySelector('h3');
+            if (!titleEl) return;
+
+            const progTitle = card.getAttribute('data-title') || titleEl.textContent.trim();
+
+            // Always read target from data-target attribute, or parse from DOM (first time only)
+            if (!card.dataset.target) {
+                const targetText = card.querySelector('.text-outline')?.textContent || '';
+                const targetVal = parseInt(targetText.replace(/[^0-9]/g, '')) || 50000000;
+                card.dataset.target = targetVal;
+            }
+
+            // Base is always 0 — only count real admin-entered data
+            const targetVal = Number(card.dataset.target);
+            const stats = wizStore.finance.getSpecificProgramStats(progTitle, 0, targetVal);
+
+            // Update Terkumpul text
+            const terkumpulStrong = card.querySelector('.space-y-xs strong');
+            if (terkumpulStrong) terkumpulStrong.textContent = fmt(stats.terkumpul);
+
+            // Update Percentage text
+            const percentSpan = card.querySelector('.space-y-xs span.text-primary, .space-y-xs span.font-semibold');
+            if (percentSpan && !percentSpan.textContent.includes('Terkumpul')) {
+                percentSpan.textContent = `${stats.percent}%`;
+            }
+
+            // Update Progress Bar width
+            const progressBar = card.querySelector('.bg-tertiary-container, .bg-primary');
+            if (progressBar) {
+                progressBar.style.width = `${stats.percent}%`;
+            }
+        });
+    }
+
+    // Mobile Menu Toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuIcon = document.getElementById('menu-icon');
+
+    if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            if (mobileMenu.classList.contains('hidden')) {
+                menuIcon.textContent = 'menu';
+            } else {
+                menuIcon.textContent = 'close';
+            }
+        });
+    }
+
+    // Category Filter & Search Logic
+    const categoryButtons = document.querySelectorAll('.category-btn');
+    const searchInput = document.getElementById('program-search');
+    const programCards = document.querySelectorAll('.program-card');
+    const programSections = document.querySelectorAll('.program-section');
+    const noResultsState = document.getElementById('no-results');
+
+    let currentCategory = 'all';
+
+    function filterPrograms() {
+        const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        let totalVisibleCards = 0;
+
+        programSections.forEach(section => {
+            const sectionCategory = section.getAttribute('data-section-category');
+            const cardsInSection = section.querySelectorAll('.program-card');
+            let visibleCardsInSection = 0;
+
+            cardsInSection.forEach(card => {
+                const cardCategory = card.getAttribute('data-category');
+                const cardTitle = (card.getAttribute('data-title') || '').toLowerCase();
+                const cardText = card.textContent.toLowerCase();
+
+                const categoryMatch = (currentCategory === 'all') || (cardCategory === currentCategory);
+                const searchMatch = !query || cardTitle.includes(query) || cardText.includes(query);
+
+                if (categoryMatch && searchMatch) {
+                    card.style.display = 'flex';
+                    visibleCardsInSection++;
+                    totalVisibleCards++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Hide empty sections during search or category filtering
+            if (visibleCardsInSection > 0) {
+                section.style.display = 'block';
+            } else {
+                section.style.display = 'none';
+            }
+        });
+
+        if (noResultsState) {
+            if (totalVisibleCards === 0) {
+                noResultsState.classList.remove('hidden');
+            } else {
+                noResultsState.classList.add('hidden');
+            }
+        }
+    }
+
+    categoryButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            categoryButtons.forEach(b => {
+                b.classList.remove('active', 'bg-primary', 'text-on-primary', 'border-primary');
+                b.classList.add('bg-surface', 'text-on-surface-variant', 'border-outline-variant');
+            });
+
+            btn.classList.add('active', 'bg-primary', 'text-on-primary', 'border-primary');
+            btn.classList.remove('bg-surface', 'text-on-surface-variant', 'border-outline-variant');
+
+            currentCategory = btn.getAttribute('data-category');
+            filterPrograms();
+        });
+    });
+
+    if (searchInput) {
+        searchInput.addEventListener('input', filterPrograms);
+    }
+
+    function resetFilters() {
+        if (searchInput) searchInput.value = '';
+        currentCategory = 'all';
+        categoryButtons.forEach(b => {
+            if (b.getAttribute('data-category') === 'all') {
+                b.classList.add('active', 'bg-primary', 'text-on-primary', 'border-primary');
+                b.classList.remove('bg-surface', 'text-on-surface-variant', 'border-outline-variant');
+            } else {
+                b.classList.remove('active', 'bg-primary', 'text-on-primary', 'border-primary');
+                b.classList.add('bg-surface', 'text-on-surface-variant', 'border-outline-variant');
+            }
+        });
+        filterPrograms();
+    }
+
+    // Modal Manager
+    const donationModal = document.getElementById('donation-modal');
+    const modalTitle = document.getElementById('modal-program-title');
+    const nominalInput = document.getElementById('nominal-input');
+
+    function openDonationModal(programName) {
+        if (programName && programName !== 'Donasi Umum') {
+            window.location.href = `donasi.html?program=${encodeURIComponent(programName)}`;
+        } else {
+            window.location.href = 'donasi.html';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        document.querySelectorAll('.program-card').forEach(card => {
+            const btn = card.querySelector('button[onclick]');
+            if (btn) {
+                card.style.cursor = 'pointer';
+                card.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'BUTTON') return;
+                    btn.click();
+                });
+            }
+        });
+
+        updateDynamicProgramCards();
+        if (window.wizStore && window.wizStore.syncFromCloud) {
+            await window.wizStore.syncFromCloud();
+            updateDynamicProgramCards();
+        }
+    });
+
+    function closeDonationModal() {
+        if (donationModal) {
+            donationModal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+    }
+
+    function setNominal(value) {
+        if (nominalInput) {
+            nominalInput.value = value;
+        }
+    }
+
+    if (donationModal) {
+        donationModal.addEventListener('click', (e) => {
+            if (e.target === donationModal) {
+                closeDonationModal();
+            }
+        });
+    }
+
+    function handleDonationSubmit(event) {
+        event.preventDefault();
+        const nominal = nominalInput.value;
+        const name = document.getElementById('donor-name').value;
+        const phone = document.getElementById('donor-phone').value;
+        const msg = document.getElementById('donor-message').value;
+        const prog = modalTitle ? modalTitle.textContent : 'Donasi';
+
+        const text = `Bismillah, saya *${name}* (%2B${phone}) ingin berdonasi untuk *${prog}* sebesar *Rp ${Number(nominal).toLocaleString('id-ID')}*.%0A%0ANiat/Doa: ${msg || '-'}`;
+        window.open(`https://wa.me/6282380830808?text=${text}`, '_blank');
+        closeDonationModal();
+    }
+</script>
+</body>
+</html>
+

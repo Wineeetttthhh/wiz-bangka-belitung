@@ -1,56 +1,145 @@
 /**
+ * ============================================================
  * WAHDAH INSPIRASI ZAKAT (WIZ) BANGKA BELITUNG
- * Supabase Client Integration Helper
- * 
- * To enable Supabase Cloud Database sync:
- * Fill in your SUPABASE_URL and SUPABASE_ANON_KEY below from your Supabase Dashboard (Settings -> API).
+ * Supabase Client — Full CRUD REST API Helper
+ * ============================================================
+ *
+ * Set your Supabase credentials below.
+ * All CRUD operations go through REST API (no JS SDK needed).
+ * Falls back gracefully when not configured.
+ * ============================================================
  */
 
 const SUPABASE_CONFIG = {
-    url: 'YOUR_SUPABASE_URL',       // Example: 'https://xyzcompany.supabase.co'
-    anonKey: 'YOUR_SUPABASE_ANON_KEY' // Example: 'eyJhY... (your anon key)'
+    url: 'https://yexodimaeekaghbejdxt.supabase.co',
+    anonKey: 'sb_publishable_GiA1BOjbW2psTU36149xuA_E26wGBI3'
 };
 
-/**
- * Generic REST poster for Supabase RLS Endpoints
- */
-async function postToSupabase(tableName, payload) {
-    if (!SUPABASE_CONFIG.url || !SUPABASE_CONFIG.anonKey || SUPABASE_CONFIG.url.includes('YOUR_SUPABASE')) {
-        console.info(`[WIZ Supabase Helper] ${tableName} saved locally. (Set SUPABASE_URL & ANON_KEY in assets/js/supabase-client.js to sync with Supabase Cloud).`);
-        return { success: true, localOnly: true };
+(function () {
+    'use strict';
+
+    function isConfigured() {
+        return SUPABASE_CONFIG.url &&
+            SUPABASE_CONFIG.anonKey &&
+            !SUPABASE_CONFIG.url.includes('YOUR_SUPABASE');
     }
 
-    try {
-        const endpoint = `${SUPABASE_CONFIG.url.replace(/\/$/, '')}/rest/v1/${tableName}`;
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'apikey': SUPABASE_CONFIG.anonKey,
-                'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
-                'Prefer': 'return=minimal'
-            },
-            body: JSON.stringify(payload)
-        });
+    function endpoint(table) {
+        return `${SUPABASE_CONFIG.url.replace(/\/$/, '')}/rest/v1/${table}`;
+    }
 
-        if (response.ok) {
-            return { success: true, cloud: true };
-        } else {
-            const err = await response.text();
-            console.warn(`[WIZ Supabase Helper] API Error:`, err);
-            return { success: false, error: err };
+    function headers(extra) {
+        return {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_CONFIG.anonKey,
+            'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
+            ...extra
+        };
+    }
+
+    // ─── SELECT ──────────────────────────────────────────
+    async function select(table, options = {}) {
+        if (!isConfigured()) return { data: null, error: 'Not configured' };
+
+        let url = endpoint(table);
+        const params = [];
+
+        if (options.filter) params.push(options.filter);      // e.g. 'status=eq.published'
+        if (options.order) params.push(`order=${options.order}`); // e.g. 'created_at.desc'
+        if (options.limit) params.push(`limit=${options.limit}`);
+        if (options.offset) params.push(`offset=${options.offset}`);
+
+        if (params.length > 0) url += '?' + params.join('&');
+
+        try {
+            const res = await fetch(url, {
+                method: 'GET',
+                headers: headers({ 'Accept': 'application/json' })
+            });
+            if (!res.ok) {
+                const err = await res.text();
+                return { data: null, error: err };
+            }
+            const data = await res.json();
+            return { data, error: null };
+        } catch (e) {
+            return { data: null, error: e.message };
         }
-    } catch (e) {
-        console.error(`[WIZ Supabase Helper] Network Error:`, e);
-        return { success: false, error: e.message };
     }
-}
 
-/**
- * Public helper methods for WIZ App
- */
-window.wizSupabase = {
-    saveDonation: (donationData) => postToSupabase('donations', donationData),
-    saveContactMessage: (msgData) => postToSupabase('contact_messages', msgData),
-    saveZakatRecord: (zakatData) => postToSupabase('zakat_records', zakatData)
-};
+    // ─── INSERT ──────────────────────────────────────────
+    async function insert(table, payload) {
+        if (!isConfigured()) return { data: null, error: 'Not configured' };
+
+        try {
+            const res = await fetch(endpoint(table), {
+                method: 'POST',
+                headers: headers({ 'Prefer': 'return=representation' }),
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) {
+                const err = await res.text();
+                return { data: null, error: err };
+            }
+            const data = await res.json();
+            return { data: Array.isArray(data) ? data[0] : data, error: null };
+        } catch (e) {
+            return { data: null, error: e.message };
+        }
+    }
+
+    // ─── UPDATE ──────────────────────────────────────────
+    async function update(table, id, payload) {
+        if (!isConfigured()) return { data: null, error: 'Not configured' };
+
+        try {
+            const res = await fetch(`${endpoint(table)}?id=eq.${id}`, {
+                method: 'PATCH',
+                headers: headers({ 'Prefer': 'return=representation' }),
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) {
+                const err = await res.text();
+                return { data: null, error: err };
+            }
+            const data = await res.json();
+            return { data: Array.isArray(data) ? data[0] : data, error: null };
+        } catch (e) {
+            return { data: null, error: e.message };
+        }
+    }
+
+    // ─── DELETE ──────────────────────────────────────────
+    async function remove(table, id) {
+        if (!isConfigured()) return { data: null, error: 'Not configured' };
+
+        try {
+            const res = await fetch(`${endpoint(table)}?id=eq.${id}`, {
+                method: 'DELETE',
+                headers: headers({ 'Prefer': 'return=minimal' })
+            });
+            if (!res.ok) {
+                const err = await res.text();
+                return { error: err };
+            }
+            return { error: null };
+        } catch (e) {
+            return { error: e.message };
+        }
+    }
+
+    // ─── Public API ──────────────────────────────────────
+    window.wizSupabase = {
+        isConfigured,
+        select,
+        insert,
+        update,
+        remove,
+
+        // Legacy helpers for backward compatibility
+        saveDonation: (data) => insert('donations', data),
+        saveContactMessage: (data) => insert('contact_messages', data),
+        saveZakatRecord: (data) => insert('zakat_records', data)
+    };
+
+})();
