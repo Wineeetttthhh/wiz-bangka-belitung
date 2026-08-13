@@ -443,46 +443,80 @@
     </div>
 </section>
 
-<!-- Rich News Detail Modal Reader with Multi-Photo Gallery on Scroll -->
+<!-- Rich News Detail Modal Reader with Full Content, Gallery & Social Share -->
 <div id="public-news-modal" class="modal-backdrop">
-    <div class="modal-dialog overflow-hidden">
+    <div class="modal-dialog max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl bg-surface border border-outline-variant/30 w-full max-w-3xl">
         <!-- Main Cover Photo -->
-        <div class="relative aspect-video w-full overflow-hidden bg-surface-container">
+        <div class="relative aspect-video w-full overflow-hidden bg-surface-container shrink-0">
             <img id="pub-modal-image" class="w-full h-full object-cover" src="" alt="Dokumentasi Utama Berita">
-            <button onclick="closePublicNewsModal()" class="absolute top-4 right-4 bg-black/60 text-white p-2 rounded-full hover:bg-black transition-colors focus:outline-none z-10 shadow-md"><span class="material-symbols-outlined">close</span></button>
-            <div class="absolute bottom-4 left-4 flex gap-2 flex-wrap">
+            <button onclick="closePublicNewsModal()" class="absolute top-4 right-4 bg-black/60 text-white p-2 rounded-full hover:bg-black transition-colors focus:outline-none z-10 shadow-md flex items-center justify-center cursor-pointer">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <div class="absolute bottom-4 left-4 flex gap-2 flex-wrap z-10">
                 <span id="pub-news-category" class="px-3 py-1 bg-primary text-on-primary rounded-full font-caption text-caption font-bold shadow-xs">Kategori</span>
                 <span id="pub-news-event-date" class="px-3 py-1 bg-tertiary-container text-on-tertiary rounded-full font-caption text-caption font-bold shadow-xs">📅 Tanggal Kegiatan</span>
             </div>
         </div>
 
-        <!-- Article Body & Gallery Photos -->
-        <div class="p-lg md:p-xl space-y-md">
-            <h3 id="pub-news-title" class="font-headline-md text-headline-md md:text-headline-lg font-bold text-on-surface leading-snug">Judul Berita</h3>
-            <div class="flex items-center gap-2 font-caption text-caption text-on-surface-variant border-b border-outline-variant/30 pb-sm">
-                <span class="material-symbols-outlined text-sm text-primary">person</span>
-                <span id="pub-news-meta">Author & Date</span>
+        <!-- Article Body, Gallery & Share Options -->
+        <div class="p-lg md:p-xl space-y-lg">
+            <div class="space-y-xs border-b border-outline-variant/30 pb-md">
+                <h3 id="pub-news-title" class="font-headline-md text-headline-md md:text-headline-lg font-bold text-on-surface leading-snug">Judul Berita</h3>
+                <div class="flex items-center gap-2 font-caption text-caption text-on-surface-variant pt-xs">
+                    <span class="material-symbols-outlined text-sm text-primary">person</span>
+                    <span id="pub-news-meta">Author & Date</span>
+                </div>
             </div>
 
-            <!-- Content Area with Multi-Image Scroll Gallery -->
-            <div id="pub-news-body-container" class="space-y-lg pt-sm">
-                <div id="pub-news-paragraph-1" class="font-body-md text-body-md text-on-surface leading-relaxed whitespace-pre-line"></div>
-                
-                <!-- Gallery Image 1 (Rendered on scroll) -->
-                <div id="pub-gallery-1-box" class="hidden my-md space-y-xs">
-                    <img id="pub-gallery-1-img" src="" class="w-full h-64 md:h-80 object-cover rounded-xl border border-outline-variant/30 shadow-sm" alt="Dokumentasi Tambahan 1">
-                    <p class="font-caption text-caption text-on-surface-variant text-center italic">Dokumentasi kegiatan di lapangan WIZ Bangka Belitung</p>
+            <!-- Full Unclipped Article Content -->
+            <div id="pub-news-content" class="font-body-md text-body-md text-on-surface leading-relaxed whitespace-pre-line text-justify space-y-md"></div>
+            
+            <!-- Multi-Photo Gallery Grid -->
+            <div id="pub-news-gallery-wrapper" class="hidden space-y-sm pt-md border-t border-outline-variant/30">
+                <h4 class="font-label-md text-label-md font-bold text-on-surface flex items-center gap-xs">
+                    <span class="material-symbols-outlined text-primary text-sm">collections</span>
+                    <span>Galeri Dokumentasi Kegiatan</span>
+                </h4>
+                <div id="pub-news-gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-md"></div>
+            </div>
+
+            <!-- Social Media Share Bar -->
+            <div class="pt-lg border-t border-outline-variant/40 bg-surface-container-low p-md rounded-2xl space-y-sm">
+                <div class="flex items-center justify-between">
+                    <span class="font-label-md text-caption font-bold text-on-surface flex items-center gap-xs">
+                        <span class="material-symbols-outlined text-primary text-sm">share</span>
+                        <span>Bagikan Berita Ini ke Media Sosial:</span>
+                    </span>
+                    <span id="share-toast" class="hidden font-caption text-caption text-primary font-bold animate-pulse">✓ Link tersalin!</span>
                 </div>
 
-                <div id="pub-news-paragraph-2" class="font-body-md text-body-md text-on-surface leading-relaxed whitespace-pre-line"></div>
-
-                <!-- Gallery Image 2 (Rendered on scroll) -->
-                <div id="pub-gallery-2-box" class="hidden my-md space-y-xs">
-                    <img id="pub-gallery-2-img" src="" class="w-full h-64 md:h-80 object-cover rounded-xl border border-outline-variant/30 shadow-sm" alt="Dokumentasi Tambahan 2">
-                    <p class="font-caption text-caption text-on-surface-variant text-center italic">Penyaluran manfaat dan kebersamaan bersama warga penerima</p>
+                <div class="flex items-center gap-xs flex-wrap">
+                    <!-- WhatsApp -->
+                    <button id="share-wa-btn" onclick="shareArticle('wa')" class="flex-1 min-w-[110px] bg-[#25D366] text-white px-md py-xs rounded-xl font-caption text-caption font-bold hover:brightness-105 transition-all flex items-center justify-center gap-xs shadow-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">send</span>
+                        <span>WhatsApp</span>
+                    </button>
+                    <!-- Facebook -->
+                    <button id="share-fb-btn" onclick="shareArticle('fb')" class="flex-1 min-w-[110px] bg-[#1877F2] text-white px-md py-xs rounded-xl font-caption text-caption font-bold hover:brightness-105 transition-all flex items-center justify-center gap-xs shadow-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">public</span>
+                        <span>Facebook</span>
+                    </button>
+                    <!-- Twitter/X -->
+                    <button id="share-tw-btn" onclick="shareArticle('tw')" class="flex-1 min-w-[100px] bg-[#000000] text-white px-md py-xs rounded-xl font-caption text-caption font-bold hover:brightness-105 transition-all flex items-center justify-center gap-xs shadow-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">tag</span>
+                        <span>Twitter / X</span>
+                    </button>
+                    <!-- Telegram -->
+                    <button id="share-tg-btn" onclick="shareArticle('tg')" class="flex-1 min-w-[100px] bg-[#229ED9] text-white px-md py-xs rounded-xl font-caption text-caption font-bold hover:brightness-105 transition-all flex items-center justify-center gap-xs shadow-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">near_me</span>
+                        <span>Telegram</span>
+                    </button>
+                    <!-- Copy Link -->
+                    <button id="share-copy-btn" onclick="shareArticle('copy')" class="bg-surface-container-high border border-outline-variant text-on-surface px-md py-xs rounded-xl font-caption text-caption font-bold hover:bg-surface-variant transition-colors flex items-center justify-center gap-xs shadow-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">content_copy</span>
+                        <span>Salin Link</span>
+                    </button>
                 </div>
-
-                <div id="pub-news-paragraph-3" class="font-body-md text-body-md text-on-surface leading-relaxed whitespace-pre-line"></div>
             </div>
         </div>
     </div>
