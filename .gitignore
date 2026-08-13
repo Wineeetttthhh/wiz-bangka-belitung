@@ -11,3 +11,7 @@ Thumbs.db
 # Environment Variables
 .env
 .env.local
+
+# Auto-push watcher (hanya untuk lokal)
+auto-push.js
+start-auto-push.bat

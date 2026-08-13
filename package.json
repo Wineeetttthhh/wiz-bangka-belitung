@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node server.js",
     "start": "node server.js",
-    "serve": "npx -y serve . -p 3000"
+    "serve": "npx -y serve . -p 3000",
+    "watch": "node auto-push.js"
   },
   "keywords": [
     "wiz",
