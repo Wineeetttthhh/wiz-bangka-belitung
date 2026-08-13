@@ -1052,6 +1052,28 @@
             refreshAll();
         }
 
+        async function handleManualSync() {
+            const btn = document.getElementById('sync-data-btn');
+            const icon = document.getElementById('sync-data-icon');
+            if (btn) btn.disabled = true;
+            if (icon) icon.classList.add('animate-spin');
+
+            if (window.wizStore && window.wizStore.fullBidirectionalSync) {
+                const result = await window.wizStore.fullBidirectionalSync();
+                if (result.success) {
+                    alert(`✅ ${result.message}\n\nPerubahan Lokal -> Cloud: ${result.pushDetails?.donationsPushed || 0} donasi, ${result.pushDetails?.newsPushed || 0} berita, ${result.pushDetails?.disbursementsPushed || 0} penyaluran.`);
+                } else {
+                    alert(`⚠️ ${result.message}`);
+                }
+                refreshAll();
+            } else {
+                alert('Modul wizStore belum siap.');
+            }
+
+            if (btn) btn.disabled = false;
+            if (icon) icon.classList.remove('animate-spin');
+        }
+
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
