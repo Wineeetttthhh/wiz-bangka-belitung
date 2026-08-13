@@ -814,7 +814,7 @@
 
         async add(article) {
             const list = this.getAll();
-            const defaultImg = 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop';
+            const defaultImg = 'assets/images/sedekah-beras-dhuafa.jpg';
             const newArticle = {
                 id: article.id || generateId(),
                 title: article.title,
