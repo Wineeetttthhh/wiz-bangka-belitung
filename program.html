@@ -1313,6 +1313,14 @@
         window.open(`https://wa.me/6282380830808?text=${text}`, '_blank');
         closeDonationModal();
     }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        updateDynamicProgramCards();
+        if (window.wizStore && window.wizStore.syncFromCloud) {
+            await window.wizStore.syncFromCloud();
+            updateDynamicProgramCards();
+        }
+    });
 </script>
 </body>
 </html>
