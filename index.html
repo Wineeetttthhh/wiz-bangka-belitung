@@ -743,6 +743,36 @@
         });
     }
 
+    let currentShareArticle = null;
+
+    function shareArticle(platform) {
+        if (!currentShareArticle) return;
+        const title = currentShareArticle.title || 'Berita WIZ Bangka Belitung';
+        const baseUrl = window.location.origin + window.location.pathname;
+        const shareUrl = `${baseUrl}?newsId=${currentShareArticle.id}#berita`;
+        const shareText = `*${title}*\n\nBaca selengkapnya berita WIZ Bangka Belitung di:\n${shareUrl}`;
+
+        if (platform === 'wa') {
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+        } else if (platform === 'fb') {
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank');
+        } else if (platform === 'tw') {
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(shareUrl)}`, '_blank');
+        } else if (platform === 'tg') {
+            window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(title)}`, '_blank');
+        } else if (platform === 'copy') {
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                const toast = document.getElementById('share-toast');
+                if (toast) {
+                    toast.classList.remove('hidden');
+                    setTimeout(() => toast.classList.add('hidden'), 3000);
+                } else {
+                    alert('Tautan berita berhasil disalin ke clipboard!');
+                }
+            });
+        }
+    }
+
     // Dynamic Public News Render with Cover Photos & Event Date
     function renderPublicNews() {
         if (!window.wizStore) return;
@@ -758,8 +788,8 @@
         const defaultImg = 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop';
 
         grid.innerHTML = publishedNews.map(n => `
-            <article onclick="openPublicNewsModal('${n.id}')" class="bg-surface rounded-xl overflow-hidden shadow-level-1 hover:shadow-level-2 transition-all border border-surface-variant flex flex-col cursor-pointer group">
-                <div class="relative aspect-video overflow-hidden bg-surface-container">
+            <article class="bg-surface rounded-xl overflow-hidden shadow-level-1 hover:shadow-level-2 transition-all border border-surface-variant flex flex-col group">
+                <div onclick="openPublicNewsModal('${n.id}')" class="relative aspect-video overflow-hidden bg-surface-container cursor-pointer">
                     <img src="${n.imageUrl || defaultImg}" onerror="this.src='${defaultImg}'" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="${n.title}">
                     <span class="absolute top-sm left-sm bg-primary text-on-primary font-caption text-caption px-sm py-xs rounded-full font-bold shadow-sm">${n.category}</span>
                 </div>
@@ -768,11 +798,17 @@
                         <span class="material-symbols-outlined text-[15px]">event</span>
                         <span>Kegiatan: ${wizStore.utils.formatDate(n.eventDate || n.createdAt)}</span>
                     </div>
-                    <h3 class="font-headline-md text-headline-md font-bold text-on-surface group-hover:text-primary transition-colors line-clamp-2">${n.title}</h3>
-                    <p class="font-body-md text-body-md text-on-surface-variant line-clamp-3 flex-grow">${n.content}</p>
-                    <div class="pt-sm border-t border-outline-variant/30 flex items-center justify-between text-primary font-label-md text-caption font-bold">
-                        <span>Baca Selengkapnya (${(n.gallery || []).length > 0 ? '+ Gallery Foto' : 'Dokumentasi'})</span>
-                        <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    <h3 onclick="openPublicNewsModal('${n.id}')" class="font-headline-md text-headline-md font-bold text-on-surface group-hover:text-primary transition-colors line-clamp-2 cursor-pointer">${n.title}</h3>
+                    <p onclick="openPublicNewsModal('${n.id}')" class="font-body-md text-body-md text-on-surface-variant line-clamp-3 flex-grow cursor-pointer">${n.content}</p>
+                    
+                    <div class="pt-sm border-t border-outline-variant/30 flex items-center justify-between gap-xs">
+                        <button onclick="openPublicNewsModal('${n.id}')" class="text-primary font-label-md text-caption font-bold flex items-center gap-xs hover:underline cursor-pointer">
+                            <span>Baca Selengkapnya</span>
+                            <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                        </button>
+                        <button onclick="currentShareArticle = wizStore.news.getById('${n.id}'); shareArticle('wa');" title="Bagikan ke WhatsApp" class="text-on-surface-variant hover:text-[#25D366] transition-colors p-1 rounded-lg flex items-center justify-center cursor-pointer">
+                            <span class="material-symbols-outlined text-base">share</span>
+                        </button>
                     </div>
                 </div>
             </article>`).join('');
@@ -782,6 +818,7 @@
         if (!window.wizStore) return;
         const article = wizStore.news.getById(id);
         if (!article) return;
+        currentShareArticle = article;
 
         const defaultImg = 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop';
         const imgEl = document.getElementById('pub-modal-image');
@@ -793,31 +830,26 @@
         document.getElementById('pub-news-title').textContent = article.title;
         document.getElementById('pub-news-meta').textContent = `Dipublikasikan pada ${wizStore.utils.formatDate(article.createdAt)} • Oleh ${article.author || 'Admin WIZ Babel'}`;
 
-        // Split text content into paragraphs for interspersing gallery photos
-        const paragraphs = (article.content || '').split('\n\n').filter(Boolean);
-        document.getElementById('pub-news-paragraph-1').textContent = paragraphs[0] || article.content;
-        document.getElementById('pub-news-paragraph-2').textContent = paragraphs[1] || '';
-        document.getElementById('pub-news-paragraph-3').textContent = paragraphs.slice(2).join('\n\n') || '';
-
-        // Handle gallery images on scroll
-        const gal = Array.isArray(article.gallery) ? article.gallery.filter(Boolean) : [];
-
-        const gal1Box = document.getElementById('pub-gallery-1-box');
-        const gal1Img = document.getElementById('pub-gallery-1-img');
-        if (gal[0]) {
-            gal1Img.src = gal[0];
-            gal1Box.classList.remove('hidden');
-        } else {
-            gal1Box.classList.add('hidden');
+        // Render 100% full content without clipping/truncation
+        const contentEl = document.getElementById('pub-news-content');
+        if (contentEl) {
+            contentEl.textContent = article.content || '';
         }
 
-        const gal2Box = document.getElementById('pub-gallery-2-box');
-        const gal2Img = document.getElementById('pub-gallery-2-img');
-        if (gal[1]) {
-            gal2Img.src = gal[1];
-            gal2Box.classList.remove('hidden');
-        } else {
-            gal2Box.classList.add('hidden');
+        // Render multi-photo gallery grid if available
+        const gal = Array.isArray(article.gallery) ? article.gallery.filter(Boolean) : [];
+        const galWrapper = document.getElementById('pub-news-gallery-wrapper');
+        const galGrid = document.getElementById('pub-news-gallery-grid');
+        
+        if (gal.length > 0 && galWrapper && galGrid) {
+            galWrapper.classList.remove('hidden');
+            galGrid.innerHTML = gal.map(imgUrl => `
+                <div class="overflow-hidden rounded-xl border border-outline-variant/30 shadow-sm aspect-video bg-surface-container">
+                    <img src="${imgUrl}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" alt="Dokumentasi Tambahan">
+                </div>
+            `).join('');
+        } else if (galWrapper) {
+            galWrapper.classList.add('hidden');
         }
 
         document.getElementById('public-news-modal').classList.add('show');
