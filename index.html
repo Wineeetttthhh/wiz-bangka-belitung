@@ -970,10 +970,20 @@
     document.addEventListener('DOMContentLoaded', async () => {
         renderPublicNews();
         updateDynamicProgramCards();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetNewsId = urlParams.get('newsId');
+        if (targetNewsId) {
+            setTimeout(() => openPublicNewsModal(targetNewsId), 200);
+        }
+
         if (wizStore && wizStore.syncFromCloud) {
             await wizStore.syncFromCloud();
             renderPublicNews();
             updateDynamicProgramCards();
+            if (targetNewsId) {
+                openPublicNewsModal(targetNewsId);
+            }
         }
     });
 </script>
