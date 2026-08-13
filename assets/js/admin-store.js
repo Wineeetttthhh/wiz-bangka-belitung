@@ -1199,6 +1199,8 @@
         calcInfakUmumAllocation,
         calcInfakTerikatAllocation,
         syncFromCloud,
+        pushToCloud,
+        fullBidirectionalSync,
         utils: { formatRupiahCompact, formatDate, formatDateTime, timeAgo, generateId, mapProgramToPillar }
     };
 
