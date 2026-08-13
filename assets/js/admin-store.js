@@ -313,6 +313,94 @@
     }
 
     // ─── Cloud Sync Helper ────────────────────────────────
+    async function pushToCloud() {
+        if (!window.wizSupabase || !window.wizSupabase.isConfigured()) {
+            return { status: 'error', message: 'Supabase belum dikonfigurasi' };
+        }
+
+        const report = { donationsPushed: 0, newsPushed: 0, disbursementsPushed: 0, errors: [] };
+
+        try {
+            // 1. Donasi Lokal -> Cloud
+            const localDonations = getStore(STORAGE_KEYS.DONATIONS) || [];
+            const cloudDonRes = await window.wizSupabase.select('donations');
+            const cloudDonIds = new Set((cloudDonRes.data || []).map(d => String(d.id)));
+
+            for (const d of localDonations) {
+                if (!cloudDonIds.has(String(d.id))) {
+                    const res = await window.wizSupabase.insert('donations', {
+                        donor_name: d.donorName || 'Hamba Allah',
+                        donor_phone: d.donorPhone || '',
+                        donor_email: d.donorEmail || '',
+                        wilayah: d.wilayah || 'Pangkalpinang',
+                        donation_type: d.type || 'Infak Terikat',
+                        program_utama: d.programUtama || mapProgramToPillar(d.program),
+                        program_spesifik: d.programSpesifik || d.program || '-',
+                        program: d.program || '-',
+                        category: d.category || '-',
+                        amount: Number(d.amount) || 0,
+                        alokasi_operasional: Number(d.alokasiOperasional) || 0,
+                        alokasi_program: Number(d.alokasiProgram) || 0,
+                        payment_method: d.method || 'Bank Transfer',
+                        notes: d.notes || '',
+                        status: d.status || 'pending',
+                        verified_at: d.verifiedAt || null,
+                        verified_by: d.verifiedBy || null,
+                        rejected_at: d.rejectedAt || null,
+                        rejected_by: d.rejectedBy || null,
+                        created_at: d.createdAt || new Date().toISOString()
+                    });
+                    if (!res.error) report.donationsPushed++;
+                }
+            }
+
+            // 2. News Lokal -> Cloud
+            const localNews = getStore(STORAGE_KEYS.NEWS) || [];
+            const cloudNewsRes = await window.wizSupabase.select('news');
+            const cloudNewsTitles = new Set((cloudNewsRes.data || []).map(n => n.title));
+
+            for (const n of localNews) {
+                if (!cloudNewsTitles.has(n.title)) {
+                    const res = await window.wizSupabase.insert('news', {
+                        title: n.title,
+                        category: n.category || 'Kegiatan & Event',
+                        content: n.content || '',
+                        image_url: n.imageUrl || '',
+                        gallery: n.gallery || [],
+                        event_date: n.eventDate || n.createdAt || new Date().toISOString(),
+                        status: n.status || 'published',
+                        author: n.author || 'Admin',
+                        created_at: n.createdAt || new Date().toISOString()
+                    });
+                    if (!res.error) report.newsPushed++;
+                }
+            }
+
+            // 3. Disbursements Lokal -> Cloud
+            const localDisb = getStore(STORAGE_KEYS.DISBURSEMENTS) || [];
+            const cloudDisbRes = await window.wizSupabase.select('disbursements');
+            const cloudDisbIds = new Set((cloudDisbRes.data || []).map(db => String(db.id)));
+
+            for (const db of localDisb) {
+                if (!cloudDisbIds.has(String(db.id))) {
+                    const res = await window.wizSupabase.insert('disbursements', {
+                        program: db.program,
+                        amount: Number(db.amount) || 0,
+                        description: db.description || '',
+                        disbursed_at: db.disbursedAt || db.createdAt || new Date().toISOString(),
+                        recorded_by: db.recordedBy || 'Admin'
+                    });
+                    if (!res.error) report.disbursementsPushed++;
+                }
+            }
+
+            return { status: 'success', report };
+        } catch (e) {
+            console.error('[WIZ Store] Push to cloud error:', e);
+            return { status: 'error', message: e.message };
+        }
+    }
+
     async function syncFromCloud() {
         if (!window.wizSupabase || !window.wizSupabase.isConfigured()) return;
 
@@ -325,18 +413,16 @@
             ]);
 
             if (donRes.data && donRes.data.length > 0) {
-                const mapped = donRes.data.map(d => ({
-                    id: d.id,
+                const cloudMapped = donRes.data.map(d => ({
+                    id: String(d.id),
                     donorName: d.donor_name,
                     donorPhone: d.donor_phone,
                     donorEmail: d.donor_email,
-                    // Fields baru
-                    wilayah: d.wilayah || '-',
-                    programUtama: d.program_utama || '-',
-                    programSpesifik: d.program_spesifik || '-',
+                    wilayah: d.wilayah || 'Pangkalpinang',
+                    programUtama: d.program_utama || mapProgramToPillar(d.program || d.program_spesifik),
+                    programSpesifik: d.program_spesifik || d.program || '-',
                     alokasiOperasional: Number(d.alokasi_operasional) || 0,
                     alokasiProgram: Number(d.alokasi_program) || 0,
-                    // Legacy
                     program: d.program || d.program_spesifik || '-',
                     category: d.category || '-',
                     type: d.donation_type,
@@ -350,12 +436,20 @@
                     rejectedAt: d.rejected_at,
                     rejectedBy: d.rejected_by
                 }));
-                setStore(STORAGE_KEYS.DONATIONS, mapped);
+
+                // Smart merge local with cloud
+                const local = getStore(STORAGE_KEYS.DONATIONS) || [];
+                const mergedMap = new Map();
+                local.forEach(item => mergedMap.set(String(item.id), item));
+                cloudMapped.forEach(item => mergedMap.set(String(item.id), item));
+
+                const mergedList = Array.from(mergedMap.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                setStore(STORAGE_KEYS.DONATIONS, mergedList);
             }
 
             if (newsRes.data && newsRes.data.length > 0) {
-                setStore(STORAGE_KEYS.NEWS, newsRes.data.map(n => ({
-                    id: n.id,
+                const cloudMapped = newsRes.data.map(n => ({
+                    id: String(n.id),
                     title: n.title,
                     category: n.category === 'Penyaluran Dana' ? 'Kegiatan & Event' : (n.category || 'Kegiatan & Event'),
                     content: n.content,
@@ -366,32 +460,72 @@
                     author: n.author,
                     createdAt: n.created_at,
                     updatedAt: n.updated_at
-                })));
+                }));
+
+                const local = getStore(STORAGE_KEYS.NEWS) || [];
+                const mergedMap = new Map();
+                local.forEach(item => mergedMap.set(String(item.id), item));
+                cloudMapped.forEach(item => mergedMap.set(String(item.id), item));
+
+                setStore(STORAGE_KEYS.NEWS, Array.from(mergedMap.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
             }
 
             if (disbRes.data && disbRes.data.length > 0) {
-                setStore(STORAGE_KEYS.DISBURSEMENTS, disbRes.data.map(db => ({
-                    id: db.id,
+                const cloudMapped = disbRes.data.map(db => ({
+                    id: String(db.id),
                     program: db.program,
                     amount: Number(db.amount),
                     description: db.description,
                     disbursedAt: db.disbursed_at,
                     recordedBy: db.recorded_by,
                     createdAt: db.created_at
-                })));
+                }));
+
+                const local = getStore(STORAGE_KEYS.DISBURSEMENTS) || [];
+                const mergedMap = new Map();
+                local.forEach(item => mergedMap.set(String(item.id), item));
+                cloudMapped.forEach(item => mergedMap.set(String(item.id), item));
+
+                setStore(STORAGE_KEYS.DISBURSEMENTS, Array.from(mergedMap.values()).sort((a, b) => new Date(b.disbursedAt || b.createdAt) - new Date(a.disbursedAt || a.createdAt)));
             }
 
             if (actRes.data && actRes.data.length > 0) {
-                setStore(STORAGE_KEYS.ACTIVITY, actRes.data.map(a => ({
-                    id: a.id,
+                const cloudMapped = actRes.data.map(a => ({
+                    id: String(a.id),
                     type: a.type,
                     message: a.message,
                     actor: a.actor,
                     createdAt: a.created_at
-                })));
+                }));
+
+                const local = getStore(STORAGE_KEYS.ACTIVITY) || [];
+                const mergedMap = new Map();
+                local.forEach(item => mergedMap.set(String(item.id), item));
+                cloudMapped.forEach(item => mergedMap.set(String(item.id), item));
+
+                setStore(STORAGE_KEYS.ACTIVITY, Array.from(mergedMap.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 100));
             }
         } catch (e) {
             console.warn('[WIZ Store] Supabase sync fallback to local storage:', e);
+        }
+    }
+
+    async function fullBidirectionalSync() {
+        if (!window.wizSupabase || !window.wizSupabase.isConfigured()) {
+            return { success: false, message: 'Supabase API key/URL belum dikonfigurasi.' };
+        }
+
+        try {
+            const pushResult = await pushToCloud();
+            await syncFromCloud();
+
+            return {
+                success: true,
+                message: 'Sinkronisasi dua arah selesai! Data lokal dan cloud Supabase sudah 100% identik.',
+                pushDetails: pushResult.report
+            };
+        } catch (e) {
+            return { success: false, message: `Gagal sinkronisasi: ${e.message}` };
         }
     }
 
