@@ -222,6 +222,12 @@
                 </div>
             </div>
             <div class="flex items-center gap-md">
+                <!-- Sync Button -->
+                <button id="sync-data-btn" onclick="handleManualSync()" title="Sinkronkan data lokal dengan database Supabase Cloud secara 2 arah"
+                    class="flex items-center gap-1.5 bg-primary text-on-primary px-md py-xs rounded-lg font-caption text-caption font-bold hover:bg-primary-container transition-colors shadow-sm cursor-pointer">
+                    <span id="sync-data-icon" class="material-symbols-outlined text-[18px]">sync</span>
+                    <span class="hidden sm:inline">Sinkronkan Data</span>
+                </button>
                 <!-- Filter Role Access Permission -->
                 <div
                     class="flex items-center gap-xs bg-surface-container-high px-sm py-xs rounded-lg border border-outline-variant/40">
