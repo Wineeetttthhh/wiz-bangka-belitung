@@ -1,7 +1,7 @@
 /**
  * ============================================================
  * WAHDAH INSPIRASI ZAKAT (WIZ) BANGKA BELITUNG
- * Admin Store — Dual-layer Data Manager (Supabase + localStorage)
+ * Admin Store — Dual-layer Data Manager (Firebase + localStorage)
  * ============================================================
  * 
  * Provides full CRUD operations with dual persistence:
@@ -287,8 +287,8 @@
             if (typeof activityLog !== 'undefined' && activityLog.add) {
                 activityLog.add('settings', `Foto '${label || key}' diperbarui oleh Admin`, sessionStorage.getItem('wiz_admin_user') || 'Admin');
             }
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                await window.wizSupabase.upsert('site_images', { key, url, label: label || key, updated_at: new Date().toISOString() });
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.upsert('site_images', { key, url, label: label || key, updatedAt: new Date().toISOString() });
             }
             return current;
         },
@@ -298,9 +298,9 @@
             if (typeof activityLog !== 'undefined' && activityLog.add) {
                 activityLog.add('settings', 'Beberapa foto website diperbarui oleh Admin', sessionStorage.getItem('wiz_admin_user') || 'Admin');
             }
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 for (const [key, url] of Object.entries(imagesObj)) {
-                    await window.wizSupabase.upsert('site_images', { key, url, label: key, updated_at: new Date().toISOString() });
+                    await window.wizFirebase.upsert('site_images', { key, url, label: key, updatedAt: new Date().toISOString() });
                 }
             }
             return current;
@@ -399,8 +399,8 @@
                 activityLog.add('auth', `Akun admin '${list[idx].username}' telah diverifikasi & disetujui`, adminActor || 'Admin 1');
             }
 
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                await window.wizSupabase.update('admin_users', { status: 'approved', verified_at: new Date().toISOString(), verified_by: adminActor || 'Admin 1' }, { id });
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.update('admin_users', id, { status: 'approved', verifiedAt: new Date().toISOString(), verifiedBy: adminActor || 'Admin 1' });
             }
             return { success: true, user: list[idx] };
         },
@@ -416,8 +416,8 @@
                 activityLog.add('auth', `Pendaftaran akun admin '${list[idx].username}' ditolak`, adminActor || 'Admin 1');
             }
 
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                await window.wizSupabase.update('admin_users', { status: 'rejected' }, { id });
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.update('admin_users', id, { status: 'rejected' });
             }
             return { success: true };
         },
@@ -430,8 +430,8 @@
             list = list.filter(u => String(u.id) !== String(id));
             setStore(STORAGE_KEYS.ADMIN_USERS, list);
 
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                await window.wizSupabase.delete('admin_users', { id });
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.remove('admin_users', id);
             }
             return { success: true };
         }
@@ -457,8 +457,8 @@
                 activityLog.add('settings', `Aturan alokasi dana wilayah '${wilayah}' diperbarui oleh Admin`, sessionStorage.getItem('wiz_admin_user') || 'Admin');
             }
 
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                await window.wizSupabase.upsert('allocation_rules', { wilayah, data, updated_at: new Date().toISOString() });
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.upsert('allocation_rules', { key: wilayah, wilayah, data, updatedAt: new Date().toISOString() });
             }
             return all;
         },
@@ -596,207 +596,104 @@
         localStorage.setItem(STORAGE_KEYS.INITIALIZED, 'true');
     }
 
-    // ─── Cloud Sync Helper ────────────────────────────────
+    // ─── Cloud Sync Helper (Firebase) ─────────────────────
     async function pushToCloud() {
-        if (!window.wizSupabase || !window.wizSupabase.isConfigured()) {
-            return { status: 'error', message: 'Supabase belum dikonfigurasi' };
+        if (!window.wizFirebase || !window.wizFirebase.isConfigured()) {
+            return { status: 'error', message: 'Firebase belum dikonfigurasi' };
         }
 
         const report = { donationsPushed: 0, newsPushed: 0, disbursementsPushed: 0, errors: [] };
 
         try {
-            // 1. Donasi Lokal -> Cloud
+            const { data: cloudDons } = await window.wizFirebase.select('donations');
+            const cloudDonIds = new Set((cloudDons || []).map(d => String(d.id)));
             const localDonations = getStore(STORAGE_KEYS.DONATIONS) || [];
-            const cloudDonRes = await window.wizSupabase.select('donations');
-            const cloudDonIds = new Set((cloudDonRes.data || []).map(d => String(d.id)));
-
             for (const d of localDonations) {
                 if (!cloudDonIds.has(String(d.id))) {
-                    const res = await window.wizSupabase.insert('donations', {
-                        donor_name: d.donorName || 'Hamba Allah',
-                        donor_phone: d.donorPhone || '',
-                        donor_email: d.donorEmail || '',
-                        wilayah: d.wilayah || 'Pangkalpinang',
-                        donation_type: d.type || 'Infak Terikat',
-                        program_utama: d.programUtama || mapProgramToPillar(d.program),
-                        program_spesifik: d.programSpesifik || d.program || '-',
-                        program: d.program || '-',
-                        category: d.category || '-',
-                        amount: Number(d.amount) || 0,
-                        alokasi_operasional: Number(d.alokasiOperasional) || 0,
-                        alokasi_program: Number(d.alokasiProgram) || 0,
-                        payment_method: d.method || 'Bank Transfer',
-                        notes: d.notes || '',
-                        status: d.status || 'pending',
-                        verified_at: d.verifiedAt || null,
-                        verified_by: d.verifiedBy || null,
-                        rejected_at: d.rejectedAt || null,
-                        rejected_by: d.rejectedBy || null,
-                        created_at: d.createdAt || new Date().toISOString()
-                    });
-                    if (!res.error) report.donationsPushed++;
+                    const { error } = await window.wizFirebase.insert('donations', d);
+                    if (!error) report.donationsPushed++;
                 }
             }
 
-            // 2. News Lokal -> Cloud
+            const { data: cloudNews } = await window.wizFirebase.select('news');
+            const cloudNewsTitles = new Set((cloudNews || []).map(n => n.title));
             const localNews = getStore(STORAGE_KEYS.NEWS) || [];
-            const cloudNewsRes = await window.wizSupabase.select('news');
-            const cloudNewsTitles = new Set((cloudNewsRes.data || []).map(n => n.title));
-
             for (const n of localNews) {
                 if (!cloudNewsTitles.has(n.title)) {
-                    const res = await window.wizSupabase.insert('news', {
-                        title: n.title,
-                        category: n.category || 'Kegiatan & Event',
-                        content: n.content || '',
-                        image_url: n.imageUrl || '',
-                        gallery: n.gallery || [],
-                        event_date: n.eventDate || n.createdAt || new Date().toISOString(),
-                        status: n.status || 'published',
-                        author: n.author || 'Admin',
-                        created_at: n.createdAt || new Date().toISOString()
-                    });
-                    if (!res.error) report.newsPushed++;
+                    const { error } = await window.wizFirebase.insert('news', n);
+                    if (!error) report.newsPushed++;
                 }
             }
 
-            // 3. Disbursements Lokal -> Cloud
+            const { data: cloudDisb } = await window.wizFirebase.select('disbursements');
+            const cloudDisbIds = new Set((cloudDisb || []).map(db => String(db.id)));
             const localDisb = getStore(STORAGE_KEYS.DISBURSEMENTS) || [];
-            const cloudDisbRes = await window.wizSupabase.select('disbursements');
-            const cloudDisbIds = new Set((cloudDisbRes.data || []).map(db => String(db.id)));
-
             for (const db of localDisb) {
                 if (!cloudDisbIds.has(String(db.id))) {
-                    const res = await window.wizSupabase.insert('disbursements', {
-                        program: db.program,
-                        amount: Number(db.amount) || 0,
-                        description: db.description || '',
-                        disbursed_at: db.disbursedAt || db.createdAt || new Date().toISOString(),
-                        recorded_by: db.recordedBy || 'Admin'
-                    });
-                    if (!res.error) report.disbursementsPushed++;
+                    const { error } = await window.wizFirebase.insert('disbursements', db);
+                    if (!error) report.disbursementsPushed++;
                 }
             }
 
             return { status: 'success', report };
         } catch (e) {
-            console.error('[WIZ Store] Push to cloud error:', e);
+            console.error('[WIZ Firebase] Push error:', e);
             return { status: 'error', message: e.message };
         }
     }
 
     async function syncFromCloud() {
-        if (!window.wizSupabase || !window.wizSupabase.isConfigured()) return;
+        if (!window.wizFirebase || !window.wizFirebase.isConfigured()) return;
 
         try {
             const [donRes, newsRes, disbRes, actRes] = await Promise.all([
-                window.wizSupabase.select('donations', { order: 'created_at.desc' }),
-                window.wizSupabase.select('news', { order: 'created_at.desc' }),
-                window.wizSupabase.select('disbursements', { order: 'disbursed_at.desc' }),
-                window.wizSupabase.select('activity_log', { order: 'created_at.desc', limit: 50 })
+                window.wizFirebase.select('donations'),
+                window.wizFirebase.select('news'),
+                window.wizFirebase.select('disbursements'),
+                window.wizFirebase.select('activity_log')
             ]);
 
-            if (donRes.data && donRes.data.length > 0) {
-                const cloudMapped = donRes.data.map(d => ({
-                    id: String(d.id),
-                    donorName: d.donor_name,
-                    donorPhone: d.donor_phone,
-                    donorEmail: d.donor_email,
-                    wilayah: d.wilayah || 'Pangkalpinang',
-                    programUtama: d.program_utama || mapProgramToPillar(d.program || d.program_spesifik),
-                    programSpesifik: d.program_spesifik || d.program || '-',
-                    alokasiOperasional: Number(d.alokasi_operasional) || 0,
-                    alokasiProgram: Number(d.alokasi_program) || 0,
-                    program: d.program || d.program_spesifik || '-',
-                    category: d.category || '-',
-                    type: d.donation_type,
-                    amount: Number(d.amount),
-                    method: d.payment_method,
-                    notes: d.notes,
-                    status: d.status,
-                    createdAt: d.created_at,
-                    verifiedAt: d.verified_at,
-                    verifiedBy: d.verified_by,
-                    rejectedAt: d.rejected_at,
-                    rejectedBy: d.rejected_by
-                }));
-
-                // Smart merge local with cloud
-                const local = getStore(STORAGE_KEYS.DONATIONS) || [];
-                const mergedMap = new Map();
-                local.forEach(item => mergedMap.set(String(item.id), item));
-                cloudMapped.forEach(item => mergedMap.set(String(item.id), item));
-
-                const mergedList = Array.from(mergedMap.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                setStore(STORAGE_KEYS.DONATIONS, mergedList);
+            // Since Firebase stores same camelCase format as localStorage, merge is trivial
+            function smartMerge(storeKey, cloudData, sortFn) {
+                if (!cloudData || cloudData.length === 0) return;
+                const local = getStore(storeKey) || [];
+                const map = new Map();
+                local.forEach(item => map.set(String(item.id), item));
+                cloudData.forEach(item => map.set(String(item.id), item));
+                const merged = Array.from(map.values());
+                if (sortFn) merged.sort(sortFn);
+                setStore(storeKey, merged);
             }
 
-            if (newsRes.data && newsRes.data.length > 0) {
-                const cloudMapped = newsRes.data.map(n => ({
-                    id: String(n.id),
-                    title: n.title,
-                    category: n.category === 'Penyaluran Dana' ? 'Kegiatan & Event' : (n.category || 'Kegiatan & Event'),
-                    content: n.content,
-                    imageUrl: n.image_url || 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop',
-                    gallery: Array.isArray(n.gallery) ? n.gallery : (typeof n.gallery === 'string' ? JSON.parse(n.gallery) : []),
-                    eventDate: n.event_date || n.created_at,
-                    status: n.status,
-                    author: n.author,
-                    createdAt: n.created_at,
-                    updatedAt: n.updated_at
-                }));
+            smartMerge(STORAGE_KEYS.DONATIONS, donRes.data,
+                (a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-                const local = getStore(STORAGE_KEYS.NEWS) || [];
-                const mergedMap = new Map();
-                local.forEach(item => mergedMap.set(String(item.id), item));
-                cloudMapped.forEach(item => mergedMap.set(String(item.id), item));
+            smartMerge(STORAGE_KEYS.NEWS, newsRes.data,
+                (a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-                setStore(STORAGE_KEYS.NEWS, Array.from(mergedMap.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
-            }
-
-            if (disbRes.data && disbRes.data.length > 0) {
-                const cloudMapped = disbRes.data.map(db => ({
-                    id: String(db.id),
-                    program: db.program,
-                    amount: Number(db.amount),
-                    description: db.description,
-                    disbursedAt: db.disbursed_at,
-                    recordedBy: db.recorded_by,
-                    createdAt: db.created_at
-                }));
-
-                const local = getStore(STORAGE_KEYS.DISBURSEMENTS) || [];
-                const mergedMap = new Map();
-                local.forEach(item => mergedMap.set(String(item.id), item));
-                cloudMapped.forEach(item => mergedMap.set(String(item.id), item));
-
-                setStore(STORAGE_KEYS.DISBURSEMENTS, Array.from(mergedMap.values()).sort((a, b) => new Date(b.disbursedAt || b.createdAt) - new Date(a.disbursedAt || a.createdAt)));
-            }
+            smartMerge(STORAGE_KEYS.DISBURSEMENTS, disbRes.data,
+                (a, b) => new Date(b.disbursedAt || b.createdAt) - new Date(a.disbursedAt || a.createdAt));
 
             if (actRes.data && actRes.data.length > 0) {
-                const cloudMapped = actRes.data.map(a => ({
-                    id: String(a.id),
-                    type: a.type,
-                    message: a.message,
-                    actor: a.actor,
-                    createdAt: a.created_at
-                }));
-
                 const local = getStore(STORAGE_KEYS.ACTIVITY) || [];
-                const mergedMap = new Map();
-                local.forEach(item => mergedMap.set(String(item.id), item));
-                cloudMapped.forEach(item => mergedMap.set(String(item.id), item));
-
-                setStore(STORAGE_KEYS.ACTIVITY, Array.from(mergedMap.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 100));
+                const map = new Map();
+                local.forEach(item => map.set(String(item.id), item));
+                actRes.data.forEach(item => map.set(String(item.id), item));
+                const merged = Array.from(map.values())
+                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                    .slice(0, 100);
+                setStore(STORAGE_KEYS.ACTIVITY, merged);
             }
+
+            console.log('[WIZ Firebase] Sync complete. Donations:', donRes.data?.length || 0, 'News:', newsRes.data?.length || 0);
         } catch (e) {
-            console.warn('[WIZ Store] Supabase sync fallback to local storage:', e);
+            console.warn('[WIZ Firebase] Sync fallback to local storage:', e);
         }
     }
 
     async function fullBidirectionalSync() {
-        if (!window.wizSupabase || !window.wizSupabase.isConfigured()) {
-            return { success: false, message: 'Supabase API key/URL belum dikonfigurasi.' };
+        if (!window.wizFirebase || !window.wizFirebase.isConfigured()) {
+            return { success: false, message: 'Firebase belum dikonfigurasi.' };
         }
 
         try {
@@ -805,7 +702,7 @@
 
             return {
                 success: true,
-                message: 'Sinkronisasi dua arah selesai! Data lokal dan cloud Supabase sudah 100% identik.',
+                message: 'Sinkronisasi dua arah selesai! Data lokal dan Firebase sudah 100% identik.',
                 pushDetails: pushResult.report
             };
         } catch (e) {
@@ -928,26 +825,8 @@
             const msgStatus = newDonation.status === 'verified' ? 'langsung diverifikasi' : 'menunggu verifikasi';
             activityLog.add('donation_in', `Donasi ${formatRupiahCompact(newDonation.amount)} dari ${newDonation.donorName}${wilayahLabel} (${msgStatus}).`, donation.verifiedBy || 'Admin');
 
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                await window.wizSupabase.insert('donations', {
-                    donor_name: newDonation.donorName,
-                    donor_phone: newDonation.donorPhone,
-                    donor_email: newDonation.donorEmail,
-                    wilayah: newDonation.wilayah,
-                    program_utama: newDonation.programUtama,
-                    program_spesifik: newDonation.programSpesifik,
-                    alokasi_operasional: newDonation.alokasiOperasional,
-                    alokasi_program: newDonation.alokasiProgram,
-                    program: newDonation.program,
-                    category: newDonation.category,
-                    donation_type: newDonation.type,
-                    amount: newDonation.amount,
-                    payment_method: newDonation.method,
-                    notes: newDonation.notes,
-                    status: newDonation.status,
-                    verified_at: newDonation.verifiedAt,
-                    verified_by: newDonation.verifiedBy
-                });
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.insert('donations', newDonation);
             }
 
             return newDonation;
@@ -1025,11 +904,11 @@
 
             activityLog.add('verification', `Donasi ${formatRupiahCompact(list[idx].amount)} dari ${list[idx].donorName} berhasil diverifikasi.`, adminName || 'Admin');
 
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                await window.wizSupabase.update('donations', donationId, {
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.update('donations', donationId, {
                     status: 'verified',
-                    verified_at: list[idx].verifiedAt,
-                    verified_by: list[idx].verifiedBy
+                    verifiedAt: list[idx].verifiedAt,
+                    verifiedBy: list[idx].verifiedBy
                 });
             }
 
@@ -1048,11 +927,11 @@
 
             activityLog.add('rejection', `Donasi ${formatRupiahCompact(list[idx].amount)} dari ${list[idx].donorName} ditolak.`, adminName || 'Admin');
 
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                await window.wizSupabase.update('donations', donationId, {
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.update('donations', donationId, {
                     status: 'rejected',
-                    rejected_at: list[idx].rejectedAt,
-                    rejected_by: list[idx].rejectedBy
+                    rejectedAt: list[idx].rejectedAt,
+                    rejectedBy: list[idx].rejectedBy
                 });
             }
 
@@ -1069,8 +948,8 @@
                 activityLog.add('donation_delete', `Data donasi ${item.donorName} (${formatRupiahCompact(item.amount)}) dihapus.`, 'Admin');
             }
 
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                await window.wizSupabase.remove('donations', donationId);
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.remove('donations', donationId);
             }
         },
 
@@ -1117,17 +996,8 @@
             const statusLabel = newArticle.status === 'published' ? 'dipublikasikan' : 'disimpan sebagai draft';
             activityLog.add('news', `Berita "${newArticle.title}" ${statusLabel}.`, newArticle.author || 'Admin');
 
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                await window.wizSupabase.insert('news', {
-                    title: newArticle.title,
-                    category: newArticle.category,
-                    content: newArticle.content,
-                    image_url: newArticle.imageUrl,
-                    gallery: newArticle.gallery,
-                    event_date: newArticle.eventDate,
-                    status: newArticle.status,
-                    author: newArticle.author
-                });
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.insert('news', newArticle);
             }
 
             return newArticle;
@@ -1143,18 +1013,8 @@
 
             activityLog.add('news', `Berita "${list[idx].title}" diperbarui.`, updates.author || 'Admin');
 
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                await window.wizSupabase.update('news', articleId, {
-                    title: list[idx].title,
-                    category: list[idx].category,
-                    content: list[idx].content,
-                    image_url: list[idx].imageUrl,
-                    gallery: list[idx].gallery,
-                    event_date: list[idx].eventDate,
-                    status: list[idx].status,
-                    author: list[idx].author,
-                    updated_at: list[idx].updatedAt
-                });
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.set('news', articleId, list[idx]);
             }
 
             return list[idx];
@@ -1170,8 +1030,8 @@
                 activityLog.add('news', `Berita "${article.title}" dihapus.`, 'Admin');
             }
 
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                await window.wizSupabase.remove('news', articleId);
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.remove('news', articleId);
             }
         }
     };
@@ -1202,14 +1062,8 @@
 
             activityLog.add('disbursement', `Penyaluran dana ${formatRupiahCompact(newDisb.amount)} untuk "${newDisb.program}" dicatat.`, newDisb.recordedBy);
 
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                await window.wizSupabase.insert('disbursements', {
-                    program: newDisb.program,
-                    amount: newDisb.amount,
-                    description: newDisb.description,
-                    disbursed_at: newDisb.disbursedAt,
-                    recorded_by: newDisb.recordedBy
-                });
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.insert('disbursements', newDisb);
             }
 
             return newDisb;
@@ -1225,15 +1079,8 @@
 
             activityLog.add('disbursement', `Penyaluran dana untuk "${list[idx].program}" diperbarui.`, updates.recordedBy || 'Admin');
 
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                await window.wizSupabase.update('disbursements', id, {
-                    program: list[idx].program,
-                    amount: list[idx].amount,
-                    description: list[idx].description,
-                    disbursed_at: list[idx].disbursedAt,
-                    recorded_by: list[idx].recordedBy,
-                    updated_at: list[idx].updatedAt
-                });
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.set('disbursements', id, list[idx]);
             }
 
             return list[idx];
@@ -1249,8 +1096,8 @@
                 activityLog.add('disbursement', `Catatan penyaluran dana "${item.program}" (${formatRupiahCompact(item.amount)}) dihapus.`, 'Admin');
             }
 
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                await window.wizSupabase.remove('disbursements', id);
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.remove('disbursements', id);
             }
         }
     };
@@ -1601,12 +1448,8 @@
             if (list.length > 100) list.splice(100);
             setStore(STORAGE_KEYS.ACTIVITY, list);
 
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                await window.wizSupabase.insert('activity_log', {
-                    type: newItem.type,
-                    message: newItem.message,
-                    actor: newItem.actor
-                });
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.insert('activity_log', newItem);
             }
         }
     };
@@ -1636,4 +1479,5 @@
         utils: { formatRupiahCompact, formatDate, formatDateTime, timeAgo, generateId, mapProgramToPillar }
     };
 
+    console.log('[WIZ Store] Initialized with Firebase sync. Collections ready.');
 })();
