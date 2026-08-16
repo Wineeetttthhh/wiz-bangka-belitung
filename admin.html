@@ -2001,11 +2001,88 @@
             </div>`).join('');
         }
 
+        // ─── News Photo Upload Handlers ────────────
+        function handleLocalPhotoSelect(event, previewId, inputId) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const filenameEl = document.getElementById('photo-filename-display');
+            if (filenameEl) filenameEl.textContent = `📎 ${file.name} (Memproses...)`;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const maxDim = 1200;
+                    let w = img.width;
+                    let h = img.height;
+
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) {
+                            h = Math.round((h * maxDim) / w);
+                            w = maxDim;
+                        } else {
+                            w = Math.round((w * maxDim) / h);
+                            h = maxDim;
+                        }
+                    }
+
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+
+                    const inputEl = document.getElementById(inputId);
+                    const prevImg = document.getElementById(previewId);
+                    const prevContainer = document.getElementById(`${previewId}-container`);
+
+                    if (inputEl) inputEl.value = compressedDataUrl;
+                    if (prevImg) prevImg.src = compressedDataUrl;
+                    if (prevContainer) prevContainer.classList.remove('hidden');
+
+                    if (filenameEl) filenameEl.textContent = `✅ ${file.name} (${Math.round(compressedDataUrl.length / 1024)} KB)`;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function updatePreviewFromUrl(inputId, previewId) {
+            const inputEl = document.getElementById(inputId);
+            const prevImg = document.getElementById(previewId);
+            const prevContainer = document.getElementById(`${previewId}-container`);
+            if (!inputEl || !prevImg) return;
+
+            const url = inputEl.value.trim();
+            if (url) {
+                prevImg.src = url;
+                if (prevContainer) prevContainer.classList.remove('hidden');
+            } else {
+                if (prevContainer) prevContainer.classList.add('hidden');
+            }
+        }
+
+        function clearNewsPhoto() {
+            const inputEl = document.getElementById('news-image-url');
+            const fileEl = document.getElementById('news-file-main');
+            const prevContainer = document.getElementById('news-main-preview-container');
+            const filenameEl = document.getElementById('photo-filename-display');
+
+            if (inputEl) inputEl.value = '';
+            if (fileEl) fileEl.value = '';
+            if (prevContainer) prevContainer.classList.add('hidden');
+            if (filenameEl) filenameEl.textContent = 'JPG, PNG, WebP — maks. 5MB';
+        }
+
         function openNewsModal(editId) {
             document.getElementById('news-edit-id').value = editId || '';
             document.getElementById('news-modal-title').textContent = editId ? 'Edit Berita / Kegiatan' : 'Tulis Berita Baru';
             if (!editId) {
                 document.getElementById('news-form').reset();
+                clearNewsPhoto();
                 document.getElementById('news-event-date').value = new Date().toISOString().split('T')[0];
             }
             document.getElementById('news-modal').classList.add('show');
@@ -2016,6 +2093,7 @@
             document.getElementById('news-modal').classList.remove('show');
             document.body.style.overflow = '';
             document.getElementById('news-form').reset();
+            clearNewsPhoto();
         }
 
         async function handleNewsSave(e) {
