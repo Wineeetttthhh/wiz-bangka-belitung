@@ -451,7 +451,6 @@
             const all = this.getAll();
             all[wilayah] = data;
             setStore(STORAGE_KEYS.ALLOCATION_RULES, all);
-            // juga sync memory ALLOCATION_RULES
             ALLOCATION_RULES[wilayah] = data;
 
             if (typeof activityLog !== 'undefined' && activityLog.add) {
@@ -462,6 +461,64 @@
                 await window.wizSupabase.upsert('allocation_rules', { wilayah, data, updated_at: new Date().toISOString() });
             }
             return all;
+        },
+        async addSpecificProgram(wilayah, pillarKey, { key, percent, image }) {
+            const all = this.getAll();
+            const wData = all[wilayah] || ALLOCATION_RULES[wilayah];
+            if (!wData.subAllocation) wData.subAllocation = {};
+            if (!wData.subAllocation[pillarKey]) wData.subAllocation[pillarKey] = { items: [] };
+            if (!wData.subAllocation[pillarKey].items) wData.subAllocation[pillarKey].items = [];
+
+            wData.subAllocation[pillarKey].items.push({
+                key: key.trim(),
+                percent: Number(percent) || 0,
+                image: (image || '').trim()
+            });
+            return await this.update(wilayah, wData);
+        },
+        async updateSpecificProgram(wilayah, pillarKey, itemIndex, { key, percent, image }) {
+            const all = this.getAll();
+            const wData = all[wilayah];
+            if (wData && wData.subAllocation && wData.subAllocation[pillarKey] && wData.subAllocation[pillarKey].items && wData.subAllocation[pillarKey].items[itemIndex]) {
+                wData.subAllocation[pillarKey].items[itemIndex] = {
+                    key: key.trim(),
+                    percent: Number(percent) || 0,
+                    image: (image || '').trim()
+                };
+                return await this.update(wilayah, wData);
+            }
+            return all;
+        },
+        async deleteSpecificProgram(wilayah, pillarKey, itemIndex) {
+            const all = this.getAll();
+            const wData = all[wilayah];
+            if (wData && wData.subAllocation && wData.subAllocation[pillarKey] && wData.subAllocation[pillarKey].items) {
+                wData.subAllocation[pillarKey].items.splice(itemIndex, 1);
+                return await this.update(wilayah, wData);
+            }
+            return all;
+        },
+        getSpecificProgramList(wilayah) {
+            const result = [];
+            const allRules = this.getAll();
+            const targetWilayahs = (wilayah && wilayah !== 'Semua') ? [wilayah] : Object.keys(allRules);
+
+            targetWilayahs.forEach(w => {
+                const wData = allRules[w];
+                if (wData && wData.subAllocation) {
+                    Object.entries(wData.subAllocation).forEach(([pillarKey, subObj]) => {
+                        if (subObj && subObj.items) {
+                            subObj.items.forEach(item => {
+                                const fullName = `${pillarKey} - ${item.key}`;
+                                if (!result.includes(fullName)) {
+                                    result.push(fullName);
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+            return result;
         },
         validate(items) {
             return validateAllocationRule(items);
@@ -1361,6 +1418,151 @@
                     percent,
                     status,
                     statusClass
+                };
+            });
+        },
+
+        getPerSpecificProgram(wilayah) {
+            let verified = donations.getVerified();
+            const disbList = disbursements.getAll();
+
+            if (wilayah && wilayah !== 'Semua') {
+                verified = verified.filter(d => d.wilayah === wilayah);
+            }
+
+            const ruleData = allocationRulesManager.getAll();
+            const targetWilayahs = (wilayah && wilayah !== 'Semua') ? [wilayah] : Object.keys(ruleData);
+
+            const specificItemsMap = new Map();
+
+            // Gather all specific programs configured per wilayah
+            targetWilayahs.forEach(wKey => {
+                const wObj = ruleData[wKey];
+                if (!wObj || !wObj.subAllocation) return;
+
+                const mainAllocMap = new Map();
+                (wObj.mainAllocation || []).forEach(m => mainAllocMap.set(m.key, m.percent || 0));
+
+                Object.entries(wObj.subAllocation).forEach(([pillarKey, subObj]) => {
+                    const mainPct = mainAllocMap.get(pillarKey) || 0;
+                    const items = subObj && subObj.items ? subObj.items : [];
+
+                    items.forEach(item => {
+                        const itemKey = item.key;
+                        const fullName = `${pillarKey} - ${itemKey}`;
+                        const displayLabel = `WIZ ${pillarKey} (${itemKey})`;
+                        
+                        if (!specificItemsMap.has(fullName)) {
+                            specificItemsMap.set(fullName, {
+                                fullName,
+                                displayLabel,
+                                pillarKey,
+                                itemKey,
+                                subPercent: item.percent || 0,
+                                mainPercent: mainPct,
+                                image: item.image || '',
+                                masuk: 0,
+                                tersalurkan: 0
+                            });
+                        }
+                    });
+                });
+            });
+
+            // 1. Calculate Dana Masuk per Specific Program
+            verified.forEach(d => {
+                const dWilayah = d.wilayah || 'Pangkalpinang';
+                if (wilayah && wilayah !== 'Semua' && dWilayah !== wilayah) return;
+
+                if (d.type === 'Infak Umum') {
+                    const wObj = ruleData[dWilayah];
+                    if (wObj && wObj.mainAllocation && wObj.subAllocation) {
+                        const mainAllocMap = new Map();
+                        wObj.mainAllocation.forEach(m => mainAllocMap.set(m.key, m.percent || 0));
+
+                        Object.entries(wObj.subAllocation).forEach(([pillarKey, subObj]) => {
+                            const mainPct = mainAllocMap.get(pillarKey) || 0;
+                            const pillarMasuk = (Number(d.amount) || 0) * (mainPct / 100);
+
+                            const items = subObj && subObj.items ? subObj.items : [];
+                            items.forEach(item => {
+                                const fullName = `${pillarKey} - ${item.key}`;
+                                const allocated = pillarMasuk * ((item.percent || 0) / 100);
+                                if (specificItemsMap.has(fullName)) {
+                                    specificItemsMap.get(fullName).masuk += allocated;
+                                }
+                            });
+                        });
+                    }
+                } else {
+                    const dProg = (d.programSpesifik || d.program || '').trim();
+                    const dLower = dProg.toLowerCase();
+
+                    for (const [fullName, spObj] of specificItemsMap.entries()) {
+                        const keyLower = spObj.itemKey.toLowerCase();
+                        const fullLower = fullName.toLowerCase();
+
+                        if (dLower && (dLower === keyLower || dLower.includes(keyLower) || keyLower.includes(dLower) || fullLower.includes(dLower))) {
+                            spObj.masuk += Number(d.amount) || 0;
+                            break;
+                        }
+                    }
+                }
+            });
+
+            // 2. Calculate Dana Tersalurkan per Specific Program (Disbursements)
+            disbList.forEach(db => {
+                const dbProg = (db.program || '').trim();
+                const dbLower = dbProg.toLowerCase();
+
+                let matched = false;
+                for (const [fullName, spObj] of specificItemsMap.entries()) {
+                    const keyLower = spObj.itemKey.toLowerCase();
+                    const fullLower = fullName.toLowerCase();
+
+                    if (dbLower === keyLower || dbLower === fullLower || dbLower.includes(keyLower) || keyLower.includes(dbLower)) {
+                        spObj.tersalurkan += Number(db.amount) || 0;
+                        matched = true;
+                        break;
+                    }
+                }
+
+                if (!matched) {
+                    const pillar = mapProgramToPillar(dbProg);
+                    for (const [fullName, spObj] of specificItemsMap.entries()) {
+                        if (spObj.pillarKey === pillar) {
+                            spObj.tersalurkan += Number(db.amount) || 0;
+                            break;
+                        }
+                    }
+                }
+            });
+
+            // Format results
+            return Array.from(specificItemsMap.values()).map(sp => {
+                const totalMasuk = Math.round(sp.masuk);
+                const totalSalur = Math.round(sp.tersalurkan);
+                const saldo = Math.max(0, totalMasuk - totalSalur);
+                let status = 'Aktif Disalurkan';
+                let statusClass = 'bg-emerald-100 text-emerald-800';
+                if (saldo <= 0 && totalSalur > 0) {
+                    status = '100% Disalurkan';
+                    statusClass = 'bg-blue-100 text-blue-800';
+                }
+
+                return {
+                    fullName: sp.fullName,
+                    displayLabel: sp.displayLabel,
+                    pillarKey: sp.pillarKey,
+                    itemKey: sp.itemKey,
+                    subPercent: sp.subPercent,
+                    mainPercent: sp.mainPercent,
+                    image: sp.image,
+                    masuk: totalMasuk,
+                    tersalurkan: totalSalur,
+                    saldo: saldo,
+                    status: status,
+                    statusClass: statusClass
                 };
             });
         },

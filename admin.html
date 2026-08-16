@@ -1093,6 +1093,75 @@
     </div>
 
     <!-- ═══════════════════════════════════════════════════ -->
+    <!-- MODAL: EDITOR ATURAN ALOKASI & PROGRAM SPESIFIK     -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div id="alloc-edit-modal" class="modal-backdrop">
+        <div class="modal-dialog max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="p-lg border-b border-surface-variant flex justify-between items-center sticky top-0 bg-surface z-20">
+                <div>
+                    <h3 id="alloc-modal-title" class="font-headline-md text-headline-md font-bold text-primary flex items-center gap-xs">
+                        <span class="material-symbols-outlined text-primary">edit_square</span>
+                        <span>Edit Aturan Alokasi & Program Spesifik</span>
+                    </h3>
+                    <p class="font-caption text-caption text-on-surface-variant">Kelola persentase pilar dan rincian program spesifik per wilayah.</p>
+                </div>
+                <button type="button" onclick="closeAllocEditModal()" class="text-outline hover:text-on-surface p-1"><span class="material-symbols-outlined">close</span></button>
+            </div>
+
+            <form id="alloc-edit-form" class="p-lg space-y-md" onsubmit="handleAllocSave(event)">
+                <input type="hidden" id="alloc-wilayah" value="Pangkalpinang">
+                <input type="hidden" id="alloc-pillar" value="Berkah Hidayah">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-md bg-surface-container-low p-md rounded-xl border border-outline-variant/30">
+                    <div>
+                        <label class="block font-caption text-caption font-bold text-on-surface-variant mb-xs">Wilayah Operasional:</label>
+                        <p id="alloc-wilayah-display" class="font-headline-md text-headline-md font-bold text-primary">Pangkalpinang</p>
+                    </div>
+                    <div>
+                        <label class="block font-caption text-caption font-bold text-on-surface-variant mb-xs">Pilar Utama (5 Berkah):</label>
+                        <p id="alloc-pillar-display" class="font-headline-md text-headline-md font-bold text-primary font-body-md">Berkah Hidayah</p>
+                    </div>
+                </div>
+
+                <div class="space-y-xs">
+                    <label class="block font-label-md text-label-md font-bold text-on-surface">Persentase Alokasi Pilar Utama (%) *</label>
+                    <input type="number" id="alloc-pillar-percent" required min="0" max="100" step="0.1" oninput="validateAllocModal()"
+                        class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2 font-body-md text-on-surface focus:border-primary outline-none font-bold">
+                    <p class="font-caption text-caption text-outline">Persentase Infak Umum yang dialokasikan ke pilar utama ini.</p>
+                </div>
+
+                <!-- Sub-Programs Items Editor Container -->
+                <div class="border border-outline-variant/30 rounded-xl p-md bg-surface-container-lowest space-y-md">
+                    <div class="flex justify-between items-center border-b border-outline-variant/20 pb-xs">
+                        <h4 class="font-label-md font-bold text-on-surface flex items-center gap-xs">
+                            <span class="material-symbols-outlined text-primary text-sm">view_list</span>
+                            <span>Rincian Program Spesifik &amp; Persentase</span>
+                        </h4>
+                        <button type="button" onclick="addNewSubProgramRow()" class="px-3 py-1.5 bg-primary text-on-primary rounded-lg font-caption text-caption font-bold hover:bg-primary-container transition-colors flex items-center gap-1 shadow-xs">
+                            <span class="material-symbols-outlined text-xs">add</span> Tambah Program Spesifik
+                        </button>
+                    </div>
+
+                    <div id="sub-programs-list" class="space-y-sm">
+                        <!-- Dynamically populated list of sub-program input rows -->
+                    </div>
+
+                    <div id="alloc-modal-validation" class="p-xs rounded-lg font-caption text-caption font-bold text-center"></div>
+                </div>
+
+                <div class="flex gap-md pt-sm">
+                    <button type="submit" class="flex-1 bg-primary text-on-primary py-3 rounded-lg font-label-md text-label-md font-bold hover:bg-primary-container transition-colors shadow-md">
+                        Simpan Aturan &amp; Program Spesifik
+                    </button>
+                    <button type="button" onclick="closeAllocEditModal()" class="px-lg py-3 border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors">
+                        Batal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
     <!-- MODAL: DONATION DETAIL (FULL RECONCILIATION)        -->
     <!-- ═══════════════════════════════════════════════════ -->
     <div id="donation-detail-modal" class="modal-backdrop">
@@ -1485,16 +1554,148 @@
             renderFullDonationTable();
         }
 
+        // ─── Allocation & Specific Program Editor Handlers ────────────
+        let currentEditingWilayah = 'Pangkalpinang';
+        let currentEditingPillar = 'Berkah Hidayah';
+
+        function openAllocEditModal(wilayah, pillarKey) {
+            currentEditingWilayah = wilayah;
+            currentEditingPillar = pillarKey;
+
+            document.getElementById('alloc-wilayah').value = wilayah;
+            document.getElementById('alloc-pillar').value = pillarKey;
+            document.getElementById('alloc-wilayah-display').textContent = wilayah;
+            document.getElementById('alloc-pillar-display').textContent = pillarKey;
+
+            const wData = wizStore.allocationRulesManager.get(wilayah);
+            if (!wData) return;
+
+            const mainAllocItem = (wData.mainAllocation || []).find(i => i.key === pillarKey);
+            document.getElementById('alloc-pillar-percent').value = mainAllocItem ? mainAllocItem.percent : 20;
+
+            const subListContainer = document.getElementById('sub-programs-list');
+            subListContainer.innerHTML = '';
+
+            const subObj = wData.subAllocation && wData.subAllocation[pillarKey] ? wData.subAllocation[pillarKey] : { items: [] };
+            const items = subObj.items || [];
+
+            if (items.length === 0) {
+                addNewSubProgramRow();
+            } else {
+                items.forEach(item => {
+                    addNewSubProgramRow(item.key, item.percent, item.image || '');
+                });
+            }
+
+            validateAllocModal();
+            document.getElementById('alloc-edit-modal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAllocEditModal() {
+            document.getElementById('alloc-edit-modal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        function addNewSubProgramRow(key = '', percent = 0, image = '') {
+            const container = document.getElementById('sub-programs-list');
+            if (!container) return;
+
+            const row = document.createElement('div');
+            row.className = 'sub-program-row flex flex-col sm:flex-row gap-2 items-start sm:items-center p-2 border border-outline-variant/30 rounded-lg bg-surface';
+            row.innerHTML = `
+                <div class="flex-1 w-full space-y-1">
+                    <input type="text" placeholder="Nama Program Spesifik (contoh: Pembangunan Markaz)" value="${key}" required
+                        class="sub-key-input w-full bg-background border border-outline-variant rounded px-3 py-1.5 text-xs font-semibold outline-none focus:border-primary">
+                    <input type="text" placeholder="URL Foto Sampul (opsional: https://...)" value="${image}"
+                        class="sub-img-input w-full bg-background border border-outline-variant rounded px-3 py-1 text-[11px] outline-none text-on-surface-variant">
+                </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto shrink-0 justify-between sm:justify-start">
+                    <div class="flex items-center gap-1">
+                        <input type="number" min="0" max="100" step="1" value="${percent}" required oninput="validateAllocModal()"
+                            class="sub-percent-input w-20 bg-background border border-outline-variant rounded px-2 py-1.5 text-xs font-bold text-right outline-none focus:border-primary">
+                        <span class="text-xs font-bold text-primary">%</span>
+                    </div>
+                    <button type="button" onclick="deleteSubProgramRow(this)" class="p-1 text-red-600 hover:bg-red-50 rounded transition-colors" title="Hapus Item">
+                        <span class="material-symbols-outlined text-sm">delete</span>
+                    </button>
+                </div>
+            `;
+            container.appendChild(row);
+            validateAllocModal();
+        }
+
+        function deleteSubProgramRow(btn) {
+            const row = btn.closest('.sub-program-row');
+            if (row) {
+                row.remove();
+                validateAllocModal();
+            }
+        }
+
+        function validateAllocModal() {
+            const modalVal = document.getElementById('alloc-modal-validation');
+            if (!modalVal) return;
+
+            const rows = document.querySelectorAll('#sub-programs-list .sub-program-row');
+            let total = 0;
+            rows.forEach(r => {
+                const pct = Number(r.querySelector('.sub-percent-input').value) || 0;
+                total += pct;
+            });
+
+            if (Math.abs(total - 100) < 0.1) {
+                modalVal.className = 'p-xs rounded-lg font-caption text-caption font-bold text-center bg-emerald-100 text-emerald-800 border border-emerald-300';
+                modalVal.textContent = '✅ STATUS SUB-ALOKASI: VALID (TOTAL 100%)';
+            } else {
+                modalVal.className = 'p-xs rounded-lg font-caption text-caption font-bold text-center bg-red-100 text-red-800 border border-red-300';
+                modalVal.textContent = `⚠️ STATUS SUB-ALOKASI: INVALID (TOTAL SAAT INI: ${total}%) — Silakan sesuaikan agar total tepat 100%.`;
+            }
+        }
+
+        async function handleAllocSave(e) {
+            e.preventDefault();
+            const wilayah = document.getElementById('alloc-wilayah').value;
+            const pillarKey = document.getElementById('alloc-pillar').value;
+            const newPillarPercent = Number(document.getElementById('alloc-pillar-percent').value) || 0;
+
+            const wData = wizStore.allocationRulesManager.get(wilayah);
+            if (!wData) return;
+
+            const mainAllocItem = (wData.mainAllocation || []).find(i => i.key === pillarKey);
+            if (mainAllocItem) {
+                mainAllocItem.percent = newPillarPercent;
+            }
+
+            const rows = document.querySelectorAll('#sub-programs-list .sub-program-row');
+            const newItems = [];
+            rows.forEach(r => {
+                const k = r.querySelector('.sub-key-input').value.trim();
+                const p = Number(r.querySelector('.sub-percent-input').value) || 0;
+                const img = r.querySelector('.sub-img-input').value.trim();
+                if (k) {
+                    newItems.push({ key: k, percent: p, image: img });
+                }
+            });
+
+            if (!wData.subAllocation) wData.subAllocation = {};
+            wData.subAllocation[pillarKey] = { items: newItems };
+
+            await wizStore.allocationRulesManager.update(wilayah, wData);
+            closeAllocEditModal();
+            refreshAll();
+        }
+
         // ─── Allocation Rules Section Render ────────────
         function renderAllocationRulesSection() {
             const container = document.getElementById('allocation-rules-container');
             if (!container) return;
 
-            const rules = wizStore.allocationRules;
+            const rules = wizStore.allocationRulesManager ? wizStore.allocationRulesManager.getAll() : wizStore.allocationRules;
 
             let html = '';
             Object.entries(rules).forEach(([wilayahName, wData]) => {
-                const mainAlloc = wData.mainAllocation;
+                const mainAlloc = wData.mainAllocation || [];
                 const mainVal = wizStore.validateAllocationRule(mainAlloc);
 
                 let mainRows = mainAlloc.map(item => `
@@ -1504,15 +1705,14 @@
                 </tr>
             `).join('');
 
-                // Sub allocations
                 let subSectionsHtml = '';
-                Object.entries(wData.subAllocation).forEach(([progUtama, subData]) => {
+                Object.entries(wData.subAllocation || {}).forEach(([progUtama, subData]) => {
                     if (!subData || !subData.items) {
                         subSectionsHtml += `
                         <div class="p-sm bg-surface rounded-lg border border-outline-variant/30 mt-sm">
                             <div class="flex justify-between items-center">
                                 <span class="font-bold text-xs text-on-surface">${progUtama}</span>
-                                <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-slate-100 text-slate-600">Belum dikonfigurasi</span>
+                                <button onclick="openAllocEditModal('${wilayahName}', '${progUtama}')" class="px-2 py-1 text-[11px] font-bold rounded bg-primary/10 text-primary hover:bg-primary/20">Edit / Konfigurasi</button>
                             </div>
                         </div>`;
                         return;
@@ -1522,9 +1722,12 @@
                     const isInvalid = !subVal.valid;
 
                     let subRows = subData.items.map(item => `
-                    <div class="flex justify-between text-xs py-1 border-b border-slate-100">
-                        <span class="text-slate-700">${item.key}</span>
-                        <span class="font-bold ${isInvalid ? 'text-red-600' : 'text-slate-900'}">${item.percent}%</span>
+                    <div class="flex justify-between items-center text-xs py-1 border-b border-slate-100 gap-2">
+                        <div class="flex items-center gap-1.5 overflow-hidden">
+                            ${item.image ? `<img src="${item.image}" class="w-5 h-5 rounded object-cover shrink-0" />` : '<span class="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span>'}
+                            <span class="text-slate-700 font-medium truncate">${item.key}</span>
+                        </div>
+                        <span class="font-bold shrink-0 ${isInvalid ? 'text-red-600' : 'text-slate-900'}">${item.percent}%</span>
                     </div>
                 `).join('');
 
@@ -1532,14 +1735,19 @@
                     <div class="p-sm rounded-lg border ${isInvalid ? 'border-red-300 bg-red-50' : 'border-outline-variant/30 bg-surface'} mt-sm space-y-1">
                         <div class="flex justify-between items-center">
                             <span class="font-bold text-xs ${isInvalid ? 'text-red-900' : 'text-on-surface'}">${progUtama}</span>
-                            <span class="px-2 py-0.5 text-[10px] font-bold rounded ${isInvalid ? 'bg-red-200 text-red-900' : 'bg-emerald-100 text-emerald-800'}">
-                                ${isInvalid ? 'INVALID — TOTAL ' + subVal.total + '%' : 'VALID (100%)'}
-                            </span>
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 text-[10px] font-bold rounded ${isInvalid ? 'bg-red-200 text-red-900' : 'bg-emerald-100 text-emerald-800'}">
+                                    ${isInvalid ? 'INVALID — TOTAL ' + subVal.total + '%' : 'VALID (100%)'}
+                                </span>
+                                <button onclick="openAllocEditModal('${wilayahName}', '${progUtama}')" class="px-2 py-0.5 text-[11px] font-bold rounded bg-primary text-on-primary hover:bg-primary-container transition-colors flex items-center gap-0.5 shadow-xs">
+                                    <span class="material-symbols-outlined text-[12px]">edit</span> Edit
+                                </button>
+                            </div>
                         </div>
 
                         ${isInvalid ? `
                             <div class="p-2 bg-red-100 border border-red-300 rounded text-[11px] text-red-900 font-semibold my-1">
-                                ⚠️ Total allocation ${progUtama} ${wilayahName} adalah ${subVal.total}%. Silakan periksa dan koreksi konfigurasi sebelum allocation dapat digunakan.
+                                ⚠️ Total allocation ${progUtama} ${wilayahName} adalah ${subVal.total}%. Silakan periksa dan koreksi konfigurasi.
                             </div>
                         ` : ''}
 
@@ -1570,7 +1778,7 @@
                     </div>
 
                     <div>
-                        <h4 class="font-label-md text-label-md font-bold text-on-surface mb-xs">Sub-Alokasi Internal Program</h4>
+                        <h4 class="font-label-md text-label-md font-bold text-on-surface mb-xs">Sub-Alokasi Internal Program Spesifik</h4>
                         ${subSectionsHtml}
                     </div>
                 </div>
@@ -1893,7 +2101,40 @@
             <tbody class="font-body-md text-body-md divide-y divide-outline-variant/20">${rows}</tbody></table>`;
         }
 
+        function populateDisbursementPrograms() {
+            const select = document.getElementById('disb-program');
+            if (!select || !window.wizStore) return;
+
+            const rules = wizStore.allocationRulesManager ? wizStore.allocationRulesManager.getAll() : wizStore.allocationRules;
+            const selectedWilayah = document.getElementById('filter-wilayah') ? document.getElementById('filter-wilayah').value : 'Semua';
+            const targetWilayahs = selectedWilayah !== 'Semua' ? [selectedWilayah] : Object.keys(rules);
+
+            const pillarMap = new Map();
+
+            targetWilayahs.forEach(w => {
+                const wObj = rules[w];
+                if (!wObj || !wObj.subAllocation) return;
+                Object.entries(wObj.subAllocation).forEach(([pillarKey, subObj]) => {
+                    if (!pillarMap.has(pillarKey)) pillarMap.set(pillarKey, new Set());
+                    const set = pillarMap.get(pillarKey);
+                    (subObj && subObj.items ? subObj.items : []).forEach(item => set.add(item.key));
+                });
+            });
+
+            let html = '<option value="">-- Pilih Program Spesifik --</option>';
+            for (const [pillar, itemSet] of pillarMap.entries()) {
+                html += `<optgroup label="📌 ${pillar}">`;
+                for (const itemKey of itemSet) {
+                    const val = `${pillar} - ${itemKey}`;
+                    html += `<option value="${val}">${pillar} — ${itemKey}</option>`;
+                }
+                html += `</optgroup>`;
+            }
+            select.innerHTML = html;
+        }
+
         function openDisbursementModal(editId) {
+            populateDisbursementPrograms();
             document.getElementById('disb-edit-id').value = editId || '';
             document.getElementById('disbursement-modal-title').textContent = editId ? 'Edit Catatan Pengeluaran' : 'Catat Pengeluaran Dana Baru';
             if (!editId) {
@@ -1928,6 +2169,7 @@
         }
 
         function editDisbursement(id) {
+            populateDisbursementPrograms();
             const item = wizStore.disbursements.getById(id);
             if (!item) return;
             document.getElementById('disb-program').value = item.program;
@@ -1947,11 +2189,12 @@
             renderKPI('finance-kpi-grid');
             const activeWilayah = document.getElementById('filter-wilayah') ? document.getElementById('filter-wilayah').value : 'Semua';
             const programs = wizStore.finance.getPerProgram(activeWilayah);
+            const specificProgs = wizStore.finance.getPerSpecificProgram(activeWilayah);
             const fmt = wizStore.utils.formatRupiahCompact;
             const container = document.getElementById('finance-program-table');
             if (!container) return;
 
-            const rows = programs.map(p => `
+            const rowsMain = programs.map(p => `
             <tr class="hover:bg-surface-container-low transition-colors">
                 <td class="p-md text-on-surface font-semibold">${p.label}</td>
                 <td class="p-md text-right text-primary font-bold">${fmt(p.masuk)}</td>
@@ -1960,15 +2203,48 @@
                 <td class="p-md text-center"><span class="px-sm py-xs ${p.statusClass} rounded-full font-caption text-caption font-bold">${p.status}</span></td>
             </tr>`).join('');
 
-            container.innerHTML = `<table class="w-full text-left border-collapse">
-            <thead><tr class="bg-surface-container text-on-surface font-label-md text-label-md border-b border-outline-variant/30">
-                <th class="p-md font-bold">Nama Program</th>
-                <th class="p-md font-bold text-right">Total Dana Masuk</th>
-                <th class="p-md font-bold text-right">Total Dana Tersalurkan</th>
-                <th class="p-md font-bold text-right">Saldo Sisa Dana</th>
-                <th class="p-md font-bold text-center">Status Program</th>
-            </tr></thead>
-            <tbody class="font-body-md text-body-md divide-y divide-outline-variant/20">${rows}</tbody></table>`;
+            const rowsSpecific = specificProgs.map(sp => `
+            <tr class="hover:bg-surface-container-low transition-colors text-xs">
+                <td class="p-md text-on-surface font-bold">
+                    <div class="flex items-center gap-2">
+                        ${sp.image ? `<img src="${sp.image}" class="w-6 h-6 rounded object-cover" />` : ''}
+                        <span>${sp.displayLabel}</span>
+                    </div>
+                </td>
+                <td class="p-md text-right text-primary font-bold">${fmt(sp.masuk)}</td>
+                <td class="p-md text-right text-tertiary-container font-bold">${fmt(sp.tersalurkan)}</td>
+                <td class="p-md text-right font-bold text-on-surface">${fmt(sp.saldo)}</td>
+                <td class="p-md text-center"><span class="px-sm py-xs ${sp.statusClass} rounded-full font-caption text-caption font-bold">${sp.status}</span></td>
+            </tr>`).join('');
+
+            container.innerHTML = `
+            <div class="space-y-lg">
+                <div>
+                    <h4 class="font-label-md font-bold text-primary mb-xs uppercase tracking-wider text-xs">Summary Kategori 5 Berkah WIZ</h4>
+                    <table class="w-full text-left border-collapse">
+                    <thead><tr class="bg-surface-container text-on-surface font-label-md text-label-md border-b border-outline-variant/30">
+                        <th class="p-md font-bold">Nama Kategori</th>
+                        <th class="p-md font-bold text-right">Total Dana Masuk</th>
+                        <th class="p-md font-bold text-right">Total Dana Tersalurkan</th>
+                        <th class="p-md font-bold text-right">Saldo Sisa Dana</th>
+                        <th class="p-md font-bold text-center">Status</th>
+                    </tr></thead>
+                    <tbody class="font-body-md text-body-md divide-y divide-outline-variant/20">${rowsMain}</tbody></table>
+                </div>
+
+                <div class="pt-md border-t border-outline-variant/30">
+                    <h4 class="font-label-md font-bold text-primary mb-xs uppercase tracking-wider text-xs">Rincian Per Program Spesifik (Integrasi Pengeluaran Realtime)</h4>
+                    <table class="w-full text-left border-collapse">
+                    <thead><tr class="bg-surface-container-high text-on-surface font-label-md text-label-md border-b border-outline-variant/30">
+                        <th class="p-md font-bold">Nama Program Spesifik</th>
+                        <th class="p-md font-bold text-right">Dana Masuk</th>
+                        <th class="p-md font-bold text-right">Dana Tersalurkan</th>
+                        <th class="p-md font-bold text-right">Saldo Per Program</th>
+                        <th class="p-md font-bold text-center">Status</th>
+                    </tr></thead>
+                    <tbody class="font-body-md text-body-md divide-y divide-outline-variant/20">${rowsSpecific}</tbody></table>
+                </div>
+            </div>`;
         }
 
         function openBaselineModal() {

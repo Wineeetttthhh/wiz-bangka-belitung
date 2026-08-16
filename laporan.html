@@ -395,12 +395,12 @@
         document.getElementById('pub-saldo').textContent = fmt(stats.saldo);
         document.getElementById('pub-donatur-count').textContent = stats.totalDonatur.toLocaleString('id-ID');
 
-        // Table render — only show active programs with real transactions
-        const programs = wizStore.finance.getPerProgram();
-        const activePrograms = programs.filter(p => p.masuk > 0 || p.tersalurkan > 0);
+        // Table render — show specific programs with full names like WIZ Berkah Hidayah (Pembangunan Markaz)
+        const filterWilayah = document.getElementById('pub-filter-wilayah') ? document.getElementById('pub-filter-wilayah').value : 'Pangkalpinang';
+        const specificProgs = wizStore.finance.getPerSpecificProgram(filterWilayah);
         const tbody = document.getElementById('report-table-body');
         if (tbody) {
-            if (activePrograms.length === 0) {
+            if (specificProgs.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="5" class="p-xl text-center text-on-surface-variant">
@@ -412,13 +412,16 @@
                         </td>
                     </tr>`;
             } else {
-                tbody.innerHTML = activePrograms.map(p => `
+                tbody.innerHTML = specificProgs.map(sp => `
                     <tr class="hover:bg-surface-container-low transition-colors">
-                        <td class="p-md text-on-surface font-medium">${p.label}</td>
-                        <td class="p-md text-right text-primary font-semibold">${fmt(p.masuk)}</td>
-                        <td class="p-md text-right text-tertiary-container font-semibold">${fmt(p.tersalurkan)}</td>
-                        <td class="p-md text-right font-bold text-on-surface">${fmt(p.saldo)}</td>
-                        <td class="p-md text-center"><span class="px-sm py-xs ${p.statusClass} rounded-full font-caption text-caption font-bold">${p.status}</span></td>
+                        <td class="p-md text-on-surface font-semibold flex items-center gap-2">
+                            ${sp.image ? `<img src="${sp.image}" class="w-6 h-6 rounded object-cover shrink-0" />` : ''}
+                            <span>${sp.displayLabel}</span>
+                        </td>
+                        <td class="p-md text-right text-primary font-semibold">${fmt(sp.masuk)}</td>
+                        <td class="p-md text-right text-tertiary-container font-semibold">${fmt(sp.tersalurkan)}</td>
+                        <td class="p-md text-right font-bold text-on-surface">${fmt(sp.saldo)}</td>
+                        <td class="p-md text-center"><span class="px-sm py-xs ${sp.statusClass} rounded-full font-caption text-caption font-bold">${sp.status}</span></td>
                     </tr>`).join('');
             }
         }
@@ -455,6 +458,8 @@
 
         const wilayah = filterSelect ? filterSelect.value : 'Pangkalpinang';
         const ruleData = wizStore.allocationRulesManager ? wizStore.allocationRulesManager.get(wilayah) : wizStore.allocationRules[wilayah];
+        const specificDataList = wizStore.finance.getPerSpecificProgram(wilayah);
+        const fmt = wizStore.utils.formatRupiahCompact;
 
         if (!ruleData || !ruleData.subAllocation) {
             grid.innerHTML = '<div class="col-span-full p-md text-center text-outline">Belum ada rincian alokasi program untuk wilayah ini.</div>';
@@ -478,30 +483,40 @@
             if (items.length === 0) {
                 itemsHtml = '<p class="text-xs text-outline italic p-2">Program spesifik belum dikonfigurasi</p>';
             } else {
-                itemsHtml = items.map(item => `
-                    <div class="space-y-1">
-                        <div class="flex justify-between items-center text-xs font-semibold">
-                            <span class="text-on-surface flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span>
+                itemsHtml = items.map(item => {
+                    const fullName = `${pillarKey} - ${item.key}`;
+                    const sp = specificDataList.find(s => s.fullName === fullName) || { masuk: 0, tersalurkan: 0, saldo: 0 };
+                    
+                    return `
+                    <div class="space-y-1.5 p-2 bg-white/70 rounded-lg border border-slate-200/60 shadow-2xs">
+                        <div class="flex justify-between items-start text-xs font-semibold">
+                            <span class="text-on-surface font-bold flex items-center gap-1.5">
+                                ${item.image ? `<img src="${item.image}" class="w-4 h-4 rounded object-cover shrink-0" />` : '<span class="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span>'}
                                 ${item.key}
                             </span>
-                            <span class="font-bold text-primary">${item.percent}%</span>
+                            <span class="font-bold text-primary shrink-0">${item.percent}%</span>
                         </div>
                         <div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
                             <div class="bg-primary h-full rounded-full" style="width: ${Math.min(100, item.percent)}%"></div>
                         </div>
+                        <div class="flex justify-between text-[11px] font-mono pt-0.5 text-on-surface-variant">
+                            <span>Masuk: <strong class="text-primary">${fmt(sp.masuk)}</strong></span>
+                            <span>Salur: <strong class="text-tertiary-container">${fmt(sp.tersalurkan)}</strong></span>
+                            <span>Saldo: <strong class="text-on-surface">${fmt(sp.saldo)}</strong></span>
+                        </div>
                     </div>
-                `).join('');
+                `;
+                }).join('');
             }
 
             html += `
             <div class="p-md rounded-xl border ${meta.bg} flex flex-col justify-between space-y-md shadow-sm">
                 <div>
-                    <div class="flex items-center gap-xs mb-sm">
+                    <div class="flex items-center gap-xs mb-sm border-b border-black/5 pb-2">
                         <span class="material-symbols-outlined ${meta.color}">${meta.icon}</span>
                         <h3 class="font-label-md font-bold text-on-surface text-base">${pillarKey}</h3>
                     </div>
-                    <div class="space-y-sm">
+                    <div class="space-y-2">
                         ${itemsHtml}
                     </div>
                 </div>
