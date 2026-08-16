@@ -32,8 +32,35 @@
         DISBURSEMENTS: 'wiz_disbursements',
         ACTIVITY: 'wiz_activity',
         BASELINES: 'wiz_baselines',
+        SITE_IMAGES: 'wiz_site_images',
+        ADMIN_USERS: 'wiz_admin_users',
+        ALLOCATION_RULES: 'wiz_allocation_rules',
         INITIALIZED: 'wiz_store_initialized'
     };
+
+    const DEFAULT_SITE_IMAGES = {
+        hero_card: 'assets/images/foto-utama-wiz.jpg',
+        about_img: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop',
+        berkah_hidayah: 'https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=600&auto=format&fit=crop',
+        berkah_juara: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=600&auto=format&fit=crop',
+        berkah_sehat: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=600&auto=format&fit=crop',
+        berkah_peduli: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=600&auto=format&fit=crop',
+        berkah_mandiri: 'https://images.unsplash.com/photo-1556742049-0a670fc80782?q=80&w=600&auto=format&fit=crop',
+        banner_donasi: 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb9?q=80&w=1200&auto=format&fit=crop'
+    };
+
+    const DEFAULT_ADMIN_USERS = [
+        {
+            id: 'admin-1',
+            username: 'admin',
+            password: 'wizbabel2026',
+            fullName: 'Super Admin 1 (WIZ Babel)',
+            phone: '08123456789',
+            role: 'super_admin',
+            status: 'approved',
+            createdAt: new Date().toISOString()
+        }
+    ];
 
     // ─── Helpers ───────────────────────────────────────────
     function generateId() {
@@ -244,6 +271,203 @@
         return { alokasiOperasional: operasional, alokasiProgram: program };
     }
 
+    // ─── Dynamic Site Images Manager ──────────────────────
+    const siteImages = {
+        getAll() {
+            return { ...DEFAULT_SITE_IMAGES, ...(getStore(STORAGE_KEYS.SITE_IMAGES) || {}) };
+        },
+        get(key) {
+            const all = this.getAll();
+            return all[key] || DEFAULT_SITE_IMAGES[key] || '';
+        },
+        async update(key, url, label) {
+            const current = this.getAll();
+            current[key] = url;
+            setStore(STORAGE_KEYS.SITE_IMAGES, current);
+            if (typeof activityLog !== 'undefined' && activityLog.add) {
+                activityLog.add('settings', `Foto '${label || key}' diperbarui oleh Admin`, sessionStorage.getItem('wiz_admin_user') || 'Admin');
+            }
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                await window.wizSupabase.upsert('site_images', { key, url, label: label || key, updated_at: new Date().toISOString() });
+            }
+            return current;
+        },
+        async updateAll(imagesObj) {
+            const current = { ...this.getAll(), ...imagesObj };
+            setStore(STORAGE_KEYS.SITE_IMAGES, current);
+            if (typeof activityLog !== 'undefined' && activityLog.add) {
+                activityLog.add('settings', 'Beberapa foto website diperbarui oleh Admin', sessionStorage.getItem('wiz_admin_user') || 'Admin');
+            }
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                for (const [key, url] of Object.entries(imagesObj)) {
+                    await window.wizSupabase.upsert('site_images', { key, url, label: key, updated_at: new Date().toISOString() });
+                }
+            }
+            return current;
+        }
+    };
+
+    // ─── Admin Authentication & Accounts Manager ──────────
+    const adminUsers = {
+        getAll() {
+            const users = getStore(STORAGE_KEYS.ADMIN_USERS) || DEFAULT_ADMIN_USERS;
+            if (!users.some(u => u.username === 'admin')) {
+                users.unshift(DEFAULT_ADMIN_USERS[0]);
+                setStore(STORAGE_KEYS.ADMIN_USERS, users);
+            }
+            return users;
+        },
+        getPending() {
+            return this.getAll().filter(u => u.status === 'pending');
+        },
+        async register({ username, password, fullName, phone, role }) {
+            const list = this.getAll();
+            const cleanUser = (username || '').trim().toLowerCase();
+            if (!cleanUser || !password) {
+                return { success: false, message: 'Username dan kata sandi wajib diisi.' };
+            }
+            if (list.some(u => u.username.toLowerCase() === cleanUser)) {
+                return { success: false, message: 'Username sudah digunakan, silakan pilih username lain.' };
+            }
+
+            const newUser = {
+                id: generateId(),
+                username: cleanUser,
+                password: password.trim(),
+                fullName: (fullName || cleanUser).trim(),
+                phone: (phone || '').trim(),
+                role: role === 'super_admin' ? 'super_admin' : 'amil',
+                status: 'pending',
+                createdAt: new Date().toISOString()
+            };
+
+            list.push(newUser);
+            setStore(STORAGE_KEYS.ADMIN_USERS, list);
+            if (typeof activityLog !== 'undefined' && activityLog.add) {
+                activityLog.add('auth', `Pendaftaran akun admin baru: '${cleanUser}' (Menunggu verifikasi Admin 1)`, cleanUser);
+            }
+
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                await window.wizSupabase.insert('admin_users', {
+                    username: newUser.username,
+                    password: newUser.password,
+                    full_name: newUser.fullName,
+                    phone: newUser.phone,
+                    role: newUser.role,
+                    status: 'pending',
+                    created_at: newUser.createdAt
+                });
+            }
+
+            return { success: true, user: newUser, message: 'Pendaftaran berhasil! Akun Anda sedang menunggu verifikasi dari Admin 1.' };
+        },
+        login(username, password) {
+            const cleanUser = (username || '').trim().toLowerCase();
+            const cleanPass = (password || '').trim();
+            const list = this.getAll();
+
+            const found = list.find(u => u.username.toLowerCase() === cleanUser);
+            if (!found) {
+                return { success: false, message: 'Username tidak ditemukan!' };
+            }
+
+            if (found.password !== cleanPass) {
+                return { success: false, message: 'Kata sandi salah!' };
+            }
+
+            if (found.status === 'pending') {
+                return { success: false, message: 'Akun Anda belum diverifikasi oleh Admin 1. Silakan hubungi Super Admin.' };
+            }
+
+            if (found.status === 'rejected') {
+                return { success: false, message: 'Pendaftaran akun Anda ditolak oleh Admin 1.' };
+            }
+
+            return { success: true, user: found };
+        },
+        async approve(id, adminActor) {
+            const list = this.getAll();
+            const idx = list.findIndex(u => String(u.id) === String(id));
+            if (idx === -1) return { success: false, message: 'Pengguna tidak ditemukan' };
+
+            list[idx].status = 'approved';
+            list[idx].verifiedAt = new Date().toISOString();
+            list[idx].verifiedBy = adminActor || 'Admin 1';
+            setStore(STORAGE_KEYS.ADMIN_USERS, list);
+
+            if (typeof activityLog !== 'undefined' && activityLog.add) {
+                activityLog.add('auth', `Akun admin '${list[idx].username}' telah diverifikasi & disetujui`, adminActor || 'Admin 1');
+            }
+
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                await window.wizSupabase.update('admin_users', { status: 'approved', verified_at: new Date().toISOString(), verified_by: adminActor || 'Admin 1' }, { id });
+            }
+            return { success: true, user: list[idx] };
+        },
+        async reject(id, adminActor) {
+            const list = this.getAll();
+            const idx = list.findIndex(u => String(u.id) === String(id));
+            if (idx === -1) return { success: false, message: 'Pengguna tidak ditemukan' };
+
+            list[idx].status = 'rejected';
+            setStore(STORAGE_KEYS.ADMIN_USERS, list);
+
+            if (typeof activityLog !== 'undefined' && activityLog.add) {
+                activityLog.add('auth', `Pendaftaran akun admin '${list[idx].username}' ditolak`, adminActor || 'Admin 1');
+            }
+
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                await window.wizSupabase.update('admin_users', { status: 'rejected' }, { id });
+            }
+            return { success: true };
+        },
+        async delete(id) {
+            let list = this.getAll();
+            const target = list.find(u => String(u.id) === String(id));
+            if (target && target.username === 'admin') {
+                return { success: false, message: 'Akun Super Admin 1 utama tidak dapat dihapus.' };
+            }
+            list = list.filter(u => String(u.id) !== String(id));
+            setStore(STORAGE_KEYS.ADMIN_USERS, list);
+
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                await window.wizSupabase.delete('admin_users', { id });
+            }
+            return { success: true };
+        }
+    };
+
+    // ─── Allocation Rules Manager ─────────────────────────
+    const allocationRulesManager = {
+        getAll() {
+            const saved = getStore(STORAGE_KEYS.ALLOCATION_RULES);
+            return saved || ALLOCATION_RULES;
+        },
+        get(wilayah) {
+            const all = this.getAll();
+            return all[wilayah] || ALLOCATION_RULES[wilayah] || null;
+        },
+        async update(wilayah, data) {
+            const all = this.getAll();
+            all[wilayah] = data;
+            setStore(STORAGE_KEYS.ALLOCATION_RULES, all);
+            // juga sync memory ALLOCATION_RULES
+            ALLOCATION_RULES[wilayah] = data;
+
+            if (typeof activityLog !== 'undefined' && activityLog.add) {
+                activityLog.add('settings', `Aturan alokasi dana wilayah '${wilayah}' diperbarui oleh Admin`, sessionStorage.getItem('wiz_admin_user') || 'Admin');
+            }
+
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                await window.wizSupabase.upsert('allocation_rules', { wilayah, data, updated_at: new Date().toISOString() });
+            }
+            return all;
+        },
+        validate(items) {
+            return validateAllocationRule(items);
+        }
+    };
+
     // ─── Seed Default Data (localStorage fallback) ────────
     function seedDefaultData() {
         if (localStorage.getItem(STORAGE_KEYS.INITIALIZED)) return;
@@ -309,6 +533,9 @@
         setStore(STORAGE_KEYS.DISBURSEMENTS, disbursements);
         setStore(STORAGE_KEYS.ACTIVITY, activity);
         setStore(STORAGE_KEYS.BASELINES, DEFAULT_BASELINES);
+        setStore(STORAGE_KEYS.SITE_IMAGES, DEFAULT_SITE_IMAGES);
+        setStore(STORAGE_KEYS.ADMIN_USERS, DEFAULT_ADMIN_USERS);
+        setStore(STORAGE_KEYS.ALLOCATION_RULES, ALLOCATION_RULES);
         localStorage.setItem(STORAGE_KEYS.INITIALIZED, 'true');
     }
 
@@ -1193,6 +1420,9 @@
         news,
         disbursements,
         baselines,
+        siteImages,
+        adminUsers,
+        allocationRulesManager,
         activity: activityLog,
         allocationRules: ALLOCATION_RULES,
         validateAllocationRule,

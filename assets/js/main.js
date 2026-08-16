@@ -13,7 +13,27 @@ document.addEventListener('DOMContentLoaded', () => {
     initImageLightbox();
     initMutationTable();
     initBackgroundAnimation();
+    initDynamicSiteImages();
 });
+
+/**
+ * Dynamic Site Images Loader from Store
+ */
+function initDynamicSiteImages() {
+    if (!window.wizStore || !window.wizStore.siteImages) return;
+    const images = window.wizStore.siteImages.getAll();
+
+    document.querySelectorAll('[data-site-img]').forEach(el => {
+        const key = el.getAttribute('data-site-img');
+        if (key && images[key]) {
+            if (el.tagName === 'IMG') {
+                el.src = images[key];
+            } else {
+                el.style.backgroundImage = `url('${images[key]}')`;
+            }
+        }
+    });
+}
 
 /**
  * Mobile Navigation Toggle & Smooth Scrolling

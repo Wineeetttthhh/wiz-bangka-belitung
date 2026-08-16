@@ -228,6 +228,27 @@
         </div>
     </section>
 
+    <!-- Rincian Alokasi Program Spesifik Section -->
+    <section class="bg-surface-container-lowest rounded-xl shadow-level-1 border border-outline-variant/30 p-lg space-y-md">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-xs">
+            <div>
+                <h2 class="font-headline-md text-headline-md font-bold text-primary flex items-center gap-xs">
+                    <span class="material-symbols-outlined text-primary">pie_chart</span>
+                    <span>Rincian Alokasi Program Spesifik (5 Berkah WIZ)</span>
+                </h2>
+                <p class="font-body-md text-caption text-on-surface-variant">Penjabaran transparan program spesifik yang direalisasikan dari dana zakat, infak, dan sedekah.</p>
+            </div>
+            <select id="pub-filter-wilayah" onchange="renderSpecificProgramsBreakdown()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 font-caption text-caption text-on-surface font-bold outline-none cursor-pointer">
+                <option value="Pangkalpinang">Wilayah: Pangkalpinang</option>
+                <option value="Sungailiat">Wilayah: Sungailiat</option>
+            </select>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md" id="specific-programs-grid">
+            <!-- Dynamically populated by JS -->
+        </div>
+    </section>
+
     <!-- Detailed Reports Table Section -->
     <section class="bg-surface-container-lowest rounded-xl shadow-level-1 border border-outline-variant/30 overflow-hidden">
         <div class="p-lg border-b border-outline-variant/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
@@ -422,6 +443,72 @@
                     </div>`).join('');
             }
         }
+
+        renderSpecificProgramsBreakdown();
+    }
+
+    function renderSpecificProgramsBreakdown() {
+        if (!window.wizStore) return;
+        const grid = document.getElementById('specific-programs-grid');
+        const filterSelect = document.getElementById('pub-filter-wilayah');
+        if (!grid) return;
+
+        const wilayah = filterSelect ? filterSelect.value : 'Pangkalpinang';
+        const ruleData = wizStore.allocationRulesManager ? wizStore.allocationRulesManager.get(wilayah) : wizStore.allocationRules[wilayah];
+
+        if (!ruleData || !ruleData.subAllocation) {
+            grid.innerHTML = '<div class="col-span-full p-md text-center text-outline">Belum ada rincian alokasi program untuk wilayah ini.</div>';
+            return;
+        }
+
+        const pillarMeta = {
+            'Berkah Hidayah': { icon: 'auto_stories', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
+            'Berkah Juara': { icon: 'school', color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200' },
+            'Berkah Peduli': { icon: 'volunteer_activism', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200' },
+            'Berkah Sehat': { icon: 'medical_services', color: 'text-teal-700', bg: 'bg-teal-50 border-teal-200' },
+            'Berkah Mandiri': { icon: 'storefront', color: 'text-purple-700', bg: 'bg-purple-50 border-purple-200' }
+        };
+
+        let html = '';
+        Object.entries(ruleData.subAllocation).forEach(([pillarKey, subObj]) => {
+            const meta = pillarMeta[pillarKey] || { icon: 'star', color: 'text-primary', bg: 'bg-surface-container-low border-outline-variant/30' };
+            const items = subObj && subObj.items ? subObj.items : [];
+
+            let itemsHtml = '';
+            if (items.length === 0) {
+                itemsHtml = '<p class="text-xs text-outline italic p-2">Program spesifik belum dikonfigurasi</p>';
+            } else {
+                itemsHtml = items.map(item => `
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-center text-xs font-semibold">
+                            <span class="text-on-surface flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span>
+                                ${item.key}
+                            </span>
+                            <span class="font-bold text-primary">${item.percent}%</span>
+                        </div>
+                        <div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+                            <div class="bg-primary h-full rounded-full" style="width: ${Math.min(100, item.percent)}%"></div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            html += `
+            <div class="p-md rounded-xl border ${meta.bg} flex flex-col justify-between space-y-md shadow-sm">
+                <div>
+                    <div class="flex items-center gap-xs mb-sm">
+                        <span class="material-symbols-outlined ${meta.color}">${meta.icon}</span>
+                        <h3 class="font-label-md font-bold text-on-surface text-base">${pillarKey}</h3>
+                    </div>
+                    <div class="space-y-sm">
+                        ${itemsHtml}
+                    </div>
+                </div>
+            </div>`;
+        });
+
+        grid.innerHTML = html;
     }
 
     // Mobile Menu Toggle

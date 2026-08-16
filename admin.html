@@ -150,20 +150,33 @@
 <body class="bg-background text-on-surface font-body-md min-h-screen flex antialiased">
 
     <!-- Admin Login Modal Overlay -->
-    <div id="admin-login-modal" class="fixed inset-0 bg-inverse-surface/80 backdrop-blur-md z-[100] flex items-center justify-center p-md">
-        <div class="bg-surface rounded-2xl shadow-2xl border border-outline-variant/30 w-full max-w-md overflow-hidden transform transition-all">
+    <div id="admin-login-modal" class="fixed inset-0 bg-inverse-surface/80 backdrop-blur-md z-[100] flex items-center justify-center p-md overflow-y-auto">
+        <div class="bg-surface rounded-2xl shadow-2xl border border-outline-variant/30 w-full max-w-md overflow-hidden transform transition-all my-auto">
             <div class="bg-primary/10 p-lg text-center border-b border-outline-variant/20 flex flex-col items-center gap-xs">
                 <img src="assets/images/logo-wiz-babel.png" alt="WIZ Babel Logo" class="h-14 w-auto object-contain mb-xs" onerror="this.classList.add('hidden');">
                 <span class="inline-flex items-center gap-xs bg-primary text-on-primary px-3 py-1 rounded-full font-caption text-caption font-bold uppercase tracking-wider">
                     <span class="material-symbols-outlined text-sm">lock</span> Portal Admin Resmi
                 </span>
-                <h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-xs">Login Admin WIZ Babel</h2>
-                <p class="font-body-md text-caption text-on-surface-variant">Masukkan akun amil/admin Anda untuk mengelola data website.</p>
+                <h2 class="font-headline-md text-headline-md font-bold text-on-surface mt-xs">Portal Admin WIZ Babel</h2>
+                <p class="font-body-md text-caption text-on-surface-variant">Silakan masuk atau daftar akun amil/admin baru.</p>
+                
+                <!-- Auth Tabs Toggle -->
+                <div class="flex bg-surface-container-high p-1 rounded-xl w-full mt-sm border border-outline-variant/30">
+                    <button id="auth-tab-login" onclick="switchAuthTab('login')" type="button"
+                        class="flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-primary text-on-primary shadow-sm cursor-pointer">
+                        Masuk Admin
+                    </button>
+                    <button id="auth-tab-register" onclick="switchAuthTab('register')" type="button"
+                        class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:text-primary cursor-pointer">
+                        Daftar Admin Baru
+                    </button>
+                </div>
             </div>
             
+            <!-- Login Form -->
             <form id="admin-login-form" onsubmit="handleAdminLogin(event)" class="p-lg space-y-md">
-                <div id="login-error-alert" class="hidden bg-error-container text-on-error-container p-md rounded-xl font-caption text-caption font-semibold flex items-center gap-xs">
-                    <span class="material-symbols-outlined text-sm">error</span>
+                <div id="login-error-alert" class="hidden bg-error-container text-on-error-container p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs">
+                    <span class="material-symbols-outlined text-sm shrink-0">error</span>
                     <span id="login-error-text">Username atau Password salah!</span>
                 </div>
 
@@ -183,7 +196,7 @@
                         <input type="password" id="login-password" required placeholder="Masukkan password" value=""
                             class="w-full pl-10 pr-md py-sm bg-surface-container-low border border-outline-variant/60 rounded-xl font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
                     </div>
-                    <p class="font-caption text-[11px] text-outline italic mt-1">Default Demo Login: Username: <strong>admin</strong> | Password: <strong>wizbabel2026</strong></p>
+                    <p class="font-caption text-[11px] text-outline italic mt-1">Super Admin 1: <strong>admin</strong> | Password: <strong>wizbabel2026</strong></p>
                 </div>
 
                 <button type="submit" class="w-full bg-primary text-on-primary font-label-md text-label-md py-md rounded-xl hover:bg-primary-container transition-colors shadow-md font-bold flex items-center justify-center gap-xs cursor-pointer">
@@ -196,6 +209,55 @@
                         <span class="material-symbols-outlined text-xs">arrow_back</span> Kembali ke Beranda Utama
                     </a>
                 </div>
+            </form>
+
+            <!-- Register Form -->
+            <form id="admin-register-form" onsubmit="handleAdminRegister(event)" class="p-lg space-y-md hidden">
+                <div id="register-alert" class="hidden p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs">
+                    <span class="material-symbols-outlined text-sm shrink-0" id="register-alert-icon">info</span>
+                    <span id="register-alert-text"></span>
+                </div>
+
+                <div class="space-y-xs">
+                    <label for="reg-fullname" class="block font-label-md text-caption font-bold text-on-surface">Nama Lengkap *</label>
+                    <input type="text" id="reg-fullname" required placeholder="Contoh: Ahmad Sulaiman"
+                        class="w-full px-md py-sm bg-surface-container-low border border-outline-variant/60 rounded-xl font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+                </div>
+
+                <div class="space-y-xs">
+                    <label for="reg-username" class="block font-label-md text-caption font-bold text-on-surface">Username Pilihan *</label>
+                    <input type="text" id="reg-username" required placeholder="Contoh: ahmad_amil"
+                        class="w-full px-md py-sm bg-surface-container-low border border-outline-variant/60 rounded-xl font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-sm">
+                    <div class="space-y-xs">
+                        <label for="reg-password" class="block font-label-md text-caption font-bold text-on-surface">Password *</label>
+                        <input type="password" id="reg-password" required placeholder="Buat password"
+                            class="w-full px-md py-sm bg-surface-container-low border border-outline-variant/60 rounded-xl font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+                    </div>
+                    <div class="space-y-xs">
+                        <label for="reg-phone" class="block font-label-md text-caption font-bold text-on-surface">No. WhatsApp *</label>
+                        <input type="tel" id="reg-phone" required placeholder="08xxxxxxxxxx"
+                            class="w-full px-md py-sm bg-surface-container-low border border-outline-variant/60 rounded-xl font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+                    </div>
+                </div>
+
+                <div class="space-y-xs">
+                    <label for="reg-role" class="block font-label-md text-caption font-bold text-on-surface">Peran / Jabatan *</label>
+                    <select id="reg-role" required
+                        class="w-full px-md py-sm bg-surface-container-low border border-outline-variant/60 rounded-xl font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all font-semibold">
+                        <option value="amil">Admin Amil (Pangkalpinang / Sungailiat)</option>
+                        <option value="super_admin">Super Admin / Pengurus Pusat</option>
+                    </select>
+                </div>
+
+                <p class="font-caption text-[11px] text-outline italic">Catatan: Pendaftaran akun baru memerlukan verifikasi dan persetujuan dari <strong>Admin 1 (Super Admin)</strong> sebelum dapat login.</p>
+
+                <button type="submit" class="w-full bg-primary text-on-primary font-label-md text-label-md py-md rounded-xl hover:bg-primary-container transition-colors shadow-md font-bold flex items-center justify-center gap-xs cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">person_add</span>
+                    <span>Kirim Pendaftaran Admin</span>
+                </button>
             </form>
         </div>
     </div>
@@ -234,6 +296,17 @@
             <a class="sidebar-link flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors"
                 href="#" data-section="allocation-rules" onclick="showSection('allocation-rules', this)">
                 <span class="material-symbols-outlined">pie_chart</span> Aturan Alokasi Dana
+            </a>
+            <a class="sidebar-link flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors"
+                href="#" data-section="site-images" onclick="showSection('site-images', this)">
+                <span class="material-symbols-outlined">image</span> Foto Web Utama
+            </a>
+            <a class="sidebar-link flex items-center justify-between gap-sm px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors"
+                href="#" data-section="admin-users" onclick="showSection('admin-users', this)">
+                <span class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined">admin_panel_settings</span> Verifikasi Admin
+                </span>
+                <span id="pending-admins-badge" class="hidden bg-amber-500 text-white px-2 py-0.5 rounded-full text-xs font-bold">0</span>
             </a>
             <a class="sidebar-link flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors"
                 href="#" data-section="news" onclick="showSection('news', this)">
@@ -579,7 +652,49 @@
                         <span class="material-symbols-outlined text-sm">open_in_new</span>
                     </a>
                 </div>
-                <div class="overflow-x-auto" id="finance-program-table"></div>
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- SECTION: KELOLA FOTO WEB UTAMA                     -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <div id="section-site-images" class="flex-1 p-margin-mobile md:p-gutter overflow-y-auto space-y-xl hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+                <div>
+                    <h2 class="font-headline-md text-headline-md font-bold">Kelola Foto Web Utama</h2>
+                    <p class="font-caption text-caption text-on-surface-variant">Admin dapat mengganti semua foto yang tampil di beranda, tentang kami, dan program 5 Berkah secara langsung.</p>
+                </div>
+                <button onclick="saveAllSiteImages()" class="flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm font-bold cursor-pointer">
+                    <span class="material-symbols-outlined size-[18px]">save</span> Simpan Perubahan Foto
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter" id="site-images-grid">
+                <!-- Rendered dynamically by JS -->
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- SECTION: VERIFIKASI & KELOLA ADMIN (ADMIN 1)        -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <div id="section-admin-users" class="flex-1 p-margin-mobile md:p-gutter overflow-y-auto space-y-xl hidden">
+            <div>
+                <h2 class="font-headline-md text-headline-md font-bold">Verifikasi &amp; Manajemen Admin</h2>
+                <p class="font-caption text-caption text-on-surface-variant">Khusus <strong>Admin 1 (Super Admin)</strong>. Menampilkan antrean verifikasi pendaftaran akun admin baru dan kelola hak akses amil.</p>
+            </div>
+
+            <!-- Pending Registrations Box -->
+            <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden p-lg">
+                <div class="flex justify-between items-center mb-md">
+                    <h3 class="font-headline-md text-headline-md text-base font-bold text-primary flex items-center gap-xs">
+                        <span class="material-symbols-outlined text-amber-500">pending_actions</span>
+                        <span>Antrean Pendaftaran Akun (Pending)</span>
+                    </h3>
+                </div>
+                <div class="overflow-x-auto" id="pending-admins-table"></div>
+            </div>
+
+            <!-- All Approved Admin Users Box -->
+            <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden p-lg">
+                <h3 class="font-headline-md text-headline-md text-base font-bold mb-md">Daftar Seluruh Admin Terverifikasi</h3>
+                <div class="overflow-x-auto" id="all-admins-table"></div>
             </div>
         </div>
     </main>
@@ -1882,9 +1997,288 @@
         }
 
         function updateBadges() {
-            const pendingCount = wizStore.donations.countPending();
+            const pendingCount = wizStore.donations ? wizStore.donations.countPending() : 0;
             const el = document.getElementById('pending-count-badge');
             if (el) el.textContent = `${pendingCount} pending`;
+
+            if (wizStore.adminUsers) {
+                const pendingAdmins = wizStore.adminUsers.getPending();
+                const adminBadge = document.getElementById('pending-admins-badge');
+                if (adminBadge) {
+                    if (pendingAdmins.length > 0) {
+                        adminBadge.textContent = pendingAdmins.length;
+                        adminBadge.classList.remove('hidden');
+                    } else {
+                        adminBadge.classList.add('hidden');
+                    }
+                }
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (sidebar) sidebar.classList.toggle('-translate-x-full');
+            if (overlay) overlay.classList.toggle('hidden');
+        }
+
+        function showSection(sectionId, linkEl) {
+            document.querySelectorAll('main > div[id^="section-"]').forEach(sec => sec.classList.add('hidden'));
+            const targetSec = document.getElementById(`section-${sectionId}`);
+            if (targetSec) targetSec.classList.remove('hidden');
+
+            document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
+            if (linkEl) linkEl.classList.add('active');
+
+            const titleMap = {
+                'dashboard': 'Dashboard Overview',
+                'donations': 'Manajemen Pemasukan / Donasi',
+                'disbursements': 'Manajemen Pengeluaran / Penyaluran Dana',
+                'allocation-rules': 'Editor Aturan Alokasi & Program Spesifik',
+                'site-images': 'Kelola Foto Web Utama',
+                'admin-users': 'Verifikasi & Kelola Akun Admin (Admin 1)',
+                'news': 'Daftar Berita & Dokumentasi Kegiatan',
+                'finance': 'Laporan Keuangan WIZ Bangka Belitung'
+            };
+
+            const titleEl = document.getElementById('section-title');
+            if (titleEl && titleMap[sectionId]) titleEl.textContent = titleMap[sectionId];
+
+            if (sectionId === 'site-images') renderSiteImagesSection();
+            if (sectionId === 'admin-users') renderAdminUsersSection();
+        }
+
+        function renderSiteImagesSection() {
+            const container = document.getElementById('site-images-grid');
+            if (!container || !wizStore.siteImages) return;
+
+            const images = wizStore.siteImages.getAll();
+            const imageMeta = [
+                { key: 'hero_card', label: 'Foto Kartu Hero Utama', desc: 'Foto yang tampil di bagian Hero Beranda web utama.' },
+                { key: 'about_img', label: 'Foto Tentang Kami', desc: 'Foto kegiatan di section profil lembaga WIZ Babel.' },
+                { key: 'berkah_hidayah', label: 'Program Berkah Hidayah (Dakwah)', desc: 'Foto kartu program dakwah.' },
+                { key: 'berkah_juara', label: 'Program Berkah Juara (Pendidikan)', desc: 'Foto kartu beasiswa & pendidikan.' },
+                { key: 'berkah_sehat', label: 'Program Berkah Sehat (Kesehatan)', desc: 'Foto kartu khitanan massal & layanan medis.' },
+                { key: 'berkah_peduli', label: 'Program Berkah Peduli (Sosial)', desc: 'Foto kartu tebar sembako & sedekah.' },
+                { key: 'berkah_mandiri', label: 'Program Berkah Mandiri (Ekonomi)', desc: 'Foto kartu pemberdayaan UMKM.' },
+                { key: 'banner_donasi', label: 'Foto Banner Ajak Donasi', desc: 'Foto banner besar di bagian bawah beranda.' }
+            ];
+
+            container.innerHTML = imageMeta.map(item => {
+                const currentUrl = images[item.key] || '';
+                return `
+                <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 p-md flex flex-col justify-between space-y-md">
+                    <div>
+                        <div class="relative h-44 rounded-lg overflow-hidden border border-outline-variant/30 mb-sm bg-slate-100">
+                            <img id="img-prev-${item.key}" src="${currentUrl}" alt="${item.label}" class="w-full h-full object-cover">
+                            <span class="absolute top-2 left-2 bg-black/60 text-white px-2 py-0.5 rounded text-[11px] font-bold">${item.key}</span>
+                        </div>
+                        <h4 class="font-label-md font-bold text-on-surface">${item.label}</h4>
+                        <p class="font-caption text-caption text-on-surface-variant mb-xs">${item.desc}</p>
+                    </div>
+
+                    <div class="space-y-xs">
+                        <label class="block font-caption text-caption font-semibold text-on-surface">URL Foto / Base64 Data:</label>
+                        <input type="text" id="img-url-${item.key}" value="${currentUrl}"
+                            onchange="document.getElementById('img-prev-${item.key}').src = this.value"
+                            placeholder="https://... atau data:image/..."
+                            class="w-full text-xs bg-surface border border-outline-variant rounded-lg p-2 font-mono outline-none focus:border-primary">
+                        <div class="flex items-center justify-between pt-xs">
+                            <label for="img-file-${item.key}" class="cursor-pointer text-xs font-bold text-primary hover:underline flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">upload_file</span> Unggah File Foto
+                            </label>
+                            <input type="file" id="img-file-${item.key}" accept="image/*" class="hidden" onchange="handleSingleImageUpload(event, '${item.key}')">
+                            <button onclick="saveSingleSiteImage('${item.key}', '${item.label}')" class="px-3 py-1 bg-primary text-on-primary rounded text-xs font-bold hover:bg-primary-container transition-colors cursor-pointer">
+                                Simpan Foto
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function handleSingleImageUpload(event, key) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const dataUrl = e.target.result;
+                const input = document.getElementById(`img-url-${key}`);
+                const prev = document.getElementById(`img-prev-${key}`);
+                if (input) input.value = dataUrl;
+                if (prev) prev.src = dataUrl;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function saveSingleSiteImage(key, label) {
+            const input = document.getElementById(`img-url-${key}`);
+            if (!input) return;
+            await wizStore.siteImages.update(key, input.value, label);
+            alert(`Foto '${label}' berhasil diperbarui!`);
+            refreshAll();
+        }
+
+        async function saveAllSiteImages() {
+            const images = wizStore.siteImages.getAll();
+            const keys = Object.keys(images);
+            const updated = {};
+            keys.forEach(k => {
+                const el = document.getElementById(`img-url-${k}`);
+                if (el) updated[k] = el.value;
+            });
+            await wizStore.siteImages.updateAll(updated);
+            alert('Semua foto web utama berhasil disimpan!');
+            refreshAll();
+        }
+
+        function renderAdminUsersSection() {
+            const pendingContainer = document.getElementById('pending-admins-table');
+            const allContainer = document.getElementById('all-admins-table');
+
+            if (!pendingContainer || !allContainer || !wizStore.adminUsers) return;
+
+            const allUsers = wizStore.adminUsers.getAll();
+            const pendingUsers = wizStore.adminUsers.getPending();
+
+            // Render Pending Table
+            if (pendingUsers.length === 0) {
+                pendingContainer.innerHTML = '<div class="p-md text-center text-on-surface-variant font-caption italic">Tidak ada pendaftaran akun admin baru yang menunggu verifikasi.</div>';
+            } else {
+                pendingContainer.innerHTML = `
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-surface-container-low border-b border-outline-variant/30 font-label-md text-caption text-on-surface-variant">
+                            <th class="p-sm">Tanggal Daftar</th>
+                            <th class="p-sm">Nama Lengkap</th>
+                            <th class="p-sm">Username</th>
+                            <th class="p-sm">No. WA</th>
+                            <th class="p-sm">Peran</th>
+                            <th class="p-sm text-right">Aksi Verifikasi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-outline-variant/20 font-body-md text-sm">
+                        ${pendingUsers.map(u => `
+                        <tr>
+                            <td class="p-sm text-xs text-on-surface-variant">${wizStore.utils.formatDate(u.createdAt)}</td>
+                            <td class="p-sm font-bold text-on-surface">${u.fullName}</td>
+                            <td class="p-sm font-mono text-xs text-primary">${u.username}</td>
+                            <td class="p-sm text-xs">${u.phone || '-'}</td>
+                            <td class="p-sm text-xs font-semibold">${u.role === 'super_admin' ? 'Super Admin' : 'Admin Amil'}</td>
+                            <td class="p-sm text-right space-x-1">
+                                <button onclick="approveAdmin('${u.id}')" class="px-3 py-1 bg-emerald-600 text-white rounded text-xs font-bold hover:bg-emerald-700 cursor-pointer">
+                                    Setujui / Verifikasi
+                                </button>
+                                <button onclick="rejectAdmin('${u.id}')" class="px-3 py-1 bg-error text-white rounded text-xs font-bold hover:bg-red-700 cursor-pointer">
+                                    Tolak
+                                </button>
+                            </td>
+                        </tr>`).join('')}
+                    </tbody>
+                </table>`;
+            }
+
+            // Render All Users Table
+            allContainer.innerHTML = `
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-surface-container-low border-b border-outline-variant/30 font-label-md text-caption text-on-surface-variant">
+                        <th class="p-sm">Nama Admin</th>
+                        <th class="p-sm">Username</th>
+                        <th class="p-sm">Kontak</th>
+                        <th class="p-sm">Peran</th>
+                        <th class="p-sm text-center">Status</th>
+                        <th class="p-sm text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/20 font-body-md text-sm">
+                    ${allUsers.map(u => `
+                    <tr>
+                        <td class="p-sm font-bold text-on-surface">${u.fullName} ${u.username === 'admin' ? '<span class="text-[10px] bg-primary text-on-primary px-1.5 py-0.5 rounded ml-1">Admin 1 Utama</span>' : ''}</td>
+                        <td class="p-sm font-mono text-xs text-outline">${u.username}</td>
+                        <td class="p-sm text-xs">${u.phone || '-'}</td>
+                        <td class="p-sm text-xs font-semibold">${u.role === 'super_admin' ? 'Super Admin' : 'Admin Amil'}</td>
+                        <td class="p-sm text-center">
+                            <span class="px-2 py-0.5 rounded-full text-xs font-bold ${u.status === 'approved' ? 'bg-emerald-100 text-emerald-800' : u.status === 'pending' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}">
+                                ${u.status === 'approved' ? 'Terverifikasi' : u.status === 'pending' ? 'Menunggu' : 'Ditolak'}
+                            </span>
+                        </td>
+                        <td class="p-sm text-right">
+                            ${u.username !== 'admin' ? `
+                                <button onclick="deleteAdmin('${u.id}')" class="px-2.5 py-1 text-xs border border-error/30 text-error rounded hover:bg-error/5 font-semibold cursor-pointer">
+                                    Hapus
+                                </button>
+                            ` : '<span class="text-xs text-outline italic">Protected</span>'}
+                        </td>
+                    </tr>`).join('')}
+                </tbody>
+            </table>`;
+        }
+
+        async function approveAdmin(id) {
+            const adminActor = sessionStorage.getItem('wiz_admin_user') || 'Admin 1';
+            await wizStore.adminUsers.approve(id, adminActor);
+            alert('Akun admin berhasil diverifikasi & disetujui!');
+            refreshAll();
+        }
+
+        async function rejectAdmin(id) {
+            if (!confirm('Tolak pendaftaran akun admin ini?')) return;
+            const adminActor = sessionStorage.getItem('wiz_admin_user') || 'Admin 1';
+            await wizStore.adminUsers.reject(id, adminActor);
+            refreshAll();
+        }
+
+        async function deleteAdmin(id) {
+            if (!confirm('Hapus akun admin ini?')) return;
+            const res = await wizStore.adminUsers.delete(id);
+            if (!res.success) alert(res.message);
+            refreshAll();
+        }
+
+        function switchAuthTab(tab) {
+            const loginForm = document.getElementById('admin-login-form');
+            const regForm = document.getElementById('admin-register-form');
+            const tabLogin = document.getElementById('auth-tab-login');
+            const tabReg = document.getElementById('auth-tab-register');
+
+            if (tab === 'register') {
+                loginForm.classList.add('hidden');
+                regForm.classList.remove('hidden');
+                tabReg.className = 'flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-primary text-on-primary shadow-sm cursor-pointer';
+                tabLogin.className = 'flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:text-primary cursor-pointer';
+            } else {
+                regForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                tabLogin.className = 'flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-primary text-on-primary shadow-sm cursor-pointer';
+                tabReg.className = 'flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:text-primary cursor-pointer';
+            }
+        }
+
+        async function handleAdminRegister(e) {
+            e.preventDefault();
+            const fullName = document.getElementById('reg-fullname').value;
+            const username = document.getElementById('reg-username').value;
+            const password = document.getElementById('reg-password').value;
+            const phone = document.getElementById('reg-phone').value;
+            const role = document.getElementById('reg-role').value;
+
+            const alertBox = document.getElementById('register-alert');
+            const alertText = document.getElementById('register-alert-text');
+            const alertIcon = document.getElementById('register-alert-icon');
+
+            const res = await wizStore.adminUsers.register({ username, password, fullName, phone, role });
+            alertBox.classList.remove('hidden');
+            if (res.success) {
+                alertBox.className = 'p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs bg-emerald-100 text-emerald-900 border border-emerald-300';
+                alertIcon.textContent = 'check_circle';
+                alertText.textContent = res.message;
+                document.getElementById('admin-register-form').reset();
+            } else {
+                alertBox.className = 'p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs bg-error-container text-on-error-container';
+                alertIcon.textContent = 'error';
+                alertText.textContent = res.message;
+            }
         }
 
         function refreshAll() {
@@ -1894,6 +2288,8 @@
             renderProgress5Berkah();
             renderFullDonationTable();
             renderAllocationRulesSection();
+            renderSiteImagesSection();
+            renderAdminUsersSection();
             renderNewsList();
             renderDisbursementTable();
             renderFinanceSection();
@@ -1915,17 +2311,22 @@
             const user = document.getElementById('login-username').value.trim();
             const pass = document.getElementById('login-password').value.trim();
             const errAlert = document.getElementById('login-error-alert');
+            const errText = document.getElementById('login-error-text');
 
-            if ((user === 'admin' || user === 'amil') && pass === 'wizbabel2026') {
+            const authResult = wizStore.adminUsers ? wizStore.adminUsers.login(user, pass) : { success: (user==='admin'||user==='amil') && pass==='wizbabel2026', user: { username: user, fullName: user } };
+
+            if (authResult.success) {
                 sessionStorage.setItem('wiz_admin_authenticated', 'true');
-                sessionStorage.setItem('wiz_admin_user', user);
+                sessionStorage.setItem('wiz_admin_user', authResult.user.username);
+                sessionStorage.setItem('wiz_admin_role', authResult.user.role || 'amil');
+                sessionStorage.setItem('wiz_admin_name', authResult.user.fullName || authResult.user.username);
                 if (errAlert) errAlert.classList.add('hidden');
                 checkAdminAuth();
                 refreshAll();
             } else {
-                if (errAlert) {
+                if (errAlert && errText) {
                     errAlert.classList.remove('hidden');
-                    document.getElementById('login-error-text').textContent = 'Username atau Password salah!';
+                    errText.textContent = authResult.message || 'Username atau Kata Sandi salah!';
                 }
             }
         }
@@ -1934,6 +2335,8 @@
             if (confirm('Apakah Anda yakin ingin keluar dari Portal Admin WIZ Babel?')) {
                 sessionStorage.removeItem('wiz_admin_authenticated');
                 sessionStorage.removeItem('wiz_admin_user');
+                sessionStorage.removeItem('wiz_admin_role');
+                sessionStorage.removeItem('wiz_admin_name');
                 localStorage.removeItem('wiz_admin_authenticated');
                 checkAdminAuth();
             }

@@ -101,6 +101,35 @@ CREATE TABLE IF NOT EXISTS public.zakat_records (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+-- ─── 7. Table: Site Images ─────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.site_images (
+    key TEXT PRIMARY KEY,
+    url TEXT NOT NULL,
+    label TEXT,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+-- ─── 8. Table: Admin Users ─────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.admin_users (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    username TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    full_name TEXT NOT NULL,
+    phone TEXT,
+    role TEXT DEFAULT 'amil', -- 'super_admin' (Admin 1) or 'amil'
+    status TEXT DEFAULT 'pending', -- 'pending' | 'approved' | 'rejected'
+    verified_at TIMESTAMP WITH TIME ZONE,
+    verified_by TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- ─── 9. Table: Allocation Rules ───────────────────────────
+CREATE TABLE IF NOT EXISTS public.allocation_rules (
+    wilayah TEXT PRIMARY KEY,
+    data JSONB NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
 
 -- ═════════════════════════════════════════════════════════
 -- ENABLE ROW LEVEL SECURITY (RLS)
@@ -111,6 +140,9 @@ ALTER TABLE public.disbursements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.activity_log ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.zakat_records ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.site_images ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.admin_users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.allocation_rules ENABLE ROW LEVEL SECURITY;
 
 
 -- ═════════════════════════════════════════════════════════
@@ -139,3 +171,19 @@ CREATE POLICY "contact_messages_insert" ON public.contact_messages FOR INSERT TO
 
 CREATE POLICY "zakat_records_select" ON public.zakat_records FOR SELECT TO anon USING (true);
 CREATE POLICY "zakat_records_insert" ON public.zakat_records FOR INSERT TO anon WITH CHECK (true);
+
+CREATE POLICY "site_images_select" ON public.site_images FOR SELECT TO anon USING (true);
+CREATE POLICY "site_images_insert" ON public.site_images FOR INSERT TO anon WITH CHECK (true);
+CREATE POLICY "site_images_update" ON public.site_images FOR UPDATE TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "site_images_delete" ON public.site_images FOR DELETE TO anon USING (true);
+
+CREATE POLICY "admin_users_select" ON public.admin_users FOR SELECT TO anon USING (true);
+CREATE POLICY "admin_users_insert" ON public.admin_users FOR INSERT TO anon WITH CHECK (true);
+CREATE POLICY "admin_users_update" ON public.admin_users FOR UPDATE TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "admin_users_delete" ON public.admin_users FOR DELETE TO anon USING (true);
+
+CREATE POLICY "allocation_rules_select" ON public.allocation_rules FOR SELECT TO anon USING (true);
+CREATE POLICY "allocation_rules_insert" ON public.allocation_rules FOR INSERT TO anon WITH CHECK (true);
+CREATE POLICY "allocation_rules_update" ON public.allocation_rules FOR UPDATE TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "allocation_rules_delete" ON public.allocation_rules FOR DELETE TO anon USING (true);
+
