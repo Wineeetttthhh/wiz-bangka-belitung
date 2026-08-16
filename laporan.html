@@ -610,10 +610,20 @@
 
     document.addEventListener('DOMContentLoaded', async () => {
         renderPublicReport();
-        if (wizStore && wizStore.syncFromCloud) {
-            await wizStore.syncFromCloud();
+
+        // Listen for background sync completion to auto-refresh data
+        window.addEventListener('wiz-sync-complete', () => {
             renderPublicReport();
-        }
+            console.log('[Laporan] Auto-refreshed after Firebase sync.');
+        });
+
+        // Also trigger a manual sync after a short delay (fallback)
+        setTimeout(async () => {
+            if (wizStore && wizStore.fullBidirectionalSync) {
+                await wizStore.fullBidirectionalSync();
+                renderPublicReport();
+            }
+        }, 1500);
     });
 </script>
 </body>

@@ -1456,7 +1456,25 @@
 
     // ─── Initialize Data & Sync ───────────────────────────
     seedDefaultData();
-    syncFromCloud();
+
+    // Full bidirectional sync on startup:
+    // 1. Push any local-only data → Firebase (so data from Edge reaches Firebase)
+    // 2. Pull Firebase data → localStorage (so Chrome gets data from Firebase)
+    async function initSync() {
+        try {
+            await syncFromCloud();   // Step 1: pull from Firebase first
+            await pushToCloud();     // Step 2: push local-only data to Firebase
+            await syncFromCloud();   // Step 3: pull again to catch anything missed
+            console.log('[WIZ Firebase] Init sync complete.');
+            // Notify any listening pages to refresh their UI
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+        } catch(e) {
+            console.warn('[WIZ Firebase] Init sync failed, using local data:', e.message);
+        }
+    }
+
+    // Slight delay so Firebase client script finishes loading
+    setTimeout(initSync, 800);
 
     // ─── Public API ───────────────────────────────────────
     window.wizStore = {
