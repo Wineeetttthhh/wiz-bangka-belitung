@@ -35,6 +35,8 @@
         SITE_IMAGES: 'wiz_site_images',
         ADMIN_USERS: 'wiz_admin_users',
         ALLOCATION_RULES: 'wiz_allocation_rules',
+        REFERRALS: 'wiz_referrals',
+        REFERRAL_PAYOUTS: 'wiz_referral_payouts',
         INITIALIZED: 'wiz_store_initialized'
     };
 
@@ -49,6 +51,43 @@
         banner_donasi: 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb9?q=80&w=1200&auto=format&fit=crop'
     };
 
+    const DEFAULT_SPECIFIC_PROGRAM_IMAGES = {
+        'Pembangunan Markaz': 'https://images.unsplash.com/photo-1542665952-14513db15293?q=80&w=800&auto=format&fit=crop',
+        'Pengadaan & Perbaikan Kendaraan': 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=800&auto=format&fit=crop',
+        'Pengadaan dan Perbaikan Kendaraan': 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=800&auto=format&fit=crop',
+        'Santunan Mualaf': 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=800&auto=format&fit=crop',
+        'Tahfidz': 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=800&auto=format&fit=crop',
+        'Pelatihan Public Speaking': 'https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=800&auto=format&fit=crop',
+        'Tabligh Akbar Dzulhijjah': 'https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=800&auto=format&fit=crop',
+        'Pelatihan Guru Dirosa': 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=800&auto=format&fit=crop',
+        'Pelatihan Penyelenggaraan Jenazah': 'https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=800&auto=format&fit=crop',
+        'Pelatihan Volunteer Media Dakwah': 'https://images.unsplash.com/photo-1542665952-14513db15293?q=80&w=800&auto=format&fit=crop',
+        'Lomba Desain Poster Dakwah': 'https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=800&auto=format&fit=crop',
+        'Kantor DPW WI Babel & WIZ': 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=800&auto=format&fit=crop',
+        'Mukerwil Mukernas Muktamar': 'https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=800&auto=format&fit=crop',
+        'Keberangkatan Kepulangan Dai': 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=800&auto=format&fit=crop',
+
+        'Tebar Sembako': 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop',
+        'Sedekah Beras Dhuafa': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=800&auto=format&fit=crop',
+        'Sedekah Jumat': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=800&auto=format&fit=crop',
+        'Santunan Yatim': 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800&auto=format&fit=crop',
+        'Tebar Iftar Nusantara': 'https://images.unsplash.com/photo-1541544741938-0af808871cc0?q=80&w=800&auto=format&fit=crop',
+        "Tebar Qur'an Nusantara": 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=800&auto=format&fit=crop',
+        'Bahagiakan Guru Ngaji': 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=800&auto=format&fit=crop',
+        'Sedekah Air': 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?q=80&w=800&auto=format&fit=crop',
+
+        'Beasiswa Pendidikan Juara': 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=800&auto=format&fit=crop',
+        'Beasiswa Tahfidz & Dhuafa': 'https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=800&auto=format&fit=crop',
+        'Perlengkapan Belajar Yatim': 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop',
+
+        'Khitanan Massal Dhuafa': 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?q=80&w=800&auto=format&fit=crop',
+        'Layanan Pengobatan Gratis': 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop',
+        'Ambulance Gratis Ummat': 'https://images.unsplash.com/photo-1587745416684-47953f16f02f?q=80&w=800&auto=format&fit=crop',
+
+        'Modal Usaha Dhuafa': 'https://images.unsplash.com/photo-1556742049-0a67daf4004a?q=80&w=800&auto=format&fit=crop',
+        'Pelatihan Keterampilan Wirausaha': 'https://images.unsplash.com/photo-1556742049-0a67daf4004a?q=80&w=800&auto=format&fit=crop'
+    };
+
     const DEFAULT_ADMIN_USERS = [
         {
             id: 'admin-1',
@@ -58,6 +97,33 @@
             phone: '08123456789',
             role: 'super_admin',
             status: 'approved',
+            createdAt: new Date().toISOString()
+        }
+    ];
+
+    const DEFAULT_REFERRALS = [
+        {
+            id: 'ref-1',
+            name: 'Ustadz Ahmad Hidayat',
+            phone: '081271234567',
+            bankName: 'Bank Syariah Indonesia (BSI)',
+            accountNumber: '7123456789',
+            accountHolder: 'Ahmad Hidayat',
+            defaultRate: 6,
+            status: 'active',
+            notes: 'Da\'i & Mitra Fundraiser Wilayah Pangkalpinang',
+            createdAt: new Date().toISOString()
+        },
+        {
+            id: 'ref-2',
+            name: 'Ibu Fatimah Az-Zahra',
+            phone: '082198765432',
+            bankName: 'Bank Muamalat',
+            accountNumber: '1090012345',
+            accountHolder: 'Fatimah Az-Zahra',
+            defaultRate: 6,
+            status: 'active',
+            notes: 'Koordinator Komunitas Sedekah Sungailiat',
             createdAt: new Date().toISOString()
         }
     ];
@@ -74,7 +140,18 @@
     }
 
     function setStore(key, data) {
-        localStorage.setItem(key, JSON.stringify(data));
+        try {
+            localStorage.setItem(key, JSON.stringify(data));
+        } catch (e) {
+            if (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014) {
+                console.error('[WIZ Store] localStorage penuh! Tidak bisa simpan:', key, e);
+                if (typeof alert !== 'undefined') {
+                    alert('⚠️ Penyimpanan lokal browser hampir penuh!\n\nFoto yang diupload terlalu besar atau terlalu banyak data tersimpan.\n\nSolusi: Hapus beberapa data lama atau kompres foto lebih kecil sebelum upload.');
+                }
+            } else {
+                console.error('[WIZ Store] Gagal simpan data:', key, e);
+            }
+        }
     }
 
     function formatRupiahCompact(num) {
@@ -498,6 +575,75 @@
             }
             return all;
         },
+        async updateSpecificProgramImageByName(programName, imageDataUrl) {
+            const all = this.getAll();
+            const cleanName = (programName || '').trim().toLowerCase();
+            let updated = false;
+
+            for (const [w, wData] of Object.entries(all)) {
+                if (wData && wData.subAllocation) {
+                    let wModified = false;
+                    for (const [pillarKey, subObj] of Object.entries(wData.subAllocation)) {
+                        if (subObj && subObj.items) {
+                            subObj.items.forEach(item => {
+                                const kLower = (item.key || '').trim().toLowerCase();
+                                const fullLower = `${pillarKey} - ${item.key}`.toLowerCase();
+                                if (kLower === cleanName || fullLower === cleanName || cleanName.includes(kLower) || kLower.includes(cleanName)) {
+                                    item.image = imageDataUrl;
+                                    wModified = true;
+                                    updated = true;
+                                }
+                            });
+                        }
+                    }
+                    if (wModified) {
+                        await this.update(w, wData);
+                    }
+                }
+            }
+
+            // Also keep flat store in localStorage for fast direct lookup on public pages
+            try {
+                const flatMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+                flatMap[programName] = imageDataUrl;
+                localStorage.setItem('wiz_specific_prog_imgs', JSON.stringify(flatMap));
+            } catch(e) {}
+
+            return updated;
+        },
+        getSpecificProgramImage(programName, pillar = '') {
+            try {
+                const flatMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+                if (flatMap[programName]) return flatMap[programName];
+            } catch(e) {}
+
+            const cleanName = (programName || '').trim().toLowerCase();
+            const all = this.getAll();
+            for (const wData of Object.values(all)) {
+                if (wData && wData.subAllocation) {
+                    for (const [pillarKey, subObj] of Object.entries(wData.subAllocation)) {
+                        if (subObj && subObj.items) {
+                            for (const item of subObj.items) {
+                                const kLower = (item.key || '').trim().toLowerCase();
+                                const fullLower = `${pillarKey} - ${item.key}`.toLowerCase();
+                                if ((kLower === cleanName || fullLower === cleanName || cleanName.includes(kLower) || kLower.includes(cleanName)) && item.image) {
+                                    return item.image;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (DEFAULT_SPECIFIC_PROGRAM_IMAGES[programName]) {
+                return DEFAULT_SPECIFIC_PROGRAM_IMAGES[programName];
+            }
+            const cleanPillarKey = (pillar || '').toLowerCase().replace(/\s+/g, '_');
+            if (DEFAULT_SITE_IMAGES[cleanPillarKey]) {
+                return DEFAULT_SITE_IMAGES[cleanPillarKey];
+            }
+            return DEFAULT_SITE_IMAGES.berkah_hidayah;
+        },
         getSpecificProgramList(wilayah) {
             const result = [];
             const allRules = this.getAll();
@@ -593,7 +739,18 @@
         setStore(STORAGE_KEYS.SITE_IMAGES, DEFAULT_SITE_IMAGES);
         setStore(STORAGE_KEYS.ADMIN_USERS, DEFAULT_ADMIN_USERS);
         setStore(STORAGE_KEYS.ALLOCATION_RULES, ALLOCATION_RULES);
+        setStore(STORAGE_KEYS.REFERRALS, DEFAULT_REFERRALS);
+        setStore(STORAGE_KEYS.REFERRAL_PAYOUTS, []);
         localStorage.setItem(STORAGE_KEYS.INITIALIZED, 'true');
+    }
+
+    // Ensure referrals store is populated if missing or empty
+    const existingRefs = getStore(STORAGE_KEYS.REFERRALS);
+    if (!existingRefs || !Array.isArray(existingRefs) || existingRefs.length === 0) {
+        setStore(STORAGE_KEYS.REFERRALS, DEFAULT_REFERRALS);
+    }
+    if (!getStore(STORAGE_KEYS.REFERRAL_PAYOUTS)) {
+        setStore(STORAGE_KEYS.REFERRAL_PAYOUTS, []);
     }
 
     // ─── Cloud Sync Helper (Firebase) ─────────────────────
@@ -658,8 +815,22 @@
                 if (!cloudData || cloudData.length === 0) return;
                 const local = getStore(storeKey) || [];
                 const map = new Map();
+                // Load local first
                 local.forEach(item => map.set(String(item.id), item));
-                cloudData.forEach(item => map.set(String(item.id), item));
+                // Merge cloud — but preserve local base64 images (offline uploads)
+                cloudData.forEach(cloudItem => {
+                    const localItem = map.get(String(cloudItem.id));
+                    if (localItem) {
+                        // Preserve locally uploaded base64 photo over cloud URL
+                        const mergedItem = { ...cloudItem, ...{} };
+                        if (localItem.imageUrl && localItem.imageUrl.startsWith('data:image')) {
+                            mergedItem.imageUrl = localItem.imageUrl;
+                        }
+                        map.set(String(cloudItem.id), mergedItem);
+                    } else {
+                        map.set(String(cloudItem.id), cloudItem);
+                    }
+                });
                 const merged = Array.from(map.values());
                 if (sortFn) merged.sort(sortFn);
                 setStore(storeKey, merged);
@@ -794,6 +965,11 @@
             const programSpesifik = donation.programSpesifik || donation.program || '-';
             const programUtama = donation.programUtama || mapProgramToPillar(programSpesifik, donation.category) || '-';
 
+            const donationAmount = Number(donation.amount) || 0;
+            const refRate = donation.referralRate !== undefined ? Number(donation.referralRate) : 6;
+            const refFee = donation.referralId ? (donation.referralFee !== undefined ? Number(donation.referralFee) : Math.round(donationAmount * (refRate / 100))) : 0;
+            const addBonus = Number(donation.additionalBonus) || 0;
+
             const newDonation = {
                 id: donation.id || generateId(),
                 donorName: donation.donorName || 'Hamba Allah',
@@ -805,11 +981,16 @@
                 programSpesifik,
                 alokasiOperasional,
                 alokasiProgram,
+                // Referal / Perantara
+                referralId: donation.referralId || null,
+                referralRate: refRate,
+                referralFee: refFee,
+                additionalBonus: addBonus,
                 // Legacy (agar kompatibel dengan render yang sudah ada)
                 program: programSpesifik,
                 category: programUtama,
                 type: donation.type || 'Infak Terikat',
-                amount: Number(donation.amount) || 0,
+                amount: donationAmount,
                 method: donation.method || 'Transfer Bank / WA',
                 notes: donation.notes || '-',
                 status: donation.status || 'pending',
@@ -854,6 +1035,11 @@
                 alokasiProgram = 0;
             }
 
+            const refId = updates.referralId !== undefined ? updates.referralId : (list[idx].referralId || null);
+            const refRate = updates.referralRate !== undefined ? Number(updates.referralRate) : (list[idx].referralRate || 6);
+            const refFee = refId ? (updates.referralFee !== undefined ? Number(updates.referralFee) : Math.round(newAmount * (refRate / 100))) : 0;
+            const addBonus = updates.additionalBonus !== undefined ? Number(updates.additionalBonus) : (list[idx].additionalBonus || 0);
+
             list[idx] = {
                 ...list[idx],
                 ...updates,
@@ -862,6 +1048,10 @@
                 programSpesifik,
                 alokasiOperasional,
                 alokasiProgram,
+                referralId: refId,
+                referralRate: refRate,
+                referralFee: refFee,
+                additionalBonus: addBonus,
                 program: programSpesifik,
                 category: programUtama,
                 amount: newAmount
@@ -1425,6 +1615,177 @@
         }
     };
 
+    // ─── Referrals (Hak 6% Perantara) Module ────────────────
+    const referrals = {
+        getAll() {
+            const rawList = getStore(STORAGE_KEYS.REFERRALS) || [];
+            const allDonations = getStore(STORAGE_KEYS.DONATIONS) || [];
+            const allPayouts = getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || [];
+
+            return rawList.map(ref => {
+                const refDonations = allDonations.filter(d => d.referralId === ref.id);
+                const refPayouts = allPayouts.filter(p => p.referralId === ref.id);
+
+                const donationsCount = refDonations.length;
+                const totalDonationAmount = refDonations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
+                const totalFee6Percent = refDonations.reduce((sum, d) => {
+                    const rate = d.referralRate !== undefined ? Number(d.referralRate) : Number(ref.defaultRate || 6);
+                    const fee = d.referralFee !== undefined ? Number(d.referralFee) : Math.round((Number(d.amount) || 0) * (rate / 100));
+                    return sum + fee;
+                }, 0);
+                const totalAdditionalBonus = refDonations.reduce((sum, d) => sum + (Number(d.additionalBonus) || 0), 0);
+                const totalEarned = totalFee6Percent + totalAdditionalBonus;
+                const totalPaid = refPayouts.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+                const pendingBalance = Math.max(0, totalEarned - totalPaid);
+
+                return {
+                    ...ref,
+                    donationsCount,
+                    totalDonationAmount,
+                    totalFee6Percent,
+                    totalAdditionalBonus,
+                    totalEarned,
+                    totalPaid,
+                    pendingBalance
+                };
+            }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        },
+
+        getById(id) {
+            const all = this.getAll();
+            const ref = all.find(r => r.id === id);
+            if (!ref) return null;
+
+            const allDonations = (getStore(STORAGE_KEYS.DONATIONS) || []).filter(d => d.referralId === id);
+            const allPayouts = (getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || []).filter(p => p.referralId === id).sort((a, b) => new Date(b.paidAt) - new Date(a.paidAt));
+
+            return {
+                ...ref,
+                donations: allDonations,
+                payouts: allPayouts
+            };
+        },
+
+        async add(data) {
+            const list = getStore(STORAGE_KEYS.REFERRALS) || [];
+            const newRef = {
+                id: data.id || generateId(),
+                name: data.name,
+                phone: data.phone || '-',
+                bankName: data.bankName || '-',
+                accountNumber: data.accountNumber || '-',
+                accountHolder: data.accountHolder || data.name,
+                defaultRate: Number(data.defaultRate) || 6,
+                status: data.status || 'active',
+                notes: data.notes || '',
+                createdAt: new Date().toISOString()
+            };
+            list.unshift(newRef);
+            setStore(STORAGE_KEYS.REFERRALS, list);
+
+            activityLog.add('referral', `Perantara/Referal baru "${newRef.name}" ditambahkan (Hak ${newRef.defaultRate}%).`, data.createdBy || 'Admin');
+
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.insert('referrals', newRef);
+            }
+            return newRef;
+        },
+
+        async update(id, updates) {
+            const list = getStore(STORAGE_KEYS.REFERRALS) || [];
+            const idx = list.findIndex(r => r.id === id);
+            if (idx === -1) return null;
+
+            list[idx] = { ...list[idx], ...updates, updatedAt: new Date().toISOString() };
+            setStore(STORAGE_KEYS.REFERRALS, list);
+
+            activityLog.add('referral', `Data Perantara "${list[idx].name}" diperbarui oleh Admin.`, updates.updatedBy || 'Admin');
+
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.set('referrals', id, list[idx]);
+            }
+            return list[idx];
+        },
+
+        async delete(id) {
+            const list = getStore(STORAGE_KEYS.REFERRALS) || [];
+            const ref = list.find(r => r.id === id);
+            const filtered = list.filter(r => r.id !== id);
+            setStore(STORAGE_KEYS.REFERRALS, filtered);
+
+            if (ref) {
+                activityLog.add('referral', `Perantara "${ref.name}" dihapus.`, 'Admin');
+            }
+
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.remove('referrals', id);
+            }
+        },
+
+        // Payout / Pencairan Hak Perantara
+        getPayouts(referralId) {
+            const allPayouts = getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || [];
+            if (referralId) return allPayouts.filter(p => p.referralId === referralId).sort((a, b) => new Date(b.paidAt) - new Date(a.paidAt));
+            return allPayouts.sort((a, b) => new Date(b.paidAt) - new Date(a.paidAt));
+        },
+
+        async recordPayout(data) {
+            const payouts = getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || [];
+            const newPayout = {
+                id: data.id || generateId(),
+                referralId: data.referralId,
+                referralName: data.referralName || 'Perantara',
+                amount: Number(data.amount) || 0,
+                paymentMethod: data.paymentMethod || 'Transfer Bank',
+                referenceNo: data.referenceNo || '-',
+                notes: data.notes || '',
+                paidAt: data.paidAt || new Date().toISOString(),
+                paidBy: data.paidBy || 'Admin',
+                createdAt: new Date().toISOString()
+            };
+            payouts.unshift(newPayout);
+            setStore(STORAGE_KEYS.REFERRAL_PAYOUTS, payouts);
+
+            activityLog.add('payout', `Pencairan Hak Perantara ${formatRupiahCompact(newPayout.amount)} untuk "${newPayout.referralName}" dicatat.`, newPayout.paidBy);
+
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.insert('referral_payouts', newPayout);
+            }
+            return newPayout;
+        },
+
+        async updatePayout(payoutId, updates) {
+            const payouts = getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || [];
+            const idx = payouts.findIndex(p => p.id === payoutId);
+            if (idx === -1) return null;
+
+            payouts[idx] = { ...payouts[idx], ...updates, updatedAt: new Date().toISOString() };
+            setStore(STORAGE_KEYS.REFERRAL_PAYOUTS, payouts);
+
+            activityLog.add('payout', `Pencairan hak perantara diperbarui.`, updates.updatedBy || 'Admin');
+
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.set('referral_payouts', payoutId, payouts[idx]);
+            }
+            return payouts[idx];
+        },
+
+        async deletePayout(payoutId) {
+            const payouts = getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || [];
+            const payout = payouts.find(p => p.id === payoutId);
+            const filtered = payouts.filter(p => p.id !== payoutId);
+            setStore(STORAGE_KEYS.REFERRAL_PAYOUTS, filtered);
+
+            if (payout) {
+                activityLog.add('payout', `Riwayat pencairan ${formatRupiahCompact(payout.amount)} dihapus.`, 'Admin');
+            }
+
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.remove('referral_payouts', payoutId);
+            }
+        }
+    };
+
     // ─── Activity Log Module ──────────────────────────────
     const activityLog = {
         getAll() {
@@ -1485,6 +1846,7 @@
         baselines,
         siteImages,
         adminUsers,
+        referrals,
         allocationRulesManager,
         activity: activityLog,
         allocationRules: ALLOCATION_RULES,

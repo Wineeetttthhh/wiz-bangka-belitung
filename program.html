@@ -1101,6 +1101,7 @@
 <!-- Store & Supabase Scripts -->
 <script src="assets/js/firebase-client.js?v=3"></script>
 <script src="assets/js/admin-store.js?v=3"></script>
+<script src="assets/js/main.js"></script>
 <script src="assets/js/nav-active.js"></script>
 
 <!-- Interactive JavaScript -->
@@ -1245,6 +1246,66 @@
             }
         });
         filterPrograms();
+    }
+
+    function updateDynamicProgramCards() {
+        // Helper: get custom uploaded image for a program title
+        function getCustomImg(progTitle) {
+            try {
+                if (window.wizStore && window.wizStore.allocationRulesManager) {
+                    return window.wizStore.allocationRulesManager.getSpecificProgramImage(progTitle) || '';
+                }
+                const flatMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+                return flatMap[progTitle] || '';
+            } catch(e) { return ''; }
+        }
+
+        let specificProgs = [];
+        try {
+            if (window.wizStore && window.wizStore.finance) {
+                specificProgs = window.wizStore.finance.getPerSpecificProgram('Semua') || [];
+            }
+        } catch(e) {}
+
+        document.querySelectorAll('.program-card').forEach(card => {
+            const cardTitle = (card.getAttribute('data-title') || '').trim();
+            if (!cardTitle) return;
+
+            // 1. Prioritize custom photo uploaded by admin from local
+            const customImg = getCustomImg(cardTitle);
+            if (customImg) {
+                const imgEl = card.querySelector('img');
+                if (imgEl) imgEl.src = customImg;
+            } else if (specificProgs.length > 0) {
+                const sp = specificProgs.find(s =>
+                    s.itemKey.toLowerCase() === cardTitle.toLowerCase() ||
+                    s.fullName.toLowerCase().includes(cardTitle.toLowerCase()) ||
+                    cardTitle.toLowerCase().includes(s.itemKey.toLowerCase())
+                );
+                if (sp && sp.image) {
+                    const imgEl = card.querySelector('img');
+                    if (imgEl) imgEl.src = sp.image;
+                }
+            }
+
+            // 2. Update finance progress bar if data is available
+            if (specificProgs.length > 0) {
+                const sp = specificProgs.find(s =>
+                    s.itemKey.toLowerCase() === cardTitle.toLowerCase() ||
+                    s.fullName.toLowerCase().includes(cardTitle.toLowerCase()) ||
+                    cardTitle.toLowerCase().includes(s.itemKey.toLowerCase())
+                );
+                if (sp && window.wizStore && window.wizStore.utils) {
+                    const fmt = window.wizStore.utils.formatRupiahCompact;
+                    const terkumpulEl = card.querySelector('.mb-lg strong');
+                    const percentEl = card.querySelector('.mb-lg .font-semibold');
+                    const progressFill = card.querySelector('.mb-lg .bg-tertiary-container, .mb-lg .bg-primary');
+                    if (terkumpulEl) terkumpulEl.textContent = fmt(sp.masuk);
+                    if (percentEl) percentEl.textContent = sp.percent + '%';
+                    if (progressFill) progressFill.style.width = Math.min(sp.percent, 100) + '%';
+                }
+            }
+        });
     }
 
     // Modal Manager

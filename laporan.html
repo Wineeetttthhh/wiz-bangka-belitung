@@ -190,62 +190,72 @@
     </section>
 
     <!-- Dashboard Metrics (Bento Grid) -->
-    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-lg">
-        <div class="bg-surface-container-lowest p-lg rounded-xl shadow-level-1 border border-outline-variant/30 flex flex-col gap-sm hover:shadow-level-2 transition-all">
-            <div class="flex items-center gap-sm text-primary">
-                <span class="material-symbols-outlined">account_balance_wallet</span>
-                <span class="font-label-md text-label-md font-bold">Total Dana Masuk</span>
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-md md:gap-lg">
+        <div class="bg-surface-container-lowest p-md sm:p-lg rounded-xl shadow-level-1 border border-outline-variant/30 flex flex-col gap-xs hover:shadow-level-2 transition-all min-w-0 overflow-hidden">
+            <div class="flex items-center gap-xs sm:gap-sm text-primary">
+                <span class="material-symbols-outlined text-lg sm:text-xl">account_balance_wallet</span>
+                <span class="font-label-md text-xs sm:text-sm font-bold">Total Dana Masuk</span>
             </div>
-            <div class="font-headline-lg text-headline-lg text-on-surface font-bold" id="pub-total-masuk">Rp 0</div>
-            <span class="font-caption text-caption text-on-surface-variant">Donasi terverifikasi sah</span>
+            <div class="font-bold text-on-surface text-lg sm:text-xl md:text-2xl tracking-tight truncate min-w-0 w-full" id="pub-total-masuk" title="Total Dana Masuk">Rp 0</div>
+            <span class="font-caption text-[11px] sm:text-caption text-on-surface-variant">Donasi terverifikasi sah</span>
         </div>
 
-        <div class="bg-surface-container-lowest p-lg rounded-xl shadow-level-1 border border-outline-variant/30 flex flex-col gap-sm hover:shadow-level-2 transition-all">
-            <div class="flex items-center gap-sm text-tertiary-container">
-                <span class="material-symbols-outlined">volunteer_activism</span>
-                <span class="font-label-md text-label-md font-bold">Total Tersalurkan</span>
+        <div class="bg-surface-container-lowest p-md sm:p-lg rounded-xl shadow-level-1 border border-outline-variant/30 flex flex-col gap-xs hover:shadow-level-2 transition-all min-w-0 overflow-hidden">
+            <div class="flex items-center gap-xs sm:gap-sm text-tertiary-container">
+                <span class="material-symbols-outlined text-lg sm:text-xl">volunteer_activism</span>
+                <span class="font-label-md text-xs sm:text-sm font-bold">Total Tersalurkan</span>
             </div>
-            <div class="font-headline-lg text-headline-lg text-on-surface font-bold" id="pub-total-salur">Rp 0</div>
-            <span class="font-caption text-caption text-on-surface-variant">Telah disalurkan ke penerima</span>
+            <div class="font-bold text-on-surface text-lg sm:text-xl md:text-2xl tracking-tight truncate min-w-0 w-full" id="pub-total-salur" title="Total Tersalurkan">Rp 0</div>
+            <span class="font-caption text-[11px] sm:text-caption text-on-surface-variant">Telah disalurkan ke penerima</span>
         </div>
 
-        <div class="bg-surface-container-lowest p-lg rounded-xl shadow-level-1 border border-outline-variant/30 flex flex-col gap-sm hover:shadow-level-2 transition-all">
-            <div class="flex items-center gap-sm text-[#F7941D]">
-                <span class="material-symbols-outlined">account_balance</span>
-                <span class="font-label-md text-label-md font-bold">Saldo Saat Ini</span>
+        <div class="bg-surface-container-lowest p-md sm:p-lg rounded-xl shadow-level-1 border border-outline-variant/30 flex flex-col gap-xs hover:shadow-level-2 transition-all min-w-0 overflow-hidden">
+            <div class="flex items-center gap-xs sm:gap-sm text-[#F7941D]">
+                <span class="material-symbols-outlined text-lg sm:text-xl">account_balance</span>
+                <span class="font-label-md text-xs sm:text-sm font-bold">Saldo Saat Ini</span>
             </div>
-            <div class="font-headline-lg text-headline-lg text-on-surface font-bold" id="pub-saldo">Rp 0</div>
-            <span class="font-caption text-caption text-on-surface-variant">Sisa saldo amanah program</span>
+            <div class="font-bold text-on-surface text-lg sm:text-xl md:text-2xl tracking-tight truncate min-w-0 w-full" id="pub-saldo" title="Saldo Saat Ini">Rp 0</div>
+            <span class="font-caption text-[11px] sm:text-caption text-on-surface-variant">Sisa saldo amanah program</span>
         </div>
 
-        <div class="bg-surface-container-lowest p-lg rounded-xl shadow-level-1 border border-outline-variant/30 flex flex-col gap-sm hover:shadow-level-2 transition-all">
-            <div class="flex items-center gap-sm text-secondary-container">
-                <span class="material-symbols-outlined">groups</span>
-                <span class="font-label-md text-label-md font-bold">Jumlah Donatur</span>
+        <div class="bg-surface-container-lowest p-md sm:p-lg rounded-xl shadow-level-1 border border-outline-variant/30 flex flex-col gap-xs hover:shadow-level-2 transition-all min-w-0 overflow-hidden">
+            <div class="flex items-center gap-xs sm:gap-sm text-secondary-container">
+                <span class="material-symbols-outlined text-lg sm:text-xl">groups</span>
+                <span class="font-label-md text-xs sm:text-sm font-bold">Jumlah Donatur</span>
             </div>
-            <div class="font-headline-lg text-headline-lg text-on-surface font-bold" id="pub-donatur-count">0</div>
-            <span class="font-caption text-caption text-on-surface-variant">Donatur terverifikasi</span>
+            <div class="font-bold text-on-surface text-lg sm:text-xl md:text-2xl tracking-tight truncate min-w-0 w-full" id="pub-donatur-count" title="Jumlah Donatur">0</div>
+            <span class="font-caption text-[11px] sm:text-caption text-on-surface-variant">Donatur terverifikasi</span>
         </div>
     </section>
 
-    <!-- Rincian Alokasi Program Spesifik Section -->
+    <!-- Diagram Lingkaran Distribusi Pilar (5 Berkah WIZ) -->
     <section class="bg-surface-container-lowest rounded-xl shadow-level-1 border border-outline-variant/30 p-lg space-y-md">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-xs">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
             <div>
-                <h2 class="font-headline-md text-headline-md font-bold text-primary flex items-center gap-xs">
+                <h2 class="font-headline-md text-headline-md font-bold text-primary flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary">pie_chart</span>
-                    <span>Rincian Alokasi Program Spesifik (5 Berkah WIZ)</span>
+                    <span>Diagram Lingkaran Distribusi Program (5 Berkah WIZ)</span>
                 </h2>
-                <p class="font-body-md text-caption text-on-surface-variant">Penjabaran transparan program spesifik yang direalisasikan dari dana zakat, infak, dan sedekah.</p>
+                <p class="font-body-md text-caption text-on-surface-variant">Proporsi dan persentase realisasi dana per pilar utama lembaga (Dakwah, Pendidikan, Sosial, Kesehatan, Ekonomi).</p>
             </div>
-            <select id="pub-filter-wilayah" onchange="renderSpecificProgramsBreakdown()" class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 font-caption text-caption text-on-surface font-bold outline-none cursor-pointer">
+            <select id="pub-filter-wilayah" onchange="renderPublicReport()" class="bg-surface border border-outline-variant rounded-lg px-3 py-2 font-caption text-caption text-on-surface font-bold outline-none cursor-pointer">
                 <option value="Pangkalpinang">Wilayah: Pangkalpinang</option>
                 <option value="Sungailiat">Wilayah: Sungailiat</option>
+                <option value="Semua">Wilayah: Konsolidasi (Semua)</option>
             </select>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md" id="specific-programs-grid">
-            <!-- Dynamically populated by JS -->
+        <!-- Donut Chart & Legend Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-center pt-sm">
+            <!-- Left: Donut Chart SVG Container -->
+            <div class="lg:col-span-5 flex flex-col items-center justify-center p-md bg-surface-container-low rounded-xl border border-outline-variant/20 relative min-h-[260px]" id="pillar-chart-container">
+                <!-- SVG Donut Chart dynamically rendered -->
+            </div>
+
+            <!-- Right: Legend Cards Grid with Percentages & Nominals -->
+            <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-sm" id="pillar-legend-container">
+                <!-- Rendered dynamically -->
+            </div>
         </div>
     </section>
 
@@ -371,6 +381,7 @@
 <!-- Scripts -->
 <script src="assets/js/firebase-client.js?v=3"></script>
 <script src="assets/js/admin-store.js?v=3"></script>
+<script src="assets/js/main.js"></script>
 <script src="assets/js/nav-active.js"></script>
 
 <script>
@@ -390,10 +401,15 @@
         const stats = wizStore.finance.getOverviewStats();
         const fmt = wizStore.utils.formatRupiahCompact;
 
-        document.getElementById('pub-total-masuk').textContent = fmt(stats.totalMasuk);
-        document.getElementById('pub-total-salur').textContent = fmt(stats.totalTersalurkan);
-        document.getElementById('pub-saldo').textContent = fmt(stats.saldo);
-        document.getElementById('pub-donatur-count').textContent = stats.totalDonatur.toLocaleString('id-ID');
+        const elMasuk = document.getElementById('pub-total-masuk');
+        const elSalur = document.getElementById('pub-total-salur');
+        const elSaldo = document.getElementById('pub-saldo');
+        const elDonatur = document.getElementById('pub-donatur-count');
+
+        if (elMasuk) { elMasuk.textContent = fmt(stats.totalMasuk); elMasuk.title = fmt(stats.totalMasuk); }
+        if (elSalur) { elSalur.textContent = fmt(stats.totalTersalurkan); elSalur.title = fmt(stats.totalTersalurkan); }
+        if (elSaldo) { elSaldo.textContent = fmt(stats.saldo); elSaldo.title = fmt(stats.saldo); }
+        if (elDonatur) { elDonatur.textContent = stats.totalDonatur.toLocaleString('id-ID'); elDonatur.title = `${stats.totalDonatur} Donatur Terverifikasi`; }
 
         // Table render — show specific programs with full names like WIZ Berkah Hidayah (Pembangunan Markaz)
         const filterWilayah = document.getElementById('pub-filter-wilayah') ? document.getElementById('pub-filter-wilayah').value : 'Pangkalpinang';
@@ -447,83 +463,100 @@
             }
         }
 
-        renderSpecificProgramsBreakdown();
+        // Render Donut Chart for 5 Pillars distribution
+        renderPillarDonutChart(filterWilayah);
     }
 
-    function renderSpecificProgramsBreakdown() {
-        if (!window.wizStore) return;
-        const grid = document.getElementById('specific-programs-grid');
-        const filterSelect = document.getElementById('pub-filter-wilayah');
-        if (!grid) return;
+    function renderPillarDonutChart(filterWilayah) {
+        const containerChart = document.getElementById('pillar-chart-container');
+        const containerLegend = document.getElementById('pillar-legend-container');
+        if (!containerChart || !containerLegend || !window.wizStore) return;
 
-        const wilayah = filterSelect ? filterSelect.value : 'Pangkalpinang';
-        const ruleData = wizStore.allocationRulesManager ? wizStore.allocationRulesManager.get(wilayah) : wizStore.allocationRules[wilayah];
-        const specificDataList = wizStore.finance.getPerSpecificProgram(wilayah);
         const fmt = wizStore.utils.formatRupiahCompact;
+        const specificProgs = wizStore.finance.getPerSpecificProgram(filterWilayah);
 
-        if (!ruleData || !ruleData.subAllocation) {
-            grid.innerHTML = '<div class="col-span-full p-md text-center text-outline">Belum ada rincian alokasi program untuk wilayah ini.</div>';
-            return;
-        }
+        const pillarDefs = [
+            { key: 'Berkah Hidayah', label: 'Dakwah (Berkah Hidayah)', color: '#047857', bg: 'bg-emerald-50 border-emerald-200 text-emerald-900', dot: 'bg-emerald-600' },
+            { key: 'Berkah Juara', label: 'Pendidikan (Berkah Juara)', color: '#1d4ed8', bg: 'bg-blue-50 border-blue-200 text-blue-900', dot: 'bg-blue-600' },
+            { key: 'Berkah Peduli', label: 'Sosial (Berkah Peduli)', color: '#d97706', bg: 'bg-amber-50 border-amber-200 text-amber-900', dot: 'bg-amber-600' },
+            { key: 'Berkah Sehat', label: 'Kesehatan (Berkah Sehat)', color: '#be123c', bg: 'bg-rose-50 border-rose-200 text-rose-900', dot: 'bg-rose-600' },
+            { key: 'Berkah Mandiri', label: 'Ekonomi (Berkah Mandiri)', color: '#7e22ce', bg: 'bg-purple-50 border-purple-200 text-purple-900', dot: 'bg-purple-600' }
+        ];
 
-        const pillarMeta = {
-            'Berkah Hidayah': { icon: 'auto_stories', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
-            'Berkah Juara': { icon: 'school', color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200' },
-            'Berkah Peduli': { icon: 'volunteer_activism', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200' },
-            'Berkah Sehat': { icon: 'medical_services', color: 'text-teal-700', bg: 'bg-teal-50 border-teal-200' },
-            'Berkah Mandiri': { icon: 'storefront', color: 'text-purple-700', bg: 'bg-purple-50 border-purple-200' }
-        };
-
-        let html = '';
-        Object.entries(ruleData.subAllocation).forEach(([pillarKey, subObj]) => {
-            const meta = pillarMeta[pillarKey] || { icon: 'star', color: 'text-primary', bg: 'bg-surface-container-low border-outline-variant/30' };
-            const items = subObj && subObj.items ? subObj.items : [];
-
-            let itemsHtml = '';
-            if (items.length === 0) {
-                itemsHtml = '<p class="text-xs text-outline italic p-2">Program spesifik belum dikonfigurasi</p>';
-            } else {
-                itemsHtml = items.map(item => {
-                    const fullName = `${pillarKey} - ${item.key}`;
-                    const sp = specificDataList.find(s => s.fullName === fullName) || { masuk: 0, tersalurkan: 0, saldo: 0 };
-                    
-                    return `
-                    <div class="space-y-1.5 p-2 bg-white/70 rounded-lg border border-slate-200/60 shadow-2xs">
-                        <div class="flex justify-between items-start text-xs font-semibold">
-                            <span class="text-on-surface font-bold flex items-center gap-1.5">
-                                ${item.image ? `<img src="${item.image}" class="w-4 h-4 rounded object-cover shrink-0" />` : '<span class="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span>'}
-                                ${item.key}
-                            </span>
-                            <span class="font-bold text-primary shrink-0">${item.percent}%</span>
-                        </div>
-                        <div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
-                            <div class="bg-primary h-full rounded-full" style="width: ${Math.min(100, item.percent)}%"></div>
-                        </div>
-                        <div class="flex justify-between text-[11px] font-mono pt-0.5 text-on-surface-variant">
-                            <span>Masuk: <strong class="text-primary">${fmt(sp.masuk)}</strong></span>
-                            <span>Salur: <strong class="text-tertiary-container">${fmt(sp.tersalurkan)}</strong></span>
-                            <span>Saldo: <strong class="text-on-surface">${fmt(sp.saldo)}</strong></span>
-                        </div>
-                    </div>
-                `;
-                }).join('');
-            }
-
-            html += `
-            <div class="p-md rounded-xl border ${meta.bg} flex flex-col justify-between space-y-md shadow-sm">
-                <div>
-                    <div class="flex items-center gap-xs mb-sm border-b border-black/5 pb-2">
-                        <span class="material-symbols-outlined ${meta.color}">${meta.icon}</span>
-                        <h3 class="font-label-md font-bold text-on-surface text-base">${pillarKey}</h3>
-                    </div>
-                    <div class="space-y-2">
-                        ${itemsHtml}
-                    </div>
-                </div>
-            </div>`;
+        let grandTotal = 0;
+        const pillarStats = pillarDefs.map(p => {
+            const items = specificProgs.filter(sp => (sp.pillarKey || sp.pillar || '').includes(p.key) || (sp.displayLabel || '').includes(p.key));
+            const totalMasuk = items.reduce((sum, item) => sum + (Number(item.masuk) || 0), 0);
+            const totalSalur = items.reduce((sum, item) => sum + (Number(item.tersalurkan) || 0), 0);
+            const value = totalMasuk > 0 ? totalMasuk : totalSalur;
+            grandTotal += value;
+            return {
+                ...p,
+                totalMasuk,
+                totalSalur,
+                value
+            };
         });
 
-        grid.innerHTML = html;
+        // Calculate percentage
+        pillarStats.forEach(p => {
+            p.percent = grandTotal > 0 ? Math.round((p.value / grandTotal) * 100) : 0;
+        });
+
+        const hasRealData = grandTotal > 0;
+        const displayStats = pillarStats.map(p => ({
+            ...p,
+            displayPercent: hasRealData ? (p.percent || 1) : 20
+        }));
+
+        // Render SVG Donut Chart
+        const size = 220;
+        const strokeWidth = 32;
+        const radius = (size - strokeWidth) / 2;
+        const circumference = 2 * Math.PI * radius;
+        let accumulatedPercent = 0;
+
+        let strokeSegments = displayStats.map(p => {
+            const strokeDasharray = `${(p.displayPercent / 100) * circumference} ${circumference}`;
+            const strokeDashoffset = -((accumulatedPercent / 100) * circumference);
+            accumulatedPercent += p.displayPercent;
+
+            return `<circle cx="${size / 2}" cy="${size / 2}" r="${radius}" 
+                        fill="transparent" 
+                        stroke="${p.color}" 
+                        stroke-width="${strokeWidth}" 
+                        stroke-dasharray="${strokeDasharray}" 
+                        stroke-dashoffset="${strokeDashoffset}"
+                        class="transition-all duration-700 ease-out hover:opacity-90" />`;
+        }).join('');
+
+        containerChart.innerHTML = `
+            <div class="relative flex items-center justify-center py-sm">
+                <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" class="transform -rotate-90">
+                    ${strokeSegments}
+                </svg>
+                <div class="absolute flex flex-col items-center justify-center text-center p-2">
+                    <span class="font-caption text-[11px] text-on-surface-variant font-semibold">Total Alokasi</span>
+                    <span class="font-headline-md font-bold text-primary text-base">${hasRealData ? fmt(grandTotal) : '100%'}</span>
+                    <span class="text-[10px] text-outline font-semibold">5 Pilar WIZ</span>
+                </div>
+            </div>`;
+
+        // Render Legend Cards
+        containerLegend.innerHTML = pillarStats.map(p => `
+            <div class="p-md rounded-xl border ${p.bg} shadow-xs flex items-center justify-between gap-md transition-transform hover:scale-[1.02]">
+                <div class="flex items-center gap-sm">
+                    <span class="w-3.5 h-3.5 rounded-full ${p.dot} shrink-0 shadow-xs"></span>
+                    <div>
+                        <h4 class="font-label-md font-bold text-xs">${p.label}</h4>
+                        <p class="font-caption text-[11px] opacity-80 mt-0.5">Masuk: ${fmt(p.totalMasuk)} | Salur: ${fmt(p.totalSalur)}</p>
+                    </div>
+                </div>
+                <div class="text-right shrink-0">
+                    <span class="font-headline-md font-bold text-sm block">${hasRealData ? p.percent + '%' : '20%'}</span>
+                    <span class="text-[10px] opacity-75 font-mono font-semibold">${fmt(p.value)}</span>
+                </div>
+            </div>`).join('');
     }
 
     // Mobile Menu Toggle

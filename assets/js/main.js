@@ -14,6 +14,12 @@ document.addEventListener('DOMContentLoaded', () => {
     initMutationTable();
     initBackgroundAnimation();
     initDynamicSiteImages();
+    initDynamicProgramImages();
+});
+
+window.addEventListener('wiz-sync-complete', () => {
+    initDynamicSiteImages();
+    initDynamicProgramImages();
 });
 
 /**
@@ -33,6 +39,51 @@ function initDynamicSiteImages() {
             }
         }
     });
+}
+
+/**
+ * Dynamic Specific Program Images Loader
+ * Reads custom base64 images uploaded by admin from wizStore / localStorage
+ */
+function initDynamicProgramImages() {
+    let getProgImg = null;
+    if (window.wizStore && window.wizStore.allocationRulesManager && window.wizStore.allocationRulesManager.getSpecificProgramImage) {
+        getProgImg = (name) => window.wizStore.allocationRulesManager.getSpecificProgramImage(name);
+    } else {
+        getProgImg = (name) => {
+            try {
+                const flatMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+                return flatMap[name] || '';
+            } catch(e) { return ''; }
+        };
+    }
+
+    // Update static & dynamic program cards by data-title or card header text
+    document.querySelectorAll('.program-card, article[data-title]').forEach(card => {
+        const titleAttr = card.getAttribute('data-title');
+        const titleEl = card.querySelector('h3, .card-title');
+        const progTitle = titleAttr || (titleEl ? titleEl.textContent.trim() : '');
+
+        if (progTitle) {
+            const customImg = getProgImg(progTitle);
+            if (customImg) {
+                const imgEl = card.querySelector('img');
+                if (imgEl) {
+                    imgEl.src = customImg;
+                }
+            }
+        }
+    });
+
+    // Also update program items in programsData if catalog exists
+    if (typeof programsData !== 'undefined' && Array.isArray(programsData)) {
+        programsData.forEach(prog => {
+            const customImg = getProgImg(prog.title);
+            if (customImg) {
+                prog.imageUrl = customImg;
+            }
+        });
+    }
 }
 
 /**
@@ -597,7 +648,6 @@ function initZakatCalculator() {
         } else {
             tabProfesi.classList.add('active');
             tabMaal.classList.remove('active');
-            <img src="assets/images/logo-wiz-babel.png" alt="WIZ Wahdah Inspirasi Zakat Bangka Belitung" class="h-12 md:h-16 w-auto object-contain transition-transform group-hover:scale-105" onerror="this.onerror=null; this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');">
             panelProfesi.style.display = 'block';
             panelMaal.style.display = 'none';
         }
@@ -1067,15 +1117,12 @@ window.switchReportTab = function(targetTab) {
         const btn = document.getElementById(`tab-report-${tab}`);
         const panel = document.getElementById(`panel-report-${tab}`);
         if (btn && panel) {
-            <a class="nav-link text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-label-md text-label-md" href="index.html">Beranda</a>
-            <a class="nav-link text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-label-md text-label-md" href="index.html#tentang-kami">Tentang Kami</a>
-            <a class="nav-link text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-label-md text-label-md" href="program.html">Program</a>
-            <a class="nav-link text-primary dark:text-primary-fixed font-bold border-b-2 border-primary font-label-md text-label-md pb-1" href="laporan.html">Laporan</a>
-            <a class="nav-link text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-label-md text-label-md" href="index.html#berita">Berita</a>
-            <a class="nav-link text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-label-md text-label-md" href="index.html#kontak">Kontak</a>if (tab === targetTab) {
-                <a class="nav-link font-label-md text-label-md text-primary dark:text-primary-fixed border-b-2 border-primary dark:border-primary-fixed pb-1 active:scale-95 transition-transform font-bold" href="program.html">Program</a>y = 'block';
+            if (tab === targetTab) {
+                btn.classList.add('active', 'border-primary', 'text-primary');
+                panel.style.display = 'block';
             } else {
-                <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors active:scale-95 transition-transform" href="index.html#tentang-kami">Tentang Kami</a>= 'none';
+                btn.classList.remove('active', 'border-primary', 'text-primary');
+                panel.style.display = 'none';
             }
         }
     });

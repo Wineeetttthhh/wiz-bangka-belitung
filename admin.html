@@ -294,6 +294,10 @@
                 <span class="material-symbols-outlined">outbound</span> Pengeluaran / Penyaluran
             </a>
             <a class="sidebar-link flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors"
+                href="#" data-section="referrals" onclick="showSection('referrals', this)">
+                <span class="material-symbols-outlined">badge</span> Database Perantara &amp; KPI
+            </a>
+            <a class="sidebar-link flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors"
                 href="#" data-section="allocation-rules" onclick="showSection('allocation-rules', this)">
                 <span class="material-symbols-outlined">pie_chart</span> Aturan Alokasi Dana
             </a>
@@ -628,8 +632,7 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
                 <div>
                     <h2 class="font-headline-md text-headline-md font-bold">Laporan Keuangan WIZ Bangka Belitung</h2>
-                    <p class="font-caption text-caption text-on-surface-variant">Laporan konsolidasi keseluruhan lembaga
-                        (Pangkalpinang &amp; Sungailiat).</p>
+                    <p class="font-caption text-caption text-on-surface-variant">Laporan konsolidasi keseluruhan lembaga (Pangkalpinang &amp; Sungailiat).</p>
                 </div>
                 <button onclick="openBaselineModal()"
                     class="flex items-center gap-sm bg-surface-container-high border border-outline-variant text-on-surface px-md py-sm rounded-lg font-label-md text-label-md font-bold hover:bg-surface-variant transition-colors">
@@ -637,14 +640,11 @@
                 </button>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter" id="finance-kpi-grid"></div>
-            <div
-                class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden">
+            <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden">
                 <div class="p-lg border-b border-outline-variant/30 flex justify-between items-center">
                     <div>
-                        <h3 class="font-headline-md text-headline-md text-primary font-bold">Rincian Pergerakan Dana Per
-                            Program</h3>
-                        <p class="font-caption text-caption text-on-surface-variant mt-1">Data otomatis ter-update saat
-                            donasi diverifikasi atau pengeluaran disalurkan.</p>
+                        <h3 class="font-headline-md text-headline-md text-primary font-bold">Rincian Pergerakan Dana Per Program</h3>
+                        <p class="font-caption text-caption text-on-surface-variant mt-1">Data otomatis ter-update saat donasi diverifikasi atau pengeluaran disalurkan.</p>
                     </div>
                     <a href="laporan.html" target="_blank"
                         class="font-label-md text-label-md text-primary hover:underline flex items-center gap-1 font-bold">
@@ -652,22 +652,173 @@
                         <span class="material-symbols-outlined text-sm">open_in_new</span>
                     </a>
                 </div>
+                <div class="overflow-x-auto p-md" id="finance-breakdown-container">
+                    <!-- Rendered by JS -->
+                </div>
+            </div>
+        </div>
         <!-- ═══════════════════════════════════════════════════ -->
-        <!-- SECTION: KELOLA FOTO WEB UTAMA                     -->
+        <!-- SECTION: KELOLA FOTO WEBSITE & PROGRAM SPESIFIK     -->
         <!-- ═══════════════════════════════════════════════════ -->
         <div id="section-site-images" class="flex-1 p-margin-mobile md:p-gutter overflow-y-auto space-y-xl hidden">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
                 <div>
-                    <h2 class="font-headline-md text-headline-md font-bold">Kelola Foto Web Utama</h2>
-                    <p class="font-caption text-caption text-on-surface-variant">Admin dapat mengganti semua foto yang tampil di beranda, tentang kami, dan program 5 Berkah secara langsung.</p>
+                    <h2 class="font-headline-md text-headline-md font-bold">Kelola Foto Website & Program Spesifik</h2>
+                    <p class="font-caption text-caption text-on-surface-variant">Ganti foto web utama atau upload foto program spesifik secara langsung dari folder komputer/HP (100% Offline via File Upload).</p>
                 </div>
-                <button onclick="saveAllSiteImages()" class="flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm font-bold cursor-pointer">
-                    <span class="material-symbols-outlined size-[18px]">save</span> Simpan Perubahan Foto
+            </div>
+
+            <!-- Sub Navigation Tabs for Image Manager -->
+            <div class="flex gap-lg border-b border-outline-variant/30">
+                <button id="tab-site-main-btn" class="tab-btn active pb-sm border-b-2 border-transparent font-label-md text-label-md text-on-surface-variant transition-colors flex items-center gap-1" onclick="switchSiteImageTab('main', this)">
+                    <span class="material-symbols-outlined text-sm">home</span>
+                    <span>Foto Web Utama</span>
+                </button>
+                <button id="tab-site-spec-btn" class="tab-btn pb-sm border-b-2 border-transparent font-label-md text-label-md text-on-surface-variant transition-colors flex items-center gap-1" onclick="switchSiteImageTab('specific', this)">
+                    <span class="material-symbols-outlined text-sm">grid_view</span>
+                    <span>Foto Program Spesifik</span>
                 </button>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter" id="site-images-grid">
-                <!-- Rendered dynamically by JS -->
+            <!-- Tab 1 Container: Foto Web Utama -->
+            <div id="container-site-main-images" class="space-y-md">
+                <div class="flex justify-end">
+                    <button onclick="saveAllSiteImages()" class="flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm font-bold cursor-pointer">
+                        <span class="material-symbols-outlined size-[18px]">save</span> Simpan Semua Perubahan Foto Web Utama
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter" id="site-images-grid">
+                    <!-- Rendered dynamically by JS -->
+                </div>
+            </div>
+
+            <!-- Tab 2 Container: Foto & Kelola Program Spesifik -->
+            <div id="container-site-specific-images" class="space-y-md hidden">
+                <div class="p-md bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-md">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-emerald-700 text-xl">grid_view</span>
+                        <div>
+                            <span class="font-bold text-sm block">Kelola Master Program Spesifik</span>
+                            <span class="text-emerald-800">Tambah program spesifik baru, edit nama &amp; pilar, hapus program, serta upload foto kustom per program.</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button onclick="resetDefaultSpecificPrograms()" class="flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-md py-2.5 rounded-xl font-bold text-xs transition-all shadow-xs cursor-pointer" title="Pulihkan seluruh daftar program bawaan">
+                            <span class="material-symbols-outlined text-sm text-slate-500">restart_alt</span>
+                            <span>Reset Program Bawaan</span>
+                        </button>
+                        <button onclick="openSpecificProgramModal()" class="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-lg py-2.5 rounded-xl font-bold text-xs transition-all shadow-md cursor-pointer border border-emerald-500">
+                            <span class="material-symbols-outlined text-sm">add_circle</span>
+                            <span>+ Tambah Program Spesifik Baru</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter" id="specific-images-grid">
+                    <!-- Rendered dynamically by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- SECTION: MANAJEMEN HAK 6% PERANTARA / REFERAL       -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <div id="section-referrals" class="flex-1 p-margin-mobile md:p-gutter overflow-y-auto space-y-xl hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+                <div>
+                    <h2 class="font-headline-md text-headline-md font-bold text-on-surface flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">badge</span>
+                        <span>Database Perantara &amp; KPI Kinerja Fundraiser</span>
+                    </h2>
+                    <p class="font-caption text-caption text-on-surface-variant">Pusat pengelolaan profil perantara/relawan fundraiser, pemantauan target KPI donatur, dan pencatatan komisi insentif.</p>
+                </div>
+                <div class="flex items-center gap-sm flex-wrap">
+                    <button onclick="openReferralModal()" class="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-lg py-2.5 rounded-xl font-bold text-sm transition-all shadow-md cursor-pointer border border-emerald-500">
+                        <span class="material-symbols-outlined text-base">person_add</span>
+                        <span>+ Tambah Perantara / Affiliat Baru</span>
+                    </button>
+                    <button onclick="openReferralPayoutModal()" class="flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white px-lg py-2.5 rounded-xl font-bold text-sm transition-all shadow-md cursor-pointer border border-amber-500">
+                        <span class="material-symbols-outlined text-base">payments</span>
+                        <span>+ Catat Pencairan Hak</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- KPI Cards Summary -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
+                <div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant/20 shadow-xs flex items-center gap-md">
+                    <div class="p-sm bg-blue-100 text-blue-800 rounded-lg">
+                        <span class="material-symbols-outlined text-2xl">groups</span>
+                    </div>
+                    <div>
+                        <p class="font-caption text-caption text-on-surface-variant font-semibold">Total Perantara Aktif</p>
+                        <h3 id="kpi-ref-count" class="font-headline-md text-headline-md font-bold text-on-surface">0 Orang</h3>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant/20 shadow-xs flex items-center gap-md">
+                    <div class="p-sm bg-emerald-100 text-emerald-800 rounded-lg">
+                        <span class="material-symbols-outlined text-2xl">savings</span>
+                    </div>
+                    <div>
+                        <p class="font-caption text-caption text-on-surface-variant font-semibold">Total Hak 6% Terakumulasi</p>
+                        <h3 id="kpi-ref-fee-total" class="font-headline-md text-headline-md font-bold text-emerald-700">Rp 0</h3>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant/20 shadow-xs flex items-center gap-md">
+                    <div class="p-sm bg-purple-100 text-purple-800 rounded-lg">
+                        <span class="material-symbols-outlined text-2xl">workspace_premium</span>
+                    </div>
+                    <div>
+                        <p class="font-caption text-caption text-on-surface-variant font-semibold">Insentif Tambahan Operasional</p>
+                        <h3 id="kpi-ref-bonus-total" class="font-headline-md text-headline-md font-bold text-purple-700">Rp 0</h3>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant/20 shadow-xs flex items-center gap-md">
+                    <div class="p-sm bg-amber-100 text-amber-800 rounded-lg">
+                        <span class="material-symbols-outlined text-2xl">pending_actions</span>
+                    </div>
+                    <div>
+                        <p class="font-caption text-caption text-on-surface-variant font-semibold">Total Sisa Pending (Belum Dicairkan)</p>
+                        <h3 id="kpi-ref-pending-total" class="font-headline-md text-headline-md font-bold text-amber-700">Rp 0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table 1: Master Daftar Perantara -->
+            <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden">
+                <div class="p-lg border-b border-outline-variant/20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+                    <div>
+                        <h3 class="font-headline-md text-headline-md text-base font-bold text-primary flex items-center gap-xs">
+                            <span class="material-symbols-outlined text-primary">badge</span>
+                            <span>Daftar Perantara / Relawan Fundraiser</span>
+                        </h3>
+                        <p class="font-caption text-caption text-on-surface-variant">Admin dapat mengedit data perantara, mengubah % komisi default, atau menambah insentif operasional.</p>
+                    </div>
+                    <div class="w-full sm:w-64">
+                        <input type="text" id="referral-search" oninput="renderReferralsSection()" placeholder="Cari nama perantara..." class="w-full text-xs bg-surface border border-outline-variant rounded-lg px-3 py-1.5 font-caption outline-none focus:border-primary">
+                    </div>
+                </div>
+                <div class="overflow-x-auto" id="referrals-table-container">
+                    <!-- Rendered dynamically -->
+                </div>
+            </div>
+
+            <!-- Table 2: Riwayat Pencairan Hak Perantara -->
+            <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden">
+                <div class="p-lg border-b border-outline-variant/20 flex justify-between items-center">
+                    <div>
+                        <h3 class="font-headline-md text-headline-md text-base font-bold text-amber-800 flex items-center gap-xs">
+                            <span class="material-symbols-outlined text-amber-600">history_edu</span>
+                            <span>Riwayat Pencairan / Pembayaran Hak Perantara</span>
+                        </h3>
+                        <p class="font-caption text-caption text-on-surface-variant">Catatan histori pembayaran komisi/insentif yang telah diserahkan kepada perantara.</p>
+                    </div>
+                </div>
+                <div class="overflow-x-auto" id="referral-payouts-table-container">
+                    <!-- Rendered dynamically -->
+                </div>
             </div>
         </div>
 
@@ -858,6 +1009,40 @@
                     </div>
                 </div>
 
+                <!-- Referal / Perantara Section -->
+                <div class="p-md bg-amber-50/60 border border-amber-200/80 rounded-xl space-y-sm">
+                    <div class="flex items-center justify-between">
+                        <label class="font-label-md text-label-md text-amber-900 font-bold flex items-center gap-1">
+                            <span class="material-symbols-outlined text-amber-600 text-sm">handshake</span>
+                            <span>Perantara / Referal Donatur (Opsional - Hak 6%)</span>
+                        </label>
+                        <span class="text-[11px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded font-semibold">Hak Amil (Bukan Mustahik)</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-md">
+                        <div>
+                            <label class="block font-caption text-caption text-on-surface-variant mb-xs font-semibold">Pilih Perantara</label>
+                            <select id="man-referral-id" onchange="handleReferralSelectChange()" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2 font-caption text-on-surface outline-none focus:border-primary font-bold">
+                                <option value="">-- Tanpa Perantara --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-caption text-caption text-on-surface-variant mb-xs font-semibold">% Hak Perantara (Editable)</label>
+                            <input type="number" id="man-referral-rate" value="6" min="0" max="50" step="0.5" oninput="updateReferralCalc()" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2 font-caption text-on-surface outline-none focus:border-primary font-bold">
+                        </div>
+                        <div>
+                            <label class="block font-caption text-caption text-on-surface-variant mb-xs font-semibold">Insentif Tambahan (Rp)</label>
+                            <input type="number" id="man-additional-bonus" value="0" min="0" oninput="updateReferralCalc()" placeholder="0" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2 font-caption text-on-surface outline-none focus:border-primary">
+                        </div>
+                    </div>
+
+                    <div id="man-referral-calc-preview" class="hidden p-xs bg-amber-100/60 rounded text-[11px] text-amber-900 font-mono flex justify-between items-center">
+                        <span>Hak 6%: <strong id="ref-calc-fee">Rp 0</strong></span>
+                        <span>Insentif Tambahan: <strong id="ref-calc-bonus">Rp 0</strong></span>
+                        <span>Total Hak Perantara: <strong id="ref-calc-total" class="text-amber-800 font-bold">Rp 0</strong></span>
+                    </div>
+                </div>
+
                 <div>
                     <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Status
                         Verifikasi *</label>
@@ -983,6 +1168,231 @@
             </form>
         </div>
     </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- MODAL: REFERRAL (TAMBAH / EDIT PERANTARA)           -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div id="referral-modal" class="modal-backdrop">
+        <div class="modal-dialog">
+            <div class="p-lg border-b border-surface-variant flex justify-between items-center sticky top-0 bg-surface z-20">
+                <h3 id="referral-modal-title" class="font-headline-md text-body-lg font-bold text-primary flex items-center gap-xs">
+                    <span class="material-symbols-outlined text-primary">person_add</span>
+                    <span>Tambah Perantara / Relawan Baru</span>
+                </h3>
+                <button type="button" onclick="closeReferralModal()" class="text-outline hover:text-on-surface p-1"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <form id="referral-form" class="p-lg space-y-md" onsubmit="handleReferralSave(event)">
+                <input type="hidden" id="ref-edit-id" value="">
+
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Nama Lengkap Perantara / Relawan *</label>
+                    <input type="text" id="ref-name" required class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none" placeholder="Contoh: Ustadz Ahmad Hidayat">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">No. WhatsApp / Telepon *</label>
+                        <input type="tel" id="ref-phone" required class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none" placeholder="08xxxxxxxxxx">
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Hak Persentase Default (%) *</label>
+                        <input type="number" id="ref-default-rate" required value="6" min="0" max="50" step="0.5" class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none font-bold text-primary" placeholder="6">
+                        <p class="font-caption text-[11px] text-on-surface-variant mt-0.5">Persentase bawaan untuk donasi baru (dapat disesuaikan admin per donasi).</p>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-low p-md rounded-xl border border-outline-variant/30 space-y-sm">
+                    <p class="font-label-md text-xs font-bold text-primary flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">account_balance</span>
+                        Data Rekening Pembayaran Pencairan:
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-sm">
+                        <div>
+                            <label class="block font-caption text-caption text-on-surface-variant mb-xs">Nama Bank</label>
+                            <input type="text" id="ref-bank-name" class="w-full text-xs bg-surface border border-outline-variant rounded-lg px-3 py-2 outline-none" placeholder="BSI / Muamalat / BCA">
+                        </div>
+                        <div>
+                            <label class="block font-caption text-caption text-on-surface-variant mb-xs">No. Rekening</label>
+                            <input type="text" id="ref-account-number" class="w-full text-xs bg-surface border border-outline-variant rounded-lg px-3 py-2 font-mono outline-none" placeholder="1234567890">
+                        </div>
+                        <div>
+                            <label class="block font-caption text-caption text-on-surface-variant mb-xs">Atas Nama</label>
+                            <input type="text" id="ref-account-holder" class="w-full text-xs bg-surface border border-outline-variant rounded-lg px-3 py-2 outline-none" placeholder="Ahmad Hidayat">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Status Keaktifan *</label>
+                        <select id="ref-status" class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
+                            <option value="active">Aktif (Menerima Donatur)</option>
+                            <option value="inactive">Non-Aktif</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Catatan / Wilayah Tugas</label>
+                        <input type="text" id="ref-notes" class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none" placeholder="Misal: Da'i Pangkalpinang / Relawan Sungailiat">
+                    </div>
+                </div>
+
+                <div class="flex gap-md pt-sm">
+                    <button type="submit" class="flex-1 bg-primary text-on-primary py-3 rounded-lg font-label-md text-label-md font-bold hover:bg-primary-container transition-colors">Simpan Data Perantara</button>
+                    <button type="button" onclick="closeReferralModal()" class="px-lg py-3 border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- MODAL: REFERRAL PAYOUT (CATAT PENCAIRAN HAK)       -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div id="referral-payout-modal" class="modal-backdrop">
+        <div class="modal-dialog">
+            <div class="p-lg border-b border-surface-variant flex justify-between items-center sticky top-0 bg-surface z-20">
+                <h3 id="referral-payout-modal-title" class="font-headline-md text-body-lg font-bold text-amber-800 flex items-center gap-xs">
+                    <span class="material-symbols-outlined text-amber-600">payments</span>
+                    <span>Catat Pencairan Hak Perantara</span>
+                </h3>
+                <button type="button" onclick="closeReferralPayoutModal()" class="text-outline hover:text-on-surface p-1"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <form id="referral-payout-form" class="p-lg space-y-md" onsubmit="handleReferralPayoutSave(event)">
+                <input type="hidden" id="payout-edit-id" value="">
+
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Pilih Perantara / Relawan *</label>
+                    <select id="payout-ref-id" required onchange="updatePayoutModalInfo()" class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none font-bold">
+                        <option value="">-- Pilih Perantara --</option>
+                    </select>
+                </div>
+
+                <!-- Info Box Sisa Pending -->
+                <div id="payout-ref-info" class="hidden p-md bg-amber-50 border border-amber-200 rounded-xl space-y-1 text-xs text-amber-900">
+                    <div class="flex justify-between font-bold">
+                        <span>Total Hak Terakumulasi: <strong id="payout-info-earned">Rp 0</strong></span>
+                        <span>Sudah Dicairkan: <strong id="payout-info-paid">Rp 0</strong></span>
+                    </div>
+                    <div class="flex justify-between font-mono text-sm pt-1 border-t border-amber-200">
+                        <span>Sisa Hak Belum Dicairkan (Pending):</span>
+                        <strong id="payout-info-pending" class="text-amber-800 text-base">Rp 0</strong>
+                    </div>
+                    <p id="payout-info-bank" class="text-[11px] text-amber-700 italic pt-1"></p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Nominal Pencairan (Rp) *</label>
+                        <input type="number" id="payout-amount" required min="1000" class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none font-bold text-amber-800" placeholder="Contoh: 150000">
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Tanggal Pembayaran *</label>
+                        <input type="date" id="payout-date" required class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Metode Pembayaran *</label>
+                        <select id="payout-method" class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
+                            <option value="Transfer Bank BSI">Transfer Bank BSI</option>
+                            <option value="Transfer Bank Lain">Transfer Bank Lain</option>
+                            <option value="Tunai / Cash">Tunai / Cash (Kantor WIZ)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">No. Referensi / Bukti Transfer</label>
+                        <input type="text" id="payout-ref-no" class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none font-mono text-xs" placeholder="Misal: TRX12345678">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Catatan Pencairan</label>
+                    <textarea id="payout-notes" rows="2" class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none" placeholder="Misal: Pencairan komisi bulan Ramadan / Insentif kegiatan lapangan..."></textarea>
+                </div>
+
+                <div class="flex gap-md pt-sm">
+                    <button type="submit" class="flex-1 bg-amber-600 text-white py-3 rounded-lg font-label-md text-label-md font-bold hover:bg-amber-700 transition-colors">Simpan Pencairan Hak</button>
+                    <button type="button" onclick="closeReferralPayoutModal()" class="px-lg py-3 border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- MODAL: DETAIL RINCIAN PERANTARA                     -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div id="referral-detail-modal" class="modal-backdrop">
+        <div class="modal-dialog max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div class="p-lg border-b border-surface-variant flex justify-between items-center sticky top-0 bg-surface z-20">
+                <div>
+                    <h3 id="ref-detail-title" class="font-headline-md text-headline-md font-bold text-primary flex items-center gap-xs">
+                        <span class="material-symbols-outlined text-primary">badge</span>
+                        <span>Rincian &amp; Histori Hak Perantara</span>
+                    </h3>
+                    <p id="ref-detail-subtitle" class="font-caption text-caption text-on-surface-variant"></p>
+                </div>
+                <button type="button" onclick="closeReferralDetailModal()" class="text-outline hover:text-on-surface p-1"><span class="material-symbols-outlined">close</span></button>
+            </div>
+
+            <div class="p-lg space-y-md">
+                <!-- Summary Card -->
+                <div id="ref-detail-summary" class="bg-surface-container-low p-md rounded-xl border border-outline-variant/30 grid grid-cols-2 sm:grid-cols-4 gap-md text-xs">
+                    <!-- Rendered dynamically -->
+                </div>
+
+                <!-- Tab Controls -->
+                <div class="flex border-b border-outline-variant/30 gap-md">
+                    <button id="tab-ref-donations-btn" onclick="switchRefDetailTab('donations')" class="pb-2 text-xs font-bold border-b-2 border-primary text-primary cursor-pointer">Daftar Donatur / Donasi (0)</button>
+                    <button id="tab-ref-payouts-btn" onclick="switchRefDetailTab('payouts')" class="pb-2 text-xs font-bold border-b-2 border-transparent text-on-surface-variant cursor-pointer">Riwayat Pencairan Hak (0)</button>
+                </div>
+
+                <!-- Tab 1: Donasi Container -->
+                <div id="ref-detail-donations-container" class="overflow-x-auto"></div>
+
+                <!-- Tab 2: Payouts Container -->
+                <div id="ref-detail-payouts-container" class="overflow-x-auto hidden"></div>
+            </div>
+        </div>
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- MODAL: KELOLA PROGRAM SPESIFIK (TAMBAH / EDIT)       -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div id="specific-program-modal" class="modal-backdrop">
+        <div class="modal-dialog max-w-md">
+            <div class="p-lg border-b border-surface-variant flex justify-between items-center">
+                <h3 id="spec-prog-modal-title" class="font-headline-md text-body-lg font-bold text-primary flex items-center gap-2">
+                    <span class="material-symbols-outlined">grid_view</span>
+                    <span>Tambah Program Spesifik Baru</span>
+                </h3>
+                <button type="button" onclick="closeSpecificProgramModal()" class="text-outline hover:text-on-surface"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <form id="specific-program-form" class="p-lg space-y-md" onsubmit="handleSpecificProgramSave(event)">
+                <input type="hidden" id="spec-prog-old-pillar" value="">
+                <input type="hidden" id="spec-prog-old-title" value="">
+
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Program Utama / Pilar <span class="text-error">*</span></label>
+                    <select id="spec-prog-pillar" required class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
+                        <option value="Berkah Hidayah">Berkah Hidayah (Dakwah &amp; Markaz)</option>
+                        <option value="Berkah Peduli">Berkah Peduli (Sosial &amp; Sembako)</option>
+                        <option value="Berkah Juara">Berkah Juara (Pendidikan &amp; Beasiswa)</option>
+                        <option value="Berkah Sehat">Berkah Sehat (Kesehatan &amp; Khitanan)</option>
+                        <option value="Berkah Mandiri">Berkah Mandiri (Ekonomi &amp; Wirausaha)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Nama Program Spesifik <span class="text-error">*</span></label>
+                    <input type="text" id="spec-prog-title" required class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none" placeholder="Contoh: Pembangunan Markaz Tahfidz">
+                </div>
+
+                <div class="flex gap-md pt-sm">
+                    <button type="submit" class="flex-1 bg-emerald-600 text-white py-3 rounded-lg font-label-md text-label-md font-bold hover:bg-emerald-700 transition-colors cursor-pointer">Simpan Program Spesifik</button>
+                    <button type="button" onclick="closeSpecificProgramModal()" class="px-lg py-3 border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors cursor-pointer">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 
     <!-- ═══════════════════════════════════════════════════ -->
     <!-- MODAL: NEWS (TULIS / EDIT BERITA)                   -->
@@ -1184,9 +1594,8 @@
         const SPECIFIC_PROGRAMS_MAP = {
             'Berkah Hidayah': [
                 "Pembangunan Markaz",
-                "Pengadaan dan Perbaikan Kendaraan",
+                "Pengadaan & Perbaikan Kendaraan",
                 "Santunan Mualaf",
-                "Pengadaan Celengan Besar",
                 "Tahfidz",
                 "Pelatihan Public Speaking",
                 "Tabligh Akbar Dzulhijjah",
@@ -1194,9 +1603,9 @@
                 "Pelatihan Penyelenggaraan Jenazah",
                 "Pelatihan Volunteer Media Dakwah",
                 "Lomba Desain Poster Dakwah",
-                "Kantor DPW WI Babel dan WIZ",
-                "Mukerwil/Mukernas/Muktamar",
-                "Keberangkatan dan Kepulangan Dai"
+                "Kantor DPW WI Babel & WIZ",
+                "Mukerwil Mukernas Muktamar",
+                "Keberangkatan Kepulangan Dai"
             ],
             'Berkah Peduli': [
                 "Tebar Sembako",
@@ -1204,20 +1613,23 @@
                 "Sedekah Jumat",
                 "Santunan Yatim",
                 "Tebar Qur'an Nusantara",
+                "Tebar Iftar Nusantara",
                 "Bahagiakan Guru Ngaji",
                 "Sedekah Air"
             ],
             'Berkah Juara': [
                 "Beasiswa Pendidikan Juara",
+                "Beasiswa Tahfidz & Dhuafa",
                 "Perlengkapan Belajar Yatim"
             ],
             'Berkah Sehat': [
-                "Khitanan Massal",
+                "Khitanan Massal Dhuafa",
                 "Layanan Pengobatan Gratis",
-                "Layanan Ambulance Ummat"
+                "Ambulance Gratis Ummat"
             ],
             'Berkah Mandiri': [
-                "Bantuan Usaha Mikro"
+                "Modal Usaha Dhuafa",
+                "Pelatihan Keterampilan Wirausaha"
             ]
         };
 
@@ -1225,31 +1637,8 @@
         let CURRENT_ROLE = 'SUPER_ADMIN'; // SUPER_ADMIN | ADMIN_PANGKALPINANG | ADMIN_SUNGAILIAT
         let currentDonationTab = 'pending';
 
-        // ─── Local Photo Upload Handler ──────────────────
-        function handleLocalPhotoSelect(event, previewImgId, urlInputId) {
-            const file = event.target.files && event.target.files[0];
-            if (!file) return;
 
-            // Show filename
-            const filenameEl = document.getElementById('photo-filename-display');
-            if (filenameEl) filenameEl.textContent = `📎 ${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
 
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const dataUrl = e.target.result;
-                const urlInput = document.getElementById(urlInputId);
-                if (urlInput) urlInput.value = dataUrl;
-
-                const previewImg = document.getElementById(previewImgId);
-                if (previewImg) {
-                    previewImg.src = dataUrl;
-                    const container = document.getElementById(previewImgId + '-container');
-                    if (container) container.classList.remove('hidden');
-                    else if (previewImg.parentElement) previewImg.parentElement.classList.remove('hidden');
-                }
-            };
-            reader.readAsDataURL(file);
-        }
 
         function clearNewsPhoto() {
             document.getElementById('news-image-url').value = '';
@@ -1506,9 +1895,21 @@
                         ? `<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-caption text-caption font-bold">⏳ Menunggu</span>`
                         : `<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-error-container text-error font-caption text-caption font-bold">❌ Ditolak</span>`;
 
+                let refBadge = '';
+                if (d.referralId && wizStore.referrals) {
+                    const refObj = wizStore.referrals.getById(d.referralId);
+                    if (refObj) {
+                        const rate = d.referralRate !== undefined ? d.referralRate : 6;
+                        refBadge = `<div class="text-[11px] text-amber-800 font-bold flex items-center gap-1 mt-0.5"><span class="material-symbols-outlined text-[13px] text-amber-600">handshake</span> Perantara: ${refObj.name} (${rate}%)</div>`;
+                    }
+                }
+
                 return `<tr class="hover:bg-surface-container-lowest/50 transition-colors ${d.status === 'pending' ? 'bg-secondary-container/5' : ''} cursor-pointer" onclick="showDonationDetail('${d.id}')">
                 <td class="p-md text-on-surface-variant whitespace-nowrap">${wizStore.utils.formatDate(d.createdAt)}</td>
-                <td class="p-md font-semibold">${d.donorName} ${d.donorName === 'Hamba Allah' ? '<span class="font-caption text-caption text-outline ml-1">(Anonim)</span>' : ''}</td>
+                <td class="p-md font-semibold">
+                    <div>${d.donorName} ${d.donorName === 'Hamba Allah' ? '<span class="font-caption text-caption text-outline ml-1">(Anonim)</span>' : ''}</div>
+                    ${refBadge}
+                </td>
                 <td class="p-md text-center"><span class="px-2 py-1 rounded text-xs font-bold bg-primary/10 text-primary">${d.wilayah || 'Pangkalpinang'}</span></td>
                 <td class="p-md font-medium text-on-surface">${d.type}</td>
                 <td class="p-md text-on-surface-variant truncate max-w-[200px]">${d.programSpesifik || d.program || '-'}</td>
@@ -1519,8 +1920,8 @@
                     <button onclick="showDonationDetail('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary font-label-md text-caption font-semibold mr-1">
                         <span class="material-symbols-outlined text-[14px]">visibility</span> Detail
                     </button>
-                    <button onclick="editManualDonation('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary font-label-md text-caption font-semibold mr-1">
-                        <span class="material-symbols-outlined text-[14px]">edit</span> Edit
+                    <button onclick="editManualDonation('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 font-label-md text-caption font-bold mr-1" title="Edit transaksi & perantara">
+                        <span class="material-symbols-outlined text-[14px]">edit</span> Edit / Perantara
                     </button>
                     <button onclick="deleteDonation('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-error/30 text-error hover:bg-error/5 font-label-md text-caption font-semibold">
                         <span class="material-symbols-outlined text-[14px]">delete</span> Hapus
@@ -1597,26 +1998,103 @@
             document.body.style.overflow = '';
         }
 
+        function handleSubProgramPhotoSelect(event, inputEl) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const row = inputEl.closest('.sub-program-row');
+            if (!row) return;
+
+            const hiddenInput = row.querySelector('.sub-img-input');
+            const imgPrev = row.querySelector('.sub-img-preview');
+            const imgPlaceholder = row.querySelector('.sub-img-placeholder');
+            const clearBtn = row.querySelector('.sub-img-clear');
+
+            // Instant preview via object URL
+            const objectUrl = URL.createObjectURL(file);
+            if (imgPrev) { imgPrev.src = objectUrl; imgPrev.classList.remove('hidden'); }
+            if (imgPlaceholder) imgPlaceholder.classList.add('hidden');
+            if (clearBtn) clearBtn.classList.remove('hidden');
+
+            setTimeout(() => {
+                const img = new Image();
+                img.onload = function() {
+                    const maxDim = 720;
+                    let w = img.naturalWidth, h = img.naturalHeight;
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+                        else       { w = Math.round(w * maxDim / h); h = maxDim; }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    const compressed = canvas.toDataURL('image/jpeg', 0.72);
+                    if (hiddenInput) hiddenInput.value = compressed;
+                    if (imgPrev) imgPrev.src = compressed;
+                    URL.revokeObjectURL(objectUrl);
+                };
+                img.src = objectUrl;
+            }, 10);
+        }
+
+        function clearSubProgramPhoto(btn) {
+            const row = btn.closest('.sub-program-row');
+            if (!row) return;
+
+            const hiddenInput = row.querySelector('.sub-img-input');
+            const imgPrev = row.querySelector('.sub-img-preview');
+            const imgPlaceholder = row.querySelector('.sub-img-placeholder');
+            const fileInput = row.querySelector('.sub-file-input');
+
+            if (hiddenInput) hiddenInput.value = '';
+            if (imgPrev) {
+                imgPrev.src = '';
+                imgPrev.classList.add('hidden');
+            }
+            if (imgPlaceholder) imgPlaceholder.classList.remove('hidden');
+            if (fileInput) fileInput.value = '';
+            btn.classList.add('hidden');
+        }
+
         function addNewSubProgramRow(key = '', percent = 0, image = '') {
             const container = document.getElementById('sub-programs-list');
             if (!container) return;
 
             const row = document.createElement('div');
-            row.className = 'sub-program-row flex flex-col sm:flex-row gap-2 items-start sm:items-center p-2 border border-outline-variant/30 rounded-lg bg-surface';
+            row.className = 'sub-program-row flex flex-col sm:flex-row gap-3 items-start sm:items-center p-3 border border-outline-variant/30 rounded-xl bg-surface shadow-xs';
             row.innerHTML = `
-                <div class="flex-1 w-full space-y-1">
-                    <input type="text" placeholder="Nama Program Spesifik (contoh: Pembangunan Markaz)" value="${key}" required
-                        class="sub-key-input w-full bg-background border border-outline-variant rounded px-3 py-1.5 text-xs font-semibold outline-none focus:border-primary">
-                    <input type="text" placeholder="URL Foto Sampul (opsional: https://...)" value="${image}"
-                        class="sub-img-input w-full bg-background border border-outline-variant rounded px-3 py-1 text-[11px] outline-none text-on-surface-variant">
-                </div>
-                <div class="flex items-center gap-2 w-full sm:w-auto shrink-0 justify-between sm:justify-start">
-                    <div class="flex items-center gap-1">
-                        <input type="number" min="0" max="100" step="1" value="${percent}" required oninput="validateAllocModal()"
-                            class="sub-percent-input w-20 bg-background border border-outline-variant rounded px-2 py-1.5 text-xs font-bold text-right outline-none focus:border-primary">
-                        <span class="text-xs font-bold text-primary">%</span>
+                <div class="flex items-center gap-2 shrink-0">
+                    <div class="relative w-12 h-12 rounded-lg overflow-hidden border border-outline-variant/40 bg-surface-container flex items-center justify-center shrink-0">
+                        <img src="${image || ''}" class="sub-img-preview w-full h-full object-cover ${image ? '' : 'hidden'}" alt="Preview">
+                        <span class="sub-img-placeholder material-symbols-outlined text-outline text-lg ${image ? 'hidden' : ''}">image</span>
                     </div>
-                    <button type="button" onclick="deleteSubProgramRow(this)" class="p-1 text-red-600 hover:bg-red-50 rounded transition-colors" title="Hapus Item">
+                    <div class="flex flex-col gap-1">
+                        <label class="px-2.5 py-1 bg-primary/10 text-primary hover:bg-primary/20 text-xs font-bold rounded-lg cursor-pointer flex items-center gap-1 transition-colors">
+                            <span class="material-symbols-outlined text-sm">upload_file</span>
+                            <span>${image ? 'Ganti Foto' : 'Upload Foto Lokal'}</span>
+                            <input type="file" accept="image/*" class="sub-file-input hidden" onchange="handleSubProgramPhotoSelect(event, this)">
+                        </label>
+                        <input type="hidden" class="sub-img-input" value="${image}">
+                        <button type="button" onclick="clearSubProgramPhoto(this)" class="sub-img-clear text-[11px] text-error hover:underline text-left ${image ? '' : 'hidden'}">✕ Hapus Foto</button>
+                    </div>
+                </div>
+
+                <div class="flex-1 w-full space-y-1">
+                    <label class="block text-[11px] font-bold text-on-surface-variant">Nama Program Spesifik *</label>
+                    <input type="text" placeholder="Contoh: Pembangunan Markaz" value="${key}" required
+                        class="sub-key-input w-full bg-background border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold outline-none focus:border-primary">
+                </div>
+
+                <div class="flex items-center gap-2 w-full sm:w-auto shrink-0 justify-between sm:justify-start">
+                    <div class="space-y-1">
+                        <label class="block text-[11px] font-bold text-on-surface-variant">Persentase (%) *</label>
+                        <div class="flex items-center gap-1">
+                            <input type="number" min="0" max="100" step="1" value="${percent}" required oninput="validateAllocModal()"
+                                class="sub-percent-input w-20 bg-background border border-outline-variant rounded-lg px-2 py-1.5 text-xs font-bold text-right outline-none focus:border-primary">
+                            <span class="text-xs font-bold text-primary">%</span>
+                        </div>
+                    </div>
+                    <button type="button" onclick="deleteSubProgramRow(this)" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors mt-4" title="Hapus Item">
                         <span class="material-symbols-outlined text-sm">delete</span>
                     </button>
                 </div>
@@ -1801,9 +2279,11 @@
 
         function handleAdminProgramUtamaChange(catVal) {
             const selectSpesifik = document.getElementById('man-program-spesifik');
+            if (!selectSpesifik) return;
             selectSpesifik.innerHTML = '<option value="">-- Pilih Program Spesifik --</option>';
 
-            const progs = SPECIFIC_PROGRAMS_MAP[catVal] || [];
+            const map = getSpecificProgramsMap();
+            const progs = map[catVal] || [];
             progs.forEach(p => {
                 const opt = document.createElement('option');
                 opt.value = p;
@@ -1829,12 +2309,17 @@
         }
 
         function openManualDonationModal(editId) {
+            populateReferralSelects();
             document.getElementById('man-edit-id').value = editId || '';
             document.getElementById('manual-donation-modal-title').textContent = editId ? 'Edit Data Donasi / Pemasukan' : 'Input Donasi / Pemasukan Manual';
             if (!editId) {
                 document.getElementById('manual-donation-form').reset();
+                document.getElementById('man-referral-id').value = '';
+                document.getElementById('man-referral-rate').value = '6';
+                document.getElementById('man-additional-bonus').value = '0';
                 handleAdminTypeChange('Infak Umum');
             }
+            updateReferralCalc();
             document.getElementById('manual-donation-modal').classList.add('show');
             document.body.style.overflow = 'hidden';
         }
@@ -1844,9 +2329,11 @@
             document.body.style.overflow = '';
             document.getElementById('manual-donation-form').reset();
             document.getElementById('man-edit-id').value = '';
+            updateReferralCalc();
         }
 
         function editManualDonation(id) {
+            populateReferralSelects();
             const d = wizStore.donations.getById(id);
             if (!d) return;
             document.getElementById('man-edit-id').value = d.id;
@@ -1865,8 +2352,13 @@
             document.getElementById('man-amount').value = d.amount;
             document.getElementById('man-method').value = d.method;
             document.getElementById('man-notes').value = d.notes || '';
+            if (document.getElementById('man-referral-id')) document.getElementById('man-referral-id').value = d.referralId || '';
+            if (document.getElementById('man-referral-rate')) document.getElementById('man-referral-rate').value = d.referralRate !== undefined ? d.referralRate : 6;
+            if (document.getElementById('man-additional-bonus')) document.getElementById('man-additional-bonus').value = d.additionalBonus || 0;
+
             document.querySelector(`input[name="man-status"][value="${d.status}"]`).checked = true;
             updateAdminAllocationCalc();
+            updateReferralCalc();
 
             openManualDonationModal(id);
         }
@@ -1876,6 +2368,12 @@
             const editId = document.getElementById('man-edit-id').value;
             const type = document.getElementById('man-type').value;
 
+            const refId = document.getElementById('man-referral-id') ? document.getElementById('man-referral-id').value : '';
+            const refRate = document.getElementById('man-referral-rate') ? Number(document.getElementById('man-referral-rate').value) : 6;
+            const addBonus = document.getElementById('man-additional-bonus') ? Number(document.getElementById('man-additional-bonus').value) : 0;
+            const amount = Number(document.getElementById('man-amount').value);
+            const refFee = refId ? Math.round(amount * (refRate / 100)) : 0;
+
             const data = {
                 donorName: document.getElementById('man-donor-name').value,
                 donorPhone: document.getElementById('man-donor-phone').value,
@@ -1883,10 +2381,14 @@
                 type,
                 programUtama: type === 'Infak Terikat' ? document.getElementById('man-program-utama').value : '-',
                 programSpesifik: type === 'Infak Terikat' ? document.getElementById('man-program-spesifik').value : '-',
-                amount: Number(document.getElementById('man-amount').value),
+                amount,
                 method: document.getElementById('man-method').value,
                 status: document.querySelector('input[name="man-status"]:checked').value,
                 notes: document.getElementById('man-notes').value,
+                referralId: refId || null,
+                referralRate: refRate,
+                referralFee: refFee,
+                additionalBonus: addBonus,
                 verifiedBy: ADMIN_NAME
             };
 
@@ -1920,6 +2422,46 @@
             const opsAmount = d.alokasiOperasional || (isTerikat ? Math.round(d.amount * 0.125) : 0);
             const progAmount = d.alokasiProgram || (isTerikat ? (d.amount - opsAmount) : d.amount);
 
+            let refInfoHtml = '';
+            if (wizStore.referrals) {
+                if (d.referralId) {
+                    const refObj = wizStore.referrals.getById(d.referralId);
+                    const refName = refObj ? refObj.name : 'Perantara';
+                    const rate = d.referralRate !== undefined ? d.referralRate : 6;
+                    const fee = d.referralFee !== undefined ? d.referralFee : Math.round(d.amount * (rate / 100));
+                    const bonus = d.additionalBonus || 0;
+                    refInfoHtml = `
+                    <div class="col-span-2 p-md bg-amber-50 rounded-xl border border-amber-200/80 space-y-1.5 text-amber-900">
+                        <div class="flex justify-between items-center">
+                            <p class="font-caption text-caption font-bold text-amber-900 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm text-amber-600">handshake</span>
+                                Perantara / Referal Donatur (Hak Amil):
+                            </p>
+                            <button onclick="editManualDonation('${d.id}'); closeDonationDetail();" class="px-2.5 py-1 bg-amber-600 text-white rounded text-[11px] font-bold hover:bg-amber-700 cursor-pointer transition-colors shadow-xs">
+                                ✏️ Edit Perantara &amp; Hak %
+                            </button>
+                        </div>
+                        <div class="flex justify-between font-bold text-xs">
+                            <span>Nama Perantara: <strong class="text-amber-900 text-sm">${refName}</strong></span>
+                            <span>Rate Hak: <strong class="text-amber-800">${rate}%</strong></span>
+                        </div>
+                        <div class="flex justify-between text-xs font-mono pt-1 border-t border-amber-200">
+                            <span>Hak Komisi (${rate}%): <strong>${fmt(fee)}</strong></span>
+                            <span>Insentif Operasional: <strong>${fmt(bonus)}</strong></span>
+                            <span>Total Hak: <strong class="text-amber-800 font-bold">${fmt(fee + bonus)}</strong></span>
+                        </div>
+                    </div>`;
+                } else {
+                    refInfoHtml = `
+                    <div class="col-span-2 p-sm bg-slate-50 rounded-xl border border-dashed border-slate-300 flex justify-between items-center text-xs">
+                        <span class="text-slate-600 font-medium">Belum ada perantara / referal ditautkan ke donasi ini.</span>
+                        <button onclick="editManualDonation('${d.id}'); closeDonationDetail();" class="px-2.5 py-1 bg-amber-600 text-white rounded font-bold hover:bg-amber-700 cursor-pointer transition-colors shadow-xs">
+                            + Tautkan Perantara (Hak 6%)
+                        </button>
+                    </div>`;
+                }
+            }
+
             document.getElementById('donation-detail-body').innerHTML = `
             <div class="grid grid-cols-2 gap-md text-sm">
                 <div><p class="font-caption text-caption text-on-surface-variant">Transaction ID</p><p class="font-mono text-xs font-bold text-outline">${d.id}</p></div>
@@ -1928,6 +2470,7 @@
                 <div><p class="font-caption text-caption text-on-surface-variant">Jenis Donasi</p><p class="font-label-md font-bold">${d.type}</p></div>
                 <div><p class="font-caption text-caption text-on-surface-variant">Program Utama</p><p class="font-label-md font-semibold">${d.programUtama || d.category || '-'}</p></div>
                 <div><p class="font-caption text-caption text-on-surface-variant">Program Spesifik</p><p class="font-label-md font-semibold text-primary">${d.programSpesifik || d.program || '-'}</p></div>
+                ${refInfoHtml}
                 <div class="col-span-2 p-md bg-surface-container-low rounded-xl border border-outline-variant/30 space-y-1">
                     <p class="font-caption text-caption text-on-surface-variant font-bold">Rekonsiliasi Internal Dana:</p>
                     <div class="flex justify-between font-bold text-base text-primary">
@@ -1957,7 +2500,7 @@
             ${d.verifiedBy ? `<div class="pt-sm border-t border-outline-variant/30"><p class="font-caption text-caption text-on-surface-variant">Diverifikasi oleh ${d.verifiedBy} pada ${wizStore.utils.formatDateTime(d.verifiedAt)}</p></div>` : ''}
             <div class="flex gap-md pt-md">
                 ${d.status === 'pending' ? `<button onclick="verifyDonation('${d.id}'); closeDonationDetail();" class="flex-1 bg-primary text-on-primary py-2.5 rounded-lg font-label-md font-bold hover:bg-primary-container transition-colors">Verifikasi Donasi</button>` : ''}
-                <button onclick="editManualDonation('${d.id}'); closeDonationDetail();" class="flex-1 bg-surface-container border border-outline-variant text-on-surface py-2.5 rounded-lg font-label-md font-bold hover:bg-surface-variant transition-colors">Edit Transaksi</button>
+                <button onclick="editManualDonation('${d.id}'); closeDonationDetail();" class="flex-1 bg-surface-container border border-outline-variant text-on-surface py-2.5 rounded-lg font-label-md font-bold hover:bg-surface-variant transition-colors">Edit Transaksi &amp; Perantara</button>
                 <button onclick="deleteDonation('${d.id}'); closeDonationDetail();" class="px-lg py-2.5 border border-error text-error rounded-lg font-label-md font-bold hover:bg-error/5 transition-colors">Hapus</button>
             </div>`;
 
@@ -2007,48 +2550,86 @@
             if (!file) return;
 
             const filenameEl = document.getElementById('photo-filename-display');
-            if (filenameEl) filenameEl.textContent = `📎 ${file.name} (Memproses...)`;
+            const uploadZone = document.getElementById('photo-upload-zone');
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
+            // Immediate feedback — show spinner before async work
+            if (filenameEl) {
+                filenameEl.textContent = '⏳ Mengompres foto...';
+                filenameEl.style.color = '#6366f1';
+            }
+            if (uploadZone) uploadZone.style.opacity = '0.5';
+
+            // Use createObjectURL for instant preview (no FileReader needed!)
+            const objectUrl = URL.createObjectURL(file);
+            const prevImg = document.getElementById(previewId);
+            const prevContainer = document.getElementById(`${previewId}-container`);
+            if (prevImg) prevImg.src = objectUrl;
+            if (prevContainer) prevContainer.classList.remove('hidden');
+
+            // Yield to browser first, then do heavy canvas work
+            setTimeout(() => {
                 const img = new Image();
                 img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const maxDim = 1200;
-                    let w = img.width;
-                    let h = img.height;
+                    // Determine target size — max 720px keeps files ~60-120KB
+                    const maxDim = 720;
+                    let w = img.naturalWidth;
+                    let h = img.naturalHeight;
 
-                    if (w > maxDim || h > maxDim) {
-                        if (w > h) {
-                            h = Math.round((h * maxDim) / w);
-                            w = maxDim;
-                        } else {
-                            w = Math.round((w * maxDim) / h);
-                            h = maxDim;
-                        }
+                    // Skip canvas if image is already small enough
+                    if (w <= maxDim && h <= maxDim && file.size < 150000) {
+                        const reader = new FileReader();
+                        reader.onload = function(ev) {
+                            const inputEl = document.getElementById(inputId);
+                            if (inputEl) inputEl.value = ev.target.result;
+                            if (prevImg) prevImg.src = ev.target.result;
+                            URL.revokeObjectURL(objectUrl);
+                            const sizeKb = Math.round(ev.target.result.length / 1024);
+                            if (filenameEl) {
+                                filenameEl.textContent = `✅ ${file.name} (${sizeKb} KB)`;
+                                filenameEl.style.color = '#16a34a';
+                            }
+                            if (uploadZone) uploadZone.style.opacity = '1';
+                        };
+                        reader.readAsDataURL(file);
+                        return;
                     }
 
-                    canvas.width = w;
-                    canvas.height = h;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, w, h);
+                    // Scale down
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+                        else       { w = Math.round(w * maxDim / h); h = maxDim; }
+                    }
 
-                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+                    // Canvas compress
+                    const canvas = document.createElement('canvas');
+                    canvas.width  = w;
+                    canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.72);
+                    const sizeKb = Math.round(compressedDataUrl.length / 1024);
 
                     const inputEl = document.getElementById(inputId);
-                    const prevImg = document.getElementById(previewId);
-                    const prevContainer = document.getElementById(`${previewId}-container`);
-
                     if (inputEl) inputEl.value = compressedDataUrl;
                     if (prevImg) prevImg.src = compressedDataUrl;
-                    if (prevContainer) prevContainer.classList.remove('hidden');
+                    URL.revokeObjectURL(objectUrl);
 
-                    if (filenameEl) filenameEl.textContent = `✅ ${file.name} (${Math.round(compressedDataUrl.length / 1024)} KB)`;
+                    if (filenameEl) {
+                        if (sizeKb > 300) {
+                            filenameEl.textContent = `⚠️ ${file.name} (${sizeKb} KB — coba foto yang lebih kecil)`;
+                            filenameEl.style.color = '#d97706';
+                        } else {
+                            filenameEl.textContent = `✅ ${file.name} (${sizeKb} KB)`;
+                            filenameEl.style.color = '#16a34a';
+                        }
+                    }
+                    if (uploadZone) uploadZone.style.opacity = '1';
                 };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
+                img.src = objectUrl;
+            }, 10);
         }
+
+
 
         function updatePreviewFromUrl(inputId, previewId) {
             const inputEl = document.getElementById(inputId);
@@ -2388,6 +2969,7 @@
                 'dashboard': 'Dashboard Overview',
                 'donations': 'Manajemen Pemasukan / Donasi',
                 'disbursements': 'Manajemen Pengeluaran / Penyaluran Dana',
+                'referrals': 'Database Master Perantara & KPI Kinerja Fundraiser',
                 'allocation-rules': 'Editor Aturan Alokasi & Program Spesifik',
                 'site-images': 'Kelola Foto Web Utama',
                 'admin-users': 'Verifikasi & Kelola Akun Admin (Admin 1)',
@@ -2398,8 +2980,272 @@
             const titleEl = document.getElementById('section-title');
             if (titleEl && titleMap[sectionId]) titleEl.textContent = titleMap[sectionId];
 
-            if (sectionId === 'site-images') renderSiteImagesSection();
+            if (sectionId === 'referrals') renderReferralsSection();
+            if (sectionId === 'site-images') {
+                const specTab = document.getElementById('tab-site-spec-btn');
+                if (specTab && specTab.classList.contains('active')) {
+                    renderSpecificProgramImagesSection();
+                } else {
+                    renderSiteImagesSection();
+                }
+            }
             if (sectionId === 'admin-users') renderAdminUsersSection();
+        }
+
+        function switchSiteImageTab(tabType, btnEl) {
+            document.querySelectorAll('#section-site-images .tab-btn').forEach(b => b.classList.remove('active'));
+            if (btnEl) btnEl.classList.add('active');
+
+            const mainContainer = document.getElementById('container-site-main-images');
+            const specContainer = document.getElementById('container-site-specific-images');
+
+            if (tabType === 'specific') {
+                if (mainContainer) mainContainer.classList.add('hidden');
+                if (specContainer) specContainer.classList.remove('hidden');
+                renderSpecificProgramImagesSection();
+            } else {
+                if (specContainer) specContainer.classList.add('hidden');
+                if (mainContainer) mainContainer.classList.remove('hidden');
+                renderSiteImagesSection();
+            }
+        }
+
+        function getSpecificProgramsMap() {
+            let map = null;
+            try {
+                const saved = localStorage.getItem('wiz_custom_specific_programs');
+                if (saved) map = JSON.parse(saved);
+            } catch(e) {}
+
+            if (!map) {
+                map = typeof SPECIFIC_PROGRAMS_MAP !== 'undefined' ? JSON.parse(JSON.stringify(SPECIFIC_PROGRAMS_MAP)) : {};
+            }
+
+            // Always restore 'Pembangunan Markaz' into 'Berkah Hidayah' if missing
+            if (!map['Berkah Hidayah']) map['Berkah Hidayah'] = [];
+            if (!map['Berkah Hidayah'].includes('Pembangunan Markaz')) {
+                map['Berkah Hidayah'].unshift('Pembangunan Markaz');
+                try {
+                    localStorage.setItem('wiz_custom_specific_programs', JSON.stringify(map));
+                } catch(e) {}
+            }
+
+            return map;
+        }
+
+        function resetDefaultSpecificPrograms() {
+            if (!confirm('Apakah Anda yakin ingin memulihkan seluruh daftar program spesifik bawaan lembaga?')) return;
+            localStorage.removeItem('wiz_custom_specific_programs');
+            renderSpecificProgramImagesSection();
+            const catVal = document.getElementById('man-program-utama') ? document.getElementById('man-program-utama').value : '';
+            if (catVal) handleAdminProgramUtamaChange(catVal);
+        }
+
+        function saveSpecificProgramsMap(map) {
+            localStorage.setItem('wiz_custom_specific_programs', JSON.stringify(map));
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                window.wizFirebase.upsert('site_settings', { key: 'custom_specific_programs', data: map, updatedAt: new Date().toISOString() });
+            }
+        }
+
+        function openSpecificProgramModal(editPillar = '', editTitle = '') {
+            const modal = document.getElementById('specific-program-modal');
+            const modalTitle = document.getElementById('spec-prog-modal-title');
+            const form = document.getElementById('specific-program-form');
+            if (!modal || !modalTitle || !form) return;
+            
+            document.getElementById('spec-prog-old-pillar').value = editPillar;
+            document.getElementById('spec-prog-old-title').value = editTitle;
+
+            if (editTitle) {
+                modalTitle.innerHTML = '<span class="material-symbols-outlined text-primary">edit_note</span><span>Edit Program Spesifik</span>';
+                document.getElementById('spec-prog-pillar').value = editPillar;
+                document.getElementById('spec-prog-title').value = editTitle;
+            } else {
+                modalTitle.innerHTML = '<span class="material-symbols-outlined text-primary">grid_view</span><span>Tambah Program Spesifik Baru</span>';
+                form.reset();
+                if (editPillar) document.getElementById('spec-prog-pillar').value = editPillar;
+            }
+
+            modal.classList.add('show');
+        }
+
+        function closeSpecificProgramModal() {
+            const modal = document.getElementById('specific-program-modal');
+            if (modal) modal.classList.remove('show');
+            const form = document.getElementById('specific-program-form');
+            if (form) form.reset();
+        }
+
+        function handleSpecificProgramSave(e) {
+            e.preventDefault();
+            const pillar = document.getElementById('spec-prog-pillar').value;
+            const newTitle = document.getElementById('spec-prog-title').value.trim();
+            const oldPillar = document.getElementById('spec-prog-old-pillar').value;
+            const oldTitle = document.getElementById('spec-prog-old-title').value;
+
+            if (!newTitle) return;
+
+            const map = getSpecificProgramsMap();
+
+            // If edit mode
+            if (oldTitle && oldPillar) {
+                if (map[oldPillar]) {
+                    const idx = map[oldPillar].indexOf(oldTitle);
+                    if (idx !== -1) {
+                        map[oldPillar].splice(idx, 1);
+                    }
+                }
+            }
+
+            if (!map[pillar]) map[pillar] = [];
+            if (!map[pillar].includes(newTitle)) {
+                map[pillar].push(newTitle);
+            }
+
+            // Migrate image key if title changed
+            if (oldTitle && oldTitle !== newTitle) {
+                try {
+                    const flatMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+                    if (flatMap[oldTitle]) {
+                        flatMap[newTitle] = flatMap[oldTitle];
+                        delete flatMap[oldTitle];
+                        localStorage.setItem('wiz_specific_prog_imgs', JSON.stringify(flatMap));
+                    }
+                } catch(err) {}
+            }
+
+            saveSpecificProgramsMap(map);
+            closeSpecificProgramModal();
+            renderSpecificProgramImagesSection();
+
+            // Refresh donation dropdown if open
+            const catVal = document.getElementById('man-program-utama') ? document.getElementById('man-program-utama').value : '';
+            if (catVal) handleAdminProgramUtamaChange(catVal);
+        }
+
+        function deleteSpecificProgramItem(pillar, title) {
+            if (!confirm(`Apakah Anda yakin ingin menghapus program spesifik "${title}" dari pilar ${pillar}?`)) return;
+
+            const map = getSpecificProgramsMap();
+            if (map[pillar]) {
+                const idx = map[pillar].indexOf(title);
+                if (idx !== -1) {
+                    map[pillar].splice(idx, 1);
+                }
+            }
+
+            saveSpecificProgramsMap(map);
+            renderSpecificProgramImagesSection();
+
+            const catVal = document.getElementById('man-program-utama') ? document.getElementById('man-program-utama').value : '';
+            if (catVal) handleAdminProgramUtamaChange(catVal);
+        }
+
+        function renderSpecificProgramImagesSection() {
+            const container = document.getElementById('specific-images-grid');
+            if (!container || !wizStore.allocationRulesManager) return;
+
+            const map = getSpecificProgramsMap();
+            let allPrograms = [];
+
+            Object.entries(map).forEach(([pillar, progs]) => {
+                if (Array.isArray(progs)) {
+                    progs.forEach(pTitle => {
+                        allPrograms.push({ pillar, title: pTitle });
+                    });
+                }
+            });
+
+            if (allPrograms.length === 0) {
+                container.innerHTML = `<div class="col-span-full p-xl text-center text-on-surface-variant text-sm italic">Belum ada program spesifik. Klik "+ Tambah Program Spesifik Baru" di atas untuk menambahkan program.</div>`;
+                return;
+            }
+
+            const pillarBadgeColor = {
+                'Berkah Hidayah': 'bg-emerald-700 text-white',
+                'Berkah Peduli': 'bg-blue-700 text-white',
+                'Berkah Juara': 'bg-amber-700 text-white',
+                'Berkah Sehat': 'bg-rose-700 text-white',
+                'Berkah Mandiri': 'bg-purple-700 text-white'
+            };
+
+            container.innerHTML = allPrograms.map((item, idx) => {
+                const customImgStore = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+                const isCustom = Boolean(customImgStore[item.title]);
+                const currentImg = wizStore.allocationRulesManager.getSpecificProgramImage(item.title, item.pillar);
+                const safeId = 'spec-file-' + idx;
+                const badgeStyle = pillarBadgeColor[item.pillar] || 'bg-primary text-on-primary';
+                const escapedTitle = item.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                
+                return `
+                <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 p-md flex flex-col justify-between space-y-md">
+                    <div>
+                        <div class="relative h-44 rounded-lg overflow-hidden border border-outline-variant/30 mb-sm bg-slate-100 flex items-center justify-center">
+                            <img id="prev-${safeId}" src="${currentImg}" alt="${escapedTitle}" class="w-full h-full object-cover">
+                            <span class="absolute top-2 left-2 ${badgeStyle} px-2.5 py-0.5 rounded-full text-[11px] font-bold shadow-xs">${item.pillar}</span>
+                        </div>
+                        <h4 class="font-label-md font-bold text-on-surface text-sm mb-0.5 line-clamp-2">${item.title}</h4>
+                        <p class="font-caption text-caption text-on-surface-variant">Program Spesifik ${item.pillar}</p>
+                    </div>
+
+                    <div class="pt-sm border-t border-outline-variant/20 flex flex-col gap-2">
+                        <div class="flex gap-1.5">
+                            <label for="${safeId}" class="flex-1 py-1.5 bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 shadow-xs">
+                                <span class="material-symbols-outlined text-sm">cloud_upload</span>
+                                <span>Upload Foto</span>
+                            </label>
+                            <button type="button" onclick="openSpecificProgramModal('${item.pillar}', '${escapedTitle}')" class="px-2.5 py-1.5 border border-outline-variant text-on-surface hover:text-primary rounded-lg text-xs font-semibold transition-colors flex items-center gap-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-sm">edit</span> Edit
+                            </button>
+                            <button type="button" onclick="deleteSpecificProgramItem('${item.pillar}', '${escapedTitle}')" class="px-2.5 py-1.5 border border-error/30 text-error hover:bg-error/5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-sm">delete</span>
+                            </button>
+                        </div>
+                        <input type="file" id="${safeId}" accept="image/*" class="hidden" onchange="handleSpecificProgramPhotoUpload(event, '${escapedTitle}')">
+                        ${isCustom ? `<p class="text-[11px] text-emerald-700 font-semibold text-center">✅ Foto Kustom Aktif</p>` : `<p class="text-[11px] text-on-surface-variant font-medium text-center">📷 Foto Bawaan Web (Bisa Diganti)</p>`}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function handleSpecificProgramPhotoUpload(event, progTitle) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const inputEl = event.target;
+            const card = inputEl.closest('div');
+            const prevImg = card ? card.querySelector('img') : null;
+            const statusEl = card ? card.querySelector('p.text-\\[11px\\]') : null;
+
+            // Instant preview
+            const objectUrl = URL.createObjectURL(file);
+            if (prevImg) { prevImg.src = objectUrl; prevImg.classList.remove('opacity-40'); }
+
+            setTimeout(() => {
+                const img = new Image();
+                img.onload = async function() {
+                    const maxDim = 720;
+                    let w = img.naturalWidth, h = img.naturalHeight;
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+                        else       { w = Math.round(w * maxDim / h); h = maxDim; }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    const compressed = canvas.toDataURL('image/jpeg', 0.72);
+                    URL.revokeObjectURL(objectUrl);
+                    if (prevImg) prevImg.src = compressed;
+
+                    if (window.wizStore && window.wizStore.allocationRulesManager) {
+                        await window.wizStore.allocationRulesManager.updateSpecificProgramImageByName(progTitle, compressed);
+                        // Refresh only the specific images grid, not everything
+                        renderSpecificProgramImagesSection();
+                    }
+                };
+                img.src = objectUrl;
+            }, 10);
         }
 
         function renderSiteImagesSection() {
@@ -2635,6 +3481,474 @@
             }
         }
 
+        // ─── Referrals (Hak 6% Perantara) UI Handlers ─────────
+        function populateReferralSelects() {
+            if (!wizStore.referrals) return;
+            const activeRefs = wizStore.referrals.getAll().filter(r => r.status === 'active');
+
+            const manSelect = document.getElementById('man-referral-id');
+            const payoutSelect = document.getElementById('payout-ref-id');
+
+            const optionsHtml = '<option value="">-- Tanpa Perantara --</option>' +
+                activeRefs.map(r => `<option value="${r.id}">${r.name} (${r.defaultRate || 6}%)</option>`).join('');
+
+            if (manSelect) {
+                const curVal = manSelect.value;
+                manSelect.innerHTML = optionsHtml;
+                manSelect.value = curVal;
+            }
+
+            if (payoutSelect) {
+                const curVal = payoutSelect.value;
+                payoutSelect.innerHTML = '<option value="">-- Pilih Perantara --</option>' +
+                    wizStore.referrals.getAll().map(r => `<option value="${r.id}">${r.name} (Sisa Pending: ${wizStore.utils.formatRupiahCompact(r.pendingBalance)})</option>`).join('');
+                payoutSelect.value = curVal;
+            }
+        }
+
+        function handleReferralSelectChange() {
+            const refId = document.getElementById('man-referral-id') ? document.getElementById('man-referral-id').value : '';
+            if (refId && wizStore.referrals) {
+                const ref = wizStore.referrals.getById(refId);
+                if (ref && document.getElementById('man-referral-rate')) {
+                    document.getElementById('man-referral-rate').value = ref.defaultRate || 6;
+                }
+            }
+            updateReferralCalc();
+        }
+
+        function quickEditSelectedReferral() {
+            const refId = document.getElementById('man-referral-id') ? document.getElementById('man-referral-id').value : '';
+            if (refId) {
+                editReferral(refId);
+            } else {
+                openReferralModal();
+            }
+        }
+
+        function updateReferralCalc() {
+            const refId = document.getElementById('man-referral-id') ? document.getElementById('man-referral-id').value : '';
+            const editBtn = document.getElementById('btn-quick-edit-ref');
+            if (editBtn) {
+                if (refId) editBtn.classList.remove('hidden');
+                else editBtn.classList.add('hidden');
+            }
+
+            const amount = Number(document.getElementById('man-amount') ? document.getElementById('man-amount').value : 0);
+            const rate = Number(document.getElementById('man-referral-rate') ? document.getElementById('man-referral-rate').value : 6);
+            const bonus = Number(document.getElementById('man-additional-bonus') ? document.getElementById('man-additional-bonus').value : 0);
+
+            const previewBox = document.getElementById('man-referral-calc-preview');
+            if (!refId || !previewBox) {
+                if (previewBox) previewBox.classList.add('hidden');
+                return;
+            }
+
+            const fee = Math.round(amount * (rate / 100));
+            const total = fee + bonus;
+            const fmt = wizStore.utils.formatRupiahCompact;
+
+            document.getElementById('ref-calc-fee').textContent = fmt(fee);
+            document.getElementById('ref-calc-bonus').textContent = fmt(bonus);
+            document.getElementById('ref-calc-total').textContent = fmt(total);
+            previewBox.classList.remove('hidden');
+        }
+
+        function renderReferralsSection() {
+            try {
+                if (!wizStore.referrals) return;
+                populateReferralSelects();
+
+                let allRefs = wizStore.referrals.getAll() || [];
+                const fmt = wizStore.utils.formatRupiahCompact;
+                const searchInput = document.getElementById('referral-search');
+                const searchVal = (searchInput ? searchInput.value : '').toLowerCase().trim();
+
+                const activeCount = allRefs.filter(r => r && r.status === 'active').length;
+                const totalFee6Percent = allRefs.reduce((s, r) => s + (Number(r.totalFee6Percent) || 0), 0);
+                const totalBonus = allRefs.reduce((s, r) => s + (Number(r.totalAdditionalBonus) || 0), 0);
+                const totalPending = allRefs.reduce((s, r) => s + (Number(r.pendingBalance) || 0), 0);
+
+                const kpiCount = document.getElementById('kpi-ref-count');
+                const kpiFee = document.getElementById('kpi-ref-fee-total');
+                const kpiBonus = document.getElementById('kpi-ref-bonus-total');
+                const kpiPending = document.getElementById('kpi-ref-pending-total');
+
+                if (kpiCount) kpiCount.textContent = `${activeCount} Orang`;
+                if (kpiFee) kpiFee.textContent = fmt(totalFee6Percent);
+                if (kpiBonus) kpiBonus.textContent = fmt(totalBonus);
+                if (kpiPending) kpiPending.textContent = fmt(totalPending);
+
+                const filteredRefs = allRefs.filter(r => r && (!searchVal || (r.name && r.name.toLowerCase().includes(searchVal)) || (r.phone && r.phone.includes(searchVal)) || (r.bankName && r.bankName.toLowerCase().includes(searchVal))));
+
+                const refContainer = document.getElementById('referrals-table-container');
+                if (refContainer) {
+                    if (filteredRefs.length === 0) {
+                        refContainer.innerHTML = '<div class="p-lg text-center text-on-surface-variant text-sm italic">Belum ada data perantara / relawan fundraiser. Klik "+ Tambah Perantara Baru" di atas untuk menambahkan data perantara.</div>';
+                    } else {
+                        refContainer.innerHTML = `
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-surface-container-low border-b border-outline-variant/30 font-label-md text-caption text-on-surface-variant">
+                                    <th class="p-sm">Nama Perantara</th>
+                                    <th class="p-sm">Kontak &amp; Rekening</th>
+                                    <th class="p-sm text-center">% Default</th>
+                                    <th class="p-sm text-right">Donasi Diraih</th>
+                                    <th class="p-sm text-right">Hak 6%</th>
+                                    <th class="p-sm text-right">Insentif Tambahan</th>
+                                    <th class="p-sm text-right">Total Hak</th>
+                                    <th class="p-sm text-right">Sudah Dicairkan</th>
+                                    <th class="p-sm text-right">Sisa Pending</th>
+                                    <th class="p-sm text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-outline-variant/20 font-body-md text-xs">
+                                ${filteredRefs.map(r => `
+                                <tr class="hover:bg-surface-container-lowest/60 transition-colors">
+                                    <td class="p-sm">
+                                        <div class="font-bold text-on-surface text-sm">${r.name || 'Perantara'}</div>
+                                        <div class="text-[11px] text-on-surface-variant">${r.notes || 'Relawan / Perantara'}</div>
+                                        <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${r.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'}">${r.status === 'active' ? 'Aktif' : 'Non-Aktif'}</span>
+                                    </td>
+                                    <td class="p-sm">
+                                        <div class="font-mono text-[11px]">${r.phone || '-'}</div>
+                                        <div class="text-[11px] text-on-surface-variant font-semibold">${r.bankName || '-'} ${r.accountNumber || ''}</div>
+                                        ${r.accountHolder ? `<div class="text-[10px] text-outline">a.n ${r.accountHolder}</div>` : ''}
+                                    </td>
+                                    <td class="p-sm text-center font-bold text-primary">${r.defaultRate || 6}%</td>
+                                    <td class="p-sm text-right font-bold text-on-surface">${fmt(r.totalDonationAmount || 0)} <div class="text-[10px] text-outline font-normal">(${r.donationsCount || 0} donasi)</div></td>
+                                    <td class="p-sm text-right font-bold text-emerald-700">${fmt(r.totalFee6Percent || 0)}</td>
+                                    <td class="p-sm text-right font-bold text-purple-700">${fmt(r.totalAdditionalBonus || 0)}</td>
+                                    <td class="p-sm text-right font-bold text-primary text-sm">${fmt(r.totalEarned || 0)}</td>
+                                    <td class="p-sm text-right font-semibold text-blue-700">${fmt(r.totalPaid || 0)}</td>
+                                    <td class="p-sm text-right">
+                                        <span class="font-bold text-sm ${(r.pendingBalance || 0) > 0 ? 'text-amber-800 bg-amber-50 px-2 py-1 rounded-lg border border-amber-200' : 'text-slate-400'}">${fmt(r.pendingBalance || 0)}</span>
+                                    </td>
+                                    <td class="p-sm text-right space-x-1 whitespace-nowrap">
+                                        <button onclick="openReferralDetailModal('${r.id}')" class="px-2 py-1 bg-primary/10 text-primary hover:bg-primary/20 rounded font-bold transition-colors">Detail</button>
+                                        <button onclick="openReferralPayoutModal('${r.id}')" class="px-2 py-1 bg-amber-600 text-white hover:bg-amber-700 rounded font-bold transition-colors">Cairkan</button>
+                                        <button onclick="editReferral('${r.id}')" class="px-2 py-1 border border-outline-variant text-on-surface-variant hover:text-primary rounded font-semibold transition-colors">Edit</button>
+                                        <button onclick="deleteReferral('${r.id}')" class="px-2 py-1 border border-error/30 text-error hover:bg-error/5 rounded font-semibold transition-colors">Hapus</button>
+                                    </td>
+                                </tr>`).join('')}
+                            </tbody>
+                        </table>`;
+                    }
+                }
+
+                // Payouts Table
+                const payoutsContainer = document.getElementById('referral-payouts-table-container');
+                const allPayouts = wizStore.referrals.getPayouts() || [];
+                if (payoutsContainer) {
+                    if (allPayouts.length === 0) {
+                        payoutsContainer.innerHTML = '<div class="p-md text-center text-on-surface-variant text-xs italic">Belum ada riwayat pencairan hak perantara.</div>';
+                    } else {
+                        payoutsContainer.innerHTML = `
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-surface-container-low border-b border-outline-variant/30 font-label-md text-caption text-on-surface-variant">
+                                    <th class="p-sm">Tanggal Pencairan</th>
+                                    <th class="p-sm">Perantara / Penerima</th>
+                                    <th class="p-sm text-right">Nominal Pencairan</th>
+                                    <th class="p-sm">Metode / No. Ref</th>
+                                    <th class="p-sm">Catatan</th>
+                                    <th class="p-sm text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-outline-variant/20 font-body-md text-xs">
+                                ${allPayouts.map(p => `
+                                <tr>
+                                    <td class="p-sm text-on-surface-variant font-mono">${wizStore.utils.formatDate(p.paidAt)}</td>
+                                    <td class="p-sm font-bold text-on-surface">${p.referralName || 'Perantara'}</td>
+                                    <td class="p-sm text-right font-bold text-amber-800 text-sm">${fmt(p.amount || 0)}</td>
+                                    <td class="p-sm">
+                                        <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-900 font-bold text-[11px]">${p.paymentMethod || '-'}</span>
+                                        <div class="font-mono text-[10px] text-outline mt-0.5">Ref: ${p.referenceNo || '-'}</div>
+                                    </td>
+                                    <td class="p-sm text-on-surface-variant max-w-[200px] truncate">${p.notes || '-'}</td>
+                                    <td class="p-sm text-right space-x-1">
+                                        <button onclick="deleteReferralPayout('${p.id}')" class="px-2 py-1 border border-error/30 text-error hover:bg-error/5 rounded font-semibold text-[11px]">Hapus</button>
+                                    </td>
+                                </tr>`).join('')}
+                            </tbody>
+                        </table>`;
+                    }
+                }
+            } catch(err) {
+                console.error('[WIZ Admin] Error rendering referrals section:', err);
+            }
+        }
+
+        // Referral CRUD Modal Handlers
+        function openReferralModal(editId) {
+            document.getElementById('ref-edit-id').value = editId || '';
+            document.getElementById('referral-modal-title').innerHTML = editId ? '<span class="material-symbols-outlined text-primary">edit_square</span><span>Edit Perantara / Relawan</span>' : '<span class="material-symbols-outlined text-primary">person_add</span><span>Tambah Perantara / Relawan Baru</span>';
+            if (!editId) {
+                document.getElementById('referral-form').reset();
+                document.getElementById('ref-default-rate').value = '6';
+                document.getElementById('ref-status').value = 'active';
+            }
+            document.getElementById('referral-modal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeReferralModal() {
+            document.getElementById('referral-modal').classList.remove('show');
+            document.body.style.overflow = '';
+            document.getElementById('referral-form').reset();
+        }
+
+        function editReferral(id) {
+            const r = wizStore.referrals.getById(id);
+            if (!r) return;
+            document.getElementById('ref-edit-id').value = r.id;
+            document.getElementById('ref-name').value = r.name;
+            document.getElementById('ref-phone').value = r.phone || '';
+            document.getElementById('ref-default-rate').value = r.defaultRate || 6;
+            document.getElementById('ref-bank-name').value = r.bankName || '';
+            document.getElementById('ref-account-number').value = r.accountNumber || '';
+            document.getElementById('ref-account-holder').value = r.accountHolder || '';
+            document.getElementById('ref-status').value = r.status || 'active';
+            document.getElementById('ref-notes').value = r.notes || '';
+            openReferralModal(id);
+        }
+
+        async function handleReferralSave(e) {
+            e.preventDefault();
+            const editId = document.getElementById('ref-edit-id').value;
+            const data = {
+                name: document.getElementById('ref-name').value.trim(),
+                phone: document.getElementById('ref-phone').value.trim(),
+                defaultRate: Number(document.getElementById('ref-default-rate').value),
+                bankName: document.getElementById('ref-bank-name').value.trim(),
+                accountNumber: document.getElementById('ref-account-number').value.trim(),
+                accountHolder: document.getElementById('ref-account-holder').value.trim(),
+                status: document.getElementById('ref-status').value,
+                notes: document.getElementById('ref-notes').value.trim(),
+                createdBy: ADMIN_NAME,
+                updatedBy: ADMIN_NAME
+            };
+
+            let savedRef;
+            if (editId) {
+                savedRef = await wizStore.referrals.update(editId, data);
+            } else {
+                savedRef = await wizStore.referrals.add(data);
+            }
+            closeReferralModal();
+            refreshAll();
+
+            const manModal = document.getElementById('manual-donation-modal');
+            if (manModal && manModal.classList.contains('show')) {
+                populateReferralSelects();
+                const manSelect = document.getElementById('man-referral-id');
+                if (manSelect && savedRef) {
+                    manSelect.value = savedRef.id || editId;
+                    handleReferralSelectChange();
+                }
+            }
+        }
+
+        async function deleteReferral(id) {
+            if (!confirm('Apakah Anda yakin ingin menghapus data perantara ini?')) return;
+            await wizStore.referrals.delete(id);
+            refreshAll();
+        }
+
+        // Referral Payout Modal Handlers
+        function openReferralPayoutModal(refId) {
+            populateReferralSelects();
+            document.getElementById('payout-edit-id').value = '';
+            document.getElementById('referral-payout-form').reset();
+            document.getElementById('payout-date').value = new Date().toISOString().split('T')[0];
+
+            if (refId) {
+                document.getElementById('payout-ref-id').value = refId;
+                updatePayoutModalInfo();
+            }
+
+            document.getElementById('referral-payout-modal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeReferralPayoutModal() {
+            document.getElementById('referral-payout-modal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        function updatePayoutModalInfo() {
+            const refId = document.getElementById('payout-ref-id').value;
+            const infoBox = document.getElementById('payout-ref-info');
+            if (!refId || !infoBox) {
+                if (infoBox) infoBox.classList.add('hidden');
+                return;
+            }
+
+            const ref = wizStore.referrals.getById(refId);
+            if (!ref) return;
+
+            const fmt = wizStore.utils.formatRupiahCompact;
+            document.getElementById('payout-info-earned').textContent = fmt(ref.totalEarned);
+            document.getElementById('payout-info-paid').textContent = fmt(ref.totalPaid);
+            document.getElementById('payout-info-pending').textContent = fmt(ref.pendingBalance);
+            document.getElementById('payout-info-bank').textContent = ref.bankName !== '-' ? `Rekening: ${ref.bankName} ${ref.accountNumber} (a.n ${ref.accountHolder})` : 'Rekening belum diisi';
+            document.getElementById('payout-amount').value = ref.pendingBalance > 0 ? ref.pendingBalance : '';
+            infoBox.classList.remove('hidden');
+        }
+
+        async function handleReferralPayoutSave(e) {
+            e.preventDefault();
+            const refId = document.getElementById('payout-ref-id').value;
+            const ref = wizStore.referrals.getById(refId);
+            if (!ref) return;
+
+            const amount = Number(document.getElementById('payout-amount').value);
+            if (amount <= 0) {
+                alert('Nominal pencairan harus lebih besar dari Rp 0');
+                return;
+            }
+
+            const data = {
+                referralId: refId,
+                referralName: ref.name,
+                amount,
+                paidAt: new Date(document.getElementById('payout-date').value).toISOString(),
+                paymentMethod: document.getElementById('payout-method').value,
+                referenceNo: document.getElementById('payout-ref-no').value.trim(),
+                notes: document.getElementById('payout-notes').value.trim(),
+                paidBy: ADMIN_NAME
+            };
+
+            await wizStore.referrals.recordPayout(data);
+            closeReferralPayoutModal();
+            refreshAll();
+        }
+
+        async function deleteReferralPayout(payoutId) {
+            if (!confirm('Hapus riwayat pencairan ini? Sisa pending perantara akan kembali bertambah.')) return;
+            await wizStore.referrals.deletePayout(payoutId);
+            refreshAll();
+        }
+
+        // Referral Detail Modal Handlers
+        let currentDetailRefId = null;
+        let currentDetailTab = 'donations';
+
+        function openReferralDetailModal(refId) {
+            currentDetailRefId = refId;
+            const ref = wizStore.referrals.getById(refId);
+            if (!ref) return;
+
+            const fmt = wizStore.utils.formatRupiahCompact;
+            document.getElementById('ref-detail-subtitle').textContent = `${ref.name} (${ref.phone}) • ${ref.bankName} ${ref.accountNumber} (a.n ${ref.accountHolder})`;
+
+            document.getElementById('ref-detail-summary').innerHTML = `
+                <div><span class="text-on-surface-variant font-semibold">Total Donasi Diraih:</span> <strong class="block text-sm text-on-surface font-bold">${fmt(ref.totalDonationAmount)}</strong></div>
+                <div><span class="text-on-surface-variant font-semibold">Hak 6% Terakumulasi:</span> <strong class="block text-sm text-emerald-700 font-bold">${fmt(ref.totalFee6Percent)}</strong></div>
+                <div><span class="text-on-surface-variant font-semibold">Insentif Tambahan:</span> <strong class="block text-sm text-purple-700 font-bold">${fmt(ref.totalAdditionalBonus)}</strong></div>
+                <div><span class="text-on-surface-variant font-semibold">Sisa Hak Pending:</span> <strong class="block text-sm text-amber-800 font-bold">${fmt(ref.pendingBalance)}</strong></div>
+            `;
+
+            document.getElementById('tab-ref-donations-btn').textContent = `Daftar Donatur / Donasi (${ref.donations.length})`;
+            document.getElementById('tab-ref-payouts-btn').textContent = `Riwayat Pencairan Hak (${ref.payouts.length})`;
+
+            switchRefDetailTab('donations');
+            document.getElementById('referral-detail-modal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeReferralDetailModal() {
+            document.getElementById('referral-detail-modal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        function switchRefDetailTab(tab) {
+            currentDetailTab = tab;
+            const btnDon = document.getElementById('tab-ref-donations-btn');
+            const btnPay = document.getElementById('tab-ref-payouts-btn');
+            const conDon = document.getElementById('ref-detail-donations-container');
+            const conPay = document.getElementById('ref-detail-payouts-container');
+            const ref = wizStore.referrals.getById(currentDetailRefId);
+            if (!ref) return;
+
+            const fmt = wizStore.utils.formatRupiahCompact;
+
+            if (tab === 'donations') {
+                btnDon.className = 'pb-2 text-xs font-bold border-b-2 border-primary text-primary cursor-pointer';
+                btnPay.className = 'pb-2 text-xs font-bold border-b-2 border-transparent text-on-surface-variant cursor-pointer';
+                conDon.classList.remove('hidden');
+                conPay.classList.add('hidden');
+
+                if (ref.donations.length === 0) {
+                    conDon.innerHTML = '<div class="p-md text-center text-xs text-on-surface-variant italic">Belum ada transaksi donasi yang ditautkan ke perantara ini.</div>';
+                } else {
+                    conDon.innerHTML = `
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-surface-container-low border-b border-outline-variant/30 text-on-surface-variant">
+                                <th class="p-2">Tanggal</th>
+                                <th class="p-2">Donatur</th>
+                                <th class="p-2">Program</th>
+                                <th class="p-2 text-right">Nominal Donasi</th>
+                                <th class="p-2 text-right">Rate %</th>
+                                <th class="p-2 text-right">Hak 6%</th>
+                                <th class="p-2 text-right">Insentif Tambahan</th>
+                                <th class="p-2 text-right">Total Hak Transaction</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-outline-variant/20">
+                            ${ref.donations.map(d => {
+                                const rate = d.referralRate !== undefined ? d.referralRate : 6;
+                                const fee = d.referralFee !== undefined ? d.referralFee : Math.round(d.amount * (rate / 100));
+                                const bonus = d.additionalBonus || 0;
+                                return `
+                                <tr>
+                                    <td class="p-2 font-mono text-on-surface-variant">${wizStore.utils.formatDate(d.createdAt)}</td>
+                                    <td class="p-2 font-bold">${d.donorName}</td>
+                                    <td class="p-2 text-on-surface-variant">${d.programSpesifik || d.program || '-'}</td>
+                                    <td class="p-2 text-right font-bold">${fmt(d.amount)}</td>
+                                    <td class="p-2 text-right font-bold text-primary">${rate}%</td>
+                                    <td class="p-2 text-right font-bold text-emerald-700">${fmt(fee)}</td>
+                                    <td class="p-2 text-right font-bold text-purple-700">${fmt(bonus)}</td>
+                                    <td class="p-2 text-right font-bold text-amber-800">${fmt(fee + bonus)}</td>
+                                </tr>`;
+                            }).join('')}
+                        </tbody>
+                    </table>`;
+                }
+            } else {
+                btnPay.className = 'pb-2 text-xs font-bold border-b-2 border-primary text-primary cursor-pointer';
+                btnDon.className = 'pb-2 text-xs font-bold border-b-2 border-transparent text-on-surface-variant cursor-pointer';
+                conPay.classList.remove('hidden');
+                conDon.classList.add('hidden');
+
+                if (ref.payouts.length === 0) {
+                    conPay.innerHTML = '<div class="p-md text-center text-xs text-on-surface-variant italic">Belum ada riwayat pencairan/pembayaran hak perantara ini.</div>';
+                } else {
+                    conPay.innerHTML = `
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-surface-container-low border-b border-outline-variant/30 text-on-surface-variant">
+                                <th class="p-2">Tanggal Pencairan</th>
+                                <th class="p-2 text-right">Nominal Pencairan</th>
+                                <th class="p-2">Metode / Ref</th>
+                                <th class="p-2">Catatan</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-outline-variant/20">
+                            ${ref.payouts.map(p => `
+                            <tr>
+                                <td class="p-2 font-mono text-on-surface-variant">${wizStore.utils.formatDate(p.paidAt)}</td>
+                                <td class="p-2 text-right font-bold text-amber-800">${fmt(p.amount)}</td>
+                                <td class="p-2 font-semibold text-primary">${p.paymentMethod} <span class="font-mono text-[10px] text-outline">(${p.referenceNo || '-'})</span></td>
+                                <td class="p-2 text-on-surface-variant">${p.notes || '-'}</td>
+                            </tr>`).join('')}
+                        </tbody>
+                    </table>`;
+                }
+            }
+        }
+
         function refreshAll() {
             renderKPI('kpi-grid');
             renderDashboardDonations();
@@ -2647,6 +3961,7 @@
             renderNewsList();
             renderDisbursementTable();
             renderFinanceSection();
+            renderReferralsSection();
             updateBadges();
         }
 
@@ -2704,6 +4019,9 @@
                 refreshAll();
             }
         });
+
+        window.addEventListener('load', () => refreshAll());
+        window.addEventListener('wiz-sync-complete', () => refreshAll());
     </script>
 </body>
 

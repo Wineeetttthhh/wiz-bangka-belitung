@@ -637,6 +637,7 @@
 
     <script src="assets/js/firebase-client.js?v=3"></script>
     <script src="assets/js/admin-store.js?v=3"></script>
+    <script src="assets/js/main.js"></script>
     <script>
         const SPECIFIC_PROGRAMS = {
             'Berkah Hidayah': [
@@ -792,7 +793,13 @@
             const progSelect = document.getElementById('program-spesifik-select');
             progSelect.innerHTML = '<option value="">-- Pilih Program Spesifik --</option>';
 
-            const progs = SPECIFIC_PROGRAMS[cat] || [];
+            let map = SPECIFIC_PROGRAMS;
+            try {
+                const saved = localStorage.getItem('wiz_custom_specific_programs');
+                if (saved) map = JSON.parse(saved);
+            } catch(e) {}
+
+            const progs = map[cat] || [];
             progs.forEach(p => {
                 const opt = document.createElement('option');
                 opt.value = p;
@@ -856,6 +863,21 @@
                     alokasiProgram = alloc.alokasiProgram;
                 }
 
+                // Check for referral URL parameter or session
+                const urlParams = new URLSearchParams(window.location.search);
+                const refParam = urlParams.get('ref') || sessionStorage.getItem('wiz_referral_id');
+                let refId = null;
+                let refRate = 6;
+                if (refParam && window.wizStore && window.wizStore.referrals) {
+                    const refObj = window.wizStore.referrals.getById(refParam) || window.wizStore.referrals.getAll().find(r => r.name.toLowerCase().includes(refParam.toLowerCase()));
+                    if (refObj) {
+                        refId = refObj.id;
+                        refRate = refObj.defaultRate || 6;
+                    }
+                }
+
+                const refFee = refId ? Math.round(state.nominal * (refRate / 100)) : 0;
+
                 await window.wizStore.donations.add({
                     donorName: state.donorName,
                     donorPhone: state.donorPhone,
@@ -868,6 +890,9 @@
                     amount: state.nominal,
                     method: state.method,
                     notes: state.donorMessage,
+                    referralId: refId,
+                    referralRate: refRate,
+                    referralFee: refFee,
                     status: 'pending'
                 });
             }
