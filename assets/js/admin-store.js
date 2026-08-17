@@ -1392,11 +1392,23 @@
             }
 
             const programConfigs = {
-                'Berkah Hidayah': { label: 'WIZ Berkah Hidayah (Dakwah & Pembinaan)', target: 600000000, baseMasuk: 0, baseSalur: 0 },
-                'Berkah Peduli': { label: 'WIZ Berkah Peduli (Sosial & Kemanusiaan)', target: 500000000, baseMasuk: 0, baseSalur: 0 },
-                'Berkah Juara': { label: 'WIZ Berkah Juara (Pendidikan & Beasiswa)', target: 350000000, baseMasuk: 0, baseSalur: 0 },
-                'Berkah Sehat': { label: 'WIZ Berkah Sehat (Kesehatan & Ambulance)', target: 300000000, baseMasuk: 0, baseSalur: 0 },
-                'Berkah Mandiri': { label: 'WIZ Berkah Mandiri (Ekonomi & Pemberdayaan)', target: 200000000, baseMasuk: 0, baseSalur: 0 },
+                // Berkah Hidayah (Dakwah): Pembangunan Markaz ×2 (Rp1.002.000.000 ×2) + program dakwah lainnya
+                // Markaz: 2.004.000.000 | Tabligh Akbar: 16.400.000 | Dirosa: 6.700.000 | Jenazah: 4.200.000
+                // Daurah: 11.700.000 | Tahfidz: 2.880.000 | Rumah Qur'an: 119.620.000
+                // Public Speaking: 4.200.000 | Motor Dai: 5.000.000 | Beras Dai: 30.000.000
+                'Berkah Hidayah': { label: 'WIZ Berkah Hidayah (Dakwah & Pembinaan)', target: 2204700000, baseMasuk: 0, baseSalur: 0 },
+                // Berkah Peduli (Sosial): Sembako+Beras+Jumat+Yatim+Iftar Nusantara
+                // 28.800.000 + 15.000.000 + 54.000.000 + 17.500.000 + 112.500.000
+                'Berkah Peduli': { label: 'WIZ Berkah Peduli (Sosial & Kemanusiaan)', target: 227800000, baseMasuk: 0, baseSalur: 0 },
+                // Berkah Juara (Pendidikan): Beasiswa + Tebar Alat Sekolah
+                // 300.000.000 + 54.390.000
+                'Berkah Juara': { label: 'WIZ Berkah Juara (Pendidikan & Beasiswa)', target: 354390000, baseMasuk: 0, baseSalur: 0 },
+                // Berkah Sehat (Kesehatan): Khitanan + Pengobatan Dhuafa
+                // 15.450.000 + 50.000.000
+                'Berkah Sehat': { label: 'WIZ Berkah Sehat (Kesehatan & Ambulance)', target: 65450000, baseMasuk: 0, baseSalur: 0 },
+                // Berkah Mandiri (Ekonomi): Modal Usaha Mikro + estimasi pelatihan wirausaha
+                // 60.500.000 + realistis program lainnya
+                'Berkah Mandiri': { label: 'WIZ Berkah Mandiri (Ekonomi & Pemberdayaan)', target: 100500000, baseMasuk: 0, baseSalur: 0 },
             };
 
             const dynamicMasuk = {};
