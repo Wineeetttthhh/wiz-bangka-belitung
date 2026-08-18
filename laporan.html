@@ -443,16 +443,24 @@
         }
 
         // Disbursement history render
-        const disbList = wizStore.disbursements.getAll().slice(0, 5);
+        let disbList = wizStore.disbursements.getAll();
+        if (filterWilayah && filterWilayah !== 'Semua') {
+            disbList = disbList.filter(d => (d.wilayah || 'Pangkalpinang') === filterWilayah);
+        }
+        disbList = disbList.slice(0, 5);
+
         const disbContainer = document.getElementById('disbursement-history-list');
         if (disbContainer) {
             if (disbList.length === 0) {
-                disbContainer.innerHTML = '<p class="font-caption text-on-surface-variant p-sm">Belum ada riwayat penyaluran terbaru.</p>';
+                disbContainer.innerHTML = `<p class="font-caption text-on-surface-variant p-sm">Belum ada riwayat penyaluran terbaru${filterWilayah !== 'Semua' ? ' untuk ' + filterWilayah : ''}.</p>`;
             } else {
                 disbContainer.innerHTML = disbList.map(d => `
                     <div class="pt-sm flex flex-col sm:flex-row justify-between sm:items-center gap-xs">
                         <div>
-                            <span class="font-caption text-caption font-bold text-tertiary-container uppercase">${d.program}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="font-caption text-caption font-bold text-tertiary-container uppercase">${d.program}</span>
+                                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">${d.wilayah || 'Pangkalpinang'}</span>
+                            </div>
                             <p class="font-body-md text-on-surface font-semibold">${d.description}</p>
                             <p class="font-caption text-caption text-on-surface-variant">${wizStore.utils.formatDate(d.disbursedAt)}</p>
                         </div>

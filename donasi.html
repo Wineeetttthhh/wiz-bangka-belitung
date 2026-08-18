@@ -580,12 +580,12 @@
                     <div
                         class="p-md bg-surface border border-outline-variant/30 rounded-xl flex items-center justify-between">
                         <div>
-                            <span class="font-bold text-primary block">Bank BSI</span>
+                            <span class="font-bold text-primary block" data-site-bank-name="bsi">Bank BSI</span>
                             <span
-                                class="font-mono font-bold text-base text-on-surface tracking-wider">711-222-3334</span>
-                            <span class="text-xs text-outline block">a.n Wahdah Inspirasi Zakat Babel</span>
+                                class="font-mono font-bold text-base text-on-surface tracking-wider" data-site-bank-no="bsi">7112223334</span>
+                            <span class="text-xs text-outline block" data-site-bank-holder="bsi">Wahdah Inspirasi Zakat</span>
                         </div>
-                        <button type="button" onclick="copyAccount('7112223334')"
+                        <button type="button" onclick="copyAccount(document.querySelector('[data-site-bank-no=bsi]')?.textContent || '7112223334')"
                             class="px-3 py-1.5 bg-primary/10 text-primary text-xs font-bold rounded-lg border border-primary/30 hover:bg-primary hover:text-white transition-colors">
                             Salin No.
                         </button>
@@ -595,12 +595,12 @@
                     <div
                         class="p-md bg-surface border border-outline-variant/30 rounded-xl flex items-center justify-between">
                         <div>
-                            <span class="font-bold text-[#003366] block">Bank Mandiri</span>
+                            <span class="font-bold text-[#003366] block" data-site-bank-name="mandiri">Bank Mandiri</span>
                             <span
-                                class="font-mono font-bold text-base text-on-surface tracking-wider">169-000-888-9990</span>
-                            <span class="text-xs text-outline block">a.n Wahdah Inspirasi Zakat Babel</span>
+                                class="font-mono font-bold text-base text-on-surface tracking-wider" data-site-bank-no="mandiri">1090012345678</span>
+                            <span class="text-xs text-outline block" data-site-bank-holder="mandiri">Wahdah Inspirasi Zakat</span>
                         </div>
-                        <button type="button" onclick="copyAccount('1690008889990')"
+                        <button type="button" onclick="copyAccount(document.querySelector('[data-site-bank-no=mandiri]')?.textContent || '1090012345678')"
                             class="px-3 py-1.5 bg-primary/10 text-primary text-xs font-bold rounded-lg border border-primary/30 hover:bg-primary hover:text-white transition-colors">
                             Salin No.
                         </button>
@@ -610,12 +610,12 @@
                     <div
                         class="p-md bg-surface border border-outline-variant/30 rounded-xl flex items-center justify-between">
                         <div>
-                            <span class="font-bold text-[#005696] block">Bank BCA</span>
+                            <span class="font-bold text-[#005696] block" data-site-bank-name="bca">Bank BCA</span>
                             <span
-                                class="font-mono font-bold text-base text-on-surface tracking-wider">041-888-7771</span>
-                            <span class="text-xs text-outline block">a.n Wahdah Inspirasi Zakat Babel</span>
+                                class="font-mono font-bold text-base text-on-surface tracking-wider" data-site-bank-no="bca">8830123456</span>
+                            <span class="text-xs text-outline block" data-site-bank-holder="bca">Wahdah Inspirasi Zakat</span>
                         </div>
-                        <button type="button" onclick="copyAccount('0418887771')"
+                        <button type="button" onclick="copyAccount(document.querySelector('[data-site-bank-no=bca]')?.textContent || '8830123456')"
                             class="px-3 py-1.5 bg-primary/10 text-primary text-xs font-bold rounded-lg border border-primary/30 hover:bg-primary hover:text-white transition-colors">
                             Salin No.
                         </button>

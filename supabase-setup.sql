@@ -62,6 +62,7 @@ CREATE TABLE IF NOT EXISTS public.news (
 -- ─── 3. Table: Disbursements (Penyaluran Dana) ──────────
 CREATE TABLE IF NOT EXISTS public.disbursements (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    wilayah TEXT DEFAULT 'Pangkalpinang',
     program TEXT NOT NULL,
     amount NUMERIC NOT NULL,
     description TEXT,
@@ -70,6 +71,7 @@ CREATE TABLE IF NOT EXISTS public.disbursements (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE
 );
+ALTER TABLE public.disbursements ADD COLUMN IF NOT EXISTS wilayah TEXT DEFAULT 'Pangkalpinang';
 
 -- ─── 4. Table: Activity Log ─────────────────────────────
 CREATE TABLE IF NOT EXISTS public.activity_log (
@@ -131,6 +133,14 @@ CREATE TABLE IF NOT EXISTS public.allocation_rules (
 );
 
 
+-- ─── 10. Table: Site Settings ────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.site_settings (
+    key TEXT PRIMARY KEY,
+    value JSONB NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+
 -- ═════════════════════════════════════════════════════════
 -- ENABLE ROW LEVEL SECURITY (RLS)
 -- ═════════════════════════════════════════════════════════
@@ -143,6 +153,7 @@ ALTER TABLE public.zakat_records ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.site_images ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.admin_users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.allocation_rules ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
 
 
 -- ═════════════════════════════════════════════════════════
@@ -186,4 +197,9 @@ CREATE POLICY "allocation_rules_select" ON public.allocation_rules FOR SELECT TO
 CREATE POLICY "allocation_rules_insert" ON public.allocation_rules FOR INSERT TO anon WITH CHECK (true);
 CREATE POLICY "allocation_rules_update" ON public.allocation_rules FOR UPDATE TO anon USING (true) WITH CHECK (true);
 CREATE POLICY "allocation_rules_delete" ON public.allocation_rules FOR DELETE TO anon USING (true);
+
+CREATE POLICY "site_settings_select" ON public.site_settings FOR SELECT TO anon USING (true);
+CREATE POLICY "site_settings_insert" ON public.site_settings FOR INSERT TO anon WITH CHECK (true);
+CREATE POLICY "site_settings_update" ON public.site_settings FOR UPDATE TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "site_settings_delete" ON public.site_settings FOR DELETE TO anon USING (true);
 

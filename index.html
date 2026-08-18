@@ -537,14 +537,14 @@
             <!-- Bank BSI -->
             <div class="bg-surface p-lg rounded-xl border border-surface-variant shadow-level-1 space-y-sm flex flex-col justify-between">
                 <div>
-                    <span class="font-headline-md text-headline-md font-bold text-primary">Bank BSI</span>
+                    <span class="font-headline-md text-headline-md font-bold text-primary" data-site-bank-name="bsi">Bank BSI</span>
                     <p class="font-caption text-caption text-on-surface-variant">Bank Syariah Indonesia</p>
-                    <div class="mt-md font-mono text-body-lg font-bold text-on-surface tracking-wider bg-surface-container-low p-sm rounded border border-outline-variant/30">
-                        711-222-3334
+                    <div class="mt-md font-mono text-body-lg font-bold text-on-surface tracking-wider bg-surface-container-low p-sm rounded border border-outline-variant/30" data-site-bank-no="bsi">
+                        7112223334
                     </div>
-                    <p class="font-caption text-caption text-outline mt-xs">a.n Wahdah Inspirasi Zakat Babel</p>
+                    <p class="font-caption text-caption text-outline mt-xs" data-site-bank-holder="bsi">Wahdah Inspirasi Zakat</p>
                 </div>
-                <button onclick="copyToClipboard('7112223334', 'No. Rekening BSI berhasil disalin!')" class="mt-md w-full border border-primary text-primary hover:bg-primary hover:text-white py-xs rounded-lg font-label-md text-label-md font-semibold transition-colors flex items-center justify-center gap-xs">
+                <button onclick="copyToClipboard(document.querySelector('[data-site-bank-no=bsi]')?.textContent || '7112223334', 'No. Rekening BSI berhasil disalin!')" class="mt-md w-full border border-primary text-primary hover:bg-primary hover:text-white py-xs rounded-lg font-label-md text-label-md font-semibold transition-colors flex items-center justify-center gap-xs">
                     <span class="material-symbols-outlined text-sm">content_copy</span>
                     <span>Salin No. Rekening</span>
                 </button>
@@ -553,14 +553,14 @@
             <!-- Bank Mandiri -->
             <div class="bg-surface p-lg rounded-xl border border-surface-variant shadow-level-1 space-y-sm flex flex-col justify-between">
                 <div>
-                    <span class="font-headline-md text-headline-md font-bold text-[#003366]">Bank Mandiri</span>
+                    <span class="font-headline-md text-headline-md font-bold text-[#003366]" data-site-bank-name="mandiri">Bank Mandiri</span>
                     <p class="font-caption text-caption text-on-surface-variant">Bank Mandiri Syariah / Reguler</p>
-                    <div class="mt-md font-mono text-body-lg font-bold text-on-surface tracking-wider bg-surface-container-low p-sm rounded border border-outline-variant/30">
-                        169-000-888-9990
+                    <div class="mt-md font-mono text-body-lg font-bold text-on-surface tracking-wider bg-surface-container-low p-sm rounded border border-outline-variant/30" data-site-bank-no="mandiri">
+                        1090012345678
                     </div>
-                    <p class="font-caption text-caption text-outline mt-xs">a.n Wahdah Inspirasi Zakat Babel</p>
+                    <p class="font-caption text-caption text-outline mt-xs" data-site-bank-holder="mandiri">Wahdah Inspirasi Zakat</p>
                 </div>
-                <button onclick="copyToClipboard('1690008889990', 'No. Rekening Mandiri berhasil disalin!')" class="mt-md w-full border border-primary text-primary hover:bg-primary hover:text-white py-xs rounded-lg font-label-md text-label-md font-semibold transition-colors flex items-center justify-center gap-xs">
+                <button onclick="copyToClipboard(document.querySelector('[data-site-bank-no=mandiri]')?.textContent || '1090012345678', 'No. Rekening Mandiri berhasil disalin!')" class="mt-md w-full border border-primary text-primary hover:bg-primary hover:text-white py-xs rounded-lg font-label-md text-label-md font-semibold transition-colors flex items-center justify-center gap-xs">
                     <span class="material-symbols-outlined text-sm">content_copy</span>
                     <span>Salin No. Rekening</span>
                 </button>
@@ -569,14 +569,14 @@
             <!-- Bank BCA -->
             <div class="bg-surface p-lg rounded-xl border border-surface-variant shadow-level-1 space-y-sm flex flex-col justify-between">
                 <div>
-                    <span class="font-headline-md text-headline-md font-bold text-[#005696]">Bank BCA</span>
+                    <span class="font-headline-md text-headline-md font-bold text-[#005696]" data-site-bank-name="bca">Bank BCA</span>
                     <p class="font-caption text-caption text-on-surface-variant">Bank Central Asia</p>
-                    <div class="mt-md font-mono text-body-lg font-bold text-on-surface tracking-wider bg-surface-container-low p-sm rounded border border-outline-variant/30">
-                        041-888-7771
+                    <div class="mt-md font-mono text-body-lg font-bold text-on-surface tracking-wider bg-surface-container-low p-sm rounded border border-outline-variant/30" data-site-bank-no="bca">
+                        8830123456
                     </div>
-                    <p class="font-caption text-caption text-outline mt-xs">a.n Wahdah Inspirasi Zakat Babel</p>
+                    <p class="font-caption text-caption text-outline mt-xs" data-site-bank-holder="bca">Wahdah Inspirasi Zakat</p>
                 </div>
-                <button onclick="copyToClipboard('0418887771', 'No. Rekening BCA berhasil disalin!')" class="mt-md w-full border border-primary text-primary hover:bg-primary hover:text-white py-xs rounded-lg font-label-md text-label-md font-semibold transition-colors flex items-center justify-center gap-xs">
+                <button onclick="copyToClipboard(document.querySelector('[data-site-bank-no=bca]')?.textContent || '8830123456', 'No. Rekening BCA berhasil disalin!')" class="mt-md w-full border border-primary text-primary hover:bg-primary hover:text-white py-xs rounded-lg font-label-md text-label-md font-semibold transition-colors flex items-center justify-center gap-xs">
                     <span class="material-symbols-outlined text-sm">content_copy</span>
                     <span>Salin No. Rekening</span>
                 </button>
@@ -592,7 +592,7 @@
         <div class="space-y-4 md:col-span-1">
             <div class="font-headline-lg text-headline-lg font-bold text-surface-bright">WIZ Babel</div>
             <p class="font-body-md text-body-md text-surface-variant/80">© <span id="footer-year"></span> Wahdah Inspirasi Zakat Bangka Belitung. Amanah &amp; Profesional.</p>
-            <p class="font-caption text-caption text-surface-variant/60">Jl. Mentok No. 45, Pangkalpinang, Bangka Belitung</p>
+            <p class="font-caption text-caption text-surface-variant/60" data-site-office-address="pangkalpinang">Jl. Mentok No. 45, Pangkalpinang, Bangka Belitung</p>
 
             <!-- Social Media Icons -->
             <div class="pt-2">

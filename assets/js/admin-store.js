@@ -33,11 +33,25 @@
         ACTIVITY: 'wiz_activity',
         BASELINES: 'wiz_baselines',
         SITE_IMAGES: 'wiz_site_images',
+        SITE_SETTINGS: 'wiz_site_settings',
         ADMIN_USERS: 'wiz_admin_users',
         ALLOCATION_RULES: 'wiz_allocation_rules',
         REFERRALS: 'wiz_referrals',
         REFERRAL_PAYOUTS: 'wiz_referral_payouts',
         INITIALIZED: 'wiz_store_initialized'
+    };
+
+    const DEFAULT_SITE_SETTINGS = {
+        banks: [
+            { id: 'bsi', bank: 'Bank BSI', number: '7112223334', holder: 'Wahdah Inspirasi Zakat' },
+            { id: 'muamalat', bank: 'Bank Muamalat', number: '1230099887', holder: 'Wahdah Inspirasi Zakat' },
+            { id: 'mandiri', bank: 'Bank Mandiri', number: '1090012345678', holder: 'Wahdah Inspirasi Zakat' },
+            { id: 'bca', bank: 'Bank BCA', number: '8830123456', holder: 'Wahdah Inspirasi Zakat' }
+        ],
+        offices: [
+            { id: 'pangkalpinang', name: 'Kantor Pangkalpinang', address: 'Jl. Mentok No. 45, Pangkalpinang, Bangka Belitung', phone: '0812-7171-8000', mapsUrl: 'https://maps.google.com' },
+            { id: 'sungailiat', name: 'Kantor Sungailiat', address: 'Jl. Jenderal Sudirman No. 12, Sungailiat, Bangka', phone: '0821-8000-7171', mapsUrl: 'https://maps.google.com' }
+        ]
     };
 
     const DEFAULT_SITE_IMAGES = {
@@ -384,6 +398,50 @@
         }
     };
 
+    // ─── Site Settings Manager ────────────────────────────────
+    const siteSettingsManager = {
+        get() {
+            const saved = getStore(STORAGE_KEYS.SITE_SETTINGS);
+            if (!saved) {
+                setStore(STORAGE_KEYS.SITE_SETTINGS, DEFAULT_SITE_SETTINGS);
+                return DEFAULT_SITE_SETTINGS;
+            }
+            return {
+                banks: saved.banks || DEFAULT_SITE_SETTINGS.banks,
+                offices: saved.offices || DEFAULT_SITE_SETTINGS.offices
+            };
+        },
+        async update(newSettings) {
+            const current = this.get();
+            const updated = {
+                banks: newSettings.banks || current.banks,
+                offices: newSettings.offices || current.offices
+            };
+            setStore(STORAGE_KEYS.SITE_SETTINGS, updated);
+
+            if (typeof activityLog !== 'undefined' && activityLog.add) {
+                activityLog.add('settings', 'Pengaturan Rekening Bank & Lokasi Kantor diperbarui oleh Admin Utama', sessionStorage.getItem('wiz_admin_user') || 'Admin 1');
+            }
+
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                await window.wizSupabase.insert('site_settings', {
+                    key: 'global_settings',
+                    value: updated,
+                    updated_at: new Date().toISOString()
+                });
+            } else if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.upsert('site_settings', {
+                    key: 'global_settings',
+                    value: updated,
+                    updatedAt: new Date().toISOString()
+                });
+            }
+
+            window.dispatchEvent(new CustomEvent('wiz-site-settings-changed', { detail: updated }));
+            return updated;
+        }
+    };
+
     // ─── Admin Authentication & Accounts Manager ──────────
     const adminUsers = {
         getAll() {
@@ -402,6 +460,9 @@
             const cleanUser = (username || '').trim().toLowerCase();
             if (!cleanUser || !password) {
                 return { success: false, message: 'Username dan kata sandi wajib diisi.' };
+            }
+            if (cleanUser === 'admin') {
+                return { success: false, message: 'Username "admin" adalah akun Admin 1 Utama dan tidak dapat didaftarkan ulang.' };
             }
             if (list.some(u => u.username.toLowerCase() === cleanUser)) {
                 return { success: false, message: 'Username sudah digunakan, silakan pilih username lain.' };
@@ -1240,6 +1301,7 @@
             const list = this.getAll();
             const newDisb = {
                 id: data.id || generateId(),
+                wilayah: data.wilayah || 'Pangkalpinang',
                 program: data.program,
                 amount: Number(data.amount) || 0,
                 description: data.description || '',
@@ -1250,7 +1312,7 @@
             list.unshift(newDisb);
             setStore(STORAGE_KEYS.DISBURSEMENTS, list);
 
-            activityLog.add('disbursement', `Penyaluran dana ${formatRupiahCompact(newDisb.amount)} untuk "${newDisb.program}" dicatat.`, newDisb.recordedBy);
+            activityLog.add('disbursement', `Penyaluran dana ${formatRupiahCompact(newDisb.amount)} (${newDisb.wilayah}) untuk "${newDisb.program}" dicatat.`, newDisb.recordedBy);
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 await window.wizFirebase.insert('disbursements', newDisb);
@@ -1302,7 +1364,10 @@
         },
 
         getTotalTersalurkan(wilayah) {
-            const list = disbursements.getAll();
+            let list = disbursements.getAll();
+            if (wilayah && wilayah !== 'Semua') {
+                list = list.filter(d => (d.wilayah || 'Pangkalpinang') === wilayah);
+            }
             const base = wilayah && wilayah !== 'Semua' ? 0 : baselines.get().baseTersalurkan;
             return base + list.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
         },
@@ -1438,6 +1503,7 @@
             });
 
             disbList.forEach(db => {
+                if (wilayah && wilayah !== 'Semua' && (db.wilayah || 'Pangkalpinang') !== wilayah) return;
                 const pillar = mapProgramToPillar(db.program);
                 if (dynamicSalur[pillar] !== undefined) {
                     dynamicSalur[pillar] += Number(db.amount) || 0;
@@ -1561,6 +1627,7 @@
 
             // 2. Calculate Dana Tersalurkan per Specific Program (Disbursements)
             disbList.forEach(db => {
+                if (wilayah && wilayah !== 'Semua' && (db.wilayah || 'Pangkalpinang') !== wilayah) return;
                 const dbProg = (db.program || '').trim();
                 const dbLower = dbProg.toLowerCase();
 
@@ -1857,6 +1924,7 @@
         disbursements,
         baselines,
         siteImages,
+        siteSettings: siteSettingsManager,
         adminUsers,
         referrals,
         allocationRulesManager,

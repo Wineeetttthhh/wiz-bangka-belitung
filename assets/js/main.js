@@ -1411,6 +1411,211 @@ function initBackgroundAnimation() {
     }
 }
 
+// ─── Global Share Program Helper ──────────────────────────
+window.shareProgram = async function (programTitle, description, customUrl) {
+    const title = programTitle || 'Program Kebaikan WIZ Babel';
+    const desc = description || 'Yuk dukung dan berdonasi melalui Wahdah Inspirasi Zakat (WIZ) Bangka Belitung!';
+    const shareUrl = customUrl || (window.location.origin + window.location.pathname + '?program=' + encodeURIComponent(title));
+
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: `WIZ Babel — ${title}`,
+                text: `${title}: ${desc}`,
+                url: shareUrl
+            });
+            return;
+        } catch (e) {
+            if (e.name !== 'AbortError') console.warn('Native share failed, fallback to modal:', e);
+            else return; // User cancelled native share sheet
+        }
+    }
+
+    // Fallback: Open Share Modal
+    openShareModal(title, desc, shareUrl);
+};
+
+window.openShareModal = function (title, desc, url) {
+    let modal = document.getElementById('program-share-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'program-share-modal';
+        modal.className = 'fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 transition-all duration-300 opacity-0 pointer-events-none';
+        modal.innerHTML = `
+        <div class="bg-surface rounded-2xl max-w-md w-full p-6 shadow-2xl border border-outline-variant/30 transform scale-95 transition-transform duration-300" id="share-modal-container">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-headline-md text-lg font-bold text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">share</span>
+                    <span>Bagikan Program</span>
+                </h3>
+                <button onclick="closeShareModal()" class="text-on-surface-variant hover:text-error p-1 rounded-full hover:bg-surface-container-high transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <p class="font-body-md text-sm text-on-surface mb-2 font-semibold" id="share-modal-title"></p>
+            <p class="font-body-sm text-xs text-on-surface-variant mb-6 line-clamp-2" id="share-modal-desc"></p>
+            
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <a id="share-btn-wa" target="_blank" class="flex items-center justify-center gap-2 p-3 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold text-xs border border-emerald-200 transition-colors">
+                    <span class="material-symbols-outlined text-base">chat</span> WhatsApp
+                </a>
+                <a id="share-btn-fb" target="_blank" class="flex items-center justify-center gap-2 p-3 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 font-bold text-xs border border-blue-200 transition-colors">
+                    <span class="material-symbols-outlined text-base">public</span> Facebook
+                </a>
+                <a id="share-btn-tg" target="_blank" class="flex items-center justify-center gap-2 p-3 rounded-xl bg-sky-50 text-sky-700 hover:bg-sky-100 font-bold text-xs border border-sky-200 transition-colors">
+                    <span class="material-symbols-outlined text-base">send</span> Telegram
+                </a>
+                <button id="share-btn-copy" onclick="copyShareUrl()" class="flex items-center justify-center gap-2 p-3 rounded-xl bg-amber-50 text-amber-800 hover:bg-amber-100 font-bold text-xs border border-amber-200 transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined text-base">content_copy</span> Salin Link
+                </button>
+            </div>
+
+            <div class="bg-surface-container-low p-2.5 rounded-xl flex items-center border border-outline-variant/40 gap-2">
+                <input type="text" id="share-url-input" readonly class="bg-transparent text-xs font-mono text-on-surface flex-1 outline-none px-2 select-all">
+                <button onclick="copyShareUrl()" class="bg-primary text-on-primary px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-primary-container transition-colors">Copy</button>
+            </div>
+        </div>`;
+        document.body.appendChild(modal);
+    }
+
+    document.getElementById('share-modal-title').textContent = title;
+    document.getElementById('share-modal-desc').textContent = desc;
+    document.getElementById('share-url-input').value = url;
+
+    const encodedText = encodeURIComponent(`*${title}*\n${desc}\n\nMari berdonasi bersama WIZ Bangka Belitung:\n`);
+    const encodedUrl = encodeURIComponent(url);
+
+    document.getElementById('share-btn-wa').href = `https://api.whatsapp.com/send?text=${encodedText}${encodedUrl}`;
+    document.getElementById('share-btn-fb').href = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+    document.getElementById('share-btn-tg').href = `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`;
+
+    modal.classList.remove('opacity-0', 'pointer-events-none');
+    setTimeout(() => {
+        const container = document.getElementById('share-modal-container');
+        if (container) container.classList.remove('scale-95');
+    }, 10);
+    document.body.style.overflow = 'hidden';
+};
+
+window.closeShareModal = function () {
+    const modal = document.getElementById('program-share-modal');
+    if (modal) {
+        const container = document.getElementById('share-modal-container');
+        if (container) container.classList.add('scale-95');
+        modal.classList.add('opacity-0', 'pointer-events-none');
+        setTimeout(() => {
+            document.body.style.overflow = '';
+        }, 300);
+    }
+};
+
+window.copyShareUrl = function () {
+    const input = document.getElementById('share-url-input');
+    if (input) {
+        input.select();
+        navigator.clipboard.writeText(input.value).then(() => {
+            if (typeof copyToClipboard === 'function') {
+                copyToClipboard(input.value, 'Link program berhasil disalin!');
+            } else {
+                alert('✅ Link program berhasil disalin!');
+            }
+        });
+    }
+};
+
+// ─── Dynamic Site Settings (Rekening & Lokasi Kantor) ─────
+window.applySiteSettings = function () {
+    let settings = null;
+    if (window.wizStore && window.wizStore.siteSettings) {
+        settings = window.wizStore.siteSettings.get();
+    } else {
+        try {
+            settings = JSON.parse(localStorage.getItem('wiz_site_settings'));
+        } catch (e) {}
+    }
+    if (!settings) return;
+
+    // Update Bank Accounts
+    if (settings.banks && Array.isArray(settings.banks)) {
+        settings.banks.forEach(b => {
+            const bankId = (b.id || '').toLowerCase();
+            document.querySelectorAll(`[data-site-bank-no="${bankId}"]`).forEach(el => {
+                el.textContent = b.number;
+            });
+            document.querySelectorAll(`[data-site-bank-holder="${bankId}"]`).forEach(el => {
+                el.textContent = b.holder;
+            });
+            document.querySelectorAll(`[data-site-bank-name="${bankId}"]`).forEach(el => {
+                el.textContent = b.bank;
+            });
+        });
+    }
+
+    // Update Office Locations
+    if (settings.offices && Array.isArray(settings.offices)) {
+        settings.offices.forEach(off => {
+            const offId = (off.id || '').toLowerCase();
+            document.querySelectorAll(`[data-site-office-address="${offId}"]`).forEach(el => {
+                el.textContent = off.address;
+            });
+            document.querySelectorAll(`[data-site-office-phone="${offId}"]`).forEach(el => {
+                el.textContent = off.phone;
+            });
+        });
+    }
+};
+
+// ─── Auto-Enhance Program Cards With Share Buttons ───────
+window.enhanceProgramCardsWithShareButtons = function () {
+    document.querySelectorAll('.program-card').forEach(card => {
+        if (card.querySelector('.btn-share-program')) return; // Already enhanced
+
+        const titleEl = card.querySelector('h3');
+        if (!titleEl) return;
+        const progTitle = card.getAttribute('data-title') || titleEl.textContent.trim();
+        const descEl = card.querySelector('p');
+        const progDesc = descEl ? descEl.textContent.trim() : '';
+
+        // Find donate button or bottom container
+        const btnDonate = card.querySelector('button[onclick*="openDonationModal"]');
+        if (btnDonate) {
+            const parent = btnDonate.parentElement;
+            if (!parent.classList.contains('program-card-actions')) {
+                const actionsWrapper = document.createElement('div');
+                actionsWrapper.className = 'program-card-actions flex items-center gap-2 w-full mt-2';
+                parent.insertBefore(actionsWrapper, btnDonate);
+
+                btnDonate.classList.add('flex-1');
+                btnDonate.style.width = 'auto';
+                actionsWrapper.appendChild(btnDonate);
+
+                const shareBtn = document.createElement('button');
+                shareBtn.type = 'button';
+                shareBtn.className = 'btn-share-program p-2 border border-outline-variant/60 rounded-lg text-primary hover:bg-primary/10 transition-colors flex items-center justify-center font-bold cursor-pointer bg-surface';
+                shareBtn.title = `Bagikan Program ${progTitle}`;
+                shareBtn.innerHTML = `<span class="material-symbols-outlined text-lg">share</span>`;
+                shareBtn.onclick = function (e) {
+                    e.stopPropagation();
+                    window.shareProgram(progTitle, progDesc);
+                };
+                actionsWrapper.appendChild(shareBtn);
+            }
+        }
+    });
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    window.applySiteSettings();
+    window.enhanceProgramCardsWithShareButtons();
+});
+window.addEventListener('wiz-site-settings-changed', () => {
+    window.applySiteSettings();
+});
+window.addEventListener('wiz-sync-complete', () => {
+    window.applySiteSettings();
+    window.enhanceProgramCardsWithShareButtons();
+});
+
 
 
 

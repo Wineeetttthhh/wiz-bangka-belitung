@@ -306,11 +306,15 @@
                 <span class="material-symbols-outlined">image</span> Foto Web Utama
             </a>
             <a class="sidebar-link flex items-center justify-between gap-sm px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors"
-                href="#" data-section="admin-users" onclick="showSection('admin-users', this)">
+                href="#" id="nav-admin-users" data-section="admin-users" onclick="showSection('admin-users', this)">
                 <span class="flex items-center gap-sm">
-                    <span class="material-symbols-outlined">admin_panel_settings</span> Verifikasi Admin
+                    <span class="material-symbols-outlined">admin_panel_settings</span> Manajemen Akses Admin
                 </span>
                 <span id="pending-admins-badge" class="hidden bg-amber-500 text-white px-2 py-0.5 rounded-full text-xs font-bold">0</span>
+            </a>
+            <a class="sidebar-link flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors"
+                href="#" id="nav-site-settings" data-section="site-settings" onclick="showSection('site-settings', this)">
+                <span class="material-symbols-outlined">settings_suggest</span> Pengaturan Web (Rekening & Kantor)
             </a>
             <a class="sidebar-link flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors"
                 href="#" data-section="news" onclick="showSection('news', this)">
@@ -572,7 +576,7 @@
         <!-- SECTION: PENGELUARAN / PENYALURAN                  -->
         <!-- ═══════════════════════════════════════════════════ -->
         <div id="section-disbursements" class="flex-1 p-margin-mobile md:p-gutter overflow-y-auto space-y-xl hidden">
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center flex-wrap gap-md">
                 <div>
                     <h2 class="font-headline-md text-headline-md font-bold">Manajemen Pengeluaran / Penyaluran Dana</h2>
                     <p class="font-caption text-caption text-on-surface-variant">Catat, edit, atau hapus transaksi
@@ -580,10 +584,23 @@
                         Pengeluaran).</p>
                 </div>
                 <button onclick="openDisbursementModal()"
-                    class="flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm font-bold">
+                    class="flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm font-bold cursor-pointer">
                     <span class="material-symbols-outlined size-[18px]">outbound</span> Catat Pengeluaran Dana
                 </button>
             </div>
+
+            <div class="flex items-center justify-between gap-md bg-surface-container-low p-md rounded-xl border border-outline-variant/30">
+                <div class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-primary">location_on</span>
+                    <span class="font-label-md text-label-md font-bold text-on-surface">Filter Wilayah Pengeluaran:</span>
+                </div>
+                <select id="disb-filter-wilayah" onchange="renderDisbursementTable()" class="bg-surface border border-outline-variant/60 rounded-lg px-md py-xs font-body-md text-on-surface font-semibold focus:outline-none focus:border-primary">
+                    <option value="Semua">Semua Wilayah</option>
+                    <option value="Pangkalpinang">Pangkalpinang</option>
+                    <option value="Sungailiat">Sungailiat</option>
+                </select>
+            </div>
+
             <div
                 class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden">
                 <div class="overflow-x-auto" id="disbursement-table"></div>
@@ -844,9 +861,101 @@
 
             <!-- All Approved Admin Users Box -->
             <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden p-lg">
-                <h3 class="font-headline-md text-headline-md text-base font-bold mb-md">Daftar Seluruh Admin Terverifikasi</h3>
+                <h3 class="font-headline-md text-headline-md text-base font-bold mb-md">Daftar Seluruh Admin Terverifikasi &amp; Akses Staff</h3>
                 <div class="overflow-x-auto" id="all-admins-table"></div>
             </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- SECTION: PENGATURAN WEB (REKENING & LOKASI KANTOR)  -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <div id="section-site-settings" class="flex-1 p-margin-mobile md:p-gutter overflow-y-auto space-y-xl hidden">
+            <div class="flex justify-between items-center flex-wrap gap-md">
+                <div>
+                    <h2 class="font-headline-md text-headline-md font-bold">Pengaturan Web Utama (Khusus Admin 1 Utama)</h2>
+                    <p class="font-caption text-caption text-on-surface-variant">Kelola nomor rekening bank transfer donasi dan alamat/lokasi kantor operasional. Perubahan di sini otomatis langsung memperbarui seluruh tampilan web utama (index, donasi, program).</p>
+                </div>
+                <button onclick="saveSiteSettingsForm(event)" class="flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm font-bold cursor-pointer">
+                    <span class="material-symbols-outlined size-[18px]">save</span> Simpan Semua Pengaturan
+                </button>
+            </div>
+
+            <form id="site-settings-form" onsubmit="saveSiteSettingsForm(event)" class="space-y-xl">
+                <!-- Card 1: Rekening Bank -->
+                <div class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant/30 shadow-sm space-y-md">
+                    <h3 class="font-headline-sm text-headline-sm font-bold text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined">account_balance</span>
+                        <span>Nomor Rekening Bank Transfer Donasi</span>
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                        <!-- BSI -->
+                        <div class="p-md bg-surface-container-low rounded-xl border border-outline-variant/40 space-y-xs">
+                            <label class="block font-label-md text-caption font-bold text-primary">Bank BSI (Bank Syariah Indonesia)</label>
+                            <input type="text" id="setting-bank-bsi-no" placeholder="Nomor Rekening BSI" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-sm font-mono font-bold text-on-surface">
+                            <input type="text" id="setting-bank-bsi-holder" placeholder="Atas Nama (A.n)" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface">
+                        </div>
+                        <!-- Muamalat -->
+                        <div class="p-md bg-surface-container-low rounded-xl border border-outline-variant/40 space-y-xs">
+                            <label class="block font-label-md text-caption font-bold text-primary">Bank Muamalat</label>
+                            <input type="text" id="setting-bank-muamalat-no" placeholder="Nomor Rekening Muamalat" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-sm font-mono font-bold text-on-surface">
+                            <input type="text" id="setting-bank-muamalat-holder" placeholder="Atas Nama (A.n)" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface">
+                        </div>
+                        <!-- Mandiri -->
+                        <div class="p-md bg-surface-container-low rounded-xl border border-outline-variant/40 space-y-xs">
+                            <label class="block font-label-md text-caption font-bold text-primary">Bank Mandiri</label>
+                            <input type="text" id="setting-bank-mandiri-no" placeholder="Nomor Rekening Mandiri" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-sm font-mono font-bold text-on-surface">
+                            <input type="text" id="setting-bank-mandiri-holder" placeholder="Atas Nama (A.n)" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface">
+                        </div>
+                        <!-- BCA -->
+                        <div class="p-md bg-surface-container-low rounded-xl border border-outline-variant/40 space-y-xs">
+                            <label class="block font-label-md text-caption font-bold text-primary">Bank BCA</label>
+                            <input type="text" id="setting-bank-bca-no" placeholder="Nomor Rekening BCA" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-sm font-mono font-bold text-on-surface">
+                            <input type="text" id="setting-bank-bca-holder" placeholder="Atas Nama (A.n)" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Lokasi Kantor -->
+                <div class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant/30 shadow-sm space-y-md">
+                    <h3 class="font-headline-sm text-headline-sm font-bold text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined">location_city</span>
+                        <span>Lokasi Kantor &amp; Kontak Operasional</span>
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                        <!-- Kantor Pangkalpinang -->
+                        <div class="p-md bg-surface-container-low rounded-xl border border-outline-variant/40 space-y-xs">
+                            <label class="block font-label-md text-caption font-bold text-primary">Kantor Pangkalpinang</label>
+                            <div>
+                                <label class="block text-[11px] text-on-surface-variant mb-1">Alamat Lengkap</label>
+                                <textarea id="setting-office-pangkalpinang-address" rows="2" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] text-on-surface-variant mb-1">No. Telp / WhatsApp Operasional</label>
+                                <input type="text" id="setting-office-pangkalpinang-phone" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface">
+                            </div>
+                        </div>
+                        <!-- Kantor Sungailiat -->
+                        <div class="p-md bg-surface-container-low rounded-xl border border-outline-variant/40 space-y-xs">
+                            <label class="block font-label-md text-caption font-bold text-primary">Kantor Sungailiat</label>
+                            <div>
+                                <label class="block text-[11px] text-on-surface-variant mb-1">Alamat Lengkap</label>
+                                <textarea id="setting-office-sungailiat-address" rows="2" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] text-on-surface-variant mb-1">No. Telp / WhatsApp Operasional</label>
+                                <input type="text" id="setting-office-sungailiat-phone" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-primary text-on-primary px-xl py-md rounded-xl font-label-md text-label-md hover:bg-primary-container transition-colors shadow-md font-bold flex items-center gap-xs cursor-pointer">
+                        <span class="material-symbols-outlined">save</span>
+                        <span>Simpan Pengaturan Web Utama</span>
+                    </button>
+                </div>
+            </form>
         </div>
     </main>
 
@@ -1088,6 +1197,14 @@
             </div>
             <form id="disbursement-form" class="p-lg space-y-md" onsubmit="handleDisbursementSave(event)">
                 <input type="hidden" id="disb-edit-id" value="">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Wilayah Operasional *</label>
+                    <select id="disb-wilayah" required
+                        class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none text-sm font-bold">
+                        <option value="Pangkalpinang">Pangkalpinang</option>
+                        <option value="Sungailiat">Sungailiat</option>
+                    </select>
+                </div>
                 <div>
                     <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Pilih Program
                         Spesifik *</label>
@@ -1721,7 +1838,11 @@
                 dashboard: 'Dashboard Overview',
                 donations: 'Manajemen Pemasukan / Donasi',
                 disbursements: 'Manajemen Pengeluaran / Penyaluran',
+                referrals: 'Database Perantara & KPI',
                 'allocation-rules': 'Aturan Alokasi Dana (Allocation Rules)',
+                'site-images': 'Foto Web Utama & Program Spesifik',
+                'site-settings': 'Pengaturan Web Utama (Rekening & Lokasi Kantor)',
+                'admin-users': 'Manajemen Hak Akses & Verifikasi Admin',
                 news: 'Berita & Kegiatan',
                 finance: 'Laporan Keuangan Realtime'
             };
@@ -2725,32 +2846,39 @@
         }
 
         function renderDisbursementTable() {
-            const list = wizStore.disbursements.getAll();
+            let list = wizStore.disbursements.getAll();
+            const filterWilayah = document.getElementById('disb-filter-wilayah') ? document.getElementById('disb-filter-wilayah').value : 'Semua';
+            if (filterWilayah && filterWilayah !== 'Semua') {
+                list = list.filter(d => (d.wilayah || 'Pangkalpinang') === filterWilayah);
+            }
+
             const fmt = wizStore.utils.formatRupiahCompact;
             const container = document.getElementById('disbursement-table');
             if (!container) return;
 
             if (list.length === 0) {
-                container.innerHTML = '<div class="p-xl text-center text-on-surface-variant font-body-md">Belum ada pencatatan pengeluaran dana.</div>';
+                container.innerHTML = `<div class="p-xl text-center text-on-surface-variant font-body-md">Belum ada pencatatan pengeluaran dana${filterWilayah !== 'Semua' ? ' untuk wilayah ' + filterWilayah : ''}.</div>`;
                 return;
             }
 
             const rows = list.map(d => `
             <tr class="hover:bg-surface-container-low transition-colors">
                 <td class="p-md text-on-surface-variant whitespace-nowrap">${wizStore.utils.formatDate(d.disbursedAt)}</td>
+                <td class="p-md text-center"><span class="px-2 py-0.5 text-xs font-bold rounded bg-emerald-100 text-emerald-800">${d.wilayah || 'Pangkalpinang'}</span></td>
                 <td class="p-md font-semibold text-on-surface">${d.program}</td>
                 <td class="p-md font-bold text-tertiary-container whitespace-nowrap">${fmt(d.amount)}</td>
                 <td class="p-md text-on-surface-variant">${d.description}</td>
                 <td class="p-md text-on-surface-variant text-caption">${d.recordedBy || 'Admin'}</td>
                 <td class="p-md text-right whitespace-nowrap">
-                    <button onclick="editDisbursement('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded border border-outline-variant text-caption font-semibold">Edit</button>
-                    <button onclick="deleteDisbursement('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded border border-error/30 text-error text-caption font-semibold">Hapus</button>
+                    <button onclick="editDisbursement('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded border border-outline-variant text-caption font-semibold cursor-pointer">Edit</button>
+                    <button onclick="deleteDisbursement('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded border border-error/30 text-error text-caption font-semibold cursor-pointer">Hapus</button>
                 </td>
             </tr>`).join('');
 
             container.innerHTML = `<table class="w-full text-left border-collapse">
             <thead><tr class="bg-surface-container-low border-b border-outline-variant/30 font-label-md text-label-md text-on-surface-variant">
                 <th class="p-md">Tanggal</th>
+                <th class="p-md text-center">Wilayah</th>
                 <th class="p-md">Program</th>
                 <th class="p-md">Jumlah</th>
                 <th class="p-md">Keterangan</th>
@@ -2765,7 +2893,7 @@
             if (!select || !window.wizStore) return;
 
             const rules = wizStore.allocationRulesManager ? wizStore.allocationRulesManager.getAll() : wizStore.allocationRules;
-            const selectedWilayah = document.getElementById('filter-wilayah') ? document.getElementById('filter-wilayah').value : 'Semua';
+            const selectedWilayah = document.getElementById('disb-filter-wilayah') ? document.getElementById('disb-filter-wilayah').value : (document.getElementById('filter-wilayah') ? document.getElementById('filter-wilayah').value : 'Semua');
             const targetWilayahs = selectedWilayah !== 'Semua' ? [selectedWilayah] : Object.keys(rules);
 
             const pillarMap = new Map();
@@ -2799,6 +2927,10 @@
             if (!editId) {
                 document.getElementById('disbursement-form').reset();
                 document.getElementById('disb-date').value = new Date().toISOString().split('T')[0];
+                const activeW = document.getElementById('disb-filter-wilayah') ? document.getElementById('disb-filter-wilayah').value : 'Pangkalpinang';
+                if (document.getElementById('disb-wilayah')) {
+                    document.getElementById('disb-wilayah').value = activeW !== 'Semua' ? activeW : 'Pangkalpinang';
+                }
             }
             document.getElementById('disbursement-modal').classList.add('show');
             document.body.style.overflow = 'hidden';
@@ -2814,11 +2946,12 @@
             e.preventDefault();
             const editId = document.getElementById('disb-edit-id').value;
             const data = {
+                wilayah: document.getElementById('disb-wilayah') ? document.getElementById('disb-wilayah').value : 'Pangkalpinang',
                 program: document.getElementById('disb-program').value,
                 amount: Number(document.getElementById('disb-amount').value),
                 description: document.getElementById('disb-description').value,
                 disbursedAt: document.getElementById('disb-date').value ? new Date(document.getElementById('disb-date').value).toISOString() : new Date().toISOString(),
-                recordedBy: ADMIN_NAME
+                recordedBy: sessionStorage.getItem('wiz_admin_name') || ADMIN_NAME || 'Admin'
             };
 
             if (editId) await wizStore.disbursements.update(editId, data);
@@ -2831,6 +2964,7 @@
             populateDisbursementPrograms();
             const item = wizStore.disbursements.getById(id);
             if (!item) return;
+            if (document.getElementById('disb-wilayah')) document.getElementById('disb-wilayah').value = item.wilayah || 'Pangkalpinang';
             document.getElementById('disb-program').value = item.program;
             document.getElementById('disb-amount').value = item.amount;
             document.getElementById('disb-description').value = item.description;
@@ -3430,9 +3564,84 @@
         }
 
         async function deleteAdmin(id) {
-            if (!confirm('Hapus akun admin ini?')) return;
+            const currentUser = sessionStorage.getItem('wiz_admin_user') || '';
+            const currentRole = sessionStorage.getItem('wiz_admin_role') || '';
+            if (currentUser !== 'admin' && currentRole !== 'super_admin') {
+                alert('Akses Ditolak: Hanya Admin 1 Utama yang dapat menghapus akses admin lain.');
+                return;
+            }
+            const allUsers = wizStore.adminUsers ? wizStore.adminUsers.getAll() : [];
+            const targetUser = allUsers.find(u => String(u.id) === String(id));
+            if (targetUser && targetUser.username === 'admin') {
+                alert('Admin 1 Utama bersifat mutlak dan tidak dapat dihapus.');
+                return;
+            }
+            const label = targetUser ? `'${targetUser.fullName}' (${targetUser.username})` : id;
+            if (!confirm(`Apakah Anda yakin ingin mencabut hak akses admin ${label}?\n\nTindakan ini tidak bisa dibatalkan.`)) return;
             const res = await wizStore.adminUsers.delete(id);
-            if (!res.success) alert(res.message);
+            if (!res.success) {
+                alert(res.message);
+            } else {
+                alert(`✅ Hak akses admin ${label} berhasil dicabut.`);
+            }
+            refreshAll();
+        }
+
+        function renderSiteSettingsSection() {
+            if (!window.wizStore || !wizStore.siteSettings) return;
+            const settings = wizStore.siteSettings.get();
+            if (!settings) return;
+
+            if (settings.banks && Array.isArray(settings.banks)) {
+                settings.banks.forEach(b => {
+                    const id = (b.id || '').toLowerCase();
+                    const noEl = document.getElementById(`setting-bank-${id}-no`);
+                    const holderEl = document.getElementById(`setting-bank-${id}-holder`);
+                    if (noEl && b.number) noEl.value = b.number;
+                    if (holderEl && b.holder) holderEl.value = b.holder;
+                });
+            }
+
+            if (settings.offices && Array.isArray(settings.offices)) {
+                settings.offices.forEach(off => {
+                    const id = (off.id || '').toLowerCase();
+                    const addrEl = document.getElementById(`setting-office-${id}-address`);
+                    const phoneEl = document.getElementById(`setting-office-${id}-phone`);
+                    if (addrEl && off.address) addrEl.value = off.address;
+                    if (phoneEl && off.phone) phoneEl.value = off.phone;
+                });
+            }
+        }
+
+        async function saveSiteSettingsForm(e) {
+            if (e) e.preventDefault();
+            if (!window.wizStore || !wizStore.siteSettings) {
+                alert('Pengaturan belum tersedia. Tunggu sebentar dan coba lagi.');
+                return;
+            }
+            const currentUser = sessionStorage.getItem('wiz_admin_user') || '';
+            const currentRole = sessionStorage.getItem('wiz_admin_role') || '';
+            if (currentUser !== 'admin' && currentRole !== 'super_admin') {
+                alert('Akses Ditolak: Hanya Admin 1 Utama yang dapat mengubah pengaturan website.');
+                return;
+            }
+
+            const updatedSettings = {
+                banks: [
+                    { id: 'bsi',      bank: 'Bank BSI',      number: (document.getElementById('setting-bank-bsi-no')?.value || '').trim(),      holder: (document.getElementById('setting-bank-bsi-holder')?.value || '').trim() },
+                    { id: 'muamalat', bank: 'Bank Muamalat', number: (document.getElementById('setting-bank-muamalat-no')?.value || '').trim(), holder: (document.getElementById('setting-bank-muamalat-holder')?.value || '').trim() },
+                    { id: 'mandiri',  bank: 'Bank Mandiri',  number: (document.getElementById('setting-bank-mandiri-no')?.value || '').trim(),  holder: (document.getElementById('setting-bank-mandiri-holder')?.value || '').trim() },
+                    { id: 'bca',      bank: 'Bank BCA',      number: (document.getElementById('setting-bank-bca-no')?.value || '').trim(),      holder: (document.getElementById('setting-bank-bca-holder')?.value || '').trim() }
+                ],
+                offices: [
+                    { id: 'pangkalpinang', name: 'Kantor Pangkalpinang', address: (document.getElementById('setting-office-pangkalpinang-address')?.value || '').trim(), phone: (document.getElementById('setting-office-pangkalpinang-phone')?.value || '').trim() },
+                    { id: 'sungailiat',    name: 'Kantor Sungailiat',    address: (document.getElementById('setting-office-sungailiat-address')?.value || '').trim(),    phone: (document.getElementById('setting-office-sungailiat-phone')?.value || '').trim() }
+                ]
+            };
+
+            await wizStore.siteSettings.update(updatedSettings);
+            alert('✅ Pengaturan Rekening Bank & Lokasi Kantor berhasil disimpan dan langsung diperbarui di semua halaman web!');
+            if (window.applySiteSettings) window.applySiteSettings();
             refreshAll();
         }
 
@@ -3950,6 +4159,15 @@
         }
 
         function refreshAll() {
+            // Role-based nav visibility
+            const currentUser = sessionStorage.getItem('wiz_admin_user') || '';
+            const currentRole = sessionStorage.getItem('wiz_admin_role') || '';
+            const isSuperAdmin = currentUser === 'admin' || currentRole === 'super_admin';
+            const navAdminUsers = document.getElementById('nav-admin-users');
+            const navSiteSettings = document.getElementById('nav-site-settings');
+            if (navAdminUsers) navAdminUsers.style.display = isSuperAdmin ? '' : 'none';
+            if (navSiteSettings) navSiteSettings.style.display = isSuperAdmin ? '' : 'none';
+
             renderKPI('kpi-grid');
             renderDashboardDonations();
             renderActivityLog();
@@ -3957,6 +4175,7 @@
             renderFullDonationTable();
             renderAllocationRulesSection();
             renderSiteImagesSection();
+            renderSiteSettingsSection();
             renderAdminUsersSection();
             renderNewsList();
             renderDisbursementTable();
