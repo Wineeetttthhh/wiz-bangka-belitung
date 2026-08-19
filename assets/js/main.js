@@ -1417,7 +1417,12 @@ window.shareProgram = async function (programTitle, description, customUrl) {
     const desc = description || 'Yuk dukung dan berdonasi melalui Wahdah Inspirasi Zakat (WIZ) Bangka Belitung!';
     
     let activeRef = sessionStorage.getItem('wiz_active_ref_id') || localStorage.getItem('wiz_active_ref_id') || '';
-    let baseUrlStr = customUrl || (window.location.origin + window.location.pathname);
+    let baseUrlStr = customUrl;
+    if (!baseUrlStr) {
+        // Always direct public donors to donasi.html for direct donation completion
+        const origin = window.location.origin.includes('http') ? window.location.origin : '';
+        baseUrlStr = origin + '/donasi.html';
+    }
     
     let shareUrl = baseUrlStr;
     if (!shareUrl.includes('program=')) {
