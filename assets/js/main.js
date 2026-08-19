@@ -1010,30 +1010,35 @@ function initMutationTable() {
 
     if (!tableBody) return;
 
-    const initialMutations = [
-        { date: '31 Jul 2026 22:45', name: 'Hamba Allah', program: 'Sedekah Beras Da\'i', amount: 250000, method: 'QRIS Instant', status: 'verified', phone: '0812****8891' },
-        { date: '31 Jul 2026 21:10', name: 'Ahmad Subandi', program: 'Sedekah Beras Dhuafa', amount: 150000, method: 'BSI Transfer', status: 'verified', phone: '0852****1143' },
-        { date: '31 Jul 2026 19:30', name: 'Hj. Rosdiana', program: 'Beasiswa Santri & Tahfidz', amount: 500000, method: 'BSI Transfer', status: 'verified', phone: '0813****9012' },
-        { date: '31 Jul 2026 18:05', name: 'Fikri Pratama', program: 'Pembangunan Markaz WIZ', amount: 1000000, method: 'Bank Muamalat', status: 'verified', phone: '0821****4455' },
-        { date: '31 Jul 2026 15:40', name: 'Hamba Allah', program: 'Tebar Sembako Dhuafa', amount: 100000, method: 'QRIS Instant', status: 'verified', phone: '0896****2211' },
-        { date: '31 Jul 2026 14:15', name: 'Rina Kurniawati', program: 'Santunan Yatim', amount: 300000, method: 'BSI Transfer', status: 'verified', phone: '0819****3389' },
-        { date: '31 Jul 2026 11:50', name: 'M. Rizky Pratama', program: 'Sedekah Beras Da\'i', amount: 200000, method: 'QRIS Instant', status: 'verified', phone: '0823****6789' },
-        { date: '31 Jul 2026 09:25', name: 'Hamba Allah', program: 'Sedekah Jumat (Sedulang Berkah)', amount: 100000, method: 'QRIS Instant', status: 'verified', phone: '0857****9900' },
-    ];
+    function getMutationsList() {
+        if (!window.wizStore || !window.wizStore.donations) return [];
+        
+        // Fetch active donations excluding deleted & rejected
+        const donationsList = window.wizStore.donations.getAll().filter(d => {
+            if (!d || !d.id) return false;
+            if (d.status === 'deleted' || d.status === 'rejected' || d.isDeleted) return false;
+            return true;
+        });
 
-    function getStoredMutations() {
-        try {
-            const stored = localStorage.getItem('wiz_mutations');
-            if (stored) {
-                const parsed = JSON.parse(stored);
-                return [...parsed, ...initialMutations];
-            }
-        } catch(e) {}
-        return initialMutations;
+        return donationsList.map(d => {
+            const dateObj = new Date(d.createdAt || Date.now());
+            const dateStr = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) + ' ' +
+                            String(dateObj.getHours()).padStart(2, '0') + ':' + String(dateObj.getMinutes()).padStart(2, '0');
+            return {
+                id: d.id,
+                date: dateStr,
+                name: d.donorName || 'Hamba Allah',
+                program: d.programSpesifik && d.programSpesifik !== '-' ? d.programSpesifik : (d.program && d.program !== '-' ? d.program : (d.programUtama && d.programUtama !== '-' ? d.programUtama : 'Infak Umum')),
+                amount: Number(d.amount) || 0,
+                method: d.method || 'Transfer Bank',
+                status: d.status || 'pending',
+                phone: d.donorPhone || ''
+            };
+        });
     }
 
     function renderTable() {
-        const mutations = getStoredMutations();
+        const mutations = getMutationsList();
         const searchQuery = (searchInput ? searchInput.value : '').toLowerCase().trim();
         const selectedStatus = statusSelect ? statusSelect.value : 'all';
 
@@ -1066,7 +1071,7 @@ function initMutationTable() {
         tableBody.innerHTML = filtered.map(item => {
             const formattedAmount = item.amount.toLocaleString('id-ID');
             const statusBadge = item.status === 'verified' 
-                ? `<span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-1 rounded-full"><a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors active:scale-95 transition-transform" href="index.html">Beranda</a>ss="material-symbols-outlined text-xs">check_circle</span> Verified ✅</span>`
+                ? `<span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-1 rounded-full"><span class="material-symbols-outlined text-xs">check_circle</span> Verified ✅</span>`
                 : `<span class="inline-flex items-center gap-1 bg-amber-100 text-amber-800 text-[11px] font-bold px-2.5 py-1 rounded-full"><span class="material-symbols-outlined text-xs">pending</span> Terdaftar (Proses Audit) ⏳</span>`;
 
             return `
@@ -1085,30 +1090,8 @@ function initMutationTable() {
     if (searchInput) searchInput.addEventListener('input', renderTable);
     if (statusSelect) statusSelect.addEventListener('change', renderTable);
 
-    // Expose render function for real-time addition
+    // Expose render function
     window.renderMutationTable = renderTable;
-    window.addNewDonationMutation = function(donationData) {
-        try {
-            const now = new Date();
-            const dateStr = `${now.getDate()} ${now.toLocaleString('id-ID', { month: 'short' })} ${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-            
-            const newItem = {
-                date: dateStr,
-                name: donationData.name || 'Hamba Allah',
-                program: donationData.program || 'Infak Umum',
-                amount: donationData.amount || 0,
-                method: donationData.method || 'Transfer Bank',
-                status: 'pending',
-                phone: donationData.phone || ''
-            };
-
-            const existing = JSON.parse(localStorage.getItem('wiz_mutations') || '[]');
-            existing.unshift(newItem);
-            localStorage.setItem('wiz_mutations', JSON.stringify(existing));
-            
-            renderTable();
-        } catch(e) {}
-    };
 
     // Initial table render
     renderTable();
