@@ -2003,7 +2003,7 @@
             const cleanPin = (pin || '').trim() || cleanPhone.slice(-4) || '1234';
 
             if (!cleanName || !cleanPhone) {
-                return { success: false, message: 'Nama Laporan & No. WhatsApp wajib diisi.' };
+                return { success: false, message: 'Nama Lengkap & No. WhatsApp wajib diisi.' };
             }
 
             // Check if phone or name already exists
@@ -2013,11 +2013,18 @@
             );
 
             if (existing) {
-                // If existing, update pin if provided
-                if (pin && pin.trim()) {
-                    await this.update(existing.id, { pin: cleanPin });
-                }
-                return { success: true, isExisting: true, referral: { ...existing, pin: cleanPin }, message: 'Akun Affiliate Anda sudah terdaftar!' };
+                // If existing, update bank account, pin, and profile details
+                const updates = {
+                    bankName: (bankName || existing.bankName || '-').trim(),
+                    accountNumber: (accountNumber || existing.accountNumber || '-').trim(),
+                    accountHolder: (accountHolder || existing.accountHolder || cleanName).trim()
+                };
+                if (pin && pin.trim()) updates.pin = cleanPin;
+
+                const updatedRef = await this.update(existing.id, updates);
+                const resultRef = updatedRef || { ...existing, ...updates };
+                broadcastSync('UPDATE_REFERRAL', resultRef);
+                return { success: true, isExisting: true, referral: resultRef, message: 'Akun Affiliate Anda telah aktif & data terhubung ke Web Admin!' };
             }
 
             const codeSlug = 'REF-' + Math.random().toString(36).substring(2, 7).toUpperCase();
