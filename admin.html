@@ -4258,6 +4258,12 @@
 
         window.addEventListener('load', () => refreshAll());
         window.addEventListener('wiz-sync-complete', () => refreshAll());
+        document.addEventListener('visibilitychange', async () => {
+            if (document.visibilityState === 'visible') {
+                if (wizStore.syncFromCloud) await wizStore.syncFromCloud();
+                refreshAll();
+            }
+        });
     </script>
 </body>
 
