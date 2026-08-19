@@ -2289,6 +2289,17 @@
             wData.subAllocation[pillarKey] = { items: newItems };
 
             await wizStore.allocationRulesManager.update(wilayah, wData);
+
+            // Sync program photos directly to flat store, Supabase Cloud, and emit events
+            newItems.forEach(item => {
+                if (item.key && item.image) {
+                    wizStore.allocationRulesManager.updateSpecificProgramImageByName(item.key, item.image);
+                }
+            });
+
+            window.dispatchEvent(new CustomEvent('wiz-program-images-changed'));
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+
             closeAllocEditModal();
             refreshAll();
         }
