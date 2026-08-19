@@ -70,18 +70,13 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/styles.css">
     <style>
-        .glass-card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+        .auth-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(226, 232, 240, 0.8);
         }
-        .dark-glass {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .tab-btn.active {
+        .member-nav-btn.active {
             color: #008444;
             border-bottom: 3px solid #008444;
             background-color: rgba(0, 132, 68, 0.05);
@@ -121,309 +116,393 @@
     </header>
 
     <!-- Hero Banner (Professional Dark Emerald Glassmorphic Theme) -->
-    <section class="relative bg-gradient-to-br from-emerald-950 via-emerald-900 to-slate-950 text-white py-14 md:py-20 overflow-hidden">
+    <section class="relative bg-gradient-to-br from-emerald-950 via-emerald-900 to-slate-950 text-white py-12 md:py-16 overflow-hidden">
         <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-500/20 via-transparent to-transparent pointer-events-none"></div>
         <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-primary/20 rounded-full filter blur-3xl pointer-events-none"></div>
         
-        <div class="max-w-5xl mx-auto px-4 text-center space-y-5 relative z-10">
+        <div class="max-w-5xl mx-auto px-4 text-center space-y-4 relative z-10">
             <span class="inline-flex items-center gap-2 bg-emerald-500/20 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold text-emerald-300 border border-emerald-400/30 shadow-xs">
                 <span class="material-symbols-outlined text-sm">verified</span>
                 Portal Resmi Perantara &amp; Affiliate Kebaikan WIZ Babel
             </span>
-            <h1 class="text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tight leading-tight text-white">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight text-white">
                 Sebarkan Kebaikan, Pantau Kinerja &amp; Raih Hak 6%
             </h1>
             <p class="text-emerald-100/90 text-sm md:text-base max-w-2xl mx-auto font-medium leading-relaxed">
                 Kelola akun perantara Anda, dapatkan tautan referral khusus program, dan pantau hasil donasi yang terhimpun secara real-time &amp; transparan.
             </p>
-
-            <div class="pt-2 flex flex-wrap justify-center gap-4 text-xs font-bold">
-                <span class="bg-white/10 px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 border border-white/10">
-                    <span class="material-symbols-outlined text-emerald-400 text-sm">payments</span> Hak Komisi 6%
-                </span>
-                <span class="bg-white/10 px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 border border-white/10">
-                    <span class="material-symbols-outlined text-emerald-400 text-sm">analytics</span> Evaluasi Bulanan
-                </span>
-                <span class="bg-white/10 px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 border border-white/10">
-                    <span class="material-symbols-outlined text-emerald-400 text-sm">lock</span> PIN Login Aman
-                </span>
-            </div>
         </div>
     </section>
 
-    <!-- Main Navigation Tabs -->
-    <div class="bg-white border-b border-slate-200 sticky top-20 z-40 shadow-xs">
-        <div class="max-w-6xl mx-auto px-4 flex justify-center sm:justify-start gap-2 overflow-x-auto no-scrollbar">
-            <button onclick="switchTab('tab-auth')" id="btn-tab-auth" class="tab-btn active px-5 py-4 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all border-b-2 border-transparent">
-                <span class="material-symbols-outlined text-lg">login</span>
-                <span>Pendaftaran &amp; Login Affiliate</span>
-            </button>
-            <button onclick="switchTab('tab-dashboard')" id="btn-tab-dashboard" class="tab-btn px-5 py-4 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all border-b-2 border-transparent">
-                <span class="material-symbols-outlined text-lg">dashboard</span>
-                <span>Dashboard Kinerja Saya</span>
-                <span id="tab-member-badge" class="hidden bg-emerald-100 text-emerald-800 text-[10px] px-2 py-0.5 rounded-full font-extrabold">Member</span>
-            </button>
-            <button onclick="switchTab('tab-catalog')" id="btn-tab-catalog" class="tab-btn px-5 py-4 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all border-b-2 border-transparent">
-                <span class="material-symbols-outlined text-lg">grid_view</span>
-                <span>Katalog Program &amp; Generator Link</span>
-            </button>
-        </div>
-    </div>
-
-    <!-- Main Content Area -->
+    <!-- Main Content Container -->
     <main class="max-w-6xl mx-auto px-4 py-8 space-y-8 flex-grow w-full">
 
-        <!-- TAB 1: Pendaftaran & Login Portal -->
-        <div id="tab-auth" class="tab-content space-y-8">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- ============================================================ -->
+        <!-- STATE 1: AUTH CONTAINER (VISIBLE ONLY WHEN LOGGED OUT)       -->
+        <!-- ============================================================ -->
+        <div id="auth-state-container" class="max-w-xl mx-auto space-y-6 py-4">
+            
+            <!-- Auth Screen Card -->
+            <div class="auth-card rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200">
                 
-                <!-- Left: Form Login Member Affiliate (5 cols) -->
-                <div class="lg:col-span-5 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 flex flex-col justify-between">
-                    <div>
-                        <div class="border-b border-slate-100 pb-4 mb-6">
-                            <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">Sudah Terdaftar?</span>
-                            <h2 class="text-xl font-bold text-slate-900 mt-2 flex items-center gap-2">
-                                <span class="material-symbols-outlined text-primary">key</span>
-                                <span>Login Dashboard Affiliate</span>
-                            </h2>
-                            <p class="text-xs text-slate-500 mt-1">Masukkan No. WhatsApp / Kode Referral dan PIN Anda.</p>
-                        </div>
-
-                        <form id="affiliate-login-form" onsubmit="handleAffiliateLogin(event)" class="space-y-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">No. WhatsApp / Kode Referral <span class="text-red-500">*</span></label>
-                                <input type="text" id="login-identifier" required placeholder="Contoh: 081234567890 atau REF-A9X2K"
-                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none font-mono">
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">PIN Login (4-6 Digit) <span class="text-red-500">*</span></label>
-                                <input type="password" id="login-pin" required placeholder="Masukkan PIN Anda (Default = 4 digit belakang No. WA)"
-                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
-                            </div>
-
-                            <button type="submit" id="btn-login-submit"
-                                class="w-full bg-primary hover:bg-emerald-700 text-white font-bold text-sm py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
-                                <span class="material-symbols-outlined text-lg">login</span>
-                                <span>Masuk ke Dashboard Saya</span>
-                            </button>
-                        </form>
-                    </div>
-
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/60 mt-6">
-                        <div class="flex items-start gap-2.5">
-                            <span class="material-symbols-outlined text-amber-500 text-lg shrink-0">help</span>
-                            <div class="text-xs text-slate-600 leading-relaxed">
-                                <strong class="block text-slate-800">Lupa PIN?</strong>
-                                PIN default saat pendaftaran pertama kali adalah <strong>4 digit terakhir nomor WhatsApp</strong> Anda.
-                            </div>
-                        </div>
-                    </div>
+                <!-- Auth Toggle Tabs: Sign In vs Sign Up -->
+                <div class="bg-slate-100 p-1.5 rounded-2xl flex items-center mb-6">
+                    <button onclick="toggleAuthTab('signin')" id="btn-auth-signin" class="flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 bg-white text-primary shadow-sm">
+                        <span class="material-symbols-outlined text-base">login</span>
+                        <span>Sign In (Masuk)</span>
+                    </button>
+                    <button onclick="toggleAuthTab('signup')" id="btn-auth-signup" class="flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-slate-900">
+                        <span class="material-symbols-outlined text-base">person_add</span>
+                        <span>Sign Up (Daftar Baru)</span>
+                    </button>
                 </div>
 
-                <!-- Right: Form Pendaftaran Baru (7 cols) -->
-                <div class="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-                    <div class="border-b border-slate-100 pb-4">
-                        <span class="bg-secondary/10 text-secondary text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">Belum Punya Akun?</span>
-                        <h2 class="text-xl font-bold text-slate-900 mt-2 flex items-center gap-2">
-                            <span class="material-symbols-outlined text-secondary">person_add</span>
-                            <span>Pendaftaran Affiliate Baru</span>
-                        </h2>
-                        <p class="text-xs text-slate-500 mt-1">Daftar gratis dalam 1 menit &amp; langsung dapatkan link referral program.</p>
+                <!-- SIGN IN FORM -->
+                <div id="auth-signin-view" class="space-y-5">
+                    <div class="text-center space-y-1">
+                        <h2 class="text-xl font-extrabold text-slate-900">Selamat Datang Kembali</h2>
+                        <p class="text-xs text-slate-500">Masukkan No. WhatsApp / Kode Referral dan PIN Anda untuk masuk.</p>
+                    </div>
+
+                    <form id="affiliate-login-form" onsubmit="handleAffiliateLogin(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">No. WhatsApp / Kode Referral <span class="text-red-500">*</span></label>
+                            <input type="text" id="login-identifier" required placeholder="Contoh: 081234567890 atau REF-A9X2K"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none font-mono">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block text-xs font-bold text-slate-700">PIN Login (4-6 Digit) <span class="text-red-500">*</span></label>
+                                <button type="button" onclick="openForgotPinModal()" class="text-xs text-primary font-bold hover:underline">Lupa PIN / Password?</button>
+                            </div>
+                            <input type="password" id="login-pin" required placeholder="Masukkan PIN 4-6 Digit Anda"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
+                        </div>
+
+                        <button type="submit" id="btn-login-submit"
+                            class="w-full bg-primary hover:bg-emerald-700 text-white font-bold text-sm py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
+                            <span class="material-symbols-outlined text-lg">login</span>
+                            <span>Masuk ke Portal Member</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- SIGN UP FORM (HIDDEN BY DEFAULT) -->
+                <div id="auth-signup-view" class="space-y-5 hidden">
+                    <div class="text-center space-y-1">
+                        <h2 class="text-xl font-extrabold text-slate-900">Pendaftaran Affiliate Baru</h2>
+                        <p class="text-xs text-slate-500">Daftar gratis dalam 1 menit &amp; raih komisi hak perantara 6%.</p>
                     </div>
 
                     <form id="affiliate-reg-form" onsubmit="handleAffiliateRegister(event)" class="space-y-4">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap / Komunitas <span class="text-red-500">*</span></label>
-                                <input type="text" id="reg-name" required placeholder="Contoh: Ahmad Hidayat"
-                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Nomor WhatsApp / HP Active <span class="text-red-500">*</span></label>
-                                <input type="tel" id="reg-phone" required placeholder="Contoh: 081234567890"
-                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
-                            </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap / Komunitas <span class="text-red-500">*</span></label>
+                            <input type="text" id="reg-name" required placeholder="Contoh: Ahmad Hidayat"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nomor WhatsApp / HP Active <span class="text-red-500">*</span></label>
+                            <input type="tel" id="reg-phone" required placeholder="Contoh: 081234567890"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Nama Bank Pencairan</label>
-                                <input type="text" id="reg-bank" placeholder="Contoh: BSI / Mandiri / BCA"
+                                <input type="text" id="reg-bank" placeholder="BSI / Mandiri / BCA"
                                     class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Rekening Bank</label>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Rekening</label>
                                 <input type="text" id="reg-acc-no" placeholder="Contoh: 7112223334"
                                     class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Pemilik Rekening</label>
-                                <input type="text" id="reg-acc-holder" placeholder="Sesuai buku tabungan"
-                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
-                            </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Pemilik Rekening</label>
+                            <input type="text" id="reg-acc-holder" placeholder="Sesuai buku tabungan"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
+                        </div>
 
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Buat PIN Login (4-6 Digit) <span class="text-red-500">*</span></label>
-                                <input type="password" id="reg-pin" required placeholder="Contoh: 123456"
-                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
-                            </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Buat PIN Login (4-6 Digit) <span class="text-red-500">*</span></label>
+                            <input type="password" id="reg-pin" required placeholder="Contoh: 123456"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
                         </div>
 
                         <button type="submit" id="btn-reg-submit"
                             class="w-full bg-secondary hover:bg-amber-600 text-white font-bold text-sm py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
                             <span class="material-symbols-outlined text-lg">check_circle</span>
-                            <span>Daftar Sekarang &amp; Aktifkan Akun</span>
+                            <span>Daftar &amp; Aktifkan Akun Affiliate</span>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- FORGOT PIN MODAL -->
+        <div id="forgot-pin-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 transition-all duration-300 opacity-0 pointer-events-none">
+            <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <h3 class="font-bold text-lg text-slate-900 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">key</span>
+                        <span>Pemulihan PIN via WhatsApp</span>
+                    </h3>
+                    <button onclick="closeForgotPinModal()" class="text-slate-400 hover:text-slate-600">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <p class="text-xs text-slate-600">Masukkan No. WhatsApp atau Kode Referral terdaftar Anda. PIN akan dikirimkan langsung ke nomor WhatsApp Anda.</p>
+
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">No. WhatsApp / Kode Referral <span class="text-red-500">*</span></label>
+                        <input type="text" id="forgot-identifier" placeholder="Contoh: 081234567890"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary">
+                    </div>
+
+                    <button onclick="handleRecoverPin()" class="w-full bg-primary hover:bg-emerald-700 text-white font-bold text-xs py-3 rounded-xl flex items-center justify-center gap-1.5 cursor-pointer">
+                        <span class="material-symbols-outlined text-base">send</span>
+                        <span>Cari &amp; Kirim PIN via WhatsApp</span>
+                    </button>
+                </div>
+
+                <!-- Recovery Result Box -->
+                <div id="forgot-result-box" class="hidden bg-emerald-50 border border-emerald-200 p-4 rounded-2xl space-y-2">
+                    <p id="forgot-result-msg" class="text-xs font-bold text-emerald-900"></p>
+                    <a id="forgot-wa-btn" target="_blank" href="#" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-base">chat</span>
+                        <span>Buka WhatsApp &amp; Terima PIN</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- STATE 2: MEMBER PORTAL DASHBOARD (VISIBLE ONLY WHEN LOGGED IN)-->
+        <!-- ============================================================ -->
+        <div id="member-state-container" class="space-y-8 hidden">
+            
+            <!-- Member Top Header Banner -->
+            <div class="bg-gradient-to-r from-emerald-950 via-primary to-emerald-800 text-white p-6 sm:p-8 rounded-3xl shadow-lg relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="space-y-1 relative z-10 flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-white/20 text-white font-extrabold text-xl flex items-center justify-center border border-white/30 shrink-0" id="member-avatar">
+                        A
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-emerald-400/20 text-emerald-200 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border border-emerald-400/30">Member Aktif</span>
+                            <span id="member-code-badge" class="font-mono bg-white/20 px-2 py-0.5 rounded text-[11px] font-bold text-white">REF-XXXXX</span>
+                        </div>
+                        <h2 id="member-welcome-title" class="text-xl sm:text-2xl font-extrabold text-white mt-0.5">Selamat Datang, -</h2>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 relative z-10">
+                    <button onclick="copyMemberMainLink()" class="bg-white text-emerald-950 font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-emerald-50 transition-colors flex items-center gap-1.5 cursor-pointer">
+                        <span class="material-symbols-outlined text-base">content_copy</span> Salin Link Utama
+                    </button>
+                    <button onclick="handleAffiliateLogout()" class="bg-red-500/20 hover:bg-red-500/30 text-white font-bold px-4 py-2.5 rounded-xl text-xs border border-red-300/30 transition-colors flex items-center gap-1 cursor-pointer">
+                        <span class="material-symbols-outlined text-base">logout</span> Keluar (Logout)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Member Sub-Navigation Tabs -->
+            <div class="bg-white border-b border-slate-200 rounded-2xl shadow-xs overflow-hidden">
+                <div class="flex justify-start gap-2 overflow-x-auto no-scrollbar p-1">
+                    <button onclick="switchMemberSubTab('subtab-kpi')" id="btn-subtab-kpi" class="member-nav-btn active px-5 py-3 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all rounded-xl border-b-2 border-transparent">
+                        <span class="material-symbols-outlined text-lg">analytics</span>
+                        <span>Dashboard Kinerja &amp; Evaluasi KPI</span>
+                    </button>
+                    <button onclick="switchMemberSubTab('subtab-catalog')" id="btn-subtab-catalog" class="member-nav-btn px-5 py-3 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all rounded-xl border-b-2 border-transparent">
+                        <span class="material-symbols-outlined text-lg">grid_view</span>
+                        <span>Katalog Program &amp; Generator Link</span>
+                    </button>
+                    <button onclick="switchMemberSubTab('subtab-profile')" id="btn-subtab-profile" class="member-nav-btn px-5 py-3 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all rounded-xl border-b-2 border-transparent">
+                        <span class="material-symbols-outlined text-lg">settings</span>
+                        <span>Pengaturan Rekening &amp; PIN</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- SUBTAB 1: Performance Dashboard & KPI -->
+            <div id="subtab-kpi" class="member-subtab space-y-8">
+                <!-- 4 KPI Counter Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1">
+                        <span class="text-[11px] text-slate-500 font-semibold block uppercase tracking-wider">Total Donasi Dibawa</span>
+                        <div class="flex items-baseline justify-between">
+                            <span id="kpi-total-count" class="text-2xl font-extrabold text-slate-900">0</span>
+                            <span class="text-xs text-slate-400 font-semibold">Transaksi</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1">
+                        <span class="text-[11px] text-slate-500 font-semibold block uppercase tracking-wider">Nominal Terkumpul</span>
+                        <span id="kpi-total-amount" class="text-2xl font-extrabold text-primary">Rp 0</span>
+                    </div>
+
+                    <div class="bg-emerald-50 p-5 rounded-2xl border border-emerald-200 shadow-xs space-y-1">
+                        <span class="text-[11px] text-emerald-800 font-semibold block uppercase tracking-wider">Total Hak Komisi (6%)</span>
+                        <span id="kpi-total-earned" class="text-2xl font-extrabold text-emerald-900">Rp 0</span>
+                    </div>
+
+                    <div class="bg-amber-50 p-5 rounded-2xl border border-amber-200 shadow-xs space-y-1">
+                        <span class="text-[11px] text-amber-800 font-semibold block uppercase tracking-wider">Saldo Belum Dicairkan</span>
+                        <span id="kpi-pending-balance" class="text-2xl font-extrabold text-amber-900">Rp 0</span>
+                    </div>
+                </div>
+
+                <!-- Monthly Performance & Evaluation Card -->
+                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-4 gap-2">
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">analytics</span>
+                                <span>Evaluasi Kinerja Bulanan</span>
+                            </h3>
+                            <p class="text-xs text-slate-500">Hasil capaian dan statistik performa referral Anda bulan ini.</p>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <select id="monthly-eval-select" onchange="renderMemberDashboard()" class="bg-slate-50 border border-slate-200 text-xs font-bold rounded-xl px-3 py-2 text-slate-800 outline-none">
+                                <option value="2026-08">Agustus 2026</option>
+                                <option value="2026-07">Juli 2026</option>
+                                <option value="Semua">Semua Periode</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-2xl">star</span>
+                            </div>
+                            <div>
+                                <span class="text-[11px] text-slate-500 font-semibold block">Status Performa Bulanan</span>
+                                <span id="eval-tier-badge" class="inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">⭐ Top Performer</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-2xl">receipt_long</span>
+                            </div>
+                            <div>
+                                <span class="text-[11px] text-slate-500 font-semibold block">Donasi Periode Ini</span>
+                                <span id="eval-month-count" class="text-base font-bold text-slate-900">0 Transaksi</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-2xl">savings</span>
+                            </div>
+                            <div>
+                                <span class="text-[11px] text-slate-500 font-semibold block">Hak Komisi Periode Ini</span>
+                                <span id="eval-month-fee" class="text-base font-extrabold text-primary">Rp 0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Transactions Table Brought by Affiliate -->
+                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+                    <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">format_list_bulleted</span>
+                        <span>Riwayat Donasi dari Link Referral Anda</span>
+                    </h3>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                                    <th class="p-3 font-bold">Tanggal</th>
+                                    <th class="p-3 font-bold">Donatur</th>
+                                    <th class="p-3 font-bold">Program</th>
+                                    <th class="p-3 font-bold">Nominal</th>
+                                    <th class="p-3 font-bold">Hak 6%</th>
+                                    <th class="p-3 font-bold">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="member-donations-tbody">
+                                <!-- Dynamic Content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUBTAB 2: Catalog & Program Share Link Generator -->
+            <div id="subtab-catalog" class="member-subtab space-y-6 hidden">
+                <div class="border-b border-slate-200 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-slate-900">Katalog Program Siap Bagikan</h2>
+                        <p class="text-xs text-slate-500 mt-1">Pilih program di bawah untuk langsung membagikan link donasi publik dengan ID komisi Anda!</p>
+                    </div>
+                </div>
+
+                <div id="affiliate-programs-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Dynamic Loaded Programs -->
+                </div>
+            </div>
+
+            <!-- SUBTAB 3: Member Profile & Bank Account Settings -->
+            <div id="subtab-profile" class="member-subtab max-w-2xl space-y-6 hidden">
+                <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+                    <div class="border-b border-slate-100 pb-4">
+                        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">account_balance</span>
+                            <span>Pengaturan Rekening &amp; Keamanan Akun</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">Perbarui nomor rekening pencairan bonus &amp; PIN login Anda.</p>
+                    </div>
+
+                    <form id="member-profile-form" onsubmit="handleUpdateProfile(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap / Komunitas</label>
+                            <input type="text" id="prof-name" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">No. WhatsApp</label>
+                            <input type="text" id="prof-phone" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-500 font-mono outline-none">
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Bank Pencairan</label>
+                                <input type="text" id="prof-bank" placeholder="BSI / Mandiri / BCA" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Rekening</label>
+                                <input type="text" id="prof-acc-no" placeholder="Contoh: 7112223334" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Pemilik Rekening</label>
+                            <input type="text" id="prof-acc-holder" placeholder="Sesuai buku tabungan" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">PIN Login Baru (4-6 Digit)</label>
+                            <input type="password" id="prof-pin" placeholder="Biarkan kosong jika tidak ingin mengubah PIN" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary">
+                        </div>
+
+                        <button type="submit" class="bg-primary hover:bg-emerald-700 text-white font-bold text-xs px-6 py-3 rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer">
+                            <span class="material-symbols-outlined text-base">save</span>
+                            <span>Simpan Perubahan Profile</span>
                         </button>
                     </form>
                 </div>
             </div>
-        </div>
 
-        <!-- TAB 2: Private Member Dashboard (Visible upon login) -->
-        <div id="tab-dashboard" class="tab-content space-y-8 hidden">
-            
-            <!-- Welcome Header Card -->
-            <div class="bg-gradient-to-r from-emerald-900 via-primary to-emerald-800 text-white p-6 sm:p-8 rounded-3xl shadow-lg relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div class="space-y-1 relative z-10">
-                    <span class="bg-white/20 text-emerald-100 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-white/20">Dashboard Kinerja Affiliate</span>
-                    <h2 id="dash-welcome-title" class="text-2xl sm:text-3xl font-extrabold text-white">Selamat Datang, -</h2>
-                    <p id="dash-welcome-sub" class="text-xs sm:text-sm text-emerald-100 font-medium">Kode Referral Anda: <span id="dash-code-badge" class="font-mono bg-white/20 px-2 py-0.5 rounded font-bold text-white">REF-XXXXX</span></p>
-                </div>
-
-                <div class="flex items-center gap-3 relative z-10">
-                    <button onclick="copyMemberMainLink()" class="bg-white text-emerald-900 font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-emerald-50 transition-colors flex items-center gap-1.5 cursor-pointer">
-                        <span class="material-symbols-outlined text-base">content_copy</span> Salin Link Utama
-                    </button>
-                    <button onclick="handleAffiliateLogout()" class="bg-red-500/20 hover:bg-red-500/30 text-white font-bold px-4 py-2.5 rounded-xl text-xs border border-red-300/30 transition-colors flex items-center gap-1 cursor-pointer">
-                        <span class="material-symbols-outlined text-base">logout</span> Keluar
-                    </button>
-                </div>
-            </div>
-
-            <!-- 4 KPI Counter Cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1">
-                    <span class="text-[11px] text-slate-500 font-semibold block uppercase tracking-wider">Total Donasi Dibawa</span>
-                    <div class="flex items-baseline justify-between">
-                        <span id="kpi-total-count" class="text-2xl font-extrabold text-slate-900">0</span>
-                        <span class="text-xs text-slate-400 font-semibold">Transaksi</span>
-                    </div>
-                </div>
-
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1">
-                    <span class="text-[11px] text-slate-500 font-semibold block uppercase tracking-wider">Nominal Terkumpul</span>
-                    <span id="kpi-total-amount" class="text-2xl font-extrabold text-primary">Rp 0</span>
-                </div>
-
-                <div class="bg-emerald-50 p-5 rounded-2xl border border-emerald-200 shadow-xs space-y-1">
-                    <span class="text-[11px] text-emerald-800 font-semibold block uppercase tracking-wider">Total Hak Komisi (6%)</span>
-                    <span id="kpi-total-earned" class="text-2xl font-extrabold text-emerald-900">Rp 0</span>
-                </div>
-
-                <div class="bg-amber-50 p-5 rounded-2xl border border-amber-200 shadow-xs space-y-1">
-                    <span class="text-[11px] text-amber-800 font-semibold block uppercase tracking-wider">Saldo Belum Dicairkan</span>
-                    <span id="kpi-pending-balance" class="text-2xl font-extrabold text-amber-900">Rp 0</span>
-                </div>
-            </div>
-
-            <!-- Monthly Performance & Evaluation Card -->
-            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-4 gap-2">
-                    <div>
-                        <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
-                            <span class="material-symbols-outlined text-primary">analytics</span>
-                            <span>Evaluasi Kinerja Bulanan</span>
-                        </h3>
-                        <p class="text-xs text-slate-500">Hasil capaian dan statistik performa referral Anda bulan ini.</p>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                        <select id="monthly-eval-select" onchange="renderMemberDashboard()" class="bg-slate-50 border border-slate-200 text-xs font-bold rounded-xl px-3 py-2 text-slate-800 outline-none">
-                            <option value="2026-08">Agustus 2026</option>
-                            <option value="2026-07">Juli 2026</option>
-                            <option value="Semua">Semua Periode</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-2xl">star</span>
-                        </div>
-                        <div>
-                            <span class="text-[11px] text-slate-500 font-semibold block">Status Performa Bulanan</span>
-                            <span id="eval-tier-badge" class="inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">⭐ Top Performer</span>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-2xl">receipt_long</span>
-                        </div>
-                        <div>
-                            <span class="text-[11px] text-slate-500 font-semibold block">Donasi Periode Ini</span>
-                            <span id="eval-month-count" class="text-base font-bold text-slate-900">0 Transaksi</span>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-2xl">savings</span>
-                        </div>
-                        <div>
-                            <span class="text-[11px] text-slate-500 font-semibold block">Hak Komisi Periode Ini</span>
-                            <span id="eval-month-fee" class="text-base font-extrabold text-primary">Rp 0</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Detailed Transactions Table Brought by Affiliate -->
-            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-                <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">format_list_bulleted</span>
-                    <span>Riwayat Donasi dari Link Referral Anda</span>
-                </h3>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs border-collapse">
-                        <thead>
-                            <tr class="bg-slate-50 text-slate-600 border-b border-slate-200">
-                                <th class="p-3 font-bold">Tanggal</th>
-                                <th class="p-3 font-bold">Donatur</th>
-                                <th class="p-3 font-bold">Program</th>
-                                <th class="p-3 font-bold">Nominal</th>
-                                <th class="p-3 font-bold">Hak 6%</th>
-                                <th class="p-3 font-bold">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="member-donations-tbody">
-                            <!-- Dynamic Content -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- TAB 3: Catalog & Program Share Generator -->
-        <div id="tab-catalog" class="tab-content space-y-6 hidden">
-            <div class="border-b border-slate-200 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                <div>
-                    <h2 class="text-2xl font-extrabold text-slate-900">Katalog Program Siap Bagikan</h2>
-                    <p class="text-xs text-slate-500 mt-1">Pilih program di bawah untuk langsung membagikan linknya dengan ID Affiliate Anda!</p>
-                </div>
-            </div>
-
-            <div id="affiliate-programs-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Dynamic Loaded Programs -->
-            </div>
         </div>
 
     </main>
@@ -475,27 +554,75 @@
                 const saved = sessionStorage.getItem('wiz_logged_affiliate') || localStorage.getItem('wiz_logged_affiliate');
                 if (saved) {
                     currentLoggedAffiliate = JSON.parse(saved);
-                    // Verify logged member exists in store
                     if (wizStore && wizStore.referrals) {
                         const ref = wizStore.referrals.getById(currentLoggedAffiliate.id);
                         if (ref) currentLoggedAffiliate = ref;
                     }
                     activateMemberState(currentLoggedAffiliate);
+                } else {
+                    deactivateMemberState();
                 }
-            } catch(e) {}
+            } catch(e) {
+                deactivateMemberState();
+            }
         });
 
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        function toggleAuthTab(tab) {
+            const signinView = document.getElementById('auth-signin-view');
+            const signupView = document.getElementById('auth-signup-view');
+            const btnSignin = document.getElementById('btn-auth-signin');
+            const btnSignup = document.getElementById('btn-auth-signup');
 
-            const target = document.getElementById(tabId);
+            if (tab === 'signin') {
+                signinView.classList.remove('hidden');
+                signupView.classList.add('hidden');
+                btnSignin.className = 'flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 bg-white text-primary shadow-sm';
+                btnSignup.className = 'flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-slate-900';
+            } else {
+                signupView.classList.remove('hidden');
+                signinView.classList.add('hidden');
+                btnSignup.className = 'flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 bg-white text-secondary shadow-sm';
+                btnSignin.className = 'flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-slate-900';
+            }
+        }
+
+        function activateMemberState(ref) {
+            document.getElementById('auth-state-container').classList.add('hidden');
+            document.getElementById('member-state-container').classList.remove('hidden');
+
+            const initial = (ref.name || 'A').charAt(0).toUpperCase();
+            document.getElementById('member-avatar').textContent = initial;
+            document.getElementById('member-welcome-title').textContent = `Selamat Datang, ${ref.name}!`;
+            document.getElementById('member-code-badge').textContent = ref.code || ref.id;
+
+            // Populate profile settings form
+            document.getElementById('prof-name').value = ref.name || '';
+            document.getElementById('prof-phone').value = ref.phone || '';
+            document.getElementById('prof-bank').value = ref.bankName || '';
+            document.getElementById('prof-acc-no').value = ref.accountNumber || '';
+            document.getElementById('prof-acc-holder').value = ref.accountHolder || '';
+
+            switchMemberSubTab('subtab-kpi');
+            renderMemberDashboard();
+        }
+
+        function deactivateMemberState() {
+            document.getElementById('auth-state-container').classList.remove('hidden');
+            document.getElementById('member-state-container').classList.add('hidden');
+            currentLoggedAffiliate = null;
+        }
+
+        function switchMemberSubTab(subtabId) {
+            document.querySelectorAll('.member-subtab').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.member-nav-btn').forEach(el => el.classList.remove('active'));
+
+            const target = document.getElementById(subtabId);
             if (target) target.classList.remove('hidden');
 
-            const btn = document.getElementById('btn-' + tabId);
+            const btn = document.getElementById('btn-' + subtabId);
             if (btn) btn.classList.add('active');
 
-            if (tabId === 'tab-dashboard') {
+            if (subtabId === 'subtab-kpi') {
                 renderMemberDashboard();
             }
         }
@@ -527,7 +654,6 @@
 
                     alert(`✅ ${res.message}\n\nKode Referral Anda: ${refCode}\nPIN Login Anda: ${ref.pin}`);
                     activateMemberState(ref);
-                    switchTab('tab-dashboard');
                 } else {
                     alert(`⚠️ ${res.message}`);
                 }
@@ -536,7 +662,7 @@
             }
 
             btn.disabled = false;
-            btn.innerHTML = '<span class="material-symbols-outlined text-lg">check_circle</span><span>Daftar Sekarang & Aktifkan Akun</span>';
+            btn.innerHTML = '<span class="material-symbols-outlined text-lg">check_circle</span><span>Daftar & Aktifkan Akun Affiliate</span>';
         }
 
         function handleAffiliateLogin(e) {
@@ -559,38 +685,76 @@
 
                 alert(`✅ ${res.message} Selamat Datang, ${ref.name}`);
                 activateMemberState(ref);
-                switchTab('tab-dashboard');
             } else {
                 alert(`⚠️ ${res.message}`);
             }
         }
 
-        function activateMemberState(ref) {
-            document.getElementById('tab-member-badge').classList.remove('hidden');
-        }
-
         function handleAffiliateLogout() {
             sessionStorage.removeItem('wiz_logged_affiliate');
             localStorage.removeItem('wiz_logged_affiliate');
-            currentLoggedAffiliate = null;
-            document.getElementById('tab-member-badge').classList.add('hidden');
-            alert('Anda telah keluar dari akun Affiliate.');
-            switchTab('tab-auth');
+            deactivateMemberState();
+            alert('Anda telah keluar dari Portal Member Affiliate.');
+        }
+
+        function openForgotPinModal() {
+            const modal = document.getElementById('forgot-pin-modal');
+            if (modal) {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+            }
+        }
+
+        function closeForgotPinModal() {
+            const modal = document.getElementById('forgot-pin-modal');
+            if (modal) {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+            }
+        }
+
+        function handleRecoverPin() {
+            const iden = document.getElementById('forgot-identifier').value;
+            if (!wizStore || !wizStore.referrals) return;
+
+            const res = wizStore.referrals.recoverPin(iden);
+            if (res.success) {
+                document.getElementById('forgot-result-msg').textContent = res.message;
+                document.getElementById('forgot-wa-btn').href = res.waUrl;
+                document.getElementById('forgot-result-box').classList.remove('hidden');
+            } else {
+                alert(`⚠️ ${res.message}`);
+            }
+        }
+
+        async function handleUpdateProfile(e) {
+            e.preventDefault();
+            if (!currentLoggedAffiliate) return;
+
+            const updates = {
+                name: document.getElementById('prof-name').value,
+                bankName: document.getElementById('prof-bank').value,
+                accountNumber: document.getElementById('prof-acc-no').value,
+                accountHolder: document.getElementById('prof-acc-holder').value
+            };
+
+            const pinNew = document.getElementById('prof-pin').value;
+            if (pinNew && pinNew.trim()) {
+                updates.pin = pinNew.trim();
+            }
+
+            await wizStore.referrals.update(currentLoggedAffiliate.id, updates);
+            currentLoggedAffiliate = wizStore.referrals.getById(currentLoggedAffiliate.id);
+            sessionStorage.setItem('wiz_logged_affiliate', JSON.stringify(currentLoggedAffiliate));
+            localStorage.setItem('wiz_logged_affiliate', JSON.stringify(currentLoggedAffiliate));
+
+            alert('✅ Profile & Data Rekening Anda berhasil diperbarui!');
+            activateMemberState(currentLoggedAffiliate);
         }
 
         function renderMemberDashboard() {
-            if (!currentLoggedAffiliate) {
-                alert('Silakan Login atau Mendaftar terlebih dahulu.');
-                switchTab('tab-auth');
-                return;
-            }
+            if (!currentLoggedAffiliate) return;
 
             const refId = currentLoggedAffiliate.id;
             const fullRef = wizStore.referrals.getById(refId) || currentLoggedAffiliate;
-
-            const refCode = fullRef.code || fullRef.id;
-            document.getElementById('dash-welcome-title').textContent = `Selamat Datang, ${fullRef.name}!`;
-            document.getElementById('dash-code-badge').textContent = refCode;
 
             document.getElementById('kpi-total-count').textContent = fullRef.donationsCount || 0;
             document.getElementById('kpi-total-amount').textContent = `Rp ${(fullRef.totalDonationAmount || 0).toLocaleString('id-ID')}`;
@@ -674,7 +838,6 @@
             const activeRef = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || sessionStorage.getItem('wiz_active_ref_id');
             if (!activeRef) {
                 alert('Silakan Login atau mendaftar akun affiliate terlebih dahulu agar tautan program terhubung dengan ID komisi Anda!');
-                switchTab('tab-auth');
                 return;
             }
             const origin = window.location.origin.includes('http') ? window.location.origin : '';
