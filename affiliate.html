@@ -815,10 +815,23 @@
         function copyMemberMainLink() {
             if (!currentLoggedAffiliate) return;
             const refCode = currentLoggedAffiliate.code || currentLoggedAffiliate.id;
-            const url = `${window.location.origin}/donasi.html?ref=${refCode}`;
+            const origin = window.location.origin.includes('http') ? window.location.origin : '';
+            const url = `${origin}/program.html?ref=${refCode}`;
             navigator.clipboard.writeText(url).then(() => {
-                alert(`✅ Link Utama Affiliate Anda berhasil disalin:\n${url}`);
+                alert(`✅ Link Utama Katalog Program Affiliate Anda berhasil disalin:\n${url}`);
             });
+        }
+
+        function shareAffiliateProgram(programTitle) {
+            const activeRef = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || sessionStorage.getItem('wiz_active_ref_id');
+            if (!activeRef) {
+                alert('Silakan Login atau mendaftar akun affiliate terlebih dahulu agar tautan program terhubung dengan ID komisi Anda!');
+                return;
+            }
+            const origin = window.location.origin.includes('http') ? window.location.origin : '';
+            const programUrl = `${origin}/program.html?program=${encodeURIComponent(programTitle)}&ref=${encodeURIComponent(activeRef)}`;
+            const pImg = (wizStore && wizStore.allocationRulesManager) ? wizStore.allocationRulesManager.getSpecificProgramImage(programTitle) : '';
+            window.shareProgram(programTitle, `Mari bersama menyalurkan kepedulian melalui program ${programTitle} WIZ Bangka Belitung.`, programUrl, pImg);
         }
 
         function renderAffiliateProgramsGrid() {
