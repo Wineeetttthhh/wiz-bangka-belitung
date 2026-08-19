@@ -990,7 +990,7 @@
         if (!window.wizFirebase || !window.wizFirebase.isConfigured()) return;
 
         try {
-            const [donRes, newsRes, disbRes, actRes, refRes, payoutRes, settingsRes, baseRes, deletedRes, deletedNewsRes, deletedDisbRes, deletedRefRes] = await Promise.all([
+            const [donRes, newsRes, disbRes, actRes, refRes, payoutRes, settingsRes, baseRes, siteImagesRes, deletedRes, deletedNewsRes, deletedDisbRes, deletedRefRes] = await Promise.all([
                 window.wizFirebase.select('donations'),
                 window.wizFirebase.select('news'),
                 window.wizFirebase.select('disbursements'),
@@ -999,6 +999,7 @@
                 window.wizFirebase.select('referral_payouts'),
                 window.wizFirebase.select('site_settings'),
                 window.wizFirebase.select('baselines'),
+                window.wizFirebase.select('site_images'),
                 window.wizFirebase.select('deleted_ids'),
                 window.wizFirebase.select('deleted_news_ids'),
                 window.wizFirebase.select('deleted_disb_ids'),
