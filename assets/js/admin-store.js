@@ -1928,17 +1928,63 @@
 
         getById(id) {
             const all = this.getAll();
-            const ref = all.find(r => String(r.id) === String(id));
+            const ref = all.find(r => String(r.id) === String(id) || (r.code && String(r.code).toLowerCase() === String(id).toLowerCase()));
             if (!ref) return null;
 
-            const allDonations = (getStore(STORAGE_KEYS.DONATIONS) || []).filter(d => String(d.referralId) === String(id));
-            const allPayouts = (getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || []).filter(p => String(p.referralId) === String(id)).sort((a, b) => new Date(b.paidAt) - new Date(a.paidAt));
+            const allDonations = (getStore(STORAGE_KEYS.DONATIONS) || []).filter(d => String(d.referralId) === String(ref.id));
+            const allPayouts = (getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || []).filter(p => String(p.referralId) === String(ref.id)).sort((a, b) => new Date(b.paidAt) - new Date(a.paidAt));
 
             return {
                 ...ref,
                 donations: allDonations,
                 payouts: allPayouts
             };
+        },
+
+        getByCodeOrId(identifier) {
+            if (!identifier) return null;
+            const clean = String(identifier).trim().toLowerCase();
+            const all = this.getAll();
+            return all.find(r => 
+                String(r.id).toLowerCase() === clean || 
+                (r.code && String(r.code).toLowerCase() === clean) ||
+                (r.phone && r.phone.replace(/\D/g,'') === clean.replace(/\D/g,'') && clean.length > 5)
+            ) || null;
+        },
+
+        async registerPublic({ name, phone, bankName, accountNumber, accountHolder }) {
+            const cleanName = (name || '').trim();
+            const cleanPhone = (phone || '').trim();
+
+            if (!cleanName || !cleanPhone) {
+                return { success: false, message: 'Nama Laporan & No. WhatsApp wajib diisi.' };
+            }
+
+            // Check if phone or name already exists
+            const existing = this.getAll().find(r => 
+                (r.phone && r.phone.replace(/\D/g,'') === cleanPhone.replace(/\D/g,'') && cleanPhone.length > 5) ||
+                (r.name && r.name.toLowerCase() === cleanName.toLowerCase())
+            );
+
+            if (existing) {
+                return { success: true, isExisting: true, referral: existing, message: 'Akun Affiliate Anda sudah terdaftar!' };
+            }
+
+            const codeSlug = 'REF-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            const newRef = await this.add({
+                name: cleanName,
+                phone: cleanPhone,
+                bankName: (bankName || '-').trim(),
+                accountNumber: (accountNumber || '-').trim(),
+                accountHolder: (accountHolder || cleanName).trim(),
+                defaultRate: 6,
+                status: 'active',
+                notes: 'Pendaftaran Affiliate Publik via website',
+                code: codeSlug,
+                createdBy: 'Publik (Pendaftaran Online)'
+            });
+
+            return { success: true, isExisting: false, referral: newRef, message: 'Pendaftaran Affiliate/Perantara Kebaikan berhasil!' };
         },
 
         async add(data) {
