@@ -128,16 +128,40 @@ const SUPABASE_CONFIG = {
         }
     }
 
+    // ─── UPSERT ──────────────────────────────────────────
+    async function upsert(table, payload) {
+        if (!isConfigured()) return { data: null, error: 'Not configured' };
+
+        try {
+            const res = await fetch(endpoint(table), {
+                method: 'POST',
+                headers: headers({ 'Prefer': 'resolution=merge-duplicates,return=representation' }),
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) {
+                const err = await res.text();
+                return { data: null, error: err };
+            }
+            const data = await res.json();
+            return { data: Array.isArray(data) ? data[0] : data, error: null };
+        } catch (e) {
+            return { data: null, error: e.message };
+        }
+    }
+
     // ─── Public API ──────────────────────────────────────
     window.wizSupabase = {
         isConfigured,
         select,
         insert,
         update,
+        upsert,
         remove,
 
-        // Legacy helpers for backward compatibility
+        // Helpers for entities
         saveDonation: (data) => insert('donations', data),
+        saveReferral: (data) => upsert('referrals', data),
+        saveReferralPayout: (data) => upsert('referral_payouts', data),
         saveContactMessage: (data) => insert('contact_messages', data),
         saveZakatRecord: (data) => insert('zakat_records', data)
     };
