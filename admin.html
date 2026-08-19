@@ -4074,13 +4074,11 @@
                 document.getElementById('ref-default-rate').value = '6';
                 document.getElementById('ref-status').value = 'active';
             }
-            document.getElementById('referral-modal').classList.add('show');
-            document.body.style.overflow = 'hidden';
+            showModal('referral-modal');
         }
 
         function closeReferralModal() {
-            document.getElementById('referral-modal').classList.remove('show');
-            document.body.style.overflow = '';
+            hideModal('referral-modal');
             document.getElementById('referral-form').reset();
         }
 
