@@ -147,17 +147,6 @@
             font-weight: 700;
         }
     </style>
-    <style>
-        /* Admin login modal: hidden by default, shown only if not authenticated */
-        #admin-login-modal {
-            display: none !important;
-        }
-        #admin-login-modal.auth-show {
-            display: flex !important;
-            visibility: visible !important;
-            pointer-events: auto !important;
-        }
-    </style>
 </head>
 
 <body class="bg-background text-on-surface font-body-md min-h-screen flex antialiased">
@@ -176,13 +165,17 @@
                         m.style.visibility = 'visible';
                         m.style.pointerEvents = 'auto';
                     }
-                });
+                const m = document.getElementById('admin-login-modal');
+                if (m) {
+                    m.style.display = 'flex';
+                }
             }
         })();
     </script>
 
     <!-- Admin Login Modal Overlay -->
-    <div id="admin-login-modal" class="fixed inset-0 bg-inverse-surface/80 backdrop-blur-md flex items-center justify-center p-md overflow-y-auto" style="z-index: 99999;">
+    <!-- IMPORTANT: style='display:none' hides this until JS checks auth. This is inline style = highest priority. -->
+    <div id="admin-login-modal" class="fixed inset-0 bg-inverse-surface/80 backdrop-blur-md flex items-center justify-center p-md overflow-y-auto" style="display:none; z-index: 99999;">
         <div class="bg-surface rounded-2xl shadow-2xl border border-outline-variant/30 w-full max-w-md overflow-hidden transform transition-all my-auto">
             <div class="bg-primary/10 p-lg text-center border-b border-outline-variant/20 flex flex-col items-center gap-xs">
                 <img src="assets/images/logo-wiz-babel.png" alt="WIZ Babel Logo" class="h-14 w-auto object-contain mb-xs" onerror="this.classList.add('hidden');">
