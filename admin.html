@@ -1859,6 +1859,26 @@
             refreshAll();
         }
 
+        function refreshAll() {
+            if (!window.wizStore) return;
+            try { if (typeof renderKPI === 'function') renderKPI('dashboard-kpi-grid'); } catch(e) {}
+            try { if (typeof renderKPI === 'function') renderKPI('finance-kpi-grid'); } catch(e) {}
+            try { if (typeof renderDashboardDonations === 'function') renderDashboardDonations(); } catch(e) {}
+            try { if (typeof renderDonationTable === 'function') renderDonationTable(); } catch(e) {}
+            try { if (typeof renderDisbursementTable === 'function') renderDisbursementTable(); } catch(e) {}
+            try { if (typeof renderAllocationRulesSection === 'function') renderAllocationRulesSection(); } catch(e) {}
+            try { if (typeof renderSiteImagesSection === 'function') renderSiteImagesSection(); } catch(e) {}
+            try { if (typeof renderAdminUsersSection === 'function') renderAdminUsersSection(); } catch(e) {}
+            try { if (typeof renderNewsList === 'function') renderNewsList(); } catch(e) {}
+            try { if (typeof populateReferralSelects === 'function') populateReferralSelects(); } catch(e) {}
+            try { if (typeof renderReferralsSection === 'function') renderReferralsSection(); } catch(e) {}
+            try { if (typeof renderActivityLog === 'function') renderActivityLog(); } catch(e) {}
+        }
+
+        window.addEventListener('wiz-sync-complete', () => {
+            refreshAll();
+        });
+
         // ─── KPI Cards Render ────────────────────────────
         function renderKPI(containerId) {
             const activeWilayah = document.getElementById('filter-wilayah') ? document.getElementById('filter-wilayah').value : 'Semua';
