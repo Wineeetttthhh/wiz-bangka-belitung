@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftaran Affiliate & Perantara Kebaikan — WIZ Bangka Belitung</title>
+    <meta name="description"
+        content="Bergabung menjadi Affiliate / Perantara Kebaikan Wahdah Inspirasi Zakat (WIZ) Bangka Belitung. Dapatkan komisi hak perantara 6% untuk setiap donasi yang Anda ajak.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#008444',
+                        'primary-container': '#00A857',
+                        'on-primary': '#FFFFFF',
+                        secondary: '#F7941D',
+                        'on-secondary': '#FFFFFF',
+                        tertiary: '#0055B8',
+                        surface: '#FFFFFF',
+                        'surface-container': '#F8FAF8',
+                        'surface-container-high': '#EFF2EF',
+                        'surface-container-low': '#F4F7F4',
+                        'on-surface': '#191C1A',
+                        'on-surface-variant': '#404943',
+                        'outline-variant': '#C0C9C2',
+                        error: '#BA1A1A'
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body class="bg-surface-container text-on-surface antialiased min-h-screen flex flex-col">
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-outline-variant/30 shadow-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-3 group">
+                <img src="assets/images/logo-wiz-official.png" alt="WIZ Babel" class="h-10 w-auto">
+                <span class="hidden sm:block font-bold text-sm text-slate-800 border-l border-slate-300 pl-3">
+                    Bangka Belitung
+                </span>
+            </a>
+
+            <nav class="hidden md:flex items-center gap-6 text-sm font-semibold text-slate-700">
+                <a href="index.html" class="hover:text-primary transition-colors">Beranda</a>
+                <a href="program.html" class="hover:text-primary transition-colors">Program Kebaikan</a>
+                <a href="donasi.html" class="hover:text-primary transition-colors">Donasi Langsung</a>
+                <a href="laporan.html" class="hover:text-primary transition-colors">Laporan Keuangan</a>
+                <a href="affiliate.html" class="text-primary font-bold border-b-2 border-primary pb-0.5">Affiliate Kebaikan</a>
+            </nav>
+
+            <div class="flex items-center gap-3">
+                <a href="donasi.html"
+                    class="bg-secondary text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-md hover:bg-amber-600 transition-all flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-base">favorite</span>
+                    <span>Donasi Sekarang</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="bg-gradient-to-br from-[#006633] via-primary to-[#004d26] text-white py-12 md:py-16">
+        <div class="max-w-5xl mx-auto px-4 text-center space-y-4">
+            <span class="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold text-emerald-200 border border-white/20">
+                <span class="material-symbols-outlined text-sm">handshake</span>
+                Program Perantara & Affiliate Kebaikan WIZ
+            </span>
+            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight">
+                Sebarkan Kebaikan, Raih Keberkahan & Hak Perantara 6%
+            </h1>
+            <p class="text-emerald-100 text-sm md:text-base max-w-2xl mx-auto font-medium">
+                Daftar secara gratis sebagai Affiliate WIZ Bangka Belitung. Bagikan link donasi program ke keluarga, teman, & sosial media Anda. Setiap donasi yang masuk dari tautan Anda akan otomatis tercatat secara adil & transparan.
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Content Grid -->
+    <main class="max-w-6xl mx-auto px-4 py-10 space-y-12 flex-grow w-full">
+
+        <!-- Features Banner -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-2xl border border-outline-variant/30 shadow-xs flex items-start gap-4">
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-primary flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-2xl">link</span>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-900 text-base mb-1">1. Dapatkan Link Unik</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">Sistem membuat tautan khusus (ID Affiliate) untuk Anda sebar ke sosial media & WhatsApp.</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-outline-variant/30 shadow-xs flex items-start gap-4">
+                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-2xl">autorenew</span>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-900 text-base mb-1">2. Terlacak Otomatis</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">Donasi dari pembaca otomatis mengikat ID Anda & dicantumkan pada konfirmasi WhatsApp.</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-outline-variant/30 shadow-xs flex items-start gap-4">
+                <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-2xl">payments</span>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-900 text-base mb-1">3. Hak Perantara 6%</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">Hak perantara tercatat di Admin Dashboard dan dapat dicairkan langsung ke rekening Anda.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Pendaftaran Form & Check Dashboard -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Column: Form Pendaftaran (7 cols) -->
+            <div class="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-outline-variant/30 shadow-sm space-y-6">
+                <div class="border-b border-slate-100 pb-4">
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">person_add</span>
+                        <span>Form Pendaftaran Affiliate Baru</span>
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">Isi data diri & rekening bank untuk pencairan komisi Anda.</p>
+                </div>
+
+                <form id="affiliate-reg-form" onsubmit="handleAffiliateRegister(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap / Komunitas <span class="text-red-500">*</span></label>
+                        <input type="text" id="reg-name" required placeholder="Contoh: Ahmad Hidayat"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nomor WhatsApp / HP Active <span class="text-red-500">*</span></label>
+                        <input type="tel" id="reg-phone" required placeholder="Contoh: 081234567890"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Bank Pencairan</label>
+                            <input type="text" id="reg-bank" placeholder="Contoh: BSI / Mandiri / BCA"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Rekening Bank</label>
+                            <input type="text" id="reg-acc-no" placeholder="Contoh: 7112223334"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nama Pemilik Rekening</label>
+                        <input type="text" id="reg-acc-holder" placeholder="Nama di buku tabungan (default = nama di atas)"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
+                    </div>
+
+                    <button type="submit" id="btn-reg-submit"
+                        class="w-full bg-primary hover:bg-emerald-700 text-white font-bold text-sm py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
+                        <span class="material-symbols-outlined text-lg">check_circle</span>
+                        <span>Daftar Sekarang &amp; Buat Link Affiliate</span>
+                    </button>
+                </form>
+
+                <!-- Result Registration Box (Hidden initially) -->
+                <div id="reg-result-box" class="hidden bg-emerald-50 border border-emerald-200 rounded-2xl p-5 space-y-3">
+                    <div class="flex items-center gap-2 text-emerald-800 font-bold text-base">
+                        <span class="material-symbols-outlined text-xl">verified</span>
+                        <span>Pendaftaran Berhasil!</span>
+                    </div>
+                    <p class="text-xs text-emerald-900">Selamat! Akun Affiliate Anda telah aktif. Berikut adalah Kode Referral &amp; Link Tautan Utama Anda:</p>
+                    
+                    <div class="bg-white p-3 rounded-xl border border-emerald-200 space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-500 font-semibold">Kode Referral Anda:</span>
+                            <span id="res-ref-code" class="font-mono font-bold text-primary text-sm bg-emerald-100 px-2 py-0.5 rounded">REF-XXXXX</span>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[11px] text-slate-500 font-semibold block">Link Utama Donasi:</span>
+                            <div class="flex gap-2">
+                                <input type="text" id="res-ref-link" readonly class="bg-slate-50 text-xs font-mono text-slate-800 px-3 py-1.5 rounded-lg w-full border border-slate-200">
+                                <button onclick="copyElementText('res-ref-link')" class="bg-primary text-white text-xs font-bold px-3 py-1.5 rounded-lg shrink-0 hover:bg-emerald-700">Salin</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Check Dashboard / Existing Affiliate (5 cols) -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="bg-white rounded-3xl p-6 border border-outline-variant/30 shadow-sm space-y-4">
+                    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-secondary">search</span>
+                        <span>Cek Perolehan Affiliate Anda</span>
+                    </h2>
+                    <p class="text-xs text-slate-500">Masukkan No. WhatsApp atau Kode Referral yang sudah terdaftar untuk melihat statistik komisi &amp; share link.</p>
+
+                    <div class="flex gap-2">
+                        <input type="text" id="check-query" placeholder="No. WA / Kode (Contoh: 0812...)"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-primary outline-none">
+                        <button onclick="checkAffiliateDashboard()"
+                            class="bg-secondary hover:bg-amber-600 text-white font-bold px-4 py-2.5 rounded-xl text-xs shrink-0 flex items-center gap-1 cursor-pointer">
+                            <span class="material-symbols-outlined text-sm">search</span> Cek
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dashboard Statistics Result Card (Hidden by default) -->
+                <div id="affiliate-stats-card" class="hidden bg-white rounded-3xl p-6 border border-primary/30 shadow-md space-y-4">
+                    <div class="border-b border-slate-100 pb-3 flex justify-between items-center">
+                        <div>
+                            <h3 id="dash-aff-name" class="font-bold text-slate-900 text-base">-</h3>
+                            <span id="dash-aff-code" class="text-xs font-mono text-primary font-bold">Kode: -</span>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-1 rounded-full">Aktif ✅</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <span class="text-[11px] text-slate-500 font-semibold block">Total Donasi</span>
+                            <span id="dash-total-donations" class="text-sm font-bold text-slate-900">0 Transaksi</span>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <span class="text-[11px] text-slate-500 font-semibold block">Nominal Terkumpul</span>
+                            <span id="dash-total-amount" class="text-sm font-bold text-primary">Rp 0</span>
+                        </div>
+                        <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100 col-span-2">
+                            <span class="text-[11px] text-emerald-800 font-semibold block">Total Hak Perantara (6%)</span>
+                            <span id="dash-total-earned" class="text-base font-extrabold text-emerald-900">Rp 0</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <button onclick="openProgramLinkGeneratorModal()"
+                            class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2 cursor-pointer">
+                            <span class="material-symbols-outlined text-sm">share</span>
+                            <span>Generate Link Share Per Program</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: List Program Spesifik Siap Share -->
+        <div class="space-y-6 pt-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">Katalog Program Siap Bagikan</h2>
+                    <p class="text-xs text-slate-500 mt-1">Pilih program di bawah untuk langsung membagikannya dengan ID Affiliate Anda!</p>
+                </div>
+            </div>
+
+            <div id="affiliate-programs-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Dynamic Loaded Programs -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-300 py-12 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="space-y-3">
+                <img src="assets/images/logo-wiz-official.png" alt="WIZ Babel" class="h-10 w-auto brightness-200">
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Wahdah Inspirasi Zakat (WIZ) Bangka Belitung — Pengelolaan Zakat, Infak, Sedekah &amp; Wakaf Terpercaya di Provinsi Kepulauan Bangka Belitung.
+                </p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold text-sm mb-3">Kontak Layanan</h4>
+                <p class="text-xs text-slate-400">Pangkalpinang: <span data-site-office-phone="pangkalpinang">0812-7171-8891</span></p>
+                <p class="text-xs text-slate-400 mt-1">Sungailiat: <span data-site-office-phone="sungailiat">0852-6800-1143</span></p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold text-sm mb-3">Navigasi Cepat</h4>
+                <div class="flex flex-col space-y-2 text-xs">
+                    <a href="index.html" class="hover:text-white">Beranda</a>
+                    <a href="program.html" class="hover:text-white">Katalog Program</a>
+                    <a href="donasi.html" class="hover:text-white">Form Donasi</a>
+                    <a href="affiliate.html" class="hover:text-white text-primary">Affiliate Kebaikan</a>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 mt-8 pt-6 border-t border-slate-800 text-center text-xs text-slate-500">
+            &copy; 2026 Wahdah Inspirasi Zakat (WIZ) Bangka Belitung. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Firebase Client & Admin Store JS -->
+    <script src="assets/js/firebase-client.js"></script>
+    <script src="assets/js/admin-store.js"></script>
+    <script src="assets/js/main.js"></script>
+
+    <!-- Page Script -->
+    <script>
+        let currentAffiliateData = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAffiliateProgramsGrid();
+
+            // Check if active ref in session
+            const activeRef = sessionStorage.getItem('wiz_active_ref_id') || localStorage.getItem('wiz_active_ref_id');
+            if (activeRef) {
+                document.getElementById('check-query').value = activeRef;
+                checkAffiliateDashboard();
+            }
+        });
+
+        async function handleAffiliateRegister(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-reg-submit');
+            btn.disabled = true;
+            btn.innerHTML = '<span>Memproses Pendaftaran...</span>';
+
+            const name = document.getElementById('reg-name').value;
+            const phone = document.getElementById('reg-phone').value;
+            const bankName = document.getElementById('reg-bank').value;
+            const accountNumber = document.getElementById('reg-acc-no').value;
+            const accountHolder = document.getElementById('reg-acc-holder').value;
+
+            if (wizStore && wizStore.referrals) {
+                const res = await wizStore.referrals.registerPublic({ name, phone, bankName, accountNumber, accountHolder });
+                if (res.success) {
+                    const ref = res.referral;
+                    currentAffiliateData = ref;
+
+                    // Set active ref
+                    const refCode = ref.code || ref.id;
+                    sessionStorage.setItem('wiz_active_ref_id', refCode);
+                    localStorage.setItem('wiz_active_ref_id', refCode);
+
+                    document.getElementById('res-ref-code').textContent = refCode;
+                    const mainLink = `${window.location.origin}/donasi.html?ref=${refCode}`;
+                    document.getElementById('res-ref-link').value = mainLink;
+                    document.getElementById('reg-result-box').classList.remove('hidden');
+
+                    alert(`✅ ${res.message}\n\nKode Referral Anda: ${refCode}`);
+
+                    // Show stats card
+                    showAffiliateStatsCard(ref);
+                } else {
+                    alert(`⚠️ ${res.message}`);
+                }
+            } else {
+                alert('Modul wizStore belum siap.');
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-symbols-outlined text-lg">check_circle</span><span>Daftar Sekarang & Buat Link Affiliate</span>';
+        }
+
+        function checkAffiliateDashboard() {
+            const query = document.getElementById('check-query').value;
+            if (!query) {
+                alert('Silakan masukkan No. WA atau Kode Referral.');
+                return;
+            }
+
+            if (!wizStore || !wizStore.referrals) return;
+            const ref = wizStore.referrals.getByCodeOrId(query);
+            if (ref) {
+                currentAffiliateData = ref;
+                const refCode = ref.code || ref.id;
+                sessionStorage.setItem('wiz_active_ref_id', refCode);
+                localStorage.setItem('wiz_active_ref_id', refCode);
+                showAffiliateStatsCard(ref);
+            } else {
+                alert('Data Affiliate tidak ditemukan. Silakan daftarkan diri Anda terlebih dahulu pada form pendaftaran.');
+            }
+        }
+
+        function showAffiliateStatsCard(ref) {
+            const card = document.getElementById('affiliate-stats-card');
+            if (!card) return;
+
+            const fullRef = wizStore.referrals.getById(ref.id) || ref;
+
+            document.getElementById('dash-aff-name').textContent = fullRef.name;
+            document.getElementById('dash-aff-code').textContent = `Kode: ${fullRef.code || fullRef.id}`;
+            document.getElementById('dash-total-donations').textContent = `${fullRef.donationsCount || 0} Transaksi`;
+            document.getElementById('dash-total-amount').textContent = `Rp ${(fullRef.totalDonationAmount || 0).toLocaleString('id-ID')}`;
+            document.getElementById('dash-total-earned').textContent = `Rp ${(fullRef.totalEarned || 0).toLocaleString('id-ID')}`;
+
+            card.classList.remove('hidden');
+        }
+
+        function renderAffiliateProgramsGrid() {
+            const grid = document.getElementById('affiliate-programs-grid');
+            if (!grid || !wizStore) return;
+
+            const programs = wizStore.finance.getPerSpecificProgram('Semua');
+            const defaultImg = 'assets/images/sedekah-beras-dhuafa.jpg';
+
+            grid.innerHTML = programs.slice(0, 6).map(p => `
+                <div class="bg-white rounded-2xl overflow-hidden border border-outline-variant/30 shadow-xs flex flex-col">
+                    <div class="aspect-video relative bg-slate-100">
+                        <img src="${p.image || defaultImg}" onerror="this.src='${defaultImg}'" class="w-full h-full object-cover" alt="${p.displayLabel}">
+                        <span class="absolute top-2 left-2 bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full">${p.pillarKey}</span>
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow space-y-2">
+                        <h4 class="font-bold text-slate-900 text-sm line-clamp-1">${p.displayLabel}</h4>
+                        <p class="text-xs text-slate-500">Terkumpul: <strong class="text-primary">Rp ${(p.masuk || 0).toLocaleString('id-ID')}</strong></p>
+                        
+                        <div class="pt-2 mt-auto">
+                            <button onclick="shareAffiliateProgram('${p.displayLabel}')"
+                                class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1.5 cursor-pointer">
+                                <span class="material-symbols-outlined text-sm">share</span>
+                                <span>Bagikan Link Affiliate</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>`).join('');
+        }
+
+        function shareAffiliateProgram(programTitle) {
+            const activeRef = sessionStorage.getItem('wiz_active_ref_id') || (currentAffiliateData ? (currentAffiliateData.code || currentAffiliateData.id) : '');
+            if (!activeRef) {
+                alert('Silakan daftarkan diri Anda lebih dulu atau cek kode referral Anda di atas agar link otomatis terhubung dengan akun Anda!');
+                return;
+            }
+            window.shareProgram(programTitle, `Mari bersama menyalurkan kepedulian melalui program ${programTitle} WIZ Bangka Belitung.`);
+        }
+
+        function copyElementText(id) {
+            const input = document.getElementById(id);
+            if (input) {
+                input.select();
+                navigator.clipboard.writeText(input.value).then(() => {
+                    alert('✅ Link Affiliate berhasil disalin!');
+                });
+            }
+        }
+    </script>
+</body>
+
+</html>
