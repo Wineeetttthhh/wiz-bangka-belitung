@@ -729,25 +729,43 @@
             e.preventDefault();
             if (!currentLoggedAffiliate) return;
 
-            const updates = {
-                name: document.getElementById('prof-name').value,
-                bankName: document.getElementById('prof-bank').value,
-                accountNumber: document.getElementById('prof-acc-no').value,
-                accountHolder: document.getElementById('prof-acc-holder').value
-            };
+            const nameVal = document.getElementById('prof-name').value.trim();
+            const bankVal = document.getElementById('prof-bank').value.trim();
+            const accNoVal = document.getElementById('prof-acc-no').value.trim();
+            const accHolderVal = document.getElementById('prof-acc-holder').value.trim();
+            const pinVal = document.getElementById('prof-pin').value.trim();
 
-            const pinNew = document.getElementById('prof-pin').value;
-            if (pinNew && pinNew.trim()) {
-                updates.pin = pinNew.trim();
+            const updates = {
+                name: nameVal,
+                bankName: bankVal,
+                accountNumber: accNoVal,
+                accountHolder: accHolderVal
+            };
+            if (pinVal) updates.pin = pinVal;
+
+            let updatedObj = null;
+            const identifiers = [
+                currentLoggedAffiliate.id,
+                currentLoggedAffiliate.code,
+                currentLoggedAffiliate.phone,
+                currentLoggedAffiliate.name
+            ].filter(Boolean);
+
+            for (const iden of identifiers) {
+                updatedObj = await wizStore.referrals.update(iden, updates);
+                if (updatedObj) break;
             }
 
-            await wizStore.referrals.update(currentLoggedAffiliate.id, updates);
-            currentLoggedAffiliate = wizStore.referrals.getById(currentLoggedAffiliate.id);
-            sessionStorage.setItem('wiz_logged_affiliate', JSON.stringify(currentLoggedAffiliate));
-            localStorage.setItem('wiz_logged_affiliate', JSON.stringify(currentLoggedAffiliate));
+            if (updatedObj) {
+                currentLoggedAffiliate = updatedObj;
+                sessionStorage.setItem('wiz_logged_affiliate', JSON.stringify(currentLoggedAffiliate));
+                localStorage.setItem('wiz_logged_affiliate', JSON.stringify(currentLoggedAffiliate));
 
-            alert('✅ Profile & Data Rekening Anda berhasil diperbarui!');
-            activateMemberState(currentLoggedAffiliate);
+                alert(`✅ Data Rekening berhasil diperbarui!\n\nBank: ${updatedObj.bankName}\nNo. Rekening: ${updatedObj.accountNumber}\na.n: ${updatedObj.accountHolder}\n\nData ini telah tersinkronisasi 100% ke Web Admin.`);
+                activateMemberState(currentLoggedAffiliate);
+            } else {
+                alert('⚠️ Gagal memperbarui data: Akun perantara tidak ditemukan di database.');
+            }
         }
 
         function renderMemberDashboard() {
