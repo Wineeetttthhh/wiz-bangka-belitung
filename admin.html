@@ -2751,13 +2751,11 @@
                 <button onclick="deleteDonation('${d.id}'); closeDonationDetail();" class="px-lg py-2.5 border border-error text-error rounded-lg font-label-md font-bold hover:bg-error/5 transition-colors">Hapus</button>
             </div>`;
 
-            document.getElementById('donation-detail-modal').classList.add('show');
-            document.body.style.overflow = 'hidden';
+            showModal('donation-detail-modal');
         }
 
         function closeDonationDetail() {
-            document.getElementById('donation-detail-modal').classList.remove('show');
-            document.body.style.overflow = '';
+            hideModal('donation-detail-modal');
         }
 
         // ─── News & Disbursement handlers (preserved) ────
