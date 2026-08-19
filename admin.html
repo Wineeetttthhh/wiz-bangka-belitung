@@ -1870,7 +1870,9 @@
                 modal.classList.add('show');
                 modal.style.display = 'flex';
                 modal.style.opacity = '1';
+                modal.style.visibility = 'visible';
                 modal.style.pointerEvents = 'auto';
+                modal.style.zIndex = '9999';
                 document.body.style.overflow = 'hidden';
             } catch (err) {
                 console.error('[WIZ Admin] Error showing modal:', modalId, err);
@@ -1885,6 +1887,7 @@
                 modal.classList.add('hidden');
                 modal.style.display = 'none';
                 modal.style.opacity = '0';
+                modal.style.visibility = 'hidden';
                 modal.style.pointerEvents = 'none';
                 
                 const openModals = document.querySelectorAll('.modal-backdrop.show, .modal-backdrop:not(.hidden)');
