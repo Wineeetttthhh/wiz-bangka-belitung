@@ -427,45 +427,57 @@
             const all = this.getAll();
             return all[key] || DEFAULT_SITE_IMAGES[key] || '';
         },
-        async update(key, url, label) {
+        update(key, url, label) {
             const current = this.getAll();
             current[key] = url;
             setStore(STORAGE_KEYS.SITE_IMAGES, current);
             if (typeof activityLog !== 'undefined' && activityLog.add) {
                 activityLog.add('settings', `Foto '${label || key}' diperbarui oleh Admin`, sessionStorage.getItem('wiz_admin_user') || 'Admin');
             }
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.upsert('site_images', { key, url, label: label || key, updatedAt: new Date().toISOString() });
-            }
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                try {
-                    await window.wizSupabase.upsert('site_images', { id: key, key: key, image_url: url, label: label || key, updated_at: new Date().toISOString() });
-                } catch(e) {}
-            }
+
             window.dispatchEvent(new CustomEvent('wiz-program-images-changed', { detail: { key, url } }));
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+
+            // Background non-blocking cloud push
+            (async () => {
+                try {
+                    if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                        await window.wizFirebase.set('site_images', key, { key, url, label: label || key, updatedAt: new Date().toISOString() });
+                    }
+                    if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                        await window.wizSupabase.upsert('site_images', { id: key, key: key, image_url: url, label: label || key, updated_at: new Date().toISOString() });
+                    }
+                } catch(e) {}
+            })();
+
             return current;
         },
-        async updateAll(imagesObj) {
+        updateAll(imagesObj) {
             const current = { ...this.getAll(), ...imagesObj };
             setStore(STORAGE_KEYS.SITE_IMAGES, current);
             if (typeof activityLog !== 'undefined' && activityLog.add) {
                 activityLog.add('settings', 'Beberapa foto website diperbarui oleh Admin', sessionStorage.getItem('wiz_admin_user') || 'Admin');
             }
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                for (const [key, url] of Object.entries(imagesObj)) {
-                    await window.wizFirebase.upsert('site_images', { key, url, label: key, updatedAt: new Date().toISOString() });
-                }
-            }
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                try {
-                    for (const [key, url] of Object.entries(imagesObj)) {
-                        await window.wizSupabase.upsert('site_images', { id: key, key: key, image_url: url, label: key, updated_at: new Date().toISOString() });
-                    }
-                } catch(e) {}
-            }
+
             window.dispatchEvent(new CustomEvent('wiz-program-images-changed'));
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+
+            // Background non-blocking cloud push
+            (async () => {
+                try {
+                    if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                        for (const [key, url] of Object.entries(imagesObj)) {
+                            await window.wizFirebase.set('site_images', key, { key, url, label: key, updatedAt: new Date().toISOString() });
+                        }
+                    }
+                    if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                        for (const [key, url] of Object.entries(imagesObj)) {
+                            await window.wizSupabase.upsert('site_images', { id: key, key: key, image_url: url, label: key, updated_at: new Date().toISOString() });
+                        }
+                    }
+                } catch(e) {}
+            })();
+
             return current;
         }
     };
