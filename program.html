@@ -1350,6 +1350,45 @@
             await window.wizStore.syncFromCloud();
             updateDynamicProgramCards();
         }
+
+        // Auto-scroll and highlight target program from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const progParam = urlParams.get('program');
+        if (progParam) {
+            const cleanProg = decodeURIComponent(progParam).trim().toLowerCase();
+            let targetCard = null;
+            document.querySelectorAll('.program-card').forEach(card => {
+                const title = (card.getAttribute('data-title') || card.querySelector('h3, h4')?.textContent || '').trim().toLowerCase();
+                if (title && (title === cleanProg || title.includes(cleanProg) || cleanProg.includes(title))) {
+                    targetCard = card;
+                }
+            });
+
+            if (targetCard) {
+                setTimeout(() => {
+                    targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    targetCard.classList.add('ring-4', 'ring-primary', 'shadow-2xl', 'scale-[1.02]');
+                    setTimeout(() => {
+                        targetCard.classList.remove('scale-[1.02]');
+                    }, 400);
+                }, 300);
+
+                // Update Dynamic OpenGraph Meta Tags
+                const titleText = (targetCard.getAttribute('data-title') || progParam).trim();
+                const cardImg = targetCard.querySelector('img')?.src;
+                if (cardImg && (cardImg.startsWith('http') || cardImg.startsWith('data:image'))) {
+                    const ogImgEl = document.getElementById('og-image');
+                    const twImgEl = document.getElementById('twitter-image');
+                    if (ogImgEl) ogImgEl.setAttribute('content', cardImg);
+                    if (twImgEl) twImgEl.setAttribute('content', cardImg);
+                }
+                document.title = `${titleText} — WIZ Bangka Belitung`;
+                const ogTitleEl = document.getElementById('og-title');
+                const twTitleEl = document.getElementById('twitter-title');
+                if (ogTitleEl) ogTitleEl.setAttribute('content', `Program: ${titleText}`);
+                if (twTitleEl) twTitleEl.setAttribute('content', `Program: ${titleText}`);
+            }
+        }
     });
 
     window.addEventListener('wiz-sync-complete', () => {
