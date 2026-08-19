@@ -1089,7 +1089,7 @@
                     }
                 }
                 smartMerge(STORAGE_KEYS.NEWS, newsRes.data,
-                    (a, b) => new Date(b.createdAt) - new Date(a.createdAt), deletedNewsSet);
+                    (a, b) => new Date(b.eventDate || b.event_date || b.createdAt || 0) - new Date(a.eventDate || a.event_date || a.createdAt || 0), deletedNewsSet);
             }
 
             if (disbRes.data) {
