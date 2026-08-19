@@ -40,6 +40,8 @@
         REFERRAL_PAYOUTS: 'wiz_referral_payouts',
         DELETED_IDS: 'wiz_deleted_donation_ids',
         DELETED_NEWS_IDS: 'wiz_deleted_news_ids',
+        DELETED_DISB_IDS: 'wiz_deleted_disb_ids',
+        DELETED_REF_IDS: 'wiz_deleted_ref_ids',
         INITIALIZED: 'wiz_store_initialized'
     };
 
