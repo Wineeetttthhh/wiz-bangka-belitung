@@ -1859,6 +1859,41 @@
             refreshAll();
         }
 
+        function showModal(modalId) {
+            try {
+                const modal = document.getElementById(modalId);
+                if (!modal) return;
+                modal.classList.remove('hidden');
+                modal.classList.add('show');
+                modal.style.display = 'flex';
+                modal.style.opacity = '1';
+                modal.style.pointerEvents = 'auto';
+                document.body.style.overflow = 'hidden';
+            } catch (err) {
+                console.error('[WIZ Admin] Error showing modal:', modalId, err);
+            }
+        }
+
+        function hideModal(modalId) {
+            try {
+                const modal = document.getElementById(modalId);
+                if (!modal) return;
+                modal.classList.remove('show');
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+                modal.style.opacity = '0';
+                modal.style.pointerEvents = 'none';
+                
+                const openModals = document.querySelectorAll('.modal-backdrop.show, .modal-backdrop:not(.hidden)');
+                if (openModals.length === 0) {
+                    document.body.style.overflow = '';
+                }
+            } catch (err) {
+                console.error('[WIZ Admin] Error hiding modal:', modalId, err);
+                document.body.style.overflow = '';
+            }
+        }
+
         function refreshAll() {
             if (!window.wizStore) return;
             try { if (typeof renderKPI === 'function') renderKPI('dashboard-kpi-grid'); } catch(e) {}
