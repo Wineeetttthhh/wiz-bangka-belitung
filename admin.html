@@ -3793,7 +3793,10 @@
                 if (kpiBonus) kpiBonus.textContent = fmt(totalBonus);
                 if (kpiPending) kpiPending.textContent = fmt(totalPending);
 
-                const filteredRefs = allRefs.filter(r => r && (!searchVal || (r.name && r.name.toLowerCase().includes(searchVal)) || (r.phone && r.phone.includes(searchVal)) || (r.bankName && r.bankName.toLowerCase().includes(searchVal))));
+                const monthSelect = document.getElementById('referral-month-filter');
+                const selectedMonth = monthSelect ? monthSelect.value : '2026-08';
+
+                const filteredRefs = allRefs.filter(r => r && (!searchVal || (r.name && r.name.toLowerCase().includes(searchVal)) || (r.phone && r.phone.includes(searchVal)) || (r.code && r.code.toLowerCase().includes(searchVal)) || (r.bankName && r.bankName.toLowerCase().includes(searchVal))));
 
                 const refContainer = document.getElementById('referrals-table-container');
                 if (refContainer) {
@@ -3804,7 +3807,8 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-surface-container-low border-b border-outline-variant/30 font-label-md text-caption text-on-surface-variant">
-                                    <th class="p-sm">Nama Perantara</th>
+                                    <th class="p-sm">Nama &amp; Kode Affiliate</th>
+                                    <th class="p-sm">Evaluasi Bulanan</th>
                                     <th class="p-sm">Kontak &amp; Rekening</th>
                                     <th class="p-sm text-center">% Default</th>
                                     <th class="p-sm text-right">Donasi Diraih</th>
@@ -3817,12 +3821,19 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-outline-variant/20 font-body-md text-xs">
-                                ${filteredRefs.map(r => `
+                                ${filteredRefs.map(r => {
+                                    const mKpi = wizStore.referrals.getMonthlyKPI(r.id, selectedMonth);
+                                    const tierBadge = mKpi ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${mKpi.tierClass}">${mKpi.performanceTier}</span>` : '';
+                                    return `
                                 <tr class="hover:bg-surface-container-lowest/60 transition-colors">
                                     <td class="p-sm">
                                         <div class="font-bold text-on-surface text-sm">${r.name || 'Perantara'}</div>
-                                        <div class="text-[11px] text-on-surface-variant">${r.notes || 'Relawan / Perantara'}</div>
+                                        <div class="font-mono text-[11px] font-bold text-primary">Kode: ${r.code || r.id}</div>
                                         <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${r.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'}">${r.status === 'active' ? 'Aktif' : 'Non-Aktif'}</span>
+                                    </td>
+                                    <td class="p-sm">
+                                        ${tierBadge}
+                                        <div class="text-[10px] text-on-surface-variant font-semibold mt-1">Donasi: ${mKpi ? mKpi.monthDonationCount : 0} | Hak: Rp ${(mKpi ? mKpi.monthEarnedFee : 0).toLocaleString('id-ID')}</div>
                                     </td>
                                     <td class="p-sm">
                                         <div class="font-mono text-[11px]">${r.phone || '-'}</div>
@@ -3844,7 +3855,8 @@
                                         <button onclick="editReferral('${r.id}')" class="px-2 py-1 border border-outline-variant text-on-surface-variant hover:text-primary rounded font-semibold transition-colors">Edit</button>
                                         <button onclick="deleteReferral('${r.id}')" class="px-2 py-1 border border-error/30 text-error hover:bg-error/5 rounded font-semibold transition-colors">Hapus</button>
                                     </td>
-                                </tr>`).join('')}
+                                </tr>`;
+                                }).join('')}
                             </tbody>
                         </table>`;
                     }
