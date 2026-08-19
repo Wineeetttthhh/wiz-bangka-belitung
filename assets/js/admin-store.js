@@ -1044,7 +1044,11 @@
     // ─── Donations Module ─────────────────────────────────
     const donations = {
         getAll() {
-            return (getStore(STORAGE_KEYS.DONATIONS) || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            const deletedSet = getDeletedIds();
+            const raw = getStore(STORAGE_KEYS.DONATIONS) || [];
+            return raw
+                .filter(d => d && d.id && !deletedSet.has(String(d.id)) && d.status !== 'deleted' && !d.isDeleted)
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         },
 
         getPending() {
@@ -1056,7 +1060,7 @@
         },
 
         getById(id) {
-            return this.getAll().find(d => d.id === id) || null;
+            return this.getAll().find(d => String(d.id) === String(id)) || null;
         },
 
         /**
@@ -1132,12 +1136,13 @@
                 await window.wizFirebase.insert('donations', newDonation);
             }
 
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return newDonation;
         },
 
         async update(id, updates) {
             const list = this.getAll();
-            const idx = list.findIndex(d => d.id === id);
+            const idx = list.findIndex(d => String(d.id) === String(id));
             if (idx === -1) return null;
 
             const programSpesifik = updates.programSpesifik || updates.program || list[idx].programSpesifik || '-';
@@ -1186,12 +1191,13 @@
                 await window.wizFirebase.update('donations', id, list[idx]);
             }
 
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return list[idx];
         },
 
         async verify(donationId, adminName) {
             const list = this.getAll();
-            const idx = list.findIndex(d => d.id === donationId);
+            const idx = list.findIndex(d => String(d.id) === String(donationId));
             if (idx === -1) return null;
 
             list[idx].status = 'verified';
@@ -1209,12 +1215,13 @@
                 });
             }
 
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return list[idx];
         },
 
         async reject(donationId, adminName) {
             const list = this.getAll();
-            const idx = list.findIndex(d => d.id === donationId);
+            const idx = list.findIndex(d => String(d.id) === String(donationId));
             if (idx === -1) return null;
 
             list[idx].status = 'rejected';
@@ -1232,13 +1239,18 @@
                 });
             }
 
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return list[idx];
         },
 
         async delete(donationId) {
-            const list = this.getAll();
-            const item = list.find(d => d.id === donationId);
-            const filtered = list.filter(d => d.id !== donationId);
+            if (!donationId) return;
+            const strId = String(donationId);
+            addDeletedId(strId);
+
+            const rawList = getStore(STORAGE_KEYS.DONATIONS) || [];
+            const item = rawList.find(d => String(d.id) === strId);
+            const filtered = rawList.filter(d => String(d.id) !== strId);
             setStore(STORAGE_KEYS.DONATIONS, filtered);
 
             if (item) {
@@ -1246,8 +1258,12 @@
             }
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.remove('donations', donationId);
+                await window.wizFirebase.remove('donations', strId);
+                await window.wizFirebase.upsert('deleted_ids', { key: strId, deletedAt: new Date().toISOString() });
             }
+
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+        },
         },
 
         count() { return this.getVerified().length; },
