@@ -728,6 +728,27 @@
                 localStorage.setItem('wiz_specific_prog_imgs', JSON.stringify(flatMap));
             } catch(e) {}
 
+            // Save to Firebase & Supabase Cloud
+            const imgRecord = {
+                id: 'prog_img_' + programName.replace(/\s+/g, '_').toLowerCase(),
+                key: programName,
+                image_url: imageDataUrl,
+                updated_at: new Date().toISOString()
+            };
+
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.set('site_images', imgRecord.id, imgRecord);
+            }
+
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.upsert('site_images', imgRecord);
+                } catch(e) {}
+            }
+
+            window.dispatchEvent(new CustomEvent('wiz-program-images-changed', { detail: { name: programName, image: imageDataUrl } }));
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+
             return updated;
         },
         getSpecificProgramImage(programName, pillar = '') {
