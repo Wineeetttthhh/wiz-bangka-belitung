@@ -1444,11 +1444,15 @@
     // ─── Disbursements (Penyaluran Dana) Module ──────────
     const disbursements = {
         getAll() {
-            return (getStore(STORAGE_KEYS.DISBURSEMENTS) || []).sort((a, b) => new Date(b.disbursedAt) - new Date(a.disbursedAt));
+            const deletedSet = getDeletedDisbIds();
+            const raw = getStore(STORAGE_KEYS.DISBURSEMENTS) || [];
+            return raw
+                .filter(d => d && d.id && !deletedSet.has(String(d.id)) && d.status !== 'deleted' && !d.isDeleted)
+                .sort((a, b) => new Date(b.disbursedAt) - new Date(a.disbursedAt));
         },
 
         getById(id) {
-            return this.getAll().find(d => d.id === id) || null;
+            return this.getAll().find(d => String(d.id) === String(id)) || null;
         },
 
         async add(data) {
@@ -1472,12 +1476,13 @@
                 await window.wizFirebase.insert('disbursements', newDisb);
             }
 
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return newDisb;
         },
 
         async update(id, updates) {
             const list = this.getAll();
-            const idx = list.findIndex(d => d.id === id);
+            const idx = list.findIndex(d => String(d.id) === String(id));
             if (idx === -1) return null;
 
             list[idx] = { ...list[idx], ...updates, amount: Number(updates.amount) || list[idx].amount, updatedAt: new Date().toISOString() };
@@ -1489,13 +1494,18 @@
                 await window.wizFirebase.set('disbursements', id, list[idx]);
             }
 
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return list[idx];
         },
 
         async delete(id) {
-            const list = this.getAll();
-            const item = list.find(d => d.id === id);
-            const filtered = list.filter(d => d.id !== id);
+            if (!id) return;
+            const strId = String(id);
+            addDeletedDisbId(strId);
+
+            const rawList = getStore(STORAGE_KEYS.DISBURSEMENTS) || [];
+            const item = rawList.find(d => String(d.id) === strId);
+            const filtered = rawList.filter(d => String(d.id) !== strId);
             setStore(STORAGE_KEYS.DISBURSEMENTS, filtered);
 
             if (item) {
@@ -1503,8 +1513,11 @@
             }
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.remove('disbursements', id);
+                await window.wizFirebase.remove('disbursements', strId);
+                await window.wizFirebase.upsert('deleted_disb_ids', { key: strId, deletedAt: new Date().toISOString() });
             }
+
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
         }
     };
 
