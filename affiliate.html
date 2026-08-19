@@ -674,7 +674,9 @@
                 switchTab('tab-auth');
                 return;
             }
-            window.shareProgram(programTitle, `Mari bersama menyalurkan kepedulian melalui program ${programTitle} WIZ Bangka Belitung.`);
+            const origin = window.location.origin.includes('http') ? window.location.origin : '';
+            const donasiUrl = `${origin}/donasi.html?program=${encodeURIComponent(programTitle)}&ref=${encodeURIComponent(activeRef)}`;
+            window.shareProgram(programTitle, `Mari bersama menyalurkan kepedulian melalui program ${programTitle} WIZ Bangka Belitung.`, donasiUrl);
         }
     </script>
 </body>
