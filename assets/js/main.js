@@ -70,20 +70,25 @@ function initDynamicProgramImages() {
         getProgImg = (name) => {
             try {
                 const flatMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
-                return flatMap[name] || '';
+                if (flatMap[name]) return flatMap[name];
+                const clean = (name || '').toLowerCase();
+                for (const [k, img] of Object.entries(flatMap)) {
+                    if (clean.includes(k.toLowerCase()) || k.toLowerCase().includes(clean)) return img;
+                }
+                return '';
             } catch(e) { return ''; }
         };
     }
 
     // Update static & dynamic program cards by data-title or card header text
-    document.querySelectorAll('.program-card, article[data-title]').forEach(card => {
+    document.querySelectorAll('.program-card, article[data-title], article').forEach(card => {
         const titleAttr = card.getAttribute('data-title');
-        const titleEl = card.querySelector('h3, .card-title');
+        const titleEl = card.querySelector('h3, h4, .card-title');
         const progTitle = titleAttr || (titleEl ? titleEl.textContent.trim() : '');
 
         if (progTitle) {
             const customImg = getProgImg(progTitle);
-            if (customImg) {
+            if (customImg && (customImg.startsWith('http') || customImg.startsWith('data:image'))) {
                 const imgEl = card.querySelector('img');
                 if (imgEl) {
                     imgEl.src = customImg;
@@ -92,7 +97,6 @@ function initDynamicProgramImages() {
         }
     });
 
-    // Also update program items in programsData if catalog exists
     if (typeof programsData !== 'undefined' && Array.isArray(programsData)) {
         programsData.forEach(prog => {
             const customImg = getProgImg(prog.title);
