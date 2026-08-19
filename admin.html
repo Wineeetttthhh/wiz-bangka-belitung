@@ -3345,12 +3345,11 @@
                 if (editPillar) document.getElementById('spec-prog-pillar').value = editPillar;
             }
 
-            modal.classList.add('show');
+            showModal('specific-program-modal');
         }
 
         function closeSpecificProgramModal() {
-            const modal = document.getElementById('specific-program-modal');
-            if (modal) modal.classList.remove('show');
+            hideModal('specific-program-modal');
             const form = document.getElementById('specific-program-form');
             if (form) form.reset();
         }
