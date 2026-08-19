@@ -646,10 +646,12 @@
             const programs = wizStore.finance.getPerSpecificProgram('Semua');
             const defaultImg = 'assets/images/sedekah-beras-dhuafa.jpg';
 
-            grid.innerHTML = programs.slice(0, 9).map(p => `
+            grid.innerHTML = programs.map(p => {
+                const dynamicImg = p.image || (wizStore.allocationRulesManager ? wizStore.allocationRulesManager.getSpecificProgramImage(p.itemKey, p.pillarKey) : '') || defaultImg;
+                return `
                 <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs flex flex-col hover:shadow-md transition-shadow">
                     <div class="aspect-video relative bg-slate-100">
-                        <img src="${p.image || defaultImg}" onerror="this.src='${defaultImg}'" class="w-full h-full object-cover" alt="${p.displayLabel}">
+                        <img src="${dynamicImg}" onerror="this.onerror=null; this.src='${defaultImg}';" class="w-full h-full object-cover" alt="${p.displayLabel}">
                         <span class="absolute top-2 left-2 bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs">${p.pillarKey}</span>
                     </div>
                     <div class="p-4 flex flex-col flex-grow space-y-2">
@@ -664,7 +666,8 @@
                             </button>
                         </div>
                     </div>
-                </div>`).join('');
+                </div>`;
+            }).join('');
         }
 
         function shareAffiliateProgram(programTitle) {
@@ -678,6 +681,15 @@
             const donasiUrl = `${origin}/donasi.html?program=${encodeURIComponent(programTitle)}&ref=${encodeURIComponent(activeRef)}`;
             window.shareProgram(programTitle, `Mari bersama menyalurkan kepedulian melalui program ${programTitle} WIZ Bangka Belitung.`, donasiUrl);
         }
+
+        window.addEventListener('wiz-sync-complete', () => {
+            renderAffiliateProgramsGrid();
+            if (currentLoggedAffiliate) renderMemberDashboard();
+        });
+
+        window.addEventListener('wiz-program-images-changed', () => {
+            renderAffiliateProgramsGrid();
+        });
     </script>
 </body>
 
