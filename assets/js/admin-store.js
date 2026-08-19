@@ -2160,6 +2160,7 @@
             }
 
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+            broadcastSync('NEW_REFERRAL', newRef);
             return newRef;
         },
 
