@@ -4386,6 +4386,25 @@
             }
         }
 
+        function closeAllModals() {
+            document.querySelectorAll('.modal-backdrop.show').forEach(modal => {
+                modal.classList.remove('show');
+            });
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeAllModals();
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (e.target && e.target.classList.contains('modal-backdrop')) {
+                closeAllModals();
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', async () => {
             checkAdminAuth();
             refreshAll();
