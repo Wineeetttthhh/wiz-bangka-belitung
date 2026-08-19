@@ -79,8 +79,13 @@ const FIREBASE_CONFIG = {
         return !!(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId);
     }
 
+    function buildUrl(path) {
+        const sep = path.includes('?') ? '&' : '?';
+        return `${BASE_URL}/${path}${sep}key=${KEY}`;
+    }
+
     async function restGet(path) {
-        const res = await fetch(`${BASE_URL}/${path}?key=${KEY}`, {
+        const res = await fetch(buildUrl(path), {
             headers: { 'Accept': 'application/json' }
         });
         if (!res.ok) return { data: null, error: await res.text() };
@@ -88,7 +93,7 @@ const FIREBASE_CONFIG = {
     }
 
     async function restPatch(path, body) {
-        const res = await fetch(`${BASE_URL}/${path}?key=${KEY}`, {
+        const res = await fetch(buildUrl(path), {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
@@ -98,7 +103,7 @@ const FIREBASE_CONFIG = {
     }
 
     async function restDelete(path) {
-        const res = await fetch(`${BASE_URL}/${path}?key=${KEY}`, { method: 'DELETE' });
+        const res = await fetch(buildUrl(path), { method: 'DELETE' });
         return { data: null, error: res.ok ? null : await res.text() };
     }
 
