@@ -4,9 +4,8 @@
   "description": "Website Resmi Wahdah Inspirasi Zakat (WIZ) Bangka Belitung",
   "main": "index.html",
   "scripts": {
-    "dev": "node server.js",
+    "dev": "node dev-server.js",
     "start": "node server.js",
-    "serve": "npx -y serve . -p 3000",
     "watch": "node auto-push.js"
   },
   "keywords": [

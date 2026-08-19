@@ -1,15 +1,7 @@
 /**
  * ============================================================
  * WAHDAH INSPIRASI ZAKAT (WIZ) BANGKA BELITUNG
- * Localhost Web Server (Zero-Dependency Node.js Server)
- * ============================================================
- * 
- * Cara menjalankan:
- * 1. Klik 2x file `start-localhost.bat` (di Windows)
- *    ATAU
- * 2. Buka terminal dan jalankan: `node server.js`
- * 
- * Buka browser dan akses: http://localhost:3000
+ * Localhost Web Server with Live-Reload & SSE
  * ============================================================
  */
 
@@ -18,6 +10,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = process.env.PORT || 3000;
+const WATCH_DIR = __dirname;
 
 const MIME_TYPES = {
     '.html': 'text/html; charset=utf-8',
@@ -34,8 +27,75 @@ const MIME_TYPES = {
     '.woff2': 'font/woff2'
 };
 
+// SSE Clients for Live Reload
+const sseClients = new Set();
+
+// Live Reload Script injected into local HTML responses
+const LIVE_RELOAD_SCRIPT = `
+<!-- Live Reload Script injected by WIZ Server -->
+<script>
+(function() {
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        const es = new EventSource('/__livereload');
+        es.onmessage = function(e) {
+            if (e.data === 'reload') {
+                console.log('[WIZ LiveReload] File changed, reloading...');
+                window.location.reload();
+            }
+        };
+        es.onerror = function() {
+            setTimeout(() => new EventSource('/__livereload'), 3000);
+        };
+    }
+})();
+</script>
+`;
+
+// File watcher for Live Reload
+let watchDebounce = null;
+function notifyClients() {
+    clearTimeout(watchDebounce);
+    watchDebounce = setTimeout(() => {
+        if (sseClients.size > 0) {
+            console.log(`[LiveReload] 🔄 Refreshed ${sseClients.size} local browser tab(s)`);
+            for (const client of sseClients) {
+                client.write(`data: reload\n\n`);
+            }
+        }
+    }, 300);
+}
+
+try {
+    fs.watch(WATCH_DIR, { recursive: true }, (eventType, filename) => {
+        if (!filename) return;
+        const normalized = filename.replace(/\\/g, '/');
+        if (normalized.includes('.git') || normalized.includes('.gemini') || normalized.includes('node_modules')) return;
+        notifyClients();
+    });
+} catch (e) {
+    // fs.watch fallback if recursive is not supported
+}
+
 const server = http.createServer((req, res) => {
     let reqUrl = req.url.split('?')[0];
+
+    // SSE Endpoint for Live Reload
+    if (reqUrl === '/__livereload') {
+        res.writeHead(200, {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'Access-Control-Allow-Origin': '*'
+        });
+        res.write('retry: 1000\n\n');
+        sseClients.add(res);
+
+        req.on('close', () => {
+            sseClients.delete(res);
+        });
+        return;
+    }
+
     if (reqUrl === '/') reqUrl = '/index.html';
 
     const filePath = path.join(__dirname, reqUrl);
@@ -57,8 +117,27 @@ const server = http.createServer((req, res) => {
         const ext = path.extname(filePath).toLowerCase();
         const contentType = MIME_TYPES[ext] || 'application/octet-stream';
 
-        res.writeHead(200, { 'Content-Type': contentType });
-        fs.createReadStream(filePath).pipe(res);
+        if (ext === '.html') {
+            fs.readFile(filePath, 'utf8', (readErr, content) => {
+                if (readErr) {
+                    res.writeHead(500);
+                    res.end('Internal Server Error');
+                    return;
+                }
+                // Inject live reload script before </body>
+                let injected = content;
+                if (content.includes('</body>')) {
+                    injected = content.replace('</body>', `${LIVE_RELOAD_SCRIPT}\n</body>`);
+                } else {
+                    injected += LIVE_RELOAD_SCRIPT;
+                }
+                res.writeHead(200, { 'Content-Type': contentType });
+                res.end(injected);
+            });
+        } else {
+            res.writeHead(200, { 'Content-Type': contentType });
+            fs.createReadStream(filePath).pipe(res);
+        }
     });
 });
 
@@ -67,10 +146,10 @@ server.listen(PORT, () => {
     console.log(`  SERVER LOCALHOST WIZ BANGKA BELITUNG BERJALAN!`);
     console.log(`  --------------------------------------------------`);
     console.log(`  Akses di Browser: http://localhost:${PORT}`);
+    console.log(`  Live-Reload:      Aktif ⚡ (Otomatis Refresh Lokal)`);
     console.log(`  Halaman Utama:    http://localhost:${PORT}/index.html`);
     console.log(`  Halaman Admin:    http://localhost:${PORT}/admin.html`);
     console.log(`  Halaman Donasi:   http://localhost:${PORT}/donasi.html`);
     console.log(`  --------------------------------------------------`);
-    console.log(`  Tekan Ctrl + C di terminal untuk menghentikan server.`);
     console.log(`========================================================\n`);
 });
