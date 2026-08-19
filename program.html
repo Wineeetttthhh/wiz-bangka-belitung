@@ -1340,56 +1340,8 @@
         }
     });
 
-    function closeDonationModal() {
-        if (donationModal) {
-            donationModal.classList.remove('show');
-            document.body.style.overflow = '';
-        }
-    }
-
-    function setNominal(value) {
-        if (nominalInput) {
-            nominalInput.value = value;
-        }
-    }
-
-    if (donationModal) {
-        donationModal.addEventListener('click', (e) => {
-            if (e.target === donationModal) {
-                closeDonationModal();
-            }
-        });
-    }
-
-    function handleDonationSubmit(event) {
-        event.preventDefault();
-        const nominal = nominalInput.value;
-        const name = document.getElementById('donor-name').value;
-        const phone = document.getElementById('donor-phone').value;
-        const msg = document.getElementById('donor-message').value;
-        const prog = modalTitle ? modalTitle.textContent : 'Donasi';
-
-        const text = `Bismillah, saya *${name}* (%2B${phone}) ingin berdonasi untuk *${prog}* sebesar *Rp ${Number(nominal).toLocaleString('id-ID')}*.%0A%0ANiat/Doa: ${msg || '-'}`;
-        window.open(`https://wa.me/6282380830808?text=${text}`, '_blank');
-        closeDonationModal();
-    }
-
-    document.addEventListener('DOMContentLoaded', async () => {
+    window.addEventListener('wiz-sync-complete', () => {
         updateDynamicProgramCards();
-        if (window.wizStore && window.wizStore.siteImages) {
-            const images = window.wizStore.siteImages.getAll();
-            document.querySelectorAll('[data-site-img]').forEach(el => {
-                const key = el.getAttribute('data-site-img');
-                if (key && images[key]) {
-                    if (el.tagName === 'IMG') el.src = images[key];
-                    else el.style.backgroundImage = `url('${images[key]}')`;
-                }
-            });
-        }
-        if (window.wizStore && window.wizStore.syncFromCloud) {
-            await window.wizStore.syncFromCloud();
-            updateDynamicProgramCards();
-        }
     });
 </script>
 </body>
