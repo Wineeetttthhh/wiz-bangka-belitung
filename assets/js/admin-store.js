@@ -905,7 +905,7 @@
         if (!window.wizFirebase || !window.wizFirebase.isConfigured()) return;
 
         try {
-            const [donRes, newsRes, disbRes, actRes, refRes, payoutRes, settingsRes, baseRes, deletedRes] = await Promise.all([
+            const [donRes, newsRes, disbRes, actRes, refRes, payoutRes, settingsRes, baseRes, deletedRes, deletedNewsRes] = await Promise.all([
                 window.wizFirebase.select('donations'),
                 window.wizFirebase.select('news'),
                 window.wizFirebase.select('disbursements'),
@@ -914,7 +914,8 @@
                 window.wizFirebase.select('referral_payouts'),
                 window.wizFirebase.select('site_settings'),
                 window.wizFirebase.select('baselines'),
-                window.wizFirebase.select('deleted_ids')
+                window.wizFirebase.select('deleted_ids'),
+                window.wizFirebase.select('deleted_news_ids')
             ]);
 
             if (deletedRes.data && Array.isArray(deletedRes.data)) {
@@ -923,15 +924,24 @@
                 });
             }
 
-            const deletedSet = getDeletedIds();
+            if (deletedNewsRes.data && Array.isArray(deletedNewsRes.data)) {
+                deletedNewsRes.data.forEach(d => {
+                    if (d && (d.key || d.id)) addDeletedNewsId(d.key || d.id);
+                });
+            }
 
-            function smartMerge(storeKey, cloudData, sortFn) {
+            const deletedSet = getDeletedIds();
+            const deletedNewsSet = getDeletedNewsIds();
+
+            function smartMerge(storeKey, cloudData, sortFn, isNewsStore = false) {
                 if (!cloudData || !Array.isArray(cloudData)) return;
                 const local = getStore(storeKey) || [];
                 const map = new Map();
+                const activeDeletedSet = isNewsStore ? deletedNewsSet : deletedSet;
+
                 // Load local first, skipping deleted
                 local.forEach(item => {
-                    if (item && item.id && !deletedSet.has(String(item.id)) && item.status !== 'deleted') {
+                    if (item && item.id && !activeDeletedSet.has(String(item.id)) && item.status !== 'deleted') {
                         map.set(String(item.id), item);
                     }
                 });
@@ -939,7 +949,7 @@
                 cloudData.forEach(cloudItem => {
                     if (!cloudItem || !cloudItem.id) return;
                     const strId = String(cloudItem.id);
-                    if (deletedSet.has(strId) || cloudItem.status === 'deleted' || cloudItem.isDeleted) return;
+                    if (activeDeletedSet.has(strId) || cloudItem.status === 'deleted' || cloudItem.isDeleted) return;
 
                     const localItem = map.get(strId);
                     if (localItem) {
@@ -969,8 +979,14 @@
             }
 
             if (newsRes.data) {
+                // Purge cloud news documents that were deleted locally
+                for (const cloudDoc of newsRes.data) {
+                    if (cloudDoc && cloudDoc.id && deletedNewsSet.has(String(cloudDoc.id))) {
+                        await window.wizFirebase.remove('news', String(cloudDoc.id));
+                    }
+                }
                 smartMerge(STORAGE_KEYS.NEWS, newsRes.data,
-                    (a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                    (a, b) => new Date(b.createdAt) - new Date(a.createdAt), true);
             }
 
             if (disbRes.data) {
