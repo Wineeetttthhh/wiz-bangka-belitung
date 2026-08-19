@@ -4395,17 +4395,19 @@
             const loginModal = document.getElementById('admin-login-modal');
             if (!isAuth) {
                 if (loginModal) {
+                    loginModal.classList.add('auth-show');
+                    loginModal.classList.remove('hidden');
                     loginModal.style.display = 'flex';
                     loginModal.style.visibility = 'visible';
                     loginModal.style.pointerEvents = 'auto';
-                    loginModal.classList.remove('hidden');
                 }
             } else {
                 if (loginModal) {
+                    loginModal.classList.remove('auth-show');
+                    loginModal.classList.add('hidden');
                     loginModal.style.display = 'none';
                     loginModal.style.visibility = 'hidden';
                     loginModal.style.pointerEvents = 'none';
-                    loginModal.classList.add('hidden');
                 }
             }
         }
