@@ -2437,7 +2437,7 @@
                         <div class="p-sm bg-surface rounded-lg border border-outline-variant/30 mt-sm">
                             <div class="flex justify-between items-center">
                                 <span class="font-bold text-xs text-on-surface">${progUtama}</span>
-                                <button onclick="openAllocEditModal('${wilayahName}', '${progUtama}')" class="px-2 py-1 text-[11px] font-bold rounded bg-primary/10 text-primary hover:bg-primary/20">Edit / Konfigurasi</button>
+                                <button type="button" onclick="openAllocEditModal('${wilayahName}', '${progUtama}')" class="px-2 py-1 text-[11px] font-bold rounded bg-primary/10 text-primary hover:bg-primary/20 cursor-pointer">Edit / Konfigurasi</button>
                             </div>
                         </div>`;
                         return;
@@ -2464,7 +2464,7 @@
                                 <span class="px-2 py-0.5 text-[10px] font-bold rounded ${isInvalid ? 'bg-red-200 text-red-900' : 'bg-emerald-100 text-emerald-800'}">
                                     ${isInvalid ? 'INVALID — TOTAL ' + subVal.total + '%' : 'VALID (100%)'}
                                 </span>
-                                <button onclick="openAllocEditModal('${wilayahName}', '${progUtama}')" class="px-2 py-0.5 text-[11px] font-bold rounded bg-primary text-on-primary hover:bg-primary-container transition-colors flex items-center gap-0.5 shadow-xs">
+                                <button type="button" onclick="openAllocEditModal('${wilayahName}', '${progUtama}')" class="px-2 py-0.5 text-[11px] font-bold rounded bg-primary text-on-primary hover:bg-primary-container transition-colors flex items-center gap-0.5 shadow-xs cursor-pointer">
                                     <span class="material-symbols-outlined text-[12px]">edit</span> Edit
                                 </button>
                             </div>
