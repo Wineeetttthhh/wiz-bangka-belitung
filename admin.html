@@ -95,25 +95,24 @@
             border: 1px solid rgba(229, 231, 235, 0.5);
         }
 
+        /* === MODAL SYSTEM === */
+        /* All modals are hidden by default using display:none */
         .modal-backdrop {
+            display: none;
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.65);
-            z-index: 9999 !important;
-            display: flex;
+            z-index: 9999;
             align-items: center;
             justify-content: center;
             opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-            transition: opacity 0.2s ease, visibility 0.2s ease;
+            transition: opacity 0.2s ease;
         }
 
-        .modal-backdrop.show {
-            opacity: 1 !important;
-            visibility: visible !important;
-            pointer-events: auto !important;
-            display: flex !important;
+        /* When modal is open, display:flex is set by JS */
+        .modal-backdrop.active {
+            display: flex;
+            opacity: 1;
         }
 
         .modal-dialog {
@@ -128,7 +127,7 @@
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
         }
 
-        .modal-backdrop.show .modal-dialog {
+        .modal-backdrop.active .modal-dialog {
             transform: translateY(0);
         }
 
@@ -1895,15 +1894,10 @@
         function showModal(modalId) {
             try {
                 const modal = document.getElementById(modalId);
-                if (!modal) return;
-                modal.classList.remove('hidden');
-                modal.classList.add('show');
+                if (!modal) { console.warn('[WIZ] Modal not found:', modalId); return; }
+                modal.classList.remove('hidden', 'show');
+                modal.classList.add('active');
                 modal.style.display = 'flex';
-                modal.style.opacity = '1';
-                modal.style.visibility = 'visible';
-                modal.style.pointerEvents = 'auto';
-                modal.style.zIndex = '9999';
-                document.body.style.overflow = 'hidden';
             } catch (err) {
                 console.error('[WIZ Admin] Error showing modal:', modalId, err);
             }
@@ -1913,20 +1907,10 @@
             try {
                 const modal = document.getElementById(modalId);
                 if (!modal) return;
-                modal.classList.remove('show');
-                modal.classList.add('hidden');
+                modal.classList.remove('active', 'show');
                 modal.style.display = 'none';
-                modal.style.opacity = '0';
-                modal.style.visibility = 'hidden';
-                modal.style.pointerEvents = 'none';
-                
-                const openModals = document.querySelectorAll('.modal-backdrop.show, .modal-backdrop:not(.hidden)');
-                if (openModals.length === 0) {
-                    document.body.style.overflow = '';
-                }
             } catch (err) {
                 console.error('[WIZ Admin] Error hiding modal:', modalId, err);
-                document.body.style.overflow = '';
             }
         }
 
@@ -4449,8 +4433,9 @@
         }
 
         function closeAllModals() {
-            document.querySelectorAll('.modal-backdrop.show').forEach(modal => {
-                modal.classList.remove('show');
+            document.querySelectorAll('.modal-backdrop').forEach(function(modal) {
+                modal.classList.remove('active', 'show');
+                modal.style.display = 'none';
             });
             document.body.style.overflow = '';
         }
