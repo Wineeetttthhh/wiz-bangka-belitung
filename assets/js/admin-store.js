@@ -419,6 +419,17 @@
     }
 
     // ─── Dynamic Site Images Manager ──────────────────────
+    const DEFAULT_SITE_IMAGES = {
+        hero_card: 'assets/images/foto-utama-wiz.jpg',
+        about_img: 'assets/images/foto-tentang-wiz.jpg',
+        berkah_hidayah: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=800',
+        berkah_juara: 'assets/images/beasiswa-tahfidz.jpg',
+        berkah_sehat: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?q=80&w=800',
+        berkah_peduli: 'assets/images/sedekah-beras-dhuafa.jpg',
+        berkah_mandiri: 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=800',
+        banner_donasi: 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb0?q=80&w=800'
+    };
+
     const siteImages = {
         getAll() {
             return { ...DEFAULT_SITE_IMAGES, ...(getStore(STORAGE_KEYS.SITE_IMAGES) || {}) };
