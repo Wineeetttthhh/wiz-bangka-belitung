@@ -889,7 +889,7 @@
         if (!window.wizFirebase || !window.wizFirebase.isConfigured()) return;
 
         try {
-            const [donRes, newsRes, disbRes, actRes, refRes, payoutRes, settingsRes, baseRes] = await Promise.all([
+            const [donRes, newsRes, disbRes, actRes, refRes, payoutRes, settingsRes, baseRes, deletedRes] = await Promise.all([
                 window.wizFirebase.select('donations'),
                 window.wizFirebase.select('news'),
                 window.wizFirebase.select('disbursements'),
@@ -897,29 +897,43 @@
                 window.wizFirebase.select('referrals'),
                 window.wizFirebase.select('referral_payouts'),
                 window.wizFirebase.select('site_settings'),
-                window.wizFirebase.select('baselines')
+                window.wizFirebase.select('baselines'),
+                window.wizFirebase.select('deleted_ids')
             ]);
+
+            if (deletedRes.data && Array.isArray(deletedRes.data)) {
+                deletedRes.data.forEach(d => {
+                    if (d && (d.key || d.id)) addDeletedId(d.key || d.id);
+                });
+            }
+
+            const deletedSet = getDeletedIds();
 
             function smartMerge(storeKey, cloudData, sortFn) {
                 if (!cloudData || !Array.isArray(cloudData)) return;
                 const local = getStore(storeKey) || [];
                 const map = new Map();
-                // Load local first
+                // Load local first, skipping deleted
                 local.forEach(item => {
-                    if (item && item.id) map.set(String(item.id), item);
+                    if (item && item.id && !deletedSet.has(String(item.id)) && item.status !== 'deleted') {
+                        map.set(String(item.id), item);
+                    }
                 });
-                // Merge cloud data
+                // Merge cloud data, skipping deleted
                 cloudData.forEach(cloudItem => {
                     if (!cloudItem || !cloudItem.id) return;
-                    const localItem = map.get(String(cloudItem.id));
+                    const strId = String(cloudItem.id);
+                    if (deletedSet.has(strId) || cloudItem.status === 'deleted' || cloudItem.isDeleted) return;
+
+                    const localItem = map.get(strId);
                     if (localItem) {
                         const mergedItem = { ...localItem, ...cloudItem };
                         if (localItem.imageUrl && localItem.imageUrl.startsWith('data:image')) {
                             mergedItem.imageUrl = localItem.imageUrl;
                         }
-                        map.set(String(cloudItem.id), mergedItem);
+                        map.set(strId, mergedItem);
                     } else {
-                        map.set(String(cloudItem.id), cloudItem);
+                        map.set(strId, cloudItem);
                     }
                 });
                 const merged = Array.from(map.values());
