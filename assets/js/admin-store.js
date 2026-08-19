@@ -903,14 +903,15 @@
                 }
             }
 
-            // Push Referrals
-            const { data: cloudRefs } = await window.wizFirebase.select('referrals');
-            const cloudRefIds = new Set((cloudRefs || []).map(r => String(r.id)));
+            // Push Referrals (Upsert all non-deleted referrals to Firebase & Supabase)
             const localRefs = getStore(STORAGE_KEYS.REFERRALS) || [];
             for (const r of localRefs) {
-                if (r && r.id && !deletedRefSet.has(String(r.id)) && !cloudRefIds.has(String(r.id))) {
-                    const { error } = await window.wizFirebase.insert('referrals', r);
+                if (r && r.id && !deletedRefSet.has(String(r.id))) {
+                    const { error } = await window.wizFirebase.set('referrals', String(r.id), r);
                     if (!error) report.referralsPushed++;
+                    if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                        try { await window.wizSupabase.saveReferral(r); } catch(e) {}
+                    }
                 }
             }
 
@@ -922,6 +923,9 @@
                 if (p && p.id && !cloudPayoutIds.has(String(p.id))) {
                     const { error } = await window.wizFirebase.insert('referral_payouts', p);
                     if (!error) report.payoutsPushed++;
+                    if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                        try { await window.wizSupabase.saveReferralPayout(p); } catch(e) {}
+                    }
                 }
             }
 
@@ -991,7 +995,7 @@
                         map.set(String(item.id), item);
                     }
                 });
-                // Merge cloud data, skipping deleted
+                // Merge cloud data, checking timestamps so newer edits take priority
                 cloudData.forEach(cloudItem => {
                     if (!cloudItem || !cloudItem.id) return;
                     const strId = String(cloudItem.id);
@@ -999,7 +1003,10 @@
 
                     const localItem = map.get(strId);
                     if (localItem) {
-                        const mergedItem = { ...localItem, ...cloudItem };
+                        const cloudTime = new Date(cloudItem.updatedAt || cloudItem.createdAt || 0).getTime();
+                        const localTime = new Date(localItem.updatedAt || localItem.createdAt || 0).getTime();
+
+                        const mergedItem = cloudTime >= localTime ? { ...localItem, ...cloudItem } : { ...cloudItem, ...localItem };
                         if (localItem.imageUrl && localItem.imageUrl.startsWith('data:image')) {
                             mergedItem.imageUrl = localItem.imageUrl;
                         }
