@@ -153,7 +153,7 @@
 <body class="bg-background text-on-surface font-body-md min-h-screen flex antialiased">
 
     <!-- Admin Login Modal Overlay -->
-    <div id="admin-login-modal" class="fixed inset-0 bg-inverse-surface/80 backdrop-blur-md z-[100] flex items-center justify-center p-md overflow-y-auto">
+    <div id="admin-login-modal" class="fixed inset-0 bg-inverse-surface/80 backdrop-blur-md flex items-center justify-center p-md overflow-y-auto" style="z-index: 99999;">
         <div class="bg-surface rounded-2xl shadow-2xl border border-outline-variant/30 w-full max-w-md overflow-hidden transform transition-all my-auto">
             <div class="bg-primary/10 p-lg text-center border-b border-outline-variant/20 flex flex-col items-center gap-xs">
                 <img src="assets/images/logo-wiz-babel.png" alt="WIZ Babel Logo" class="h-14 w-auto object-contain mb-xs" onerror="this.classList.add('hidden');">
@@ -4364,9 +4364,19 @@
             const isAuth = sessionStorage.getItem('wiz_admin_authenticated') === 'true' || localStorage.getItem('wiz_admin_authenticated') === 'true';
             const loginModal = document.getElementById('admin-login-modal');
             if (!isAuth) {
-                if (loginModal) loginModal.classList.remove('hidden');
+                if (loginModal) {
+                    loginModal.style.display = 'flex';
+                    loginModal.style.visibility = 'visible';
+                    loginModal.style.pointerEvents = 'auto';
+                    loginModal.classList.remove('hidden');
+                }
             } else {
-                if (loginModal) loginModal.classList.add('hidden');
+                if (loginModal) {
+                    loginModal.style.display = 'none';
+                    loginModal.style.visibility = 'hidden';
+                    loginModal.style.pointerEvents = 'none';
+                    loginModal.classList.add('hidden');
+                }
             }
         }
 
