@@ -3080,13 +3080,11 @@
                     document.getElementById('disb-wilayah').value = activeW !== 'Semua' ? activeW : 'Pangkalpinang';
                 }
             }
-            document.getElementById('disbursement-modal').classList.add('show');
-            document.body.style.overflow = 'hidden';
+            showModal('disbursement-modal');
         }
 
         function closeDisbursementModal() {
-            document.getElementById('disbursement-modal').classList.remove('show');
-            document.body.style.overflow = '';
+            hideModal('disbursement-modal');
             document.getElementById('disbursement-form').reset();
         }
 
