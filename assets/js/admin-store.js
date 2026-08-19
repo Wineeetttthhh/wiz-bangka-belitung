@@ -823,12 +823,14 @@
         const report = { donationsPushed: 0, newsPushed: 0, disbursementsPushed: 0, referralsPushed: 0, payoutsPushed: 0, errors: [] };
 
         try {
-            // Push Donations
+            const deletedSet = getDeletedIds();
+
+            // Push Donations (excluding deleted IDs)
             const { data: cloudDons } = await window.wizFirebase.select('donations');
             const cloudDonIds = new Set((cloudDons || []).map(d => String(d.id)));
             const localDonations = getStore(STORAGE_KEYS.DONATIONS) || [];
             for (const d of localDonations) {
-                if (d && d.id && !cloudDonIds.has(String(d.id))) {
+                if (d && d.id && !deletedSet.has(String(d.id)) && !cloudDonIds.has(String(d.id))) {
                     const { error } = await window.wizFirebase.insert('donations', d);
                     if (!error) report.donationsPushed++;
                 }
@@ -839,7 +841,7 @@
             const cloudNewsIds = new Set((cloudNews || []).map(n => String(n.id)));
             const localNews = getStore(STORAGE_KEYS.NEWS) || [];
             for (const n of localNews) {
-                if (n && n.id && !cloudNewsIds.has(String(n.id))) {
+                if (n && n.id && !deletedSet.has(String(n.id)) && !cloudNewsIds.has(String(n.id))) {
                     const { error } = await window.wizFirebase.insert('news', n);
                     if (!error) report.newsPushed++;
                 }
@@ -850,7 +852,7 @@
             const cloudDisbIds = new Set((cloudDisb || []).map(db => String(db.id)));
             const localDisb = getStore(STORAGE_KEYS.DISBURSEMENTS) || [];
             for (const db of localDisb) {
-                if (db && db.id && !cloudDisbIds.has(String(db.id))) {
+                if (db && db.id && !deletedSet.has(String(db.id)) && !cloudDisbIds.has(String(db.id))) {
                     const { error } = await window.wizFirebase.insert('disbursements', db);
                     if (!error) report.disbursementsPushed++;
                 }
@@ -861,7 +863,7 @@
             const cloudRefIds = new Set((cloudRefs || []).map(r => String(r.id)));
             const localRefs = getStore(STORAGE_KEYS.REFERRALS) || [];
             for (const r of localRefs) {
-                if (r && r.id && !cloudRefIds.has(String(r.id))) {
+                if (r && r.id && !deletedSet.has(String(r.id)) && !cloudRefIds.has(String(r.id))) {
                     const { error } = await window.wizFirebase.insert('referrals', r);
                     if (!error) report.referralsPushed++;
                 }
@@ -872,7 +874,7 @@
             const cloudPayoutIds = new Set((cloudPayouts || []).map(p => String(p.id)));
             const localPayouts = getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || [];
             for (const p of localPayouts) {
-                if (p && p.id && !cloudPayoutIds.has(String(p.id))) {
+                if (p && p.id && !deletedSet.has(String(p.id)) && !cloudPayoutIds.has(String(p.id))) {
                     const { error } = await window.wizFirebase.insert('referral_payouts', p);
                     if (!error) report.payoutsPushed++;
                 }
@@ -942,6 +944,12 @@
             }
 
             if (donRes.data) {
+                // Purge cloud documents that were deleted locally
+                for (const cloudDoc of donRes.data) {
+                    if (cloudDoc && cloudDoc.id && deletedSet.has(String(cloudDoc.id))) {
+                        await window.wizFirebase.remove('donations', String(cloudDoc.id));
+                    }
+                }
                 smartMerge(STORAGE_KEYS.DONATIONS, donRes.data,
                     (a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             }
