@@ -2180,17 +2180,14 @@
                 }
 
                 validateAllocModal();
-                modal.classList.add('show');
-                document.body.style.overflow = 'hidden';
+                showModal('alloc-edit-modal');
             } catch (err) {
                 console.error('[WIZ Admin] Error opening alloc edit modal:', err);
             }
         }
 
         function closeAllocEditModal() {
-            const modal = document.getElementById('alloc-edit-modal');
-            if (modal) modal.classList.remove('show');
-            document.body.style.overflow = '';
+            hideModal('alloc-edit-modal');
         }
 
         function handleSubProgramPhotoSelect(event, inputEl) {
