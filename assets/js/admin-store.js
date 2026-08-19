@@ -2121,16 +2121,23 @@
 
         async update(id, updates) {
             const list = getStore(STORAGE_KEYS.REFERRALS) || [];
-            const idx = list.findIndex(r => String(r.id) === String(id));
+            const cleanId = String(id).trim();
+            const idx = list.findIndex(r => String(r.id) === cleanId || (r.code && String(r.code).toLowerCase() === cleanId.toLowerCase()));
             if (idx === -1) return null;
 
             list[idx] = { ...list[idx], ...updates, updatedAt: new Date().toISOString() };
             setStore(STORAGE_KEYS.REFERRALS, list);
 
-            activityLog.add('referral', `Data Perantara "${list[idx].name}" diperbarui oleh Admin.`, updates.updatedBy || 'Admin');
+            activityLog.add('referral', `Data Perantara "${list[idx].name}" diperbarui.`, updates.updatedBy || 'System/Affiliate');
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.set('referrals', id, list[idx]);
+                await window.wizFirebase.set('referrals', list[idx].id, list[idx]);
+            }
+
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.saveReferral(list[idx]);
+                } catch(e) {}
             }
 
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
