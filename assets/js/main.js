@@ -1419,9 +1419,9 @@ window.shareProgram = async function (programTitle, description, customUrl, cust
     let activeRef = sessionStorage.getItem('wiz_active_ref_id') || localStorage.getItem('wiz_active_ref_id') || '';
     let baseUrlStr = customUrl;
     if (!baseUrlStr) {
-        // Always direct public donors to donasi.html for direct donation completion
+        // Direct public donors to program.html first so they can read program details & photos before donating
         const origin = window.location.origin.includes('http') ? window.location.origin : '';
-        baseUrlStr = origin + '/donasi.html';
+        baseUrlStr = origin + '/program.html';
     }
     
     let shareUrl = baseUrlStr;
