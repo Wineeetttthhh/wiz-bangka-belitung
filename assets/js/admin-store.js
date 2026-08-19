@@ -1143,6 +1143,64 @@
                 }
             }
 
+            // Cross-device Site & Program Images Cloud Sync (Supabase & Firebase)
+            let cloudSiteImages = (siteImagesRes && siteImagesRes.data) || [];
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    const supaRes = await window.wizSupabase.select('site_images');
+                    if (supaRes && supaRes.data && supaRes.data.length > 0) {
+                        const supaMap = new Map();
+                        cloudSiteImages.forEach(img => { if (img && (img.key || img.id)) supaMap.set(img.key || img.id, img); });
+                        supaRes.data.forEach(img => {
+                            const k = img.key || img.id;
+                            if (k) {
+                                supaMap.set(k, {
+                                    key: k,
+                                    url: img.image_url || img.url,
+                                    label: img.label || k,
+                                    updatedAt: img.updated_at || img.updatedAt
+                                });
+                            }
+                        });
+                        cloudSiteImages = Array.from(supaMap.values());
+                    }
+                } catch(e) {}
+            }
+
+            if (cloudSiteImages && cloudSiteImages.length > 0) {
+                const currentSiteImgs = getStore(STORAGE_KEYS.SITE_IMAGES) || {};
+                let flatMap = {};
+                try { flatMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}'); } catch(e) {}
+                let siteImgsChanged = false;
+
+                cloudSiteImages.forEach(imgDoc => {
+                    if (!imgDoc) return;
+                    const key = imgDoc.key || imgDoc.id;
+                    const url = imgDoc.url || imgDoc.image_url;
+                    if (!key || !url) return;
+
+                    if (key.startsWith('prog_img_')) {
+                        const progName = imgDoc.label || key.replace('prog_img_', '').replace(/_/g, ' ');
+                        if (progName && url) {
+                            flatMap[progName] = url;
+                        }
+                    } else if (imgDoc.label) {
+                        flatMap[imgDoc.label] = url;
+                    }
+
+                    if (url && currentSiteImgs[key] !== url) {
+                        currentSiteImgs[key] = url;
+                        siteImgsChanged = true;
+                    }
+                });
+
+                setStore(STORAGE_KEYS.SITE_IMAGES, currentSiteImgs);
+                try { localStorage.setItem('wiz_specific_prog_imgs', JSON.stringify(flatMap)); } catch(e) {}
+                if (siteImgsChanged) {
+                    window.dispatchEvent(new CustomEvent('wiz-program-images-changed'));
+                }
+            }
+
             console.log('[WIZ Firebase] Cross-device Sync complete. Donations:', donRes.data?.length || 0, 'Disbursements:', disbRes.data?.length || 0);
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
         } catch (e) {
