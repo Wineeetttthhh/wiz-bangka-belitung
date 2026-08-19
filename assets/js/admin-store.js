@@ -2128,17 +2128,41 @@
 
         async update(id, updates) {
             const list = getStore(STORAGE_KEYS.REFERRALS) || [];
-            const cleanId = String(id).trim();
-            const idx = list.findIndex(r => String(r.id) === cleanId || (r.code && String(r.code).toLowerCase() === cleanId.toLowerCase()));
-            if (idx === -1) return null;
+            if (!id) return null;
+
+            const cleanRaw = String(id).trim().toLowerCase();
+            const cleanNoRef = cleanRaw.replace(/^ref[-_]/, '');
+            const cleanDigits = cleanRaw.replace(/\D/g, '');
+
+            const idx = list.findIndex(r => {
+                if (!r) return false;
+                const rId = String(r.id || '').trim().toLowerCase();
+                const rIdNoRef = rId.replace(/^ref[-_]/, '');
+
+                const rCode = String(r.code || '').trim().toLowerCase();
+                const rCodeNoRef = rCode.replace(/^ref[-_]/, '');
+
+                const rPhone = String(r.phone || '').replace(/\D/g, '');
+                const rName = String(r.name || '').trim().toLowerCase();
+
+                return rId === cleanRaw || rIdNoRef === cleanNoRef ||
+                       rCode === cleanRaw || rCodeNoRef === cleanNoRef ||
+                       (rPhone && cleanDigits && rPhone === cleanDigits && cleanDigits.length >= 5) ||
+                       (rName && rName === cleanRaw);
+            });
+
+            if (idx === -1) {
+                console.warn('[WIZ Store] Referrals update could not find match for identifier:', id);
+                return null;
+            }
 
             list[idx] = { ...list[idx], ...updates, updatedAt: new Date().toISOString() };
             setStore(STORAGE_KEYS.REFERRALS, list);
 
-            activityLog.add('referral', `Data Perantara "${list[idx].name}" diperbarui.`, updates.updatedBy || 'System/Affiliate');
+            activityLog.add('referral', `Data Perantara "${list[idx].name}" (Rekening: ${list[idx].bankName} ${list[idx].accountNumber}) diperbarui.`, updates.updatedBy || 'Affiliate/System');
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.set('referrals', list[idx].id, list[idx]);
+                await window.wizFirebase.set('referrals', String(list[idx].id), list[idx]);
             }
 
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
