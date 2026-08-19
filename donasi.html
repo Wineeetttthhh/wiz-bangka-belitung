@@ -742,8 +742,8 @@
         }
 
         function updateSummary() {
-            document.getElementById('summary-type').textContent = state.type;
             document.getElementById('summary-wilayah').textContent = state.wilayah;
+            document.getElementById('summary-type').textContent = state.type;
 
             const catRow = document.getElementById('summary-cat-row');
             const progRow = document.getElementById('summary-prog-row');
@@ -764,6 +764,19 @@
             const mobTotal = document.getElementById('mobile-summary-total');
             if (mobTotal) {
                 mobTotal.textContent = formatRupiah(state.nominal);
+            }
+
+            // Check active affiliate referral
+            const activeRef = sessionStorage.getItem('wiz_active_ref_id') || localStorage.getItem('wiz_active_ref_id');
+            const refRow = document.getElementById('summary-ref-row');
+            if (activeRef && window.wizStore && window.wizStore.referrals) {
+                const refObj = window.wizStore.referrals.getByCodeOrId(activeRef);
+                if (refObj && refRow) {
+                    document.getElementById('summary-ref-name').textContent = `${refObj.name} (${refObj.code || refObj.id})`;
+                    refRow.classList.remove('hidden');
+                    refRow.classList.add('flex');
+                    state.activeRefObj = refObj;
+                }
             }
 
             renderInfakUmumNotice();
@@ -871,14 +884,15 @@
 
                 // Check for referral URL parameter or session
                 const urlParams = new URLSearchParams(window.location.search);
-                const refParam = urlParams.get('ref') || sessionStorage.getItem('wiz_referral_id');
+                const refParam = urlParams.get('ref') || urlParams.get('affiliate') || sessionStorage.getItem('wiz_active_ref_id') || localStorage.getItem('wiz_active_ref_id');
                 let refId = null;
                 let refRate = 6;
                 if (refParam && window.wizStore && window.wizStore.referrals) {
-                    const refObj = window.wizStore.referrals.getById(refParam) || window.wizStore.referrals.getAll().find(r => r.name.toLowerCase().includes(refParam.toLowerCase()));
+                    const refObj = window.wizStore.referrals.getByCodeOrId(refParam);
                     if (refObj) {
                         refId = refObj.id;
                         refRate = refObj.defaultRate || 6;
+                        state.activeRefObj = refObj;
                     }
                 }
 
@@ -942,7 +956,12 @@
                 progText = `Jenis: Infak Terikat%0A• Wilayah: ${state.wilayah}%0A• Program Utama: ${state.category}%0A• Program Spesifik: ${state.program}`;
             }
 
-            const text = `Bismillah, saya *${state.donorName}* (${state.donorPhone}) telah melakukan *PEMBAYARAN VIA QRIS*:%0A%0A• *Lembaga*: WIZ Bangka Belitung%0A• *${progText}%0A• *Nominal*: ${formatRupiah(state.nominal)}%0A• *Metode*: QRIS (Otomatis & Instan)%0A• *Doa/Pesan*: ${state.donorMessage || '-'}`;
+            let refText = '';
+            if (state.activeRefObj) {
+                refText = `%0A• *Perantara / Affiliate*: ${state.activeRefObj.name} (ID: ${state.activeRefObj.code || state.activeRefObj.id})`;
+            }
+
+            const text = `Bismillah, saya *${state.donorName}* (${state.donorPhone}) telah melakukan *PEMBAYARAN VIA QRIS*:%0A%0A• *Lembaga*: WIZ Bangka Belitung%0A• *${progText}%0A• *Nominal*: ${formatRupiah(state.nominal)}${refText}%0A• *Metode*: QRIS (Otomatis & Instan)%0A• *Doa/Pesan*: ${state.donorMessage || '-'}`;
 
             window.open(`https://wa.me/6282380830808?text=${text}`, '_blank');
             closeQRISModal();
@@ -985,7 +1004,12 @@
                 progText = `Jenis: Infak Terikat%0A• Wilayah: ${state.wilayah}%0A• Program Utama: ${state.category}%0A• Program Spesifik: ${state.program}`;
             }
 
-            const text = `Bismillah, saya *${state.donorName}* (${state.donorPhone}) ingin mengonfirmasi *TRANSFER BANK*:%0A%0A• *Lembaga*: WIZ Bangka Belitung%0A• *${progText}%0A• *Nominal*: ${formatRupiah(state.nominal)}%0A• *Metode*: Transfer Bank%0A• *Doa/Pesan*: ${state.donorMessage || '-'}`;
+            let refText = '';
+            if (state.activeRefObj) {
+                refText = `%0A• *Perantara / Affiliate*: ${state.activeRefObj.name} (ID: ${state.activeRefObj.code || state.activeRefObj.id})`;
+            }
+
+            const text = `Bismillah, saya *${state.donorName}* (${state.donorPhone}) ingin mengonfirmasi *TRANSFER BANK*:%0A%0A• *Lembaga*: WIZ Bangka Belitung%0A• *${progText}%0A• *Nominal*: ${formatRupiah(state.nominal)}${refText}%0A• *Metode*: Transfer Bank%0A• *Doa/Pesan*: ${state.donorMessage || '-'}`;
 
             window.open(`https://wa.me/6282380830808?text=${text}`, '_blank');
             closeBankModal();
