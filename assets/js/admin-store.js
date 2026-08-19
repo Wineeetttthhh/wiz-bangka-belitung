@@ -1441,7 +1441,11 @@
             const raw = getStore(STORAGE_KEYS.NEWS) || [];
             return raw
                 .filter(n => n && n.id && !deletedSet.has(String(n.id)) && n.status !== 'deleted' && !n.isDeleted)
-                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                .sort((a, b) => {
+                    const timeA = new Date(a.eventDate || a.event_date || a.createdAt || 0).getTime();
+                    const timeB = new Date(b.eventDate || b.event_date || b.createdAt || 0).getTime();
+                    return timeB - timeA;
+                });
         },
 
         getPublished() {
@@ -1457,7 +1461,7 @@
         },
 
         async add(article) {
-            const list = this.getAll();
+            const list = getStore(STORAGE_KEYS.NEWS) || [];
             const defaultImg = 'assets/images/sedekah-beras-dhuafa.jpg';
             const newArticle = {
                 id: article.id || generateId(),
@@ -1472,6 +1476,7 @@
                 createdAt: new Date().toISOString()
             };
             list.unshift(newArticle);
+            list.sort((a, b) => new Date(b.eventDate || b.event_date || b.createdAt || 0) - new Date(a.eventDate || a.event_date || a.createdAt || 0));
             setStore(STORAGE_KEYS.NEWS, list);
 
             const statusLabel = newArticle.status === 'published' ? 'dipublikasikan' : 'disimpan sebagai draft';
@@ -1486,11 +1491,12 @@
         },
 
         async update(articleId, updates) {
-            const list = this.getAll();
+            const list = getStore(STORAGE_KEYS.NEWS) || [];
             const idx = list.findIndex(n => String(n.id) === String(articleId));
             if (idx === -1) return null;
 
             list[idx] = { ...list[idx], ...updates, updatedAt: new Date().toISOString() };
+            list.sort((a, b) => new Date(b.eventDate || b.event_date || b.createdAt || 0) - new Date(a.eventDate || a.event_date || a.createdAt || 0));
             setStore(STORAGE_KEYS.NEWS, list);
 
             activityLog.add('news', `Berita "${list[idx].title}" diperbarui.`, updates.author || 'Admin');
