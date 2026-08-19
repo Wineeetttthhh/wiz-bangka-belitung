@@ -2814,21 +2814,50 @@
         }
 
         function openNewsModal(editId) {
-            document.getElementById('news-edit-id').value = editId || '';
-            document.getElementById('news-modal-title').textContent = editId ? 'Edit Berita / Kegiatan' : 'Tulis Berita Baru';
+            const modal = document.getElementById('news-modal');
+            if (!modal) return;
+
+            const editInput = document.getElementById('news-edit-id');
+            const titleEl = document.getElementById('news-modal-title');
+            const form = document.getElementById('news-form');
+            const dateEl = document.getElementById('news-event-date');
+
+            if (editInput) editInput.value = editId || '';
+            if (titleEl) titleEl.textContent = editId ? 'Edit Berita / Kegiatan' : 'Tulis Berita Baru';
+
             if (!editId) {
-                document.getElementById('news-form').reset();
+                if (form) form.reset();
                 clearNewsPhoto();
-                document.getElementById('news-event-date').value = new Date().toISOString().split('T')[0];
+                if (dateEl) dateEl.value = new Date().toISOString().split('T')[0];
+            } else {
+                const article = wizStore.news ? wizStore.news.getById(editId) : null;
+                if (article) {
+                    if (document.getElementById('news-title')) document.getElementById('news-title').value = article.title || '';
+                    if (document.getElementById('news-category')) document.getElementById('news-category').value = article.category || 'Kegiatan & Event';
+                    if (document.getElementById('news-content')) document.getElementById('news-content').value = article.content || '';
+                    if (document.getElementById('news-image-url')) document.getElementById('news-image-url').value = article.imageUrl || '';
+                    if (article.imageUrl) {
+                        const prev = document.getElementById('news-main-preview');
+                        if (prev) prev.src = article.imageUrl;
+                        const prevContainer = document.getElementById('news-main-preview-container');
+                        if (prevContainer) prevContainer.classList.remove('hidden');
+                    }
+                    if (article.eventDate && dateEl) dateEl.value = article.eventDate.split('T')[0];
+                    const rad = document.querySelector(`input[name="news-status"][value="${article.status || 'published'}"]`);
+                    if (rad) rad.checked = true;
+                }
             }
-            document.getElementById('news-modal').classList.add('show');
+
+            modal.classList.add('show');
             document.body.style.overflow = 'hidden';
         }
 
         function closeNewsModal() {
-            document.getElementById('news-modal').classList.remove('show');
+            const modal = document.getElementById('news-modal');
+            if (modal) modal.classList.remove('show');
             document.body.style.overflow = '';
-            document.getElementById('news-form').reset();
+            const form = document.getElementById('news-form');
+            if (form) form.reset();
             clearNewsPhoto();
         }
 
