@@ -437,6 +437,13 @@
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 await window.wizFirebase.upsert('site_images', { key, url, label: label || key, updatedAt: new Date().toISOString() });
             }
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.upsert('site_images', { id: key, key: key, image_url: url, label: label || key, updated_at: new Date().toISOString() });
+                } catch(e) {}
+            }
+            window.dispatchEvent(new CustomEvent('wiz-program-images-changed', { detail: { key, url } }));
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return current;
         },
         async updateAll(imagesObj) {
@@ -450,6 +457,15 @@
                     await window.wizFirebase.upsert('site_images', { key, url, label: key, updatedAt: new Date().toISOString() });
                 }
             }
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    for (const [key, url] of Object.entries(imagesObj)) {
+                        await window.wizSupabase.upsert('site_images', { id: key, key: key, image_url: url, label: key, updated_at: new Date().toISOString() });
+                    }
+                } catch(e) {}
+            }
+            window.dispatchEvent(new CustomEvent('wiz-program-images-changed'));
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return current;
         }
     };
