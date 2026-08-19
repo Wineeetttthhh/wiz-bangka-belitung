@@ -2145,7 +2145,7 @@
             setTimeout(() => {
                 const img = new Image();
                 img.onload = function() {
-                    const maxDim = 720;
+                    const maxDim = 560;
                     let w = img.naturalWidth, h = img.naturalHeight;
                     if (w > maxDim || h > maxDim) {
                         if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
@@ -2153,14 +2153,17 @@
                     }
                     const canvas = document.createElement('canvas');
                     canvas.width = w; canvas.height = h;
-                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                    const compressed = canvas.toDataURL('image/jpeg', 0.72);
+                    const ctx = canvas.getContext('2d');
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const compressed = canvas.toDataURL('image/jpeg', 0.68);
                     if (hiddenInput) hiddenInput.value = compressed;
                     if (imgPrev) imgPrev.src = compressed;
                     URL.revokeObjectURL(objectUrl);
                 };
                 img.src = objectUrl;
-            }, 10);
+            }, 5);
         }
 
         function clearSubProgramPhoto(btn) {
