@@ -1763,6 +1763,7 @@
                         const displayLabel = `WIZ ${pillarKey} (${itemKey})`;
                         
                         if (!specificItemsMap.has(fullName)) {
+                            const dynamicImg = item.image || (allocationRulesManager ? allocationRulesManager.getSpecificProgramImage(item.key, pillarKey) : '') || '';
                             specificItemsMap.set(fullName, {
                                 fullName,
                                 displayLabel,
@@ -1770,7 +1771,7 @@
                                 itemKey,
                                 subPercent: item.percent || 0,
                                 mainPercent: mainPct,
-                                image: item.image || '',
+                                image: dynamicImg,
                                 masuk: 0,
                                 tersalurkan: 0
                             });
