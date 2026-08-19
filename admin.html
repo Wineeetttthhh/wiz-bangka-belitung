@@ -4235,13 +4235,11 @@
             document.getElementById('tab-ref-payouts-btn').textContent = `Riwayat Pencairan Hak (${ref.payouts.length})`;
 
             switchRefDetailTab('donations');
-            document.getElementById('referral-detail-modal').classList.add('show');
-            document.body.style.overflow = 'hidden';
+            showModal('referral-detail-modal');
         }
 
         function closeReferralDetailModal() {
-            document.getElementById('referral-detail-modal').classList.remove('show');
-            document.body.style.overflow = '';
+            hideModal('referral-detail-modal');
         }
 
         function switchRefDetailTab(tab) {
