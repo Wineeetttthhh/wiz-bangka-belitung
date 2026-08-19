@@ -2106,41 +2106,55 @@
         let currentEditingPillar = 'Berkah Hidayah';
 
         function openAllocEditModal(wilayah, pillarKey) {
-            currentEditingWilayah = wilayah;
-            currentEditingPillar = pillarKey;
+            try {
+                currentEditingWilayah = wilayah;
+                currentEditingPillar = pillarKey;
 
-            document.getElementById('alloc-wilayah').value = wilayah;
-            document.getElementById('alloc-pillar').value = pillarKey;
-            document.getElementById('alloc-wilayah-display').textContent = wilayah;
-            document.getElementById('alloc-pillar-display').textContent = pillarKey;
+                const wilInput = document.getElementById('alloc-wilayah');
+                const pilInput = document.getElementById('alloc-pillar');
+                const wilDisp = document.getElementById('alloc-wilayah-display');
+                const pilDisp = document.getElementById('alloc-pillar-display');
+                const modal = document.getElementById('alloc-edit-modal');
 
-            const wData = wizStore.allocationRulesManager.get(wilayah);
-            if (!wData) return;
+                if (!modal) return;
 
-            const mainAllocItem = (wData.mainAllocation || []).find(i => i.key === pillarKey);
-            document.getElementById('alloc-pillar-percent').value = mainAllocItem ? mainAllocItem.percent : 20;
+                if (wilInput) wilInput.value = wilayah;
+                if (pilInput) pilInput.value = pillarKey;
+                if (wilDisp) wilDisp.textContent = wilayah;
+                if (pilDisp) pilDisp.textContent = pillarKey;
 
-            const subListContainer = document.getElementById('sub-programs-list');
-            subListContainer.innerHTML = '';
+                const wData = wizStore.allocationRulesManager ? wizStore.allocationRulesManager.get(wilayah) : null;
+                if (!wData) return;
 
-            const subObj = wData.subAllocation && wData.subAllocation[pillarKey] ? wData.subAllocation[pillarKey] : { items: [] };
-            const items = subObj.items || [];
+                const mainAllocItem = (wData.mainAllocation || []).find(i => i.key === pillarKey);
+                const percInput = document.getElementById('alloc-pillar-percent');
+                if (percInput) percInput.value = mainAllocItem ? mainAllocItem.percent : 20;
 
-            if (items.length === 0) {
-                addNewSubProgramRow();
-            } else {
-                items.forEach(item => {
-                    addNewSubProgramRow(item.key, item.percent, item.image || '');
-                });
+                const subListContainer = document.getElementById('sub-programs-list');
+                if (subListContainer) subListContainer.innerHTML = '';
+
+                const subObj = wData.subAllocation && wData.subAllocation[pillarKey] ? wData.subAllocation[pillarKey] : { items: [] };
+                const items = subObj.items || [];
+
+                if (items.length === 0) {
+                    addNewSubProgramRow();
+                } else {
+                    items.forEach(item => {
+                        addNewSubProgramRow(item.key, item.percent, item.image || '');
+                    });
+                }
+
+                validateAllocModal();
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            } catch (err) {
+                console.error('[WIZ Admin] Error opening alloc edit modal:', err);
             }
-
-            validateAllocModal();
-            document.getElementById('alloc-edit-modal').classList.add('show');
-            document.body.style.overflow = 'hidden';
         }
 
         function closeAllocEditModal() {
-            document.getElementById('alloc-edit-modal').classList.remove('show');
+            const modal = document.getElementById('alloc-edit-modal');
+            if (modal) modal.classList.remove('show');
             document.body.style.overflow = '';
         }
 
@@ -2156,20 +2170,19 @@
             const imgPlaceholder = row.querySelector('.sub-img-placeholder');
             const clearBtn = row.querySelector('.sub-img-clear');
             const progNameInput = row.querySelector('.sub-key-input');
+            const uploadLabel = row.querySelector('.sub-upload-label');
 
-            // 1. Instant object URL preview
             const objectUrl = URL.createObjectURL(file);
             if (imgPrev) { imgPrev.src = objectUrl; imgPrev.classList.remove('hidden'); }
             if (imgPlaceholder) imgPlaceholder.classList.add('hidden');
             if (clearBtn) clearBtn.classList.remove('hidden');
+            if (uploadLabel) uploadLabel.textContent = 'Ganti Foto';
 
-            // 2. Read as DataURL immediately so hiddenInput is NEVER empty
             const reader = new FileReader();
             reader.onload = function(e) {
                 const rawBase64 = e.target.result;
                 if (hiddenInput && !hiddenInput.value) hiddenInput.value = rawBase64;
 
-                // 3. Compress to ultra-fast 480px HD JPEG (~20KB)
                 const img = new Image();
                 img.onload = function() {
                     const maxDim = 480;
@@ -2190,9 +2203,8 @@
                     if (imgPrev) imgPrev.src = compressed;
                     URL.revokeObjectURL(objectUrl);
 
-                    // Auto-sync immediately to flat store if program name is filled
                     const progName = progNameInput ? progNameInput.value.trim() : '';
-                    if (progName) {
+                    if (progName && wizStore.allocationRulesManager) {
                         wizStore.allocationRulesManager.updateSpecificProgramImageByName(progName, compressed);
                     }
                 };
@@ -2209,6 +2221,7 @@
             const imgPrev = row.querySelector('.sub-img-preview');
             const imgPlaceholder = row.querySelector('.sub-img-placeholder');
             const fileInput = row.querySelector('.sub-file-input');
+            const uploadLabel = row.querySelector('.sub-upload-label');
 
             if (hiddenInput) hiddenInput.value = '';
             if (imgPrev) {
@@ -2217,6 +2230,7 @@
             }
             if (imgPlaceholder) imgPlaceholder.classList.remove('hidden');
             if (fileInput) fileInput.value = '';
+            if (uploadLabel) uploadLabel.textContent = 'Upload Foto Lokal';
             btn.classList.add('hidden');
         }
 
@@ -2229,23 +2243,23 @@
             row.innerHTML = `
                 <div class="flex items-center gap-2 shrink-0">
                     <div class="relative w-12 h-12 rounded-lg overflow-hidden border border-outline-variant/40 bg-surface-container flex items-center justify-center shrink-0">
-                        <img src="${image || ''}" class="sub-img-preview w-full h-full object-cover ${image ? '' : 'hidden'}" alt="Preview">
-                        <span class="sub-img-placeholder material-symbols-outlined text-outline text-lg ${image ? 'hidden' : ''}">image</span>
+                        <img class="sub-img-preview w-full h-full object-cover hidden" alt="Preview">
+                        <span class="sub-img-placeholder material-symbols-outlined text-outline text-lg">image</span>
                     </div>
                     <div class="flex flex-col gap-1">
                         <label class="px-2.5 py-1 bg-primary/10 text-primary hover:bg-primary/20 text-xs font-bold rounded-lg cursor-pointer flex items-center gap-1 transition-colors">
                             <span class="material-symbols-outlined text-sm">upload_file</span>
-                            <span>${image ? 'Ganti Foto' : 'Upload Foto Lokal'}</span>
+                            <span class="sub-upload-label">Upload Foto Lokal</span>
                             <input type="file" accept="image/*" class="sub-file-input hidden" onchange="handleSubProgramPhotoSelect(event, this)">
                         </label>
-                        <input type="hidden" class="sub-img-input" value="${image}">
-                        <button type="button" onclick="clearSubProgramPhoto(this)" class="sub-img-clear text-[11px] text-error hover:underline text-left ${image ? '' : 'hidden'}">✕ Hapus Foto</button>
+                        <input type="hidden" class="sub-img-input" value="">
+                        <button type="button" onclick="clearSubProgramPhoto(this)" class="sub-img-clear text-[11px] text-error hover:underline text-left hidden">✕ Hapus Foto</button>
                     </div>
                 </div>
 
                 <div class="flex-1 w-full space-y-1">
                     <label class="block text-[11px] font-bold text-on-surface-variant">Nama Program Spesifik *</label>
-                    <input type="text" placeholder="Contoh: Pembangunan Markaz" value="${key}" required
+                    <input type="text" placeholder="Contoh: Pembangunan Markaz" required
                         class="sub-key-input w-full bg-background border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-semibold outline-none focus:border-primary">
                 </div>
 
@@ -2253,7 +2267,7 @@
                     <div class="space-y-1">
                         <label class="block text-[11px] font-bold text-on-surface-variant">Persentase (%) *</label>
                         <div class="flex items-center gap-1">
-                            <input type="number" min="0" max="100" step="1" value="${percent}" required oninput="validateAllocModal()"
+                            <input type="number" min="0" max="100" step="1" required oninput="validateAllocModal()"
                                 class="sub-percent-input w-20 bg-background border border-outline-variant rounded-lg px-2 py-1.5 text-xs font-bold text-right outline-none focus:border-primary">
                             <span class="text-xs font-bold text-primary">%</span>
                         </div>
@@ -2263,6 +2277,26 @@
                     </button>
                 </div>
             `;
+
+            const keyInput = row.querySelector('.sub-key-input');
+            const percentInput = row.querySelector('.sub-percent-input');
+            const imgInput = row.querySelector('.sub-img-input');
+            const imgPreview = row.querySelector('.sub-img-preview');
+            const imgPlaceholder = row.querySelector('.sub-img-placeholder');
+            const clearBtn = row.querySelector('.sub-img-clear');
+            const uploadLabel = row.querySelector('.sub-upload-label');
+
+            if (keyInput) keyInput.value = key || '';
+            if (percentInput) percentInput.value = percent !== undefined ? percent : 0;
+            if (imgInput) imgInput.value = image || '';
+
+            if (image) {
+                if (imgPreview) { imgPreview.src = image; imgPreview.classList.remove('hidden'); }
+                if (imgPlaceholder) imgPlaceholder.classList.add('hidden');
+                if (clearBtn) clearBtn.classList.remove('hidden');
+                if (uploadLabel) uploadLabel.textContent = 'Ganti Foto';
+            }
+
             container.appendChild(row);
             validateAllocModal();
         }
@@ -2276,22 +2310,28 @@
         }
 
         function validateAllocModal() {
-            const modalVal = document.getElementById('alloc-modal-validation');
-            if (!modalVal) return;
+            try {
+                const modalVal = document.getElementById('alloc-modal-validation');
+                if (!modalVal) return;
 
-            const rows = document.querySelectorAll('#sub-programs-list .sub-program-row');
-            let total = 0;
-            rows.forEach(r => {
-                const pct = Number(r.querySelector('.sub-percent-input').value) || 0;
-                total += pct;
-            });
+                const rows = document.querySelectorAll('#sub-programs-list .sub-program-row');
+                let total = 0;
+                rows.forEach(r => {
+                    const input = r.querySelector('.sub-percent-input');
+                    if (input) {
+                        total += Number(input.value) || 0;
+                    }
+                });
 
-            if (Math.abs(total - 100) < 0.1) {
-                modalVal.className = 'p-xs rounded-lg font-caption text-caption font-bold text-center bg-emerald-100 text-emerald-800 border border-emerald-300';
-                modalVal.textContent = '✅ STATUS SUB-ALOKASI: VALID (TOTAL 100%)';
-            } else {
-                modalVal.className = 'p-xs rounded-lg font-caption text-caption font-bold text-center bg-red-100 text-red-800 border border-red-300';
-                modalVal.textContent = `⚠️ STATUS SUB-ALOKASI: INVALID (TOTAL SAAT INI: ${total}%) — Silakan sesuaikan agar total tepat 100%.`;
+                if (Math.abs(total - 100) < 0.1) {
+                    modalVal.className = 'p-xs rounded-lg font-caption text-caption font-bold text-center bg-emerald-100 text-emerald-800 border border-emerald-300';
+                    modalVal.textContent = '✅ STATUS SUB-ALOKASI: VALID (TOTAL 100%)';
+                } else {
+                    modalVal.className = 'p-xs rounded-lg font-caption text-caption font-bold text-center bg-red-100 text-red-800 border border-red-300';
+                    modalVal.textContent = `⚠️ STATUS SUB-ALOKASI: INVALID (TOTAL SAAT INI: ${total}%) — Silakan sesuaikan agar total tepat 100%.`;
+                }
+            } catch (err) {
+                console.error('[WIZ Admin] validateAllocModal error:', err);
             }
         }
 
