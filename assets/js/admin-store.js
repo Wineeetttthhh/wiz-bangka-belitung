@@ -1864,13 +1864,14 @@
     // ─── Referrals (Hak 6% Perantara) Module ────────────────
     const referrals = {
         getAll() {
-            const rawList = getStore(STORAGE_KEYS.REFERRALS) || [];
+            const deletedSet = getDeletedRefIds();
+            const rawList = (getStore(STORAGE_KEYS.REFERRALS) || []).filter(r => r && r.id && !deletedSet.has(String(r.id)) && r.status !== 'deleted' && !r.isDeleted);
             const allDonations = getStore(STORAGE_KEYS.DONATIONS) || [];
             const allPayouts = getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || [];
 
             return rawList.map(ref => {
-                const refDonations = allDonations.filter(d => d.referralId === ref.id);
-                const refPayouts = allPayouts.filter(p => p.referralId === ref.id);
+                const refDonations = allDonations.filter(d => String(d.referralId) === String(ref.id));
+                const refPayouts = allPayouts.filter(p => String(p.referralId) === String(ref.id));
 
                 const donationsCount = refDonations.length;
                 const totalDonationAmount = refDonations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
@@ -1899,11 +1900,11 @@
 
         getById(id) {
             const all = this.getAll();
-            const ref = all.find(r => r.id === id);
+            const ref = all.find(r => String(r.id) === String(id));
             if (!ref) return null;
 
-            const allDonations = (getStore(STORAGE_KEYS.DONATIONS) || []).filter(d => d.referralId === id);
-            const allPayouts = (getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || []).filter(p => p.referralId === id).sort((a, b) => new Date(b.paidAt) - new Date(a.paidAt));
+            const allDonations = (getStore(STORAGE_KEYS.DONATIONS) || []).filter(d => String(d.referralId) === String(id));
+            const allPayouts = (getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || []).filter(p => String(p.referralId) === String(id)).sort((a, b) => new Date(b.paidAt) - new Date(a.paidAt));
 
             return {
                 ...ref,
@@ -1934,12 +1935,14 @@
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 await window.wizFirebase.insert('referrals', newRef);
             }
+
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return newRef;
         },
 
         async update(id, updates) {
             const list = getStore(STORAGE_KEYS.REFERRALS) || [];
-            const idx = list.findIndex(r => r.id === id);
+            const idx = list.findIndex(r => String(r.id) === String(id));
             if (idx === -1) return null;
 
             list[idx] = { ...list[idx], ...updates, updatedAt: new Date().toISOString() };
@@ -1950,13 +1953,19 @@
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 await window.wizFirebase.set('referrals', id, list[idx]);
             }
+
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return list[idx];
         },
 
         async delete(id) {
-            const list = getStore(STORAGE_KEYS.REFERRALS) || [];
-            const ref = list.find(r => r.id === id);
-            const filtered = list.filter(r => r.id !== id);
+            if (!id) return;
+            const strId = String(id);
+            addDeletedRefId(strId);
+
+            const rawList = getStore(STORAGE_KEYS.REFERRALS) || [];
+            const ref = rawList.find(r => String(r.id) === strId);
+            const filtered = rawList.filter(r => String(r.id) !== strId);
             setStore(STORAGE_KEYS.REFERRALS, filtered);
 
             if (ref) {
@@ -1964,8 +1973,11 @@
             }
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.remove('referrals', id);
+                await window.wizFirebase.remove('referrals', strId);
+                await window.wizFirebase.upsert('deleted_ref_ids', { key: strId, deletedAt: new Date().toISOString() });
             }
+
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
         },
 
         // Payout / Pencairan Hak Perantara
