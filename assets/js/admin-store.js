@@ -1308,7 +1308,11 @@
     // ─── News Module ──────────────────────────────────────
     const news = {
         getAll() {
-            return (getStore(STORAGE_KEYS.NEWS) || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            const deletedSet = getDeletedNewsIds();
+            const raw = getStore(STORAGE_KEYS.NEWS) || [];
+            return raw
+                .filter(n => n && n.id && !deletedSet.has(String(n.id)) && n.status !== 'deleted' && !n.isDeleted)
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         },
 
         getPublished() {
@@ -1320,7 +1324,7 @@
         },
 
         getById(articleId) {
-            return this.getAll().find(n => n.id === articleId) || null;
+            return this.getAll().find(n => String(n.id) === String(articleId)) || null;
         },
 
         async add(article) {
@@ -1348,12 +1352,13 @@
                 await window.wizFirebase.insert('news', newArticle);
             }
 
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return newArticle;
         },
 
         async update(articleId, updates) {
             const list = this.getAll();
-            const idx = list.findIndex(n => n.id === articleId);
+            const idx = list.findIndex(n => String(n.id) === String(articleId));
             if (idx === -1) return null;
 
             list[idx] = { ...list[idx], ...updates, updatedAt: new Date().toISOString() };
@@ -1365,13 +1370,18 @@
                 await window.wizFirebase.set('news', articleId, list[idx]);
             }
 
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return list[idx];
         },
 
         async delete(articleId) {
-            const list = this.getAll();
-            const article = list.find(n => n.id === articleId);
-            const filtered = list.filter(n => n.id !== articleId);
+            if (!articleId) return;
+            const strId = String(articleId);
+            addDeletedNewsId(strId);
+
+            const rawList = getStore(STORAGE_KEYS.NEWS) || [];
+            const article = rawList.find(n => String(n.id) === strId);
+            const filtered = rawList.filter(n => String(n.id) !== strId);
             setStore(STORAGE_KEYS.NEWS, filtered);
 
             if (article) {
@@ -1379,8 +1389,11 @@
             }
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.remove('news', articleId);
+                await window.wizFirebase.remove('news', strId);
+                await window.wizFirebase.upsert('deleted_news_ids', { key: strId, deletedAt: new Date().toISOString() });
             }
+
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
         }
     };
 
