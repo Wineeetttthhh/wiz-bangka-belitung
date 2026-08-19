@@ -177,6 +177,32 @@
         localStorage.setItem(STORAGE_KEYS.DELETED_NEWS_IDS, JSON.stringify(Array.from(set)));
     }
 
+    function getDeletedDisbIds() {
+        try {
+            return new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.DELETED_DISB_IDS) || '[]'));
+        } catch { return new Set(); }
+    }
+
+    function addDeletedDisbId(id) {
+        if (!id) return;
+        const set = getDeletedDisbIds();
+        set.add(String(id));
+        localStorage.setItem(STORAGE_KEYS.DELETED_DISB_IDS, JSON.stringify(Array.from(set)));
+    }
+
+    function getDeletedRefIds() {
+        try {
+            return new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.DELETED_REF_IDS) || '[]'));
+        } catch { return new Set(); }
+    }
+
+    function addDeletedRefId(id) {
+        if (!id) return;
+        const set = getDeletedRefIds();
+        set.add(String(id));
+        localStorage.setItem(STORAGE_KEYS.DELETED_REF_IDS, JSON.stringify(Array.from(set)));
+    }
+
     function getStore(key) {
         try {
             return JSON.parse(localStorage.getItem(key)) || null;
