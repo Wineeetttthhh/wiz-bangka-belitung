@@ -866,6 +866,9 @@
 
         try {
             const deletedSet = getDeletedIds();
+            const deletedNewsSet = getDeletedNewsIds();
+            const deletedDisbSet = getDeletedDisbIds();
+            const deletedRefSet = getDeletedRefIds();
 
             // Push Donations (excluding deleted IDs)
             const { data: cloudDons } = await window.wizFirebase.select('donations');
@@ -883,7 +886,7 @@
             const cloudNewsIds = new Set((cloudNews || []).map(n => String(n.id)));
             const localNews = getStore(STORAGE_KEYS.NEWS) || [];
             for (const n of localNews) {
-                if (n && n.id && !deletedSet.has(String(n.id)) && !cloudNewsIds.has(String(n.id))) {
+                if (n && n.id && !deletedNewsSet.has(String(n.id)) && !cloudNewsIds.has(String(n.id))) {
                     const { error } = await window.wizFirebase.insert('news', n);
                     if (!error) report.newsPushed++;
                 }
@@ -894,7 +897,7 @@
             const cloudDisbIds = new Set((cloudDisb || []).map(db => String(db.id)));
             const localDisb = getStore(STORAGE_KEYS.DISBURSEMENTS) || [];
             for (const db of localDisb) {
-                if (db && db.id && !deletedSet.has(String(db.id)) && !cloudDisbIds.has(String(db.id))) {
+                if (db && db.id && !deletedDisbSet.has(String(db.id)) && !cloudDisbIds.has(String(db.id))) {
                     const { error } = await window.wizFirebase.insert('disbursements', db);
                     if (!error) report.disbursementsPushed++;
                 }
@@ -905,7 +908,7 @@
             const cloudRefIds = new Set((cloudRefs || []).map(r => String(r.id)));
             const localRefs = getStore(STORAGE_KEYS.REFERRALS) || [];
             for (const r of localRefs) {
-                if (r && r.id && !deletedSet.has(String(r.id)) && !cloudRefIds.has(String(r.id))) {
+                if (r && r.id && !deletedRefSet.has(String(r.id)) && !cloudRefIds.has(String(r.id))) {
                     const { error } = await window.wizFirebase.insert('referrals', r);
                     if (!error) report.referralsPushed++;
                 }
@@ -916,7 +919,7 @@
             const cloudPayoutIds = new Set((cloudPayouts || []).map(p => String(p.id)));
             const localPayouts = getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || [];
             for (const p of localPayouts) {
-                if (p && p.id && !deletedSet.has(String(p.id)) && !cloudPayoutIds.has(String(p.id))) {
+                if (p && p.id && !cloudPayoutIds.has(String(p.id))) {
                     const { error } = await window.wizFirebase.insert('referral_payouts', p);
                     if (!error) report.payoutsPushed++;
                 }
@@ -933,7 +936,7 @@
         if (!window.wizFirebase || !window.wizFirebase.isConfigured()) return;
 
         try {
-            const [donRes, newsRes, disbRes, actRes, refRes, payoutRes, settingsRes, baseRes, deletedRes, deletedNewsRes] = await Promise.all([
+            const [donRes, newsRes, disbRes, actRes, refRes, payoutRes, settingsRes, baseRes, deletedRes, deletedNewsRes, deletedDisbRes, deletedRefRes] = await Promise.all([
                 window.wizFirebase.select('donations'),
                 window.wizFirebase.select('news'),
                 window.wizFirebase.select('disbursements'),
@@ -943,7 +946,9 @@
                 window.wizFirebase.select('site_settings'),
                 window.wizFirebase.select('baselines'),
                 window.wizFirebase.select('deleted_ids'),
-                window.wizFirebase.select('deleted_news_ids')
+                window.wizFirebase.select('deleted_news_ids'),
+                window.wizFirebase.select('deleted_disb_ids'),
+                window.wizFirebase.select('deleted_ref_ids')
             ]);
 
             if (deletedRes.data && Array.isArray(deletedRes.data)) {
@@ -958,14 +963,27 @@
                 });
             }
 
+            if (deletedDisbRes.data && Array.isArray(deletedDisbRes.data)) {
+                deletedDisbRes.data.forEach(d => {
+                    if (d && (d.key || d.id)) addDeletedDisbId(d.key || d.id);
+                });
+            }
+
+            if (deletedRefRes.data && Array.isArray(deletedRefRes.data)) {
+                deletedRefRes.data.forEach(d => {
+                    if (d && (d.key || d.id)) addDeletedRefId(d.key || d.id);
+                });
+            }
+
             const deletedSet = getDeletedIds();
             const deletedNewsSet = getDeletedNewsIds();
+            const deletedDisbSet = getDeletedDisbIds();
+            const deletedRefSet = getDeletedRefIds();
 
-            function smartMerge(storeKey, cloudData, sortFn, isNewsStore = false) {
+            function smartMerge(storeKey, cloudData, sortFn, activeDeletedSet = deletedSet) {
                 if (!cloudData || !Array.isArray(cloudData)) return;
                 const local = getStore(storeKey) || [];
                 const map = new Map();
-                const activeDeletedSet = isNewsStore ? deletedNewsSet : deletedSet;
 
                 // Load local first, skipping deleted
                 local.forEach(item => {
@@ -1003,7 +1021,7 @@
                     }
                 }
                 smartMerge(STORAGE_KEYS.DONATIONS, donRes.data,
-                    (a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                    (a, b) => new Date(b.createdAt) - new Date(a.createdAt), deletedSet);
             }
 
             if (newsRes.data) {
@@ -1014,17 +1032,27 @@
                     }
                 }
                 smartMerge(STORAGE_KEYS.NEWS, newsRes.data,
-                    (a, b) => new Date(b.createdAt) - new Date(a.createdAt), true);
+                    (a, b) => new Date(b.createdAt) - new Date(a.createdAt), deletedNewsSet);
             }
 
             if (disbRes.data) {
+                for (const cloudDoc of disbRes.data) {
+                    if (cloudDoc && cloudDoc.id && deletedDisbSet.has(String(cloudDoc.id))) {
+                        await window.wizFirebase.remove('disbursements', String(cloudDoc.id));
+                    }
+                }
                 smartMerge(STORAGE_KEYS.DISBURSEMENTS, disbRes.data,
-                    (a, b) => new Date(b.disbursedAt || b.createdAt) - new Date(a.disbursedAt || a.createdAt));
+                    (a, b) => new Date(b.disbursedAt || b.createdAt) - new Date(a.disbursedAt || a.createdAt), deletedDisbSet);
             }
 
             if (refRes.data) {
+                for (const cloudDoc of refRes.data) {
+                    if (cloudDoc && cloudDoc.id && deletedRefSet.has(String(cloudDoc.id))) {
+                        await window.wizFirebase.remove('referrals', String(cloudDoc.id));
+                    }
+                }
                 smartMerge(STORAGE_KEYS.REFERRALS, refRes.data,
-                    (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                    (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0), deletedRefSet);
             }
 
             if (payoutRes.data) {
