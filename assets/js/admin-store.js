@@ -423,13 +423,7 @@
                 activityLog.add('settings', 'Pengaturan Rekening Bank & Lokasi Kantor diperbarui oleh Admin Utama', sessionStorage.getItem('wiz_admin_user') || 'Admin 1');
             }
 
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                await window.wizSupabase.insert('site_settings', {
-                    key: 'global_settings',
-                    value: updated,
-                    updated_at: new Date().toISOString()
-                });
-            } else if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 await window.wizFirebase.upsert('site_settings', {
                     key: 'global_settings',
                     value: updated,
