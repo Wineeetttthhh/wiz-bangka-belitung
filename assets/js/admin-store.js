@@ -1278,7 +1278,6 @@
 
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
         },
-        },
 
         count() { return this.getVerified().length; },
         countPending() { return this.getPending().length; }
