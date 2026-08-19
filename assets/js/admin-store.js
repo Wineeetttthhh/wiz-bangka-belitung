@@ -2327,19 +2327,39 @@
         }
     };
 
+    // BroadcastChannel helper for instant cross-tab real-time sync
+    function broadcastSync(type, payload = {}) {
+        try {
+            const bc = new BroadcastChannel('wiz_sync_channel');
+            bc.postMessage({ type, payload, timestamp: Date.now() });
+            bc.close();
+        } catch(e) {}
+    }
+
+    // Listen to cross-tab storage events & BroadcastChannel
+    try {
+        const bc = new BroadcastChannel('wiz_sync_channel');
+        bc.onmessage = (event) => {
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete', { detail: event.data }));
+        };
+    } catch(e) {}
+
+    window.addEventListener('storage', (e) => {
+        if (e.key && e.key.startsWith('wiz_')) {
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+        }
+    });
+
     // ─── Initialize Data & Sync ───────────────────────────
     seedDefaultData();
 
     // Full bidirectional sync on startup:
-    // 1. Push any local-only data → Firebase (so data from Edge reaches Firebase)
-    // 2. Pull Firebase data → localStorage (so Chrome gets data from Firebase)
     async function initSync() {
         try {
             await syncFromCloud();   // Step 1: pull from Firebase first
             await pushToCloud();     // Step 2: push local-only data to Firebase
             await syncFromCloud();   // Step 3: pull again to catch anything missed
             console.log('[WIZ Firebase] Init sync complete.');
-            // Notify any listening pages to refresh their UI
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
         } catch(e) {
             console.warn('[WIZ Firebase] Init sync failed, using local data:', e.message);
@@ -2348,6 +2368,14 @@
 
     // Slight delay so Firebase client script finishes loading
     setTimeout(initSync, 800);
+
+    // Automatic recurring background cloud sync every 10 seconds for cross-device real-time sync
+    setInterval(async () => {
+        try {
+            await syncFromCloud();
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+        } catch(e) {}
+    }, 10000);
 
     // ─── Public API ───────────────────────────────────────
     window.wizStore = {
@@ -2369,8 +2397,9 @@
         syncFromCloud,
         pushToCloud,
         fullBidirectionalSync,
+        broadcastSync,
         utils: { formatRupiahCompact, formatDate, formatDateTime, timeAgo, generateId, mapProgramToPillar }
     };
 
-    console.log('[WIZ Store] Initialized with Firebase sync. Collections ready.');
+    console.log('[WIZ Store] Initialized with real-time cloud sync & 10s auto-polling. Collections ready.');
 })();
