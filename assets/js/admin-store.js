@@ -2011,6 +2011,30 @@
             return { success: true, referral: ref, message: 'Login berhasil!' };
         },
 
+        recoverPin(identifier) {
+            if (!identifier) return { success: false, message: 'Masukkan No. WhatsApp atau Kode Referral Anda.' };
+            const ref = this.getByCodeOrId(identifier);
+            if (!ref) {
+                return { success: false, message: 'Akun Affiliate tidak ditemukan. Silakan periksa kembali No. WhatsApp atau Kode Anda.' };
+            }
+
+            const pinVal = ref.pin || (ref.phone ? ref.phone.slice(-4) : '1234');
+            let phoneClean = (ref.phone || '').replace(/\D/g, '');
+            if (phoneClean.startsWith('0')) phoneClean = '62' + phoneClean.substring(1);
+            if (!phoneClean.startsWith('62')) phoneClean = '6282380830808';
+
+            const textMsg = `Bismillah. Berikut adalah data pemulihan akses akun Affiliate WIZ Bangka Belitung Anda:%0A%0A• *Nama*: ${ref.name}%0A• *Kode Referral*: ${ref.code || ref.id}%0A• *PIN Login*: *${pinVal}*%0A%0A_Simpan PIN ini dengan baik untuk login ke Portal Member Affiliate WIZ Babel._`;
+            const waUrl = `https://wa.me/${phoneClean}?text=${textMsg}`;
+
+            return {
+                success: true,
+                referral: ref,
+                pin: pinVal,
+                waUrl: waUrl,
+                message: `PIN Anda ditemukan: ${pinVal}. Klik tombol untuk mengirim PIN langsung via WhatsApp.`
+            };
+        },
+
         getMonthlyKPI(referralId, targetMonthStr) {
             const ref = this.getById(referralId);
             if (!ref) return null;
