@@ -479,16 +479,8 @@
                 activityLog.add('auth', `Pendaftaran akun admin baru: '${cleanUser}' (Menunggu verifikasi Admin 1)`, cleanUser);
             }
 
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                await window.wizSupabase.insert('admin_users', {
-                    username: newUser.username,
-                    password: newUser.password,
-                    full_name: newUser.fullName,
-                    phone: newUser.phone,
-                    role: newUser.role,
-                    status: 'pending',
-                    created_at: newUser.createdAt
-                });
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.insert('admin_users', newUser);
             }
 
             return { success: true, user: newUser, message: 'Pendaftaran berhasil! Akun Anda sedang menunggu verifikasi dari Admin 1.' };
@@ -1115,23 +1107,8 @@
 
             activityLog.add('donation_edit', `Data donasi ${list[idx].donorName} (${formatRupiahCompact(list[idx].amount)}) diperbarui.`, 'Admin');
 
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                await window.wizSupabase.update('donations', id, {
-                    donor_name: list[idx].donorName,
-                    donor_phone: list[idx].donorPhone,
-                    wilayah: list[idx].wilayah,
-                    program_utama: list[idx].programUtama,
-                    program_spesifik: list[idx].programSpesifik,
-                    alokasi_operasional: list[idx].alokasiOperasional,
-                    alokasi_program: list[idx].alokasiProgram,
-                    program: list[idx].program,
-                    category: list[idx].category,
-                    donation_type: list[idx].type,
-                    amount: list[idx].amount,
-                    payment_method: list[idx].method,
-                    notes: list[idx].notes,
-                    status: list[idx].status
-                });
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.update('donations', id, list[idx]);
             }
 
             return list[idx];
