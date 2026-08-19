@@ -1070,6 +1070,20 @@
                     if (matchedProg) {
                         document.getElementById('program-spesifik-select').value = matchedProg;
                         setProgramSpesifik(matchedProg);
+
+                        // Dynamic OpenGraph Social Media Image & Title Update
+                        const progImg = (wizStore && wizStore.allocationRulesManager) ? wizStore.allocationRulesManager.getSpecificProgramImage(matchedProg, matchedCat) : '';
+                        if (progImg && (progImg.startsWith('http') || progImg.startsWith('data:image'))) {
+                            const ogImgEl = document.getElementById('og-image');
+                            const twImgEl = document.getElementById('twitter-image');
+                            if (ogImgEl) ogImgEl.setAttribute('content', progImg);
+                            if (twImgEl) twImgEl.setAttribute('content', progImg);
+                        }
+                        document.title = `Berdonasi untuk ${matchedProg} — WIZ Babel`;
+                        const ogTitleEl = document.getElementById('og-title');
+                        const twTitleEl = document.getElementById('twitter-title');
+                        if (ogTitleEl) ogTitleEl.setAttribute('content', `Donasi Program: ${matchedProg}`);
+                        if (twTitleEl) twTitleEl.setAttribute('content', `Donasi Program: ${matchedProg}`);
                     }
                 }
             } else if (typeParam) {
