@@ -3191,13 +3191,11 @@
             document.getElementById('base-masuk').value = base.baseMasuk;
             document.getElementById('base-salur').value = base.baseTersalurkan;
             document.getElementById('base-donatur').value = base.baseDonatur;
-            document.getElementById('baseline-modal').classList.add('show');
-            document.body.style.overflow = 'hidden';
+            showModal('baseline-modal');
         }
 
         function closeBaselineModal() {
-            document.getElementById('baseline-modal').classList.remove('show');
-            document.body.style.overflow = '';
+            hideModal('baseline-modal');
         }
 
         function handleBaselineSave(e) {
