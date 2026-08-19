@@ -21,7 +21,8 @@ const SUPABASE_CONFIG = {
     function isConfigured() {
         return SUPABASE_CONFIG.url &&
             SUPABASE_CONFIG.anonKey &&
-            !SUPABASE_CONFIG.url.includes('YOUR_SUPABASE');
+            !SUPABASE_CONFIG.url.includes('YOUR_SUPABASE') &&
+            SUPABASE_CONFIG.anonKey.startsWith('eyJ');
     }
 
     function endpoint(table) {
