@@ -8,6 +8,25 @@
     <meta name="description"
         content="Portal resmi Member & Affiliate Perantara Kebaikan Wahdah Inspirasi Zakat (WIZ) Bangka Belitung. Pantau kinerja komisi 6%, laporan bulanan, dan kelola link referral program.">
 
+    <script>
+        // Automatic Redirection for Public Donors:
+        // If a donor visits affiliate.html with ?program=... or ?ref=... (from a shared link),
+        // automatically redirect them to donasi.html so they land on the public donation page directly!
+        (function() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const hasProgram = urlParams.has('program');
+                const hasRef = urlParams.has('ref') || urlParams.has('affiliate') || urlParams.get('perantara');
+                const isMemberSession = sessionStorage.getItem('wiz_logged_affiliate') || localStorage.getItem('wiz_logged_affiliate');
+                const isTab = urlParams.has('tab');
+
+                if ((hasProgram || hasRef) && !isMemberSession && !isTab) {
+                    window.location.replace('donasi.html' + window.location.search);
+                }
+            } catch(e) {}
+        })();
+    </script>
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
