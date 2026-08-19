@@ -1952,9 +1952,10 @@
             ) || null;
         },
 
-        async registerPublic({ name, phone, bankName, accountNumber, accountHolder }) {
+        async registerPublic({ name, phone, bankName, accountNumber, accountHolder, pin }) {
             const cleanName = (name || '').trim();
             const cleanPhone = (phone || '').trim();
+            const cleanPin = (pin || '').trim() || cleanPhone.slice(-4) || '1234';
 
             if (!cleanName || !cleanPhone) {
                 return { success: false, message: 'Nama Laporan & No. WhatsApp wajib diisi.' };
@@ -1967,7 +1968,11 @@
             );
 
             if (existing) {
-                return { success: true, isExisting: true, referral: existing, message: 'Akun Affiliate Anda sudah terdaftar!' };
+                // If existing, update pin if provided
+                if (pin && pin.trim()) {
+                    await this.update(existing.id, { pin: cleanPin });
+                }
+                return { success: true, isExisting: true, referral: { ...existing, pin: cleanPin }, message: 'Akun Affiliate Anda sudah terdaftar!' };
             }
 
             const codeSlug = 'REF-' + Math.random().toString(36).substring(2, 7).toUpperCase();
@@ -1978,6 +1983,7 @@
                 accountNumber: (accountNumber || '-').trim(),
                 accountHolder: (accountHolder || cleanName).trim(),
                 defaultRate: 6,
+                pin: cleanPin,
                 status: 'active',
                 notes: 'Pendaftaran Affiliate Publik via website',
                 code: codeSlug,
@@ -1985,6 +1991,72 @@
             });
 
             return { success: true, isExisting: false, referral: newRef, message: 'Pendaftaran Affiliate/Perantara Kebaikan berhasil!' };
+        },
+
+        login({ identifier, pin }) {
+            if (!identifier) return { success: false, message: 'Masukkan No. WhatsApp atau Kode Referral.' };
+            const ref = this.getByCodeOrId(identifier);
+            if (!ref) {
+                return { success: false, message: 'Akun Affiliate tidak ditemukan. Silakan mendaftar terlebih dahulu.' };
+            }
+
+            const inputPin = (pin || '').trim();
+            const actualPin = (ref.pin || '').trim() || ref.phone.slice(-4) || '1234';
+
+            if (inputPin && actualPin && inputPin !== actualPin) {
+                return { success: false, message: 'PIN/Password yang Anda masukkan salah.' };
+            }
+
+            return { success: true, referral: ref, message: 'Login berhasil!' };
+        },
+
+        getMonthlyKPI(referralId, targetMonthStr) {
+            const ref = this.getById(referralId);
+            if (!ref) return null;
+
+            let filterMonth = targetMonthStr; // e.g. "2026-08" or "Semua"
+            if (!filterMonth) {
+                const now = new Date();
+                filterMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            }
+
+            const refDonations = (ref.donations || []).filter(d => {
+                if (filterMonth === 'Semua') return true;
+                const dDate = d.createdAt || d.verifiedAt || d.date || '';
+                return dDate.startsWith(filterMonth);
+            });
+
+            const monthDonationCount = refDonations.length;
+            const monthTotalAmount = refDonations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
+            const monthEarnedFee = refDonations.reduce((sum, d) => {
+                const rate = d.referralRate !== undefined ? Number(d.referralRate) : Number(ref.defaultRate || 6);
+                const fee = d.referralFee !== undefined ? Number(d.referralFee) : Math.round((Number(d.amount) || 0) * (rate / 100));
+                return sum + fee;
+            }, 0);
+
+            let performanceTier = '🚀 Perlu Dorongan';
+            let tierClass = 'bg-amber-100 text-amber-800 border-amber-200';
+
+            if (monthDonationCount >= 5 || monthTotalAmount >= 5000000) {
+                performanceTier = '⭐ Top Performer';
+                tierClass = 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold';
+            } else if (monthDonationCount >= 1) {
+                performanceTier = '✅ Stabil';
+                tierClass = 'bg-blue-100 text-blue-800 border-blue-200';
+            }
+
+            return {
+                referralId: ref.id,
+                name: ref.name,
+                code: ref.code || ref.id,
+                phone: ref.phone,
+                month: filterMonth,
+                monthDonationCount,
+                monthTotalAmount,
+                monthEarnedFee,
+                performanceTier,
+                tierClass
+            };
         },
 
         async add(data) {
@@ -1997,7 +2069,9 @@
                 accountNumber: data.accountNumber || '-',
                 accountHolder: data.accountHolder || data.name,
                 defaultRate: Number(data.defaultRate) || 6,
+                pin: data.pin || (data.phone ? data.phone.slice(-4) : '1234'),
                 status: data.status || 'active',
+                code: data.code || ('REF-' + Math.random().toString(36).substring(2, 7).toUpperCase()),
                 notes: data.notes || '',
                 createdAt: new Date().toISOString()
             };
@@ -2008,6 +2082,12 @@
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 await window.wizFirebase.insert('referrals', newRef);
+            }
+
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.saveReferral(newRef);
+                } catch(e) {}
             }
 
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
