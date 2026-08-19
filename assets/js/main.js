@@ -4,6 +4,7 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+    initReferralUrlTracker();
     initNavigation();
     initModalSystem();
     initStatsCounter();
@@ -16,6 +17,19 @@ document.addEventListener('DOMContentLoaded', () => {
     initDynamicSiteImages();
     initDynamicProgramImages();
 });
+
+function initReferralUrlTracker() {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const refParam = urlParams.get('ref') || urlParams.get('affiliate') || urlParams.get('perantara');
+        if (refParam) {
+            const cleanRef = refParam.trim();
+            sessionStorage.setItem('wiz_active_ref_id', cleanRef);
+            localStorage.setItem('wiz_active_ref_id', cleanRef);
+            console.log('[WIZ Referral] Active affiliate referral code stored:', cleanRef);
+        }
+    } catch(e) {}
+}
 
 window.addEventListener('wiz-sync-complete', () => {
     initDynamicSiteImages();
