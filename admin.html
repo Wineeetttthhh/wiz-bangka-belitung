@@ -2567,13 +2567,11 @@
                 handleAdminTypeChange('Infak Umum');
             }
             updateReferralCalc();
-            document.getElementById('manual-donation-modal').classList.add('show');
-            document.body.style.overflow = 'hidden';
+            showModal('manual-donation-modal');
         }
 
         function closeManualDonationModal() {
-            document.getElementById('manual-donation-modal').classList.remove('show');
-            document.body.style.overflow = '';
+            hideModal('manual-donation-modal');
             document.getElementById('manual-donation-form').reset();
             document.getElementById('man-edit-id').value = '';
             updateReferralCalc();
