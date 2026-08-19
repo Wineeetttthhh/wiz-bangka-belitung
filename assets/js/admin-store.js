@@ -162,6 +162,19 @@
         localStorage.setItem(STORAGE_KEYS.DELETED_IDS, JSON.stringify(Array.from(set)));
     }
 
+    function getDeletedNewsIds() {
+        try {
+            return new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.DELETED_NEWS_IDS) || '[]'));
+        } catch { return new Set(); }
+    }
+
+    function addDeletedNewsId(id) {
+        if (!id) return;
+        const set = getDeletedNewsIds();
+        set.add(String(id));
+        localStorage.setItem(STORAGE_KEYS.DELETED_NEWS_IDS, JSON.stringify(Array.from(set)));
+    }
+
     function getStore(key) {
         try {
             return JSON.parse(localStorage.getItem(key)) || null;
