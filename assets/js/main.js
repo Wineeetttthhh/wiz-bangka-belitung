@@ -20,6 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('wiz-sync-complete', () => {
     initDynamicSiteImages();
     initDynamicProgramImages();
+    initStatsCounter();
+    initProgramCatalog();
+    initMutationTable();
 });
 
 /**
