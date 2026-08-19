@@ -2940,14 +2940,11 @@
                 }
             }
 
-            modal.classList.add('show');
-            document.body.style.overflow = 'hidden';
+            showModal('news-modal');
         }
 
         function closeNewsModal() {
-            const modal = document.getElementById('news-modal');
-            if (modal) modal.classList.remove('show');
-            document.body.style.overflow = '';
+            hideModal('news-modal');
             const form = document.getElementById('news-form');
             if (form) form.reset();
             clearNewsPhoto();
