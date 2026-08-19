@@ -4151,13 +4151,11 @@
                 updatePayoutModalInfo();
             }
 
-            document.getElementById('referral-payout-modal').classList.add('show');
-            document.body.style.overflow = 'hidden';
+            showModal('referral-payout-modal');
         }
 
         function closeReferralPayoutModal() {
-            document.getElementById('referral-payout-modal').classList.remove('show');
-            document.body.style.overflow = '';
+            hideModal('referral-payout-modal');
         }
 
         function updatePayoutModalInfo() {
