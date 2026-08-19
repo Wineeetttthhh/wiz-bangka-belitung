@@ -148,6 +148,19 @@
         return Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
     }
 
+    function getDeletedIds() {
+        try {
+            return new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.DELETED_IDS) || '[]'));
+        } catch { return new Set(); }
+    }
+
+    function addDeletedId(id) {
+        if (!id) return;
+        const set = getDeletedIds();
+        set.add(String(id));
+        localStorage.setItem(STORAGE_KEYS.DELETED_IDS, JSON.stringify(Array.from(set)));
+    }
+
     function getStore(key) {
         try {
             return JSON.parse(localStorage.getItem(key)) || null;
