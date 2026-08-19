@@ -1412,7 +1412,7 @@ function initBackgroundAnimation() {
 }
 
 // ─── Global Share Program Helper ──────────────────────────
-window.shareProgram = async function (programTitle, description, customUrl) {
+window.shareProgram = async function (programTitle, description, customUrl, customImg) {
     const title = programTitle || 'Program Kebaikan WIZ Babel';
     const desc = description || 'Yuk dukung dan berdonasi melalui Wahdah Inspirasi Zakat (WIZ) Bangka Belitung!';
     
@@ -1432,6 +1432,13 @@ window.shareProgram = async function (programTitle, description, customUrl) {
         shareUrl += '&ref=' + encodeURIComponent(activeRef);
     }
 
+    let programImg = customImg || '';
+    if (!programImg && window.wizStore && window.wizStore.allocationRulesManager && window.wizStore.allocationRulesManager.getSpecificProgramImage) {
+        programImg = window.wizStore.allocationRulesManager.getSpecificProgramImage(title) || '';
+    }
+    const defaultImg = 'https://wizbangkabelitung.or.id/assets/images/sedekah-beras-dhuafa.jpg';
+    if (!programImg) programImg = defaultImg;
+
     if (navigator.share) {
         try {
             await navigator.share({
@@ -1447,18 +1454,21 @@ window.shareProgram = async function (programTitle, description, customUrl) {
     }
 
     // Fallback: Open Share Modal
-    openShareModal(title, desc, shareUrl);
+    openShareModal(title, desc, shareUrl, programImg);
 };
 
-window.openShareModal = function (title, desc, url) {
+window.openShareModal = function (title, desc, url, programImg) {
     let modal = document.getElementById('program-share-modal');
+    const defaultImg = 'https://wizbangkabelitung.or.id/assets/images/sedekah-beras-dhuafa.jpg';
+    const activeImg = (programImg && (programImg.startsWith('http') || programImg.startsWith('data:image'))) ? programImg : defaultImg;
+
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'program-share-modal';
         modal.className = 'fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 transition-all duration-300 opacity-0 pointer-events-none';
         modal.innerHTML = `
         <div class="bg-surface rounded-2xl max-w-md w-full p-6 shadow-2xl border border-outline-variant/30 transform scale-95 transition-transform duration-300" id="share-modal-container">
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex justify-between items-center mb-3">
                 <h3 class="font-headline-md text-lg font-bold text-on-surface flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary">share</span>
                     <span>Bagikan Program Kebaikan</span>
@@ -1467,7 +1477,16 @@ window.openShareModal = function (title, desc, url) {
                     <span class="material-symbols-outlined">close</span>
                 </button>
             </div>
-            <p class="font-body-md text-sm text-on-surface mb-1 font-semibold" id="share-modal-title"></p>
+
+            <!-- Program Image Thumbnail Preview -->
+            <div class="aspect-video relative rounded-xl overflow-hidden mb-3 border border-slate-200 bg-slate-100 shadow-xs">
+                <img id="share-modal-img" src="${activeImg}" onerror="this.onerror=null; this.src='${defaultImg}';" class="w-full h-full object-cover" alt="Preview Program">
+                <span class="absolute bottom-2 left-2 bg-emerald-950/80 backdrop-blur-sm text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-md border border-emerald-500/30 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs">image</span> Foto Program
+                </span>
+            </div>
+
+            <p class="font-body-md text-sm text-on-surface mb-1 font-bold" id="share-modal-title"></p>
             <p class="font-body-sm text-xs text-on-surface-variant mb-4 line-clamp-2" id="share-modal-desc"></p>
             
             <div class="grid grid-cols-2 gap-2.5 mb-5">
@@ -1499,8 +1518,16 @@ window.openShareModal = function (title, desc, url) {
     document.getElementById('share-modal-title').textContent = title;
     document.getElementById('share-modal-desc').textContent = desc;
     document.getElementById('share-url-input').value = url;
+    const imgEl = document.getElementById('share-modal-img');
+    if (imgEl) imgEl.src = activeImg;
 
-    const encodedText = encodeURIComponent(`*${title}*\n${desc}\n\nMari berdonasi bersama WIZ Bangka Belitung:\n`);
+    let waText = `*${title}*\n${desc}\n\n`;
+    if (activeImg && activeImg.startsWith('http')) {
+        waText += `🖼️ *Foto Program*: ${activeImg}\n`;
+    }
+    waText += `👉 *Salurkan Donasi Terbaik Anda*:\n`;
+
+    const encodedText = encodeURIComponent(waText);
     const encodedUrl = encodeURIComponent(url);
 
     document.getElementById('share-btn-wa').href = `https://api.whatsapp.com/send?text=${encodedText}${encodedUrl}`;
