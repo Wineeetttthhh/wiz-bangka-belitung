@@ -2377,13 +2377,13 @@
     // Slight delay so Firebase client script finishes loading
     setTimeout(initSync, 800);
 
-    // Automatic recurring background cloud sync every 10 seconds for cross-device real-time sync
+    // Automatic recurring background cloud sync every 5 seconds for cross-device real-time sync
     setInterval(async () => {
         try {
             await syncFromCloud();
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
         } catch(e) {}
-    }, 10000);
+    }, 5000);
 
     // ─── Public API ───────────────────────────────────────
     window.wizStore = {
