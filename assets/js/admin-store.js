@@ -806,36 +806,61 @@
             return { status: 'error', message: 'Firebase belum dikonfigurasi' };
         }
 
-        const report = { donationsPushed: 0, newsPushed: 0, disbursementsPushed: 0, errors: [] };
+        const report = { donationsPushed: 0, newsPushed: 0, disbursementsPushed: 0, referralsPushed: 0, payoutsPushed: 0, errors: [] };
 
         try {
+            // Push Donations
             const { data: cloudDons } = await window.wizFirebase.select('donations');
             const cloudDonIds = new Set((cloudDons || []).map(d => String(d.id)));
             const localDonations = getStore(STORAGE_KEYS.DONATIONS) || [];
             for (const d of localDonations) {
-                if (!cloudDonIds.has(String(d.id))) {
+                if (d && d.id && !cloudDonIds.has(String(d.id))) {
                     const { error } = await window.wizFirebase.insert('donations', d);
                     if (!error) report.donationsPushed++;
                 }
             }
 
+            // Push News
             const { data: cloudNews } = await window.wizFirebase.select('news');
-            const cloudNewsTitles = new Set((cloudNews || []).map(n => n.title));
+            const cloudNewsIds = new Set((cloudNews || []).map(n => String(n.id)));
             const localNews = getStore(STORAGE_KEYS.NEWS) || [];
             for (const n of localNews) {
-                if (!cloudNewsTitles.has(n.title)) {
+                if (n && n.id && !cloudNewsIds.has(String(n.id))) {
                     const { error } = await window.wizFirebase.insert('news', n);
                     if (!error) report.newsPushed++;
                 }
             }
 
+            // Push Disbursements
             const { data: cloudDisb } = await window.wizFirebase.select('disbursements');
             const cloudDisbIds = new Set((cloudDisb || []).map(db => String(db.id)));
             const localDisb = getStore(STORAGE_KEYS.DISBURSEMENTS) || [];
             for (const db of localDisb) {
-                if (!cloudDisbIds.has(String(db.id))) {
+                if (db && db.id && !cloudDisbIds.has(String(db.id))) {
                     const { error } = await window.wizFirebase.insert('disbursements', db);
                     if (!error) report.disbursementsPushed++;
+                }
+            }
+
+            // Push Referrals
+            const { data: cloudRefs } = await window.wizFirebase.select('referrals');
+            const cloudRefIds = new Set((cloudRefs || []).map(r => String(r.id)));
+            const localRefs = getStore(STORAGE_KEYS.REFERRALS) || [];
+            for (const r of localRefs) {
+                if (r && r.id && !cloudRefIds.has(String(r.id))) {
+                    const { error } = await window.wizFirebase.insert('referrals', r);
+                    if (!error) report.referralsPushed++;
+                }
+            }
+
+            // Push Referral Payouts
+            const { data: cloudPayouts } = await window.wizFirebase.select('referral_payouts');
+            const cloudPayoutIds = new Set((cloudPayouts || []).map(p => String(p.id)));
+            const localPayouts = getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || [];
+            for (const p of localPayouts) {
+                if (p && p.id && !cloudPayoutIds.has(String(p.id))) {
+                    const { error } = await window.wizFirebase.insert('referral_payouts', p);
+                    if (!error) report.payoutsPushed++;
                 }
             }
 
@@ -850,26 +875,31 @@
         if (!window.wizFirebase || !window.wizFirebase.isConfigured()) return;
 
         try {
-            const [donRes, newsRes, disbRes, actRes] = await Promise.all([
+            const [donRes, newsRes, disbRes, actRes, refRes, payoutRes, settingsRes, baseRes] = await Promise.all([
                 window.wizFirebase.select('donations'),
                 window.wizFirebase.select('news'),
                 window.wizFirebase.select('disbursements'),
-                window.wizFirebase.select('activity_log')
+                window.wizFirebase.select('activity_log'),
+                window.wizFirebase.select('referrals'),
+                window.wizFirebase.select('referral_payouts'),
+                window.wizFirebase.select('site_settings'),
+                window.wizFirebase.select('baselines')
             ]);
 
-            // Since Firebase stores same camelCase format as localStorage, merge is trivial
             function smartMerge(storeKey, cloudData, sortFn) {
-                if (!cloudData || cloudData.length === 0) return;
+                if (!cloudData || !Array.isArray(cloudData)) return;
                 const local = getStore(storeKey) || [];
                 const map = new Map();
                 // Load local first
-                local.forEach(item => map.set(String(item.id), item));
-                // Merge cloud — but preserve local base64 images (offline uploads)
+                local.forEach(item => {
+                    if (item && item.id) map.set(String(item.id), item);
+                });
+                // Merge cloud data
                 cloudData.forEach(cloudItem => {
+                    if (!cloudItem || !cloudItem.id) return;
                     const localItem = map.get(String(cloudItem.id));
                     if (localItem) {
-                        // Preserve locally uploaded base64 photo over cloud URL
-                        const mergedItem = { ...cloudItem, ...{} };
+                        const mergedItem = { ...localItem, ...cloudItem };
                         if (localItem.imageUrl && localItem.imageUrl.startsWith('data:image')) {
                             mergedItem.imageUrl = localItem.imageUrl;
                         }
@@ -883,27 +913,58 @@
                 setStore(storeKey, merged);
             }
 
-            smartMerge(STORAGE_KEYS.DONATIONS, donRes.data,
-                (a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            if (donRes.data) {
+                smartMerge(STORAGE_KEYS.DONATIONS, donRes.data,
+                    (a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            }
 
-            smartMerge(STORAGE_KEYS.NEWS, newsRes.data,
-                (a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            if (newsRes.data) {
+                smartMerge(STORAGE_KEYS.NEWS, newsRes.data,
+                    (a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            }
 
-            smartMerge(STORAGE_KEYS.DISBURSEMENTS, disbRes.data,
-                (a, b) => new Date(b.disbursedAt || b.createdAt) - new Date(a.disbursedAt || a.createdAt));
+            if (disbRes.data) {
+                smartMerge(STORAGE_KEYS.DISBURSEMENTS, disbRes.data,
+                    (a, b) => new Date(b.disbursedAt || b.createdAt) - new Date(a.disbursedAt || a.createdAt));
+            }
+
+            if (refRes.data) {
+                smartMerge(STORAGE_KEYS.REFERRALS, refRes.data,
+                    (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+            }
+
+            if (payoutRes.data) {
+                smartMerge(STORAGE_KEYS.REFERRAL_PAYOUTS, payoutRes.data,
+                    (a, b) => new Date(b.paidAt || 0) - new Date(a.paidAt || 0));
+            }
 
             if (actRes.data && actRes.data.length > 0) {
                 const local = getStore(STORAGE_KEYS.ACTIVITY) || [];
                 const map = new Map();
-                local.forEach(item => map.set(String(item.id), item));
-                actRes.data.forEach(item => map.set(String(item.id), item));
+                local.forEach(item => { if (item && item.id) map.set(String(item.id), item); });
+                actRes.data.forEach(item => { if (item && item.id) map.set(String(item.id), item); });
                 const merged = Array.from(map.values())
                     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                     .slice(0, 100);
                 setStore(STORAGE_KEYS.ACTIVITY, merged);
             }
 
-            console.log('[WIZ Firebase] Sync complete. Donations:', donRes.data?.length || 0, 'News:', newsRes.data?.length || 0);
+            if (settingsRes.data && settingsRes.data.length > 0) {
+                const globalSettingDoc = settingsRes.data.find(s => s.key === 'global_settings' || s.id === 'global_settings');
+                if (globalSettingDoc && globalSettingDoc.value) {
+                    setStore(STORAGE_KEYS.SITE_SETTINGS, globalSettingDoc.value);
+                }
+            }
+
+            if (baseRes.data && baseRes.data.length > 0) {
+                const baseDoc = baseRes.data.find(b => b.id === 'baselines' || b.key === 'baselines');
+                if (baseDoc && baseDoc.value) {
+                    setStore(STORAGE_KEYS.BASELINES, baseDoc.value);
+                }
+            }
+
+            console.log('[WIZ Firebase] Cross-device Sync complete. Donations:', donRes.data?.length || 0, 'Disbursements:', disbRes.data?.length || 0);
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
         } catch (e) {
             console.warn('[WIZ Firebase] Sync fallback to local storage:', e);
         }
