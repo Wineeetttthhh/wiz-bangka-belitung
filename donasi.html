@@ -201,6 +201,20 @@
     </nav>
 
     <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile sm:px-gutter py-md md:py-xl pb-28 lg:pb-xl">
+
+        <!-- ═══ AFFILIATE BANNER (only shown when accessed via affiliate link) ═══ -->
+        <div id="donasi-affiliate-banner" class="hidden mb-md p-md bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl shadow-lg flex items-center gap-md">
+            <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-xl">handshake</span>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="font-caption text-caption font-bold uppercase tracking-wider opacity-85">Donasi via Link Perantara Kebaikan</p>
+                <p class="font-label-md text-label-md font-bold" id="donasi-ref-banner-name">Memuat data perantara...</p>
+                <p class="font-caption text-[11px] opacity-80">Donasi Anda akan tercatat atas rekomendasi perantara ini. Komisi 6% akan dibayarkan kepada perantara.</p>
+            </div>
+        </div>
+        <!-- END AFFILIATE BANNER -->
+
         <div class="mb-md">
             <h1 class="font-headline-lg text-display-lg-mobile md:text-headline-lg font-bold text-on-surface">Selesaikan Donasi Anda</h1>
             <p class="text-on-surface-variant mt-xs font-body-md">Pilih jenis donasi, wilayah, dan lengkapi detail pembayaran untuk kemaslahatan umat.</p>
@@ -392,6 +406,17 @@
                         <div>
                             <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Doa &amp; Pesan Kebaikan (Opsional)</label>
                             <textarea id="donor-message" rows="2" class="w-full bg-surface border border-outline-variant rounded-lg px-3.5 py-2.5 font-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="Tuliskan doa atau niat donasi Anda..."></textarea>
+                        </div>
+
+                        <!-- Recurring Donor Option (only shown when accessed via affiliate link) -->
+                        <div id="recurring-donor-section" class="hidden p-md bg-amber-50 border border-amber-200 rounded-xl">
+                            <label class="flex items-start gap-sm cursor-pointer">
+                                <input type="checkbox" id="is-recurring-donor" class="mt-0.5 w-4 h-4 text-primary border-outline-variant rounded focus:ring-primary shrink-0">
+                                <div>
+                                    <span class="font-label-md text-label-md font-bold text-amber-900 block">Saya ingin menjadi Donatur Tetap (Bulanan)</span>
+                                    <span class="font-caption text-[11px] text-amber-700">Dengan ini, perantara yang merekomendasikan Anda akan terus mendapatkan hak komisi 6% setiap bulan dari donasi Anda secara berkesinambungan.</span>
+                                </div>
+                            </label>
                         </div>
                     </section>
 
@@ -916,6 +941,7 @@
                     referralId: refId,
                     referralRate: refRate,
                     referralFee: refFee,
+                    isRecurringDonor: refId ? (document.getElementById('is-recurring-donor')?.checked || false) : false,
                     status: 'pending'
                 });
             }
@@ -1101,7 +1127,53 @@
 
         window.addEventListener('wiz-sync-complete', () => {
             updateSummary();
+            initAffiliateBanner();
         });
+
+        /**
+         * Affiliate Banner Init
+         * Shows banner + recurring option ONLY when page is accessed via ?ref= link.
+         * Direct visitors (no ?ref= in URL) see nothing affiliate-related.
+         */
+        function initAffiliateBanner() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get('ref') || urlParams.get('affiliate') || urlParams.get('perantara');
+
+            const banner = document.getElementById('donasi-affiliate-banner');
+            const recurringSection = document.getElementById('recurring-donor-section');
+            const bannerName = document.getElementById('donasi-ref-banner-name');
+
+            if (!refCode) {
+                // No affiliate link — hide everything affiliate-related
+                if (banner) banner.classList.add('hidden');
+                if (recurringSection) recurringSection.classList.add('hidden');
+                return;
+            }
+
+            // Show affiliate banner and recurring option
+            if (banner) banner.classList.remove('hidden');
+            if (recurringSection) recurringSection.classList.remove('hidden');
+
+            // Resolve affiliate name from store
+            if (window.wizStore && window.wizStore.referrals && bannerName) {
+                const refObj = window.wizStore.referrals.getByCodeOrId(refCode);
+                if (refObj && refObj.name) {
+                    bannerName.textContent = `${refObj.name} (Kode: ${refObj.code || refObj.id})`;
+                } else {
+                    bannerName.textContent = `Kode Perantara: ${refCode}`;
+                }
+            } else if (bannerName) {
+                bannerName.textContent = `Kode Perantara: ${refCode}`;
+            }
+        }
+
+        // Run on load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initAffiliateBanner);
+        } else {
+            initAffiliateBanner();
+            setTimeout(initAffiliateBanner, 1500); // Re-run once store is loaded
+        }
     </script>
 </body>
 

@@ -2968,6 +2968,13 @@
                             <span>Insentif Operasional: <strong>${fmt(bonus)}</strong></span>
                             <span>Total Hak: <strong class="text-amber-800 font-bold">${fmt(fee + bonus)}</strong></span>
                         </div>
+                        ${d.isRecurringDonor ? `
+                        <div class="flex items-center gap-1.5 pt-1.5 border-t border-amber-200">
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-full text-[11px] font-extrabold border border-emerald-300">
+                                <span class="material-symbols-outlined text-[13px]">repeat</span> DONATUR TETAP BULANAN
+                            </span>
+                            <span class="text-[11px] text-amber-700 italic">Perantara mendapat hak komisi setiap bulan selama donatur ini aktif berdonasi.</span>
+                        </div>` : ''}
                     </div>`;
                 } else {
                     refInfoHtml = `
