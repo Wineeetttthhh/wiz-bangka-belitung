@@ -756,8 +756,10 @@
                 mobTotal.textContent = formatRupiah(state.nominal);
             }
 
-            // Check active affiliate referral
-            const activeRef = sessionStorage.getItem('wiz_active_ref_id') || localStorage.getItem('wiz_active_ref_id');
+            // Check active affiliate referral — ONLY from URL parameter
+            // Referral is only valid if this page was opened via an affiliate's shared link (?ref=...)
+            const urlParamsRef = new URLSearchParams(window.location.search);
+            const activeRef = urlParamsRef.get('ref') || urlParamsRef.get('affiliate') || urlParamsRef.get('perantara');
             const refRow = document.getElementById('summary-ref-row');
             if (activeRef && window.wizStore && window.wizStore.referrals) {
                 const refObj = window.wizStore.referrals.getByCodeOrId(activeRef);
@@ -766,7 +768,17 @@
                     refRow.classList.remove('hidden');
                     refRow.classList.add('flex');
                     state.activeRefObj = refObj;
+                } else if (refRow) {
+                    // Ref code in URL but not found in DB — hide ref row
+                    refRow.classList.add('hidden');
+                    refRow.classList.remove('flex');
+                    state.activeRefObj = null;
                 }
+            } else if (refRow) {
+                // No ref in URL — hide ref row and clear state
+                refRow.classList.add('hidden');
+                refRow.classList.remove('flex');
+                state.activeRefObj = null;
             }
 
             renderInfakUmumNotice();
@@ -872,9 +884,10 @@
                     alokasiProgram = alloc.alokasiProgram;
                 }
 
-                // Check for referral URL parameter or session
+                // Referral ONLY from URL parameter — never from localStorage/sessionStorage
+                // This ensures direct website visitors never get an affiliate's commission automatically
                 const urlParams = new URLSearchParams(window.location.search);
-                const refParam = urlParams.get('ref') || urlParams.get('affiliate') || sessionStorage.getItem('wiz_active_ref_id') || localStorage.getItem('wiz_active_ref_id');
+                const refParam = urlParams.get('ref') || urlParams.get('affiliate') || urlParams.get('perantara');
                 let refId = null;
                 let refRate = 6;
                 if (refParam && window.wizStore && window.wizStore.referrals) {

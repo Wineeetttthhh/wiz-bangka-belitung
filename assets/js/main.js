@@ -23,11 +23,17 @@ function initReferralUrlTracker() {
         const urlParams = new URLSearchParams(window.location.search);
         const refParam = urlParams.get('ref') || urlParams.get('affiliate') || urlParams.get('perantara');
         if (refParam) {
+            // IMPORTANT: Only store in sessionStorage (not localStorage)
+            // Referral is only valid for the current browsing session from the shared link
             const cleanRef = refParam.trim();
             sessionStorage.setItem('wiz_active_ref_id', cleanRef);
-            localStorage.setItem('wiz_active_ref_id', cleanRef);
-            console.log('[WIZ Referral] Active affiliate referral code stored:', cleanRef);
+            console.log('[WIZ Referral] Active affiliate referral code stored for this session:', cleanRef);
+        } else {
+            // If no ref in URL, clear any stale referral from previous sessions
+            sessionStorage.removeItem('wiz_active_ref_id');
         }
+        // Always remove from localStorage - referral should never persist across browser sessions
+        localStorage.removeItem('wiz_active_ref_id');
     } catch(e) {}
 }
 
