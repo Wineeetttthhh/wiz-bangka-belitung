@@ -142,6 +142,41 @@
     }
   ],
   "referral_payouts": [],
+  "quotes": [
+    {
+      "id": "quote-1",
+      "text": "Sedekah itu tidak akan mengurangi harta. Tidak ada orang yang memberi maaf kepada orang lain melainkan Allah akan menambah kemuliaannya.",
+      "source": "HR. Muslim no. 2588",
+      "category": "Sedekah & Keberkahan",
+      "imageUrl": "assets/images/foto-utama-wiz.jpg",
+      "date": "2026-08-20",
+      "status": "active",
+      "author": "Admin WIZ Babel",
+      "createdAt": "2026-08-20T00:00:00.000Z"
+    },
+    {
+      "id": "quote-2",
+      "text": "Tidak ada suatu hari pun ketika seorang hamba memasuki waktu pagi melainkan turun dua malaikat. Salah satunya berdoa: Ya Allah, berikanlah ganti bagi orang yang berinfak.",
+      "source": "HR. Bukhari no. 1442 & Muslim no. 1010",
+      "category": "Infak Subuh",
+      "imageUrl": "assets/images/sedekah-beras-dhuafa.jpg",
+      "date": "2026-08-19",
+      "status": "active",
+      "author": "Admin WIZ Babel",
+      "createdAt": "2026-08-19T00:00:00.000Z"
+    },
+    {
+      "id": "quote-3",
+      "text": "Bentengilah hartamu dengan zakat, obatilah orang-orang sakit di antaramu dengan sedekah, dan hadapilah berbagai cobaan dengan doa.",
+      "source": "HR. Abu Dawud & At-Thabrani",
+      "category": "Zakat & Penyucian Jiwa",
+      "imageUrl": "assets/images/sedekah-beras-dai.jpg",
+      "date": "2026-08-18",
+      "status": "active",
+      "author": "Admin WIZ Babel",
+      "createdAt": "2026-08-18T00:00:00.000Z"
+    }
+  ],
   "deleted_ids": [],
   "deleted_news_ids": [],
   "deleted_disb_ids": [],

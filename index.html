@@ -169,6 +169,7 @@
             <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="#tentang-kami">Tentang Kami</a>
             <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="program.html">Program</a>
             <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="laporan.html">Laporan</a>
+            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="#quote-harian">Inspirasi</a>
             <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="affiliate.html">Affiliate Kebaikan</a>
             <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="#berita">Berita</a>
             <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="#kontak">Kontak</a>
@@ -191,6 +192,7 @@
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="#tentang-kami">Tentang Kami</a>
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="program.html">Program</a>
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="laporan.html">Laporan</a>
+        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="#quote-harian">Inspirasi</a>
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="affiliate.html">Affiliate Kebaikan</a>
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="#berita">Berita</a>
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="#kontak">Kontak</a>
@@ -436,6 +438,72 @@
                     <p class="font-caption text-caption text-on-surface-variant uppercase font-bold">Kewajiban Zakat Anda:</p>
                     <p id="zakat-amount" class="font-headline-lg text-headline-lg font-bold text-primary">Rp 0</p>
                     <button onclick="payZakatFromCalc()" class="mt-sm bg-[#F7941D] text-white px-lg py-xs rounded font-label-md text-caption font-bold">Salurkan Zakat Sekarang</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- INSPIRASI & QUOTE HARIAN                            -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="quote-harian" class="py-xxl bg-surface px-margin-mobile md:px-gutter border-t border-surface-variant/50">
+    <div class="max-w-container-max mx-auto">
+        <div class="bg-gradient-to-br from-emerald-950 via-teal-900 to-slate-950 rounded-3xl p-xl md:p-xxl text-white shadow-2xl relative overflow-hidden border border-emerald-500/30">
+            <!-- Decorative Background Blurs -->
+            <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-20 -top-20 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-xl items-center">
+                <!-- Quote Text Content -->
+                <div class="lg:col-span-8 space-y-md">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-400/30 uppercase tracking-wider">
+                            <span class="material-symbols-outlined text-sm">auto_awesome</span> Inspirasi &amp; Quote Hari Ini
+                        </span>
+                        <span id="public-quote-category" class="text-xs text-emerald-200/80 font-mono px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10">Sedekah &amp; Keberkahan</span>
+                    </div>
+
+                    <div class="relative pl-6 border-l-4 border-emerald-400 my-4">
+                        <p id="public-quote-text" class="text-lg md:text-2xl font-serif italic text-emerald-50 leading-relaxed">
+                            "Sedekah itu tidak akan mengurangi harta. Tidak ada orang yang memberi maaf kepada orang lain melainkan Allah akan menambah kemuliaannya."
+                        </p>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2 border-t border-emerald-500/20">
+                        <div>
+                            <span id="public-quote-source" class="font-bold text-emerald-300 text-sm md:text-base">HR. Muslim no. 2588</span>
+                            <p class="text-xs text-emerald-200/60 mt-0.5">Wahdah Inspirasi Zakat Bangka Belitung</p>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button type="button" onclick="copyPublicQuoteText()" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
+                                <span class="material-symbols-outlined text-sm">content_copy</span>
+                                <span>Salin Quote</span>
+                            </button>
+                            <button type="button" onclick="sharePublicQuoteWA()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-transform hover:scale-105 shadow-md cursor-pointer">
+                                <span class="material-symbols-outlined text-sm">share</span>
+                                <span>Bagikan</span>
+                            </button>
+                            <a href="donasi.html" class="px-4 py-2 bg-[#F7941D] hover:bg-[#e08417] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-md">
+                                <span class="material-symbols-outlined text-sm">volunteer_activism</span>
+                                <span>Donasi Sekarang</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quote Poster Image / Illustration -->
+                <div class="lg:col-span-4 flex justify-center">
+                    <div class="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-emerald-400/30 max-w-[280px] aspect-square w-full group">
+                        <img id="public-quote-img" src="assets/images/foto-utama-wiz.jpg" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Quote Inspirasi WIZ" onerror="this.src='assets/images/foto-utama-wiz.jpg'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-4">
+                            <span class="text-xs font-bold text-white flex items-center gap-1">
+                                <img src="assets/images/logo-wiz-official.png" onerror="this.src='assets/images/logo-wiz-babel.png'" class="h-5 w-auto brightness-200">
+                                <span>WIZ Babel</span>
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1013,8 +1081,50 @@
         });
     }
 
+    // Dynamic Public Quote Renderer
+    function renderPublicQuote() {
+        if (!window.wizStore || !window.wizStore.quotes) return;
+        const q = wizStore.quotes.getToday();
+        if (!q) return;
+
+        const textEl = document.getElementById('public-quote-text');
+        const sourceEl = document.getElementById('public-quote-source');
+        const catEl = document.getElementById('public-quote-category');
+        const imgEl = document.getElementById('public-quote-img');
+
+        if (textEl) textEl.textContent = `"${q.text}"`;
+        if (sourceEl) sourceEl.textContent = q.source;
+        if (catEl) catEl.textContent = `${q.category || 'Inspirasi'} • ${q.date || '-'}`;
+        if (imgEl && q.imageUrl) imgEl.src = q.imageUrl;
+    }
+
+    function copyPublicQuoteText() {
+        const q = window.wizStore && window.wizStore.quotes ? window.wizStore.quotes.getToday() : null;
+        if (!q) return;
+        const refParam = new URLSearchParams(window.location.search).get('ref');
+        const origin = window.location.origin.includes('http') ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
+        const donationUrl = `${origin}/donasi.html${refParam ? '?ref=' + encodeURIComponent(refParam) : ''}`;
+        const shareText = `*INSPIRASI & DAKWAH HARIAN WIZ BABEL*\n\n"${q.text}"\n\n— *${q.source}*\n\n_Mari bersama raih keberkahan hari ini dengan bersedekah melalui Wahdah Inspirasi Zakat Bangka Belitung:_\n${donationUrl}`;
+
+        navigator.clipboard.writeText(shareText).then(() => {
+            alert('✅ Quote berhasil disalin ke papan klip!');
+        });
+    }
+
+    function sharePublicQuoteWA() {
+        const q = window.wizStore && window.wizStore.quotes ? window.wizStore.quotes.getToday() : null;
+        if (!q) return;
+        const refParam = new URLSearchParams(window.location.search).get('ref');
+        const origin = window.location.origin.includes('http') ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
+        const donationUrl = `${origin}/donasi.html${refParam ? '?ref=' + encodeURIComponent(refParam) : ''}`;
+        const msg = `*INSPIRASI & DAKWAH HARIAN WIZ BABEL*%0A%0A"${encodeURIComponent(q.text)}"%0A%0A— *${encodeURIComponent(q.source)}*%0A%0A_Mari bersama raih keberkahan hari ini dengan bersedekah melalui Wahdah Inspirasi Zakat Bangka Belitung:_%0A${encodeURIComponent(donationUrl)}`;
+
+        window.open(`https://wa.me/?text=${msg}`, '_blank');
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
         renderPublicNews();
+        renderPublicQuote();
         updateDynamicProgramCards();
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -1026,6 +1136,7 @@
         if (wizStore && wizStore.syncFromCloud) {
             await wizStore.syncFromCloud();
             renderPublicNews();
+            renderPublicQuote();
             updateDynamicProgramCards();
             if (targetNewsId) {
                 openPublicNewsModal(targetNewsId);
@@ -1035,6 +1146,7 @@
 
     window.addEventListener('wiz-sync-complete', () => {
         renderPublicNews();
+        renderPublicQuote();
         if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
     });
 </script>

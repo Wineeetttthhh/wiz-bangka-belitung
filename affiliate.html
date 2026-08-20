@@ -167,7 +167,7 @@
                     <form id="affiliate-login-form" onsubmit="handleAffiliateLogin(event)" class="space-y-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">No. WhatsApp / Kode Referral <span class="text-red-500">*</span></label>
-                            <input type="text" id="login-identifier" required placeholder="Contoh: 081234567890 atau REF-A9X2K"
+                            <input type="text" id="login-identifier" required placeholder="Contoh: 081234567890 atau WIZ-20260820-001"
                                 class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none font-mono">
                         </div>
 
@@ -296,7 +296,7 @@
                     <div>
                         <div class="flex items-center gap-2">
                             <span class="bg-emerald-400/20 text-emerald-200 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border border-emerald-400/30">Member Aktif</span>
-                            <span id="member-code-badge" class="font-mono bg-white/20 px-2 py-0.5 rounded text-[11px] font-bold text-white">REF-XXXXX</span>
+                            <span id="member-code-badge" class="font-mono bg-white/20 px-2 py-0.5 rounded text-[11px] font-bold text-white">WIZ-YYYYMMDD-XXX</span>
                         </div>
                         <h2 id="member-welcome-title" class="text-xl sm:text-2xl font-extrabold text-white mt-0.5">Selamat Datang, -</h2>
                     </div>
@@ -319,9 +319,13 @@
                         <span class="material-symbols-outlined text-lg">analytics</span>
                         <span>Dashboard Kinerja &amp; Evaluasi KPI</span>
                     </button>
+                    <button onclick="switchMemberSubTab('subtab-quotes')" id="btn-subtab-quotes" class="member-nav-btn px-5 py-3 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all rounded-xl border-b-2 border-transparent">
+                        <span class="material-symbols-outlined text-lg">format_quote</span>
+                        <span>Quote &amp; Dakwah Siap Share</span>
+                    </button>
                     <button onclick="switchMemberSubTab('subtab-catalog')" id="btn-subtab-catalog" class="member-nav-btn px-5 py-3 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all rounded-xl border-b-2 border-transparent">
                         <span class="material-symbols-outlined text-lg">grid_view</span>
-                        <span>Katalog Program &amp; Generator Link</span>
+                        <span>Katalog Program &amp; Link</span>
                     </button>
                     <button onclick="switchMemberSubTab('subtab-profile')" id="btn-subtab-profile" class="member-nav-btn px-5 py-3 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all rounded-xl border-b-2 border-transparent">
                         <span class="material-symbols-outlined text-lg">settings</span>
@@ -434,6 +438,54 @@
                                 <!-- Dynamic Content -->
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUBTAB: Quote & Inspirasi Dakwah Siap Share -->
+            <div id="subtab-quotes" class="member-subtab space-y-6 hidden">
+                <div class="border-b border-slate-200 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-slate-900">Materi Dakwah &amp; Quote Harian Siap Share</h2>
+                        <p class="text-xs text-slate-500 mt-1">Bagikan quote inspirasi di bawah ini ke status WA atau media sosial Anda. Setiap donasi yang masuk melalui tautan Anda otomatis menghasilkan <strong>Hak Komisi 6%</strong> untuk Anda!</p>
+                    </div>
+                </div>
+
+                <!-- Featured Quote Card -->
+                <div id="affiliate-featured-quote" class="bg-gradient-to-br from-emerald-900 via-teal-900 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-lg border border-emerald-500/30 relative overflow-hidden">
+                    <div class="relative z-10 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-400/30">
+                                <span class="material-symbols-outlined text-sm">auto_awesome</span> Quote Hari Ini (Rekomendasi Share)
+                            </span>
+                            <span id="aff-today-quote-category" class="text-xs text-emerald-200/80 font-mono">Sedekah &amp; Keberkahan</span>
+                        </div>
+                        <blockquote id="aff-today-quote-text" class="text-base sm:text-xl font-serif italic text-emerald-50 leading-relaxed">
+                            "Sedekah itu tidak akan mengurangi harta. Tidak ada orang yang memberi maaf kepada orang lain melainkan Allah akan menambah kemuliaannya."
+                        </blockquote>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-emerald-500/30 text-xs">
+                            <span id="aff-today-quote-source" class="font-bold text-emerald-300 text-sm">HR. Muslim no. 2588</span>
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="shareAffiliateTodayQuoteWA()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-4 py-2 rounded-xl font-extrabold text-xs flex items-center gap-1.5 shadow-md transition-transform hover:scale-105 cursor-pointer">
+                                    <span class="material-symbols-outlined text-base">chat</span>
+                                    <span>Bagikan ke WhatsApp (Sematkan ID Saya)</span>
+                                </button>
+                                <button type="button" onclick="copyAffiliateTodayQuote()" class="bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer" title="Salin Teks & Link">
+                                    <span class="material-symbols-outlined text-base">content_copy</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid of All Available Quotes -->
+                <div class="space-y-4 pt-2">
+                    <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">history_edu</span>
+                        <span>Koleksi Quote &amp; Hadits Lainnya</span>
+                    </h3>
+                    <div id="affiliate-quotes-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Dynamically populated quotes -->
                     </div>
                 </div>
             </div>
@@ -878,9 +930,100 @@
             window.shareProgram(programTitle, `Mari bersama menyalurkan kepedulian melalui program ${programTitle} WIZ Bangka Belitung.`, programUrl, pImg);
         }
 
+        function renderAffiliateQuotesGrid() {
+            if (!wizStore || !wizStore.quotes) return;
+            const allQuotes = wizStore.quotes.getAll().filter(q => q && q.status === 'active');
+            const todayQuote = wizStore.quotes.getToday();
+
+            // Update featured
+            const fText = document.getElementById('aff-today-quote-text');
+            const fSource = document.getElementById('aff-today-quote-source');
+            const fCat = document.getElementById('aff-today-quote-category');
+
+            if (todayQuote) {
+                if (fText) fText.textContent = `"${todayQuote.text}"`;
+                if (fSource) fSource.textContent = todayQuote.source;
+                if (fCat) fCat.textContent = `${todayQuote.category} • ${todayQuote.date || '-'}`;
+            }
+
+            const grid = document.getElementById('affiliate-quotes-grid');
+            if (!grid) return;
+
+            grid.innerHTML = allQuotes.map(q => `
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between space-y-3">
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">${q.category || 'Inspirasi'}</span>
+                        <span class="text-[10px] text-slate-400 font-mono">${q.date || '-'}</span>
+                    </div>
+                    <blockquote class="text-xs italic font-serif text-slate-800 leading-relaxed line-clamp-3">"${q.text}"</blockquote>
+                    <p class="text-[11px] font-bold text-primary">— ${q.source}</p>
+                </div>
+                <div class="pt-2 border-t border-slate-100 flex items-center gap-2">
+                    <button type="button" onclick="shareAffiliateQuoteWA('${q.id}')" class="flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">chat</span>
+                        <span>Share WA</span>
+                    </button>
+                    <button type="button" onclick="copyAffiliateQuote('${q.id}')" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs flex items-center justify-center transition-colors cursor-pointer" title="Salin Teks & Link">
+                        <span class="material-symbols-outlined text-sm">content_copy</span>
+                    </button>
+                </div>
+            </div>`).join('');
+        }
+
+        function getActiveAffiliateRefCode() {
+            return (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || sessionStorage.getItem('wiz_active_ref_id') || 'WIZ';
+        }
+
+        function shareAffiliateTodayQuoteWA() {
+            const today = wizStore.quotes ? wizStore.quotes.getToday() : null;
+            if (!today) return;
+            shareAffiliateQuoteWA(today.id);
+        }
+
+        function shareAffiliateQuoteWA(quoteId) {
+            const q = wizStore.quotes ? wizStore.quotes.getById(quoteId) : null;
+            if (!q) return;
+
+            const refCode = getActiveAffiliateRefCode();
+            const origin = window.location.origin.includes('http') ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
+            const donationUrl = `${origin}/donasi.html?ref=${encodeURIComponent(refCode)}`;
+
+            const msg = `*INSPIRASI & DAKWAH HARIAN WIZ BABEL*%0A%0A"${encodeURIComponent(q.text)}"%0A%0A— *${encodeURIComponent(q.source)}*%0A%0A_Mari bersama raih keberkahan hari ini dengan menyalurkan sedekah & infak terbaik melalui Wahdah Inspirasi Zakat Bangka Belitung:_%0A${encodeURIComponent(donationUrl)}`;
+            
+            const waUrl = `https://wa.me/?text=${msg}`;
+            window.open(waUrl, '_blank');
+        }
+
+        function copyAffiliateTodayQuote() {
+            const today = wizStore.quotes ? wizStore.quotes.getToday() : null;
+            if (!today) return;
+            copyAffiliateQuote(today.id);
+        }
+
+        function copyAffiliateQuote(quoteId) {
+            const q = wizStore.quotes ? wizStore.quotes.getById(quoteId) : null;
+            if (!q) return;
+
+            const refCode = getActiveAffiliateRefCode();
+            const origin = window.location.origin.includes('http') ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
+            const donationUrl = `${origin}/donasi.html?ref=${encodeURIComponent(refCode)}`;
+
+            const shareText = `*INSPIRASI & DAKWAH HARIAN WIZ BABEL*\n\n"${q.text}"\n\n— *${q.source}*\n\n_Mari bersama raih keberkahan hari ini dengan menyalurkan sedekah & infak terbaik melalui Wahdah Inspirasi Zakat Bangka Belitung:_\n${donationUrl}`;
+
+            navigator.clipboard.writeText(shareText).then(() => {
+                alert(`✅ Materi quote dengan ID Affiliate Anda (${refCode}) berhasil disalin ke clipboard! Silakan paste/tempel di status WhatsApp atau media sosial.`);
+            });
+        }
+
         window.addEventListener('wiz-sync-complete', () => {
             renderAffiliateProgramsGrid();
+            renderAffiliateQuotesGrid();
             if (currentLoggedAffiliate) renderMemberDashboard();
+        });
+
+        window.addEventListener('wiz-quotes-changed', () => {
+            renderAffiliateQuotesGrid();
         });
 
         window.addEventListener('wiz-program-images-changed', () => {

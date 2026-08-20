@@ -38,6 +38,7 @@
         ALLOCATION_RULES: 'wiz_allocation_rules',
         REFERRALS: 'wiz_referrals',
         REFERRAL_PAYOUTS: 'wiz_referral_payouts',
+        QUOTES: 'wiz_quotes',
         DELETED_IDS: 'wiz_deleted_donation_ids',
         DELETED_NEWS_IDS: 'wiz_deleted_news_ids',
         DELETED_DISB_IDS: 'wiz_deleted_disb_ids',
@@ -145,6 +146,42 @@
             status: 'active',
             notes: 'Koordinator Komunitas Sedekah Sungailiat',
             createdAt: new Date().toISOString()
+        }
+    ];
+
+    const DEFAULT_QUOTES = [
+        {
+            id: 'quote-1',
+            text: 'Sedekah itu tidak akan mengurangi harta. Tidak ada orang yang memberi maaf kepada orang lain melainkan Allah akan menambah kemuliaannya.',
+            source: 'HR. Muslim no. 2588',
+            category: 'Sedekah & Keberkahan',
+            imageUrl: 'assets/images/foto-utama-wiz.jpg',
+            date: '2026-08-20',
+            status: 'active',
+            author: 'Admin WIZ Babel',
+            createdAt: '2026-08-20T00:00:00.000Z'
+        },
+        {
+            id: 'quote-2',
+            text: 'Tidak ada suatu hari pun ketika seorang hamba memasuki waktu pagi melainkan turun dua malaikat. Salah satunya berdoa: Ya Allah, berikanlah ganti bagi orang yang berinfak.',
+            source: 'HR. Bukhari no. 1442 & Muslim no. 1010',
+            category: 'Infak Subuh',
+            imageUrl: 'assets/images/sedekah-beras-dhuafa.jpg',
+            date: '2026-08-19',
+            status: 'active',
+            author: 'Admin WIZ Babel',
+            createdAt: '2026-08-19T00:00:00.000Z'
+        },
+        {
+            id: 'quote-3',
+            text: 'Bentengilah hartamu dengan zakat, obatilah orang-orang sakit di antaramu dengan sedekah, dan hadapilah berbagai cobaan dengan doa.',
+            source: 'HR. Abu Dawud & At-Thabrani',
+            category: 'Zakat & Penyucian Jiwa',
+            imageUrl: 'assets/images/sedekah-beras-dai.jpg',
+            date: '2026-08-18',
+            status: 'active',
+            author: 'Admin WIZ Babel',
+            createdAt: '2026-08-18T00:00:00.000Z'
         }
     ];
 
@@ -2053,8 +2090,10 @@
                 return { success: true, isExisting: true, referral: resultRef, message: 'Akun Affiliate Anda telah aktif & data terhubung ke Web Admin!' };
             }
 
-            const codeSlug = 'REF-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            const autoId = this.generateAffiliateId(new Date());
             const newRef = await this.add({
+                id: autoId,
+                code: autoId,
                 name: cleanName,
                 phone: cleanPhone,
                 bankName: (bankName || '-').trim(),
@@ -2064,7 +2103,6 @@
                 pin: cleanPin,
                 status: 'active',
                 notes: 'Pendaftaran Affiliate Publik via website',
-                code: codeSlug,
                 createdBy: 'Publik (Pendaftaran Online)'
             });
 
@@ -2357,6 +2395,99 @@
         }
     };
 
+    // ─── Daily Quotes & Inspirasi Module ──────────────────
+    const quotes = {
+        getAll() {
+            const list = getStore(STORAGE_KEYS.QUOTES) || DEFAULT_QUOTES;
+            return list.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
+        },
+
+        getToday() {
+            const all = this.getAll().filter(q => q && q.status === 'active');
+            if (all.length === 0) return null;
+            const now = new Date();
+            const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const exactToday = all.find(q => q.date === todayStr);
+            return exactToday || all[0];
+        },
+
+        getById(id) {
+            return this.getAll().find(q => String(q.id) === String(id));
+        },
+
+        async add(data) {
+            const list = this.getAll();
+            const newQuote = {
+                id: data.id || ('quote-' + Date.now()),
+                text: (data.text || '').trim(),
+                source: (data.source || 'Inspirasi WIZ').trim(),
+                category: data.category || 'Sedekah & Keberkahan',
+                imageUrl: data.imageUrl || 'assets/images/foto-utama-wiz.jpg',
+                date: data.date || new Date().toISOString().split('T')[0],
+                status: data.status || 'active',
+                author: data.author || 'Admin WIZ Babel',
+                createdAt: new Date().toISOString()
+            };
+            list.unshift(newQuote);
+            setStore(STORAGE_KEYS.QUOTES, list);
+
+            activityLog.add('quote', `Quote harian baru "${newQuote.source}" ditambahkan.`, newQuote.author);
+
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.insert('quotes', newQuote);
+            }
+
+            window.dispatchEvent(new CustomEvent('wiz-quotes-changed', { detail: newQuote }));
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+            broadcastSync('NEW_QUOTE', newQuote);
+            return newQuote;
+        },
+
+        async update(id, updates) {
+            const list = this.getAll();
+            const idx = list.findIndex(q => String(q.id) === String(id));
+            if (idx === -1) return null;
+
+            list[idx] = { ...list[idx], ...updates, updatedAt: new Date().toISOString() };
+            setStore(STORAGE_KEYS.QUOTES, list);
+
+            activityLog.add('quote', `Quote harian "${list[idx].source}" diperbarui.`, updates.author || 'Admin');
+
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.set('quotes', String(id), list[idx]);
+            }
+
+            window.dispatchEvent(new CustomEvent('wiz-quotes-changed', { detail: list[idx] }));
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+            return list[idx];
+        },
+
+        async delete(id) {
+            const list = this.getAll();
+            const quote = list.find(q => String(q.id) === String(id));
+            const filtered = list.filter(q => String(q.id) !== String(id));
+            setStore(STORAGE_KEYS.QUOTES, filtered);
+
+            if (quote) {
+                activityLog.add('quote', `Quote "${quote.source}" dihapus.`, 'Admin');
+            }
+
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.remove('quotes', String(id));
+            }
+
+            window.dispatchEvent(new CustomEvent('wiz-quotes-changed'));
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+        },
+
+        async toggleStatus(id) {
+            const q = this.getById(id);
+            if (!q) return;
+            const newStatus = q.status === 'active' ? 'draft' : 'active';
+            await this.update(id, { status: newStatus });
+        }
+    };
+
     // ─── Activity Log Module ──────────────────────────────
     const activityLog = {
         getAll() {
@@ -2449,6 +2580,7 @@
         siteSettings: siteSettingsManager,
         adminUsers,
         referrals,
+        quotes,
         allocationRulesManager,
         activity: activityLog,
         allocationRules: ALLOCATION_RULES,
