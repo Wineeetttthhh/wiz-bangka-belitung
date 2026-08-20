@@ -994,9 +994,81 @@
             updateSummary();
         }
 
+        function toggleAnonymousDonor(isAnon) {
+            const nameInput = document.getElementById('donor-name');
+            if (isAnon) {
+                nameInput.dataset.prevName = nameInput.value;
+                nameInput.value = 'Hamba Allah';
+                nameInput.readOnly = true;
+                nameInput.classList.add('bg-slate-100', 'text-slate-600');
+            } else {
+                nameInput.value = nameInput.dataset.prevName || '';
+                nameInput.readOnly = false;
+                nameInput.classList.remove('bg-slate-100', 'text-slate-600');
+            }
+            state.donorName = nameInput.value;
+        }
+
+        function handleProofImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Compress and convert to base64
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const maxDim = 800;
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > height && width > maxDim) {
+                        height = Math.round((height * maxDim) / width);
+                        width = maxDim;
+                    } else if (height > maxDim) {
+                        width = Math.round((width * maxDim) / height);
+                        height = maxDim;
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                    state.proofImage = dataUrl;
+
+                    const previewImg = document.getElementById('proof-preview-img');
+                    const previewContainer = document.getElementById('proof-preview-container');
+                    const uploadLabel = document.getElementById('proof-upload-label');
+                    if (previewImg) previewImg.src = dataUrl;
+                    if (previewContainer) {
+                        previewContainer.classList.remove('hidden');
+                        previewContainer.classList.add('flex');
+                    }
+                    if (uploadLabel) uploadLabel.textContent = 'Ubah Foto Bukti';
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeProofImage() {
+            state.proofImage = '';
+            const fileInput = document.getElementById('donor-proof-file');
+            if (fileInput) fileInput.value = '';
+            const previewContainer = document.getElementById('proof-preview-container');
+            const uploadLabel = document.getElementById('proof-upload-label');
+            if (previewContainer) {
+                previewContainer.classList.remove('flex');
+                previewContainer.classList.add('hidden');
+            }
+            if (uploadLabel) uploadLabel.textContent = 'Pilih Foto Bukti';
+        }
+
         async function handleCheckoutSubmit(e) {
             e.preventDefault();
-            state.donorName = document.getElementById('donor-name').value;
+            const isAnon = document.getElementById('is-anonymous-donor')?.checked;
+            state.donorName = isAnon ? 'Hamba Allah' : (document.getElementById('donor-name').value || 'Hamba Allah');
             state.donorPhone = document.getElementById('donor-phone').value;
             state.donorMessage = document.getElementById('donor-message').value;
 
@@ -1016,7 +1088,7 @@
                 return;
             }
 
-            // Save transaction to store
+            // Save transaction to store with PENDING status
             if (window.wizStore && window.wizStore.donations) {
                 let alokasiOperasional = 0;
                 let alokasiProgram = 0;
@@ -1051,6 +1123,7 @@
                     category: state.type === 'Infak Terikat' ? state.category : 'Infak Umum',
                     amount: state.nominal,
                     method: state.method,
+                    proofImage: state.proofImage || '',
                     notes: state.donorMessage,
                     referralId: refId,
                     referralRate: refRate,
