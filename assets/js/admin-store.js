@@ -1204,9 +1204,42 @@
             if (masterData.donations) {
                 smartMerge(STORAGE_KEYS.DONATIONS, masterData.donations, (a, b) => new Date(b.createdAt) - new Date(a.createdAt), deletedSet);
             }
-            if (masterData.news || directFsNews) {
-                const combinedNews = [...(masterData.news || []), ...(directFsNews || [])];
-                smartMerge(STORAGE_KEYS.NEWS, combinedNews, (a, b) => new Date(b.eventDate || b.createdAt || 0) - new Date(a.eventDate || a.createdAt || 0), deletedNewsSet);
+            if (masterData.news && Array.isArray(masterData.news) && masterData.news.length > 0) {
+                const cloudNewsMap = new Map();
+                // 1. Load authoritative cloud news
+                masterData.news.forEach(n => {
+                    if (n && n.id && !deletedNewsSet.has(String(n.id)) && n.status !== 'deleted') {
+                        cloudNewsMap.set(String(n.id), n);
+                    }
+                });
+                // 2. Preserve any un-pushed local news currently being drafted by admin
+                const local = getStore(STORAGE_KEYS.NEWS) || [];
+                local.forEach(loc => {
+                    if (loc && loc.id && !deletedNewsSet.has(String(loc.id)) && loc.status !== 'deleted') {
+                        const strId = String(loc.id);
+                        if (!cloudNewsMap.has(strId)) {
+                            // Only preserve if created in the last 24h as a draft/recent item
+                            const ageMs = Date.now() - new Date(loc.createdAt || 0).getTime();
+                            if (ageMs < 86400000) {
+                                cloudNewsMap.set(strId, loc);
+                            }
+                        } else {
+                            // Preserve local base64 image if cloud has fallback
+                            const cloudItem = cloudNewsMap.get(strId);
+                            if (loc.imageUrl && loc.imageUrl.startsWith('data:image') && (!cloudItem.imageUrl || !cloudItem.imageUrl.startsWith('data:image'))) {
+                                cloudItem.imageUrl = loc.imageUrl;
+                            }
+                            if (Array.isArray(loc.gallery) && loc.gallery.some(g => g && g.startsWith('data:image'))) {
+                                cloudItem.gallery = loc.gallery;
+                            }
+                        }
+                    }
+                });
+                const mergedNews = Array.from(cloudNewsMap.values());
+                mergedNews.sort((a, b) => new Date(b.eventDate || b.createdAt || 0) - new Date(a.eventDate || a.createdAt || 0));
+                setStore(STORAGE_KEYS.NEWS, mergedNews);
+            } else if (directFsNews && Array.isArray(directFsNews) && directFsNews.length > 0) {
+                smartMerge(STORAGE_KEYS.NEWS, directFsNews, (a, b) => new Date(b.eventDate || b.createdAt || 0) - new Date(a.eventDate || a.createdAt || 0), deletedNewsSet);
             }
             if (masterData.disbursements) {
                 smartMerge(STORAGE_KEYS.DISBURSEMENTS, masterData.disbursements, (a, b) => new Date(b.disbursedAt || b.createdAt) - new Date(a.disbursedAt || a.createdAt), deletedDisbSet);
