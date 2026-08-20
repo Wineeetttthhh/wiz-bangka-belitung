@@ -799,14 +799,15 @@
                             <span class="text-emerald-800">Tambah program spesifik baru, edit nama &amp; pilar, hapus program, serta upload foto kustom per program.</span>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2 shrink-0">
+                    <div class="flex items-center gap-2 shrink-0 flex-wrap">
+                        <input type="text" id="specific-prog-search" oninput="renderSpecificProgramImagesSection()" placeholder="🔍 Cari program spesifik..." class="text-xs bg-white border border-slate-300 rounded-xl px-3 py-2 w-52 outline-none focus:border-primary font-medium shadow-xs">
                         <button onclick="resetDefaultSpecificPrograms()" class="flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-md py-2.5 rounded-xl font-bold text-xs transition-all shadow-xs cursor-pointer" title="Pulihkan seluruh daftar program bawaan">
                             <span class="material-symbols-outlined text-sm text-slate-500">restart_alt</span>
-                            <span>Reset Program Bawaan</span>
+                            <span>Reset Bawaan</span>
                         </button>
                         <button onclick="openSpecificProgramModal()" class="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-lg py-2.5 rounded-xl font-bold text-xs transition-all shadow-md cursor-pointer border border-emerald-500">
                             <span class="material-symbols-outlined text-sm">add_circle</span>
-                            <span>+ Tambah Program Spesifik Baru</span>
+                            <span>+ Tambah Program Baru</span>
                         </button>
                     </div>
                 </div>
@@ -4014,19 +4015,26 @@
             const container = document.getElementById('specific-images-grid');
             if (!container || !wizStore.allocationRulesManager) return;
 
+            const searchInput = document.getElementById('specific-prog-search');
+            const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
             const map = getSpecificProgramsMap();
             let allPrograms = [];
 
             Object.entries(map).forEach(([pillar, progs]) => {
                 if (Array.isArray(progs)) {
                     progs.forEach(pTitle => {
-                        allPrograms.push({ pillar, title: pTitle });
+                        if (!query || pTitle.toLowerCase().includes(query) || pillar.toLowerCase().includes(query)) {
+                            allPrograms.push({ pillar, title: pTitle });
+                        }
                     });
                 }
             });
 
             if (allPrograms.length === 0) {
-                container.innerHTML = `<div class="col-span-full p-xl text-center text-on-surface-variant text-sm italic">Belum ada program spesifik. Klik "+ Tambah Program Spesifik Baru" di atas untuk menambahkan program.</div>`;
+                container.innerHTML = `<div class="col-span-full p-xl text-center text-on-surface-variant text-sm italic">
+                    ${query ? `Tidak ada program spesifik yang cocok dengan kata kunci "<strong>${query}</strong>".` : 'Belum ada program spesifik. Klik "+ Tambah Program Baru" di atas untuk menambahkan program.'}
+                </div>`;
                 return;
             }
 
@@ -4038,8 +4046,9 @@
                 'Berkah Mandiri': 'bg-purple-700 text-white'
             };
 
+            const customImgStore = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+
             container.innerHTML = allPrograms.map((item, idx) => {
-                const customImgStore = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
                 const isCustom = Boolean(customImgStore[item.title]);
                 const currentImg = wizStore.allocationRulesManager.getSpecificProgramImage(item.title, item.pillar);
                 const safeId = 'spec-file-' + idx;
@@ -4070,21 +4079,18 @@
                                 <span class="material-symbols-outlined text-sm">delete</span>
                             </button>
                         </div>
-                        <input type="file" id="${safeId}" accept="image/*" class="hidden" onchange="handleSpecificProgramPhotoUpload(event, '${escapedTitle}')">
+                        <input type="file" id="${safeId}" accept="image/*" class="hidden" onchange="handleSpecificProgramPhotoUpload(event, '${escapedTitle}', '${safeId}')">
                         ${isCustom ? `<p class="text-[11px] text-emerald-700 font-semibold text-center">✅ Foto Kustom Aktif</p>` : `<p class="text-[11px] text-on-surface-variant font-medium text-center">📷 Foto Bawaan Web (Bisa Diganti)</p>`}
                     </div>
                 </div>`;
             }).join('');
         }
 
-        function handleSpecificProgramPhotoUpload(event, progTitle) {
+        function handleSpecificProgramPhotoUpload(event, progTitle, safeId) {
             const file = event.target.files && event.target.files[0];
             if (!file) return;
 
-            const inputEl = event.target;
-            const card = inputEl.closest('div');
-            const prevImg = card ? card.querySelector('img') : null;
-            const statusEl = card ? card.querySelector('p.text-\\[11px\\]') : null;
+            const prevImg = safeId ? document.getElementById('prev-' + safeId) : null;
 
             // Instant preview
             const objectUrl = URL.createObjectURL(file);
@@ -4093,7 +4099,7 @@
             setTimeout(() => {
                 const img = new Image();
                 img.onload = async function() {
-                    const maxDim = 720;
+                    const maxDim = 800;
                     let w = img.naturalWidth, h = img.naturalHeight;
                     if (w > maxDim || h > maxDim) {
                         if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
@@ -4102,13 +4108,12 @@
                     const canvas = document.createElement('canvas');
                     canvas.width = w; canvas.height = h;
                     canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                    const compressed = canvas.toDataURL('image/jpeg', 0.72);
+                    const compressed = canvas.toDataURL('image/jpeg', 0.75);
                     URL.revokeObjectURL(objectUrl);
                     if (prevImg) prevImg.src = compressed;
 
                     if (window.wizStore && window.wizStore.allocationRulesManager) {
                         await window.wizStore.allocationRulesManager.updateSpecificProgramImageByName(progTitle, compressed);
-                        // Refresh only the specific images grid, not everything
                         renderSpecificProgramImagesSection();
                     }
                 };

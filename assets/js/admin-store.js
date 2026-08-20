@@ -747,19 +747,28 @@
             return all;
         },
         async updateSpecificProgramImageByName(programName, imageDataUrl) {
-            const all = this.getAll();
-            const cleanName = (programName || '').trim().toLowerCase();
+            if (!programName) return false;
+            const cleanQuery = String(programName).trim().toLowerCase().replace(/[^a-z0-9]/g, '');
             let updated = false;
 
+            // 1. Update localStorage flat store
+            try {
+                const flatMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+                flatMap[programName] = imageDataUrl;
+                localStorage.setItem('wiz_specific_prog_imgs', JSON.stringify(flatMap));
+            } catch(e) {}
+
+            // 2. Update all allocation rules structures
+            const all = this.getAll();
             for (const [w, wData] of Object.entries(all)) {
                 if (wData && wData.subAllocation) {
                     let wModified = false;
                     for (const [pillarKey, subObj] of Object.entries(wData.subAllocation)) {
                         if (subObj && subObj.items) {
                             subObj.items.forEach(item => {
-                                const kLower = (item.key || '').trim().toLowerCase();
-                                const fullLower = `${pillarKey} - ${item.key}`.toLowerCase();
-                                if (kLower === cleanName || fullLower === cleanName || cleanName.includes(kLower) || kLower.includes(cleanName)) {
+                                const kNorm = String(item.key || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+                                const fullNorm = String(`${pillarKey} - ${item.key}`).toLowerCase().replace(/[^a-z0-9]/g, '');
+                                if (kNorm === cleanQuery || fullNorm === cleanQuery || cleanQuery.includes(kNorm) || kNorm.includes(cleanQuery)) {
                                     item.image = imageDataUrl;
                                     wModified = true;
                                     updated = true;
@@ -773,16 +782,13 @@
                 }
             }
 
-            // Also keep flat store in localStorage for fast direct lookup on public pages
-            try {
-                const flatMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
-                flatMap[programName] = imageDataUrl;
-                localStorage.setItem('wiz_specific_prog_imgs', JSON.stringify(flatMap));
-            } catch(e) {}
+            // 3. Save to siteImages in store to guarantee it gets pushed in bundle
+            const imgKey = 'prog_img_' + programName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+            siteImages.update(imgKey, imageDataUrl, `Foto Program: ${programName}`);
 
-            // Save to Firebase & Supabase Cloud in background
+            // 4. Save to Firebase Cloud in background
             const imgRecord = {
-                id: 'prog_img_' + programName.replace(/\s+/g, '_').toLowerCase(),
+                id: imgKey,
                 key: programName,
                 image_url: imageDataUrl,
                 updated_at: new Date().toISOString()
@@ -805,21 +811,32 @@
             return updated;
         },
         getSpecificProgramImage(programName, pillar = '') {
+            if (!programName) return DEFAULT_SITE_IMAGES.berkah_hidayah;
+            const cleanQuery = String(programName).trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+
+            // 1. Check custom uploaded images in localStorage with fuzzy match
             try {
                 const flatMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
                 if (flatMap[programName]) return flatMap[programName];
+
+                for (const [k, v] of Object.entries(flatMap)) {
+                    const cleanK = String(k).trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+                    if (cleanK === cleanQuery || cleanQuery.includes(cleanK) || cleanK.includes(cleanQuery)) {
+                        return v;
+                    }
+                }
             } catch(e) {}
 
-            const cleanName = (programName || '').trim().toLowerCase();
+            // 2. Check allocation rules subAllocation items
             const all = this.getAll();
             for (const wData of Object.values(all)) {
                 if (wData && wData.subAllocation) {
                     for (const [pillarKey, subObj] of Object.entries(wData.subAllocation)) {
                         if (subObj && subObj.items) {
                             for (const item of subObj.items) {
-                                const kLower = (item.key || '').trim().toLowerCase();
-                                const fullLower = `${pillarKey} - ${item.key}`.toLowerCase();
-                                if ((kLower === cleanName || fullLower === cleanName || cleanName.includes(kLower) || kLower.includes(cleanName)) && item.image) {
+                                const kNorm = String(item.key || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+                                const fullNorm = String(`${pillarKey} - ${item.key}`).toLowerCase().replace(/[^a-z0-9]/g, '');
+                                if ((kNorm === cleanQuery || fullNorm === cleanQuery || cleanQuery.includes(kNorm) || kNorm.includes(cleanQuery)) && item.image) {
                                     return item.image;
                                 }
                             }
@@ -828,12 +845,18 @@
                 }
             }
 
-            if (typeof DEFAULT_PROGRAM_IMAGES !== 'undefined' && DEFAULT_PROGRAM_IMAGES[programName]) {
-                return DEFAULT_PROGRAM_IMAGES[programName];
+            // 3. Check DEFAULT_PROGRAM_IMAGES mapping
+            if (typeof DEFAULT_PROGRAM_IMAGES !== 'undefined') {
+                if (DEFAULT_PROGRAM_IMAGES[programName]) return DEFAULT_PROGRAM_IMAGES[programName];
+                for (const [k, v] of Object.entries(DEFAULT_PROGRAM_IMAGES)) {
+                    const cleanK = String(k).trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+                    if (cleanK === cleanQuery || cleanQuery.includes(cleanK) || cleanK.includes(cleanQuery)) {
+                        return v;
+                    }
+                }
             }
-            if (typeof DEFAULT_SPECIFIC_PROGRAM_IMAGES !== 'undefined' && DEFAULT_SPECIFIC_PROGRAM_IMAGES[programName]) {
-                return DEFAULT_SPECIFIC_PROGRAM_IMAGES[programName];
-            }
+
+            // 4. Fallback to pillar image
             const cleanPillarKey = (pillar || '').toLowerCase().replace(/\s+/g, '_');
             if (DEFAULT_SITE_IMAGES[cleanPillarKey]) {
                 return DEFAULT_SITE_IMAGES[cleanPillarKey];
@@ -968,6 +991,8 @@
                 allocation_rules: getStore(STORAGE_KEYS.ALLOCATION_RULES) || ALLOCATION_RULES,
                 baselines: getStore(STORAGE_KEYS.BASELINES) || DEFAULT_BASELINES,
                 admin_users: getStore(STORAGE_KEYS.ADMIN_USERS) || DEFAULT_ADMIN_USERS,
+                custom_specific_programs: JSON.parse(localStorage.getItem('wiz_custom_specific_programs') || '{}'),
+                specific_prog_imgs: JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}'),
                 deleted_ids: Array.from(getDeletedIds()),
                 deleted_news_ids: Array.from(getDeletedNewsIds()),
                 deleted_disb_ids: Array.from(getDeletedDisbIds()),
@@ -1165,6 +1190,17 @@
             }
             if (masterData.site_images && typeof masterData.site_images === 'object') {
                 setStore(STORAGE_KEYS.SITE_IMAGES, { ...DEFAULT_SITE_IMAGES, ...masterData.site_images });
+                window.dispatchEvent(new CustomEvent('wiz-program-images-changed'));
+            }
+            if (masterData.custom_specific_programs && typeof masterData.custom_specific_programs === 'object' && Object.keys(masterData.custom_specific_programs).length > 0) {
+                const existingMap = JSON.parse(localStorage.getItem('wiz_custom_specific_programs') || '{}');
+                const mergedMap = { ...existingMap, ...masterData.custom_specific_programs };
+                localStorage.setItem('wiz_custom_specific_programs', JSON.stringify(mergedMap));
+            }
+            if (masterData.specific_prog_imgs && typeof masterData.specific_prog_imgs === 'object') {
+                const existingImgs = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+                const mergedImgs = { ...masterData.specific_prog_imgs, ...existingImgs };
+                localStorage.setItem('wiz_specific_prog_imgs', JSON.stringify(mergedImgs));
                 window.dispatchEvent(new CustomEvent('wiz-program-images-changed'));
             }
             if (masterData.baselines && typeof masterData.baselines === 'object') {
