@@ -113,34 +113,7 @@
       "createdAt": "2026-08-20T00:00:00.000Z"
     }
   ],
-  "referrals": [
-    {
-      "id": "WIZ-20260820-001",
-      "code": "WIZ-20260820-001",
-      "name": "Ustadz Ahmad Hidayat",
-      "phone": "081271234567",
-      "bankName": "Bank Syariah Indonesia (BSI)",
-      "accountNumber": "7123456789",
-      "accountHolder": "Ahmad Hidayat",
-      "defaultRate": 6,
-      "status": "active",
-      "notes": "Da'i & Mitra Fundraiser Wilayah Pangkalpinang",
-      "createdAt": "2026-08-20T00:00:00.000Z"
-    },
-    {
-      "id": "WIZ-20260820-002",
-      "code": "WIZ-20260820-002",
-      "name": "Ibu Fatimah Az-Zahra",
-      "phone": "082198765432",
-      "bankName": "Bank Muamalat",
-      "accountNumber": "1090012345",
-      "accountHolder": "Fatimah Az-Zahra",
-      "defaultRate": 6,
-      "status": "active",
-      "notes": "Koordinator Komunitas Sedekah Sungailiat",
-      "createdAt": "2026-08-20T00:00:00.000Z"
-    }
-  ],
+  "referrals": [],
   "referral_payouts": [],
   "quotes": [
     {

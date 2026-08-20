@@ -121,34 +121,7 @@
         }
     ];
 
-    const DEFAULT_REFERRALS = [
-        {
-            id: 'WIZ-20260820-001',
-            code: 'WIZ-20260820-001',
-            name: 'Ustadz Ahmad Hidayat',
-            phone: '081271234567',
-            bankName: 'Bank Syariah Indonesia (BSI)',
-            accountNumber: '7123456789',
-            accountHolder: 'Ahmad Hidayat',
-            defaultRate: 6,
-            status: 'active',
-            notes: 'Da\'i & Mitra Fundraiser Wilayah Pangkalpinang',
-            createdAt: new Date().toISOString()
-        },
-        {
-            id: 'WIZ-20260820-002',
-            code: 'WIZ-20260820-002',
-            name: 'Ibu Fatimah Az-Zahra',
-            phone: '082198765432',
-            bankName: 'Bank Muamalat',
-            accountNumber: '1090012345',
-            accountHolder: 'Fatimah Az-Zahra',
-            defaultRate: 6,
-            status: 'active',
-            notes: 'Koordinator Komunitas Sedekah Sungailiat',
-            createdAt: new Date().toISOString()
-        }
-    ];
+    const DEFAULT_REFERRALS = [];
 
     const DEFAULT_QUOTES = [
         {
@@ -970,15 +943,13 @@
         setStore(STORAGE_KEYS.SITE_IMAGES, DEFAULT_SITE_IMAGES);
         setStore(STORAGE_KEYS.ADMIN_USERS, DEFAULT_ADMIN_USERS);
         setStore(STORAGE_KEYS.ALLOCATION_RULES, ALLOCATION_RULES);
-        setStore(STORAGE_KEYS.REFERRALS, DEFAULT_REFERRALS);
-        setStore(STORAGE_KEYS.REFERRAL_PAYOUTS, []);
+        setStore(STORAGE_KEYS.REFERRALS, getStore(STORAGE_KEYS.REFERRALS) || []);
+        setStore(STORAGE_KEYS.REFERRAL_PAYOUTS, getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || []);
         localStorage.setItem(STORAGE_KEYS.INITIALIZED, 'true');
     }
 
-    // Ensure referrals store is populated if missing or empty
-    const existingRefs = getStore(STORAGE_KEYS.REFERRALS);
-    if (!existingRefs || !Array.isArray(existingRefs) || existingRefs.length === 0) {
-        setStore(STORAGE_KEYS.REFERRALS, DEFAULT_REFERRALS);
+    if (!getStore(STORAGE_KEYS.REFERRALS)) {
+        setStore(STORAGE_KEYS.REFERRALS, []);
     }
     if (!getStore(STORAGE_KEYS.REFERRAL_PAYOUTS)) {
         setStore(STORAGE_KEYS.REFERRAL_PAYOUTS, []);
@@ -2275,22 +2246,10 @@
             const yyyy = d.getFullYear();
             const mm = String(d.getMonth() + 1).padStart(2, '0');
             const dd = String(d.getDate()).padStart(2, '0');
-            const datePrefix = `WIZ-${yyyy}${mm}${dd}`; // Format: WIZ-YYYYMMDD (e.g. WIZ-20260820)
+            const datePrefix = `WIZ-${yyyy}${mm}${dd}`;
             
-            const list = getStore(STORAGE_KEYS.REFERRALS) || [];
-            let maxSeq = 0;
-            list.forEach(r => {
-                const idToCheck = String(r.code || r.id || '');
-                if (idToCheck.startsWith(datePrefix)) {
-                    const parts = idToCheck.split('-');
-                    const seq = parseInt(parts[parts.length - 1], 10);
-                    if (!isNaN(seq) && seq > maxSeq) {
-                        maxSeq = seq;
-                    }
-                }
-            });
-            const nextSeq = String(maxSeq + 1).padStart(3, '0');
-            return `${datePrefix}-${nextSeq}`; // e.g. WIZ-20260820-001
+            const randomCode = Math.random().toString(36).substring(2, 6).toUpperCase();
+            return `${datePrefix}-${randomCode}`; // e.g. WIZ-20260820-7K9P
         },
 
         async add(data) {
