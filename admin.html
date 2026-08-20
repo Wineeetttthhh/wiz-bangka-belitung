@@ -2319,11 +2319,24 @@
         }
 
         // ─── Full Donation Table (Pemasukan) ─────────────
+        let currentDonationTab = 'pending';
+
         function renderFullDonationTable() {
             const fmt = wizStore.utils.formatRupiahCompact;
-            const filterWilayah = document.getElementById('filter-wilayah').value;
-            const filterJenis = document.getElementById('filter-jenis').value;
-            const filterProgramUtama = document.getElementById('filter-program-utama').value;
+            const filterWilayah = document.getElementById('filter-wilayah') ? document.getElementById('filter-wilayah').value : 'Semua';
+            const filterJenis = document.getElementById('filter-jenis') ? document.getElementById('filter-jenis').value : 'Semua';
+            const filterProgramUtama = document.getElementById('filter-program-utama') ? document.getElementById('filter-program-utama').value : 'Semua';
+
+            const allList = wizStore.donations.getAll();
+            const pendingCount = allList.filter(d => d.status === 'pending').length;
+            const verifiedCount = allList.filter(d => d.status === 'verified').length;
+
+            const badgePending = document.getElementById('badge-tab-pending');
+            const badgeVerified = document.getElementById('badge-tab-verified');
+            const badgeAll = document.getElementById('badge-tab-all');
+            if (badgePending) badgePending.textContent = pendingCount;
+            if (badgeVerified) badgeVerified.textContent = verifiedCount;
+            if (badgeAll) badgeAll.textContent = allList.length;
 
             let list = wizStore.donations.getFiltered({
                 wilayah: filterWilayah,
@@ -2336,7 +2349,10 @@
             if (!container) return;
 
             if (list.length === 0) {
-                container.innerHTML = '<div class="p-xl text-center text-on-surface-variant font-body-md">Tidak ada data donasi pada filter/kategori ini.</div>';
+                const emptyMsg = currentDonationTab === 'pending' 
+                    ? '🎉 Tidak ada antrean donasi baru yang menunggu verifikasi.'
+                    : 'Tidak ada data donasi pada filter/kategori ini.';
+                container.innerHTML = `<div class="p-xl text-center text-on-surface-variant font-body-md">${emptyMsg}</div>`;
                 return;
             }
 
@@ -2344,8 +2360,8 @@
                 let statusBadge = d.status === 'verified'
                     ? `<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-caption text-caption font-bold">✅ Terverifikasi</span>`
                     : d.status === 'pending'
-                        ? `<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-caption text-caption font-bold">⏳ Menunggu</span>`
-                        : `<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-error-container text-error font-caption text-caption font-bold">❌ Ditolak</span>`;
+                        ? `<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-caption text-caption font-bold animate-pulse">⏳ Menunggu Verifikasi</span>`
+                        : `<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 font-caption text-caption font-bold">❌ Ditolak</span>`;
 
                 let refBadge = '';
                 if (d.referralId && wizStore.referrals) {
@@ -2356,28 +2372,66 @@
                     }
                 }
 
-                return `<tr class="hover:bg-surface-container-lowest/50 transition-colors ${d.status === 'pending' ? 'bg-secondary-container/5' : ''} cursor-pointer" onclick="showDonationDetail('${d.id}')">
+                let proofBadge = '';
+                if (d.proofImage) {
+                    proofBadge = `<span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold border border-blue-200 mt-1 cursor-pointer" onclick="event.stopPropagation(); showDonationDetail('${d.id}')">
+                        <span class="material-symbols-outlined text-[12px]">image</span> Ada Bukti Transfer
+                    </span>`;
+                }
+
+                let actionButtons = '';
+                if (d.status === 'pending') {
+                    actionButtons = `
+                        <button onclick="verifyDonation('${d.id}')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-label-md text-caption font-bold shadow-xs cursor-pointer mr-1">
+                            <span class="material-symbols-outlined text-[15px]">check_circle</span> Setujui
+                        </button>
+                        <button onclick="rejectDonation('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 font-label-md text-caption font-bold shadow-xs cursor-pointer mr-1">
+                            <span class="material-symbols-outlined text-[15px]">cancel</span> Tolak
+                        </button>
+                        <button onclick="showDonationDetail('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-300 text-slate-700 hover:text-primary font-label-md text-caption font-semibold cursor-pointer">
+                            <span class="material-symbols-outlined text-[15px]">visibility</span> Detail &amp; Bukti
+                        </button>
+                    `;
+                } else if (d.status === 'verified') {
+                    actionButtons = `
+                        <button onclick="showDonationDetail('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary font-label-md text-caption font-semibold mr-1 cursor-pointer">
+                            <span class="material-symbols-outlined text-[14px]">visibility</span> Detail
+                        </button>
+                        <button onclick="editManualDonation('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 font-label-md text-caption font-bold mr-1 cursor-pointer" title="Edit transaksi & perantara">
+                            <span class="material-symbols-outlined text-[14px]">edit</span> Edit
+                        </button>
+                        <button onclick="deleteDonation('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-error/30 text-error hover:bg-error/5 font-label-md text-caption font-semibold cursor-pointer">
+                            <span class="material-symbols-outlined text-[14px]">delete</span> Hapus
+                        </button>
+                    `;
+                } else {
+                    actionButtons = `
+                        <button onclick="showDonationDetail('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary font-label-md text-caption font-semibold mr-1 cursor-pointer">
+                            <span class="material-symbols-outlined text-[14px]">visibility</span> Detail
+                        </button>
+                        <button onclick="verifyDonation('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-label-md text-caption font-bold mr-1 cursor-pointer" title="Pulihkan & Setujui">
+                            <span class="material-symbols-outlined text-[14px]">check_circle</span> Setujui
+                        </button>
+                        <button onclick="deleteDonation('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-error/30 text-error hover:bg-error/5 font-label-md text-caption font-semibold cursor-pointer">
+                            <span class="material-symbols-outlined text-[14px]">delete</span> Hapus
+                        </button>
+                    `;
+                }
+
+                return `<tr class="hover:bg-surface-container-lowest/50 transition-colors ${d.status === 'pending' ? 'bg-amber-50/40 border-l-4 border-l-amber-500' : ''} cursor-pointer" onclick="showDonationDetail('${d.id}')">
                 <td class="p-md text-on-surface-variant whitespace-nowrap">${wizStore.utils.formatDate(d.createdAt)}</td>
                 <td class="p-md font-semibold">
                     <div>${d.donorName} ${d.donorName === 'Hamba Allah' ? '<span class="font-caption text-caption text-outline ml-1">(Anonim)</span>' : ''}</div>
                     ${refBadge}
+                    ${proofBadge}
                 </td>
                 <td class="p-md text-center"><span class="px-2 py-1 rounded text-xs font-bold bg-primary/10 text-primary">${d.wilayah || 'Pangkalpinang'}</span></td>
                 <td class="p-md font-medium text-on-surface">${d.type}</td>
-                <td class="p-md text-on-surface-variant truncate max-w-[200px]">${d.programSpesifik || d.program || '-'}</td>
+                <td class="p-md text-on-surface-variant font-medium">${d.programSpesifik || d.program || '-'}</td>
                 <td class="p-md font-label-md text-label-md font-bold whitespace-nowrap text-primary">${fmt(d.amount)}</td>
                 <td class="p-md text-center">${statusBadge}</td>
                 <td class="p-md text-right whitespace-nowrap" onclick="event.stopPropagation()">
-                    ${d.status === 'pending' ? `<button onclick="verifyDonation('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-primary text-on-primary hover:bg-primary/90 font-label-md text-caption font-bold mr-1"><span class="material-symbols-outlined text-[14px]">check_circle</span> Verifikasi</button>` : ''}
-                    <button onclick="showDonationDetail('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary font-label-md text-caption font-semibold mr-1">
-                        <span class="material-symbols-outlined text-[14px]">visibility</span> Detail
-                    </button>
-                    <button onclick="editManualDonation('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 font-label-md text-caption font-bold mr-1" title="Edit transaksi & perantara">
-                        <span class="material-symbols-outlined text-[14px]">edit</span> Edit / Perantara
-                    </button>
-                    <button onclick="deleteDonation('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-error/30 text-error hover:bg-error/5 font-label-md text-caption font-semibold">
-                        <span class="material-symbols-outlined text-[14px]">delete</span> Hapus
-                    </button>
+                    ${actionButtons}
                 </td>
             </tr>`;
             }).join('');
@@ -2985,15 +3039,42 @@
                 }
             }
 
+            let proofHtml = '';
+            if (d.proofImage) {
+                proofHtml = `
+                <div class="col-span-2 p-md bg-blue-50/70 border border-blue-200 rounded-xl space-y-2">
+                    <p class="font-caption text-caption font-bold text-blue-900 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-base text-blue-700">image</span>
+                        <span>Foto Bukti Transfer Pembayaran Donatur:</span>
+                    </p>
+                    <div class="flex flex-col sm:flex-row items-center gap-3">
+                        <a href="${d.proofImage}" target="_blank" class="block shrink-0">
+                            <img src="${d.proofImage}" alt="Bukti Transfer" class="w-32 h-32 object-cover rounded-lg border-2 border-blue-300 shadow-sm hover:opacity-90 transition-opacity cursor-pointer">
+                        </a>
+                        <div class="space-y-1 text-xs text-blue-900">
+                            <p class="font-semibold">Bukti pembayaran telah diunggah oleh donatur.</p>
+                            <p class="text-blue-700 text-[11px]">Klik foto untuk melihat ukuran penuh di tab baru.</p>
+                            <a href="${d.proofImage}" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 shadow-xs">
+                                <span class="material-symbols-outlined text-sm">open_in_new</span> Buka Bukti Penuh
+                            </a>
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            const cleanPhone = String(d.donorPhone || '').replace(/[^0-9]/g, '');
+            const waLink = cleanPhone ? `https://wa.me/${cleanPhone.startsWith('0') ? '62' + cleanPhone.slice(1) : cleanPhone}` : '';
+
             document.getElementById('donation-detail-body').innerHTML = `
             <div class="grid grid-cols-2 gap-md text-sm">
-                <div><p class="font-caption text-caption text-on-surface-variant">Transaction ID</p><p class="font-mono text-xs font-bold text-outline">${d.id}</p></div>
-                <div><p class="font-caption text-caption text-on-surface-variant">Lembaga</p><p class="font-label-md font-bold">WIZ Bangka Belitung</p></div>
-                <div><p class="font-caption text-caption text-on-surface-variant">Wilayah Operasional</p><p class="font-label-md font-bold text-primary">${d.wilayah || 'Pangkalpinang'}</p></div>
-                <div><p class="font-caption text-caption text-on-surface-variant">Jenis Donasi</p><p class="font-label-md font-bold">${d.type}</p></div>
-                <div><p class="font-caption text-caption text-on-surface-variant">Program Utama</p><p class="font-label-md font-semibold">${d.programUtama || d.category || '-'}</p></div>
-                <div><p class="font-caption text-caption text-on-surface-variant">Program Spesifik</p><p class="font-label-md font-semibold text-primary">${d.programSpesifik || d.program || '-'}</p></div>
+                <div><p class="font-caption text-caption text-on-surface-variant font-semibold">Transaction ID</p><p class="font-mono text-xs font-bold text-outline">${d.id}</p></div>
+                <div><p class="font-caption text-caption text-on-surface-variant font-semibold">Lembaga</p><p class="font-label-md font-bold">WIZ Bangka Belitung</p></div>
+                <div><p class="font-caption text-caption text-on-surface-variant font-semibold">Wilayah Operasional</p><p class="font-label-md font-bold text-primary">${d.wilayah || 'Pangkalpinang'}</p></div>
+                <div><p class="font-caption text-caption text-on-surface-variant font-semibold">Jenis Donasi</p><p class="font-label-md font-bold">${d.type}</p></div>
+                <div><p class="font-caption text-caption text-on-surface-variant font-semibold">Program Utama</p><p class="font-label-md font-bold text-emerald-800">${d.programUtama || d.category || '-'}</p></div>
+                <div><p class="font-caption text-caption text-on-surface-variant font-semibold">Program Spesifik</p><p class="font-label-md font-extrabold text-primary text-base">${d.programSpesifik || d.program || '-'}</p></div>
                 ${refInfoHtml}
+                ${proofHtml}
                 <div class="col-span-2 p-md bg-surface-container-low rounded-xl border border-outline-variant/30 space-y-1">
                     <p class="font-caption text-caption text-on-surface-variant font-bold">Rekonsiliasi Internal Dana:</p>
                     <div class="flex justify-between font-bold text-base text-primary">
@@ -3013,18 +3094,45 @@
                         <p class="text-xs text-on-surface-variant italic">Infak Umum dialokasikan otomatis sesuai allocation rule wilayah ${d.wilayah || 'Pangkalpinang'}.</p>
                     `}
                 </div>
-                <div><p class="font-caption text-caption text-on-surface-variant">Donatur</p><p class="font-label-md font-bold">${d.donorName}</p></div>
-                <div><p class="font-caption text-caption text-on-surface-variant">Telepon / WA</p><p class="font-label-md">${d.donorPhone || '-'}</p></div>
-                <div><p class="font-caption text-caption text-on-surface-variant">Metode Pembayaran</p><p class="font-label-md">${d.method || '-'}</p></div>
-                <div><p class="font-caption text-caption text-on-surface-variant">Tanggal Transaksi</p><p class="font-label-md">${wizStore.utils.formatDateTime(d.createdAt)}</p></div>
-                <div><p class="font-caption text-caption text-on-surface-variant">Status</p><p class="font-label-md font-bold ${d.status === 'verified' ? 'text-primary' : d.status === 'pending' ? 'text-secondary' : 'text-error'}">${d.status === 'verified' ? '✅ Terverifikasi' : d.status === 'pending' ? '⏳ Menunggu' : '❌ Ditolak'}</p></div>
+                <div>
+                    <p class="font-caption text-caption text-on-surface-variant font-semibold">Donatur</p>
+                    <p class="font-label-md font-bold text-base">${d.donorName} ${d.donorName === 'Hamba Allah' ? '<span class="font-caption text-caption text-outline ml-1">(Anonim)</span>' : ''}</p>
+                </div>
+                <div>
+                    <p class="font-caption text-caption text-on-surface-variant font-semibold">Telepon / WA Donatur</p>
+                    <p class="font-label-md font-bold flex items-center gap-2">
+                        <span>${d.donorPhone || '-'}</span>
+                        ${waLink ? `<a href="${waLink}" target="_blank" class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[11px] font-bold hover:bg-emerald-200 transition-colors"><span class="material-symbols-outlined text-[13px]">chat</span> Chat WA</a>` : ''}
+                    </p>
+                </div>
+                <div><p class="font-caption text-caption text-on-surface-variant font-semibold">Metode Pembayaran</p><p class="font-label-md font-bold">${d.method || '-'}</p></div>
+                <div><p class="font-caption text-caption text-on-surface-variant font-semibold">Tanggal Transaksi</p><p class="font-label-md font-medium">${wizStore.utils.formatDateTime(d.createdAt)}</p></div>
+                <div>
+                    <p class="font-caption text-caption text-on-surface-variant font-semibold">Status Transaksi</p>
+                    <p class="font-label-md font-bold ${d.status === 'verified' ? 'text-emerald-700' : d.status === 'pending' ? 'text-amber-700' : 'text-rose-700'}">
+                        ${d.status === 'verified' ? '✅ Terverifikasi' : d.status === 'pending' ? '⏳ Menunggu Verifikasi Admin' : '❌ Ditolak'}
+                    </p>
+                </div>
             </div>
-            <div class="pt-sm border-t border-outline-variant/30"><p class="font-caption text-caption text-on-surface-variant">Doa / Catatan</p><p class="font-body-md">${d.notes || '-'}</p></div>
-            ${d.verifiedBy ? `<div class="pt-sm border-t border-outline-variant/30"><p class="font-caption text-caption text-on-surface-variant">Diverifikasi oleh ${d.verifiedBy} pada ${wizStore.utils.formatDateTime(d.verifiedAt)}</p></div>` : ''}
-            <div class="flex gap-md pt-md">
-                ${d.status === 'pending' ? `<button onclick="verifyDonation('${d.id}'); closeDonationDetail();" class="flex-1 bg-primary text-on-primary py-2.5 rounded-lg font-label-md font-bold hover:bg-primary-container transition-colors">Verifikasi Donasi</button>` : ''}
-                <button onclick="editManualDonation('${d.id}'); closeDonationDetail();" class="flex-1 bg-surface-container border border-outline-variant text-on-surface py-2.5 rounded-lg font-label-md font-bold hover:bg-surface-variant transition-colors">Edit Transaksi &amp; Perantara</button>
-                <button onclick="deleteDonation('${d.id}'); closeDonationDetail();" class="px-lg py-2.5 border border-error text-error rounded-lg font-label-md font-bold hover:bg-error/5 transition-colors">Hapus</button>
+            <div class="pt-sm border-t border-outline-variant/30"><p class="font-caption text-caption text-on-surface-variant font-semibold">Doa &amp; Pesan Kebaikan</p><p class="font-body-md italic">${d.notes || '-'}</p></div>
+            ${d.verifiedBy ? `<div class="pt-sm border-t border-outline-variant/30"><p class="font-caption text-caption text-on-surface-variant">Diverifikasi oleh <strong>${d.verifiedBy}</strong> pada ${wizStore.utils.formatDateTime(d.verifiedAt)}</p></div>` : ''}
+            ${d.rejectedBy ? `<div class="pt-sm border-t border-outline-variant/30 text-rose-700"><p class="font-caption text-caption">Ditolak oleh <strong>${d.rejectedBy}</strong> pada ${wizStore.utils.formatDateTime(d.rejectedAt)}</p></div>` : ''}
+            
+            <div class="flex flex-wrap gap-md pt-md border-t border-outline-variant/30 mt-sm">
+                ${d.status === 'pending' ? `
+                    <button onclick="verifyDonation('${d.id}'); closeDonationDetail();" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-label-md font-bold transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-[18px]">check_circle</span> Setujui / Verifikasi Donasi
+                    </button>
+                    <button onclick="rejectDonation('${d.id}'); closeDonationDetail();" class="px-5 bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 py-2.5 rounded-xl font-label-md font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
+                        <span class="material-symbols-outlined text-[18px]">cancel</span> Tolak
+                    </button>
+                ` : d.status === 'rejected' ? `
+                    <button onclick="verifyDonation('${d.id}'); closeDonationDetail();" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-label-md font-bold transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-[18px]">check_circle</span> Pulihkan &amp; Setujui Donasi
+                    </button>
+                ` : ''}
+                <button onclick="editManualDonation('${d.id}'); closeDonationDetail();" class="px-4 bg-surface-container border border-outline-variant text-on-surface py-2.5 rounded-xl font-label-md font-bold hover:bg-surface-variant transition-colors cursor-pointer">Edit Transaksi &amp; Perantara</button>
+                <button onclick="deleteDonation('${d.id}'); closeDonationDetail();" class="px-4 border border-error/40 text-error hover:bg-error/5 rounded-xl font-label-md font-bold transition-colors cursor-pointer">Hapus</button>
             </div>`;
 
             showModal('donation-detail-modal');
@@ -3915,40 +4023,7 @@
             if (overlay) overlay.classList.toggle('hidden');
         }
 
-        function showSection(sectionId, linkEl) {
-            document.querySelectorAll('main > div[id^="section-"]').forEach(sec => sec.classList.add('hidden'));
-            const targetSec = document.getElementById(`section-${sectionId}`);
-            if (targetSec) targetSec.classList.remove('hidden');
-
-            document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
-            if (linkEl) linkEl.classList.add('active');
-
-            const titleMap = {
-                'dashboard': 'Dashboard Overview',
-                'donations': 'Manajemen Pemasukan / Donasi',
-                'disbursements': 'Manajemen Pengeluaran / Penyaluran Dana',
-                'referrals': 'Database Master Perantara & KPI Kinerja Fundraiser',
-                'allocation-rules': 'Editor Aturan Alokasi & Program Spesifik',
-                'site-images': 'Kelola Foto Web Utama',
-                'admin-users': 'Verifikasi & Kelola Akun Admin (Admin 1)',
-                'news': 'Daftar Berita & Dokumentasi Kegiatan',
-                'finance': 'Laporan Keuangan WIZ Bangka Belitung'
-            };
-
-            const titleEl = document.getElementById('section-title');
-            if (titleEl && titleMap[sectionId]) titleEl.textContent = titleMap[sectionId];
-
-            if (sectionId === 'referrals') renderReferralsSection();
-            if (sectionId === 'site-images') {
-                const specTab = document.getElementById('tab-site-spec-btn');
-                if (specTab && specTab.classList.contains('active')) {
-                    renderSpecificProgramImagesSection();
-                } else {
-                    renderSiteImagesSection();
-                }
-            }
-            if (sectionId === 'admin-users') renderAdminUsersSection();
-        }
+// (Duplicate showSection removed - unified at top)
 
         function switchSiteImageTab(tabType, btnEl) {
             document.querySelectorAll('#section-site-images .tab-btn').forEach(b => b.classList.remove('active'));
