@@ -454,10 +454,6 @@
                 <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">Berita &amp; Kegiatan Terbaru</h2>
                 <p class="font-body-lg text-body-lg text-on-surface-variant">Dokumentasi foto kegiatan dan tanggal penyaluran donasi WIZ Bangka Belitung.</p>
             </div>
-            <a href="admin.html#news" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-on-primary font-label-md text-label-md font-bold transition-all shadow-xs border border-primary/20 shrink-0 group">
-                <span class="material-symbols-outlined text-[20px] group-hover:rotate-12 transition-transform">post_add</span>
-                <span>+ Tulis / Kelola Berita (Admin)</span>
-            </a>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter" id="public-news-grid">
@@ -781,14 +777,8 @@
             grid.innerHTML = `
             <div class="col-span-1 md:col-span-3 text-center py-xl bg-surface-container-low rounded-2xl border border-dashed border-outline-variant/50 p-lg space-y-sm">
                 <span class="material-symbols-outlined text-4xl text-primary/60">feed</span>
-                <p class="font-headline-md text-on-surface font-bold">Belum Ada Berita yang Dipublikasikan</p>
-                <p class="font-caption text-caption text-on-surface-variant max-w-md mx-auto">Admin atau Amil dapat menambahkan dokumentasi berita dan kegiatan penyaluran melalui Portal Admin.</p>
-                <div class="pt-sm">
-                    <a href="admin.html#news" class="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-on-primary rounded-xl font-label-md text-caption font-bold hover:bg-primary-container transition-all shadow-xs">
-                        <span class="material-symbols-outlined text-sm">post_add</span>
-                        <span>+ Tulis Berita Pertama (Admin)</span>
-                    </a>
-                </div>
+                <p class="font-headline-md text-on-surface font-bold">Belum Ada Berita Terbaru</p>
+                <p class="font-caption text-caption text-on-surface-variant max-w-md mx-auto">Dokumentasi kegiatan dan berita penyaluran akan segera diperbarui.</p>
             </div>`;
             return;
         }
