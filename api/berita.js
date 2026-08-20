@@ -7,12 +7,61 @@
  * Menghasilkan kartu preview Open Graph (OG) kaya foto
  * untuk WhatsApp Chat, WhatsApp Story, Facebook, Twitter/X,
  * Telegram, dan LinkedIn.
+ * 
+ * JAMINAN KONSISTENSI FOTO & JUDUL:
+ * 1. Mengambil data realtime dari Firebase Firestore master bundle & collection.
+ * 2. Fallback cerdas ke canonical-store.json lokal.
+ * 3. Melayani binary foto langsung (endpoint ?img=1) jika foto disimpan base64,
+ *    sehingga crawler WhatsApp/Facebook dapat membaca foto asli 100%.
+ * 4. Tidak pernah menukar foto kegiatan dengan kegiatan lain jika ID spesifik dicari.
  * ============================================================
  */
 
 const fs = require('fs');
 const path = require('path');
 
+// Firebase Firestore Config (matches firebase-client.js & sync.js)
+const FIREBASE_PROJECT_ID = 'wiz-bangka-belitung';
+const FIREBASE_API_KEY    = 'AIzaSyAl8RQSk7Jnb7r4GCclAGbcZc2X-yKRhmQ';
+const FIREBASE_BASE_URL   = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents`;
+
+// ─── Firebase Firestore Deserialization ─────────────────────────────────────
+function fromFsValue(v) {
+    if (!v) return null;
+    if ('nullValue' in v) return null;
+    if ('stringValue' in v) return v.stringValue;
+    if ('integerValue' in v) return Number(v.integerValue);
+    if ('doubleValue' in v) return v.doubleValue;
+    if ('booleanValue' in v) return v.booleanValue;
+    if ('timestampValue' in v) return v.timestampValue;
+    if ('arrayValue' in v) return (v.arrayValue.values || []).map(fromFsValue);
+    if ('mapValue' in v) return fromFsFields(v.mapValue.fields || {});
+    return null;
+}
+
+function fromFsFields(fields) {
+    const obj = {};
+    for (const [k, v] of Object.entries(fields || {})) {
+        obj[k] = fromFsValue(v);
+    }
+    return obj;
+}
+
+async function firebaseGet(docPath) {
+    try {
+        const url = `${FIREBASE_BASE_URL}/${docPath}?key=${FIREBASE_API_KEY}`;
+        const res = await fetch(url, { headers: { Accept: 'application/json' } });
+        if (!res.ok) return null;
+        const doc = await res.json();
+        if (!doc || !doc.fields) return null;
+        return fromFsFields(doc.fields);
+    } catch (e) {
+        console.warn('[Berita API] Firebase GET error:', e.message);
+        return null;
+    }
+}
+
+// ─── Canonical Seed Data Fallback ───────────────────────────────────────────
 function getCanonicalData() {
     try {
         const filePath = path.join(process.cwd(), 'assets', 'data', 'canonical-store.json');
@@ -45,28 +94,29 @@ function formatDateIndo(isoStr) {
     }
 }
 
-function toAbsoluteImageUrl(imgUrl, origin) {
-    if (!imgUrl) {
-        return `${origin}/assets/images/foto-utama-wiz.jpg`;
-    }
-    if (imgUrl.startsWith('http://') || imgUrl.startsWith('https://')) {
-        return imgUrl;
-    }
-    // Remove leading slash if present
-    const cleanPath = imgUrl.startsWith('/') ? imgUrl.slice(1) : imgUrl;
-    return `${origin}/${cleanPath}`;
+function getMimeType(filePathOrDataUrl) {
+    if (filePathOrDataUrl.startsWith('data:image/png')) return 'image/png';
+    if (filePathOrDataUrl.startsWith('data:image/webp')) return 'image/webp';
+    if (filePathOrDataUrl.startsWith('data:image/gif')) return 'image/gif';
+    if (filePathOrDataUrl.endsWith('.png')) return 'image/png';
+    if (filePathOrDataUrl.endsWith('.webp')) return 'image/webp';
+    if (filePathOrDataUrl.endsWith('.gif')) return 'image/gif';
+    if (filePathOrDataUrl.endsWith('.svg')) return 'image/svg+xml';
+    return 'image/jpeg';
 }
 
+// ─── Main Request Handler ───────────────────────────────────────────────────
 module.exports = async function handler(req, res) {
     const urlObj = new URL(req.url, `http://${req.headers.host || 'www.wizbangkabelitung.or.id'}`);
     let newsId = urlObj.searchParams.get('id') || urlObj.searchParams.get('newsId');
+    const isImageRequest = urlObj.searchParams.get('img') === '1' || urlObj.searchParams.get('image') === '1';
 
     // Parse ID from path /berita/[id] if applicable
     if (!newsId) {
-        const parts = urlObj.pathname.split('/');
+        const parts = urlObj.pathname.split('/').filter(Boolean);
         const beritaIndex = parts.indexOf('berita');
         if (beritaIndex !== -1 && parts[beritaIndex + 1]) {
-            newsId = parts[beritaIndex + 1];
+            newsId = decodeURIComponent(parts[beritaIndex + 1]);
         }
     }
 
@@ -74,18 +124,62 @@ module.exports = async function handler(req, res) {
     const host = req.headers.host || 'www.wizbangkabelitung.or.id';
     const origin = `${proto}://${host}`;
 
-    const data = getCanonicalData();
-    const allNews = (data && Array.isArray(data.news)) ? data.news : [];
+    // 1. Fetch all news from Firebase Master Bundle
+    let allNews = [];
+    try {
+        const masterBundle = await firebaseGet('system_state/master_bundle');
+        if (masterBundle && Array.isArray(masterBundle.news) && masterBundle.news.length > 0) {
+            allNews = masterBundle.news;
+        }
+    } catch(e) {}
 
+    // 2. If article still not found, check single news document in Firebase collection
     let article = null;
     if (newsId) {
-        article = allNews.find(n => String(n.id) === String(newsId));
-    }
-    if (!article && allNews.length > 0) {
-        article = allNews[0]; // Default to latest published news
+        article = allNews.find(n => n && (String(n.id) === String(newsId) || String(n.id).toLowerCase() === String(newsId).toLowerCase()));
+        
+        if (!article) {
+            try {
+                const singleDoc = await firebaseGet(`news/${newsId}`);
+                if (singleDoc && singleDoc.title) {
+                    article = { ...singleDoc, id: singleDoc.id || newsId };
+                }
+            } catch(e) {}
+        }
     }
 
+    // 3. Fallback: check canonical-store.json
     if (!article) {
+        const canonical = getCanonicalData();
+        const canonList = (canonical && Array.isArray(canonical.news)) ? canonical.news : [];
+        if (newsId) {
+            article = canonList.find(n => n && (String(n.id) === String(newsId) || String(n.id).toLowerCase() === String(newsId).toLowerCase()));
+        }
+        if (!article && allNews.length === 0) {
+            allNews = canonList;
+        }
+    }
+
+    // 4. If no specific newsId was passed in URL (e.g. visiting /berita), default to latest news
+    if (!article && !newsId && allNews.length > 0) {
+        article = allNews[0];
+    }
+
+    // 5. If specific newsId was provided BUT definitely not found anywhere:
+    // DO NOT show a random unrelated activity photo. Show neutral official WIZ branding.
+    if (!article && newsId) {
+        article = {
+            id: newsId,
+            title: 'Berita & Kegiatan Penyaluran - WIZ Bangka Belitung',
+            category: 'Dokumentasi & Penyaluran',
+            content: 'Dokumentasi kegiatan penyaluran dan pemberdayaan ummat oleh Wahdah Inspirasi Zakat (WIZ) Bangka Belitung. Silakan kunjungi website utama untuk melihat berita dan laporan kegiatan terbaru.',
+            imageUrl: 'assets/images/foto-utama-wiz.jpg',
+            gallery: [],
+            author: 'Admin WIZ Babel',
+            createdAt: new Date().toISOString(),
+            isFallback: true
+        };
+    } else if (!article) {
         article = {
             id: 'wiz-default',
             title: 'WIZ Bangka Belitung - Berita & Kegiatan Penyaluran',
@@ -98,11 +192,66 @@ module.exports = async function handler(req, res) {
         };
     }
 
+    // ─── IMAGE SERVING ROUTE (?img=1) ───────────────────────────────────────
+    // Serves the actual binary JPEG/PNG for WhatsApp/FB crawlers if base64 is used
+    if (isImageRequest) {
+        const imgVal = (article.imageUrl || '').trim();
+        
+        if (imgVal.startsWith('data:image/')) {
+            const mime = getMimeType(imgVal);
+            const base64Data = imgVal.split(',')[1] || '';
+            const buffer = Buffer.from(base64Data, 'base64');
+            res.setHeader('Content-Type', mime);
+            res.setHeader('Content-Length', buffer.length);
+            res.setHeader('Cache-Control', 'public, max-age=86400, must-revalidate');
+            return res.status(200).end(buffer);
+        } else if (imgVal.startsWith('http://') || imgVal.startsWith('https://')) {
+            res.writeHead(302, { Location: imgVal });
+            return res.end();
+        } else {
+            // Local file in assets/images/
+            const cleanPath = imgVal.startsWith('/') ? imgVal.slice(1) : imgVal;
+            const fullPath = path.join(process.cwd(), cleanPath || 'assets/images/foto-utama-wiz.jpg');
+            if (fs.existsSync(fullPath)) {
+                const mime = getMimeType(cleanPath);
+                const fileBuf = fs.readFileSync(fullPath);
+                res.setHeader('Content-Type', mime);
+                res.setHeader('Content-Length', fileBuf.length);
+                res.setHeader('Cache-Control', 'public, max-age=86400, must-revalidate');
+                return res.status(200).end(fileBuf);
+            } else {
+                const defaultPath = path.join(process.cwd(), 'assets', 'images', 'foto-utama-wiz.jpg');
+                if (fs.existsSync(defaultPath)) {
+                    const fileBuf = fs.readFileSync(defaultPath);
+                    res.setHeader('Content-Type', 'image/jpeg');
+                    res.setHeader('Cache-Control', 'public, max-age=86400');
+                    return res.status(200).end(fileBuf);
+                }
+            }
+        }
+    }
+
+    // ─── Resolve absolute Open Graph Image URL ──────────────────────────────
+    let absoluteImgUrl = '';
+    const rawImg = (article.imageUrl || '').trim();
+
+    if (rawImg.startsWith('data:image/')) {
+        // WhatsApp / FB crawler cannot read data URLs. We serve it via ?img=1 endpoint!
+        absoluteImgUrl = `${origin}/api/berita?id=${encodeURIComponent(article.id)}&img=1`;
+    } else if (rawImg.startsWith('http://') || rawImg.startsWith('https://')) {
+        absoluteImgUrl = rawImg;
+    } else if (rawImg) {
+        const cleanPath = rawImg.startsWith('/') ? rawImg.slice(1) : rawImg;
+        absoluteImgUrl = `${origin}/${cleanPath}`;
+    } else {
+        absoluteImgUrl = `${origin}/assets/images/foto-utama-wiz.jpg`;
+    }
+
     const title = article.title || 'Berita WIZ Bangka Belitung';
     const rawContent = article.content || '';
     const excerpt = rawContent.slice(0, 180).replace(/\r?\n|\r/g, ' ') + (rawContent.length > 180 ? '...' : '');
-    const absoluteImgUrl = toAbsoluteImageUrl(article.imageUrl, origin);
-    const canonicalUrl = `${origin}/berita/${article.id}`;
+    const canonicalUrl = `${origin}/berita/${encodeURIComponent(article.id)}`;
+    const portalUrl = `${origin}/index.html?newsId=${encodeURIComponent(article.id)}#berita`;
     const formattedDate = formatDateIndo(article.eventDate || article.createdAt);
     const category = article.category || 'Kegiatan & Penyaluran';
     const author = article.author || 'Admin WIZ Babel';
@@ -213,7 +362,7 @@ module.exports = async function handler(req, res) {
 
         <!-- Main Featured Image -->
         <div class="rounded-2xl overflow-hidden shadow-md border border-slate-200 aspect-video relative bg-slate-100">
-            <img src="${absoluteImgUrl}" alt="${escapeHtml(title)}" class="w-full h-full object-cover" onerror="this.src='${origin}/assets/images/foto-utama-wiz.jpg'"/>
+            <img src="${rawImg.startsWith('data:image/') ? rawImg : absoluteImgUrl}" alt="${escapeHtml(title)}" class="w-full h-full object-cover" onerror="this.src='${origin}/assets/images/foto-utama-wiz.jpg'"/>
         </div>
 
         <!-- Share Bar (WhatsApp Story / Chat, FB, Twitter) -->
@@ -230,7 +379,7 @@ module.exports = async function handler(req, res) {
                 <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(canonicalUrl)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 bg-[#1877F2] hover:bg-[#1464cc] text-white text-xs font-bold px-3 py-1.5 rounded-xl transition-all shadow-xs">
                     <span>Facebook</span>
                 </a>
-                <button onclick="navigator.clipboard.writeText('${canonicalUrl}'); alert('Tautan berita berhasil disalin!');" class="inline-flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-xl transition-all">
+                <button onclick="navigator.clipboard.writeText('${canonicalUrl}'); alert('Tautan berita berhasil disalin!');" class="inline-flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-xl transition-all cursor-pointer">
                     <span class="material-symbols-outlined text-[15px]">link</span>
                     <span>Salin Link</span>
                 </button>
@@ -254,7 +403,7 @@ module.exports = async function handler(req, res) {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 ${gallery.map(img => `
                 <div class="rounded-xl overflow-hidden aspect-video bg-slate-100 border border-slate-200 group">
-                    <img src="${toAbsoluteImageUrl(img, origin)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Dokumentasi WIZ Babel" onerror="this.src='${origin}/assets/images/foto-utama-wiz.jpg'"/>
+                    <img src="${img.startsWith('data:image/') ? img : (img.startsWith('http') ? img : `${origin}/${img.startsWith('/') ? img.slice(1) : img}`)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Dokumentasi WIZ Babel" onerror="this.src='${origin}/assets/images/foto-utama-wiz.jpg'"/>
                 </div>`).join('')}
             </div>
         </div>` : ''}
@@ -273,9 +422,9 @@ module.exports = async function handler(req, res) {
 
         <!-- Back to Home -->
         <div class="text-center pt-4">
-            <a href="${origin}/index.html#berita" class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline">
+            <a href="${portalUrl}" class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline">
                 <span class="material-symbols-outlined text-base">arrow_back</span>
-                <span>Kembali ke Beranda WIZ Bangka Belitung</span>
+                <span>Lihat di Portal Web WIZ Bangka Belitung</span>
             </a>
         </div>
     </main>
@@ -289,6 +438,6 @@ module.exports = async function handler(req, res) {
 </html>`;
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=600, stale-while-revalidate=86400');
+    res.setHeader('Cache-Control', 'public, max-age=120, s-maxage=300, stale-while-revalidate=86400');
     return res.status(200).send(html);
 };
