@@ -79,6 +79,27 @@ try {
 const server = http.createServer((req, res) => {
     let reqUrl = req.url.split('?')[0];
 
+    // Dynamic News / Berita Open Graph Route (/berita/:id)
+    if (reqUrl.startsWith('/berita')) {
+        const apiFilePath = path.join(__dirname, 'api', 'berita.js');
+        if (fs.existsSync(apiFilePath)) {
+            try {
+                res.status = function(code) { this.statusCode = code; return this; };
+                res.send = function(html) {
+                    this.writeHead(this.statusCode || 200, { 'Content-Type': 'text/html; charset=utf-8' });
+                    this.end(html);
+                    return this;
+                };
+                delete require.cache[require.resolve(apiFilePath)];
+                const handler = require(apiFilePath);
+                handler(req, res);
+                return;
+            } catch (err) {
+                console.error('[Berita Dev Router Error]', err);
+            }
+        }
+    }
+
     // Serverless API Router (/api/sync, etc.)
     if (reqUrl.startsWith('/api/')) {
         const apiName = reqUrl.replace('/api/', '').replace(/\.js$/, '');

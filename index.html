@@ -8,6 +8,23 @@
     <meta name="keywords" content="WIZ Bangka Belitung, Wahdah Inspirasi Zakat, Zakat Babel, Sedekah Bangka, Donasi Online, Zakat Maal, Beasiswa Tahfidz">
     <link rel="icon" href="assets/images/logo-wiz-babel.png" type="image/png">
 
+    <!-- Open Graph / WhatsApp / Facebook / Instagram -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Wahdah Inspirasi Zakat (WIZ) Bangka Belitung">
+    <meta property="og:url" content="https://www.wizbangkabelitung.or.id/">
+    <meta property="og:title" content="WIZ Bangka Belitung - Tebarkan Kebaikan">
+    <meta property="og:description" content="Wahdah Inspirasi Zakat (WIZ) Bangka Belitung - Lembaga Amil Zakat Terpercaya. Melayani Zakat, Infak, Sedekah & Wakaf untuk pemberdayaan umat di Bangka Belitung.">
+    <meta property="og:image" content="https://www.wizbangkabelitung.or.id/assets/images/foto-utama-wiz.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://www.wizbangkabelitung.or.id/">
+    <meta name="twitter:title" content="WIZ Bangka Belitung - Tebarkan Kebaikan">
+    <meta name="twitter:description" content="Wahdah Inspirasi Zakat (WIZ) Bangka Belitung - Lembaga Amil Zakat Terpercaya. Melayani Zakat, Infak, Sedekah & Wakaf untuk pemberdayaan umat di Bangka Belitung.">
+    <meta name="twitter:image" content="https://www.wizbangkabelitung.or.id/assets/images/foto-utama-wiz.jpg">
+
     <!-- Google Fonts & Material Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -755,9 +772,10 @@
     function shareArticle(platform) {
         if (!currentShareArticle) return;
         const title = currentShareArticle.title || 'Berita WIZ Bangka Belitung';
-        const baseUrl = window.location.origin + window.location.pathname;
-        const shareUrl = `${baseUrl}?newsId=${currentShareArticle.id}#berita`;
-        const shareText = `*${title}*\n\nBaca selengkapnya berita WIZ Bangka Belitung di:\n${shareUrl}`;
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const baseOrigin = isLocal ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
+        const shareUrl = `${baseOrigin}/berita/${currentShareArticle.id}`;
+        const shareText = `*${title}*\n\n${shareUrl}`;
 
         if (platform === 'wa') {
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
@@ -774,7 +792,7 @@
                     toast.classList.remove('hidden');
                     setTimeout(() => toast.classList.add('hidden'), 3000);
                 } else {
-                    alert('Tautan berita berhasil disalin ke clipboard!');
+                    alert('Tautan berita dengan kartu foto berhasil disalin ke clipboard!');
                 }
             });
         }

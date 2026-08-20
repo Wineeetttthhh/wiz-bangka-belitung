@@ -42,12 +42,28 @@
   ],
   "routes": [
     {
+      "src": "/berita/(?<id>[^/]+)",
+      "dest": "/api/berita.js?id=$id"
+    },
+    {
+      "src": "/berita",
+      "dest": "/index.html#berita"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
       "src": "/assets/(.*)",
       "dest": "/assets/$1"
     },
     {
       "src": "/(.*)\\.html",
       "dest": "/$1.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
     }
   ]
 }

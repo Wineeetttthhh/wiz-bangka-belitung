@@ -3010,9 +3010,13 @@
                             <span class="material-symbols-outlined text-sm">${isPub ? 'visibility_off' : 'visibility'}</span>
                             <span>${isPub ? 'Draft-kan' : 'Tayangkan'}</span>
                         </button>
-                        <a href="index.html?newsId=${n.id}#berita" target="_blank" class="flex-1 md:flex-none flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl border border-outline-variant text-primary hover:bg-primary/5 font-label-md text-caption font-bold transition-colors cursor-pointer bg-surface">
+                        <a href="berita/${n.id}" target="_blank" class="flex-1 md:flex-none flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl border border-outline-variant text-primary hover:bg-primary/5 font-label-md text-caption font-bold transition-colors cursor-pointer bg-surface">
                             <span class="material-symbols-outlined text-sm">open_in_new</span>
                             <span>Lihat</span>
+                        </a>
+                        <a href="https://api.whatsapp.com/send?text=${encodeURIComponent('*' + n.title + '*\n\nhttps://www.wizbangkabelitung.or.id/berita/' + n.id)}" target="_blank" class="flex-1 md:flex-none flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl border border-[#25D366]/40 text-[#128C7E] hover:bg-[#25D366]/10 font-label-md text-caption font-bold transition-colors cursor-pointer bg-surface" title="Bagikan ke WhatsApp Story / Chat dengan Foto">
+                            <span class="material-symbols-outlined text-sm">share</span>
+                            <span>Share WA</span>
                         </a>
                         <button onclick="deleteNews('${n.id}')" class="flex-1 md:flex-none flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl border border-error/30 text-error hover:bg-error/5 font-label-md text-caption font-bold transition-colors cursor-pointer bg-surface">
                             <span class="material-symbols-outlined text-sm">delete</span>
