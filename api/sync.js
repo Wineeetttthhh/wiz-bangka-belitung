@@ -195,11 +195,15 @@ module.exports = async function handler(req, res) {
             } catch(e) {}
             if (!master) master = loadCanonicalSeed();
 
-            // Merge all collections
+            // Merge all collections — incoming news from Admin is authoritative
             if (Array.isArray(incoming.donations))
                 master.donations = mergeArrays(master.donations, incoming.donations, deletedIds);
-            if (Array.isArray(incoming.news))
+            if (Array.isArray(incoming.news) && incoming.news.length > 0) {
+                // Admin's published news array is authoritative (filters out any deleted/stale items)
+                master.news = incoming.news.filter(n => n && n.id && !deletedNewsIds.includes(String(n.id)) && n.status !== 'deleted');
+            } else if (Array.isArray(incoming.news)) {
                 master.news = mergeArrays(master.news, incoming.news, deletedNewsIds);
+            }
             if (Array.isArray(incoming.disbursements))
                 master.disbursements = mergeArrays(master.disbursements, incoming.disbursements, deletedDisbIds);
             if (Array.isArray(incoming.referrals))
@@ -207,7 +211,7 @@ module.exports = async function handler(req, res) {
             if (Array.isArray(incoming.referral_payouts))
                 master.referral_payouts = mergeArrays(master.referral_payouts, incoming.referral_payouts, []);
             if (Array.isArray(incoming.quotes))
-                master.quotes = mergeArrays(master.quotes, incoming.quotes, deletedQuoteIds);
+                master.quotes = incoming.quotes.length > 0 ? incoming.quotes : mergeArrays(master.quotes, incoming.quotes, deletedQuoteIds);
             if (Array.isArray(incoming.activity))
                 master.activity = mergeArrays(master.activity, incoming.activity, []);
             if (Array.isArray(incoming.admin_users) && incoming.admin_users.length > 0)
