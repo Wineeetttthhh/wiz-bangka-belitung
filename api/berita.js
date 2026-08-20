@@ -7,15 +7,11 @@
  * Menghasilkan kartu preview Open Graph (OG) kaya foto
  * untuk WhatsApp Chat, WhatsApp Story, Facebook, Twitter/X,
  * Telegram, dan LinkedIn.
- * 
- * JAMINAN KONSISTENSI FOTO & JUDUL:
- * 1. Mengambil data realtime dari Firebase Firestore master bundle & collection.
- * 2. Fallback cerdas ke canonical-store.json lokal.
- * 3. Melayani binary foto langsung (endpoint ?img=1) jika foto disimpan base64,
- *    sehingga crawler WhatsApp/Facebook dapat membaca foto asli 100%.
- * 4. Tidak pernah menukar foto kegiatan dengan kegiatan lain jika ID spesifik dicari.
  * ============================================================
  */
+
+const fs = require('fs');
+const path = require('path');
 
 // Supabase Configuration
 const SUPABASE_URL = 'https://ffiltrlzdbwhhhxzmzuo.supabase.co/rest/v1';
@@ -42,7 +38,7 @@ async function supabaseGetNews(newsId) {
     }
 }
 
-// ─── Canonical Seed Data Fallback ───────────────────────────────────────────
+// Canonical seed fallback
 function getCanonicalData() {
     try {
         const filePath = path.join(process.cwd(), 'assets', 'data', 'canonical-store.json');
@@ -86,7 +82,6 @@ function getMimeType(filePathOrDataUrl) {
     return 'image/jpeg';
 }
 
-// ─── Main Request Handler ───────────────────────────────────────────────────
 module.exports = async function handler(req, res) {
     const urlObj = new URL(req.url, `http://${req.headers.host || 'www.wizbangkabelitung.or.id'}`);
     let newsId = urlObj.searchParams.get('id') || urlObj.searchParams.get('newsId');
@@ -119,7 +114,7 @@ module.exports = async function handler(req, res) {
         }
     } catch(e) {}
 
-    // 3. Fallback: check canonical-store.json
+    // 2. Fallback: check canonical-store.json
     if (!article) {
         const canonical = getCanonicalData();
         const canonList = (canonical && Array.isArray(canonical.news)) ? canonical.news : [];
@@ -140,43 +135,39 @@ module.exports = async function handler(req, res) {
         }
     }
 
-    // 4. If no specific newsId was passed in URL (e.g. visiting /berita), default to latest news
+    // 3. If no specific newsId was passed in URL (e.g. visiting /berita), default to latest news
     if (!article && !newsId && allNews.length > 0) {
         article = allNews[0];
     }
 
-    // 5. If specific newsId was provided BUT definitely not found anywhere:
-    // DO NOT show a random unrelated activity photo. Show neutral official WIZ branding.
-    if (!article && newsId) {
+    // 4. Default fallback article if still not found
+    if (!article) {
         article = {
-            id: newsId,
-            title: 'Berita & Kegiatan Penyaluran - WIZ Bangka Belitung',
-            category: 'Dokumentasi & Penyaluran',
-            content: 'Dokumentasi kegiatan penyaluran dan pemberdayaan ummat oleh Wahdah Inspirasi Zakat (WIZ) Bangka Belitung. Silakan kunjungi website utama untuk melihat berita dan laporan kegiatan terbaru.',
+            id: newsId || 'wiz-berita-default',
+            title: 'Berita & Kegiatan Penyaluran — WIZ Bangka Belitung',
+            content: 'Dokumentasi kegiatan penyaluran dan pemberdayaan ummat oleh Wahdah Inspirasi Zakat (WIZ) Bangka Belitung. Silakan kunjungi website utama untuk melihat berita dan laporan lengkap.',
             imageUrl: 'assets/images/foto-utama-wiz.jpg',
-            gallery: [],
+            image_url: 'assets/images/foto-utama-wiz.jpg',
+            category: 'Kegiatan & Penyaluran',
+            eventDate: new Date().toISOString(),
+            status: 'published',
             author: 'Admin WIZ Babel',
-            createdAt: new Date().toISOString(),
-            isFallback: true
-        };
-    } else if (!article) {
-        article = {
-            id: 'wiz-default',
-            title: 'WIZ Bangka Belitung - Berita & Kegiatan Penyaluran',
-            category: 'Pemberdayaan Ummat',
-            content: 'Wahdah Inspirasi Zakat (WIZ) Bangka Belitung - Lembaga Amil Zakat Terpercaya. Melayani Zakat, Infak, Sedekah & Wakaf untuk kemaslahatan ummat di Bangka Belitung.',
-            imageUrl: 'assets/images/foto-utama-wiz.jpg',
-            gallery: [],
-            author: 'Admin WIZ Babel',
-            createdAt: new Date().toISOString()
+            gallery: []
         };
     }
 
-    // ─── IMAGE SERVING ROUTE (?img=1) ───────────────────────────────────────
-    // Serves the actual binary JPEG/PNG for WhatsApp/FB crawlers if base64 is used
+    // Normalize field names from Supabase snake_case to camelCase
+    const title = article.title || 'Berita WIZ Bangka Belitung';
+    const rawContent = article.content || '';
+    const rawImg = (article.imageUrl || article.image_url || '').trim();
+    const eventDate = article.eventDate || article.event_date || article.createdAt || article.created_at || new Date().toISOString();
+    const category = article.category || 'Kegiatan & Penyaluran';
+    const author = article.author || 'Admin WIZ Babel';
+    const gallery = Array.isArray(article.gallery) ? article.gallery.filter(Boolean) : [];
+
+    // ─── Serve Binary Image directly if requested (?img=1) ─────────────────────
     if (isImageRequest) {
-        const imgVal = (article.imageUrl || '').trim();
-        
+        const imgVal = rawImg || 'assets/images/foto-utama-wiz.jpg';
         if (imgVal.startsWith('data:image/')) {
             const mime = getMimeType(imgVal);
             const base64Data = imgVal.split(',')[1] || '';
@@ -189,7 +180,6 @@ module.exports = async function handler(req, res) {
             res.writeHead(302, { Location: imgVal });
             return res.end();
         } else {
-            // Local file in assets/images/
             const cleanPath = imgVal.startsWith('/') ? imgVal.slice(1) : imgVal;
             const fullPath = path.join(process.cwd(), cleanPath || 'assets/images/foto-utama-wiz.jpg');
             if (fs.existsSync(fullPath)) {
@@ -213,8 +203,6 @@ module.exports = async function handler(req, res) {
 
     // ─── Resolve absolute Open Graph Image URL ──────────────────────────────
     let absoluteImgUrl = '';
-    const rawImg = (article.imageUrl || '').trim();
-
     if (rawImg.startsWith('data:image/')) {
         // WhatsApp / FB crawler cannot read data URLs. We serve it via ?img=1 endpoint!
         absoluteImgUrl = `${origin}/api/berita?id=${encodeURIComponent(article.id)}&img=1`;
@@ -228,16 +216,11 @@ module.exports = async function handler(req, res) {
     }
 
     const refCode = urlObj.searchParams.get('ref') || urlObj.searchParams.get('affiliate') || urlObj.searchParams.get('perantara') || '';
-    const title = article.title || 'Berita WIZ Bangka Belitung';
-    const rawContent = article.content || '';
     const excerpt = rawContent.slice(0, 180).replace(/\r?\n|\r/g, ' ') + (rawContent.length > 180 ? '...' : '');
     const canonicalUrl = `${origin}/berita/${encodeURIComponent(article.id)}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
     const donateUrl = `${origin}/donasi.html${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
     const portalUrl = `${origin}/index.html?newsId=${encodeURIComponent(article.id)}${refCode ? '&ref=' + encodeURIComponent(refCode) : ''}#berita`;
-    const formattedDate = formatDateIndo(article.eventDate || article.createdAt);
-    const category = article.category || 'Kegiatan & Penyaluran';
-    const author = article.author || 'Admin WIZ Babel';
-    const gallery = Array.isArray(article.gallery) ? article.gallery.filter(Boolean) : [];
+    const formattedDate = formatDateIndo(eventDate);
 
     // Full responsive HTML with Social Media Open Graph Cards & 30-day Affiliate Engine
     const html = `<!DOCTYPE html>
@@ -258,237 +241,184 @@ module.exports = async function handler(req, res) {
     <meta property="og:description" content="${escapeHtml(excerpt)}"/>
     <meta property="og:image" content="${absoluteImgUrl}"/>
     <meta property="og:image:secure_url" content="${absoluteImgUrl}"/>
-    <meta property="og:image:type" content="image/jpeg"/>
+    <meta property="og:image:alt" content="${escapeHtml(title)}"/>
+    <meta property="og:image:type" content="${getMimeType(rawImg)}"/>
     <meta property="og:image:width" content="1200"/>
     <meta property="og:image:height" content="630"/>
-    <meta property="og:image:alt" content="${escapeHtml(title)}"/>
-    <meta property="article:published_time" content="${article.createdAt || new Date().toISOString()}"/>
-    <meta property="article:author" content="${escapeHtml(author)}"/>
-    <meta property="article:section" content="${escapeHtml(category)}"/>
 
     <!-- Twitter / X Cards -->
     <meta name="twitter:card" content="summary_large_image"/>
-    <meta name="twitter:site" content="@wizbangka"/>
-    <meta name="twitter:creator" content="@wizbangka"/>
-    <meta name="twitter:url" content="${canonicalUrl}"/>
+    <meta name="twitter:site" content="@wizbangkabelitung"/>
     <meta name="twitter:title" content="${escapeHtml(title)}"/>
     <meta name="twitter:description" content="${escapeHtml(excerpt)}"/>
     <meta name="twitter:image" content="${absoluteImgUrl}"/>
-    <meta name="twitter:image:alt" content="${escapeHtml(title)}"/>
-
-    <!-- Schema.org JSON-LD Structured Data for Search Bots & Crawlers -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "NewsArticle",
-      "headline": ${JSON.stringify(title)},
-      "image": [${JSON.stringify(absoluteImgUrl)}],
-      "datePublished": ${JSON.stringify(article.createdAt || new Date().toISOString())},
-      "dateModified": ${JSON.stringify(article.updatedAt || article.createdAt || new Date().toISOString())},
-      "author": [{
-          "@type": "Organization",
-          "name": ${JSON.stringify(author)},
-          "url": ${JSON.stringify(origin)}
-      }],
-      "publisher": {
-          "@type": "Organization",
-          "name": "Wahdah Inspirasi Zakat Bangka Belitung",
-          "logo": {
-              "@type": "ImageObject",
-              "url": ${JSON.stringify(origin + '/assets/images/logo-wiz-babel.png')}
-          }
-      },
-      "description": ${JSON.stringify(excerpt)},
-      "mainEntityOfPage": {
-          "@type": "WebPage",
-          "@id": ${JSON.stringify(canonicalUrl)}
-      }
-    }
-    </script>
 
     <!-- Google Fonts & Tailwind -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#006834',
-                        'primary-dark': '#005228',
-                        'primary-light': '#e9ffe9',
-                        accent: '#fd9923',
+                        primary: '#0369a1',
+                        'primary-dark': '#075985',
+                        secondary: '#10b981',
+                        accent: '#f59e0b',
+                        surface: '#ffffff',
+                        background: '#f8fafc'
                     },
                     fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
-                        body: ['Inter', 'sans-serif'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        headline: ['Outfit', 'sans-serif']
                     }
                 }
             }
         }
     </script>
-
-    <!-- Client-side 30-Day Referral Tracking -->
-    <script>
-        (function() {
-            try {
-                const urlParams = new URLSearchParams(window.location.search);
-                const ref = urlParams.get('ref') || urlParams.get('affiliate') || urlParams.get('perantara') || '${escapeHtml(refCode)}';
-                if (ref && ref.trim()) {
-                    const cleanRef = ref.trim();
-                    const expMs = Date.now() + (30 * 24 * 60 * 60 * 1000);
-                    sessionStorage.setItem('wiz_active_ref_id', cleanRef);
-                    localStorage.setItem('wiz_ref_code', cleanRef);
-                    localStorage.setItem('wiz_ref_exp', String(expMs));
-                    document.cookie = 'wiz_ref=' + encodeURIComponent(cleanRef) + '; path=/; max-age=2592000; SameSite=Lax';
-                }
-            } catch(e) {}
-        })();
-    </script>
 </head>
-<body class="bg-[#f8fafc] text-slate-800 font-body antialiased min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col selection:bg-primary selection:text-white">
 
-    <!-- Header Navigation -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
-        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-            <a href="${origin}/index.html${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}" class="flex items-center gap-2.5 group">
-                <img src="${origin}/assets/images/logo-wiz-babel.png" alt="WIZ Bangka Belitung" class="h-10 w-auto object-contain transition-transform group-hover:scale-105" onerror="this.src='${origin}/assets/images/foto-utama-wiz.jpg'"/>
-                <div class="flex flex-col">
-                    <span class="font-bold text-base text-primary leading-tight font-sans">WIZ Bangka Belitung</span>
-                    <span class="text-[11px] text-slate-500 font-medium">Wahdah Inspirasi Zakat</span>
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <a href="${origin}" class="flex items-center gap-3 group">
+                <img src="${origin}/assets/images/logo-wiz-babel.png" alt="Logo WIZ Babel" class="h-10 w-auto object-contain group-hover:scale-105 transition-transform" onerror="this.src='${origin}/assets/images/logo-wiz-babel.png'"/>
+                <div>
+                    <span class="block font-headline font-bold text-base md:text-lg text-primary leading-tight">WIZ BANGKA BELITUNG</span>
+                    <span class="block text-[11px] text-slate-500 font-medium leading-none">Wahdah Inspirasi Zakat</span>
                 </div>
             </a>
             <div class="flex items-center gap-2">
-                <a href="${origin}/index.html#berita" class="hidden sm:inline-flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-primary px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors">
-                    <span class="material-symbols-outlined text-[16px]">arrow_back</span>
-                    <span>Semua Berita</span>
+                <a href="${origin}/index.html#berita" class="hidden sm:inline-flex items-center gap-1 text-sm font-semibold text-slate-600 hover:text-primary px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+                    <span class="material-symbols-outlined text-base">arrow_back</span> Berita Lainnya
                 </a>
-                <a href="${donateUrl}" class="inline-flex items-center gap-1.5 bg-primary hover:bg-primary-dark text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all shadow-xs">
-                    <span class="material-symbols-outlined text-[16px]">volunteer_activism</span>
-                    <span>Donasi Sekarang</span>
+                <a href="${donateUrl}" class="inline-flex items-center gap-1.5 bg-secondary hover:bg-emerald-600 text-white font-bold px-4 py-2 rounded-xl text-sm shadow-sm hover:shadow-md transition-all active:scale-95">
+                    <span class="material-symbols-outlined text-base">favorite</span> Donasi Sekarang
                 </a>
             </div>
         </div>
     </header>
 
-    <!-- Main Article Content -->
-    <main class="flex-1 max-w-3xl w-full mx-auto px-4 py-6 md:py-10 space-y-6">
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-6 md:py-10">
         
-        <!-- Category & Date Meta -->
-        <div class="flex flex-wrap items-center gap-2.5">
-            <span class="bg-primary-light text-primary border border-primary/20 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">${escapeHtml(category)}</span>
-            <span class="text-xs text-slate-500 font-medium flex items-center gap-1">
-                <span class="material-symbols-outlined text-[15px] text-slate-400">calendar_today</span>
-                ${escapeHtml(formattedDate)}
-            </span>
-            <span class="text-xs text-slate-400">•</span>
-            <span class="text-xs text-slate-500 font-medium flex items-center gap-1">
-                <span class="material-symbols-outlined text-[15px] text-slate-400">person</span>
-                ${escapeHtml(author)}
-            </span>
-        </div>
+        <!-- Breadcrumb & Category -->
+        <nav class="flex items-center gap-2 text-xs md:text-sm text-slate-500 mb-4 flex-wrap">
+            <a href="${origin}" class="hover:text-primary">Beranda</a>
+            <span>/</span>
+            <a href="${origin}/index.html#berita" class="hover:text-primary">Berita & Kegiatan</a>
+            <span>/</span>
+            <span class="text-primary font-semibold truncate max-w-xs">${escapeHtml(category)}</span>
+        </nav>
 
-        <!-- Article Title -->
-        <h1 class="text-2xl md:text-3xl lg:text-4xl font-extrabold text-slate-900 leading-tight font-sans">
-            ${escapeHtml(title)}
-        </h1>
-
-        <!-- Main Featured Image -->
-        <div class="rounded-2xl overflow-hidden shadow-md border border-slate-200 aspect-video relative bg-slate-100">
-            <img src="${rawImg.startsWith('data:image/') ? rawImg : absoluteImgUrl}" alt="${escapeHtml(title)}" class="w-full h-full object-cover" onerror="this.src='${origin}/assets/images/foto-utama-wiz.jpg'"/>
-        </div>
-
-        <!-- Share Bar (WhatsApp Story / Chat, FB, Twitter) -->
-        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
-            <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-[18px] text-primary">share</span>
-                Bagikan Berita Ini:
-            </span>
-            <div class="flex items-center gap-2">
-                <a href="https://api.whatsapp.com/send?text=*${encodeURIComponent(title)}*%0A%0A${encodeURIComponent(canonicalUrl)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 bg-[#25D366] hover:bg-[#1ebd5a] text-white text-xs font-bold px-3 py-1.5 rounded-xl transition-all shadow-xs">
-                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
-                    <span>WhatsApp</span>
-                </a>
-                <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(canonicalUrl)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 bg-[#1877F2] hover:bg-[#1464cc] text-white text-xs font-bold px-3 py-1.5 rounded-xl transition-all shadow-xs">
-                    <span>Facebook</span>
-                </a>
-                <button onclick="navigator.clipboard.writeText('${canonicalUrl}'); alert('Tautan berita berhasil disalin!');" class="inline-flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-xl transition-all cursor-pointer">
-                    <span class="material-symbols-outlined text-[15px]">link</span>
-                    <span>Salin Link</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Article Body Text -->
-        <div class="bg-white rounded-2xl p-6 md:p-8 border border-slate-200/80 shadow-xs space-y-4">
-            <div class="text-slate-800 text-base md:text-lg leading-relaxed whitespace-pre-line font-normal">
-                ${escapeHtml(article.content)}
-            </div>
-        </div>
-
-        <!-- Multi-photo Gallery (if available) -->
-        ${gallery.length > 0 ? `
-        <div class="bg-white rounded-2xl p-6 md:p-8 border border-slate-200/80 shadow-xs space-y-4">
-            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
-                <span class="material-symbols-outlined text-primary">collections</span>
-                Galeri Dokumentasi Kegiatan (${gallery.length} Foto)
-            </h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                ${gallery.map(img => `
-                <div class="rounded-xl overflow-hidden aspect-video bg-slate-100 border border-slate-200 group">
-                    <img src="${img.startsWith('data:image/') ? img : (img.startsWith('http') ? img : `${origin}/${img.startsWith('/') ? img.slice(1) : img}`)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Dokumentasi WIZ Babel" onerror="this.src='${origin}/assets/images/foto-utama-wiz.jpg'"/>
-                </div>`).join('')}
-            </div>
-        </div>` : ''}
-
-        <!-- ═══ QUICK CALL TO ACTION DONATION WIDGET ═══ -->
-        <div class="bg-gradient-to-br from-emerald-900 via-primary to-emerald-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-emerald-500/30 space-y-5">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-emerald-700/50 pb-5">
-                <div class="space-y-1">
-                    <span class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-300 uppercase tracking-wider">
-                        <span class="material-symbols-outlined text-sm">volunteer_activism</span>
-                        Tebar Manfaat &amp; Raih Berkah
+        <!-- Article Card -->
+        <article class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+            
+            <!-- Article Header -->
+            <div class="p-6 md:p-10 border-b border-slate-100">
+                <div class="flex items-center gap-2 mb-3 flex-wrap">
+                    <span class="bg-primary/10 text-primary font-bold text-xs px-3 py-1 rounded-full border border-primary/20">
+                        ${escapeHtml(category)}
                     </span>
-                    <h3 class="text-xl sm:text-2xl font-bold font-sans">Tersentuh dengan Kisah Kebaikan Ini?</h3>
-                    <p class="text-xs sm:text-sm text-emerald-100/90 max-w-xl">Salurkan infak dan sedekah terbaik Anda sekarang untuk mendukung program penyaluran dan pemberdayaan ummat berkelanjutan di Bangka Belitung.</p>
+                    <span class="text-xs text-slate-500 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm text-slate-400">calendar_today</span>
+                        ${escapeHtml(formattedDate)}
+                    </span>
+                    <span class="text-xs text-slate-500 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm text-slate-400">person</span>
+                        Oleh: <strong>${escapeHtml(author)}</strong>
+                    </span>
                 </div>
-                <div class="shrink-0">
-                    <a href="${donateUrl}" class="bg-accent hover:bg-[#e08418] text-white font-extrabold text-sm px-6 py-3.5 rounded-2xl transition-all shadow-lg flex items-center gap-2 hover:scale-105">
-                        <span class="material-symbols-outlined text-base">favorite</span>
-                        <span>Donasi Sekarang</span>
+
+                <h1 class="font-headline font-extrabold text-2xl md:text-4xl text-slate-900 leading-tight tracking-tight">
+                    ${escapeHtml(title)}
+                </h1>
+            </div>
+
+            <!-- Featured Cover Photo -->
+            <div class="relative bg-slate-900 aspect-[16/9] w-full overflow-hidden">
+                <img src="${absoluteImgUrl}" alt="${escapeHtml(title)}" class="w-full h-full object-cover"/>
+            </div>
+
+            <!-- Article Body -->
+            <div class="p-6 md:p-10 space-y-6 text-slate-700 text-base md:text-lg leading-relaxed font-normal">
+                ${rawContent.split(/\r?\n\r?\n/).filter(Boolean).map(p => `
+                    <p class="whitespace-pre-line leading-relaxed">${escapeHtml(p)}</p>
+                `).join('')}
+            </div>
+
+            <!-- Multi-Photo Gallery if exists -->
+            ${gallery.length > 0 ? `
+            <div class="p-6 md:p-10 bg-slate-50/70 border-t border-slate-200">
+                <h3 class="font-headline font-bold text-lg md:text-xl text-slate-900 mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">collections</span> Galeri Foto Dokumentasi
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    ${gallery.map((img, i) => `
+                        <div class="relative rounded-2xl overflow-hidden shadow-xs border border-slate-200 aspect-[4/3] bg-slate-200 group">
+                            <img src="${img.startsWith('http') || img.startsWith('/') ? img : `${origin}/${img}`}" alt="Dokumentasi ${i+1}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>` : ''}
+
+            <!-- Social Share Bar & Call to Action -->
+            <div class="p-6 md:p-10 bg-gradient-to-br from-primary/5 via-emerald-50/50 to-primary/5 border-t border-slate-200 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div>
+                    <h4 class="font-headline font-bold text-slate-900 text-lg">Bagikan Berita Kebaikan Ini</h4>
+                    <p class="text-sm text-slate-600 mt-0.5">Ajak keluarga dan kerabat untuk bersama mendukung program keummatan.</p>
+                </div>
+                <div class="flex items-center gap-3 flex-wrap w-full md:w-auto">
+                    <a href="https://api.whatsapp.com/send?text=${encodeURIComponent('*' + title + '*\n\n' + canonicalUrl)}" target="_blank" class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold px-5 py-3 rounded-2xl text-sm shadow-md hover:shadow-lg transition-all active:scale-95">
+                        <span class="material-symbols-outlined text-lg">share</span> Share ke WhatsApp
+                    </a>
+                    <a href="${donateUrl}" class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold px-5 py-3 rounded-2xl text-sm shadow-md hover:shadow-lg transition-all active:scale-95">
+                        <span class="material-symbols-outlined text-lg">volunteer_activism</span> Salurkan Donasi
                     </a>
                 </div>
             </div>
 
-            <!-- Quick Nominal Fast Links -->
-            <div class="flex flex-wrap items-center gap-2 pt-1">
-                <span class="text-xs text-emerald-200 font-semibold mr-1">Donasi Cepat:</span>
-                <a href="${donateUrl}${donateUrl.includes('?') ? '&' : '?'}amount=25000" class="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3 py-1.5 rounded-xl border border-white/20 transition-all">Rp 25.000</a>
-                <a href="${donateUrl}${donateUrl.includes('?') ? '&' : '?'}amount=50000" class="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3 py-1.5 rounded-xl border border-white/20 transition-all">Rp 50.000</a>
-                <a href="${donateUrl}${donateUrl.includes('?') ? '&' : '?'}amount=100000" class="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3 py-1.5 rounded-xl border border-white/20 transition-all">Rp 100.000</a>
-                <a href="${donateUrl}${donateUrl.includes('?') ? '&' : '?'}amount=250000" class="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3 py-1.5 rounded-xl border border-white/20 transition-all">Rp 250.000</a>
-            </div>
-        </div>
+        </article>
 
-        <!-- Back to Home / Portal Web -->
-        <div class="text-center pt-2">
-            <a href="${portalUrl}" class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline">
-                <span class="material-symbols-outlined text-base">arrow_back</span>
-                <span>Lihat Berita Lainnya di Portal Web WIZ Bangka Belitung</span>
+        <!-- Back to Portal Button -->
+        <div class="mt-8 text-center">
+            <a href="${portalUrl}" class="inline-flex items-center gap-2 text-primary font-bold hover:underline text-sm md:text-base">
+                <span class="material-symbols-outlined">arrow_back</span> Kembali ke Berita di Website Utama WIZ Babel
             </a>
         </div>
+
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 mt-12 py-6 text-center text-xs text-slate-500">
-        <p>© ${new Date().getFullYear()} Wahdah Inspirasi Zakat (WIZ) Bangka Belitung. All rights reserved.</p>
+    <footer class="bg-white border-t border-slate-200 mt-12 py-8 text-center text-xs text-slate-500">
+        <div class="max-w-4xl mx-auto px-4 space-y-2">
+            <p class="font-semibold text-slate-700">© 2026 Wahdah Inspirasi Zakat (WIZ) Kepulauan Bangka Belitung</p>
+            <p>Jl. RE. Martadinata, Kel. Opas Indah, Kec. Taman Sari, Kota Pangkalpinang | Hotline: 0852-6701-4475</p>
+        </div>
     </footer>
 
+    <!-- Affiliate Tracker Script (30-day Cookie Attribution) -->
+    <script>
+        (function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const ref = urlParams.get('ref') || urlParams.get('affiliate') || urlParams.get('perantara');
+            if (ref) {
+                try {
+                    localStorage.setItem('wiz_referral_code', ref.trim());
+                    localStorage.setItem('wiz_referral_timestamp', Date.now().toString());
+                    document.cookie = "wiz_ref=" + encodeURIComponent(ref.trim()) + "; path=/; max-age=" + (30*86400);
+                } catch(e) {}
+            }
+        })();
+    </script>
 </body>
 </html>`;
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, max-age=120, s-maxage=300, stale-while-revalidate=86400');
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=86400');
     return res.status(200).send(html);
 };
