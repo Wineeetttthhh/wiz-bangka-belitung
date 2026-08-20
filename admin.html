@@ -3045,19 +3045,42 @@
                 filenameEl.textContent = `✅ Menggunakan preset: ${label}`;
                 filenameEl.style.color = '#16a34a';
             }
-        async function compressImageFile(file, maxDim = 800, quality = 0.75) {
+        async function compressImageFile(file, maxDim = 720, quality = 0.72) {
+            const isHeic = file.name && (file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif') || (file.type && file.type.includes('heic')));
             let processFile = file;
-            const isHeic = file.name && (file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif') || file.type.includes('heic') || file.type.includes('heif'));
+
             if (isHeic && typeof heic2any !== 'undefined') {
                 try {
                     const convertedBlob = await heic2any({
                         blob: file,
                         toType: 'image/jpeg',
-                        quality: 0.85
+                        quality: 0.75
                     });
                     processFile = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
                 } catch(e) {
                     console.warn('[HEIC] Conversion error:', e);
+                }
+            }
+
+            // Use createImageBitmap if supported for instant hardware-accelerated resize
+            if (typeof createImageBitmap !== 'undefined' && !isHeic) {
+                try {
+                    const bmp = await createImageBitmap(processFile);
+                    let w = bmp.width;
+                    let h = bmp.height;
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+                        else       { w = Math.round(w * maxDim / h); h = maxDim; }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(bmp, 0, 0, w, h);
+                    bmp.close();
+                    return canvas.toDataURL('image/jpeg', quality);
+                } catch (e) {
+                    // Fallback to FileReader below
                 }
             }
 
@@ -3105,14 +3128,23 @@
             const prevContainer = document.getElementById(`${previewId}-container`);
             const inputEl = document.getElementById(inputId);
 
+            // 1. INSTANT PREVIEW (0ms)
+            const isHeic = file.name && (file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif'));
+            if (!isHeic && prevImg) {
+                const instantUrl = URL.createObjectURL(file);
+                prevImg.onerror = function() { this.src = 'assets/images/sedekah-beras-dhuafa.jpg'; };
+                prevImg.src = instantUrl;
+                if (prevContainer) prevContainer.classList.remove('hidden');
+            }
+
             if (filenameEl) {
-                filenameEl.textContent = '⏳ Membaca & memproses foto: ' + file.name + '...';
+                filenameEl.textContent = isHeic ? '⏳ Mengonversi format iPhone...' : '⏳ Memproses foto...';
                 filenameEl.style.color = '#0284c7';
             }
             if (uploadZone) uploadZone.style.opacity = '0.6';
 
             try {
-                const finalDataUrl = await compressImageFile(file, 800, 0.75);
+                const finalDataUrl = await compressImageFile(file, 720, 0.72);
                 if (finalDataUrl) {
                     if (inputEl) inputEl.value = finalDataUrl;
                     if (prevImg) {
@@ -3123,7 +3155,7 @@
 
                     const sizeKb = Math.round(finalDataUrl.length / 1024);
                     if (filenameEl) {
-                        filenameEl.textContent = `✅ Foto berhasil dipilih: ${file.name} (${sizeKb} KB)`;
+                        filenameEl.textContent = `✅ Foto siap (${file.name} — ${sizeKb} KB)`;
                         filenameEl.style.color = '#16a34a';
                     }
                 } else {
