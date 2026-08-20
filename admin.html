@@ -5487,8 +5487,18 @@
             checkAdminAuth();
             refreshAll();
             handleInitialUrlRouting();
-            if (wizStore.syncFromCloud) {
-                await wizStore.syncFromCloud();
+            
+            // Auto-broadcast all laptop admin data & images to cloud & production API
+            if (wizStore && wizStore.pushToCloud) {
+                try {
+                    await wizStore.pushToCloud();
+                    console.log('✅ Laptop admin data auto-pushed to Cloud!');
+                } catch(e) {}
+            }
+            if (wizStore && wizStore.syncFromCloud) {
+                try {
+                    await wizStore.syncFromCloud(true);
+                } catch(e) {}
                 refreshAll();
                 handleInitialUrlRouting();
             }
