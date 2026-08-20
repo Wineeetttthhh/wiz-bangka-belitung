@@ -1023,9 +1023,7 @@
                 category: 'Kegiatan & Penyaluran',
                 content: 'KOBA, BANGKA TENGAH — Wahdah Inspirasi Zakat (WIZ) Kepulauan Bangka Belitung kembali merealisasikan pilar program Dakwah melalui penyaluran Program Sedekah Beras Dai yang berlangsung di wilayah Koba, Kabupaten Bangka Tengah, pada Selasa (27/01/2026).\n\nProgram ini diselenggarakan sebagai langkah nyata WIZ Babel dalam memberikan apresiasi serta dukungan logistik kepada para dai yang berdedikasi membina umat dan mensyiarkan dakwah di pelosok daerah. Melalui bantuan pangan pokok berupa beras berkualitas, diharapkan kebutuhan harian para dai dan keluarganya dapat terpenuhi dengan baik.\n\nPenyaluran bantuan beras ini menjadi wujud kepedulian berkelanjutan untuk memastikan kelancaran aktivitas syiar Islam di lapangan. Kebutuhan dasar yang terpenuhi memberikan ketenangan bagi para dai dalam menjalankan peran strategis pembinaan spiritual dan sosial masyarakat di Bangka Tengah.\n\nPihak WIZ Bangka Belitung menyampaikan apresiasi dan terima kasih kepada seluruh donatur serta muhsinin yang telah menitipkan amanah infak dan sedekahnya. Semoga keberkahan senantiasa melimpah bagi para dermawan, serta menjadi pendorong semangat bagi para dai dalam memperkuat pembinaan umat.\n\nSalurkan Donasi Melalui Website Resmi WIZ Bangka Belitung:\nWebsite: wizbangkabelitung.or.id',
                 imageUrl: 'assets/images/sedekah-beras-dai.jpg',
-                gallery: [
-                    'assets/images/sedekah-beras-dai-koba.jpg'
-                ],
+                gallery: [],
                 eventDate: '2026-01-27T00:00:00.000Z',
                 status: 'published',
                 createdAt: '2026-01-27T08:00:00.000Z',
@@ -1779,7 +1777,7 @@
                         category: 'Kegiatan & Penyaluran',
                         content: 'KOBA, BANGKA TENGAH — Wahdah Inspirasi Zakat (WIZ) Kepulauan Bangka Belitung kembali merealisasikan pilar program Dakwah melalui penyaluran Program Sedekah Beras Dai yang berlangsung di wilayah Koba, Kabupaten Bangka Tengah, pada Selasa (27/01/2026).\n\nProgram ini diselenggarakan sebagai langkah nyata WIZ Babel dalam memberikan apresiasi serta dukungan logistik kepada para dai yang berdedikasi membina umat dan mensyiarkan dakwah di pelosok daerah. Melalui bantuan pangan pokok berupa beras berkualitas, diharapkan kebutuhan harian para dai dan keluarganya dapat terpenuhi dengan baik.\n\nPenyaluran bantuan beras ini menjadi wujud kepedulian berkelanjutan untuk memastikan kelancaran aktivitas syiar Islam di lapangan. Kebutuhan dasar yang terpenuhi memberikan ketenangan bagi para dai dalam menjalankan peran strategis pembinaan spiritual dan sosial masyarakat di Bangka Tengah.\n\nPihak WIZ Bangka Belitung menyampaikan apresiasi dan terima kasih kepada seluruh donatur serta muhsinin yang telah menitipkan amanah infak dan sedekahnya. Semoga keberkahan senantiasa melimpah bagi para dermawan, serta menjadi pendorong semangat bagi para dai dalam memperkuat pembinaan umat.\n\nSalurkan Donasi Melalui Website Resmi WIZ Bangka Belitung:\nWebsite: wizbangkabelitung.or.id',
                         imageUrl: 'assets/images/sedekah-beras-dai.jpg',
-                        gallery: ['assets/images/sedekah-beras-dai-koba.jpg'],
+                        gallery: [],
                         eventDate: '2026-01-27T00:00:00.000Z',
                         status: 'published',
                         createdAt: '2026-01-27T08:00:00.000Z',
