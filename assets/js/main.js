@@ -271,11 +271,15 @@ function initModalSystem() {
 
     // Expose globally for dynamic program card clicks later
     window.openDonationModal = function(programTitle) {
-        openModal('donation-modal');
-        const modalTitle = document.querySelector('#donation-modal .modal-header h3');
-        if (modalTitle && programTitle) {
-            modalTitle.textContent = `Donasi: ${programTitle}`;
+        const refCode = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || new URLSearchParams(window.location.search).get('perantara'));
+        let url = 'donasi.html';
+        if (programTitle && programTitle !== 'Donasi Umum') {
+            url += `?program=${encodeURIComponent(programTitle)}`;
+            if (refCode) url += `&ref=${encodeURIComponent(refCode)}`;
+        } else if (refCode) {
+            url += `?ref=${encodeURIComponent(refCode)}`;
         }
+        window.location.href = url;
     };
 }
 
