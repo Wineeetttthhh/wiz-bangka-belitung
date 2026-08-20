@@ -158,7 +158,7 @@ module.exports = async function handler(req, res) {
         let master = null;
         try {
             const fbData = await firebaseGet('system_state/master_bundle');
-            if (fbData && (fbData.donations || fbData.site_settings || fbData.site_images)) {
+            if (fbData && (fbData.donations || fbData.referrals || fbData.news || fbData.site_settings || fbData.site_images || fbData.disbursements)) {
                 master = fbData;
                 console.log('[Sync API] Loaded master bundle from Firebase Firestore.');
             }
@@ -195,7 +195,7 @@ module.exports = async function handler(req, res) {
             let master = null;
             try {
                 const fbData = await firebaseGet('system_state/master_bundle');
-                if (fbData && (fbData.donations || fbData.site_settings)) master = fbData;
+                if (fbData && (fbData.donations || fbData.referrals || fbData.news || fbData.site_settings)) master = fbData;
             } catch(e) {}
             if (!master) master = loadCanonicalSeed();
 

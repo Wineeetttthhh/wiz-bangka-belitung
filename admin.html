@@ -2157,6 +2157,13 @@
             if (!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) toggleSidebar();
 
             refreshAll();
+
+            // Background sync latest data from cloud on section open
+            if (window.wizStore && typeof wizStore.syncFromCloud === 'function') {
+                wizStore.syncFromCloud(true).then(() => {
+                    refreshAll();
+                }).catch(() => {});
+            }
         }
 
         function showModal(modalId) {

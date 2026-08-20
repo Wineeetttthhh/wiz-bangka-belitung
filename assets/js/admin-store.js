@@ -2312,6 +2312,14 @@
                 } catch(e) {}
             }
 
+            try {
+                if (typeof pushToCloud === 'function') {
+                    await pushToCloud();
+                }
+            } catch(e) {
+                console.warn('[Referrals] pushToCloud error:', e);
+            }
+
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             broadcastSync('NEW_REFERRAL', newRef);
             return newRef;
@@ -2362,6 +2370,14 @@
                 } catch(e) {}
             }
 
+            try {
+                if (typeof pushToCloud === 'function') {
+                    await pushToCloud();
+                }
+            } catch(e) {
+                console.warn('[Referrals] pushToCloud error:', e);
+            }
+
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return list[idx];
         },
@@ -2383,6 +2399,14 @@
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 await window.wizFirebase.remove('referrals', strId);
                 await window.wizFirebase.upsert('deleted_ref_ids', { key: strId, deletedAt: new Date().toISOString() });
+            }
+
+            try {
+                if (typeof pushToCloud === 'function') {
+                    await pushToCloud();
+                }
+            } catch(e) {
+                console.warn('[Referrals] pushToCloud error:', e);
             }
 
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
@@ -2417,6 +2441,13 @@
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 await window.wizFirebase.insert('referral_payouts', newPayout);
             }
+
+            try {
+                if (typeof pushToCloud === 'function') {
+                    await pushToCloud();
+                }
+            } catch(e) {}
+
             return newPayout;
         },
 
@@ -2433,6 +2464,13 @@
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 await window.wizFirebase.set('referral_payouts', payoutId, payouts[idx]);
             }
+
+            try {
+                if (typeof pushToCloud === 'function') {
+                    await pushToCloud();
+                }
+            } catch(e) {}
+
             return payouts[idx];
         },
 
@@ -2449,6 +2487,12 @@
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 await window.wizFirebase.remove('referral_payouts', payoutId);
             }
+
+            try {
+                if (typeof pushToCloud === 'function') {
+                    await pushToCloud();
+                }
+            } catch(e) {}
         }
     };
 

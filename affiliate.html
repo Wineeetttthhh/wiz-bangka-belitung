@@ -716,6 +716,12 @@
                     sessionStorage.setItem('wiz_active_ref_id', refCode);
                     localStorage.setItem('wiz_active_ref_id', refCode);
 
+                    try {
+                        if (wizStore.pushToCloud) {
+                            await wizStore.pushToCloud();
+                        }
+                    } catch(e) {}
+
                     alert(`✅ ${res.message}\n\nKode Referral Anda: ${refCode}\nPIN Login Anda: ${ref.pin}`);
                     activateMemberState(ref);
                 } else {
