@@ -1074,6 +1074,9 @@
                     <p id="today-quote-source" class="text-xs font-bold text-primary"></p>
                 </div>
                 <div class="flex md:flex-col gap-2 shrink-0">
+                    <button type="button" onclick="downloadAdminFlyerToday()" class="px-3 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer">
+                        <span class="material-symbols-outlined text-xs">download</span> Unduh Flyer
+                    </button>
                     <button type="button" onclick="copyTodayQuoteText()" class="px-3 py-2 bg-surface-container-high hover:bg-surface-container-highest text-on-surface rounded-lg text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer">
                         <span class="material-symbols-outlined text-xs">content_copy</span> Salin Caption
                     </button>
@@ -4978,7 +4981,10 @@
                         ${statusBadge}
                     </td>
                     <td class="p-md text-right space-x-1 whitespace-nowrap">
-                        <button type="button" onclick="copyQuoteShareTemplate('${q.id}')" class="px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-caption text-caption font-bold transition-colors inline-flex items-center gap-1 cursor-pointer" title="Salin template share WA">
+                        <button type="button" onclick="downloadAdminFlyer('${q.id}')" class="px-2 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 font-caption text-caption font-bold transition-colors inline-flex items-center gap-0.5 cursor-pointer" title="Unduh file flyer">
+                            <span class="material-symbols-outlined text-[14px]">download</span> Unduh
+                        </button>
+                        <button type="button" onclick="shareAdminQuoteWA('${q.id}')" class="px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-caption text-caption font-bold transition-colors inline-flex items-center gap-1 cursor-pointer" title="Bagikan ke WA">
                             <span class="material-symbols-outlined text-[14px]">share</span> Share
                         </button>
                         <button type="button" onclick="toggleQuoteStatus('${q.id}')" class="px-2.5 py-1.5 rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary font-caption text-caption font-semibold transition-colors cursor-pointer" title="Ubah status aktif/draft">
@@ -5091,21 +5097,74 @@
             refreshAll();
         }
 
+        async function shareAdminQuoteWA(id) {
+            const q = wizStore.quotes ? wizStore.quotes.getById(id) : null;
+            if (!q) return;
+
+            const rawText = (q.text || '').trim();
+            const rawSource = (q.source || '').trim();
+
+            let messageParts = [`*INSPIRASI & DAKWAH HARIAN WIZ BABEL*`];
+            if (rawText && rawText !== '.') messageParts.push(`\n${rawText}`);
+            if (rawSource && rawSource !== 'WIZ Babel' && rawSource !== '-' && rawSource !== '.') messageParts.push(`\n— *${rawSource}*`);
+            messageParts.push(`\n_Mari raih keberkahan hari ini dengan bersedekah melalui Wahdah Inspirasi Zakat Bangka Belitung:_\nhttps://www.wizbangkabelitung.or.id/donasi.html`);
+
+            const fullText = messageParts.join('\n');
+
+            if (navigator.share && navigator.canShare && q.imageUrl) {
+                try {
+                    const resp = await fetch(q.imageUrl);
+                    const blob = await resp.blob();
+                    const file = new File([blob], `flyer-wiz-${q.date || 'today'}.jpg`, { type: blob.type || 'image/jpeg' });
+                    if (navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            title: 'Flyer Dakwah Harian WIZ Babel',
+                            text: fullText,
+                            files: [file]
+                        });
+                        return;
+                    }
+                } catch(e) {
+                    if (e.name === 'AbortError') return;
+                }
+            }
+
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(fullText)}`, '_blank');
+        }
+
+        function downloadAdminFlyerToday() {
+            const today = wizStore.quotes ? wizStore.quotes.getToday() : null;
+            if (!today) return;
+            downloadAdminFlyer(today.id);
+        }
+
+        function downloadAdminFlyer(id) {
+            const q = wizStore.quotes ? wizStore.quotes.getById(id) : wizStore.quotes.getToday();
+            if (!q || !q.imageUrl) {
+                alert('Gambar flyer tidak ditemukan.');
+                return;
+            }
+            const a = document.createElement('a');
+            a.href = q.imageUrl;
+            a.download = `Flyer-WIZ-Dakwah-${q.date || 'hari-ini'}.jpg`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
         function copyTodayQuoteText() {
             const today = wizStore.quotes ? wizStore.quotes.getToday() : null;
             if (!today) return;
-            const shareText = `*INSPIRASI & DAKWAH HARIAN WIZ BABEL*\n\n"${today.text}"\n\n— *${today.source}*\n\n_Mari raih keberkahan hari ini dengan bersedekah melalui Wahdah Inspirasi Zakat Bangka Belitung:_\nhttps://www.wizbangkabelitung.or.id/donasi.html`;
-            navigator.clipboard.writeText(shareText).then(() => {
-                alert('✅ Teks quote & template share berhasil disalin ke papan klip!');
-            });
-        }
+            const rawText = (today.text || '').trim();
+            const rawSource = (today.source || '').trim();
 
-        function copyQuoteShareTemplate(id) {
-            const q = wizStore.quotes ? wizStore.quotes.getById(id) : null;
-            if (!q) return;
-            const shareText = `*INSPIRASI & DAKWAH HARIAN WIZ BABEL*\n\n"${q.text}"\n\n— *${q.source}*\n\n_Mari raih keberkahan hari ini dengan bersedekah melalui Wahdah Inspirasi Zakat Bangka Belitung:_\nhttps://www.wizbangkabelitung.or.id/donasi.html`;
-            navigator.clipboard.writeText(shareText).then(() => {
-                alert('✅ Template pesan WhatsApp berhasil disalin!');
+            let messageParts = [`*INSPIRASI & DAKWAH HARIAN WIZ BABEL*`];
+            if (rawText && rawText !== '.') messageParts.push(`\n${rawText}`);
+            if (rawSource && rawSource !== 'WIZ Babel' && rawSource !== '-' && rawSource !== '.') messageParts.push(`\n— *${rawSource}*`);
+            messageParts.push(`\n_Mari raih keberkahan hari ini dengan bersedekah melalui Wahdah Inspirasi Zakat Bangka Belitung:_\nhttps://www.wizbangkabelitung.or.id/donasi.html`);
+
+            navigator.clipboard.writeText(messageParts.join('\n')).then(() => {
+                alert('✅ Teks caption & template donasi berhasil disalin!');
             });
         }
 

@@ -467,13 +467,17 @@
                         <p id="aff-today-quote-source" class="text-xs font-bold text-primary italic"></p>
                         
                         <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
-                            <button type="button" onclick="shareAffiliateTodayQuoteWA()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-transform hover:scale-105 cursor-pointer">
+                            <button type="button" onclick="shareAffiliateTodayQuoteWA()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-transform hover:scale-105 cursor-pointer">
                                 <span class="material-symbols-outlined text-base">share</span>
-                                <span>Bagikan ke WhatsApp (Sematkan ID Saya)</span>
+                                <span>Bagikan Flyer &amp; Link ke WhatsApp</span>
                             </button>
-                            <button type="button" onclick="copyAffiliateTodayQuote()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer" title="Salin Caption & Link">
+                            <button type="button" onclick="downloadAffiliateFlyerToday()" class="bg-primary/10 hover:bg-primary/20 text-primary px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer" title="Unduh File Gambar Flyer">
+                                <span class="material-symbols-outlined text-base">download</span>
+                                <span>Unduh Flyer</span>
+                            </button>
+                            <button type="button" onclick="copyAffiliateTodayQuote()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer" title="Salin Caption & Link">
                                 <span class="material-symbols-outlined text-base">content_copy</span>
-                                <span>Salin Caption</span>
+                                <span>Salin</span>
                             </button>
                         </div>
                     </div>
@@ -953,12 +957,15 @@
                         </div>
                         <p class="text-xs text-slate-700 font-medium line-clamp-2">${rawT && rawT !== '.' ? rawT : 'Flyer Dakwah Harian WIZ'}</p>
                         ${q.source && q.source !== 'WIZ Babel' && q.source !== '-' ? `<p class="text-[10px] text-primary font-bold italic">— ${q.source}</p>` : ''}
-                        <div class="pt-1 flex items-center gap-2">
+                        <div class="pt-1 flex items-center gap-1.5">
                             <button type="button" onclick="shareAffiliateQuoteWA('${q.id}')" class="flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-xs py-1.5 rounded-lg flex items-center justify-center gap-1 transition-colors cursor-pointer">
                                 <span class="material-symbols-outlined text-xs">share</span>
                                 <span>Share WA</span>
                             </button>
-                            <button type="button" onclick="copyAffiliateQuote('${q.id}')" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-xs flex items-center justify-center transition-colors cursor-pointer" title="Salin Teks & Link">
+                            <button type="button" onclick="downloadAffiliateFlyer('${q.id}')" class="p-1.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg font-bold text-xs flex items-center justify-center transition-colors cursor-pointer" title="Unduh Gambar Flyer">
+                                <span class="material-symbols-outlined text-xs">download</span>
+                            </button>
+                            <button type="button" onclick="copyAffiliateQuote('${q.id}')" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-xs flex items-center justify-center transition-colors cursor-pointer" title="Salin Teks & Link">
                                 <span class="material-symbols-outlined text-xs">content_copy</span>
                             </button>
                         </div>
@@ -977,7 +984,32 @@
             shareAffiliateQuoteWA(today.id);
         }
 
-        function shareAffiliateQuoteWA(quoteId) {
+        // Helper to convert Image URL / Base64 to a File for native sharing
+        async function urlOrBase64ToFile(imageUrl, filename = 'flyer-dakwah-wiz.jpg') {
+            if (!imageUrl) return null;
+            try {
+                if (imageUrl.startsWith('data:image/')) {
+                    const arr = imageUrl.split(',');
+                    const mime = arr[0].match(/:(.*?);/)[1];
+                    const bstr = atob(arr[1]);
+                    let n = bstr.length;
+                    const u8arr = new Uint8Array(n);
+                    while (n--) {
+                        u8arr[n] = bstr.charCodeAt(n);
+                    }
+                    return new File([u8arr], filename, { type: mime });
+                } else {
+                    const resp = await fetch(imageUrl);
+                    const blob = await resp.blob();
+                    return new File([blob], filename, { type: blob.type || 'image/jpeg' });
+                }
+            } catch (e) {
+                console.warn('Could not convert image to file:', e);
+                return null;
+            }
+        }
+
+        async function shareAffiliateQuoteWA(quoteId) {
             if (!currentLoggedAffiliate) {
                 alert('Silakan login ke akun Affiliate Anda terlebih dahulu agar ID referral Anda otomatis terpasang!');
                 showAuthModal('login');
@@ -1000,9 +1032,48 @@
             messageParts.push(`\n_Mari bersama raih keberkahan hari ini dengan menyalurkan sedekah & infak terbaik melalui Wahdah Inspirasi Zakat Bangka Belitung:_\n${donationUrl}`);
 
             const fullText = messageParts.join('\n');
-            
+
+            // 1. Try Native Web Share API (Passes actual Flyer Image + Caption directly into WhatsApp on Android / iOS)
+            if (navigator.share && navigator.canShare && q.imageUrl) {
+                try {
+                    const file = await urlOrBase64ToFile(q.imageUrl, `flyer-wiz-${q.date || 'today'}.jpg`);
+                    if (file && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            title: 'Inspirasi & Flyer Dakwah WIZ Babel',
+                            text: fullText,
+                            files: [file]
+                        });
+                        return;
+                    }
+                } catch (err) {
+                    if (err.name === 'AbortError') return; // User closed share sheet
+                    console.log('Native share fallback to WA URL:', err);
+                }
+            }
+
+            // 2. Fallback to WhatsApp URL directly (Desktop / Web without file share)
             const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(fullText)}`;
             window.open(waUrl, '_blank');
+        }
+
+        function downloadAffiliateFlyerToday() {
+            const today = wizStore.quotes ? wizStore.quotes.getToday() : null;
+            if (!today) return;
+            downloadAffiliateFlyer(today.id);
+        }
+
+        function downloadAffiliateFlyer(quoteId) {
+            const q = wizStore.quotes ? wizStore.quotes.getById(quoteId) : wizStore.quotes.getToday();
+            if (!q || !q.imageUrl) {
+                alert('Gambar flyer tidak ditemukan.');
+                return;
+            }
+            const a = document.createElement('a');
+            a.href = q.imageUrl;
+            a.download = `Flyer-WIZ-Dakwah-${q.date || 'hari-ini'}.jpg`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         }
 
         function copyAffiliateTodayQuote() {

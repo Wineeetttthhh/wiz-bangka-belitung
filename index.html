@@ -485,7 +485,11 @@
                 <div class="pt-4 border-t border-outline-variant/20 flex flex-wrap gap-2.5">
                     <button type="button" onclick="sharePublicQuoteWA()" class="flex-1 min-w-[140px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs md:text-sm py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer">
                         <span class="material-symbols-outlined text-base">share</span>
-                        <span>Bagikan ke WA</span>
+                        <span>Bagikan Flyer ke WA</span>
+                    </button>
+                    <button type="button" onclick="downloadPublicFlyer()" class="px-4 py-3 bg-primary/10 hover:bg-primary/20 text-primary font-bold text-xs md:text-sm rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer" title="Unduh File Gambar Flyer">
+                        <span class="material-symbols-outlined text-base">download</span>
+                        <span>Unduh Flyer</span>
                     </button>
                     <button type="button" onclick="copyPublicQuoteText()" class="px-4 py-3 bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-bold text-xs md:text-sm rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer" title="Salin Caption & Link">
                         <span class="material-symbols-outlined text-base">content_copy</span>
@@ -1136,7 +1140,32 @@
         });
     }
 
-    function sharePublicQuoteWA() {
+    // Helper to convert Image URL / Base64 to a File for native sharing
+    async function urlOrBase64ToFile(imageUrl, filename = 'flyer-dakwah-wiz.jpg') {
+        if (!imageUrl) return null;
+        try {
+            if (imageUrl.startsWith('data:image/')) {
+                const arr = imageUrl.split(',');
+                const mime = arr[0].match(/:(.*?);/)[1];
+                const bstr = atob(arr[1]);
+                let n = bstr.length;
+                const u8arr = new Uint8Array(n);
+                while (n--) {
+                    u8arr[n] = bstr.charCodeAt(n);
+                }
+                return new File([u8arr], filename, { type: mime });
+            } else {
+                const resp = await fetch(imageUrl);
+                const blob = await resp.blob();
+                return new File([blob], filename, { type: blob.type || 'image/jpeg' });
+            }
+        } catch (e) {
+            console.warn('Could not convert image to file:', e);
+            return null;
+        }
+    }
+
+    async function sharePublicQuoteWA() {
         const q = window.wizStore && window.wizStore.quotes ? window.wizStore.quotes.getToday() : null;
         if (!q) return;
         const refParam = new URLSearchParams(window.location.search).get('ref');
@@ -1153,7 +1182,40 @@
 
         const fullMessage = messageParts.join('\n');
 
+        // 1. Try Native Web Share API (Passes actual Flyer Image + Caption directly into WhatsApp on Android / iOS)
+        if (navigator.share && navigator.canShare && q.imageUrl) {
+            try {
+                const file = await urlOrBase64ToFile(q.imageUrl, `flyer-wiz-${q.date || 'today'}.jpg`);
+                if (file && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        title: 'Inspirasi & Flyer Dakwah WIZ Babel',
+                        text: fullMessage,
+                        files: [file]
+                    });
+                    return;
+                }
+            } catch (err) {
+                if (err.name === 'AbortError') return; // User closed share sheet
+                console.log('Native share fallback to WA URL:', err);
+            }
+        }
+
+        // 2. Fallback to WhatsApp URL directly (Desktop / Web without file share)
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(fullMessage)}`, '_blank');
+    }
+
+    function downloadPublicFlyer() {
+        const q = window.wizStore && window.wizStore.quotes ? window.wizStore.quotes.getToday() : null;
+        if (!q || !q.imageUrl) {
+            alert('Gambar flyer tidak ditemukan.');
+            return;
+        }
+        const a = document.createElement('a');
+        a.href = q.imageUrl;
+        a.download = `Flyer-WIZ-Dakwah-${q.date || 'hari-ini'}.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
