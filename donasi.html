@@ -409,26 +409,6 @@
                             <textarea id="donor-message" rows="2" class="w-full bg-surface border border-outline-variant rounded-lg px-3.5 py-2.5 font-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="Tuliskan doa atau niat donasi Anda..."></textarea>
                         </div>
 
-                        <!-- Upload Bukti Transfer (Opsional) -->
-                        <div class="pt-2 border-t border-outline-variant/30">
-                            <label class="block font-label-md text-label-md text-on-surface font-semibold mb-1 flex items-center justify-between">
-                                <span>Upload Bukti Transfer (Opsional)</span>
-                                <span class="text-[11px] text-on-surface-variant font-normal">Format JPG/PNG</span>
-                            </label>
-                            <div class="flex items-center gap-3">
-                                <label for="donor-proof-file" class="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-2 bg-surface-container border border-outline-variant hover:border-primary rounded-xl text-xs font-bold text-on-surface transition-colors shadow-xs">
-                                    <span class="material-symbols-outlined text-[16px] text-primary">add_photo_alternate</span>
-                                    <span id="proof-upload-label">Pilih Foto Bukti</span>
-                                </label>
-                                <input type="file" id="donor-proof-file" accept="image/*" onchange="handleProofImageUpload(event)" class="hidden">
-                                <div id="proof-preview-container" class="hidden items-center gap-2">
-                                    <img id="proof-preview-img" src="" alt="Bukti Transfer" class="w-10 h-10 object-cover rounded-lg border border-outline-variant">
-                                    <button type="button" onclick="removeProofImage()" class="text-rose-600 hover:text-rose-800 text-xs font-bold flex items-center gap-0.5">
-                                        <span class="material-symbols-outlined text-sm">delete</span> Hapus
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
 
                         <!-- Recurring Donor Option -->
                         <div id="recurring-donor-section" class="hidden p-md bg-emerald-50/70 border border-emerald-200/80 rounded-xl">
@@ -1026,61 +1006,7 @@
             state.donorName = nameInput.value;
         }
 
-        function handleProofImageUpload(e) {
-            const file = e.target.files[0];
-            if (!file) return;
 
-            // Compress and convert to base64
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const maxDim = 800;
-                    let width = img.width;
-                    let height = img.height;
-                    if (width > height && width > maxDim) {
-                        height = Math.round((height * maxDim) / width);
-                        width = maxDim;
-                    } else if (height > maxDim) {
-                        width = Math.round((width * maxDim) / height);
-                        height = maxDim;
-                    }
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-                    state.proofImage = dataUrl;
-
-                    const previewImg = document.getElementById('proof-preview-img');
-                    const previewContainer = document.getElementById('proof-preview-container');
-                    const uploadLabel = document.getElementById('proof-upload-label');
-                    if (previewImg) previewImg.src = dataUrl;
-                    if (previewContainer) {
-                        previewContainer.classList.remove('hidden');
-                        previewContainer.classList.add('flex');
-                    }
-                    if (uploadLabel) uploadLabel.textContent = 'Ubah Foto Bukti';
-                };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function removeProofImage() {
-            state.proofImage = '';
-            const fileInput = document.getElementById('donor-proof-file');
-            if (fileInput) fileInput.value = '';
-            const previewContainer = document.getElementById('proof-preview-container');
-            const uploadLabel = document.getElementById('proof-upload-label');
-            if (previewContainer) {
-                previewContainer.classList.remove('flex');
-                previewContainer.classList.add('hidden');
-            }
-            if (uploadLabel) uploadLabel.textContent = 'Pilih Foto Bukti';
-        }
 
         async function handleCheckoutSubmit(e) {
             e.preventDefault();
@@ -1140,7 +1066,6 @@
                     category: state.type === 'Infak Terikat' ? state.category : 'Infak Umum',
                     amount: state.nominal,
                     method: state.method,
-                    proofImage: state.proofImage || '',
                     notes: state.donorMessage,
                     referralId: refId,
                     referralRate: refRate,
