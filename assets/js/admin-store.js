@@ -121,7 +121,8 @@
 
     const DEFAULT_REFERRALS = [
         {
-            id: 'ref-1',
+            id: 'WIZ-20260820-001',
+            code: 'WIZ-20260820-001',
             name: 'Ustadz Ahmad Hidayat',
             phone: '081271234567',
             bankName: 'Bank Syariah Indonesia (BSI)',
@@ -133,7 +134,8 @@
             createdAt: new Date().toISOString()
         },
         {
-            id: 'ref-2',
+            id: 'WIZ-20260820-002',
+            code: 'WIZ-20260820-002',
             name: 'Ibu Fatimah Az-Zahra',
             phone: '082198765432',
             bankName: 'Bank Muamalat',
@@ -2159,10 +2161,36 @@
             };
         },
 
+        generateAffiliateId(createdAtDate = new Date()) {
+            const d = createdAtDate instanceof Date ? createdAtDate : new Date(createdAtDate || Date.now());
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            const datePrefix = `WIZ-${yyyy}${mm}${dd}`; // Format: WIZ-YYYYMMDD (e.g. WIZ-20260820)
+            
+            const list = getStore(STORAGE_KEYS.REFERRALS) || [];
+            let maxSeq = 0;
+            list.forEach(r => {
+                const idToCheck = String(r.code || r.id || '');
+                if (idToCheck.startsWith(datePrefix)) {
+                    const parts = idToCheck.split('-');
+                    const seq = parseInt(parts[parts.length - 1], 10);
+                    if (!isNaN(seq) && seq > maxSeq) {
+                        maxSeq = seq;
+                    }
+                }
+            });
+            const nextSeq = String(maxSeq + 1).padStart(3, '0');
+            return `${datePrefix}-${nextSeq}`; // e.g. WIZ-20260820-001
+        },
+
         async add(data) {
             const list = getStore(STORAGE_KEYS.REFERRALS) || [];
+            const regDate = data.createdAt ? new Date(data.createdAt) : new Date();
+            const autoCode = data.code || data.id || this.generateAffiliateId(regDate);
             const newRef = {
-                id: data.id || generateId(),
+                id: data.id || autoCode,
+                code: autoCode,
                 name: data.name,
                 phone: data.phone || '-',
                 bankName: data.bankName || '-',
@@ -2171,14 +2199,13 @@
                 defaultRate: Number(data.defaultRate) || 6,
                 pin: data.pin || (data.phone ? data.phone.slice(-4) : '1234'),
                 status: data.status || 'active',
-                code: data.code || ('REF-' + Math.random().toString(36).substring(2, 7).toUpperCase()),
                 notes: data.notes || '',
-                createdAt: new Date().toISOString()
+                createdAt: regDate.toISOString()
             };
             list.unshift(newRef);
             setStore(STORAGE_KEYS.REFERRALS, list);
 
-            activityLog.add('referral', `Perantara/Referal baru "${newRef.name}" ditambahkan (Hak ${newRef.defaultRate}%).`, data.createdBy || 'Admin');
+            activityLog.add('referral', `Perantara/Affiliate baru "${newRef.name}" (ID: ${newRef.code}) ditambahkan (Hak ${newRef.defaultRate}%).`, data.createdBy || 'Admin');
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 await window.wizFirebase.insert('referrals', newRef);

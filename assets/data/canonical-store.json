@@ -115,7 +115,8 @@
   ],
   "referrals": [
     {
-      "id": "ref-1",
+      "id": "WIZ-20260820-001",
+      "code": "WIZ-20260820-001",
       "name": "Ustadz Ahmad Hidayat",
       "phone": "081271234567",
       "bankName": "Bank Syariah Indonesia (BSI)",
@@ -127,7 +128,8 @@
       "createdAt": "2026-08-20T00:00:00.000Z"
     },
     {
-      "id": "ref-2",
+      "id": "WIZ-20260820-002",
+      "code": "WIZ-20260820-002",
       "name": "Ibu Fatimah Az-Zahra",
       "phone": "082198765432",
       "bankName": "Bank Muamalat",
