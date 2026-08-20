@@ -986,6 +986,50 @@
                 status: 'published',
                 createdAt: '2026-03-14T08:00:00.000Z',
                 author: 'Super Admin 1 (WIZ Babel)'
+            },
+            {
+                id: 'news-tebar-iftar-ramadan',
+                title: 'Tebar Iftar Ramadan Makin Bahagia Bersama WIZ Bangka Belitung',
+                category: 'Kegiatan & Penyaluran',
+                content: 'Alhamdulillah, Wahdah Inspirasi Zakat (WIZ) Bangka Belitung menyalurkan ratusan paket buka puasa (Tebar Iftar) penuh gizi dan kebahagiaan untuk santri tahfidz, dhuafa, dan masyarakat kurang mampu di berbagai pelosok Bangka Belitung.\n\nKegiatan ini merupakan komitmen berkelanjutan WIZ Babel untuk menghadirkan senyum dan kebahagiaan di bulan suci Ramadan.\n\nTerima kasih kepada seluruh donatur dan sahabat inspirasi atas kepercayaannya.',
+                imageUrl: 'assets/images/tebar-iftar.jpg',
+                gallery: [
+                    'assets/images/tebar-iftar-1.jpg',
+                    'assets/images/tebar-iftar-2.jpg',
+                    'assets/images/tebar-iftar-3.jpg'
+                ],
+                eventDate: '2026-08-20T00:00:00.000Z',
+                status: 'published',
+                createdAt: '2026-08-20T05:00:00.000Z',
+                author: 'Admin WIZ Babel'
+            },
+            {
+                id: 'news-tebar-sembako-nusantara',
+                title: 'Tebar Sembako Nusantara Sambut Keberkahan',
+                category: 'Kegiatan & Penyaluran',
+                content: 'WIZ Bangka Belitung melaksanakan kegiatan sosial berupa penyaluran paket sembako untuk keluarga pra-sejahtera dan lansia dhuafa di Bangka Belitung.',
+                imageUrl: 'assets/images/sedekah-beras-dhuafa.jpg',
+                gallery: [
+                    'assets/images/foto-utama-wiz.jpg'
+                ],
+                eventDate: '2026-02-12T00:00:00.000Z',
+                status: 'published',
+                createdAt: '2026-02-12T08:00:00.000Z',
+                author: 'Admin WIZ Babel'
+            },
+            {
+                id: 'news-sedekah-beras-dai',
+                title: 'Sedekah Beras Dai',
+                category: 'Kegiatan & Penyaluran',
+                content: 'Wahdah Inspirasi Zakat Bangka Belitung melaksanakan program sedekah beras dai di Wilayah Bangka Belitung untuk mendukung ketahanan pangan para dai dan guru ngaji yang berdakwah di pelosok daerah.',
+                imageUrl: 'assets/images/tebar-iftar-2.jpg',
+                gallery: [
+                    'assets/images/sedekah-beras-dhuafa.jpg'
+                ],
+                eventDate: '2026-01-27T00:00:00.000Z',
+                status: 'published',
+                createdAt: '2026-01-27T08:00:00.000Z',
+                author: 'Admin WIZ Babel'
             }
         ];
 
@@ -1704,6 +1748,42 @@
                         status: 'published',
                         createdAt: '2026-03-14T08:00:00.000Z',
                         author: 'Super Admin 1 (WIZ Babel)'
+                    },
+                    {
+                        id: 'news-tebar-iftar-ramadan',
+                        title: 'Tebar Iftar Ramadan Makin Bahagia Bersama WIZ Bangka Belitung',
+                        category: 'Kegiatan & Penyaluran',
+                        content: 'Alhamdulillah, Wahdah Inspirasi Zakat (WIZ) Bangka Belitung menyalurkan ratusan paket buka puasa (Tebar Iftar) penuh gizi dan kebahagiaan untuk santri tahfidz, dhuafa, dan masyarakat kurang mampu di berbagai pelosok Bangka Belitung.\n\nKegiatan ini merupakan komitmen berkelanjutan WIZ Babel untuk menghadirkan senyum dan kebahagiaan di bulan suci Ramadan.\n\nTerima kasih kepada seluruh donatur dan sahabat inspirasi atas kepercayaannya.',
+                        imageUrl: 'assets/images/tebar-iftar.jpg',
+                        gallery: ['assets/images/tebar-iftar-1.jpg', 'assets/images/tebar-iftar-2.jpg', 'assets/images/tebar-iftar-3.jpg'],
+                        eventDate: '2026-08-20T00:00:00.000Z',
+                        status: 'published',
+                        createdAt: '2026-08-20T05:00:00.000Z',
+                        author: 'Admin WIZ Babel'
+                    },
+                    {
+                        id: 'news-tebar-sembako-nusantara',
+                        title: 'Tebar Sembako Nusantara Sambut Keberkahan',
+                        category: 'Kegiatan & Penyaluran',
+                        content: 'WIZ Bangka Belitung melaksanakan kegiatan sosial berupa penyaluran paket sembako untuk keluarga pra-sejahtera dan lansia dhuafa di Bangka Belitung.',
+                        imageUrl: 'assets/images/sedekah-beras-dhuafa.jpg',
+                        gallery: ['assets/images/foto-utama-wiz.jpg'],
+                        eventDate: '2026-02-12T00:00:00.000Z',
+                        status: 'published',
+                        createdAt: '2026-02-12T08:00:00.000Z',
+                        author: 'Admin WIZ Babel'
+                    },
+                    {
+                        id: 'news-sedekah-beras-dai',
+                        title: 'Sedekah Beras Dai',
+                        category: 'Kegiatan & Penyaluran',
+                        content: 'Wahdah Inspirasi Zakat Bangka Belitung melaksanakan program sedekah beras dai di Wilayah Bangka Belitung untuk mendukung ketahanan pangan para dai dan guru ngaji yang berdakwah di pelosok daerah.',
+                        imageUrl: 'assets/images/tebar-iftar-2.jpg',
+                        gallery: ['assets/images/sedekah-beras-dhuafa.jpg'],
+                        eventDate: '2026-01-27T00:00:00.000Z',
+                        status: 'published',
+                        createdAt: '2026-01-27T08:00:00.000Z',
+                        author: 'Admin WIZ Babel'
                     }
                 ];
                 setStore(STORAGE_KEYS.NEWS, raw);
