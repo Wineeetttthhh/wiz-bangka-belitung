@@ -2012,8 +2012,8 @@
     </div>
 
     <!-- Supabase Client & Admin Store -->
-    <script src="assets/js/firebase-client.js?v=20260820_9"></script>
-    <script src="assets/js/admin-store.js?v=20260820_9"></script>
+    <script src="assets/js/firebase-client.js?v=20260820_10"></script>
+    <script src="assets/js/admin-store.js?v=20260820_10"></script>
 
     <script>
         const SPECIFIC_PROGRAMS_MAP = {
@@ -3626,19 +3626,41 @@
             if (!window.wizStore) return;
             const btn = document.getElementById('btn-sync-news-cloud');
             const originalHtml = btn ? btn.innerHTML : '';
+            const allNews = wizStore.news.getAll();
             if (btn) {
                 btn.disabled = true;
-                btn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Menyinkronkan ke Cloud & HP...</span>';
+                btn.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Mengirim ${allNews.length} Berita ke Cloud & HP...</span>`;
             }
             try {
+                // 1. Direct fetch to remote production /api/sync
+                const payload = {
+                    action: 'sync_bundle',
+                    bundle: {
+                        news: allNews,
+                        site_settings: (wizStore.siteSettings && typeof wizStore.siteSettings.get === 'function') ? wizStore.siteSettings.get() : {},
+                        site_images: JSON.parse(localStorage.getItem('wiz_site_images') || '{}'),
+                        specific_prog_imgs: JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}'),
+                        donations: (wizStore.donations && typeof wizStore.donations.getAll === 'function') ? wizStore.donations.getAll() : []
+                    }
+                };
+
+                try {
+                    await fetch('https://www.wizbangkabelitung.or.id/api/sync', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                } catch(e) {
+                    console.warn('Production /api/sync direct post error:', e);
+                }
+
+                // 2. Also run normal pushToCloud
                 if (wizStore.pushToCloud) {
                     await wizStore.pushToCloud();
                 }
-                if (wizStore.syncFromCloud) {
-                    await wizStore.syncFromCloud(true);
-                }
+
                 refreshAll();
-                alert('✅ Berita di dashboard Admin Anda telah berhasil dikirim ke Cloud dan langsung sinkron ke seluruh HP!');
+                alert(`✅ Berhasil! Seluruh ${allNews.length} berita di dashboard Admin Anda telah berhasil dikirim ke server Cloud dan langsung sinkron ke seluruh HP!`);
             } catch(e) {
                 alert('⚠️ Terjadi kendala saat menyinkronkan: ' + e.message);
             } finally {

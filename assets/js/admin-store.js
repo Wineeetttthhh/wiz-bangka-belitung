@@ -1077,8 +1077,8 @@
                 }
             } catch (e) {}
 
-            // Fallback to production endpoint if local /api/sync was not reachable or not ok
-            if (!pushedApi && window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
+            // Always push to remote production endpoint so Vercel & mobile phones get it immediately
+            if (window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
                 try {
                     await fetch('https://www.wizbangkabelitung.or.id/api/sync', {
                         method: 'POST',
@@ -1086,7 +1086,9 @@
                         body: JSON.stringify(payload)
                     });
                     console.log('[WIZ Sync] Master state successfully pushed to remote production /api/sync');
-                } catch(err) {}
+                } catch(err) {
+                    console.warn('[WIZ Sync] Remote production push error:', err);
+                }
             }
 
             // 2. Secondary: Firestore Master Bundle & Individual News Documents
