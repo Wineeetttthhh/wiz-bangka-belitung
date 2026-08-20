@@ -253,6 +253,28 @@ module.exports = async function handler(req, res) {
                 console.warn('[Sync API] Firebase persist failed — changes are in-memory only until next Firebase sync.');
             }
 
+            // Also persist to Supabase
+            try {
+                const SUPABASE_URL = 'https://ffiltrlzdbwhhhxzmzuo.supabase.co/rest/v1';
+                const SUPABASE_KEY = 'sb_publishable_GiA1BOjbW2psTU36149xuA_E26wGBI3';
+                await fetch(`${SUPABASE_URL}/site_settings`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': 'Bearer ' + SUPABASE_KEY,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'resolution=merge-duplicates'
+                    },
+                    body: JSON.stringify({
+                        key: 'master_bundle',
+                        value: master,
+                        updated_at: new Date().toISOString()
+                    })
+                });
+            } catch(e) {
+                console.warn('[Sync API] Supabase site_settings sync notice:', e.message);
+            }
+
             // Update in-memory cache
             memCache = master;
             memCacheTime = Date.now();

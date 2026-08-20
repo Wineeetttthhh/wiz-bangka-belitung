@@ -1534,6 +1534,33 @@
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 await window.wizFirebase.insert('donations', newDonation);
             }
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.saveDonation({
+                        id: String(newDonation.id),
+                        donor_name: newDonation.donorName,
+                        donor_phone: newDonation.donorPhone,
+                        donor_email: newDonation.donorEmail,
+                        wilayah: newDonation.wilayah,
+                        donation_type: newDonation.type,
+                        program_utama: newDonation.programUtama,
+                        program_spesifik: newDonation.programSpesifik,
+                        program: newDonation.program,
+                        category: newDonation.category,
+                        amount: newDonation.amount,
+                        alokasi_operasional: newDonation.alokasiOperasional,
+                        alokasi_program: newDonation.alokasiProgram,
+                        payment_method: newDonation.method,
+                        referral_id: newDonation.referralId,
+                        referral_fee: newDonation.referralFee,
+                        notes: newDonation.notes,
+                        status: newDonation.status,
+                        verified_at: newDonation.verifiedAt,
+                        verified_by: newDonation.verifiedBy,
+                        created_at: newDonation.createdAt
+                    });
+                } catch(e) {}
+            }
 
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return newDonation;
@@ -1834,6 +1861,22 @@
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 await window.wizFirebase.insert('news', newArticle);
             }
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.upsert('news', {
+                        id: String(newArticle.id),
+                        title: newArticle.title,
+                        category: newArticle.category,
+                        content: newArticle.content,
+                        image_url: newArticle.imageUrl,
+                        gallery: newArticle.gallery,
+                        event_date: newArticle.eventDate,
+                        status: newArticle.status,
+                        author: newArticle.author,
+                        created_at: newArticle.createdAt
+                    });
+                } catch(e) {}
+            }
 
             // Push to Vercel Serverless Sync & Firestore Master Bundle immediately
             try { await pushToCloud(); } catch(e) {}
@@ -1865,6 +1908,24 @@
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 await window.wizFirebase.set('news', articleId, list[idx]);
+            }
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    const item = list[idx];
+                    await window.wizSupabase.upsert('news', {
+                        id: String(item.id),
+                        title: item.title,
+                        category: item.category,
+                        content: item.content,
+                        image_url: item.imageUrl,
+                        gallery: item.gallery,
+                        event_date: item.eventDate,
+                        status: item.status,
+                        author: item.author,
+                        created_at: item.createdAt,
+                        updated_at: item.updatedAt
+                    });
+                } catch(e) {}
             }
 
             // Push to Vercel Serverless Sync & Firestore Master Bundle immediately
@@ -1899,6 +1960,11 @@
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 await window.wizFirebase.remove('news', strId);
                 await window.wizFirebase.upsert('deleted_news_ids', { key: strId, deletedAt: new Date().toISOString() });
+            }
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.remove('news', strId);
+                } catch(e) {}
             }
 
             // Push to Vercel Serverless Sync & Firestore Master Bundle immediately

@@ -11,7 +11,7 @@
  */
 
 const SUPABASE_CONFIG = {
-    url: 'https://yexodimaeekaghbejdxt.supabase.co',
+    url: 'https://ffiltrlzdbwhhhxzmzuo.supabase.co',
     anonKey: 'sb_publishable_GiA1BOjbW2psTU36149xuA_E26wGBI3'
 };
 
@@ -22,7 +22,7 @@ const SUPABASE_CONFIG = {
         return SUPABASE_CONFIG.url &&
             SUPABASE_CONFIG.anonKey &&
             !SUPABASE_CONFIG.url.includes('YOUR_SUPABASE') &&
-            SUPABASE_CONFIG.anonKey.startsWith('eyJ');
+            (SUPABASE_CONFIG.anonKey.startsWith('eyJ') || SUPABASE_CONFIG.anonKey.startsWith('sb_publishable_'));
     }
 
     function endpoint(table) {

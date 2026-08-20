@@ -1,205 +1,131 @@
 -- ========================================================
 -- WAHDAH INSPIRASI ZAKAT (WIZ) BANGKA BELITUNG
--- Supabase Cloud Database Schema & RLS Setup Script
+-- Supabase Cloud Database Schema & Full Setup Script
 -- ========================================================
--- Run this in Supabase SQL Editor (Dashboard → SQL Editor → New Query)
+-- Jalankan script SQL ini di Supabase Dashboard:
+-- (Buka Dashboard Supabase → Pilih Menu SQL Editor di kiri `>_` → Klik "New Query" → Paste script ini → Klik "RUN")
 
 -- ─── 1. Table: Donations ─────────────────────────────────
 CREATE TABLE IF NOT EXISTS public.donations (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     donor_name TEXT NOT NULL,
     donor_phone TEXT,
     donor_email TEXT,
-    -- Wilayah operasional: 'Pangkalpinang' | 'Sungailiat'
     wilayah TEXT DEFAULT '-',
-    -- Jenis donasi: Zakat | Infak Umum | Infak Terikat | Sedekah
     donation_type TEXT DEFAULT 'Infak Terikat',
-    -- Program Utama (5 Berkah) — relevan untuk Infak Terikat
     program_utama TEXT DEFAULT '-',
-    -- Program Spesifik — relevan untuk Infak Terikat
     program_spesifik TEXT DEFAULT '-',
-    -- Legacy: program dipertahankan untuk kompatibilitas
     program TEXT NOT NULL DEFAULT '-',
     category TEXT DEFAULT '-',
     amount NUMERIC NOT NULL,
-    -- Alokasi internal (khusus Infak Terikat: 12.5% dari amount)
     alokasi_operasional NUMERIC DEFAULT 0,
-    -- Alokasi Program internal (khusus Infak Terikat: 87.5% dari amount)
     alokasi_program NUMERIC DEFAULT 0,
     payment_method TEXT DEFAULT 'Bank Transfer',
+    referral_id TEXT,
+    referral_code TEXT,
+    referral_name TEXT,
+    referral_fee NUMERIC DEFAULT 0,
     notes TEXT,
     status TEXT DEFAULT 'pending',
     verified_at TIMESTAMP WITH TIME ZONE,
     verified_by TEXT,
-    rejected_at TIMESTAMP WITH TIME ZONE,
-    rejected_by TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- ─── ALTER: Tambah kolom baru jika tabel sudah ada ───────
--- (Jalankan bagian ini jika tabel donations sudah dibuat sebelumnya)
-ALTER TABLE public.donations ADD COLUMN IF NOT EXISTS wilayah TEXT DEFAULT '-';
-ALTER TABLE public.donations ADD COLUMN IF NOT EXISTS program_utama TEXT DEFAULT '-';
-ALTER TABLE public.donations ADD COLUMN IF NOT EXISTS program_spesifik TEXT DEFAULT '-';
-ALTER TABLE public.donations ADD COLUMN IF NOT EXISTS alokasi_operasional NUMERIC DEFAULT 0;
-ALTER TABLE public.donations ADD COLUMN IF NOT EXISTS alokasi_program NUMERIC DEFAULT 0;
-
 -- ─── 2. Table: News / Berita ─────────────────────────────
 CREATE TABLE IF NOT EXISTS public.news (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
-    category TEXT DEFAULT 'Kegiatan & Event',
+    category TEXT DEFAULT 'Kegiatan & Penyaluran',
     content TEXT NOT NULL,
     image_url TEXT,
     gallery JSONB DEFAULT '[]'::jsonb,
     event_date TIMESTAMP WITH TIME ZONE,
-    status TEXT DEFAULT 'draft',
-    author TEXT DEFAULT 'Admin',
+    status TEXT DEFAULT 'published',
+    author TEXT DEFAULT 'Super Admin 1 (WIZ Babel)',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE
 );
 
--- ─── 3. Table: Disbursements (Penyaluran Dana) ──────────
+-- ─── 3. Table: Referrals / Affiliators ────────────────────
+CREATE TABLE IF NOT EXISTS public.referrals (
+    id TEXT PRIMARY KEY,
+    code TEXT UNIQUE NOT NULL,
+    name TEXT NOT NULL,
+    phone TEXT,
+    bank_name TEXT,
+    account_number TEXT,
+    account_holder TEXT,
+    default_rate NUMERIC DEFAULT 6,
+    status TEXT DEFAULT 'active',
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE
+);
+
+-- ─── 4. Table: Referral Payouts ───────────────────────────
+CREATE TABLE IF NOT EXISTS public.referral_payouts (
+    id TEXT PRIMARY KEY,
+    referral_id TEXT NOT NULL,
+    amount NUMERIC NOT NULL,
+    fee_percentage NUMERIC DEFAULT 6,
+    reference_donation_ids JSONB DEFAULT '[]'::jsonb,
+    notes TEXT,
+    status TEXT DEFAULT 'completed',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- ─── 5. Table: Disbursements ──────────────────────────────
 CREATE TABLE IF NOT EXISTS public.disbursements (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     wilayah TEXT DEFAULT 'Pangkalpinang',
     program TEXT NOT NULL,
     amount NUMERIC NOT NULL,
     description TEXT,
     disbursed_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     recorded_by TEXT DEFAULT 'Admin',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE
-);
-ALTER TABLE public.disbursements ADD COLUMN IF NOT EXISTS wilayah TEXT DEFAULT 'Pangkalpinang';
-
--- ─── 4. Table: Activity Log ─────────────────────────────
-CREATE TABLE IF NOT EXISTS public.activity_log (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    type TEXT NOT NULL,
-    message TEXT NOT NULL,
-    actor TEXT DEFAULT 'Sistem',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- ─── 5. Table: Contact Messages ──────────────────────────
-CREATE TABLE IF NOT EXISTS public.contact_messages (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    sender_name TEXT NOT NULL,
-    sender_phone TEXT,
-    sender_email TEXT,
-    subject TEXT,
-    message TEXT NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
-);
-
--- ─── 6. Table: Zakat Calculations ────────────────────────
-CREATE TABLE IF NOT EXISTS public.zakat_records (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    zakat_type TEXT NOT NULL,
-    total_wealth NUMERIC NOT NULL,
-    zakat_due NUMERIC NOT NULL,
-    is_nisab_met BOOLEAN DEFAULT true,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
-);
-
--- ─── 7. Table: Site Images ─────────────────────────────────
-CREATE TABLE IF NOT EXISTS public.site_images (
-    key TEXT PRIMARY KEY,
-    url TEXT NOT NULL,
-    label TEXT,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
-);
-
--- ─── 8. Table: Admin Users ─────────────────────────────────
-CREATE TABLE IF NOT EXISTS public.admin_users (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    username TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    full_name TEXT NOT NULL,
-    phone TEXT,
-    role TEXT DEFAULT 'amil', -- 'super_admin' (Admin 1) or 'amil'
-    status TEXT DEFAULT 'pending', -- 'pending' | 'approved' | 'rejected'
-    verified_at TIMESTAMP WITH TIME ZONE,
-    verified_by TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
-);
-
--- ─── 9. Table: Allocation Rules ───────────────────────────
-CREATE TABLE IF NOT EXISTS public.allocation_rules (
-    wilayah TEXT PRIMARY KEY,
-    data JSONB NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
-);
-
-
--- ─── 10. Table: Site Settings ────────────────────────────────
+-- ─── 6. Table: Site Settings & Master State ───────────────
 CREATE TABLE IF NOT EXISTS public.site_settings (
     key TEXT PRIMARY KEY,
     value JSONB NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
+-- ─── 7. Table: Allocation Rules ───────────────────────────
+CREATE TABLE IF NOT EXISTS public.allocation_rules (
+    wilayah TEXT PRIMARY KEY,
+    data JSONB NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
 
 -- ═════════════════════════════════════════════════════════
--- ENABLE ROW LEVEL SECURITY (RLS)
+-- ENABLE ROW LEVEL SECURITY (RLS) & PUBLIC POLICIES
 -- ═════════════════════════════════════════════════════════
 ALTER TABLE public.donations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.news ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.referrals ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.referral_payouts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.disbursements ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.activity_log ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.zakat_records ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.site_images ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.admin_users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.allocation_rules ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.allocation_rules ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if any to prevent conflicts
+DROP POLICY IF EXISTS "donations_all" ON public.donations;
+DROP POLICY IF EXISTS "news_all" ON public.news;
+DROP POLICY IF EXISTS "referrals_all" ON public.referrals;
+DROP POLICY IF EXISTS "referral_payouts_all" ON public.referral_payouts;
+DROP POLICY IF EXISTS "disbursements_all" ON public.disbursements;
+DROP POLICY IF EXISTS "site_settings_all" ON public.site_settings;
+DROP POLICY IF EXISTS "allocation_rules_all" ON public.allocation_rules;
 
--- ═════════════════════════════════════════════════════════
--- RLS POLICIES — Full CRUD for anon key
--- ═════════════════════════════════════════════════════════
-CREATE POLICY "donations_select" ON public.donations FOR SELECT TO anon USING (true);
-CREATE POLICY "donations_insert" ON public.donations FOR INSERT TO anon WITH CHECK (true);
-CREATE POLICY "donations_update" ON public.donations FOR UPDATE TO anon USING (true) WITH CHECK (true);
-CREATE POLICY "donations_delete" ON public.donations FOR DELETE TO anon USING (true);
-
-CREATE POLICY "news_select" ON public.news FOR SELECT TO anon USING (true);
-CREATE POLICY "news_insert" ON public.news FOR INSERT TO anon WITH CHECK (true);
-CREATE POLICY "news_update" ON public.news FOR UPDATE TO anon USING (true) WITH CHECK (true);
-CREATE POLICY "news_delete" ON public.news FOR DELETE TO anon USING (true);
-
-CREATE POLICY "disbursements_select" ON public.disbursements FOR SELECT TO anon USING (true);
-CREATE POLICY "disbursements_insert" ON public.disbursements FOR INSERT TO anon WITH CHECK (true);
-CREATE POLICY "disbursements_update" ON public.disbursements FOR UPDATE TO anon USING (true) WITH CHECK (true);
-CREATE POLICY "disbursements_delete" ON public.disbursements FOR DELETE TO anon USING (true);
-
-CREATE POLICY "activity_log_select" ON public.activity_log FOR SELECT TO anon USING (true);
-CREATE POLICY "activity_log_insert" ON public.activity_log FOR INSERT TO anon WITH CHECK (true);
-
-CREATE POLICY "contact_messages_select" ON public.contact_messages FOR SELECT TO anon USING (true);
-CREATE POLICY "contact_messages_insert" ON public.contact_messages FOR INSERT TO anon WITH CHECK (true);
-
-CREATE POLICY "zakat_records_select" ON public.zakat_records FOR SELECT TO anon USING (true);
-CREATE POLICY "zakat_records_insert" ON public.zakat_records FOR INSERT TO anon WITH CHECK (true);
-
-CREATE POLICY "site_images_select" ON public.site_images FOR SELECT TO anon USING (true);
-CREATE POLICY "site_images_insert" ON public.site_images FOR INSERT TO anon WITH CHECK (true);
-CREATE POLICY "site_images_update" ON public.site_images FOR UPDATE TO anon USING (true) WITH CHECK (true);
-CREATE POLICY "site_images_delete" ON public.site_images FOR DELETE TO anon USING (true);
-
-CREATE POLICY "admin_users_select" ON public.admin_users FOR SELECT TO anon USING (true);
-CREATE POLICY "admin_users_insert" ON public.admin_users FOR INSERT TO anon WITH CHECK (true);
-CREATE POLICY "admin_users_update" ON public.admin_users FOR UPDATE TO anon USING (true) WITH CHECK (true);
-CREATE POLICY "admin_users_delete" ON public.admin_users FOR DELETE TO anon USING (true);
-
-CREATE POLICY "allocation_rules_select" ON public.allocation_rules FOR SELECT TO anon USING (true);
-CREATE POLICY "allocation_rules_insert" ON public.allocation_rules FOR INSERT TO anon WITH CHECK (true);
-CREATE POLICY "allocation_rules_update" ON public.allocation_rules FOR UPDATE TO anon USING (true) WITH CHECK (true);
-CREATE POLICY "allocation_rules_delete" ON public.allocation_rules FOR DELETE TO anon USING (true);
-
-CREATE POLICY "site_settings_select" ON public.site_settings FOR SELECT TO anon USING (true);
-CREATE POLICY "site_settings_insert" ON public.site_settings FOR INSERT TO anon WITH CHECK (true);
-CREATE POLICY "site_settings_update" ON public.site_settings FOR UPDATE TO anon USING (true) WITH CHECK (true);
-CREATE POLICY "site_settings_delete" ON public.site_settings FOR DELETE TO anon USING (true);
-
+-- Create full CRUD policies for web app
+CREATE POLICY "donations_all" ON public.donations FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "news_all" ON public.news FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "referrals_all" ON public.referrals FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "referral_payouts_all" ON public.referral_payouts FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "disbursements_all" ON public.disbursements FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "site_settings_all" ON public.site_settings FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "allocation_rules_all" ON public.allocation_rules FOR ALL TO anon USING (true) WITH CHECK (true);
