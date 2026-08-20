@@ -2012,9 +2012,9 @@
     </div>
 
     <!-- Supabase Client & Admin Store -->
-    <script src="assets/js/supabase-client.js?v=20260820_15"></script>
-    <script src="assets/js/firebase-client.js?v=20260820_15"></script>
-    <script src="assets/js/admin-store.js?v=20260820_15"></script>
+    <script src="assets/js/supabase-client.js?v=20260820_16"></script>
+    <script src="assets/js/firebase-client.js?v=20260820_16"></script>
+    <script src="assets/js/admin-store.js?v=20260820_16"></script>
 
     <script>
         const SPECIFIC_PROGRAMS_MAP = {
@@ -3575,33 +3575,37 @@
             const originalText = btnSubmit ? btnSubmit.innerHTML : '';
             if (btnSubmit) {
                 btnSubmit.disabled = true;
-                btnSubmit.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Menyimpan & Menyinkronkan ke Cloud...</span>';
+                btnSubmit.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Menyimpan...</span>';
             }
 
             try {
-                let savedArticle = null;
                 if (editId) {
-                    savedArticle = await wizStore.news.update(editId, data);
+                    await wizStore.news.update(editId, data);
                 } else {
-                    savedArticle = await wizStore.news.add(data);
+                    await wizStore.news.add(data);
                 }
 
+                // Background cloud broadcast
                 if (wizStore.pushToCloud) {
-                    await wizStore.pushToCloud();
+                    wizStore.pushToCloud().catch(err => console.warn('[Cloud Sync Notice]', err));
                 }
 
                 closeNewsModal();
                 refreshAll();
 
-                // Confirmation alert
-                const isPub = status === 'published';
-                alert(`✅ Berita "${title}" berhasil ${editId ? 'diperbarui' : 'disimpan'}!\n\nStatus: ${isPub ? 'Publikasikan (Langsung Tayang di Seluruh HP & Web Utama)' : 'Draft (Belum Tayang)'}\nKategori: ${category}\nPenulis: ${author}`);
+                // Smooth non-blocking feedback
+                if (typeof showToast === 'function') {
+                    showToast(`✅ Berita "${title}" berhasil disimpan!`);
+                } else {
+                    alert(`✅ Berita "${title}" berhasil disimpan & dipublikasikan!`);
+                }
             } catch (err) {
+                console.error('Error saving news:', err);
                 alert(`⚠️ Terjadi kesalahan saat menyimpan: ${err.message}`);
             } finally {
                 if (btnSubmit) {
                     btnSubmit.disabled = false;
-                    btnSubmit.innerHTML = originalText;
+                    btnSubmit.innerHTML = originalText || 'Simpan & Publikasikan Berita';
                 }
             }
         }
