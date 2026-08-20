@@ -422,11 +422,6 @@ module.exports = async function handler(req, res) {
                 <span class="material-symbols-outlined text-[15px] text-slate-400">person</span>
                 ${escapeHtml(author)}
             </span>
-            ${refCode ? `
-            <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full ml-auto">
-                <span class="material-symbols-outlined text-[13px]">handshake</span>
-                <span>Mitra Kebaikan: ${escapeHtml(refCode)}</span>
-            </span>` : ''}
         </div>
 
         <!-- Article Title -->

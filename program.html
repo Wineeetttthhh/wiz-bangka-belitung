@@ -1423,10 +1423,7 @@
         // --- 1. Patch all existing donate buttons to include ref ---
         patchDonateButtons(cleanRef);
 
-        // --- 2. Show affiliate banner ---
-        showAffiliateBanner(cleanRef);
-
-        // --- 3. Observe for dynamically added cards (wiz-sync-complete) ---
+        // --- 2. Observe for dynamically added cards (wiz-sync-complete) ---
         const observer = new MutationObserver(() => patchDonateButtons(cleanRef));
         const container = document.body;
         if (container) {
@@ -1466,46 +1463,6 @@
                 }
             }
         });
-    }
-
-    function showAffiliateBanner(refCode) {
-        if (document.getElementById('affiliate-ref-banner')) return;
-
-        // Try to get affiliate name from store
-        let affiliateName = '';
-        function tryGetName() {
-            if (window.wizStore && window.wizStore.referrals) {
-                const refObj = window.wizStore.referrals.getByCodeOrId(refCode);
-                if (refObj) affiliateName = refObj.name || '';
-            }
-        }
-        tryGetName();
-        setTimeout(tryGetName, 1500);
-
-        const banner = document.createElement('div');
-        banner.id = 'affiliate-ref-banner';
-        banner.style.cssText = 'position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:9000;min-width:280px;max-width:92vw;';
-        banner.innerHTML = `
-            <div style="background:linear-gradient(135deg,#006834,#008444);color:#fff;border-radius:16px;padding:12px 20px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,104,52,0.35);font-family:Inter,sans-serif;">
-                <span style="font-size:22px;">🤝</span>
-                <div style="flex:1;min-width:0;">
-                    <p style="margin:0;font-size:11px;font-weight:700;opacity:0.85;text-transform:uppercase;letter-spacing:.05em;">Anda Datang via Link Perantara Kebaikan</p>
-                    <p style="margin:2px 0 0;font-size:13px;font-weight:800;" id="aff-banner-name">${affiliateName ? affiliateName : ('Kode: ' + refCode)}</p>
-                </div>
-                <button onclick="document.getElementById('affiliate-ref-banner').remove()" style="background:rgba(255,255,255,0.2);border:none;border-radius:8px;color:#fff;padding:4px 8px;cursor:pointer;font-size:12px;font-weight:700;">✕</button>
-            </div>`;
-        document.body.appendChild(banner);
-
-        // Update name once store is ready
-        setTimeout(() => {
-            if (window.wizStore && window.wizStore.referrals) {
-                const refObj = window.wizStore.referrals.getByCodeOrId(refCode);
-                if (refObj && refObj.name) {
-                    const nameEl = document.getElementById('aff-banner-name');
-                    if (nameEl) nameEl.textContent = refObj.name;
-                }
-            }
-        }, 2000);
     }
 
     if (document.readyState === 'loading') {

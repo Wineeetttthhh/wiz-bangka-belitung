@@ -202,18 +202,7 @@
 
     <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile sm:px-gutter py-md md:py-xl pb-28 lg:pb-xl">
 
-        <!-- ═══ AFFILIATE BANNER (only shown when accessed via affiliate link) ═══ -->
-        <div id="donasi-affiliate-banner" class="hidden mb-md p-md bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl shadow-lg flex items-center gap-md">
-            <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center shrink-0">
-                <span class="material-symbols-outlined text-xl">handshake</span>
-            </div>
-            <div class="flex-1 min-w-0">
-                <p class="font-caption text-caption font-bold uppercase tracking-wider opacity-85">Rujukan Mitra Kebaikan WIZ</p>
-                <p class="font-label-md text-label-md font-bold" id="donasi-ref-banner-name">Memuat data mitra...</p>
-                <p class="font-caption text-[11px] opacity-80">Terima kasih telah menyalurkan kepedulian Anda melalui rujukan mitra kebaikan kami.</p>
-            </div>
-        </div>
-        <!-- END AFFILIATE BANNER -->
+
 
         <div class="mb-md">
             <h1 class="font-headline-lg text-display-lg-mobile md:text-headline-lg font-bold text-on-surface">Selesaikan Donasi Anda</h1>
@@ -490,11 +479,9 @@
                                 <span class="font-body-md text-caption text-on-surface-variant">Metode</span>
                                 <span class="font-label-md text-caption text-on-surface text-right font-semibold" id="summary-method">QRIS</span>
                             </li>
-                            <li class="hidden mt-2 p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl flex-col gap-0.5 text-xs text-emerald-900" id="summary-ref-row">
-                                <span class="font-bold text-[11px] text-emerald-700 uppercase flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-sm">handshake</span> Mitra Rujukan:
-                                </span>
-                                <span class="font-bold text-slate-900 text-sm" id="summary-ref-name">-</span>
+                            <li class="hidden mt-2 p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs text-slate-700" id="summary-ref-row">
+                                <span class="font-bold text-[11px] text-slate-500 uppercase tracking-wide">ID Referensi:</span>
+                                <span class="font-mono font-bold text-primary text-xs" id="summary-ref-name">-</span>
                             </li>
                         </ul>
 
@@ -787,7 +774,7 @@
             if (activeRef && window.wizStore && window.wizStore.referrals) {
                 const refObj = window.wizStore.referrals.getByCodeOrId(activeRef);
                 if (refObj && refRow) {
-                    document.getElementById('summary-ref-name').textContent = `${refObj.name} (${refObj.code || refObj.id})`;
+                    document.getElementById('summary-ref-name').textContent = refObj.code || refObj.id;
                     refRow.classList.remove('hidden');
                     refRow.classList.add('flex');
                     state.activeRefObj = refObj;
@@ -983,7 +970,7 @@
 
             let refText = '';
             if (state.activeRefObj) {
-                refText = `%0A• *Perantara / Affiliate*: ${state.activeRefObj.name} (ID: ${state.activeRefObj.code || state.activeRefObj.id})`;
+                refText = `%0A• *Ref ID*: ${state.activeRefObj.code || state.activeRefObj.id}`;
             }
 
             const text = `Bismillah, saya *${state.donorName}* (${state.donorPhone}) telah melakukan *PEMBAYARAN VIA QRIS*:%0A%0A• *Lembaga*: WIZ Bangka Belitung%0A• *${progText}%0A• *Nominal*: ${formatRupiah(state.nominal)}${refText}%0A• *Metode*: QRIS (Otomatis & Instan)%0A• *Doa/Pesan*: ${state.donorMessage || '-'}`;
@@ -1042,7 +1029,7 @@
 
             let refText = '';
             if (state.activeRefObj) {
-                refText = `%0A• *Perantara / Affiliate*: ${state.activeRefObj.name} (ID: ${state.activeRefObj.code || state.activeRefObj.id})`;
+                refText = `%0A• *Ref ID*: ${state.activeRefObj.code || state.activeRefObj.id}`;
             }
 
             const text = `Bismillah, saya *${state.donorName}* (${state.donorPhone}) ingin mengonfirmasi *TRANSFER BANK*:%0A%0A• *Lembaga*: WIZ Bangka Belitung%0A• *${progText}%0A• *Nominal*: ${formatRupiah(state.nominal)}${refText}%0A• *Metode*: Transfer Bank%0A• *Doa/Pesan*: ${state.donorMessage || '-'}`;
@@ -1129,38 +1116,15 @@
         });
 
         /**
-         * Affiliate Banner Init
-         * Shows banner + recurring option when accessed via ?ref= link or active 30-day affiliate cookie.
+         * Affiliate Init
+         * Keeps recurring donor option available and syncs active referral silently.
          */
         function initAffiliateBanner() {
-            const refCode = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || new URLSearchParams(window.location.search).get('perantara'));
-
-            const banner = document.getElementById('donasi-affiliate-banner');
             const recurringSection = document.getElementById('recurring-donor-section');
-            const bannerName = document.getElementById('donasi-ref-banner-name');
-
-            if (!refCode) {
-                // No affiliate attribution — hide banner & recurring section
-                if (banner) banner.classList.add('hidden');
-                if (recurringSection) recurringSection.classList.add('hidden');
-                return;
+            if (recurringSection) {
+                recurringSection.classList.remove('hidden');
             }
-
-            // Show affiliate banner and recurring option
-            if (banner) banner.classList.remove('hidden');
-            if (recurringSection) recurringSection.classList.remove('hidden');
-
-            // Resolve affiliate name from store
-            if (window.wizStore && window.wizStore.referrals && bannerName) {
-                const refObj = window.wizStore.referrals.getByCodeOrId(refCode);
-                if (refObj && refObj.name) {
-                    bannerName.textContent = `${refObj.name} (Kode: ${refObj.code || refObj.id})`;
-                } else {
-                    bannerName.textContent = `Kode Perantara: ${refCode}`;
-                }
-            } else if (bannerName) {
-                bannerName.textContent = `Kode Perantara: ${refCode}`;
-            }
+            updateSummary();
         }
 
         // Run on load
