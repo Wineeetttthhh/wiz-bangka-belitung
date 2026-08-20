@@ -2972,9 +2972,36 @@
         }
 
         async function verifyDonation(id) {
-            if (!confirm('Verifikasi donasi ini? Saldo Laporan Keuangan akan otomatis terupdate.')) return;
-            await wizStore.donations.verify(id, ADMIN_NAME);
+            const d = wizStore.donations.getById(id);
+            if (!d) return;
+            const progName = d.programSpesifik || d.program || d.programUtama || 'Donasi';
+            const fmt = wizStore.utils.formatRupiahCompact;
+            if (!confirm(`Verifikasi dan setujui donasi sebesar ${fmt(d.amount)} dari ${d.donorName} untuk program "${progName}"?\n\nSetelah disetujui, dana akan langsung terakumulasi pada website utama.`)) return;
+
+            const adminUser = sessionStorage.getItem('wiz_admin_user') || 'Admin 1';
+            await wizStore.donations.verify(id, adminUser);
             refreshAll();
+            renderFullDonationTable();
+            renderRecentDonations();
+            renderOverviewStats();
+            if (typeof renderProgress5Berkah === 'function') renderProgress5Berkah();
+            alert(`✅ Donasi ${fmt(d.amount)} dari ${d.donorName} berhasil diverifikasi! Dana otomatis terakumulasi di program "${progName}".`);
+        }
+
+        async function rejectDonation(id) {
+            const d = wizStore.donations.getById(id);
+            if (!d) return;
+            const fmt = wizStore.utils.formatRupiahCompact;
+            if (!confirm(`Tolak transaksi donasi sebesar ${fmt(d.amount)} dari ${d.donorName}?\n\nDonasi yang ditolak TIDAK AKAN ditambahkan ke web utama.`)) return;
+
+            const adminUser = sessionStorage.getItem('wiz_admin_user') || 'Admin 1';
+            await wizStore.donations.reject(id, adminUser);
+            refreshAll();
+            renderFullDonationTable();
+            renderRecentDonations();
+            renderOverviewStats();
+            if (typeof renderProgress5Berkah === 'function') renderProgress5Berkah();
+            alert(`❌ Donasi dari ${d.donorName} telah ditolak.`);
         }
 
         async function deleteDonation(id) {
