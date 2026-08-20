@@ -1347,14 +1347,20 @@
             }
 
             // Sync all collections
-            if (masterData.donations) {
+            if (masterData && masterData.donations) {
                 smartMerge(STORAGE_KEYS.DONATIONS, masterData.donations, (a, b) => new Date(b.createdAt) - new Date(a.createdAt), deletedSet);
             }
-            if (masterData.news && Array.isArray(masterData.news) && masterData.news.length > 0) {
+
+            // News Sync: Use direct Supabase news table as primary source
+            const authoritativeNews = (directSbNews && Array.isArray(directSbNews) && directSbNews.length > 0)
+                ? directSbNews
+                : (masterData && Array.isArray(masterData.news) ? masterData.news : []);
+
+            if (authoritativeNews.length > 0) {
                 const cloudNewsMap = new Map();
                 // 1. Load cloud news
-                masterData.news.forEach(n => {
-                    if (n && n.id && n.status !== 'deleted' && !n.isDeleted) {
+                authoritativeNews.forEach(n => {
+                    if (n && n.id && !deletedNewsSet.has(String(n.id)) && n.status !== 'deleted' && !n.isDeleted) {
                         cloudNewsMap.set(String(n.id), { ...n });
                     }
                 });
@@ -1378,10 +1384,8 @@
                 });
 
                 const mergedNews = Array.from(cloudNewsMap.values());
-                mergedNews.sort((a, b) => new Date(b.eventDate || b.createdAt || 0) - new Date(a.eventDate || a.createdAt || 0));
+                mergedNews.sort((a, b) => new Date(b.eventDate || b.event_date || b.createdAt || 0) - new Date(a.eventDate || a.event_date || a.createdAt || 0));
                 setStore(STORAGE_KEYS.NEWS, mergedNews);
-            } else if (directSbNews && Array.isArray(directSbNews) && directSbNews.length > 0) {
-                smartMerge(STORAGE_KEYS.NEWS, directSbNews, (a, b) => new Date(b.eventDate || b.createdAt || 0) - new Date(a.eventDate || a.createdAt || 0), deletedNewsSet);
             }
             if (masterData.disbursements) {
                 smartMerge(STORAGE_KEYS.DISBURSEMENTS, masterData.disbursements, (a, b) => new Date(b.disbursedAt || b.createdAt) - new Date(a.disbursedAt || a.createdAt), deletedDisbSet);
