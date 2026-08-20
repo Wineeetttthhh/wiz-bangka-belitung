@@ -1660,9 +1660,10 @@
                 type: donation.type || 'Infak Terikat',
                 amount: donationAmount,
                 method: donation.method || 'Transfer Bank / WA',
+                proofImage: donation.proofImage || donation.proof_image || '',
                 notes: donation.notes || '-',
                 status: donation.status || 'pending',
-                createdAt: new Date().toISOString(),
+                createdAt: donation.createdAt || new Date().toISOString(),
                 verifiedAt: donation.status === 'verified' ? new Date().toISOString() : null,
                 verifiedBy: donation.status === 'verified' ? (donation.verifiedBy || 'Admin') : null
             };
@@ -1692,6 +1693,25 @@
                         status: newDonation.status,
                         created_at: newDonation.createdAt
                     });
+                } catch(e) {}
+            }
+
+            // Real-time broadcast of new donation to local & production /api/sync
+            try {
+                await fetch('/api/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ donations: [newDonation] })
+                });
+            } catch(e) {}
+
+            if (window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
+                try {
+                    fetch('https://www.wizbangkabelitung.or.id/api/sync', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ donations: [newDonation] })
+                    }).catch(() => {});
                 } catch(e) {}
             }
 
