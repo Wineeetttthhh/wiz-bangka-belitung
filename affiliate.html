@@ -978,6 +978,12 @@
         }
 
         function shareAffiliateQuoteWA(quoteId) {
+            if (!currentLoggedAffiliate) {
+                alert('Silakan login ke akun Affiliate Anda terlebih dahulu agar ID referral Anda otomatis terpasang!');
+                showAuthModal('login');
+                return;
+            }
+
             const q = wizStore.quotes ? wizStore.quotes.getById(quoteId) : null;
             if (!q) return;
 
@@ -1006,6 +1012,12 @@
         }
 
         function copyAffiliateQuote(quoteId) {
+            if (!currentLoggedAffiliate) {
+                alert('Silakan login ke akun Affiliate Anda terlebih dahulu agar ID referral Anda otomatis terpasang!');
+                showAuthModal('login');
+                return;
+            }
+
             const q = wizStore.quotes ? wizStore.quotes.getById(quoteId) : null;
             if (!q) return;
 
