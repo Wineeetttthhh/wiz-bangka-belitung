@@ -3566,19 +3566,39 @@
                 author
             };
 
-            let savedArticle = null;
-            if (editId) {
-                savedArticle = await wizStore.news.update(editId, data);
-            } else {
-                savedArticle = await wizStore.news.add(data);
+            const btnSubmit = document.querySelector('#news-form button[type="submit"]');
+            const originalText = btnSubmit ? btnSubmit.innerHTML : '';
+            if (btnSubmit) {
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Menyimpan & Menyinkronkan ke Cloud...</span>';
             }
 
-            closeNewsModal();
-            refreshAll();
+            try {
+                let savedArticle = null;
+                if (editId) {
+                    savedArticle = await wizStore.news.update(editId, data);
+                } else {
+                    savedArticle = await wizStore.news.add(data);
+                }
 
-            // Confirmation alert
-            const isPub = status === 'published';
-            alert(`✅ Berita "${title}" berhasil ${editId ? 'diperbarui' : 'disimpan'}!\n\nStatus: ${isPub ? 'Publikasikan (Langsung Tayang di Web Utama)' : 'Draft (Belum Tayang)'}\nKategori: ${category}\nPenulis: ${author}`);
+                if (wizStore.pushToCloud) {
+                    await wizStore.pushToCloud();
+                }
+
+                closeNewsModal();
+                refreshAll();
+
+                // Confirmation alert
+                const isPub = status === 'published';
+                alert(`✅ Berita "${title}" berhasil ${editId ? 'diperbarui' : 'disimpan'}!\n\nStatus: ${isPub ? 'Publikasikan (Langsung Tayang di Seluruh HP & Web Utama)' : 'Draft (Belum Tayang)'}\nKategori: ${category}\nPenulis: ${author}`);
+            } catch (err) {
+                alert(`⚠️ Terjadi kesalahan saat menyimpan: ${err.message}`);
+            } finally {
+                if (btnSubmit) {
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = originalText;
+                }
+            }
         }
 
         function editNews(id) {

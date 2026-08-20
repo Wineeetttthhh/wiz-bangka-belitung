@@ -986,7 +986,9 @@
         }
 
         if (wizStore && wizStore.syncFromCloud) {
-            await wizStore.syncFromCloud();
+            try {
+                await wizStore.syncFromCloud(true);
+            } catch(e) {}
             renderPublicNews();
             updateDynamicProgramCards();
             if (typeof window.applySiteSettings === 'function') window.applySiteSettings();

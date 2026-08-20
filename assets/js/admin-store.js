@@ -1568,6 +1568,9 @@
                 await window.wizFirebase.insert('news', newArticle);
             }
 
+            // Push to Vercel Serverless Sync & Firestore Master Bundle immediately
+            try { await pushToCloud(); } catch(e) {}
+
             broadcastSync('NEWS_ADDED', newArticle);
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return newArticle;
@@ -1596,6 +1599,9 @@
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 await window.wizFirebase.set('news', articleId, list[idx]);
             }
+
+            // Push to Vercel Serverless Sync & Firestore Master Bundle immediately
+            try { await pushToCloud(); } catch(e) {}
 
             broadcastSync('NEWS_UPDATED', list[idx]);
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
@@ -1627,6 +1633,9 @@
                 await window.wizFirebase.remove('news', strId);
                 await window.wizFirebase.upsert('deleted_news_ids', { key: strId, deletedAt: new Date().toISOString() });
             }
+
+            // Push to Vercel Serverless Sync & Firestore Master Bundle immediately
+            try { await pushToCloud(); } catch(e) {}
 
             broadcastSync('NEWS_DELETED', { id: strId });
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
@@ -1668,6 +1677,8 @@
                 await window.wizFirebase.insert('disbursements', newDisb);
             }
 
+            try { await pushToCloud(); } catch(e) {}
+
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return newDisb;
         },
@@ -1685,6 +1696,8 @@
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 await window.wizFirebase.set('disbursements', id, list[idx]);
             }
+
+            try { await pushToCloud(); } catch(e) {}
 
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return list[idx];
@@ -1708,6 +1721,8 @@
                 await window.wizFirebase.remove('disbursements', strId);
                 await window.wizFirebase.upsert('deleted_disb_ids', { key: strId, deletedAt: new Date().toISOString() });
             }
+
+            try { await pushToCloud(); } catch(e) {}
 
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
         }
@@ -2687,7 +2702,7 @@
     // Slight delay so Firebase client script finishes loading
     setTimeout(initSync, 800);
 
-    // Automatic recurring background cloud sync every 25 seconds (when tab is active)
+    // Automatic recurring background cloud sync every 12 seconds (when tab is active)
     setInterval(async () => {
         if (document.visibilityState === 'visible') {
             try {
@@ -2695,7 +2710,7 @@
                 window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             } catch(e) {}
         }
-    }, 25000);
+    }, 12000);
 
     // ─── Public API ───────────────────────────────────────
     window.wizStore = {
