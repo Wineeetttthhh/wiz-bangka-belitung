@@ -1034,6 +1034,16 @@
     let isSyncInProgress = false;
 
     async function pushToCloud() {
+        const isAdmin = window.location.pathname.includes('admin') || 
+                        window.location.href.includes('admin.html') ||
+                        sessionStorage.getItem('wiz_admin_authenticated') === 'true' ||
+                        localStorage.getItem('wiz_admin_logged_in') === 'true';
+
+        // Never push from unauthenticated public visitor mobile phones/browsers
+        if (!isAdmin && !window.__wiz_allow_public_push) {
+            return { success: true, skipped: true };
+        }
+
         const report = { success: true, timestamp: new Date().toISOString() };
         try {
             const bundle = {
@@ -1269,32 +1279,29 @@
                 // 1. Load authoritative cloud news
                 masterData.news.forEach(n => {
                     if (n && n.id && !deletedNewsSet.has(String(n.id)) && n.status !== 'deleted') {
-                        cloudNewsMap.set(String(n.id), n);
+                        cloudNewsMap.set(String(n.id), { ...n });
                     }
                 });
-                // 2. Preserve any un-pushed local news currently being drafted by admin
-                const local = getStore(STORAGE_KEYS.NEWS) || [];
-                local.forEach(loc => {
-                    if (loc && loc.id && !deletedNewsSet.has(String(loc.id)) && loc.status !== 'deleted') {
-                        const strId = String(loc.id);
-                        if (!cloudNewsMap.has(strId)) {
-                            // Only preserve if created in the last 24h as a draft/recent item
-                            const ageMs = Date.now() - new Date(loc.createdAt || 0).getTime();
-                            if (ageMs < 86400000) {
-                                cloudNewsMap.set(strId, loc);
-                            }
-                        } else {
-                            // Preserve local base64 image if cloud has fallback
-                            const cloudItem = cloudNewsMap.get(strId);
-                            if (loc.imageUrl && loc.imageUrl.startsWith('data:image') && (!cloudItem.imageUrl || !cloudItem.imageUrl.startsWith('data:image'))) {
-                                cloudItem.imageUrl = loc.imageUrl;
-                            }
-                            if (Array.isArray(loc.gallery) && loc.gallery.some(g => g && g.startsWith('data:image'))) {
-                                cloudItem.gallery = loc.gallery;
+                // 2. Only in Admin dashboard, preserve active local drafts
+                const isAdmin = window.location.pathname.includes('admin') || 
+                                window.location.href.includes('admin.html') ||
+                                sessionStorage.getItem('wiz_admin_authenticated') === 'true' ||
+                                localStorage.getItem('wiz_admin_logged_in') === 'true';
+
+                if (isAdmin) {
+                    const local = getStore(STORAGE_KEYS.NEWS) || [];
+                    local.forEach(loc => {
+                        if (loc && loc.id && !deletedNewsSet.has(String(loc.id)) && loc.status !== 'deleted') {
+                            const strId = String(loc.id);
+                            if (!cloudNewsMap.has(strId)) {
+                                const ageMs = Date.now() - new Date(loc.createdAt || 0).getTime();
+                                if (ageMs < 86400000) {
+                                    cloudNewsMap.set(strId, loc);
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                }
                 const mergedNews = Array.from(cloudNewsMap.values());
                 mergedNews.sort((a, b) => new Date(b.eventDate || b.createdAt || 0) - new Date(a.eventDate || a.createdAt || 0));
                 setStore(STORAGE_KEYS.NEWS, mergedNews);
@@ -2803,21 +2810,28 @@
     // ─── Initialize Data & Sync ───────────────────────────
     seedDefaultData();
 
-    // Full bidirectional sync on startup:
+    // Full sync on startup:
     async function initSync() {
         try {
-            await syncFromCloud();   // Step 1: pull from Firebase first
-            await pushToCloud();     // Step 2: push local-only data to Firebase
-            await syncFromCloud();   // Step 3: pull again to catch anything missed
-            console.log('[WIZ Firebase] Init sync complete.');
+            await syncFromCloud(true);   // Step 1: Pull fresh authoritative data from Cloud
+            const isAdmin = window.location.pathname.includes('admin') || 
+                            window.location.href.includes('admin.html') ||
+                            sessionStorage.getItem('wiz_admin_authenticated') === 'true' ||
+                            localStorage.getItem('wiz_admin_logged_in') === 'true';
+            
+            if (isAdmin) {
+                await pushToCloud();     // Step 2: Push local admin changes to Cloud
+                await syncFromCloud(true); // Step 3: Re-verify
+            }
+            console.log('[WIZ Sync Engine] Init sync complete.');
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
         } catch(e) {
-            console.warn('[WIZ Firebase] Init sync failed, using local data:', e.message);
+            console.warn('[WIZ Sync Engine] Init sync error:', e.message);
         }
     }
 
     // Slight delay so Firebase client script finishes loading
-    setTimeout(initSync, 800);
+    setTimeout(initSync, 200);
 
     // Automatic recurring background cloud sync every 12 seconds (when tab is active)
     setInterval(async () => {
