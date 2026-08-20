@@ -594,14 +594,26 @@
             <!-- Tabs -->
             <div class="flex gap-lg border-b border-outline-variant/30">
                 <button
-                    class="tab-btn active pb-sm border-b-2 border-transparent font-label-md text-label-md text-on-surface-variant transition-colors"
-                    onclick="switchDonationTab('pending', this)">Menunggu Verifikasi</button>
+                    id="tab-donations-pending-btn"
+                    class="tab-btn active pb-sm border-b-2 border-transparent font-label-md text-label-md text-on-surface-variant transition-colors flex items-center gap-1.5"
+                    onclick="switchDonationTab('pending', this)">
+                    <span>Menunggu Verifikasi</span>
+                    <span id="badge-tab-pending" class="px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-amber-100 text-amber-800">0</span>
+                </button>
                 <button
-                    class="tab-btn pb-sm border-b-2 border-transparent font-label-md text-label-md text-on-surface-variant transition-colors"
-                    onclick="switchDonationTab('verified', this)">Telah Diverifikasi</button>
+                    id="tab-donations-verified-btn"
+                    class="tab-btn pb-sm border-b-2 border-transparent font-label-md text-label-md text-on-surface-variant transition-colors flex items-center gap-1.5"
+                    onclick="switchDonationTab('verified', this)">
+                    <span>Telah Diverifikasi</span>
+                    <span id="badge-tab-verified" class="px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-100 text-emerald-800">0</span>
+                </button>
                 <button
-                    class="tab-btn pb-sm border-b-2 border-transparent font-label-md text-label-md text-on-surface-variant transition-colors"
-                    onclick="switchDonationTab('all', this)">Semua Transaksi Pemasukan</button>
+                    id="tab-donations-all-btn"
+                    class="tab-btn pb-sm border-b-2 border-transparent font-label-md text-label-md text-on-surface-variant transition-colors flex items-center gap-1.5"
+                    onclick="switchDonationTab('all', this)">
+                    <span>Semua Transaksi</span>
+                    <span id="badge-tab-all" class="px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-slate-100 text-slate-700">0</span>
+                </button>
             </div>
             <!-- Donation Table -->
             <div
@@ -935,7 +947,7 @@
             </div>
         </div>
 
-        <!-- ═════════════════════════════════════════════════�        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- ═════════════════════════════════════════════════�        <!-- ═══════════════════════════════════════════════════ -->
         <!-- SECTION: PENGATURAN WEB (REKENING & LOKASI KANTOR)  -->
         <!-- ═══════════════════════════════════════════════════ -->
         <div id="section-site-settings" class="flex-1 p-margin-mobile md:p-gutter overflow-y-auto space-y-xl hidden">
@@ -1027,32 +1039,6 @@
                     </div>
                 </div>
             </div>
-        </div>               <label class="block text-[11px] text-on-surface-variant mb-1">No. Telp / WhatsApp Operasional</label>
-                                <input type="text" id="setting-office-pangkalpinang-phone" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface">
-                            </div>
-                        </div>
-                        <!-- Kantor Sungailiat -->
-                        <div class="p-md bg-surface-container-low rounded-xl border border-outline-variant/40 space-y-xs">
-                            <label class="block font-label-md text-caption font-bold text-primary">Kantor Sungailiat</label>
-                            <div>
-                                <label class="block text-[11px] text-on-surface-variant mb-1">Alamat Lengkap</label>
-                                <textarea id="setting-office-sungailiat-address" rows="2" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface"></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-[11px] text-on-surface-variant mb-1">No. Telp / WhatsApp Operasional</label>
-                                <input type="text" id="setting-office-sungailiat-phone" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex justify-end">
-                    <button type="submit" class="bg-primary text-on-primary px-xl py-md rounded-xl font-label-md text-label-md hover:bg-primary-container transition-colors shadow-md font-bold flex items-center gap-xs cursor-pointer">
-                        <span class="material-symbols-outlined">save</span>
-                        <span>Simpan Pengaturan Web Utama</span>
-                    </button>
-                </div>
-            </form>
         </div>
 
         <!-- ═══════════════════════════════════════════════════ -->
