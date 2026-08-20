@@ -40,20 +40,27 @@ window.addEventListener('wiz-sync-complete', () => {
 });
 
 /**
- * Dynamic Site Images Loader from Store
+ * Dynamic Site Images Loader from Store with Resilient Fallback
  */
 function initDynamicSiteImages() {
     if (!window.wizStore || !window.wizStore.siteImages) return;
     const images = window.wizStore.siteImages.getAll();
+    const fallbackDefault = 'assets/images/sedekah-beras-dhuafa.jpg';
 
     document.querySelectorAll('[data-site-img]').forEach(el => {
         const key = el.getAttribute('data-site-img');
-        if (key && images[key]) {
-            if (el.tagName === 'IMG') {
-                el.src = images[key];
-            } else {
-                el.style.backgroundImage = `url('${images[key]}')`;
+        const targetSrc = (key && images[key]) ? images[key] : fallbackDefault;
+        if (el.tagName === 'IMG') {
+            el.onerror = function() {
+                if (this.src !== fallbackDefault && !this.src.endsWith(fallbackDefault)) {
+                    this.src = fallbackDefault;
+                }
+            };
+            if (!el.src || !el.src.includes(targetSrc)) {
+                el.src = targetSrc;
             }
+        } else {
+            el.style.backgroundImage = `url('${targetSrc}')`;
         }
     });
 }
