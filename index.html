@@ -445,65 +445,56 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════ -->
-<!-- INSPIRASI & QUOTE HARIAN                            -->
+<!-- INSPIRASI & FLYER HARIAN                            -->
 <!-- ═══════════════════════════════════════════════════ -->
-<section id="quote-harian" class="py-xxl bg-surface px-margin-mobile md:px-gutter border-t border-surface-variant/50">
-    <div class="max-w-container-max mx-auto">
-        <div class="bg-gradient-to-br from-emerald-950 via-teal-900 to-slate-950 rounded-3xl p-xl md:p-xxl text-white shadow-2xl relative overflow-hidden border border-emerald-500/30">
-            <!-- Decorative Background Blurs -->
-            <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="absolute -left-20 -top-20 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+<section id="quote-harian" class="py-xxl bg-surface-container-low px-margin-mobile md:px-gutter border-t border-surface-variant/50">
+    <div class="max-w-4xl mx-auto space-y-lg">
+        <div class="text-center space-y-2">
+            <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold uppercase tracking-wider">
+                <span class="material-symbols-outlined text-sm">campaign</span> Inspirasi &amp; Pesan Kebaikan Hari Ini
+            </span>
+            <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">Flyer Dakwah Harian</h2>
+        </div>
 
-            <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-xl items-center">
-                <!-- Quote Text Content -->
-                <div class="lg:col-span-8 space-y-md">
-                    <div class="flex flex-wrap items-center gap-2">
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-400/30 uppercase tracking-wider">
-                            <span class="material-symbols-outlined text-sm">auto_awesome</span> Inspirasi &amp; Quote Hari Ini
-                        </span>
-                        <span id="public-quote-category" class="text-xs text-emerald-200/80 font-mono px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10">Sedekah &amp; Keberkahan</span>
+        <!-- Clean Flyer Card -->
+        <div class="bg-surface rounded-3xl p-6 md:p-8 border border-outline-variant/30 shadow-level-1 overflow-hidden flex flex-col md:flex-row items-center gap-8">
+            <!-- Flyer Image (Large, Crisp) -->
+            <div class="w-full md:w-1/2 flex justify-center">
+                <div class="rounded-2xl overflow-hidden shadow-md border border-outline-variant/40 bg-slate-100 max-w-sm w-full">
+                    <img id="public-quote-img" src="assets/images/foto-utama-wiz.jpg" class="w-full h-auto object-contain rounded-2xl" alt="Flyer Inspirasi WIZ" onerror="this.src='assets/images/foto-utama-wiz.jpg'">
+                </div>
+            </div>
+
+            <!-- Caption & Actions -->
+            <div class="w-full md:w-1/2 flex flex-col justify-between space-y-5">
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2">
+                        <span id="public-quote-category" class="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">Motivasi &amp; Doa</span>
+                        <span id="public-quote-date" class="text-xs text-on-surface-variant font-mono"></span>
                     </div>
 
-                    <div class="relative pl-6 border-l-4 border-emerald-400 my-4">
-                        <p id="public-quote-text" class="text-lg md:text-2xl font-serif italic text-emerald-50 leading-relaxed">
-                            "Sedekah itu tidak akan mengurangi harta. Tidak ada orang yang memberi maaf kepada orang lain melainkan Allah akan menambah kemuliaannya."
-                        </p>
+                    <!-- Caption Body -->
+                    <div id="public-quote-caption-container">
+                        <p id="public-quote-text" class="text-on-surface text-sm md:text-base leading-relaxed whitespace-pre-line font-medium text-slate-700"></p>
                     </div>
 
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2 border-t border-emerald-500/20">
-                        <div>
-                            <span id="public-quote-source" class="font-bold text-emerald-300 text-sm md:text-base">HR. Muslim no. 2588</span>
-                            <p class="text-xs text-emerald-200/60 mt-0.5">Wahdah Inspirasi Zakat Bangka Belitung</p>
-                        </div>
-
-                        <div class="flex flex-wrap items-center gap-2">
-                            <button type="button" onclick="copyPublicQuoteText()" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
-                                <span class="material-symbols-outlined text-sm">content_copy</span>
-                                <span>Salin Quote</span>
-                            </button>
-                            <button type="button" onclick="sharePublicQuoteWA()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-transform hover:scale-105 shadow-md cursor-pointer">
-                                <span class="material-symbols-outlined text-sm">share</span>
-                                <span>Bagikan</span>
-                            </button>
-                            <a href="donasi.html" class="px-4 py-2 bg-[#F7941D] hover:bg-[#e08417] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-md">
-                                <span class="material-symbols-outlined text-sm">volunteer_activism</span>
-                                <span>Donasi Sekarang</span>
-                            </a>
-                        </div>
-                    </div>
+                    <p id="public-quote-source" class="text-xs font-bold text-primary italic"></p>
                 </div>
 
-                <!-- Quote Poster Image / Illustration -->
-                <div class="lg:col-span-4 flex justify-center">
-                    <div class="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-emerald-400/30 max-w-[280px] aspect-square w-full group">
-                        <img id="public-quote-img" src="assets/images/foto-utama-wiz.jpg" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Quote Inspirasi WIZ" onerror="this.src='assets/images/foto-utama-wiz.jpg'">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-4">
-                            <span class="text-xs font-bold text-white flex items-center gap-1">
-                                <img src="assets/images/logo-wiz-official.png" onerror="this.src='assets/images/logo-wiz-babel.png'" class="h-5 w-auto brightness-200">
-                                <span>WIZ Babel</span>
-                            </span>
-                        </div>
-                    </div>
+                <!-- Action Buttons -->
+                <div class="pt-4 border-t border-outline-variant/20 flex flex-wrap gap-2.5">
+                    <button type="button" onclick="sharePublicQuoteWA()" class="flex-1 min-w-[140px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs md:text-sm py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer">
+                        <span class="material-symbols-outlined text-base">share</span>
+                        <span>Bagikan ke WA</span>
+                    </button>
+                    <button type="button" onclick="copyPublicQuoteText()" class="px-4 py-3 bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-bold text-xs md:text-sm rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer" title="Salin Caption & Link">
+                        <span class="material-symbols-outlined text-base">content_copy</span>
+                        <span>Salin</span>
+                    </button>
+                    <a href="donasi.html" class="px-5 py-3 bg-[#F7941D] hover:bg-[#e08417] text-white font-bold text-xs md:text-sm rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition-all">
+                        <span class="material-symbols-outlined text-base">volunteer_activism</span>
+                        <span>Donasi</span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -1081,7 +1072,7 @@
         });
     }
 
-    // Dynamic Public Quote Renderer
+    // Dynamic Public Quote Renderer (Clean Flyer + Caption)
     function renderPublicQuote() {
         if (!window.wizStore || !window.wizStore.quotes) return;
         const q = wizStore.quotes.getToday();
@@ -1090,24 +1081,58 @@
         const textEl = document.getElementById('public-quote-text');
         const sourceEl = document.getElementById('public-quote-source');
         const catEl = document.getElementById('public-quote-category');
+        const dateEl = document.getElementById('public-quote-date');
         const imgEl = document.getElementById('public-quote-img');
 
-        if (textEl) textEl.textContent = `"${q.text}"`;
-        if (sourceEl) sourceEl.textContent = q.source;
-        if (catEl) catEl.textContent = `${q.category || 'Inspirasi'} • ${q.date || '-'}`;
-        if (imgEl && q.imageUrl) imgEl.src = q.imageUrl;
+        if (imgEl && q.imageUrl) {
+            imgEl.src = q.imageUrl;
+        }
+
+        const rawText = (q.text || '').trim();
+        if (textEl) {
+            if (rawText && rawText !== '.') {
+                textEl.textContent = rawText;
+                if (textEl.parentElement) textEl.parentElement.style.display = '';
+            } else {
+                textEl.textContent = '';
+                if (textEl.parentElement) textEl.parentElement.style.display = 'none';
+            }
+        }
+
+        const rawSource = (q.source || '').trim();
+        if (sourceEl) {
+            if (rawSource && rawSource !== 'WIZ Babel' && rawSource !== '-' && rawSource !== '.') {
+                sourceEl.textContent = `— ${rawSource}`;
+                sourceEl.style.display = '';
+            } else {
+                sourceEl.textContent = '';
+                sourceEl.style.display = 'none';
+            }
+        }
+
+        if (catEl) catEl.textContent = q.category || 'Inspirasi Harian';
+        if (dateEl) dateEl.textContent = q.date || '';
     }
 
     function copyPublicQuoteText() {
         const q = window.wizStore && window.wizStore.quotes ? window.wizStore.quotes.getToday() : null;
         if (!q) return;
         const refParam = new URLSearchParams(window.location.search).get('ref');
-        const origin = window.location.origin.includes('http') ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
+        const origin = (window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
         const donationUrl = `${origin}/donasi.html${refParam ? '?ref=' + encodeURIComponent(refParam) : ''}`;
-        const shareText = `*INSPIRASI & DAKWAH HARIAN WIZ BABEL*\n\n"${q.text}"\n\n— *${q.source}*\n\n_Mari bersama raih keberkahan hari ini dengan bersedekah melalui Wahdah Inspirasi Zakat Bangka Belitung:_\n${donationUrl}`;
+
+        const rawText = (q.text || '').trim();
+        const rawSource = (q.source || '').trim();
+
+        let messageParts = [`*INSPIRASI & DAKWAH HARIAN WIZ BABEL*`];
+        if (rawText && rawText !== '.') messageParts.push(`\n${rawText}`);
+        if (rawSource && rawSource !== 'WIZ Babel' && rawSource !== '-' && rawSource !== '.') messageParts.push(`\n— *${rawSource}*`);
+        messageParts.push(`\n_Mari bersama raih keberkahan hari ini dengan bersedekah melalui Wahdah Inspirasi Zakat Bangka Belitung:_\n${donationUrl}`);
+
+        const shareText = messageParts.join('\n');
 
         navigator.clipboard.writeText(shareText).then(() => {
-            alert('✅ Quote berhasil disalin ke papan klip!');
+            alert('✅ Caption & link donasi berhasil disalin ke papan klip!');
         });
     }
 
@@ -1117,7 +1142,16 @@
         const refParam = new URLSearchParams(window.location.search).get('ref');
         const origin = (window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
         const donationUrl = `${origin}/donasi.html${refParam ? '?ref=' + encodeURIComponent(refParam) : ''}`;
-        const fullMessage = `*INSPIRASI & DAKWAH HARIAN WIZ BABEL*\n\n"${q.text}"\n\n— *${q.source}*\n\n_Mari bersama raih keberkahan hari ini dengan bersedekah melalui Wahdah Inspirasi Zakat Bangka Belitung:_\n${donationUrl}`;
+
+        const rawText = (q.text || '').trim();
+        const rawSource = (q.source || '').trim();
+
+        let messageParts = [`*INSPIRASI & DAKWAH HARIAN WIZ BABEL*`];
+        if (rawText && rawText !== '.') messageParts.push(`\n${rawText}`);
+        if (rawSource && rawSource !== 'WIZ Babel' && rawSource !== '-' && rawSource !== '.') messageParts.push(`\n— *${rawSource}*`);
+        messageParts.push(`\n_Mari bersama raih keberkahan hari ini dengan bersedekah melalui Wahdah Inspirasi Zakat Bangka Belitung:_\n${donationUrl}`);
+
+        const fullMessage = messageParts.join('\n');
 
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(fullMessage)}`, '_blank');
     }
