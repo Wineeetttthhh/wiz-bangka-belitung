@@ -1660,22 +1660,22 @@
                         <div class="flex items-center gap-2 flex-wrap">
                             <button type="button" onclick="setNewsPresetPhoto('assets/images/sedekah-beras-dhuafa.jpg', 'Foto Beras Dhuafa')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">🌾 Sedekah Beras</button>
                             <button type="button" onclick="setNewsPresetPhoto('assets/images/beasiswa-tahfidz.jpg', 'Foto Beasiswa')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">🎓 Beasiswa &amp; Santri</button>
-                            <button type="button" onclick="setNewsPresetPhoto('https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop', 'Foto Sembako')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">📦 Tebar Sembako</button>
-                            <button type="button" onclick="setNewsPresetPhoto('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop', 'Foto Kesehatan')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">🩺 Layanan Sehat</button>
-                            <button type="button" onclick="setNewsPresetPhoto('https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=800&auto=format&fit=crop', 'Foto Dakwah')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">🕌 Dakwah &amp; Markaz</button>
+                            <button type="button" onclick="setNewsPresetPhoto('assets/images/sedekah-beras-dai.jpg', 'Foto Sembako')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">📦 Tebar Sembako</button>
+                            <button type="button" onclick="setNewsPresetPhoto('assets/images/sedekah-beras-dhuafa.jpg', 'Foto Kesehatan')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">🩺 Layanan Sehat</button>
+                            <button type="button" onclick="setNewsPresetPhoto('assets/images/foto-utama-wiz.jpg', 'Foto Dakwah')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">🕌 Dakwah &amp; Markaz</button>
                         </div>
                     </div>
 
-                    <!-- Drag & Drop Zone -->
+                    <!-- Drag & Drop / File Selector Zone -->
                     <div class="space-y-2">
-                        <label for="news-file-main" class="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-primary/40 rounded-2xl bg-primary/5 hover:bg-primary/10 cursor-pointer transition-all group" id="photo-upload-zone">
+                        <div onclick="document.getElementById('news-file-main').click()" class="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-primary/40 rounded-2xl bg-primary/5 hover:bg-primary/10 cursor-pointer transition-all group" id="photo-upload-zone">
                             <span class="material-symbols-outlined text-primary text-3xl mb-1 group-hover:scale-110 transition-transform">cloud_upload</span>
                             <span class="font-label-md text-label-md text-primary font-bold">Klik untuk pilih foto dari folder komputer/HP</span>
-                            <span class="font-caption text-caption text-on-surface-variant mt-0.5" id="photo-filename-display">JPG, PNG, WebP — Kompresi otomatis</span>
-                        </label>
+                            <span class="font-caption text-caption text-on-surface-variant mt-0.5" id="photo-filename-display">JPG, PNG, WebP — Otomatis diproses &amp; dikompres</span>
+                        </div>
                         <input type="file" id="news-file-main" accept="image/*"
                             onchange="handleLocalPhotoSelect(event, 'news-main-preview', 'news-image-url')"
-                            class="sr-only">
+                            style="display: none;">
                         
                         <div class="flex items-center gap-2">
                             <input type="text" id="news-image-url"

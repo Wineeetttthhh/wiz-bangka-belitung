@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-08-20T04:25:00.000Z",
-  "version": "2.0.0",
+  "updatedAt": "2026-08-20T05:00:00.000Z",
+  "version": "2.1.0",
   "donations": [],
   "news": [
     {
@@ -10,8 +10,8 @@
       "content": "Alhamdulillah, Wahdah Inspirasi Zakat (WIZ) Bangka Belitung kembali menyalurkan 50 paket sembako untuk keluarga dhuafa di wilayah Pangkalpinang.\n\nKegiatan berjalan lancar dan penuh berkah bagi seluruh penerima manfaat. Paket yang disalurkan terdiri dari beras premium, minyak goreng, gula, dan bahan pangan pokok lainnya.\n\nJazakumullah khairan kepada seluruh muhsinin dan donatur yang telah mengamanahkan sedekah dan zakatnya melalui WIZ Bangka Belitung. Semoga Allah memberikan ganti berlipat ganda, membersihkan harta, dan melimpahkan keberkahan rezeki.",
       "imageUrl": "assets/images/sedekah-beras-dhuafa.jpg",
       "gallery": [
-        "https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800&auto=format&fit=crop"
+        "assets/images/sedekah-beras-dai.jpg",
+        "assets/images/foto-utama-wiz.jpg"
       ],
       "eventDate": "2026-08-20T00:00:00.000Z",
       "status": "published",
@@ -23,10 +23,10 @@
       "title": "TEBAR SEMBAKO NUSANTARA MENYAMBUT RAMADAN INSPIRASI WIZ BABEL",
       "category": "Kegiatan & Penyaluran",
       "content": "Wahdah Inspirasi Zakat (WIZ) Bangka Belitung sukses melaksanakan kegiatan sosial berupa penyaluran 150 paket sembako kepada masyarakat kurang mampu dan lansia dhuafa di Kabupaten Bangka.\n\nKegiatan ini berlangsung dengan penuh kehangatan dan dihadiri oleh para tokoh masyarakat serta perangkat desa setempat. Setiap paket berisi beras super, minyak goreng, gula pasir, dan bahan kebutuhan pokok lainnya.\n\nDalam sambutannya, perwakilan WIZ Bangka Belitung menyampaikan ucapan terima kasih yang sebesar-besarnya kepada seluruh donatur yang telah menyisihkan hartanya. Semoga setiap paket sembako yang tersalurkan membawa kebahagiaan dan keberkahan bagi penerima manfaat.",
-      "imageUrl": "https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop",
+      "imageUrl": "assets/images/sedekah-beras-dai.jpg",
       "gallery": [
-        "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=800&auto=format&fit=crop"
+        "assets/images/sedekah-beras-dhuafa.jpg",
+        "assets/images/foto-utama-wiz.jpg"
       ],
       "eventDate": "2026-08-19T00:00:00.000Z",
       "status": "published",
@@ -38,9 +38,10 @@
       "title": "Pembukaan Pendaftaran Beasiswa Tahfidz Qur'an Santri Dhuafa",
       "category": "Dakwah & Pendidikan",
       "content": "WIZ Bangka Belitung membuka pendaftaran Beasiswa Tahfidz Qur'an untuk santri yatim dhuafa berprestasi di Kabupaten Bangka dan Pangkalpinang.\n\nProgram beasiswa ini mencakup biaya pendidikan penuh, pembinaan karakter, tempat tinggal di pondok tahfidz, dan penyediaan mushaf Al-Qur'an.\n\nPendaftaran dibuka mulai bulan ini hingga kuota terpenuhi. Para calon penerima manfaat akan melalui proses seleksi hafalan dasar dan administrasi.",
-      "imageUrl": "https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=800&auto=format&fit=crop",
+      "imageUrl": "assets/images/beasiswa-tahfidz.jpg",
       "gallery": [
-        "https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=800&auto=format&fit=crop"
+        "assets/images/foto-utama-wiz.jpg",
+        "assets/images/sedekah-beras-dhuafa.jpg"
       ],
       "eventDate": "2026-08-18T00:00:00.000Z",
       "status": "published",
@@ -52,9 +53,10 @@
       "title": "Pelatihan Guru Al-Qur'an Metode Dirosa di Pangkalpinang",
       "category": "Dakwah & Pendidikan",
       "content": "Sebanyak 50 guru ngaji mengikuti Pelatihan Guru Dirosa yang diselenggarakan oleh WIZ Bangka Belitung untuk meningkatkan kualitas pengajaran Al-Qur'an.\n\nMetode Dirosa merupakan sistem belajar membaca Al-Qur'an yang efektif untuk orang dewasa dan anak-anak. Diharapkan pelatihan ini melahirkan pengajar Al-Qur'an yang kompeten di Bangka Belitung.",
-      "imageUrl": "https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=800&auto=format&fit=crop",
+      "imageUrl": "assets/images/foto-utama-wiz.jpg",
       "gallery": [
-        "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=800&auto=format&fit=crop"
+        "assets/images/sedekah-beras-dhuafa.jpg",
+        "assets/images/beasiswa-tahfidz.jpg"
       ],
       "eventDate": "2026-08-17T00:00:00.000Z",
       "status": "published",
@@ -91,13 +93,13 @@
   },
   "site_images": {
     "hero_card": "assets/images/foto-utama-wiz.jpg",
-    "about_img": "https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop",
-    "berkah_hidayah": "https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=600&auto=format&fit=crop",
-    "berkah_juara": "https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=600&auto=format&fit=crop",
-    "berkah_sehat": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=600&auto=format&fit=crop",
-    "berkah_peduli": "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=600&auto=format&fit=crop",
-    "berkah_mandiri": "https://images.unsplash.com/photo-1556742049-0a670fc80782?q=80&w=600&auto=format&fit=crop",
-    "banner_donasi": "https://images.unsplash.com/photo-1532629345422-7515f3d16bb9?q=80&w=1200&auto=format&fit=crop"
+    "about_img": "assets/images/foto-utama-wiz.jpg",
+    "berkah_hidayah": "assets/images/beasiswa-tahfidz.jpg",
+    "berkah_juara": "assets/images/beasiswa-tahfidz.jpg",
+    "berkah_sehat": "assets/images/sedekah-beras-dhuafa.jpg",
+    "berkah_peduli": "assets/images/sedekah-beras-dai.jpg",
+    "berkah_mandiri": "assets/images/foto-utama-wiz.jpg",
+    "banner_donasi": "assets/images/foto-utama-wiz.jpg"
   },
   "admin_users": [
     {
