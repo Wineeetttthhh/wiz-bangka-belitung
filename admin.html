@@ -674,7 +674,11 @@
                     </div>
                     <p class="font-caption text-caption text-on-surface-variant">Tulis artikel, laporan penyaluran, dan upload foto dokumentasi kegiatan. Berita <strong>Published</strong> otomatis tayang realtime di Website Utama.</p>
                 </div>
-                <div class="flex items-center gap-sm shrink-0 w-full sm:w-auto">
+                <div class="flex items-center gap-sm shrink-0 w-full sm:w-auto flex-wrap">
+                    <button id="btn-sync-news-cloud" type="button" onclick="forceSyncNewsToCloud()" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 border border-emerald-500/60 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 px-md py-sm rounded-xl font-label-md text-label-md font-bold transition-all shadow-xs cursor-pointer" title="Tekan jika berita yang baru Anda buat belum muncul di HP lain">
+                        <span class="material-symbols-outlined text-sm">cloud_sync</span>
+                        <span>Kirim ke Seluruh HP</span>
+                    </button>
                     <a href="index.html#berita" target="_blank" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 border border-outline-variant text-on-surface hover:text-primary px-md py-sm rounded-xl font-label-md text-label-md font-bold transition-all hover:bg-surface-container-low cursor-pointer">
                         <span class="material-symbols-outlined text-sm">open_in_new</span>
                         <span>Lihat di Web</span>
@@ -3616,6 +3620,33 @@
             await wizStore.news.toggleStatus(id);
             refreshAll();
             alert(`✅ Status berita "${article.title}" diubah menjadi: ${statusLabel}`);
+        }
+
+        async function forceSyncNewsToCloud() {
+            if (!window.wizStore) return;
+            const btn = document.getElementById('btn-sync-news-cloud');
+            const originalHtml = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Menyinkronkan ke Cloud & HP...</span>';
+            }
+            try {
+                if (wizStore.pushToCloud) {
+                    await wizStore.pushToCloud();
+                }
+                if (wizStore.syncFromCloud) {
+                    await wizStore.syncFromCloud(true);
+                }
+                refreshAll();
+                alert('✅ Berita di dashboard Admin Anda telah berhasil dikirim ke Cloud dan langsung sinkron ke seluruh HP!');
+            } catch(e) {
+                alert('⚠️ Terjadi kendala saat menyinkronkan: ' + e.message);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+            }
         }
 
         async function deleteNews(id) {
