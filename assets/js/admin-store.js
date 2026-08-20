@@ -49,7 +49,7 @@
 
     const DEFAULT_SITE_SETTINGS = {
         banks: [
-            { id: 'bsi', bank: 'Bank BSI (Bank Syariah Indonesia)', number: '7112223334', holder: 'Wahdah Inspirasi Zakat', isActive: true }
+            { id: 'bsi', bank: 'Bank Syariah Indonesia (BSI)', number: '716800800', holder: 'WIZ Bangka Belitung', isActive: true, logo: 'assets/images/logo-bsi.jpg' }
         ],
         offices: [
             { id: 'pangkalpinang', name: 'Kantor Pangkalpinang', address: 'Jl. Mentok No. 45, Pangkalpinang, Bangka Belitung', phone: '0812-7171-8000', hotline: '081271718000', mapsUrl: 'https://maps.google.com' },
