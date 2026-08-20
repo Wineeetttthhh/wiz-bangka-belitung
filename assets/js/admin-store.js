@@ -87,10 +87,11 @@
         'Keberangkatan Kepulangan Dai': 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=800&auto=format&fit=crop',
 
         'Tebar Sembako': 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop',
-        'Sedekah Beras Dhuafa': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=800&auto=format&fit=crop',
-        'Sedekah Jumat': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=800&auto=format&fit=crop',
-        'Santunan Yatim': 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800&auto=format&fit=crop',
-        'Tebar Iftar Nusantara': 'https://images.unsplash.com/photo-1541544741938-0af808871cc0?q=80&w=800&auto=format&fit=crop',
+        'Sedekah Jumat': 'assets/images/foto-utama-wiz.jpg',
+        'Santunan Yatim': 'assets/images/foto-utama-wiz.jpg',
+        'Tebar Iftar Nusantara': 'assets/images/tebar-iftar.jpg',
+        'Tebar Ifthar Nusantara': 'assets/images/tebar-iftar.jpg',
+        'Tebar Iftar': 'assets/images/tebar-iftar.jpg',
         "Tebar Qur'an Nusantara": 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=800&auto=format&fit=crop',
         'Bahagiakan Guru Ngaji': 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=800&auto=format&fit=crop',
         'Sedekah Air': 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?q=80&w=800&auto=format&fit=crop',
@@ -827,7 +828,10 @@
                 }
             }
 
-            if (DEFAULT_SPECIFIC_PROGRAM_IMAGES[programName]) {
+            if (typeof DEFAULT_PROGRAM_IMAGES !== 'undefined' && DEFAULT_PROGRAM_IMAGES[programName]) {
+                return DEFAULT_PROGRAM_IMAGES[programName];
+            }
+            if (typeof DEFAULT_SPECIFIC_PROGRAM_IMAGES !== 'undefined' && DEFAULT_SPECIFIC_PROGRAM_IMAGES[programName]) {
                 return DEFAULT_SPECIFIC_PROGRAM_IMAGES[programName];
             }
             const cleanPillarKey = (pillar || '').toLowerCase().replace(/\s+/g, '_');
