@@ -1226,6 +1226,7 @@
             renderPublicNews();
             renderPublicQuote();
             updateDynamicProgramCards();
+            if (typeof window.applySiteSettings === 'function') window.applySiteSettings();
             if (targetNewsId) {
                 openPublicNewsModal(targetNewsId);
             }
@@ -1236,6 +1237,7 @@
         renderPublicNews();
         renderPublicQuote();
         if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
+        if (typeof window.applySiteSettings === 'function') window.applySiteSettings();
     });
 
     window.addEventListener('wiz-quotes-changed', () => {

@@ -548,14 +548,26 @@
             }
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.upsert('site_settings', {
-                    key: 'global_settings',
-                    value: updated,
-                    updatedAt: new Date().toISOString()
-                });
+                try {
+                    await window.wizFirebase.upsert('site_settings', {
+                        key: 'global_settings',
+                        value: updated,
+                        updatedAt: new Date().toISOString()
+                    });
+                } catch(e) {}
+            }
+
+            // Immediately push the updated master bundle to cloud
+            try {
+                if (typeof pushToCloud === 'function') {
+                    await pushToCloud();
+                }
+            } catch(e) {
+                console.warn('[Site Settings] pushToCloud error:', e);
             }
 
             window.dispatchEvent(new CustomEvent('wiz-site-settings-changed', { detail: updated }));
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return updated;
         }
     };
@@ -1186,7 +1198,12 @@
                 smartMerge(STORAGE_KEYS.REFERRAL_PAYOUTS, masterData.referral_payouts, (a, b) => new Date(b.paidAt || 0) - new Date(a.paidAt || 0));
             }
             if (masterData.site_settings && typeof masterData.site_settings === 'object') {
-                setStore(STORAGE_KEYS.SITE_SETTINGS, { ...DEFAULT_SITE_SETTINGS, ...masterData.site_settings });
+                const rawSettings = masterData.site_settings.value || masterData.site_settings;
+                if (rawSettings && typeof rawSettings === 'object') {
+                    const mergedSettings = { ...DEFAULT_SITE_SETTINGS, ...rawSettings };
+                    setStore(STORAGE_KEYS.SITE_SETTINGS, mergedSettings);
+                    window.dispatchEvent(new CustomEvent('wiz-site-settings-changed', { detail: mergedSettings }));
+                }
             }
             if (masterData.site_images && typeof masterData.site_images === 'object') {
                 setStore(STORAGE_KEYS.SITE_IMAGES, { ...DEFAULT_SITE_IMAGES, ...masterData.site_images });

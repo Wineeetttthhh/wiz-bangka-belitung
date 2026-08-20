@@ -1602,14 +1602,41 @@ window.applySiteSettings = function () {
     if (settings.banks && Array.isArray(settings.banks)) {
         settings.banks.forEach(b => {
             const bankId = (b.id || '').toLowerCase();
+            if (!bankId) return;
+
+            // Bank Account Number
             document.querySelectorAll(`[data-site-bank-no="${bankId}"]`).forEach(el => {
-                el.textContent = b.number;
+                if (el.tagName === 'INPUT') {
+                    el.value = b.number || '';
+                } else {
+                    el.textContent = b.number || '';
+                }
             });
+
+            // Bank Holder
             document.querySelectorAll(`[data-site-bank-holder="${bankId}"]`).forEach(el => {
-                el.textContent = b.holder;
+                const holderVal = b.holder || 'Wahdah Inspirasi Zakat';
+                const strongTag = el.querySelector('strong');
+                if (strongTag) {
+                    strongTag.textContent = holderVal;
+                } else if (el.tagName === 'INPUT') {
+                    el.value = holderVal;
+                } else if (el.textContent.includes('Atas Nama:')) {
+                    el.innerHTML = `Atas Nama: <strong class="text-on-surface">${holderVal}</strong>`;
+                } else if (el.textContent.includes('A.n.')) {
+                    el.textContent = `A.n. ${holderVal}`;
+                } else {
+                    el.textContent = holderVal;
+                }
             });
+
+            // Bank Name
             document.querySelectorAll(`[data-site-bank-name="${bankId}"]`).forEach(el => {
-                el.textContent = b.bank;
+                if (el.tagName === 'INPUT') {
+                    el.value = b.bank || '';
+                } else {
+                    el.textContent = b.bank || '';
+                }
             });
         });
     }
@@ -1618,11 +1645,14 @@ window.applySiteSettings = function () {
     if (settings.offices && Array.isArray(settings.offices)) {
         settings.offices.forEach(off => {
             const offId = (off.id || '').toLowerCase();
+            if (!offId) return;
             document.querySelectorAll(`[data-site-office-address="${offId}"]`).forEach(el => {
-                el.textContent = off.address;
+                if (el.tagName === 'INPUT') el.value = off.address || '';
+                else el.textContent = off.address || '';
             });
             document.querySelectorAll(`[data-site-office-phone="${offId}"]`).forEach(el => {
-                el.textContent = off.phone;
+                if (el.tagName === 'INPUT') el.value = off.phone || '';
+                else el.textContent = off.phone || '';
             });
         });
     }

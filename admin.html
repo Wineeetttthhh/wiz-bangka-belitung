@@ -4412,10 +4412,29 @@
                 ]
             };
 
-            await wizStore.siteSettings.update(updatedSettings);
-            alert('✅ Pengaturan Rekening Bank & Lokasi Kantor berhasil disimpan dan langsung diperbarui di semua halaman web!');
-            if (window.applySiteSettings) window.applySiteSettings();
-            refreshAll();
+            const btnSubmit = document.querySelector('#form-site-settings button[type="submit"]');
+            const originalText = btnSubmit ? btnSubmit.innerHTML : '';
+            if (btnSubmit) {
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Menyimpan & Menyinkronkan...</span>';
+            }
+
+            try {
+                await wizStore.siteSettings.update(updatedSettings);
+                if (wizStore.pushToCloud) {
+                    await wizStore.pushToCloud();
+                }
+                alert('✅ Pengaturan Rekening Bank & Lokasi Kantor berhasil disimpan dan langsung disinkronkan ke seluruh halaman web utama!');
+            } catch (err) {
+                alert('⚠️ Berhasil disimpan secara lokal, namun terjadi kendala sinkronisasi online: ' + err.message);
+            } finally {
+                if (btnSubmit) {
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = originalText;
+                }
+                if (window.applySiteSettings) window.applySiteSettings();
+                refreshAll();
+            }
         }
 
         function switchAuthTab(tab) {

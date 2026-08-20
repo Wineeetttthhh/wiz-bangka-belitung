@@ -1123,11 +1123,13 @@
             }
 
             updateSummary();
+            if (window.applySiteSettings) window.applySiteSettings();
         });
 
         window.addEventListener('wiz-sync-complete', () => {
             updateSummary();
             initAffiliateBanner();
+            if (window.applySiteSettings) window.applySiteSettings();
         });
 
         /**
