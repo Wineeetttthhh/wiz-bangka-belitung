@@ -155,14 +155,20 @@
     <!-- Immediate auth check before rendering -->
     <script>
         (function() {
-            const isAuth = sessionStorage.getItem('wiz_admin_authenticated') === 'true' || 
-                           localStorage.getItem('wiz_admin_authenticated') === 'true';
+            // SECURITY: Only use sessionStorage (expires when browser/tab is closed)
+            // Never use localStorage for admin auth — it persists permanently
+            const isAuth = sessionStorage.getItem('wiz_admin_authenticated') === 'true';
             document.addEventListener('DOMContentLoaded', function() {
                 const m = document.getElementById('admin-login-modal');
                 if (m) {
                     if (isAuth) {
                         m.remove();
                     } else {
+                        // Force show login — clear any stale localStorage tokens
+                        localStorage.removeItem('wiz_admin_authenticated');
+                        localStorage.removeItem('wiz_admin_user');
+                        localStorage.removeItem('wiz_admin_role');
+                        localStorage.removeItem('wiz_admin_name');
                         m.style.display = 'flex';
                         m.style.visibility = 'visible';
                         m.style.pointerEvents = 'auto';
@@ -5246,22 +5252,28 @@
             }
             const userEl = document.getElementById('login-username');
             const passEl = document.getElementById('login-password');
-            let rawUser = userEl ? userEl.value.trim() : '';
-            let rawPass = passEl ? passEl.value.trim() : '';
+            const rawUser = userEl ? userEl.value.trim() : '';
+            const rawPass = passEl ? passEl.value.trim() : '';
 
-            // Default to super admin if submitted directly
-            if (!rawUser && !rawPass) {
-                rawUser = 'admin';
-                rawPass = 'wizbabel2026';
+            const errAlert = document.getElementById('login-error-alert');
+            const errText = document.getElementById('login-error-text');
+
+            // SECURITY: Reject empty username or password — no auto-login bypass allowed
+            if (!rawUser || !rawPass) {
+                if (errAlert && errText) {
+                    errAlert.classList.remove('hidden');
+                    errText.textContent = 'Username dan Password wajib diisi!';
+                }
+                return false;
             }
 
             const user = rawUser.toLowerCase();
             const pass = rawPass;
-            const errAlert = document.getElementById('login-error-alert');
-            const errText = document.getElementById('login-error-text');
 
             let authResult = null;
-            if ((!user || user === 'admin' || user === 'super admin' || user === 'amil') && (!pass || pass.toLowerCase() === 'wizbabel2026' || pass === 'wizbabel2026')) {
+
+            // SECURITY: Exact match required for built-in super admin — no partial/empty match
+            if (user === 'admin' && pass === 'wizbabel2026') {
                 authResult = {
                     success: true,
                     user: {
@@ -5273,21 +5285,25 @@
                     }
                 };
             } else if (window.wizStore && window.wizStore.adminUsers) {
+                // Try registered admin users (requires exact credentials)
                 authResult = window.wizStore.adminUsers.login(rawUser, rawPass);
             } else {
                 authResult = { success: false, message: 'Username atau Password salah!' };
             }
 
             if (authResult && authResult.success) {
+                // SECURITY: Only use sessionStorage — expires when browser/tab is closed
+                // Never persist auth to localStorage
                 sessionStorage.setItem('wiz_admin_authenticated', 'true');
                 sessionStorage.setItem('wiz_admin_user', authResult.user.username);
                 sessionStorage.setItem('wiz_admin_role', authResult.user.role || 'super_admin');
                 sessionStorage.setItem('wiz_admin_name', authResult.user.fullName || authResult.user.username);
 
-                localStorage.setItem('wiz_admin_authenticated', 'true');
-                localStorage.setItem('wiz_admin_user', authResult.user.username);
-                localStorage.setItem('wiz_admin_role', authResult.user.role || 'super_admin');
-                localStorage.setItem('wiz_admin_name', authResult.user.fullName || authResult.user.username);
+                // Ensure localStorage has NO auth tokens (belt-and-suspenders cleanup)
+                localStorage.removeItem('wiz_admin_authenticated');
+                localStorage.removeItem('wiz_admin_user');
+                localStorage.removeItem('wiz_admin_role');
+                localStorage.removeItem('wiz_admin_name');
 
                 ADMIN_NAME = authResult.user.fullName || authResult.user.username;
                 if (errAlert) errAlert.classList.add('hidden');
@@ -5307,7 +5323,7 @@
             } else {
                 if (errAlert && errText) {
                     errAlert.classList.remove('hidden');
-                    errText.textContent = authResult.message || 'Username atau Kata Sandi salah!';
+                    errText.textContent = (authResult && authResult.message) || 'Username atau Kata Sandi salah!';
                 }
             }
             return false;
@@ -5315,12 +5331,17 @@
 
         function handleAdminLogout() {
             if (confirm('Apakah Anda yakin ingin keluar dari Portal Admin WIZ Babel?')) {
+                // SECURITY: Clear all session and any stale local storage tokens
                 sessionStorage.removeItem('wiz_admin_authenticated');
                 sessionStorage.removeItem('wiz_admin_user');
                 sessionStorage.removeItem('wiz_admin_role');
                 sessionStorage.removeItem('wiz_admin_name');
                 localStorage.removeItem('wiz_admin_authenticated');
-                checkAdminAuth();
+                localStorage.removeItem('wiz_admin_user');
+                localStorage.removeItem('wiz_admin_role');
+                localStorage.removeItem('wiz_admin_name');
+                // Redirect to login page
+                window.location.href = 'admin.html';
             }
         }
 
