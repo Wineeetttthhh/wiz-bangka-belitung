@@ -1328,11 +1328,15 @@
     const nominalInput = document.getElementById('nominal-input');
 
     function openDonationModal(programName) {
+        const refCode = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || new URLSearchParams(window.location.search).get('perantara'));
+        let url = 'donasi.html';
         if (programName && programName !== 'Donasi Umum') {
-            window.location.href = `donasi.html?program=${encodeURIComponent(programName)}`;
-        } else {
-            window.location.href = 'donasi.html';
+            url += `?program=${encodeURIComponent(programName)}`;
+            if (refCode) url += `&ref=${encodeURIComponent(refCode)}`;
+        } else if (refCode) {
+            url += `?ref=${encodeURIComponent(refCode)}`;
         }
+        window.location.href = url;
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
