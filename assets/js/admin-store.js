@@ -242,6 +242,16 @@
         return generateUUID();
     }
 
+    function getStore(key) {
+        try {
+            const item = localStorage.getItem(key);
+            return item ? JSON.parse(item) : null;
+        } catch (e) {
+            console.error("[WIZ Store] Gagal baca data:", key, e);
+            return null;
+        }
+    }
+
     function setStore(key, data) {
         try {
             localStorage.setItem(key, JSON.stringify(data));
