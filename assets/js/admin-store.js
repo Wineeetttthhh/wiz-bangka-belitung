@@ -1265,7 +1265,7 @@
                 const cloudNewsMap = new Map();
                 // 1. Load authoritative cloud news
                 masterData.news.forEach(n => {
-                    if (n && n.id && !deletedNewsSet.has(String(n.id)) && n.status !== 'deleted') {
+                    if (n && n.id && n.status !== 'deleted' && !n.isDeleted) {
                         cloudNewsMap.set(String(n.id), { ...n });
                     }
                 });
@@ -1629,10 +1629,88 @@
     // ─── News Module ──────────────────────────────────────
     const news = {
         getAll() {
-            const deletedSet = getDeletedNewsIds();
-            const raw = getStore(STORAGE_KEYS.NEWS) || [];
+            let raw = getStore(STORAGE_KEYS.NEWS);
+            if (!Array.isArray(raw) || raw.length === 0) {
+                // If local storage is empty, initialize with default canonical seed
+                raw = [
+                    {
+                        id: 'news-beasiswa-anak-sekolah',
+                        title: 'WIZ Babel Salurkan Beasiswa Pendidikan untuk Anak Masuk Sekolah',
+                        category: 'Kegiatan & Penyaluran',
+                        content: 'PANGKALPINANG — Wahdah Inspirasi Zakat (WIZ) Bangka Belitung kembali menyalurkan bantuan pendidikan melalui pilar program Berkah Juara untuk anak-anak yatim dan dhuafa yang memasuki tahun ajaran baru.\n\nBantuan berupa seragam, perlengkapan sekolah, dan beasiswa tunai ini diserahkan langsung guna memastikan keberlanjutan pendidikan generasi muda penerus bangsa.\n\nSemoga bantuan ini meringankan beban keluarga dan menjadi amal jariyah bagi para donatur.',
+                        imageUrl: 'assets/images/foto-utama-wiz.jpg',
+                        gallery: ['assets/images/beasiswa-tahfidz.jpg'],
+                        eventDate: '2026-07-08T00:00:00.000Z',
+                        status: 'published',
+                        createdAt: '2026-07-08T08:00:00.000Z',
+                        author: 'Super Admin 1 (WIZ Babel)'
+                    },
+                    {
+                        id: 'news-bantuan-kesehatan-jantung',
+                        title: 'Ringankan Beban Pengobatan Jantung, WIZ Babel Salurkan Bantuan Kesehatan',
+                        category: 'Kegiatan & Penyaluran',
+                        content: 'PANGKALPINANG — Wahdah Inspirasi Zakat (WIZ) Bangka Belitung kembali menyalurkan bantuan program kesehatan bagi warga dhuafa penderita penyakit jantung di Kota Pangkalpinang.\n\nBantuan operasional pengobatan dan santunan ini diserahkan langsung oleh relawan WIZ di kediaman pasien guna mendukung proses pemulihan dan rawat jalan.\n\nKeluarga penerima manfaat menyampaikan rasa haru dan terima kasih mendalam atas kepedulian para muhsinin.',
+                        imageUrl: 'assets/images/tebar-iftar-3.jpg',
+                        gallery: ['assets/images/sedekah-beras-dhuafa.jpg', 'assets/images/foto-utama-wiz.jpg'],
+                        eventDate: '2026-06-10T00:00:00.000Z',
+                        status: 'published',
+                        createdAt: '2026-06-10T08:00:00.000Z',
+                        author: 'Super Admin 1 (WIZ Babel)'
+                    },
+                    {
+                        id: 'news-pangan-beras-masyarakat',
+                        title: 'Penuhi Kebutuhan Pangan Masyarakat, WIZ Babel Salurkan Beras Premium',
+                        category: 'Kegiatan & Penyaluran',
+                        content: 'PANGKALPINANG (wizbangkabelitung.or.id) — Laznas Wahdah Inspirasi Zakat (WIZ) Bangka Belitung kembali menunjukkan kepedulian nyata dengan menyalurkan beras premium dan sembako untuk keluarga pra-sejahtera dan dhuafa di pelosok Bangka Belitung guna menjaga ketahanan pangan keluarga.',
+                        imageUrl: 'assets/images/sedekah-beras-dai.jpg',
+                        gallery: ['assets/images/sedekah-beras-dhuafa.jpg', 'assets/images/tebar-iftar-1.jpg'],
+                        eventDate: '2026-05-18T00:00:00.000Z',
+                        status: 'published',
+                        createdAt: '2026-05-18T08:00:00.000Z',
+                        author: 'Super Admin 1 (WIZ Babel)'
+                    },
+                    {
+                        id: 'news-beasiswa-stiba-unmuh',
+                        title: 'WIZ Bangka Belitung Salurkan Beasiswa Pendidikan Rutin Bulanan untuk Mahasiswa STIBA Makassar dan Unmuh Babel',
+                        category: 'Kegiatan & Penyaluran',
+                        content: 'PANGKALPINANG — Wahdah Inspirasi Zakat (WIZ) Bangka Belitung kembali menunjukkan komitmennya dalam mendukung keberlanjutan pendidikan generasi muda berprestasi melalui program Beasiswa Pendidikan Rutin Bulanan untuk mahasiswa STIBA Makassar dan Unmuh Babel.\n\nBantuan beasiswa ini diserahkan langsung guna meringankan biaya operasional perkuliahan, pembelian kitab/buku referensi, serta kebutuhan penunjang studi para mahasiswa penghafal Al-Qur\'an.\n\nSemoga bantuan ini memotivasi para penerima manfaat untuk terus berprestasi dan menjadi berkah jariyah bagi seluruh donatur WIZ Babel.',
+                        imageUrl: 'assets/images/beasiswa-tahfidz.jpg',
+                        gallery: ['assets/images/foto-utama-wiz.jpg'],
+                        eventDate: '2026-08-17T00:00:00.000Z',
+                        status: 'published',
+                        createdAt: '2026-08-17T08:00:00.000Z',
+                        author: 'Super Admin 1 (WIZ Babel)'
+                    },
+                    {
+                        id: 'news-zakat-fitrah-babel',
+                        title: 'Zakat Fitrah WIZ Babel Hadirkan Kebahagiaan',
+                        category: 'Kegiatan & Penyaluran',
+                        content: 'Lembaga Amil Zakat Wahdah Inspirasi Zakat Bangka Belitung menyalurkan zakat fitrah kepada para mustahik di Wilayah Kota Pangkal Pinang dan sekitarnya.\n\nPenyaluran ini disambut dengan penuh rasa syukur dan sukacita oleh warga penerima manfaat. Paket beras zakat fitrah berkualitas premium disalurkan langsung ke rumah-rumah warga dhuafa jelang Hari Raya Idul Fitri guna memastikan tidak ada keluarga yang kelaparan di hari kemenangan.',
+                        imageUrl: 'assets/images/sedekah-beras-dhuafa.jpg',
+                        gallery: ['assets/images/sedekah-beras-dai.jpg', 'assets/images/foto-utama-wiz.jpg'],
+                        eventDate: '2026-03-19T00:00:00.000Z',
+                        status: 'published',
+                        createdAt: '2026-03-19T08:00:00.000Z',
+                        author: 'Super Admin 1 (WIZ Babel)'
+                    },
+                    {
+                        id: 'news-santunan-yatim-quran',
+                        title: 'Santunan Anak Yatim dan Tebar Al-Qur\'an Nusantara Ramadan Makin Bahagia 1447 H',
+                        category: 'Kegiatan & Penyaluran',
+                        content: 'WIZ Bangka Belitung melaksanakan kegiatan santunan anak yatim dan tebar al-Qur\'an Nusantara. Kegiatan ini dibuka dengan pembacaan ayat suci Al-Qur\'an dan dilanjutkan dengan penyerahan santunan uang tunai, perlengkapan ibadah, bingkisan perlengkapan sekolah, serta mushaf Al-Qur\'an untuk anak-anak yatim binaan di Bangka Belitung.\n\nKegiatan berlangsung khidmat dan diakhiri dengan doa bersama untuk para muhsinin dan donatur.',
+                        imageUrl: 'assets/images/tebar-iftar-1.jpg',
+                        gallery: ['assets/images/tebar-iftar.jpg', 'assets/images/sedekah-beras-dhuafa.jpg', 'assets/images/beasiswa-tahfidz.jpg'],
+                        eventDate: '2026-03-14T00:00:00.000Z',
+                        status: 'published',
+                        createdAt: '2026-03-14T08:00:00.000Z',
+                        author: 'Super Admin 1 (WIZ Babel)'
+                    }
+                ];
+                setStore(STORAGE_KEYS.NEWS, raw);
+            }
+
             return raw
-                .filter(n => n && n.id && !deletedSet.has(String(n.id)) && n.status !== 'deleted' && !n.isDeleted)
+                .filter(n => n && n.id && n.status !== 'deleted' && !n.isDeleted)
                 .sort((a, b) => {
                     const timeA = new Date(a.eventDate || a.event_date || a.createdAt || 0).getTime();
                     const timeB = new Date(b.eventDate || b.event_date || b.createdAt || 0).getTime();
