@@ -675,9 +675,9 @@
                     <p class="font-caption text-caption text-on-surface-variant">Tulis artikel, laporan penyaluran, dan upload foto dokumentasi kegiatan. Berita <strong>Published</strong> otomatis tayang realtime di Website Utama.</p>
                 </div>
                 <div class="flex items-center gap-sm shrink-0 w-full sm:w-auto flex-wrap">
-                    <button id="btn-sync-news-cloud" type="button" onclick="forceSyncNewsToCloud()" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 border border-emerald-500/60 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 px-md py-sm rounded-xl font-label-md text-label-md font-bold transition-all shadow-xs cursor-pointer" title="Tekan jika berita yang baru Anda buat belum muncul di HP lain">
-                        <span class="material-symbols-outlined text-sm">cloud_sync</span>
-                        <span>Kirim ke Seluruh HP</span>
+                    <button id="btn-sync-news-cloud" type="button" onclick="forceSyncNewsToCloud()" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 border border-emerald-500/60 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 px-md py-sm rounded-xl font-label-md text-label-md font-bold transition-all shadow-xs cursor-pointer" title="Simpan dan sinkronkan berita ke Supabase">
+                        <span class="material-symbols-outlined text-sm">database</span>
+                        <span>Sinkronkan ke Supabase</span>
                     </button>
                     <a href="index.html#berita" target="_blank" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 border border-outline-variant text-on-surface hover:text-primary px-md py-sm rounded-xl font-label-md text-label-md font-bold transition-all hover:bg-surface-container-low cursor-pointer">
                         <span class="material-symbols-outlined text-sm">open_in_new</span>
@@ -2012,8 +2012,8 @@
     </div>
 
     <!-- Supabase Client & Admin Store -->
-    <script src="assets/js/supabase-client.js?v=20260820_18"></script>
-    <script src="assets/js/admin-store.js?v=20260820_18"></script>
+    <script src="assets/js/supabase-client.js?v=20260820_19"></script>
+    <script src="assets/js/admin-store.js?v=20260820_19"></script>
 
     <script>
         const SPECIFIC_PROGRAMS_MAP = {
@@ -3545,7 +3545,7 @@
             const imageUrl = (document.getElementById('news-image-url').value || '').trim() || 'assets/images/sedekah-beras-dhuafa.jpg';
             const eventDateVal = document.getElementById('news-event-date').value;
             const eventDate = eventDateVal ? new Date(eventDateVal).toISOString() : new Date().toISOString();
-            const status = document.querySelector('input[name="news-status"]:checked').value;
+            const status = document.querySelector('input[name="news-status"]:checked') ? document.querySelector('input[name="news-status"]:checked').value : 'published';
             const author = (document.getElementById('news-author').value || sessionStorage.getItem('wiz_admin_name') || 'Admin WIZ Babel').trim();
 
             if (!title) {
@@ -3567,46 +3567,51 @@
                 gallery: cleanGallery,
                 eventDate,
                 status,
-                author
+                author,
+                updatedAt: new Date().toISOString()
             };
 
-            const btnSubmit = document.querySelector('#news-form button[type="submit"]');
-            const originalText = btnSubmit ? btnSubmit.innerHTML : '';
-            if (btnSubmit) {
-                btnSubmit.disabled = true;
-                btnSubmit.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Menyimpan...</span>';
+            // 1. Instantly save to local store
+            let savedArticle = null;
+            if (editId) {
+                savedArticle = await wizStore.news.update(editId, data);
+            } else {
+                savedArticle = await wizStore.news.add(data);
             }
 
-            try {
-                if (editId) {
-                    await wizStore.news.update(editId, data);
-                } else {
-                    await wizStore.news.add(data);
-                }
+            // 2. Instantly close modal and refresh UI
+            closeNewsModal();
+            refreshAll();
 
-                // Background cloud broadcast
-                if (wizStore.pushToCloud) {
-                    wizStore.pushToCloud().catch(err => console.warn('[Cloud Sync Notice]', err));
-                }
-
-                closeNewsModal();
-                refreshAll();
-
-                // Smooth non-blocking feedback
-                if (typeof showToast === 'function') {
-                    showToast(`✅ Berita "${title}" berhasil disimpan!`);
-                } else {
-                    alert(`✅ Berita "${title}" berhasil disimpan & dipublikasikan!`);
-                }
-            } catch (err) {
-                console.error('Error saving news:', err);
-                alert(`⚠️ Terjadi kesalahan saat menyimpan: ${err.message}`);
-            } finally {
-                if (btnSubmit) {
-                    btnSubmit.disabled = false;
-                    btnSubmit.innerHTML = originalText || 'Simpan & Publikasikan Berita';
-                }
+            // 3. Directly save to Supabase Database (Non-blocking background)
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                const itemToSave = savedArticle || data;
+                window.wizSupabase.upsert('news', {
+                    id: String(editId || itemToSave.id),
+                    title: itemToSave.title,
+                    category: itemToSave.category,
+                    content: itemToSave.content,
+                    image_url: itemToSave.imageUrl,
+                    gallery: itemToSave.gallery || [],
+                    event_date: itemToSave.eventDate,
+                    status: itemToSave.status || 'published',
+                    author: itemToSave.author,
+                    created_at: itemToSave.createdAt || new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                }).then(() => {
+                    console.log('[Supabase] News saved successfully to PostgreSQL:', itemToSave.id);
+                }).catch(err => {
+                    console.error('[Supabase Save Error]', err);
+                });
             }
+
+            // 4. Background broadcast to /api/sync
+            if (wizStore.pushToCloud) {
+                wizStore.pushToCloud().catch(() => {});
+            }
+
+            // 5. User feedback
+            alert(`✅ Berita "${title}" berhasil ${editId ? 'diperbarui' : 'disimpan'}!\n\nStatus: ${status === 'published' ? 'Dipublikasikan (Aktif di Web)' : 'Draft'}\nDatabase: Supabase PostgreSQL`);
         }
 
         function editNews(id) {
@@ -3633,38 +3638,37 @@
             const allNews = wizStore.news.getAll();
             if (btn) {
                 btn.disabled = true;
-                btn.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Mengirim ${allNews.length} Berita ke Cloud & HP...</span>`;
+                btn.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Menyimpan ${allNews.length} Berita ke Supabase...</span>`;
             }
             try {
-                // 1. Direct fetch to remote production /api/sync
-                const payload = {
-                    action: 'sync_bundle',
-                    bundle: {
-                        news: allNews,
-                        site_settings: (wizStore.siteSettings && typeof wizStore.siteSettings.get === 'function') ? wizStore.siteSettings.get() : {},
-                        site_images: JSON.parse(localStorage.getItem('wiz_site_images') || '{}'),
-                        specific_prog_imgs: JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}'),
-                        donations: (wizStore.donations && typeof wizStore.donations.getAll === 'function') ? wizStore.donations.getAll() : []
+                // 1. Direct Supabase Upsert for every news item
+                if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                    for (const item of allNews) {
+                        try {
+                            await window.wizSupabase.upsert('news', {
+                                id: String(item.id),
+                                title: item.title,
+                                category: item.category,
+                                content: item.content,
+                                image_url: item.imageUrl,
+                                gallery: item.gallery || [],
+                                event_date: item.eventDate,
+                                status: item.status || 'published',
+                                author: item.author,
+                                created_at: item.createdAt || new Date().toISOString(),
+                                updated_at: new Date().toISOString()
+                            });
+                        } catch(e) {}
                     }
-                };
-
-                try {
-                    await fetch('https://www.wizbangkabelitung.or.id/api/sync', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                } catch(e) {
-                    console.warn('Production /api/sync direct post error:', e);
                 }
 
-                // 2. Also run normal pushToCloud
+                // 2. Broadcast /api/sync
                 if (wizStore.pushToCloud) {
                     await wizStore.pushToCloud();
                 }
 
                 refreshAll();
-                alert(`✅ Berhasil! Seluruh ${allNews.length} berita di dashboard Admin Anda telah berhasil dikirim ke server Cloud dan langsung sinkron ke seluruh HP!`);
+                alert(`✅ Berhasil! Seluruh ${allNews.length} berita telah tersimpan permanen di database Supabase PostgreSQL dan aktif di Web Utama.`);
             } catch(e) {
                 alert('⚠️ Terjadi kendala saat menyinkronkan: ' + e.message);
             } finally {

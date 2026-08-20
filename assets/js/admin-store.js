@@ -1904,9 +1904,6 @@
             const statusLabel = newArticle.status === 'published' ? 'dipublikasikan' : 'disimpan sebagai draft';
             activityLog.add('news', `Berita "${newArticle.title}" ${statusLabel}.`, authorName);
 
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.insert('news', newArticle);
-            }
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                 try {
                     await window.wizSupabase.upsert('news', {
@@ -1924,8 +1921,10 @@
                 } catch(e) {}
             }
 
-            // Push to Vercel Serverless Sync & Firestore Master Bundle immediately
-            try { await pushToCloud(); } catch(e) {}
+            // Background non-blocking cloud push
+            if (typeof pushToCloud === 'function') {
+                pushToCloud().catch(() => {});
+            }
 
             broadcastSync('NEWS_ADDED', newArticle);
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
@@ -1952,9 +1951,6 @@
 
             activityLog.add('news', `Berita "${list[idx].title}" diperbarui.`, authorName);
 
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.set('news', articleId, list[idx]);
-            }
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                 try {
                     const item = list[idx];
@@ -1974,8 +1970,10 @@
                 } catch(e) {}
             }
 
-            // Push to Vercel Serverless Sync & Firestore Master Bundle immediately
-            try { await pushToCloud(); } catch(e) {}
+            // Background non-blocking cloud push
+            if (typeof pushToCloud === 'function') {
+                pushToCloud().catch(() => {});
+            }
 
             broadcastSync('NEWS_UPDATED', list[idx]);
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
@@ -1983,14 +1981,47 @@
         },
 
         async toggleStatus(articleId) {
-            const article = this.getById(articleId);
-            if (!article) return null;
-            const newStatus = article.status === 'published' ? 'draft' : 'published';
-            return await this.update(articleId, { status: newStatus });
+            const list = getStore(STORAGE_KEYS.NEWS) || [];
+            const idx = list.findIndex(n => String(n.id) === String(articleId));
+            if (idx === -1) return null;
+
+            const newStatus = list[idx].status === 'published' ? 'draft' : 'published';
+            list[idx].status = newStatus;
+            list[idx].updatedAt = new Date().toISOString();
+            setStore(STORAGE_KEYS.NEWS, list);
+
+            const statusLabel = newStatus === 'published' ? 'dipublikasikan ke web' : 'disimpan sebagai draft';
+            activityLog.add('news', `Status berita "${list[idx].title}" diubah: ${statusLabel}.`, sessionStorage.getItem('wiz_admin_name') || 'Admin');
+
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    const item = list[idx];
+                    await window.wizSupabase.upsert('news', {
+                        id: String(item.id),
+                        title: item.title,
+                        category: item.category,
+                        content: item.content,
+                        image_url: item.imageUrl,
+                        gallery: item.gallery,
+                        event_date: item.eventDate,
+                        status: item.status,
+                        author: item.author,
+                        created_at: item.createdAt,
+                        updated_at: item.updatedAt
+                    });
+                } catch(e) {}
+            }
+
+            if (typeof pushToCloud === 'function') {
+                pushToCloud().catch(() => {});
+            }
+
+            broadcastSync('NEWS_STATUS_TOGGLED', list[idx]);
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+            return list[idx];
         },
 
         async delete(articleId) {
-            if (!articleId) return;
             const strId = String(articleId);
             addDeletedNewsId(strId);
 
@@ -2003,10 +2034,6 @@
                 activityLog.add('news', `Berita "${article.title}" dihapus.`, sessionStorage.getItem('wiz_admin_name') || 'Admin');
             }
 
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.remove('news', strId);
-                await window.wizFirebase.upsert('deleted_news_ids', { key: strId, deletedAt: new Date().toISOString() });
-            }
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                 try {
                     await window.wizSupabase.remove('news', strId);
