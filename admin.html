@@ -647,19 +647,67 @@
         <!-- ═══════════════════════════════════════════════════ -->
         <!-- SECTION: BERITA & KEGIATAN                         -->
         <!-- ═══════════════════════════════════════════════════ -->
-        <div id="section-news" class="flex-1 p-margin-mobile md:p-gutter overflow-y-auto space-y-xl hidden">
-            <div class="flex justify-between items-center">
+        <div id="section-news" class="flex-1 p-margin-mobile md:p-gutter overflow-y-auto space-y-lg hidden">
+            <!-- Header & Action -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md bg-surface-container-lowest p-lg rounded-2xl border border-outline-variant/20 shadow-xs">
                 <div>
-                    <h2 class="font-headline-md text-headline-md font-bold">Daftar Berita &amp; Dokumentasi Kegiatan
-                    </h2>
-                    <p class="font-caption text-caption text-on-surface-variant">Dilengkapi upload foto lokal &amp;
-                        galeri dokumentasi kegiatan. Berita *published* langsung tampil di web utama.</p>
+                    <div class="flex items-center gap-xs mb-1">
+                        <span class="material-symbols-outlined text-primary text-xl">newspaper</span>
+                        <h2 class="font-headline-md text-headline-md font-bold text-on-surface">Manajemen Berita &amp; Dokumentasi</h2>
+                    </div>
+                    <p class="font-caption text-caption text-on-surface-variant">Tulis artikel, laporan penyaluran, dan upload foto dokumentasi kegiatan. Berita <strong>Published</strong> otomatis tayang realtime di Website Utama.</p>
                 </div>
-                <button id="btn-add-news" type="button" onclick="openNewsModal()"
-                    class="flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm font-bold cursor-pointer">
-                    <span class="material-symbols-outlined size-[18px]">post_add</span> Tulis Berita Baru
-                </button>
+                <div class="flex items-center gap-sm shrink-0 w-full sm:w-auto">
+                    <a href="index.html#berita" target="_blank" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 border border-outline-variant text-on-surface hover:text-primary px-md py-sm rounded-xl font-label-md text-label-md font-bold transition-all hover:bg-surface-container-low cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">open_in_new</span>
+                        <span>Lihat di Web</span>
+                    </a>
+                    <button id="btn-add-news" type="button" onclick="openNewsModal()"
+                        class="flex-1 sm:flex-none flex items-center justify-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-xl font-label-md text-label-md hover:bg-primary-container transition-all shadow-md font-bold cursor-pointer hover:scale-[1.02] active:scale-95">
+                        <span class="material-symbols-outlined size-[18px]">post_add</span>
+                        <span>+ Tulis Berita Baru</span>
+                    </button>
+                </div>
             </div>
+
+            <!-- Stats & Filter Bar -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-md items-center">
+                <!-- Badges -->
+                <div class="md:col-span-4 flex items-center gap-xs flex-wrap">
+                    <span id="news-stat-total" class="px-3 py-1.5 bg-surface-container rounded-xl text-caption font-bold text-on-surface">Total: 0 Berita</span>
+                    <span id="news-stat-published" class="px-3 py-1.5 bg-emerald-100 text-emerald-800 rounded-xl text-caption font-bold">✅ 0 Tayang</span>
+                    <span id="news-stat-draft" class="px-3 py-1.5 bg-amber-100 text-amber-800 rounded-xl text-caption font-bold">⏳ 0 Draft</span>
+                </div>
+
+                <!-- Search & Filters -->
+                <div class="md:col-span-8 flex flex-col sm:flex-row items-center gap-xs">
+                    <!-- Search Input -->
+                    <div class="relative w-full sm:flex-1">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+                        <input type="text" id="news-search-input" oninput="renderNewsList()" placeholder="Cari judul berita atau isi kegiatan..." class="w-full pl-9 pr-3 py-2 bg-surface border border-outline-variant rounded-xl text-caption outline-none focus:border-primary">
+                    </div>
+                    <!-- Category Select -->
+                    <select id="news-filter-category" onchange="renderNewsList()" class="w-full sm:w-auto bg-surface border border-outline-variant rounded-xl px-3 py-2 text-caption text-on-surface outline-none focus:border-primary">
+                        <option value="Semua">Semua Kategori</option>
+                        <option value="Kegiatan & Penyaluran">Kegiatan &amp; Penyaluran</option>
+                        <option value="Kegiatan & Event">Kegiatan &amp; Event</option>
+                        <option value="Dakwah & Pendidikan">Dakwah &amp; Pendidikan</option>
+                        <option value="Kemanusiaan & Sosial">Kemanusiaan &amp; Sosial</option>
+                        <option value="Kesehatan & Layanan Ummat">Kesehatan &amp; Layanan Ummat</option>
+                        <option value="Ekonomi & Pemberdayaan">Ekonomi &amp; Pemberdayaan</option>
+                        <option value="Pengumuman">Pengumuman</option>
+                        <option value="Laporan Publik">Laporan Publik</option>
+                    </select>
+                    <!-- Status Filter -->
+                    <select id="news-filter-status" onchange="renderNewsList()" class="w-full sm:w-auto bg-surface border border-outline-variant rounded-xl px-3 py-2 text-caption text-on-surface outline-none focus:border-primary font-semibold">
+                        <option value="Semua">Semua Status</option>
+                        <option value="published">✅ Dipublikasikan</option>
+                        <option value="draft">⏳ Draft</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- List Container -->
             <div class="space-y-md" id="news-list"></div>
         </div>
 
@@ -1496,6 +1544,8 @@
                 <div id="ref-detail-payouts-container" class="overflow-x-auto hidden"></div>
             </div>
         </div>
+    </div>
+
     <!-- ═══════════════════════════════════════════════════ -->
     <!-- MODAL: KELOLA PROGRAM SPESIFIK (TAMBAH / EDIT)       -->
     <!-- ═══════════════════════════════════════════════════ -->
@@ -1536,110 +1586,183 @@
         </div>
     </div>
 
-
     <!-- ═══════════════════════════════════════════════════ -->
     <!-- MODAL: NEWS (TULIS / EDIT BERITA)                   -->
     <!-- ═══════════════════════════════════════════════════ -->
     <div id="news-modal" class="modal-backdrop">
-        <div class="modal-dialog">
+        <div class="modal-dialog max-w-2xl max-h-[92vh] overflow-y-auto rounded-2xl shadow-2xl">
             <div
                 class="p-lg border-b border-surface-variant flex justify-between items-center sticky top-0 bg-surface z-20">
-                <h3 id="news-modal-title" class="font-headline-md text-body-lg font-bold text-primary">Tulis Berita Baru
-                </h3>
-                <button type="button" onclick="closeNewsModal()" class="text-outline hover:text-on-surface p-1"><span
-                        class="material-symbols-outlined">close</span></button>
-            </div>
-            <form id="news-form" class="p-lg space-y-md" onsubmit="handleNewsSave(event)">
-                <input type="hidden" id="news-edit-id" value="">
-                <div>
-                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Judul Berita
-                        *</label>
-                    <input type="text" id="news-title" required
-                        class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none"
-                        placeholder="Judul berita atau kegiatan penyaluran...">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-2xl">post_add</span>
+                    <h3 id="news-modal-title" class="font-headline-md text-headline-md font-bold text-primary">Tulis Berita Baru</h3>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                <button type="button" onclick="closeNewsModal()" class="text-outline hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="news-form" class="p-lg space-y-lg" onsubmit="handleNewsSave(event)">
+                <input type="hidden" id="news-edit-id" value="">
+                
+                <!-- Judul Berita -->
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-bold mb-xs">Judul Berita / Kegiatan <span class="text-error">*</span></label>
+                    <input type="text" id="news-title" required
+                        class="w-full bg-surface border border-outline-variant rounded-xl px-4 py-3 font-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        placeholder="Contoh: Penyaluran 200 Paket Beras Dhuafa di Pangkalpinang...">
+                </div>
+
+                <!-- Kategori, Tanggal & Penulis -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-md">
                     <div>
-                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Kategori
-                            Berita *</label>
+                        <label class="block font-label-md text-label-md text-on-surface font-bold mb-xs">Kategori <span class="text-error">*</span></label>
                         <select id="news-category" required
-                            class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
-                            <option value="Kegiatan &amp; Event" selected>Kegiatan &amp; Event</option>
+                            class="w-full bg-surface border border-outline-variant rounded-xl px-3 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
+                            <option value="Kegiatan & Penyaluran" selected>Kegiatan &amp; Penyaluran</option>
+                            <option value="Kegiatan & Event">Kegiatan &amp; Event</option>
+                            <option value="Dakwah & Pendidikan">Dakwah &amp; Pendidikan</option>
+                            <option value="Kemanusiaan & Sosial">Kemanusiaan &amp; Sosial</option>
+                            <option value="Kesehatan & Layanan Ummat">Kesehatan &amp; Layanan Ummat</option>
+                            <option value="Ekonomi & Pemberdayaan">Ekonomi &amp; Pemberdayaan</option>
                             <option value="Pengumuman">Pengumuman</option>
                             <option value="Laporan Publik">Laporan Publik</option>
                             <option value="Lainnya">Lainnya</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Tanggal
-                            Penyaluran / Kegiatan *</label>
+                        <label class="block font-label-md text-label-md text-on-surface font-bold mb-xs">Tanggal Kegiatan <span class="text-error">*</span></label>
                         <input type="date" id="news-event-date" required
-                            class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
+                            class="w-full bg-surface border border-outline-variant rounded-xl px-3 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-bold mb-xs">Penulis / Pelapor</label>
+                        <input type="text" id="news-author"
+                            class="w-full bg-surface border border-outline-variant rounded-xl px-3 py-2.5 font-body-md text-on-surface focus:border-primary outline-none"
+                            placeholder="Admin WIZ Babel">
                     </div>
                 </div>
 
-                <!-- Upload Foto Dokumentasi Section -->
-                <div class="border border-outline-variant/30 rounded-xl p-md bg-surface-container-low/40 space-y-md">
+                <!-- Upload Foto Utama Section -->
+                <div class="border border-outline-variant/40 rounded-2xl p-md bg-surface-container-lowest space-y-md shadow-xs">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h4 class="font-label-md text-label-md font-bold text-primary flex items-center gap-1">
-                                <span class="material-symbols-outlined text-[18px]">add_a_photo</span> Upload Foto Dokumentasi
+                            <h4 class="font-label-md text-label-md font-bold text-primary flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[20px]">add_a_photo</span>
+                                <span>Foto Cover Utama (Header Berita)</span>
                             </h4>
-                            <p class="font-caption text-caption text-on-surface-variant mt-0.5">Pilih foto dari folder lokal Anda. Foto akan tampil otomatis di Beranda saat berita dipublikasikan.</p>
+                            <p class="font-caption text-caption text-on-surface-variant mt-0.5">Pilih foto dokumentasi terbaik yang akan menjadi cover berita di Website Utama.</p>
                         </div>
                     </div>
 
-                    <div class="bg-surface p-sm rounded-lg border border-outline-variant/30 space-y-2">
-                        <label class="block font-caption text-caption font-bold text-on-surface">1. Foto Utama / Cover Header *</label>
-                        <!-- Drag/drop or click to upload -->
-                        <label for="news-file-main" class="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-primary/40 rounded-xl bg-primary/5 hover:bg-primary/10 cursor-pointer transition-colors group" id="photo-upload-zone">
+                    <!-- Preset Quick Pickers -->
+                    <div class="space-y-1.5">
+                        <span class="font-caption text-caption font-bold text-on-surface-variant">Pilihan Foto Cepat (Preset HD):</span>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <button type="button" onclick="setNewsPresetPhoto('assets/images/sedekah-beras-dhuafa.jpg', 'Foto Beras Dhuafa')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">🌾 Sedekah Beras</button>
+                            <button type="button" onclick="setNewsPresetPhoto('assets/images/beasiswa-tahfidz.jpg', 'Foto Beasiswa')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">🎓 Beasiswa &amp; Santri</button>
+                            <button type="button" onclick="setNewsPresetPhoto('https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop', 'Foto Sembako')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">📦 Tebar Sembako</button>
+                            <button type="button" onclick="setNewsPresetPhoto('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop', 'Foto Kesehatan')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">🩺 Layanan Sehat</button>
+                            <button type="button" onclick="setNewsPresetPhoto('https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=800&auto=format&fit=crop', 'Foto Dakwah')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">🕌 Dakwah &amp; Markaz</button>
+                        </div>
+                    </div>
+
+                    <!-- Drag & Drop Zone -->
+                    <div class="space-y-2">
+                        <label for="news-file-main" class="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-primary/40 rounded-2xl bg-primary/5 hover:bg-primary/10 cursor-pointer transition-all group" id="photo-upload-zone">
                             <span class="material-symbols-outlined text-primary text-3xl mb-1 group-hover:scale-110 transition-transform">cloud_upload</span>
-                            <span class="font-label-md text-label-md text-primary font-bold">Klik untuk pilih foto dari folder</span>
-                            <span class="font-caption text-caption text-on-surface-variant mt-0.5" id="photo-filename-display">JPG, PNG, WebP — maks. 5MB</span>
+                            <span class="font-label-md text-label-md text-primary font-bold">Klik untuk pilih foto dari folder komputer/HP</span>
+                            <span class="font-caption text-caption text-on-surface-variant mt-0.5" id="photo-filename-display">JPG, PNG, WebP — Kompresi otomatis</span>
                         </label>
                         <input type="file" id="news-file-main" accept="image/*"
                             onchange="handleLocalPhotoSelect(event, 'news-main-preview', 'news-image-url')"
                             class="sr-only">
-                        <p class="font-caption text-caption text-outline text-center">— atau masukkan URL gambar —</p>
-                        <input type="text" id="news-image-url"
-                            oninput="updatePreviewFromUrl('news-image-url', 'news-main-preview')"
-                            class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-1.5 font-caption text-on-surface outline-none"
-                            placeholder="https://... (isi otomatis setelah upload lokal)">
-                        <div id="news-main-preview-container" class="mt-2 hidden">
+                        
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="news-image-url"
+                                oninput="updatePreviewFromUrl('news-image-url', 'news-main-preview')"
+                                class="flex-1 bg-surface border border-outline-variant rounded-xl px-3 py-2 font-caption text-on-surface outline-none focus:border-primary"
+                                placeholder="Atau tempel URL gambar di sini (https://...)">
+                            <button type="button" onclick="clearNewsPhoto()" class="px-3 py-2 border border-outline-variant text-on-surface-variant rounded-xl text-caption hover:text-error hover:border-error transition-colors">Hapus</button>
+                        </div>
+
+                        <!-- Preview Box -->
+                        <div id="news-main-preview-container" class="mt-2 hidden flex items-center gap-md p-2 bg-surface-container-low rounded-xl border border-outline-variant/30">
                             <img id="news-main-preview" src=""
-                                class="h-32 w-auto rounded-lg object-cover border border-outline-variant/30 shadow-xs"
+                                class="h-28 w-44 rounded-lg object-cover border border-outline-variant/30 shadow-xs shrink-0"
                                 alt="Preview Cover">
-                            <button type="button" onclick="clearNewsPhoto()" class="ml-2 text-error font-caption text-caption hover:underline">✕ Hapus foto</button>
+                            <div class="text-caption space-y-1">
+                                <span class="font-bold text-primary flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm">check_circle</span>
+                                    <span>Foto Cover Aktif</span>
+                                </span>
+                                <p class="text-on-surface-variant">Foto ini akan tampil di kartu berita dan header artikel.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Isi Berita
-                        Lengkap *</label>
-                    <textarea id="news-content" required rows="5"
-                        class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none"
-                        placeholder="Tulis rincian berita atau laporan kegiatan penyaluran..."></textarea>
-                </div>
-                <div>
-                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Status
-                        Publikasi</label>
-                    <div class="flex gap-md">
-                        <label class="flex items-center gap-sm cursor-pointer"><input type="radio" name="news-status"
-                                value="published" checked class="text-primary focus:ring-primary"> <span
-                                class="font-body-md font-semibold text-primary">Publikasikan (Tampil di Web
-                                Utama)</span></label>
-                        <label class="flex items-center gap-sm cursor-pointer"><input type="radio" name="news-status"
-                                value="draft" class="text-primary focus:ring-primary"> <span
-                                class="font-body-md text-on-surface-variant">Simpan Draft</span></label>
+                <!-- Galeri Foto Dokumentasi Tambahan (Multi-Photo) -->
+                <div class="border border-outline-variant/30 rounded-2xl p-md bg-surface-container-lowest space-y-sm">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="font-label-md text-label-md font-bold text-on-surface flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-secondary text-[20px]">collections</span>
+                                <span>Galeri Foto Dokumentasi Tambahan (Maks. 4 Foto)</span>
+                            </h4>
+                            <p class="font-caption text-caption text-on-surface-variant">Foto-foto ini akan tampil di galeri pop-up berita saat donatur membaca rincian artikel.</p>
+                        </div>
+                        <button type="button" onclick="addNewsGallerySlot()" class="text-primary hover:underline font-label-md text-caption font-bold flex items-center gap-1 cursor-pointer">
+                            <span class="material-symbols-outlined text-sm">add</span> Tambah Foto Galeri
+                        </button>
+                    </div>
+
+                    <div id="news-gallery-container" class="grid grid-cols-1 sm:grid-cols-2 gap-md pt-2">
+                        <!-- Dynamic Gallery Photo Slots added here -->
                     </div>
                 </div>
+
+                <!-- Isi Berita Lengkap -->
+                <div>
+                    <div class="flex justify-between items-center mb-xs">
+                        <label class="block font-label-md text-label-md text-on-surface font-bold">Isi Berita &amp; Rincian Kegiatan <span class="text-error">*</span></label>
+                        <span id="news-content-counter" class="font-caption text-caption text-on-surface-variant">0 karakter</span>
+                    </div>
+                    <textarea id="news-content" required rows="7"
+                        oninput="document.getElementById('news-content-counter').textContent = this.value.length + ' karakter';"
+                        class="w-full bg-surface border border-outline-variant rounded-xl px-4 py-3 font-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none leading-relaxed"
+                        placeholder="Tuliskan berita lengkap mengenai kegiatan atau penyaluran donasi ini...&#10;&#10;Contoh:&#10;Wahdah Inspirasi Zakat (WIZ) Bangka Belitung kembali menyalurkan amanah donatur berupa...&#10;&#10;Kegiatan berlangsung di... dan dihadiri oleh...&#10;&#10;Semoga Allah membalas kebaikan para donatur..."></textarea>
+                </div>
+
+                <!-- Status Publikasi -->
+                <div class="bg-surface-container-low p-md rounded-xl border border-outline-variant/30">
+                    <label class="block font-label-md text-label-md text-on-surface font-bold mb-xs">Status Publikasi</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                        <label class="flex items-center gap-sm p-3 bg-surface rounded-xl border border-primary/30 cursor-pointer hover:bg-primary/5 transition-colors">
+                            <input type="radio" name="news-status" value="published" checked class="text-primary focus:ring-primary">
+                            <div>
+                                <span class="font-body-md font-bold text-primary block">✅ Publikasikan Langsung</span>
+                                <span class="font-caption text-caption text-on-surface-variant">Langsung tayang di Website Utama &amp; dapat dibaca publik.</span>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-sm p-3 bg-surface rounded-xl border border-outline-variant cursor-pointer hover:bg-surface-container transition-colors">
+                            <input type="radio" name="news-status" value="draft" class="text-primary focus:ring-primary">
+                            <div>
+                                <span class="font-body-md font-bold text-on-surface block">⏳ Simpan Sebagai Draft</span>
+                                <span class="font-caption text-caption text-on-surface-variant">Disimpan di Admin dulu, belum muncul di halaman publik.</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
                 <div class="flex gap-md pt-sm">
                     <button type="submit"
-                        class="flex-1 bg-primary text-on-primary py-3 rounded-lg font-label-md text-label-md font-bold hover:bg-primary-container transition-colors">Simpan
-                        Berita</button>
+                        class="flex-1 bg-primary text-on-primary py-3 rounded-xl font-label-md text-label-md font-bold hover:bg-primary-container transition-all shadow-md cursor-pointer hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-sm">save</span>
+                        <span id="news-submit-btn-text">Simpan &amp; Publikasikan Berita</span>
+                    </button>
                     <button type="button" onclick="closeNewsModal()"
-                        class="px-lg py-3 border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors">Batal</button>
+                        class="px-lg py-3 border border-outline-variant rounded-xl font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors cursor-pointer">Batal</button>
                 </div>
             </form>
         </div>
@@ -2765,38 +2888,157 @@
             hideModal('donation-detail-modal');
         }
 
-        // ─── News & Disbursement handlers (preserved) ────
+        async function handleManualSync() {
+            const icon = document.getElementById('sync-data-icon');
+            if (icon) icon.classList.add('animate-spin');
+
+            try {
+                if (wizStore && wizStore.fullBidirectionalSync) {
+                    const res = await wizStore.fullBidirectionalSync();
+                    refreshAll();
+                    alert(res.message || '✅ Sinkronisasi cloud berhasil! Seluruh data di HP dan Laptop sudah 100% konsisten.');
+                } else if (wizStore && wizStore.syncFromCloud) {
+                    await wizStore.syncFromCloud(true);
+                    refreshAll();
+                    alert('✅ Sinkronisasi cloud berhasil!');
+                }
+            } catch(e) {
+                alert('⚠️ Status sinkronisasi: ' + e.message);
+            } finally {
+                if (icon) icon.classList.remove('animate-spin');
+            }
+        }
+
+        // ─── News & Dokumentasi Handlers ───────────────────
+        let activeNewsGallery = [];
+
         function renderNewsList() {
+            if (!wizStore || !wizStore.news) return;
             const allNews = wizStore.news.getAll();
             const container = document.getElementById('news-list');
             if (!container) return;
 
-            if (allNews.length === 0) {
-                container.innerHTML = '<div class="p-xl text-center text-on-surface-variant font-body-md">Belum ada berita. Klik "Tulis Berita Baru" untuk membuat yang pertama.</div>';
+            // Update stats badges
+            const totalCount = allNews.length;
+            const publishedCount = allNews.filter(n => n.status === 'published').length;
+            const draftCount = allNews.filter(n => n.status === 'draft').length;
+
+            const totalEl = document.getElementById('news-stat-total');
+            const pubEl = document.getElementById('news-stat-published');
+            const draftEl = document.getElementById('news-stat-draft');
+
+            if (totalEl) totalEl.textContent = `Total: ${totalCount} Berita`;
+            if (pubEl) pubEl.textContent = `✅ ${publishedCount} Tayang`;
+            if (draftEl) draftEl.textContent = `⏳ ${draftCount} Draft`;
+
+            // Read filters
+            const searchKeyword = (document.getElementById('news-search-input')?.value || '').toLowerCase().trim();
+            const categoryFilter = document.getElementById('news-filter-category')?.value || 'Semua';
+            const statusFilter = document.getElementById('news-filter-status')?.value || 'Semua';
+
+            let filtered = allNews.filter(n => {
+                if (statusFilter !== 'Semua' && n.status !== statusFilter) return false;
+                if (categoryFilter !== 'Semua' && n.category !== categoryFilter) return false;
+                if (searchKeyword) {
+                    const matchTitle = (n.title || '').toLowerCase().includes(searchKeyword);
+                    const matchContent = (n.content || '').toLowerCase().includes(searchKeyword);
+                    const matchAuthor = (n.author || '').toLowerCase().includes(searchKeyword);
+                    if (!matchTitle && !matchContent && !matchAuthor) return false;
+                }
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                <div class="p-xl text-center text-on-surface-variant font-body-md bg-surface-container-lowest rounded-2xl border border-outline-variant/30 space-y-sm">
+                    <span class="material-symbols-outlined text-4xl text-outline">newspaper</span>
+                    <p class="font-bold text-on-surface">Tidak ada berita yang sesuai dengan filter.</p>
+                    <p class="font-caption text-caption text-on-surface-variant">Coba ganti kata kunci pencarian atau klik tombol di bawah untuk membuat berita baru.</p>
+                    <button type="button" onclick="openNewsModal()" class="px-md py-2 bg-primary text-on-primary rounded-xl font-label-md text-caption font-bold hover:bg-primary-container transition-colors inline-flex items-center gap-1 cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">post_add</span> Tulis Berita Baru
+                    </button>
+                </div>`;
                 return;
             }
 
-            const defaultImg = 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop';
+            const defaultImg = 'assets/images/sedekah-beras-dhuafa.jpg';
 
-            container.innerHTML = allNews.map(n => `
-            <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 p-lg flex flex-col sm:flex-row gap-md items-start">
-                <img src="${n.imageUrl || defaultImg}" onerror="this.src='${defaultImg}'" class="w-full sm:w-36 h-28 object-cover rounded-lg shrink-0 border border-outline-variant/30" alt="${n.title}">
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-sm mb-xs flex-wrap">
-                        <span class="px-sm py-xs rounded-full font-caption text-caption font-bold ${n.status === 'published' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${n.status === 'published' ? '✅ Dipublikasikan' : '⏳ Draft'}</span>
-                        <span class="px-sm py-xs bg-surface-container rounded-full font-caption text-caption text-on-surface-variant font-semibold">${n.category}</span>
+            container.innerHTML = filtered.map(n => {
+                const isPub = n.status === 'published';
+                const galleryCount = Array.isArray(n.gallery) ? n.gallery.filter(Boolean).length : 0;
+
+                return `
+                <div class="bg-surface-container-lowest rounded-2xl shadow-xs hover:shadow-md transition-all border border-outline-variant/30 p-lg flex flex-col md:flex-row gap-lg items-start">
+                    <!-- Thumbnail -->
+                    <div class="relative w-full md:w-48 h-32 shrink-0 overflow-hidden rounded-xl bg-surface-container border border-outline-variant/30 group">
+                        <img src="${n.imageUrl || defaultImg}" onerror="this.src='${defaultImg}'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="${n.title}">
+                        ${galleryCount > 0 ? `<span class="absolute bottom-1.5 right-1.5 bg-black/70 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">photo_library</span>+${galleryCount} foto</span>` : ''}
                     </div>
-                    <h4 class="font-label-md text-label-md font-bold text-on-surface truncate">${n.title}</h4>
-                    <p class="font-caption text-caption text-on-surface-variant mt-xs line-clamp-2">${n.content}</p>
-                </div>
-                <div class="flex sm:flex-col gap-sm shrink-0 w-full sm:w-auto">
-                    <button onclick="editNews('${n.id}')" class="flex-1 sm:flex-none flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary font-label-md text-label-md">Edit</button>
-                    <button onclick="deleteNews('${n.id}')" class="flex-1 sm:flex-none flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg border border-error/30 text-error font-label-md text-label-md">Hapus</button>
-                </div>
-            </div>`).join('');
+
+                    <!-- Details -->
+                    <div class="flex-1 min-w-0 space-y-xs">
+                        <div class="flex items-center gap-xs flex-wrap">
+                            <span class="px-2.5 py-0.5 rounded-full font-caption text-[11px] font-bold ${isPub ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-amber-100 text-amber-800 border border-amber-300'}">
+                                ${isPub ? '✅ Dipublikasikan' : '⏳ Draft'}
+                            </span>
+                            <span class="px-2.5 py-0.5 bg-surface-container rounded-full font-caption text-[11px] text-on-surface-variant font-semibold">
+                                ${n.category || 'Kegiatan'}
+                            </span>
+                            <span class="text-caption text-on-surface-variant flex items-center gap-1 text-[11px]">
+                                <span class="material-symbols-outlined text-[13px]">event</span>
+                                Kegiatan: <strong>${wizStore.utils.formatDate(n.eventDate || n.createdAt)}</strong>
+                            </span>
+                            <span class="text-caption text-outline text-[11px]">• Oleh: ${n.author || 'Admin'}</span>
+                        </div>
+
+                        <h4 class="font-headline-md text-base font-bold text-on-surface hover:text-primary transition-colors cursor-pointer" onclick="editNews('${n.id}')">
+                            ${n.title}
+                        </h4>
+
+                        <p class="font-caption text-caption text-on-surface-variant line-clamp-2 leading-relaxed whitespace-pre-line">
+                            ${n.content}
+                        </p>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex flex-row md:flex-col gap-xs shrink-0 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-outline-variant/30">
+                        <button onclick="editNews('${n.id}')" class="flex-1 md:flex-none flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl border border-outline-variant text-on-surface hover:text-primary hover:border-primary font-label-md text-caption font-bold transition-colors cursor-pointer bg-surface">
+                            <span class="material-symbols-outlined text-sm">edit</span>
+                            <span>Edit</span>
+                        </button>
+                        <button onclick="toggleNewsStatus('${n.id}')" class="flex-1 md:flex-none flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl border ${isPub ? 'border-amber-300 text-amber-800 hover:bg-amber-50' : 'border-emerald-300 text-emerald-800 hover:bg-emerald-50'} font-label-md text-caption font-bold transition-colors cursor-pointer bg-surface" title="${isPub ? 'Jadikan Draft (Sembunyikan dari Web)' : 'Publikasikan ke Web Utama'}">
+                            <span class="material-symbols-outlined text-sm">${isPub ? 'visibility_off' : 'visibility'}</span>
+                            <span>${isPub ? 'Draft-kan' : 'Tayangkan'}</span>
+                        </button>
+                        <a href="index.html?newsId=${n.id}#berita" target="_blank" class="flex-1 md:flex-none flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl border border-outline-variant text-primary hover:bg-primary/5 font-label-md text-caption font-bold transition-colors cursor-pointer bg-surface">
+                            <span class="material-symbols-outlined text-sm">open_in_new</span>
+                            <span>Lihat</span>
+                        </a>
+                        <button onclick="deleteNews('${n.id}')" class="flex-1 md:flex-none flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl border border-error/30 text-error hover:bg-error/5 font-label-md text-caption font-bold transition-colors cursor-pointer bg-surface">
+                            <span class="material-symbols-outlined text-sm">delete</span>
+                            <span>Hapus</span>
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
         }
 
         // ─── News Photo Upload Handlers ────────────
+        function setNewsPresetPhoto(url, label) {
+            const inputEl = document.getElementById('news-image-url');
+            const prevImg = document.getElementById('news-main-preview');
+            const prevContainer = document.getElementById('news-main-preview-container');
+            const filenameEl = document.getElementById('photo-filename-display');
+
+            if (inputEl) inputEl.value = url;
+            if (prevImg) prevImg.src = url;
+            if (prevContainer) prevContainer.classList.remove('hidden');
+            if (filenameEl) {
+                filenameEl.textContent = `✅ Menggunakan preset: ${label}`;
+                filenameEl.style.color = '#16a34a';
+            }
+        }
+
         function handleLocalPhotoSelect(event, previewId, inputId) {
             const file = event.target.files[0];
             if (!file) return;
@@ -2804,31 +3046,26 @@
             const filenameEl = document.getElementById('photo-filename-display');
             const uploadZone = document.getElementById('photo-upload-zone');
 
-            // Immediate feedback — show spinner before async work
             if (filenameEl) {
                 filenameEl.textContent = '⏳ Mengompres foto...';
                 filenameEl.style.color = '#6366f1';
             }
             if (uploadZone) uploadZone.style.opacity = '0.5';
 
-            // Use createObjectURL for instant preview (no FileReader needed!)
             const objectUrl = URL.createObjectURL(file);
             const prevImg = document.getElementById(previewId);
             const prevContainer = document.getElementById(`${previewId}-container`);
             if (prevImg) prevImg.src = objectUrl;
             if (prevContainer) prevContainer.classList.remove('hidden');
 
-            // Yield to browser first, then do heavy canvas work
             setTimeout(() => {
                 const img = new Image();
                 img.onload = function() {
-                    // Determine target size — max 720px keeps files ~60-120KB
-                    const maxDim = 720;
+                    const maxDim = 800;
                     let w = img.naturalWidth;
                     let h = img.naturalHeight;
 
-                    // Skip canvas if image is already small enough
-                    if (w <= maxDim && h <= maxDim && file.size < 150000) {
+                    if (w <= maxDim && h <= maxDim && file.size < 160000) {
                         const reader = new FileReader();
                         reader.onload = function(ev) {
                             const inputEl = document.getElementById(inputId);
@@ -2846,19 +3083,17 @@
                         return;
                     }
 
-                    // Scale down
                     if (w > maxDim || h > maxDim) {
                         if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
                         else       { w = Math.round(w * maxDim / h); h = maxDim; }
                     }
 
-                    // Canvas compress
                     const canvas = document.createElement('canvas');
                     canvas.width  = w;
                     canvas.height = h;
                     canvas.getContext('2d').drawImage(img, 0, 0, w, h);
 
-                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.72);
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.75);
                     const sizeKb = Math.round(compressedDataUrl.length / 1024);
 
                     const inputEl = document.getElementById(inputId);
@@ -2867,21 +3102,14 @@
                     URL.revokeObjectURL(objectUrl);
 
                     if (filenameEl) {
-                        if (sizeKb > 300) {
-                            filenameEl.textContent = `⚠️ ${file.name} (${sizeKb} KB — coba foto yang lebih kecil)`;
-                            filenameEl.style.color = '#d97706';
-                        } else {
-                            filenameEl.textContent = `✅ ${file.name} (${sizeKb} KB)`;
-                            filenameEl.style.color = '#16a34a';
-                        }
+                        filenameEl.textContent = `✅ ${file.name} (Tersimpan ${sizeKb} KB)`;
+                        filenameEl.style.color = '#16a34a';
                     }
                     if (uploadZone) uploadZone.style.opacity = '1';
                 };
                 img.src = objectUrl;
             }, 10);
         }
-
-
 
         function updatePreviewFromUrl(inputId, previewId) {
             const inputEl = document.getElementById(inputId);
@@ -2907,9 +3135,88 @@
             if (inputEl) inputEl.value = '';
             if (fileEl) fileEl.value = '';
             if (prevContainer) prevContainer.classList.add('hidden');
-            if (filenameEl) filenameEl.textContent = 'JPG, PNG, WebP — maks. 5MB';
+            if (filenameEl) {
+                filenameEl.textContent = 'JPG, PNG, WebP — Kompresi otomatis';
+                filenameEl.style.color = '';
+            }
         }
 
+        // ─── Multi-Photo Gallery Slots ─────────────
+        function renderNewsGallerySlots() {
+            const container = document.getElementById('news-gallery-container');
+            if (!container) return;
+
+            if (activeNewsGallery.length === 0) {
+                container.innerHTML = `<p class="text-caption text-on-surface-variant col-span-2 italic text-center py-2">Belum ada foto dokumentasi tambahan. Klik "+ Tambah Foto Galeri" jika ada foto pendukung.</p>`;
+                return;
+            }
+
+            container.innerHTML = activeNewsGallery.map((imgUrl, idx) => `
+            <div class="flex items-center gap-2 p-2 bg-surface-container-low rounded-xl border border-outline-variant/30">
+                <img src="${imgUrl || 'assets/images/sedekah-beras-dhuafa.jpg'}" class="w-16 h-12 object-cover rounded-lg border border-outline-variant/30 shrink-0" alt="Galeri ${idx+1}">
+                <div class="flex-1 min-w-0">
+                    <input type="text" value="${imgUrl.startsWith('data:image') ? '[Foto Lokal Uploaded]' : imgUrl}" 
+                        onchange="updateGalleryPhotoUrl(${idx}, this.value)"
+                        class="w-full text-caption bg-surface border border-outline-variant rounded-lg px-2 py-1 outline-none text-on-surface truncate"
+                        placeholder="https://... URL foto">
+                    <label class="text-[11px] text-primary hover:underline cursor-pointer flex items-center gap-1 mt-0.5">
+                        <span class="material-symbols-outlined text-[13px]">upload</span> Ganti File Lokal
+                        <input type="file" accept="image/*" class="sr-only" onchange="handleGalleryPhotoUpload(event, ${idx})">
+                    </label>
+                </div>
+                <button type="button" onclick="removeNewsGallerySlot(${idx})" class="p-1.5 text-error hover:bg-error/10 rounded-lg transition-colors cursor-pointer" title="Hapus foto galeri ini">
+                    <span class="material-symbols-outlined text-base">delete</span>
+                </button>
+            </div>`).join('');
+        }
+
+        function addNewsGallerySlot(imgUrl = '') {
+            if (activeNewsGallery.length >= 4) {
+                alert('Maksimal 4 foto dokumentasi tambahan untuk menjaga kecepatan website.');
+                return;
+            }
+            activeNewsGallery.push(imgUrl);
+            renderNewsGallerySlots();
+        }
+
+        function removeNewsGallerySlot(index) {
+            activeNewsGallery.splice(index, 1);
+            renderNewsGallerySlots();
+        }
+
+        function updateGalleryPhotoUrl(index, url) {
+            if (url && !url.startsWith('[Foto Lokal')) {
+                activeNewsGallery[index] = url.trim();
+            }
+        }
+
+        function handleGalleryPhotoUpload(event, index) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const objectUrl = URL.createObjectURL(file);
+            const img = new Image();
+            img.onload = function() {
+                const maxDim = 800;
+                let w = img.naturalWidth;
+                let h = img.naturalHeight;
+                if (w > maxDim || h > maxDim) {
+                    if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+                    else       { w = Math.round(w * maxDim / h); h = maxDim; }
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                const compressed = canvas.toDataURL('image/jpeg', 0.72);
+                activeNewsGallery[index] = compressed;
+                URL.revokeObjectURL(objectUrl);
+                renderNewsGallerySlots();
+            };
+            img.src = objectUrl;
+        }
+
+        // ─── Modal Open/Close/Save ──────────────────
         function openNewsModal(editId) {
             const modal = document.getElementById('news-modal');
             if (!modal) return;
@@ -2918,27 +3225,50 @@
             const titleEl = document.getElementById('news-modal-title');
             const form = document.getElementById('news-form');
             const dateEl = document.getElementById('news-event-date');
+            const authorEl = document.getElementById('news-author');
+            const submitBtnText = document.getElementById('news-submit-btn-text');
 
             if (editInput) editInput.value = editId || '';
-            if (titleEl) titleEl.textContent = editId ? 'Edit Berita / Kegiatan' : 'Tulis Berita Baru';
+            if (titleEl) titleEl.textContent = editId ? 'Edit Berita / Dokumentasi' : 'Tulis Berita Baru';
+            if (submitBtnText) submitBtnText.textContent = editId ? 'Simpan Perubahan Berita' : 'Simpan & Publikasikan Berita';
 
             if (!editId) {
                 if (form) form.reset();
                 clearNewsPhoto();
+                activeNewsGallery = [];
+                renderNewsGallerySlots();
                 if (dateEl) dateEl.value = new Date().toISOString().split('T')[0];
+                if (authorEl) authorEl.value = sessionStorage.getItem('wiz_admin_name') || sessionStorage.getItem('wiz_admin_user') || 'Admin WIZ Babel';
+                const counter = document.getElementById('news-content-counter');
+                if (counter) counter.textContent = '0 karakter';
             } else {
                 const article = wizStore.news ? wizStore.news.getById(editId) : null;
                 if (article) {
                     if (document.getElementById('news-title')) document.getElementById('news-title').value = article.title || '';
-                    if (document.getElementById('news-category')) document.getElementById('news-category').value = article.category || 'Kegiatan & Event';
-                    if (document.getElementById('news-content')) document.getElementById('news-content').value = article.content || '';
-                    if (document.getElementById('news-image-url')) document.getElementById('news-image-url').value = article.imageUrl || '';
-                    if (article.imageUrl) {
+                    if (document.getElementById('news-category')) document.getElementById('news-category').value = article.category || 'Kegiatan & Penyaluran';
+                    if (document.getElementById('news-content')) {
+                        document.getElementById('news-content').value = article.content || '';
+                        const counter = document.getElementById('news-content-counter');
+                        if (counter) counter.textContent = (article.content || '').length + ' karakter';
+                    }
+                    if (authorEl) authorEl.value = article.author || sessionStorage.getItem('wiz_admin_name') || 'Admin WIZ Babel';
+
+                    const imgUrl = article.imageUrl || '';
+                    if (document.getElementById('news-image-url')) document.getElementById('news-image-url').value = imgUrl;
+                    if (imgUrl) {
                         const prev = document.getElementById('news-main-preview');
-                        if (prev) prev.src = article.imageUrl;
+                        if (prev) prev.src = imgUrl;
                         const prevContainer = document.getElementById('news-main-preview-container');
                         if (prevContainer) prevContainer.classList.remove('hidden');
+                        const filenameEl = document.getElementById('photo-filename-display');
+                        if (filenameEl) filenameEl.textContent = imgUrl.startsWith('data:image') ? '📎 Foto lokal (sudah diupload)' : '🔗 URL gambar aktif';
+                    } else {
+                        clearNewsPhoto();
                     }
+
+                    activeNewsGallery = Array.isArray(article.gallery) ? [...article.gallery.filter(Boolean)] : [];
+                    renderNewsGallerySlots();
+
                     if (article.eventDate && dateEl) dateEl.value = article.eventDate.split('T')[0];
                     const rad = document.querySelector(`input[name="news-status"][value="${article.status || 'published'}"]`);
                     if (rad) rad.checked = true;
@@ -2953,53 +3283,80 @@
             const form = document.getElementById('news-form');
             if (form) form.reset();
             clearNewsPhoto();
+            activeNewsGallery = [];
         }
 
         async function handleNewsSave(e) {
             e.preventDefault();
             const editId = document.getElementById('news-edit-id').value;
+            const title = (document.getElementById('news-title').value || '').trim();
+            const category = document.getElementById('news-category').value;
+            const content = (document.getElementById('news-content').value || '').trim();
+            const imageUrl = (document.getElementById('news-image-url').value || '').trim() || 'assets/images/sedekah-beras-dhuafa.jpg';
+            const eventDateVal = document.getElementById('news-event-date').value;
+            const eventDate = eventDateVal ? new Date(eventDateVal).toISOString() : new Date().toISOString();
+            const status = document.querySelector('input[name="news-status"]:checked').value;
+            const author = (document.getElementById('news-author').value || sessionStorage.getItem('wiz_admin_name') || 'Admin WIZ Babel').trim();
+
+            if (!title) {
+                alert('Judul Berita wajib diisi!');
+                return;
+            }
+            if (!content) {
+                alert('Isi Berita lengkap wajib diisi!');
+                return;
+            }
+
+            const cleanGallery = activeNewsGallery.filter(Boolean);
+
             const data = {
-                title: document.getElementById('news-title').value,
-                category: document.getElementById('news-category').value,
-                content: document.getElementById('news-content').value,
-                imageUrl: document.getElementById('news-image-url').value,
-                eventDate: document.getElementById('news-event-date').value ? new Date(document.getElementById('news-event-date').value).toISOString() : new Date().toISOString(),
-                status: document.querySelector('input[name="news-status"]:checked').value,
-                author: ADMIN_NAME
+                title,
+                category,
+                content,
+                imageUrl,
+                gallery: cleanGallery,
+                eventDate,
+                status,
+                author
             };
 
-            if (editId) await wizStore.news.update(editId, data);
-            else await wizStore.news.add(data);
+            let savedArticle = null;
+            if (editId) {
+                savedArticle = await wizStore.news.update(editId, data);
+            } else {
+                savedArticle = await wizStore.news.add(data);
+            }
+
             closeNewsModal();
             refreshAll();
+
+            // Confirmation alert
+            const isPub = status === 'published';
+            alert(`✅ Berita "${title}" berhasil ${editId ? 'diperbarui' : 'disimpan'}!\n\nStatus: ${isPub ? 'Publikasikan (Langsung Tayang di Web Utama)' : 'Draft (Belum Tayang)'}\nKategori: ${category}\nPenulis: ${author}`);
         }
 
         function editNews(id) {
-            const article = wizStore.news.getById(id);
-            if (!article) return;
-            document.getElementById('news-title').value = article.title;
-            document.getElementById('news-category').value = article.category;
-            document.getElementById('news-content').value = article.content;
-            const imgUrl = article.imageUrl || '';
-            document.getElementById('news-image-url').value = imgUrl;
-            // Restore image preview if there is an existing imageUrl
-            if (imgUrl) {
-                const previewImg = document.getElementById('news-main-preview');
-                const container = document.getElementById('news-main-preview-container');
-                if (previewImg) previewImg.src = imgUrl;
-                if (container) container.classList.remove('hidden');
-                const filenameEl = document.getElementById('photo-filename-display');
-                if (filenameEl) filenameEl.textContent = imgUrl.startsWith('data:image') ? '📎 Foto lokal (sudah diupload)' : '🔗 URL gambar aktif';
-            }
-            if (article.eventDate) document.getElementById('news-event-date').value = new Date(article.eventDate).toISOString().split('T')[0];
-            document.querySelector(`input[name="news-status"][value="${article.status}"]`).checked = true;
             openNewsModal(id);
         }
 
+        async function toggleNewsStatus(id) {
+            if (!wizStore || !wizStore.news) return;
+            const article = wizStore.news.getById(id);
+            if (!article) return;
+
+            const nextStatus = article.status === 'published' ? 'draft' : 'published';
+            const statusLabel = nextStatus === 'published' ? 'Dipublikasikan ke Web Utama' : 'Disimpan sebagai Draft';
+            
+            await wizStore.news.toggleStatus(id);
+            refreshAll();
+            alert(`✅ Status berita "${article.title}" diubah menjadi: ${statusLabel}`);
+        }
+
         async function deleteNews(id) {
-            if (!confirm('Hapus berita ini?')) return;
+            if (!confirm('Apakah Anda yakin ingin menghapus berita ini? Tindakan ini tidak dapat dibatalkan.')) return;
             await wizStore.news.delete(id);
             refreshAll();
+            alert('✅ Berita berhasil dihapus.');
         }
 
         function renderDisbursementTable() {
@@ -4365,6 +4722,9 @@
 
         function checkAdminAuth() {
             const isAuth = sessionStorage.getItem('wiz_admin_authenticated') === 'true' || localStorage.getItem('wiz_admin_authenticated') === 'true';
+            const savedName = sessionStorage.getItem('wiz_admin_name');
+            if (savedName) ADMIN_NAME = savedName;
+
             const loginModal = document.getElementById('admin-login-modal');
             if (!isAuth) {
                 if (loginModal) {
@@ -4399,9 +4759,11 @@
                 sessionStorage.setItem('wiz_admin_user', authResult.user.username);
                 sessionStorage.setItem('wiz_admin_role', authResult.user.role || 'amil');
                 sessionStorage.setItem('wiz_admin_name', authResult.user.fullName || authResult.user.username);
+                ADMIN_NAME = authResult.user.fullName || authResult.user.username;
                 if (errAlert) errAlert.classList.add('hidden');
                 checkAdminAuth();
                 refreshAll();
+                handleInitialUrlRouting();
             } else {
                 if (errAlert && errText) {
                     errAlert.classList.remove('hidden');
@@ -4419,6 +4781,40 @@
                 localStorage.removeItem('wiz_admin_authenticated');
                 checkAdminAuth();
             }
+        }
+
+        function handleInitialUrlRouting() {
+            try {
+                const hash = window.location.hash;
+                const urlParams = new URLSearchParams(window.location.search);
+                const sectionParam = urlParams.get('section');
+                const actionParam = urlParams.get('action');
+                const addNewsParam = urlParams.get('addNews');
+
+                let targetSection = null;
+                if (hash === '#news' || sectionParam === 'news' || actionParam === 'add-news' || addNewsParam === 'true') {
+                    targetSection = 'news';
+                } else if (hash.startsWith('#section-')) {
+                    targetSection = hash.replace('#section-', '');
+                } else if (hash && hash !== '#' && hash !== '#tulis-berita') {
+                    targetSection = hash.replace('#', '');
+                } else if (sectionParam) {
+                    targetSection = sectionParam;
+                }
+
+                if (targetSection) {
+                    const linkEl = document.querySelector(`[data-section="${targetSection}"]`);
+                    if (typeof showSection === 'function') {
+                        showSection(targetSection, linkEl);
+                    }
+                }
+
+                if (actionParam === 'add-news' || addNewsParam === 'true' || hash === '#tulis-berita') {
+                    setTimeout(() => {
+                        if (typeof openNewsModal === 'function') openNewsModal();
+                    }, 350);
+                }
+            } catch(e) {}
         }
 
         function closeAllModals() {
@@ -4444,13 +4840,18 @@
         document.addEventListener('DOMContentLoaded', async () => {
             checkAdminAuth();
             refreshAll();
+            handleInitialUrlRouting();
             if (wizStore.syncFromCloud) {
                 await wizStore.syncFromCloud();
                 refreshAll();
+                handleInitialUrlRouting();
             }
         });
 
-        window.addEventListener('load', () => refreshAll());
+        window.addEventListener('load', () => {
+            refreshAll();
+            handleInitialUrlRouting();
+        });
         window.addEventListener('wiz-sync-complete', () => refreshAll());
         document.addEventListener('visibilitychange', async () => {
             if (document.visibilityState === 'visible') {

@@ -79,6 +79,50 @@ try {
 const server = http.createServer((req, res) => {
     let reqUrl = req.url.split('?')[0];
 
+    // Serverless API Router (/api/sync, etc.)
+    if (reqUrl.startsWith('/api/')) {
+        const apiName = reqUrl.replace('/api/', '').replace(/\.js$/, '');
+        const apiFilePath = path.join(__dirname, 'api', `${apiName}.js`);
+
+        if (fs.existsSync(apiFilePath)) {
+            try {
+                let body = '';
+                req.on('data', chunk => { body += chunk; });
+                req.on('end', async () => {
+                    req.body = body;
+                    // Custom res helper for express/serverless style
+                    res.status = function(code) {
+                        this.statusCode = code;
+                        return this;
+                    };
+                    res.json = function(data) {
+                        this.writeHead(this.statusCode || 200, {
+                            'Content-Type': 'application/json; charset=utf-8',
+                            'Access-Control-Allow-Origin': '*'
+                        });
+                        this.end(JSON.stringify(data));
+                        return this;
+                    };
+
+                    try {
+                        delete require.cache[require.resolve(apiFilePath)];
+                        const handler = require(apiFilePath);
+                        await handler(req, res);
+                    } catch (err) {
+                        console.error('[Dev API Error]', err);
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ status: 'error', message: err.message }));
+                    }
+                });
+                return;
+            } catch (e) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ status: 'error', message: e.message }));
+                return;
+            }
+        }
+    }
+
     // SSE Endpoint for Live Reload
     if (reqUrl === '/__livereload') {
         res.writeHead(200, {

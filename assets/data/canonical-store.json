@@ -1,0 +1,145 @@
+{
+  "updatedAt": "2026-08-20T04:25:00.000Z",
+  "version": "2.0.0",
+  "donations": [],
+  "news": [
+    {
+      "id": "news-1787199100123",
+      "title": "Penyaluran 50 Paket Sembako Dhuafa Pangkalpinang",
+      "category": "Kegiatan & Penyaluran",
+      "content": "Alhamdulillah, Wahdah Inspirasi Zakat (WIZ) Bangka Belitung kembali menyalurkan 50 paket sembako untuk keluarga dhuafa di wilayah Pangkalpinang.\n\nKegiatan berjalan lancar dan penuh berkah bagi seluruh penerima manfaat. Paket yang disalurkan terdiri dari beras premium, minyak goreng, gula, dan bahan pangan pokok lainnya.\n\nJazakumullah khairan kepada seluruh muhsinin dan donatur yang telah mengamanahkan sedekah dan zakatnya melalui WIZ Bangka Belitung. Semoga Allah memberikan ganti berlipat ganda, membersihkan harta, dan melimpahkan keberkahan rezeki.",
+      "imageUrl": "assets/images/sedekah-beras-dhuafa.jpg",
+      "gallery": [
+        "https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800&auto=format&fit=crop"
+      ],
+      "eventDate": "2026-08-20T00:00:00.000Z",
+      "status": "published",
+      "createdAt": "2026-08-20T04:15:00.000Z",
+      "author": "Super Admin 1 (WIZ Babel)"
+    },
+    {
+      "id": "news-1787190000001",
+      "title": "TEBAR SEMBAKO NUSANTARA MENYAMBUT RAMADAN INSPIRASI WIZ BABEL",
+      "category": "Kegiatan & Penyaluran",
+      "content": "Wahdah Inspirasi Zakat (WIZ) Bangka Belitung sukses melaksanakan kegiatan sosial berupa penyaluran 150 paket sembako kepada masyarakat kurang mampu dan lansia dhuafa di Kabupaten Bangka.\n\nKegiatan ini berlangsung dengan penuh kehangatan dan dihadiri oleh para tokoh masyarakat serta perangkat desa setempat. Setiap paket berisi beras super, minyak goreng, gula pasir, dan bahan kebutuhan pokok lainnya.\n\nDalam sambutannya, perwakilan WIZ Bangka Belitung menyampaikan ucapan terima kasih yang sebesar-besarnya kepada seluruh donatur yang telah menyisihkan hartanya. Semoga setiap paket sembako yang tersalurkan membawa kebahagiaan dan keberkahan bagi penerima manfaat.",
+      "imageUrl": "https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop",
+      "gallery": [
+        "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=800&auto=format&fit=crop"
+      ],
+      "eventDate": "2026-08-19T00:00:00.000Z",
+      "status": "published",
+      "createdAt": "2026-08-19T04:00:00.000Z",
+      "author": "Admin WIZ Babel"
+    },
+    {
+      "id": "news-1787190000002",
+      "title": "Pembukaan Pendaftaran Beasiswa Tahfidz Qur'an Santri Dhuafa",
+      "category": "Dakwah & Pendidikan",
+      "content": "WIZ Bangka Belitung membuka pendaftaran Beasiswa Tahfidz Qur'an untuk santri yatim dhuafa berprestasi di Kabupaten Bangka dan Pangkalpinang.\n\nProgram beasiswa ini mencakup biaya pendidikan penuh, pembinaan karakter, tempat tinggal di pondok tahfidz, dan penyediaan mushaf Al-Qur'an.\n\nPendaftaran dibuka mulai bulan ini hingga kuota terpenuhi. Para calon penerima manfaat akan melalui proses seleksi hafalan dasar dan administrasi.",
+      "imageUrl": "https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=800&auto=format&fit=crop",
+      "gallery": [
+        "https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=800&auto=format&fit=crop"
+      ],
+      "eventDate": "2026-08-18T00:00:00.000Z",
+      "status": "published",
+      "createdAt": "2026-08-18T04:00:00.000Z",
+      "author": "Admin WIZ Babel"
+    },
+    {
+      "id": "news-1787190000003",
+      "title": "Pelatihan Guru Al-Qur'an Metode Dirosa di Pangkalpinang",
+      "category": "Dakwah & Pendidikan",
+      "content": "Sebanyak 50 guru ngaji mengikuti Pelatihan Guru Dirosa yang diselenggarakan oleh WIZ Bangka Belitung untuk meningkatkan kualitas pengajaran Al-Qur'an.\n\nMetode Dirosa merupakan sistem belajar membaca Al-Qur'an yang efektif untuk orang dewasa dan anak-anak. Diharapkan pelatihan ini melahirkan pengajar Al-Qur'an yang kompeten di Bangka Belitung.",
+      "imageUrl": "https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=800&auto=format&fit=crop",
+      "gallery": [
+        "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=800&auto=format&fit=crop"
+      ],
+      "eventDate": "2026-08-17T00:00:00.000Z",
+      "status": "published",
+      "createdAt": "2026-08-17T04:00:00.000Z",
+      "author": "Admin WIZ Babel"
+    }
+  ],
+  "disbursements": [],
+  "activity": [
+    {
+      "id": "act-init-1",
+      "type": "system",
+      "message": "Sistem WIZ Babel berhasil diinisialisasi secara terpusat.",
+      "actor": "Sistem",
+      "createdAt": "2026-08-20T00:00:00.000Z"
+    }
+  ],
+  "baselines": {
+    "baseMasuk": 0,
+    "baseTersalurkan": 0,
+    "baseDonatur": 0
+  },
+  "site_settings": {
+    "banks": [
+      { "id": "bsi", "bank": "Bank BSI", "number": "7112223334", "holder": "Wahdah Inspirasi Zakat" },
+      { "id": "muamalat", "bank": "Bank Muamalat", "number": "1230099887", "holder": "Wahdah Inspirasi Zakat" },
+      { "id": "mandiri", "bank": "Bank Mandiri", "number": "1090012345678", "holder": "Wahdah Inspirasi Zakat" },
+      { "id": "bca", "bank": "Bank BCA", "number": "8830123456", "holder": "Wahdah Inspirasi Zakat" }
+    ],
+    "offices": [
+      { "id": "pangkalpinang", "name": "Kantor Pangkalpinang", "address": "Jl. Mentok No. 45, Pangkalpinang, Bangka Belitung", "phone": "0812-7171-8000", "mapsUrl": "https://maps.google.com" },
+      { "id": "sungailiat", "name": "Kantor Sungailiat", "address": "Jl. Jenderal Sudirman No. 12, Sungailiat, Bangka", "phone": "0821-8000-7171", "mapsUrl": "https://maps.google.com" }
+    ]
+  },
+  "site_images": {
+    "hero_card": "assets/images/foto-utama-wiz.jpg",
+    "about_img": "https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop",
+    "berkah_hidayah": "https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=600&auto=format&fit=crop",
+    "berkah_juara": "https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=600&auto=format&fit=crop",
+    "berkah_sehat": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=600&auto=format&fit=crop",
+    "berkah_peduli": "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=600&auto=format&fit=crop",
+    "berkah_mandiri": "https://images.unsplash.com/photo-1556742049-0a670fc80782?q=80&w=600&auto=format&fit=crop",
+    "banner_donasi": "https://images.unsplash.com/photo-1532629345422-7515f3d16bb9?q=80&w=1200&auto=format&fit=crop"
+  },
+  "admin_users": [
+    {
+      "id": "admin-1",
+      "username": "admin",
+      "password": "wizbabel2026",
+      "fullName": "Super Admin 1 (WIZ Babel)",
+      "phone": "08123456789",
+      "role": "super_admin",
+      "status": "approved",
+      "createdAt": "2026-08-20T00:00:00.000Z"
+    }
+  ],
+  "referrals": [
+    {
+      "id": "ref-1",
+      "name": "Ustadz Ahmad Hidayat",
+      "phone": "081271234567",
+      "bankName": "Bank Syariah Indonesia (BSI)",
+      "accountNumber": "7123456789",
+      "accountHolder": "Ahmad Hidayat",
+      "defaultRate": 6,
+      "status": "active",
+      "notes": "Da'i & Mitra Fundraiser Wilayah Pangkalpinang",
+      "createdAt": "2026-08-20T00:00:00.000Z"
+    },
+    {
+      "id": "ref-2",
+      "name": "Ibu Fatimah Az-Zahra",
+      "phone": "082198765432",
+      "bankName": "Bank Muamalat",
+      "accountNumber": "1090012345",
+      "accountHolder": "Fatimah Az-Zahra",
+      "defaultRate": 6,
+      "status": "active",
+      "notes": "Koordinator Komunitas Sedekah Sungailiat",
+      "createdAt": "2026-08-20T00:00:00.000Z"
+    }
+  ],
+  "referral_payouts": [],
+  "deleted_ids": [],
+  "deleted_news_ids": [],
+  "deleted_disb_ids": [],
+  "deleted_ref_ids": []
+}

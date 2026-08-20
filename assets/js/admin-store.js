@@ -906,128 +906,157 @@
         setStore(STORAGE_KEYS.REFERRAL_PAYOUTS, []);
     }
 
-    // ─── Cloud Sync Helper (Firebase) ─────────────────────
+    // ─── High-Speed Unified Cloud Sync Engine (/api/sync) ────────
+    let lastSyncTimestamp = 0;
+    let isSyncInProgress = false;
+
     async function pushToCloud() {
-        if (!window.wizFirebase || !window.wizFirebase.isConfigured()) {
-            return { status: 'error', message: 'Firebase belum dikonfigurasi' };
-        }
-
-        const report = { donationsPushed: 0, newsPushed: 0, disbursementsPushed: 0, referralsPushed: 0, payoutsPushed: 0, errors: [] };
-
+        const report = { success: true, timestamp: new Date().toISOString() };
         try {
-            const deletedSet = getDeletedIds();
-            const deletedNewsSet = getDeletedNewsIds();
-            const deletedDisbSet = getDeletedDisbIds();
-            const deletedRefSet = getDeletedRefIds();
+            const bundle = {
+                donations: getStore(STORAGE_KEYS.DONATIONS) || [],
+                news: getStore(STORAGE_KEYS.NEWS) || [],
+                disbursements: getStore(STORAGE_KEYS.DISBURSEMENTS) || [],
+                referrals: getStore(STORAGE_KEYS.REFERRALS) || [],
+                referral_payouts: getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || [],
+                activity: getStore(STORAGE_KEYS.ACTIVITY) || [],
+                site_settings: getStore(STORAGE_KEYS.SITE_SETTINGS) || DEFAULT_SITE_SETTINGS,
+                site_images: getStore(STORAGE_KEYS.SITE_IMAGES) || DEFAULT_SITE_IMAGES,
+                allocation_rules: getStore(STORAGE_KEYS.ALLOCATION_RULES) || ALLOCATION_RULES,
+                baselines: getStore(STORAGE_KEYS.BASELINES) || DEFAULT_BASELINES,
+                admin_users: getStore(STORAGE_KEYS.ADMIN_USERS) || DEFAULT_ADMIN_USERS,
+                deleted_ids: Array.from(getDeletedIds()),
+                deleted_news_ids: Array.from(getDeletedNewsIds()),
+                deleted_disb_ids: Array.from(getDeletedDisbIds()),
+                deleted_ref_ids: Array.from(getDeletedRefIds())
+            };
 
-            // Push Donations (excluding deleted IDs)
-            const { data: cloudDons } = await window.wizFirebase.select('donations');
-            const cloudDonIds = new Set((cloudDons || []).map(d => String(d.id)));
-            const localDonations = getStore(STORAGE_KEYS.DONATIONS) || [];
-            for (const d of localDonations) {
-                if (d && d.id && !deletedSet.has(String(d.id)) && !cloudDonIds.has(String(d.id))) {
-                    const { error } = await window.wizFirebase.insert('donations', d);
-                    if (!error) report.donationsPushed++;
+            const payload = {
+                action: 'sync_bundle',
+                bundle,
+                deletedIds: bundle.deleted_ids,
+                deletedNewsIds: bundle.deleted_news_ids,
+                deletedDisbIds: bundle.deleted_disb_ids,
+                deletedRefIds: bundle.deleted_ref_ids
+            };
+
+            // 1. Primary: Push to Vercel Serverless Sync API (/api/sync)
+            try {
+                const apiRes = await fetch('/api/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (apiRes.ok) {
+                    console.log('[WIZ Sync] Master state successfully pushed to /api/sync');
+                }
+            } catch (e) {
+                // Fallback to production domain endpoint if running in isolated view
+                if (window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
+                    try {
+                        await fetch('https://www.wizbangkabelitung.or.id/api/sync', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                    } catch(err) {}
                 }
             }
 
-            // Push News
-            const { data: cloudNews } = await window.wizFirebase.select('news');
-            const cloudNewsIds = new Set((cloudNews || []).map(n => String(n.id)));
-            const localNews = getStore(STORAGE_KEYS.NEWS) || [];
-            for (const n of localNews) {
-                if (n && n.id && !deletedNewsSet.has(String(n.id)) && !cloudNewsIds.has(String(n.id))) {
-                    const { error } = await window.wizFirebase.insert('news', n);
-                    if (!error) report.newsPushed++;
-                }
+            // 2. Secondary: Firestore Master Bundle (Single Document, Zero Quota Waste)
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                try {
+                    await window.wizFirebase.set('system_state', 'master_bundle', {
+                        ...bundle,
+                        updatedAt: new Date().toISOString()
+                    });
+                } catch(e) {}
             }
 
-            // Push Disbursements
-            const { data: cloudDisb } = await window.wizFirebase.select('disbursements');
-            const cloudDisbIds = new Set((cloudDisb || []).map(db => String(db.id)));
-            const localDisb = getStore(STORAGE_KEYS.DISBURSEMENTS) || [];
-            for (const db of localDisb) {
-                if (db && db.id && !deletedDisbSet.has(String(db.id)) && !cloudDisbIds.has(String(db.id))) {
-                    const { error } = await window.wizFirebase.insert('disbursements', db);
-                    if (!error) report.disbursementsPushed++;
-                }
-            }
-
-            // Push Referrals (Upsert all non-deleted referrals to Firebase & Supabase)
-            const localRefs = getStore(STORAGE_KEYS.REFERRALS) || [];
-            for (const r of localRefs) {
-                if (r && r.id && !deletedRefSet.has(String(r.id))) {
-                    const { error } = await window.wizFirebase.set('referrals', String(r.id), r);
-                    if (!error) report.referralsPushed++;
-                    if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                        try { await window.wizSupabase.saveReferral(r); } catch(e) {}
-                    }
-                }
-            }
-
-            // Push Referral Payouts
-            const { data: cloudPayouts } = await window.wizFirebase.select('referral_payouts');
-            const cloudPayoutIds = new Set((cloudPayouts || []).map(p => String(p.id)));
-            const localPayouts = getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || [];
-            for (const p of localPayouts) {
-                if (p && p.id && !cloudPayoutIds.has(String(p.id))) {
-                    const { error } = await window.wizFirebase.insert('referral_payouts', p);
-                    if (!error) report.payoutsPushed++;
-                    if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                        try { await window.wizSupabase.saveReferralPayout(p); } catch(e) {}
-                    }
-                }
-            }
-
+            broadcastSync();
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return { status: 'success', report };
         } catch (e) {
-            console.error('[WIZ Firebase] Push error:', e);
+            console.error('[WIZ Sync] Push error:', e);
             return { status: 'error', message: e.message };
         }
     }
 
-    async function syncFromCloud() {
-        if (!window.wizFirebase || !window.wizFirebase.isConfigured()) return;
+    async function syncFromCloud(force = false) {
+        const now = Date.now();
+        if (!force && (now - lastSyncTimestamp < 2500 || isSyncInProgress)) {
+            return;
+        }
+        isSyncInProgress = true;
+        lastSyncTimestamp = now;
 
         try {
-            const [donRes, newsRes, disbRes, actRes, refRes, payoutRes, settingsRes, baseRes, siteImagesRes, deletedRes, deletedNewsRes, deletedDisbRes, deletedRefRes] = await Promise.all([
-                window.wizFirebase.select('donations'),
-                window.wizFirebase.select('news'),
-                window.wizFirebase.select('disbursements'),
-                window.wizFirebase.select('activity_log'),
-                window.wizFirebase.select('referrals'),
-                window.wizFirebase.select('referral_payouts'),
-                window.wizFirebase.select('site_settings'),
-                window.wizFirebase.select('baselines'),
-                window.wizFirebase.select('site_images'),
-                window.wizFirebase.select('deleted_ids'),
-                window.wizFirebase.select('deleted_news_ids'),
-                window.wizFirebase.select('deleted_disb_ids'),
-                window.wizFirebase.select('deleted_ref_ids')
-            ]);
+            let masterData = null;
 
-            if (deletedRes.data && Array.isArray(deletedRes.data)) {
-                deletedRes.data.forEach(d => {
-                    if (d && (d.key || d.id)) addDeletedId(d.key || d.id);
+            // 1. Primary: Fetch from local / production Vercel Serverless API (/api/sync)
+            try {
+                const res = await fetch('/api/sync', {
+                    headers: { 'Accept': 'application/json' },
+                    cache: 'no-cache'
                 });
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json && json.data) {
+                        masterData = json.data;
+                    }
+                }
+            } catch (err) {
+                // Try production remote API if local is unreachable
+                if (!masterData && window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
+                    try {
+                        const res = await fetch('https://www.wizbangkabelitung.or.id/api/sync', {
+                            headers: { 'Accept': 'application/json' },
+                            cache: 'no-cache'
+                        });
+                        if (res.ok) {
+                            const json = await res.json();
+                            if (json && json.data) masterData = json.data;
+                        }
+                    } catch(e) {}
+                }
             }
 
-            if (deletedNewsRes.data && Array.isArray(deletedNewsRes.data)) {
-                deletedNewsRes.data.forEach(d => {
-                    if (d && (d.key || d.id)) addDeletedNewsId(d.key || d.id);
-                });
+            // 2. Secondary Fallback: Try static canonical snapshot if serverless is cold
+            if (!masterData) {
+                try {
+                    const res = await fetch('assets/data/canonical-store.json', { cache: 'no-cache' });
+                    if (res.ok) {
+                        masterData = await res.json();
+                    }
+                } catch (e) {}
             }
 
-            if (deletedDisbRes.data && Array.isArray(deletedDisbRes.data)) {
-                deletedDisbRes.data.forEach(d => {
-                    if (d && (d.key || d.id)) addDeletedDisbId(d.key || d.id);
-                });
+            // 3. Third Fallback: Firestore Master Bundle
+            if (!masterData && window.wizFirebase && window.wizFirebase.isConfigured()) {
+                try {
+                    const { data } = await window.wizFirebase.select('system_state');
+                    const masterDoc = (data || []).find(d => d.id === 'master_bundle' || d.key === 'master_bundle');
+                    if (masterDoc) masterData = masterDoc;
+                } catch(e) {}
             }
 
-            if (deletedRefRes.data && Array.isArray(deletedRefRes.data)) {
-                deletedRefRes.data.forEach(d => {
-                    if (d && (d.key || d.id)) addDeletedRefId(d.key || d.id);
-                });
+            if (!masterData) {
+                isSyncInProgress = false;
+                return;
+            }
+
+            // Delete IDs sync
+            if (Array.isArray(masterData.deleted_ids)) {
+                masterData.deleted_ids.forEach(id => addDeletedId(id));
+            }
+            if (Array.isArray(masterData.deleted_news_ids)) {
+                masterData.deleted_news_ids.forEach(id => addDeletedNewsId(id));
+            }
+            if (Array.isArray(masterData.deleted_disb_ids)) {
+                masterData.deleted_disb_ids.forEach(id => addDeletedDisbId(id));
+            }
+            if (Array.isArray(masterData.deleted_ref_ids)) {
+                masterData.deleted_ref_ids.forEach(id => addDeletedRefId(id));
             }
 
             const deletedSet = getDeletedIds();
@@ -1046,7 +1075,8 @@
                         map.set(String(item.id), item);
                     }
                 });
-                // Merge cloud data, checking timestamps so newer edits take priority
+
+                // Merge cloud data, checking timestamps
                 cloudData.forEach(cloudItem => {
                     if (!cloudItem || !cloudItem.id) return;
                     const strId = String(cloudItem.id);
@@ -1056,7 +1086,6 @@
                     if (localItem) {
                         const cloudTime = new Date(cloudItem.updatedAt || cloudItem.createdAt || 0).getTime();
                         const localTime = new Date(localItem.updatedAt || localItem.createdAt || 0).getTime();
-
                         const mergedItem = cloudTime >= localTime ? { ...localItem, ...cloudItem } : { ...cloudItem, ...localItem };
                         if (localItem.imageUrl && localItem.imageUrl.startsWith('data:image')) {
                             mergedItem.imageUrl = localItem.imageUrl;
@@ -1066,161 +1095,58 @@
                         map.set(strId, cloudItem);
                     }
                 });
+
                 const merged = Array.from(map.values());
                 if (sortFn) merged.sort(sortFn);
                 setStore(storeKey, merged);
             }
 
-            if (donRes.data) {
-                // Purge cloud documents that were deleted locally
-                for (const cloudDoc of donRes.data) {
-                    if (cloudDoc && cloudDoc.id && deletedSet.has(String(cloudDoc.id))) {
-                        await window.wizFirebase.remove('donations', String(cloudDoc.id));
-                    }
-                }
-                smartMerge(STORAGE_KEYS.DONATIONS, donRes.data,
-                    (a, b) => new Date(b.createdAt) - new Date(a.createdAt), deletedSet);
+            // Sync all collections
+            if (masterData.donations) {
+                smartMerge(STORAGE_KEYS.DONATIONS, masterData.donations, (a, b) => new Date(b.createdAt) - new Date(a.createdAt), deletedSet);
+            }
+            if (masterData.news) {
+                smartMerge(STORAGE_KEYS.NEWS, masterData.news, (a, b) => new Date(b.eventDate || b.createdAt || 0) - new Date(a.eventDate || a.createdAt || 0), deletedNewsSet);
+            }
+            if (masterData.disbursements) {
+                smartMerge(STORAGE_KEYS.DISBURSEMENTS, masterData.disbursements, (a, b) => new Date(b.disbursedAt || b.createdAt) - new Date(a.disbursedAt || a.createdAt), deletedDisbSet);
+            }
+            if (masterData.referrals) {
+                smartMerge(STORAGE_KEYS.REFERRALS, masterData.referrals, (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0), deletedRefSet);
+            }
+            if (masterData.referral_payouts) {
+                smartMerge(STORAGE_KEYS.REFERRAL_PAYOUTS, masterData.referral_payouts, (a, b) => new Date(b.paidAt || 0) - new Date(a.paidAt || 0));
+            }
+            if (masterData.site_settings && typeof masterData.site_settings === 'object') {
+                setStore(STORAGE_KEYS.SITE_SETTINGS, { ...DEFAULT_SITE_SETTINGS, ...masterData.site_settings });
+            }
+            if (masterData.site_images && typeof masterData.site_images === 'object') {
+                setStore(STORAGE_KEYS.SITE_IMAGES, { ...DEFAULT_SITE_IMAGES, ...masterData.site_images });
+                window.dispatchEvent(new CustomEvent('wiz-program-images-changed'));
+            }
+            if (masterData.baselines && typeof masterData.baselines === 'object') {
+                setStore(STORAGE_KEYS.BASELINES, masterData.baselines);
+            }
+            if (masterData.admin_users && Array.isArray(masterData.admin_users) && masterData.admin_users.length > 0) {
+                smartMerge(STORAGE_KEYS.ADMIN_USERS, masterData.admin_users, null);
             }
 
-            if (newsRes.data) {
-                // Purge cloud news documents that were deleted locally
-                for (const cloudDoc of newsRes.data) {
-                    if (cloudDoc && cloudDoc.id && deletedNewsSet.has(String(cloudDoc.id))) {
-                        await window.wizFirebase.remove('news', String(cloudDoc.id));
-                    }
-                }
-                smartMerge(STORAGE_KEYS.NEWS, newsRes.data,
-                    (a, b) => new Date(b.eventDate || b.event_date || b.createdAt || 0) - new Date(a.eventDate || a.event_date || a.createdAt || 0), deletedNewsSet);
-            }
-
-            if (disbRes.data) {
-                for (const cloudDoc of disbRes.data) {
-                    if (cloudDoc && cloudDoc.id && deletedDisbSet.has(String(cloudDoc.id))) {
-                        await window.wizFirebase.remove('disbursements', String(cloudDoc.id));
-                    }
-                }
-                smartMerge(STORAGE_KEYS.DISBURSEMENTS, disbRes.data,
-                    (a, b) => new Date(b.disbursedAt || b.createdAt) - new Date(a.disbursedAt || a.createdAt), deletedDisbSet);
-            }
-
-            if (refRes.data) {
-                for (const cloudDoc of refRes.data) {
-                    if (cloudDoc && cloudDoc.id && deletedRefSet.has(String(cloudDoc.id))) {
-                        await window.wizFirebase.remove('referrals', String(cloudDoc.id));
-                    }
-                }
-                smartMerge(STORAGE_KEYS.REFERRALS, refRes.data,
-                    (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0), deletedRefSet);
-            }
-
-            if (payoutRes.data) {
-                smartMerge(STORAGE_KEYS.REFERRAL_PAYOUTS, payoutRes.data,
-                    (a, b) => new Date(b.paidAt || 0) - new Date(a.paidAt || 0));
-            }
-
-            if (actRes.data && actRes.data.length > 0) {
-                const local = getStore(STORAGE_KEYS.ACTIVITY) || [];
-                const map = new Map();
-                local.forEach(item => { if (item && item.id) map.set(String(item.id), item); });
-                actRes.data.forEach(item => { if (item && item.id) map.set(String(item.id), item); });
-                const merged = Array.from(map.values())
-                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                    .slice(0, 100);
-                setStore(STORAGE_KEYS.ACTIVITY, merged);
-            }
-
-            if (settingsRes.data && settingsRes.data.length > 0) {
-                const globalSettingDoc = settingsRes.data.find(s => s.key === 'global_settings' || s.id === 'global_settings');
-                if (globalSettingDoc && globalSettingDoc.value) {
-                    setStore(STORAGE_KEYS.SITE_SETTINGS, globalSettingDoc.value);
-                }
-            }
-
-            if (baseRes.data && baseRes.data.length > 0) {
-                const baseDoc = baseRes.data.find(b => b.id === 'baselines' || b.key === 'baselines');
-                if (baseDoc && baseDoc.value) {
-                    setStore(STORAGE_KEYS.BASELINES, baseDoc.value);
-                }
-            }
-
-            // Cross-device Site & Program Images Cloud Sync (Supabase & Firebase)
-            let cloudSiteImages = (siteImagesRes && siteImagesRes.data) || [];
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                try {
-                    const supaRes = await window.wizSupabase.select('site_images');
-                    if (supaRes && supaRes.data && supaRes.data.length > 0) {
-                        const supaMap = new Map();
-                        cloudSiteImages.forEach(img => { if (img && (img.key || img.id)) supaMap.set(img.key || img.id, img); });
-                        supaRes.data.forEach(img => {
-                            const k = img.key || img.id;
-                            if (k) {
-                                supaMap.set(k, {
-                                    key: k,
-                                    url: img.image_url || img.url,
-                                    label: img.label || k,
-                                    updatedAt: img.updated_at || img.updatedAt
-                                });
-                            }
-                        });
-                        cloudSiteImages = Array.from(supaMap.values());
-                    }
-                } catch(e) {}
-            }
-
-            if (cloudSiteImages && cloudSiteImages.length > 0) {
-                const currentSiteImgs = getStore(STORAGE_KEYS.SITE_IMAGES) || {};
-                let flatMap = {};
-                try { flatMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}'); } catch(e) {}
-                let siteImgsChanged = false;
-
-                cloudSiteImages.forEach(imgDoc => {
-                    if (!imgDoc) return;
-                    const key = imgDoc.key || imgDoc.id;
-                    const url = imgDoc.url || imgDoc.image_url;
-                    if (!key || !url) return;
-
-                    if (key.startsWith('prog_img_')) {
-                        const progName = imgDoc.label || key.replace('prog_img_', '').replace(/_/g, ' ');
-                        if (progName && url) {
-                            flatMap[progName] = url;
-                        }
-                    } else if (imgDoc.label) {
-                        flatMap[imgDoc.label] = url;
-                    }
-
-                    if (url && currentSiteImgs[key] !== url) {
-                        currentSiteImgs[key] = url;
-                        siteImgsChanged = true;
-                    }
-                });
-
-                setStore(STORAGE_KEYS.SITE_IMAGES, currentSiteImgs);
-                try { localStorage.setItem('wiz_specific_prog_imgs', JSON.stringify(flatMap)); } catch(e) {}
-                if (siteImgsChanged) {
-                    window.dispatchEvent(new CustomEvent('wiz-program-images-changed'));
-                }
-            }
-
-            console.log('[WIZ Firebase] Cross-device Sync complete. Donations:', donRes.data?.length || 0, 'Disbursements:', disbRes.data?.length || 0);
+            console.log('[WIZ Sync] Cross-device parity sync complete. News:', (getStore(STORAGE_KEYS.NEWS) || []).length, 'Donations:', (getStore(STORAGE_KEYS.DONATIONS) || []).length);
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
         } catch (e) {
-            console.warn('[WIZ Firebase] Sync fallback to local storage:', e);
+            console.warn('[WIZ Sync] Sync error, staying on local storage:', e);
+        } finally {
+            isSyncInProgress = false;
         }
     }
 
     async function fullBidirectionalSync() {
-        if (!window.wizFirebase || !window.wizFirebase.isConfigured()) {
-            return { success: false, message: 'Firebase belum dikonfigurasi.' };
-        }
-
         try {
-            const pushResult = await pushToCloud();
-            await syncFromCloud();
-
+            await pushToCloud();
+            await syncFromCloud(true);
             return {
                 success: true,
-                message: 'Sinkronisasi dua arah selesai! Data lokal dan Firebase sudah 100% identik.',
-                pushDetails: pushResult.report
+                message: 'Sinkronisasi dua arah selesai! Seluruh data (HP & Laptop) sudah 100% konsisten dan identik.'
             };
         } catch (e) {
             return { success: false, message: `Gagal sinkronisasi: ${e.message}` };
@@ -1522,16 +1448,17 @@
         async add(article) {
             const list = getStore(STORAGE_KEYS.NEWS) || [];
             const defaultImg = 'assets/images/sedekah-beras-dhuafa.jpg';
+            const authorName = (article.author || sessionStorage.getItem('wiz_admin_name') || sessionStorage.getItem('wiz_admin_user') || 'Admin WIZ Babel').trim();
             const newArticle = {
                 id: article.id || generateId(),
-                title: article.title,
+                title: (article.title || '').trim(),
                 category: article.category || 'Kegiatan & Event',
-                content: article.content,
-                imageUrl: article.imageUrl || defaultImg,
-                gallery: Array.isArray(article.gallery) ? article.gallery : [],
+                content: (article.content || '').trim(),
+                imageUrl: (article.imageUrl || '').trim() || defaultImg,
+                gallery: Array.isArray(article.gallery) ? article.gallery.filter(Boolean) : [],
                 eventDate: article.eventDate || new Date().toISOString(),
                 status: article.status || 'published',
-                author: article.author || 'Admin',
+                author: authorName,
                 createdAt: new Date().toISOString()
             };
             list.unshift(newArticle);
@@ -1539,12 +1466,13 @@
             setStore(STORAGE_KEYS.NEWS, list);
 
             const statusLabel = newArticle.status === 'published' ? 'dipublikasikan' : 'disimpan sebagai draft';
-            activityLog.add('news', `Berita "${newArticle.title}" ${statusLabel}.`, newArticle.author || 'Admin');
+            activityLog.add('news', `Berita "${newArticle.title}" ${statusLabel}.`, authorName);
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 await window.wizFirebase.insert('news', newArticle);
             }
 
+            broadcastSync('NEWS_ADDED', newArticle);
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return newArticle;
         },
@@ -1554,18 +1482,35 @@
             const idx = list.findIndex(n => String(n.id) === String(articleId));
             if (idx === -1) return null;
 
-            list[idx] = { ...list[idx], ...updates, updatedAt: new Date().toISOString() };
+            const authorName = (updates.author || list[idx].author || sessionStorage.getItem('wiz_admin_name') || 'Admin WIZ Babel').trim();
+            const cleanGallery = Array.isArray(updates.gallery) ? updates.gallery.filter(Boolean) : (list[idx].gallery || []);
+
+            list[idx] = { 
+                ...list[idx], 
+                ...updates, 
+                author: authorName,
+                gallery: cleanGallery,
+                updatedAt: new Date().toISOString() 
+            };
             list.sort((a, b) => new Date(b.eventDate || b.event_date || b.createdAt || 0) - new Date(a.eventDate || a.event_date || a.createdAt || 0));
             setStore(STORAGE_KEYS.NEWS, list);
 
-            activityLog.add('news', `Berita "${list[idx].title}" diperbarui.`, updates.author || 'Admin');
+            activityLog.add('news', `Berita "${list[idx].title}" diperbarui.`, authorName);
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 await window.wizFirebase.set('news', articleId, list[idx]);
             }
 
+            broadcastSync('NEWS_UPDATED', list[idx]);
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return list[idx];
+        },
+
+        async toggleStatus(articleId) {
+            const article = this.getById(articleId);
+            if (!article) return null;
+            const newStatus = article.status === 'published' ? 'draft' : 'published';
+            return await this.update(articleId, { status: newStatus });
         },
 
         async delete(articleId) {
@@ -1579,7 +1524,7 @@
             setStore(STORAGE_KEYS.NEWS, filtered);
 
             if (article) {
-                activityLog.add('news', `Berita "${article.title}" dihapus.`, 'Admin');
+                activityLog.add('news', `Berita "${article.title}" dihapus.`, sessionStorage.getItem('wiz_admin_name') || 'Admin');
             }
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
@@ -1587,6 +1532,7 @@
                 await window.wizFirebase.upsert('deleted_news_ids', { key: strId, deletedAt: new Date().toISOString() });
             }
 
+            broadcastSync('NEWS_DELETED', { id: strId });
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
         }
     };

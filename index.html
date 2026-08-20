@@ -432,11 +432,15 @@
             <div>
                 <span class="inline-flex items-center gap-xs bg-primary-container/10 text-primary-container px-md py-xs rounded-full font-label-md text-caption font-bold uppercase tracking-wider mb-xs">
                     <span class="material-symbols-outlined text-sm">newspaper</span>
-                    Kabar & Dokumentasi Kegiatan
+                    Kabar &amp; Dokumentasi Kegiatan
                 </span>
-                <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">Berita & Kegiatan Terbaru</h2>
+                <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">Berita &amp; Kegiatan Terbaru</h2>
                 <p class="font-body-lg text-body-lg text-on-surface-variant">Dokumentasi foto kegiatan dan tanggal penyaluran donasi WIZ Bangka Belitung.</p>
             </div>
+            <a href="admin.html#news" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-on-primary font-label-md text-label-md font-bold transition-all shadow-xs border border-primary/20 shrink-0 group">
+                <span class="material-symbols-outlined text-[20px] group-hover:rotate-12 transition-transform">post_add</span>
+                <span>+ Tulis / Kelola Berita (Admin)</span>
+            </a>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter" id="public-news-grid">
@@ -652,6 +656,7 @@
             <ul class="space-y-2 font-label-md text-label-md text-surface-variant/80">
                 <li><a class="hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 inline-block focus:ring-2 focus:ring-primary-fixed" href="laporan.html">Laporan Publik Realtime</a></li>
                 <li><a class="hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 inline-block focus:ring-2 focus:ring-primary-fixed" href="#tentang-kami">Tentang WIZ Babel</a></li>
+                <li><a class="hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 flex items-center gap-1 focus:ring-2 focus:ring-primary-fixed text-primary-fixed dark:text-primary font-semibold" href="admin.html"><span class="material-symbols-outlined text-sm">lock</span> Portal Admin &amp; Kelola Berita</a></li>
             </ul>
         </div>
         <div class="space-y-4">
@@ -775,7 +780,7 @@
         }
     }
 
-    // Dynamic Public News Render with Cover Photos & Event Date
+    // Dynamic Public News Render with Cover Photos, Event Date & Photo Indicator
     function renderPublicNews() {
         if (!window.wizStore) return;
         const publishedNews = wizStore.news.getPublished();
@@ -783,37 +788,58 @@
         if (!grid) return;
 
         if (publishedNews.length === 0) {
-            grid.innerHTML = '<p class="text-on-surface-variant col-span-3 text-center py-lg font-body-md">Belum ada berita dipublikasikan.</p>';
+            grid.innerHTML = `
+            <div class="col-span-1 md:col-span-3 text-center py-xl bg-surface-container-low rounded-2xl border border-dashed border-outline-variant/50 p-lg space-y-sm">
+                <span class="material-symbols-outlined text-4xl text-primary/60">feed</span>
+                <p class="font-headline-md text-on-surface font-bold">Belum Ada Berita yang Dipublikasikan</p>
+                <p class="font-caption text-caption text-on-surface-variant max-w-md mx-auto">Admin atau Amil dapat menambahkan dokumentasi berita dan kegiatan penyaluran melalui Portal Admin.</p>
+                <div class="pt-sm">
+                    <a href="admin.html#news" class="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-on-primary rounded-xl font-label-md text-caption font-bold hover:bg-primary-container transition-all shadow-xs">
+                        <span class="material-symbols-outlined text-sm">post_add</span>
+                        <span>+ Tulis Berita Pertama (Admin)</span>
+                    </a>
+                </div>
+            </div>`;
             return;
         }
 
         const defaultImg = 'assets/images/sedekah-beras-dhuafa.jpg';
 
-        grid.innerHTML = publishedNews.map(n => `
-            <article class="bg-surface rounded-xl overflow-hidden shadow-level-1 hover:shadow-level-2 transition-all border border-surface-variant flex flex-col group">
+        grid.innerHTML = publishedNews.map(n => {
+            const galCount = Array.isArray(n.gallery) ? n.gallery.filter(Boolean).length : 0;
+
+            return `
+            <article class="bg-surface rounded-2xl overflow-hidden shadow-level-1 hover:shadow-level-2 hover:-translate-y-1 transition-all border border-surface-variant flex flex-col group">
                 <div onclick="openPublicNewsModal('${n.id}')" class="relative aspect-video overflow-hidden bg-surface-container cursor-pointer">
                     <img src="${n.imageUrl || defaultImg}" onerror="this.src='${defaultImg}'" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="${n.title}">
-                    <span class="absolute top-sm left-sm bg-primary text-on-primary font-caption text-caption px-sm py-xs rounded-full font-bold shadow-sm">${n.category}</span>
+                    <span class="absolute top-sm left-sm bg-primary text-on-primary font-caption text-[11px] px-2.5 py-1 rounded-full font-bold shadow-sm">${n.category || 'Kegiatan'}</span>
+                    ${galCount > 0 ? `
+                    <span class="absolute bottom-sm right-sm bg-black/75 backdrop-blur-xs text-white font-caption text-[11px] px-2 py-0.5 rounded-full font-bold shadow-sm flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[13px]">collections</span>
+                        <span>+${galCount} foto</span>
+                    </span>` : ''}
                 </div>
                 <div class="p-lg flex flex-col flex-grow space-y-xs">
-                    <div class="flex items-center text-on-surface-variant font-caption text-caption gap-xs text-primary font-semibold">
+                    <div class="flex items-center text-on-surface-variant font-caption text-[11px] gap-xs text-primary font-semibold">
                         <span class="material-symbols-outlined text-[15px]">event</span>
                         <span>Kegiatan: ${wizStore.utils.formatDate(n.eventDate || n.createdAt)}</span>
+                        <span class="text-outline">• Oleh: ${n.author || 'Admin WIZ Babel'}</span>
                     </div>
-                    <h3 onclick="openPublicNewsModal('${n.id}')" class="font-headline-md text-headline-md font-bold text-on-surface group-hover:text-primary transition-colors line-clamp-2 cursor-pointer">${n.title}</h3>
-                    <p onclick="openPublicNewsModal('${n.id}')" class="font-body-md text-body-md text-on-surface-variant line-clamp-3 flex-grow cursor-pointer">${n.content}</p>
+                    <h3 onclick="openPublicNewsModal('${n.id}')" class="font-headline-md text-headline-md font-bold text-on-surface group-hover:text-primary transition-colors line-clamp-2 cursor-pointer leading-snug">${n.title}</h3>
+                    <p onclick="openPublicNewsModal('${n.id}')" class="font-body-md text-body-md text-on-surface-variant line-clamp-3 flex-grow cursor-pointer whitespace-pre-line leading-relaxed">${n.content}</p>
                     
                     <div class="pt-sm border-t border-outline-variant/30 flex items-center justify-between gap-xs">
                         <button onclick="openPublicNewsModal('${n.id}')" class="text-primary font-label-md text-caption font-bold flex items-center gap-xs hover:underline cursor-pointer">
                             <span>Baca Selengkapnya</span>
                             <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
                         </button>
-                        <button onclick="currentShareArticle = wizStore.news.getById('${n.id}'); shareArticle('wa');" title="Bagikan ke WhatsApp" class="text-on-surface-variant hover:text-[#25D366] transition-colors p-1 rounded-lg flex items-center justify-center cursor-pointer">
+                        <button onclick="currentShareArticle = wizStore.news.getById('${n.id}'); shareArticle('wa');" title="Bagikan ke WhatsApp" class="text-on-surface-variant hover:text-[#25D366] transition-colors p-1.5 rounded-lg flex items-center justify-center cursor-pointer hover:bg-surface-container">
                             <span class="material-symbols-outlined text-base">share</span>
                         </button>
                     </div>
                 </div>
-            </article>`).join('');
+            </article>`;
+        }).join('');
     }
 
     function openPublicNewsModal(id) {
