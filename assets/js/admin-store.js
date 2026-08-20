@@ -1352,32 +1352,31 @@
             }
             if (masterData.news && Array.isArray(masterData.news) && masterData.news.length > 0) {
                 const cloudNewsMap = new Map();
-                // 1. Load authoritative cloud news
+                // 1. Load cloud news
                 masterData.news.forEach(n => {
                     if (n && n.id && n.status !== 'deleted' && !n.isDeleted) {
                         cloudNewsMap.set(String(n.id), { ...n });
                     }
                 });
-                // 2. Only in Admin dashboard, preserve active local drafts
-                const isAdmin = window.location.pathname.includes('admin') || 
-                                window.location.href.includes('admin.html') ||
-                                sessionStorage.getItem('wiz_admin_authenticated') === 'true' ||
-                                localStorage.getItem('wiz_admin_logged_in') === 'true';
 
-                if (isAdmin) {
-                    const local = getStore(STORAGE_KEYS.NEWS) || [];
-                    local.forEach(loc => {
-                        if (loc && loc.id && !deletedNewsSet.has(String(loc.id)) && loc.status !== 'deleted') {
-                            const strId = String(loc.id);
-                            if (!cloudNewsMap.has(strId)) {
-                                const ageMs = Date.now() - new Date(loc.createdAt || 0).getTime();
-                                if (ageMs < 86400000) {
-                                    cloudNewsMap.set(strId, loc);
-                                }
+                // 2. Check local articles: if local is newer or has recent edits, local wins!
+                const local = getStore(STORAGE_KEYS.NEWS) || [];
+                local.forEach(loc => {
+                    if (loc && loc.id && !deletedNewsSet.has(String(loc.id)) && loc.status !== 'deleted') {
+                        const strId = String(loc.id);
+                        if (!cloudNewsMap.has(strId)) {
+                            cloudNewsMap.set(strId, loc);
+                        } else {
+                            const cloudItem = cloudNewsMap.get(strId);
+                            const tLocal = new Date(loc.updatedAt || loc.createdAt || 0).getTime();
+                            const tCloud = new Date(cloudItem.updatedAt || cloudItem.createdAt || 0).getTime();
+                            if (tLocal >= tCloud) {
+                                cloudNewsMap.set(strId, { ...cloudItem, ...loc });
                             }
                         }
-                    });
-                }
+                    }
+                });
+
                 const mergedNews = Array.from(cloudNewsMap.values());
                 mergedNews.sort((a, b) => new Date(b.eventDate || b.createdAt || 0) - new Date(a.eventDate || a.createdAt || 0));
                 setStore(STORAGE_KEYS.NEWS, mergedNews);
