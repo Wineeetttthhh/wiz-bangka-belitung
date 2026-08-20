@@ -601,34 +601,56 @@
     </footer>
 
     <!-- JS Clients -->
-    <script src="assets/js/supabase-client.js"></script>
-    <script src="assets/js/firebase-client.js"></script>
-    <script src="assets/js/admin-store.js"></script>
-    <script src="assets/js/main.js"></script>
+    <script src="assets/js/firebase-client.js?v=20260820_5"></script>
+    <script src="assets/js/admin-store.js?v=20260820_5"></script>
+    <script src="assets/js/main.js?v=20260820_5"></script>
 
     <!-- Page Logic -->
     <script>
         let currentLoggedAffiliate = null;
 
-        document.addEventListener('DOMContentLoaded', () => {
-            renderAffiliateProgramsGrid();
-
-            // Check if member already logged in
+        async function verifyAndRestoreMemberSession() {
             try {
                 const saved = sessionStorage.getItem('wiz_logged_affiliate') || localStorage.getItem('wiz_logged_affiliate');
                 if (saved) {
-                    currentLoggedAffiliate = JSON.parse(saved);
-                    if (wizStore && wizStore.referrals) {
-                        const ref = wizStore.referrals.getById(currentLoggedAffiliate.id);
-                        if (ref) currentLoggedAffiliate = ref;
+                    const parsed = JSON.parse(saved);
+                    if (parsed && wizStore && wizStore.referrals) {
+                        const ref = wizStore.referrals.getById(parsed.id || parsed.code);
+                        if (ref && ref.status !== 'deleted' && !ref.isDeleted) {
+                            currentLoggedAffiliate = ref;
+                            activateMemberState(currentLoggedAffiliate);
+                            return;
+                        } else {
+                            // Account deleted or revoked by Admin
+                            handleAffiliateLogout(false);
+                            return;
+                        }
                     }
-                    activateMemberState(currentLoggedAffiliate);
-                } else {
-                    deactivateMemberState();
                 }
+                deactivateMemberState();
             } catch(e) {
                 deactivateMemberState();
             }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            renderAffiliateProgramsGrid();
+
+            // Initial cloud sync
+            if (window.wizStore && typeof wizStore.syncFromCloud === 'function') {
+                try {
+                    await wizStore.syncFromCloud(true);
+                } catch(e) {}
+            }
+
+            await verifyAndRestoreMemberSession();
+            renderAffiliateQuotesGrid();
+        });
+
+        window.addEventListener('wiz-sync-complete', () => {
+            verifyAndRestoreMemberSession();
+            renderAffiliateProgramsGrid();
+            renderAffiliateQuotesGrid();
         });
 
         function toggleAuthTab(tab) {
@@ -695,19 +717,32 @@
             e.preventDefault();
             const btn = document.getElementById('btn-reg-submit');
             btn.disabled = true;
-            btn.innerHTML = '<span>Memproses Pendaftaran...</span>';
+            btn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Mendaftarkan & Menyinkronkan ke Admin...</span>';
 
-            const name = document.getElementById('reg-name').value;
-            const phone = document.getElementById('reg-phone').value;
-            const bankName = document.getElementById('reg-bank').value;
-            const accountNumber = document.getElementById('reg-acc-no').value;
-            const accountHolder = document.getElementById('reg-acc-holder').value;
-            const pin = document.getElementById('reg-pin').value;
+            // Pull latest cloud state first to ensure ID sequence & uniqueness
+            if (window.wizStore && typeof wizStore.syncFromCloud === 'function') {
+                try { await wizStore.syncFromCloud(true); } catch(e) {}
+            }
+
+            const name = document.getElementById('reg-name').value.trim();
+            const phone = document.getElementById('reg-phone').value.trim();
+            const bankName = document.getElementById('reg-bank').value.trim();
+            const accountNumber = document.getElementById('reg-acc-no').value.trim();
+            const accountHolder = document.getElementById('reg-acc-holder').value.trim();
+            const pin = document.getElementById('reg-pin').value.trim();
 
             if (wizStore && wizStore.referrals) {
                 const res = await wizStore.referrals.registerPublic({ name, phone, bankName, accountNumber, accountHolder, pin });
                 if (res.success) {
                     const ref = res.referral;
+
+                    // Push master bundle to cloud to guarantee instant visibility on Admin Dashboard
+                    if (wizStore.pushToCloud) {
+                        try {
+                            await wizStore.pushToCloud();
+                        } catch(e) {}
+                    }
+
                     currentLoggedAffiliate = ref;
                     sessionStorage.setItem('wiz_logged_affiliate', JSON.stringify(ref));
                     localStorage.setItem('wiz_logged_affiliate', JSON.stringify(ref));
@@ -716,35 +751,50 @@
                     sessionStorage.setItem('wiz_active_ref_id', refCode);
                     localStorage.setItem('wiz_active_ref_id', refCode);
 
-                    try {
-                        if (wizStore.pushToCloud) {
-                            await wizStore.pushToCloud();
-                        }
-                    } catch(e) {}
-
-                    alert(`✅ ${res.message}\n\nKode Referral Anda: ${refCode}\nPIN Login Anda: ${ref.pin}`);
+                    alert(`✅ ${res.message}\n\nKode Referral Anda: ${refCode}\nPIN Login Anda: ${ref.pin}\n\nAkun Anda telah otomatis terdaftar dan langsung tercatat di Dashboard Admin.`);
                     activateMemberState(ref);
                 } else {
                     alert(`⚠️ ${res.message}`);
                 }
             } else {
-                alert('Modul wizStore belum siap.');
+                alert('Modul wizStore belum siap. Silakan refresh halaman dan coba lagi.');
             }
 
             btn.disabled = false;
             btn.innerHTML = '<span class="material-symbols-outlined text-lg">check_circle</span><span>Daftar & Aktifkan Akun Affiliate</span>';
         }
 
-        function handleAffiliateLogin(e) {
+        async function handleAffiliateLogin(e) {
             e.preventDefault();
-            const identifier = document.getElementById('login-identifier').value;
-            const pin = document.getElementById('login-pin').value;
+            const identifier = document.getElementById('login-identifier').value.trim();
+            const pin = document.getElementById('login-pin').value.trim();
 
             if (!wizStore || !wizStore.referrals) return;
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Memverifikasi Akun...</span>';
+            }
+
+            // Always sync fresh cloud data first before checking credentials
+            if (typeof wizStore.syncFromCloud === 'function') {
+                try { await wizStore.syncFromCloud(true); } catch(e) {}
+            }
 
             const res = wizStore.referrals.login({ identifier, pin });
             if (res.success) {
                 const ref = res.referral;
+                // Verify account is active and not deleted by admin
+                if (ref.status === 'deleted' || ref.isDeleted) {
+                    alert('⚠️ Akun Affiliate Anda telah dinonaktifkan atau dihapus oleh Admin Utama.');
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<span>Masuk ke Dashboard</span><span class="material-symbols-outlined text-base">arrow_forward</span>';
+                    }
+                    return;
+                }
+
                 currentLoggedAffiliate = ref;
                 sessionStorage.setItem('wiz_logged_affiliate', JSON.stringify(ref));
                 localStorage.setItem('wiz_logged_affiliate', JSON.stringify(ref));
@@ -758,13 +808,20 @@
             } else {
                 alert(`⚠️ ${res.message}`);
             }
+
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Masuk ke Dashboard</span><span class="material-symbols-outlined text-base">arrow_forward</span>';
+            }
         }
 
-        function handleAffiliateLogout() {
+        function handleAffiliateLogout(showAlert = true) {
             sessionStorage.removeItem('wiz_logged_affiliate');
             localStorage.removeItem('wiz_logged_affiliate');
+            sessionStorage.removeItem('wiz_active_ref_id');
+            localStorage.removeItem('wiz_active_ref_id');
             deactivateMemberState();
-            alert('Anda telah keluar dari Portal Member Affiliate.');
+            if (showAlert) alert('Anda telah keluar dari Portal Member Affiliate.');
         }
 
         function openForgotPinModal() {

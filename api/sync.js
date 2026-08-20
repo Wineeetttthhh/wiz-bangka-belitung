@@ -152,13 +152,7 @@ module.exports = async function handler(req, res) {
 
     // ─── GET: Serve master state to all website visitors ───────────────────
     if (req.method === 'GET') {
-        // Use in-memory cache if still fresh
-        const now = Date.now();
-        if (memCache && (now - memCacheTime) < MEM_CACHE_TTL_MS) {
-            return res.status(200).json({ status: 'success', serverTime: new Date().toISOString(), data: memCache });
-        }
-
-        // 1. Try Firebase Firestore (persistent across cold starts)
+        // 1. Try Firebase Firestore (persistent across cold starts and real-time across instances)
         let master = null;
         try {
             const fbData = await firebaseGet('system_state/master_bundle');
@@ -175,9 +169,6 @@ module.exports = async function handler(req, res) {
             master = loadCanonicalSeed();
             console.log('[Sync API] Loaded from canonical-store.json fallback.');
         }
-
-        memCache = master;
-        memCacheTime = now;
 
         return res.status(200).json({ status: 'success', serverTime: new Date().toISOString(), data: master });
     }
