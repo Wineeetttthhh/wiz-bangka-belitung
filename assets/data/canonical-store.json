@@ -153,5 +153,6 @@
   "deleted_ids": [],
   "deleted_news_ids": [],
   "deleted_disb_ids": [],
-  "deleted_ref_ids": []
+  "deleted_ref_ids": [],
+  "deleted_quote_ids": []
 }

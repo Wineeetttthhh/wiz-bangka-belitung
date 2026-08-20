@@ -43,6 +43,7 @@
         DELETED_NEWS_IDS: 'wiz_deleted_news_ids',
         DELETED_DISB_IDS: 'wiz_deleted_disb_ids',
         DELETED_REF_IDS: 'wiz_deleted_ref_ids',
+        DELETED_QUOTE_IDS: 'wiz_deleted_quote_ids',
         INITIALIZED: 'wiz_store_initialized'
     };
 
@@ -214,6 +215,19 @@
         const set = getDeletedRefIds();
         set.add(String(id));
         localStorage.setItem(STORAGE_KEYS.DELETED_REF_IDS, JSON.stringify(Array.from(set)));
+    }
+
+    function getDeletedQuoteIds() {
+        try {
+            return new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.DELETED_QUOTE_IDS) || '[]'));
+        } catch { return new Set(); }
+    }
+
+    function addDeletedQuoteId(id) {
+        if (!id) return;
+        const set = getDeletedQuoteIds();
+        set.add(String(id));
+        localStorage.setItem(STORAGE_KEYS.DELETED_QUOTE_IDS, JSON.stringify(Array.from(set)));
     }
 
     function getStore(key) {
@@ -976,10 +990,12 @@
                 admin_users: getStore(STORAGE_KEYS.ADMIN_USERS) || DEFAULT_ADMIN_USERS,
                 custom_specific_programs: JSON.parse(localStorage.getItem('wiz_custom_specific_programs') || '{}'),
                 specific_prog_imgs: JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}'),
+                quotes: getStore(STORAGE_KEYS.QUOTES) || DEFAULT_QUOTES,
                 deleted_ids: Array.from(getDeletedIds()),
                 deleted_news_ids: Array.from(getDeletedNewsIds()),
                 deleted_disb_ids: Array.from(getDeletedDisbIds()),
-                deleted_ref_ids: Array.from(getDeletedRefIds())
+                deleted_ref_ids: Array.from(getDeletedRefIds()),
+                deleted_quote_ids: Array.from(getDeletedQuoteIds())
             };
 
             const payload = {
@@ -988,7 +1004,8 @@
                 deletedIds: bundle.deleted_ids,
                 deletedNewsIds: bundle.deleted_news_ids,
                 deletedDisbIds: bundle.deleted_disb_ids,
-                deletedRefIds: bundle.deleted_ref_ids
+                deletedRefIds: bundle.deleted_ref_ids,
+                deletedQuoteIds: bundle.deleted_quote_ids
             };
 
             // 1. Primary: Push to Vercel Serverless Sync API (/api/sync)
@@ -1109,11 +1126,15 @@
             if (Array.isArray(masterData.deleted_ref_ids)) {
                 masterData.deleted_ref_ids.forEach(id => addDeletedRefId(id));
             }
+            if (Array.isArray(masterData.deleted_quote_ids)) {
+                masterData.deleted_quote_ids.forEach(id => addDeletedQuoteId(id));
+            }
 
             const deletedSet = getDeletedIds();
             const deletedNewsSet = getDeletedNewsIds();
             const deletedDisbSet = getDeletedDisbIds();
             const deletedRefSet = getDeletedRefIds();
+            const deletedQuoteSet = getDeletedQuoteIds();
 
             function smartMerge(storeKey, cloudData, sortFn, activeDeletedSet = deletedSet) {
                 if (!cloudData || !Array.isArray(cloudData)) return;
@@ -1171,6 +1192,10 @@
             }
             if (masterData.referral_payouts) {
                 smartMerge(STORAGE_KEYS.REFERRAL_PAYOUTS, masterData.referral_payouts, (a, b) => new Date(b.paidAt || 0) - new Date(a.paidAt || 0));
+            }
+            if (masterData.quotes) {
+                smartMerge(STORAGE_KEYS.QUOTES, masterData.quotes, (a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0), deletedQuoteSet);
+                window.dispatchEvent(new CustomEvent('wiz-quotes-changed'));
             }
             if (masterData.site_settings && typeof masterData.site_settings === 'object') {
                 const rawSettings = masterData.site_settings.value || masterData.site_settings;
@@ -2472,8 +2497,9 @@
     // ─── Daily Quotes & Inspirasi Module ──────────────────
     const quotes = {
         getAll() {
-            const list = getStore(STORAGE_KEYS.QUOTES) || DEFAULT_QUOTES;
-            return list.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
+            const deletedQuoteSet = getDeletedQuoteIds();
+            const list = (getStore(STORAGE_KEYS.QUOTES) || DEFAULT_QUOTES).filter(q => q && q.id && !deletedQuoteSet.has(String(q.id)) && q.status !== 'deleted' && !q.isDeleted);
+            return list.sort((a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0));
         },
 
         getToday() {
@@ -2508,8 +2534,16 @@
             activityLog.add('quote', `Quote harian baru "${newQuote.source}" ditambahkan.`, newQuote.author);
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.insert('quotes', newQuote);
+                try {
+                    await window.wizFirebase.insert('quotes', newQuote);
+                } catch(e) {}
             }
+
+            try {
+                if (typeof pushToCloud === 'function') {
+                    await pushToCloud();
+                }
+            } catch(e) {}
 
             window.dispatchEvent(new CustomEvent('wiz-quotes-changed', { detail: newQuote }));
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
@@ -2528,8 +2562,16 @@
             activityLog.add('quote', `Quote harian "${list[idx].source}" diperbarui.`, updates.author || 'Admin');
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.set('quotes', String(id), list[idx]);
+                try {
+                    await window.wizFirebase.set('quotes', String(id), list[idx]);
+                } catch(e) {}
             }
+
+            try {
+                if (typeof pushToCloud === 'function') {
+                    await pushToCloud();
+                }
+            } catch(e) {}
 
             window.dispatchEvent(new CustomEvent('wiz-quotes-changed', { detail: list[idx] }));
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
@@ -2537,9 +2579,13 @@
         },
 
         async delete(id) {
+            if (!id) return;
+            const strId = String(id);
+            addDeletedQuoteId(strId);
+
             const list = this.getAll();
-            const quote = list.find(q => String(q.id) === String(id));
-            const filtered = list.filter(q => String(q.id) !== String(id));
+            const quote = list.find(q => String(q.id) === strId);
+            const filtered = list.filter(q => String(q.id) !== strId);
             setStore(STORAGE_KEYS.QUOTES, filtered);
 
             if (quote) {
@@ -2547,8 +2593,16 @@
             }
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.remove('quotes', String(id));
+                try {
+                    await window.wizFirebase.remove('quotes', strId);
+                } catch(e) {}
             }
+
+            try {
+                if (typeof pushToCloud === 'function') {
+                    await pushToCloud();
+                }
+            } catch(e) {}
 
             window.dispatchEvent(new CustomEvent('wiz-quotes-changed'));
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));

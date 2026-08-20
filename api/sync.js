@@ -185,12 +185,13 @@ module.exports = async function handler(req, res) {
             const deletedNewsIds  = body.deletedNewsIds  || incoming.deleted_news_ids  || [];
             const deletedDisbIds  = body.deletedDisbIds  || incoming.deleted_disb_ids  || [];
             const deletedRefIds   = body.deletedRefIds   || incoming.deleted_ref_ids   || [];
+            const deletedQuoteIds = body.deletedQuoteIds || incoming.deleted_quote_ids || [];
 
             // Load existing master (Firebase first, then canonical seed)
             let master = null;
             try {
                 const fbData = await firebaseGet('system_state/master_bundle');
-                if (fbData && (fbData.donations || fbData.referrals || fbData.news || fbData.site_settings)) master = fbData;
+                if (fbData && (fbData.donations || fbData.referrals || fbData.news || fbData.site_settings || fbData.quotes)) master = fbData;
             } catch(e) {}
             if (!master) master = loadCanonicalSeed();
 
@@ -205,6 +206,8 @@ module.exports = async function handler(req, res) {
                 master.referrals = mergeArrays(master.referrals, incoming.referrals, deletedRefIds);
             if (Array.isArray(incoming.referral_payouts))
                 master.referral_payouts = mergeArrays(master.referral_payouts, incoming.referral_payouts, []);
+            if (Array.isArray(incoming.quotes))
+                master.quotes = mergeArrays(master.quotes, incoming.quotes, deletedQuoteIds);
             if (Array.isArray(incoming.activity))
                 master.activity = mergeArrays(master.activity, incoming.activity, []);
             if (Array.isArray(incoming.admin_users) && incoming.admin_users.length > 0)
@@ -235,6 +238,7 @@ module.exports = async function handler(req, res) {
             master.deleted_news_ids  = Array.from(new Set([...(master.deleted_news_ids || []),   ...deletedNewsIds]));
             master.deleted_disb_ids  = Array.from(new Set([...(master.deleted_disb_ids || []),   ...deletedDisbIds]));
             master.deleted_ref_ids   = Array.from(new Set([...(master.deleted_ref_ids || []),    ...deletedRefIds]));
+            master.deleted_quote_ids = Array.from(new Set([...(master.deleted_quote_ids || []),  ...deletedQuoteIds]));
             master.updatedAt = new Date().toISOString();
 
             // Persist to Firebase Firestore (durable storage, survives cold starts)
