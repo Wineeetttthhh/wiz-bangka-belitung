@@ -804,6 +804,9 @@
                     if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                         await window.wizSupabase.upsert('site_images', imgRecord);
                     }
+                    if (typeof pushToCloud === 'function') {
+                        await pushToCloud();
+                    }
                 } catch(e) {}
             })();
 
@@ -893,54 +896,111 @@
     function seedDefaultData() {
         if (localStorage.getItem(STORAGE_KEYS.INITIALIZED)) return;
 
-        const now = new Date();
         const donations = [];
         const news = [
             {
-                id: generateId(),
-                title: 'TEBAR SEMBAKO NUSANTARA MENYAMBUT RAMADAN INSPIRASI WIZ BABEL',
-                category: 'Kegiatan & Event',
-                content: 'Wahdah Inspirasi Zakat (WIZ) Bangka Belitung sukses melaksanakan kegiatan sosial berupa penyaluran 150 paket sembako kepada masyarakat kurang mampu dan lansia dhuafa di Kabupaten Bangka.\n\nKegiatan ini berlangsung dengan penuh kehangatan dan dihadiri oleh para tokoh masyarakat serta perangkat desa setempat. Setiap paket berisi beras super, minyak goreng, gula pasir, dan bahan kebutuhan pokok lainnya.\n\nDalam sambutannya, perwakilan WIZ Bangka Belitung menyampaikan ucapan terima kasih yang sebesar-besarnya kepada seluruh donatur yang telah menyisihkan hartanya. Semoga setiap paket sembako yang tersalurkan membawa kebahagiaan dan keberkahan bagi penerima manfaat.',
-                imageUrl: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop',
+                id: 'news-tebar-iftar-ramadan',
+                title: 'Tebar Iftar Ramadan Makin Bahagia Bersama WIZ Bangka Belitung',
+                category: 'Kegiatan & Penyaluran',
+                content: 'Alhamdulillah, Wahdah Inspirasi Zakat (WIZ) Bangka Belitung menyalurkan ratusan paket buka puasa (Tebar Iftar) penuh gizi dan kebahagiaan untuk santri tahfidz, dhuafa, dan masyarakat kurang mampu di berbagai pelosok Bangka Belitung.\n\nKegiatan ini merupakan komitmen berkelanjutan WIZ Babel untuk menghadirkan senyum dan kebahagiaan di bulan suci Ramadan.\n\nTerima kasih kepada seluruh donatur dan sahabat inspirasi atas kepercayaannya.',
+                imageUrl: 'assets/images/tebar-iftar.jpg',
                 gallery: [
-                    'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800&auto=format&fit=crop',
-                    'https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=800&auto=format&fit=crop',
-                    'https://images.unsplash.com/photo-1509099836639-18ba1795216d?q=80&w=800&auto=format&fit=crop'
+                    'assets/images/tebar-iftar-1.jpg',
+                    'assets/images/tebar-iftar-2.jpg',
+                    'assets/images/tebar-iftar-3.jpg'
                 ],
-                eventDate: new Date(now - 24 * 3600000).toISOString(),
+                eventDate: '2026-08-20T00:00:00.000Z',
                 status: 'published',
-                createdAt: new Date(now - 1 * 3600000).toISOString(),
-                author: 'Admin Konten'
+                createdAt: '2026-08-20T05:00:00.000Z',
+                author: 'Admin WIZ Babel'
             },
             {
-                id: generateId(),
-                title: 'Pembukaan Pendaftaran Beasiswa Tahfidz Qur\'an 2024',
-                category: 'Pengumuman',
-                content: 'WIZ Bangka Belitung membuka pendaftaran Beasiswa Tahfidz Qur\'an untuk santri yatim dhuafa berprestasi di Kabupaten Bangka dan Pangkalpinang.\n\nProgram beasiswa ini mencakup biaya pendidikan penuh, pembinaan karakter, tempat tinggal di pondok tahfidz, dan penyediaan mushaf Al-Qur\'an.\n\nPendaftaran dibuka mulai bulan ini hingga kuota terpenuhi. Para calon penerima manfaat akan melalui proses seleksi hafalan dasar dan administrasi.',
-                imageUrl: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=800&auto=format&fit=crop',
+                id: 'news-beasiswa-stiba-unmuh',
+                title: 'WIZ Bangka Belitung Salurkan Beasiswa Pendidikan Rutin Bulanan untuk Mahasiswa STIBA Makassar dan Unmuh Babel',
+                category: 'Kegiatan & Penyaluran',
+                content: 'PANGKALPINANG — Wahdah Inspirasi Zakat (WIZ) Bangka Belitung kembali menunjukkan komitmennya dalam mendukung keberlanjutan pendidikan generasi muda berprestasi melalui program Beasiswa Pendidikan Rutin Bulanan untuk mahasiswa STIBA Makassar dan Unmuh Babel.\n\nBantuan beasiswa ini diserahkan langsung guna meringankan biaya operasional perkuliahan, pembelian kitab/buku referensi, serta kebutuhan penunjang studi para mahasiswa penghafal Al-Qur\'an.\n\nSemoga bantuan ini memotivasi para penerima manfaat untuk terus berprestasi dan menjadi berkah jariyah bagi seluruh donatur WIZ Babel.',
+                imageUrl: 'assets/images/beasiswa-tahfidz.jpg',
                 gallery: [
-                    'https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=800&auto=format&fit=crop',
-                    'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop'
+                    'assets/images/foto-utama-wiz.jpg'
                 ],
-                eventDate: new Date(now - 48 * 3600000).toISOString(),
+                eventDate: '2026-08-17T00:00:00.000Z',
                 status: 'published',
-                createdAt: new Date(now - 48 * 3600000).toISOString(),
-                author: 'Admin Konten'
+                createdAt: '2026-08-17T08:00:00.000Z',
+                author: 'Super Admin 1 (WIZ Babel)'
             },
             {
-                id: generateId(),
-                title: 'Pelatihan Guru Al-Qur\'an Metode Dirosa di Pangkalpinang',
-                category: 'Kegiatan & Event',
-                content: 'Sebanyak 50 guru ngaji mengikuti Pelatihan Guru Dirosa yang diselenggarakan oleh WIZ Bangka Belitung untuk meningkatkan kualitas pengajaran Al-Qur\'an.\n\nMetode Dirosa merupakan sistem belajar membaca Al-Qur\'an yang efektif untuk orang dewasa dan anak-anak. Diharapkan pelatihan ini melahirkan pengajar Al-Qur\'an yang kompeten di Bangka Belitung.',
-                imageUrl: 'https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=800&auto=format&fit=crop',
+                id: 'news-zakat-fitrah-babel',
+                title: 'Zakat Fitrah WIZ Babel Hadirkan Kebahagiaan',
+                category: 'Kegiatan & Penyaluran',
+                content: 'Lembaga Amil Zakat Wahdah Inspirasi Zakat Bangka Belitung menyalurkan zakat fitrah kepada para mustahik di Wilayah Kota Pangkal Pinang dan sekitarnya.\n\nPenyaluran ini disambut dengan penuh rasa syukur dan sukacita oleh warga penerima manfaat. Paket beras zakat fitrah berkualitas premium disalurkan langsung ke rumah-rumah warga dhuafa jelang Hari Raya Idul Fitri guna memastikan tidak ada keluarga yang kelaparan di hari kemenangan.',
+                imageUrl: 'assets/images/sedekah-beras-dai.jpg',
                 gallery: [
-                    'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=800&auto=format&fit=crop',
-                    'https://images.unsplash.com/photo-1509099836639-18ba1795216d?q=80&w=800&auto=format&fit=crop'
+                    'assets/images/sedekah-beras-dhuafa.jpg',
+                    'assets/images/foto-utama-wiz.jpg'
                 ],
-                eventDate: new Date(now - 72 * 3600000).toISOString(),
+                eventDate: '2026-03-19T00:00:00.000Z',
                 status: 'published',
-                createdAt: new Date(now - 96 * 3600000).toISOString(),
-                author: 'Ahmad S.'
+                createdAt: '2026-03-19T08:00:00.000Z',
+                author: 'Super Admin 1 (WIZ Babel)'
+            },
+            {
+                id: 'news-santunan-yatim-quran',
+                title: 'Santunan Anak Yatim dan Tebar Al-Qur\'an Nusantara Ramadan Makin Bahagia 1447 H',
+                category: 'Kegiatan & Penyaluran',
+                content: 'WIZ Bangka Belitung melaksanakan kegiatan santunan anak yatim dan tebar al-Qur\'an Nusantara. Kegiatan ini dibuka dengan pembacaan ayat suci Al-Qur\'an dan dilanjutkan dengan penyerahan santunan uang tunai, perlengkapan ibadah, bingkisan perlengkapan sekolah, serta mushaf Al-Qur\'an untuk anak-anak yatim binaan di Bangka Belitung.\n\nKegiatan berlangsung khidmat dan diakhiri dengan doa bersama untuk para muhsinin dan donatur.',
+                imageUrl: 'assets/images/foto-utama-wiz.jpg',
+                gallery: [
+                    'assets/images/tebar-iftar.jpg',
+                    'assets/images/sedekah-beras-dhuafa.jpg',
+                    'assets/images/beasiswa-tahfidz.jpg'
+                ],
+                eventDate: '2026-03-14T00:00:00.000Z',
+                status: 'published',
+                createdAt: '2026-03-14T08:00:00.000Z',
+                author: 'Super Admin 1 (WIZ Babel)'
+            },
+            {
+                id: 'news-tebar-iftar-nusantara',
+                title: 'Tebar Iftar Nusantara Ramadan Makin Bahagia 1447 H',
+                category: 'Kegiatan & Penyaluran',
+                content: 'WIZ Bangka Belitung melaksanakan kegiatan Tebar Iftar Ramadan sebagai bentuk kepedulian berbagi buka puasa penuh berkah untuk santri dan dhuafa di pelosok Bangka Belitung.',
+                imageUrl: 'assets/images/tebar-iftar-1.jpg',
+                gallery: [
+                    'assets/images/tebar-iftar-2.jpg',
+                    'assets/images/tebar-iftar-3.jpg'
+                ],
+                eventDate: '2026-03-07T00:00:00.000Z',
+                status: 'published',
+                createdAt: '2026-03-07T08:00:00.000Z',
+                author: 'Admin WIZ Babel'
+            },
+            {
+                id: 'news-tebar-sembako-nusantara',
+                title: 'Tebar Sembako Nusantara Sambut Keberkahan',
+                category: 'Kegiatan & Penyaluran',
+                content: 'WIZ Bangka Belitung melaksanakan kegiatan sosial berupa penyaluran paket sembako untuk keluarga pra-sejahtera dan lansia dhuafa di Bangka Belitung.',
+                imageUrl: 'assets/images/sedekah-beras-dhuafa.jpg',
+                gallery: [
+                    'assets/images/foto-utama-wiz.jpg'
+                ],
+                eventDate: '2026-02-12T00:00:00.000Z',
+                status: 'published',
+                createdAt: '2026-02-12T08:00:00.000Z',
+                author: 'Admin WIZ Babel'
+            },
+            {
+                id: 'news-sedekah-beras-dai',
+                title: 'Sedekah Beras Dai',
+                category: 'Kegiatan & Penyaluran',
+                content: 'Wahdah Inspirasi Zakat Bangka Belitung melaksanakan program sedekah beras dai di Wilayah Bangka Belitung untuk mendukung ketahanan pangan para dai dan guru ngaji yang berdakwah di pelosok daerah.',
+                imageUrl: 'assets/images/tebar-iftar-2.jpg',
+                gallery: [
+                    'assets/images/sedekah-beras-dhuafa.jpg'
+                ],
+                eventDate: '2026-01-27T00:00:00.000Z',
+                status: 'published',
+                createdAt: '2026-01-27T08:00:00.000Z',
+                author: 'Admin WIZ Babel'
             }
         ];
 

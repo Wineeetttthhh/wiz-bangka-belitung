@@ -356,7 +356,7 @@
             <!-- Program Preview Card 2 -->
             <article data-title="Beasiswa Tahfidz Qur'an" class="program-card bg-surface rounded-xl overflow-hidden shadow-level-1 hover:shadow-level-2 transition-all border border-surface-variant flex flex-col">
                 <div class="relative aspect-video overflow-hidden">
-                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" src="https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=800&auto=format&fit=crop" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=800&auto=format&fit=crop';" alt="Program Tahfidz"/>
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" src="assets/images/foto-utama-wiz.jpg" onerror="this.onerror=null; this.src='assets/images/foto-utama-wiz.jpg';" alt="Program Tahfidz"/>
                     <span class="absolute top-sm left-sm bg-primary text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Dakwah</span>
                 </div>
                 <div class="p-lg flex flex-col flex-grow">
@@ -949,7 +949,7 @@
         if (!window.wizStore) return;
         const fmt = wizStore.utils.formatRupiahCompact;
 
-        document.querySelectorAll('article').forEach(card => {
+        document.querySelectorAll('article.program-card, article[data-title]').forEach(card => {
             const titleEl = card.querySelector('h3');
             if (!titleEl) return;
 
@@ -971,6 +971,18 @@
             const progressBar = card.querySelector('.bg-tertiary-container, .bg-primary');
             if (progressBar) {
                 progressBar.style.width = `${stats.percent}%`;
+            }
+
+            // Bind photo uploaded/chosen by Admin for this specific program
+            if (wizStore.allocationRulesManager) {
+                const customImg = wizStore.allocationRulesManager.getSpecificProgramImage(progTitle);
+                if (customImg) {
+                    const imgEl = card.querySelector('img');
+                    if (imgEl) {
+                        imgEl.src = customImg;
+                        imgEl.onerror = () => { imgEl.src = 'assets/images/foto-utama-wiz.jpg'; };
+                    }
+                }
             }
         });
     }
