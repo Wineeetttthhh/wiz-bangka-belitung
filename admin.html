@@ -196,7 +196,7 @@
             </div>
             
             <!-- Login Form -->
-            <form id="admin-login-form" onsubmit="handleAdminLogin(event)" class="p-lg space-y-md">
+            <form id="admin-login-form" onsubmit="handleAdminLogin(event); return false;" class="p-lg space-y-md">
                 <div id="login-error-alert" class="hidden bg-error-container text-on-error-container p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs">
                     <span class="material-symbols-outlined text-sm shrink-0">error</span>
                     <span id="login-error-text">Username atau Password salah!</span>
@@ -220,7 +220,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-primary text-on-primary font-label-md text-label-md py-md rounded-xl hover:bg-primary-container transition-colors shadow-md font-bold flex items-center justify-center gap-xs cursor-pointer">
+                <button type="submit" onclick="handleAdminLogin(event)" class="w-full bg-primary text-on-primary font-label-md text-label-md py-md rounded-xl hover:bg-primary-container transition-colors shadow-md font-bold flex items-center justify-center gap-xs cursor-pointer">
                     <span class="material-symbols-outlined text-sm">login</span>
                     <span>Masuk ke Dashboard</span>
                 </button>
@@ -4824,9 +4824,14 @@
         }
 
         function handleAdminLogin(event) {
-            event.preventDefault();
-            const user = (document.getElementById('login-username').value || '').trim();
-            const pass = (document.getElementById('login-password').value || '').trim();
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            const userEl = document.getElementById('login-username');
+            const passEl = document.getElementById('login-password');
+            const user = userEl ? userEl.value.trim() : '';
+            const pass = passEl ? passEl.value.trim() : '';
             const errAlert = document.getElementById('login-error-alert');
             const errText = document.getElementById('login-error-text');
 
@@ -4853,8 +4858,28 @@
                 sessionStorage.setItem('wiz_admin_user', authResult.user.username);
                 sessionStorage.setItem('wiz_admin_role', authResult.user.role || 'super_admin');
                 sessionStorage.setItem('wiz_admin_name', authResult.user.fullName || authResult.user.username);
+
+                localStorage.setItem('wiz_admin_authenticated', 'true');
+                localStorage.setItem('wiz_admin_user', authResult.user.username);
+                localStorage.setItem('wiz_admin_role', authResult.user.role || 'super_admin');
+                localStorage.setItem('wiz_admin_name', authResult.user.fullName || authResult.user.username);
+
                 ADMIN_NAME = authResult.user.fullName || authResult.user.username;
                 if (errAlert) errAlert.classList.add('hidden');
+
+                const loginModal = document.getElementById('admin-login-modal');
+                if (loginModal) {
+                    loginModal.classList.remove('auth-show');
+                    loginModal.classList.add('hidden');
+                    loginModal.style.display = 'none';
+                    loginModal.style.visibility = 'hidden';
+                    loginModal.style.pointerEvents = 'none';
+                }
+
+                if (window.location.search) {
+                    try { window.history.replaceState({}, '', window.location.pathname); } catch(e) {}
+                }
+
                 checkAdminAuth();
                 refreshAll();
                 handleInitialUrlRouting();
@@ -4864,6 +4889,7 @@
                     errText.textContent = authResult.message || 'Username atau Kata Sandi salah!';
                 }
             }
+            return false;
         }
 
         function handleAdminLogout() {
