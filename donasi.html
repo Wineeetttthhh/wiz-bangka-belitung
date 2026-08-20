@@ -656,9 +656,10 @@
         const SPECIFIC_PROGRAMS = {
             'Berkah Hidayah': [
                 "Pembangunan Markaz",
-                "Pengadaan dan Perbaikan Kendaraan",
+                "Pengadaan & Perbaikan Kendaraan",
                 "Santunan Mualaf",
                 "Pengadaan Celengan Besar",
+                "Beasiswa Tahfidz Qur'an",
                 "Tahfidz",
                 "Pelatihan Public Speaking",
                 "Tabligh Akbar Dzulhijjah",
@@ -666,32 +667,116 @@
                 "Pelatihan Penyelenggaraan Jenazah",
                 "Pelatihan Volunteer Media Dakwah",
                 "Lomba Desain Poster Dakwah",
-                "Kantor DPW WI Babel dan WIZ",
-                "Mukerwil/Mukernas/Muktamar",
-                "Keberangkatan dan Kepulangan Dai"
+                "Kantor DPW WI Babel & WIZ",
+                "Mukerwil / Mukernas / Muktamar",
+                "Keberangkatan & Kepulangan Dai"
             ],
             'Berkah Peduli': [
                 "Tebar Sembako",
+                "Sedekah Beras & Sembako Dhuafa",
                 "Sedekah Beras Dhuafa",
                 "Sedekah Jumat",
                 "Santunan Yatim",
+                "Tebar Iftar Nusantara",
                 "Tebar Qur'an Nusantara",
                 "Bahagiakan Guru Ngaji",
+                "Sedekah Air Bersih",
                 "Sedekah Air"
             ],
             'Berkah Juara': [
                 "Beasiswa Pendidikan Juara",
+                "Beasiswa Tahfidz & Dhuafa",
+                "Beasiswa Tahfidz Qur'an",
                 "Perlengkapan Belajar Yatim"
             ],
             'Berkah Sehat': [
+                "Khitanan Massal Dhuafa",
                 "Khitanan Massal",
                 "Layanan Pengobatan Gratis",
-                "Layanan Ambulance Ummat"
+                "Layanan Ambulance Ummat",
+                "Ambulance Gratis Ummat"
             ],
             'Berkah Mandiri': [
-                "Bantuan Usaha Mikro"
+                "Modal Usaha Mandiri Dhuafa",
+                "Modal Usaha Dhuafa",
+                "Bantuan Usaha Mikro",
+                "Pelatihan Keterampilan Wirausaha"
             ]
         };
+
+        function getProgramMap() {
+            let map = JSON.parse(JSON.stringify(SPECIFIC_PROGRAMS));
+            try {
+                const saved = localStorage.getItem('wiz_custom_specific_programs');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    for (const [k, arr] of Object.entries(parsed)) {
+                        if (Array.isArray(arr) && arr.length > 0) {
+                            if (!map[k]) map[k] = [];
+                            map[k] = Array.from(new Set([...map[k], ...arr]));
+                        }
+                    }
+                }
+            } catch(e) {}
+            return map;
+        }
+
+        function matchProgramToPillarAndProgram(inputName) {
+            if (!inputName) return null;
+            const clean = decodeURIComponent(inputName).trim();
+            const lower = clean.toLowerCase();
+            const norm = lower.replace(/[^a-z0-9]/g, '');
+            const map = getProgramMap();
+
+            // 1. Direct exact or normalized match across all programs
+            for (const [cat, progs] of Object.entries(map)) {
+                for (const p of progs) {
+                    const pNorm = p.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    if (p.toLowerCase() === lower || pNorm === norm) {
+                        return { category: cat, program: p };
+                    }
+                }
+            }
+
+            // 2. Partial substring / contains check
+            for (const [cat, progs] of Object.entries(map)) {
+                for (const p of progs) {
+                    const pLower = p.toLowerCase();
+                    const pNorm = pLower.replace(/[^a-z0-9]/g, '');
+                    if (pLower.includes(lower) || lower.includes(pLower) || (norm.length > 4 && (pNorm.includes(norm) || norm.includes(pNorm)))) {
+                        return { category: cat, program: p };
+                    }
+                }
+            }
+
+            // 3. Semantic keyword matching
+            let matchedCat = 'Berkah Peduli';
+            if (lower.includes('markaz') || lower.includes('dirosa') || lower.includes('dakwah') || lower.includes('dai') || lower.includes('celengan') || lower.includes('jenazah') || lower.includes('poster') || lower.includes('kantor') || lower.includes('muker') || lower.includes('kendaraan') || lower.includes('mualaf') || lower.includes('tabligh') || lower.includes('public speaking')) {
+                matchedCat = 'Berkah Hidayah';
+            } else if (lower.includes('beasiswa') || lower.includes('pendidikan') || lower.includes('belajar') || lower.includes('juara') || lower.includes('perlengkapan')) {
+                matchedCat = 'Berkah Juara';
+            } else if (lower.includes('tahfidz')) {
+                matchedCat = lower.includes('beasiswa') ? 'Berkah Juara' : 'Berkah Hidayah';
+            } else if (lower.includes('sembako') || lower.includes('yatim') || lower.includes('beras') || lower.includes('jumat') || lower.includes('iftar') || lower.includes('qur\'an') || lower.includes('quran') || lower.includes('guru ngaji') || lower.includes('air') || lower.includes('peduli')) {
+                matchedCat = 'Berkah Peduli';
+            } else if (lower.includes('sehat') || lower.includes('khitan') || lower.includes('ambulance') || lower.includes('ambulans') || lower.includes('pengobatan') || lower.includes('medis')) {
+                matchedCat = 'Berkah Sehat';
+            } else if (lower.includes('mandiri') || lower.includes('modal') || lower.includes('usaha') || lower.includes('wirausaha') || lower.includes('umkm') || lower.includes('ekonomi')) {
+                matchedCat = 'Berkah Mandiri';
+            }
+
+            const categoryProgs = map[matchedCat] || [];
+            let bestProg = clean;
+            for (const p of categoryProgs) {
+                const words = lower.split(/\s+/).filter(w => w.length > 3);
+                if (words.some(w => p.toLowerCase().includes(w))) {
+                    bestProg = p;
+                    break;
+                }
+            }
+
+            return { category: matchedCat, program: bestProg };
+        }
 
         const INFAK_UMUM_RULES = {
             'Pangkalpinang': [
@@ -803,6 +888,9 @@
             const flow = document.getElementById('infak-terikat-flow');
             if (radio.value === 'Infak Terikat') {
                 flow.classList.remove('hidden');
+                if (state.category === '-' || !state.category) {
+                    setProgramUtama('Berkah Peduli');
+                }
             } else {
                 flow.classList.add('hidden');
                 state.category = '-';
@@ -822,18 +910,26 @@
 
             const buttons = document.querySelectorAll('#program-utama-buttons .cat-btn');
             buttons.forEach(b => b.classList.remove('active'));
-            if (btn) btn.classList.add('active');
+
+            let activeBtn = btn;
+            if (!activeBtn) {
+                activeBtn = Array.from(buttons).find(b => {
+                    const txt = b.textContent.toUpperCase();
+                    return txt.includes(cat.toUpperCase()) || 
+                           (cat === 'Berkah Hidayah' && txt.includes('HIDAYAH')) ||
+                           (cat === 'Berkah Peduli' && txt.includes('PEDULI')) ||
+                           (cat === 'Berkah Juara' && txt.includes('JUARA')) ||
+                           (cat === 'Berkah Sehat' && txt.includes('SEHAT')) ||
+                           (cat === 'Berkah Mandiri' && txt.includes('MANDIRI'));
+                });
+            }
+            if (activeBtn) activeBtn.classList.add('active');
 
             // Populate Program Spesifik select dropdown
             const progSelect = document.getElementById('program-spesifik-select');
             progSelect.innerHTML = '<option value="">-- Pilih Program Spesifik --</option>';
 
-            let map = SPECIFIC_PROGRAMS;
-            try {
-                const saved = localStorage.getItem('wiz_custom_specific_programs');
-                if (saved) map = JSON.parse(saved);
-            } catch(e) {}
-
+            const map = getProgramMap();
             const progs = map[cat] || [];
             progs.forEach(p => {
                 const opt = document.createElement('option');
@@ -841,6 +937,11 @@
                 opt.textContent = p;
                 progSelect.appendChild(opt);
             });
+
+            if (progs.length > 0) {
+                progSelect.value = progs[0];
+                state.program = progs[0];
+            }
 
             updateSummary();
         }
@@ -898,9 +999,6 @@
                     alokasiProgram = alloc.alokasiProgram;
                 }
 
-                // Referral ONLY from URL parameter — never from localStorage/sessionStorage
-                // This ensures direct website visitors never get an affiliate's commission automatically
-                // Active referral attribution from URL or 30-day cookie
                 const refParam = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || new URLSearchParams(window.location.search).get('perantara'));
                 let refId = null;
                 let refRate = 6;
@@ -1044,12 +1142,73 @@
             closeBankModal();
         }
 
+        function applyProgramFromQuery(progParam) {
+            if (!progParam) return;
+            const match = matchProgramToPillarAndProgram(progParam);
+            if (!match) return;
+
+            // 1. Select Infak Terikat radio
+            const infakRadio = document.querySelector('input[name="donation_type"][value="Infak Terikat"]');
+            if (infakRadio) {
+                infakRadio.checked = true;
+                state.type = 'Infak Terikat';
+                const flow = document.getElementById('infak-terikat-flow');
+                if (flow) flow.classList.remove('hidden');
+            }
+
+            // 2. Select Program Utama button & populate dropdown
+            const cat = match.category;
+            const prog = match.program;
+            setProgramUtama(cat);
+
+            // 3. Set the specific program in dropdown
+            const progSelect = document.getElementById('program-spesifik-select');
+            if (progSelect) {
+                let optionFound = Array.from(progSelect.options).find(opt => opt.value === prog || opt.value.toLowerCase() === prog.toLowerCase());
+                if (!optionFound) {
+                    const newOpt = document.createElement('option');
+                    newOpt.value = prog;
+                    newOpt.textContent = prog;
+                    progSelect.appendChild(newOpt);
+                    optionFound = newOpt;
+                }
+                progSelect.value = optionFound.value;
+                setProgramSpesifik(optionFound.value);
+            }
+
+            // 4. Update title & OpenGraph
+            document.title = `Berdonasi untuk ${prog} — WIZ Babel`;
+            const ogTitleEl = document.getElementById('og-title');
+            const twTitleEl = document.getElementById('twitter-title');
+            if (ogTitleEl) ogTitleEl.setAttribute('content', `Donasi Program: ${prog}`);
+            if (twTitleEl) twTitleEl.setAttribute('content', `Donasi Program: ${prog}`);
+
+            const progImg = (window.wizStore && window.wizStore.allocationRulesManager) ? window.wizStore.allocationRulesManager.getSpecificProgramImage(prog, cat) : '';
+            if (progImg && (progImg.startsWith('http') || progImg.startsWith('data:image'))) {
+                const ogImgEl = document.getElementById('og-image');
+                const twImgEl = document.getElementById('twitter-image');
+                if (ogImgEl) ogImgEl.setAttribute('content', progImg);
+                if (twImgEl) twImgEl.setAttribute('content', progImg);
+            }
+
+            updateSummary();
+
+            // 5. Smooth scroll into the form section
+            setTimeout(() => {
+                const targetEl = document.getElementById('infak-terikat-flow');
+                if (targetEl) {
+                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 200);
+        }
+
         // Read URL query parameters for pre-filling program
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const progParam = urlParams.get('program');
             const typeParam = urlParams.get('type');
             const wilayahParam = urlParams.get('wilayah');
+            const nominalParam = urlParams.get('nominal') || urlParams.get('amount');
 
             if (wilayahParam) {
                 const wRadio = document.querySelector(`input[name="wilayah"][value="${wilayahParam}"]`);
@@ -1060,49 +1219,7 @@
             }
 
             if (progParam) {
-                const infakRadio = document.querySelector('input[name="donation_type"][value="Infak Terikat"]');
-                if (infakRadio) {
-                    infakRadio.checked = true;
-                    handleTypeChange(infakRadio);
-                }
-
-                const searchLower = decodeURIComponent(progParam).toLowerCase().trim();
-                let matchedCat = null;
-                let matchedProg = null;
-
-                for (const [cat, progs] of Object.entries(SPECIFIC_PROGRAMS)) {
-                    for (const p of progs) {
-                        if (p.toLowerCase() === searchLower || p.toLowerCase().includes(searchLower) || searchLower.includes(p.toLowerCase())) {
-                            matchedCat = cat;
-                            matchedProg = p;
-                            break;
-                        }
-                    }
-                    if (matchedProg) break;
-                }
-
-                if (matchedCat) {
-                    const btn = Array.from(document.querySelectorAll('#program-utama-buttons .cat-btn')).find(b => b.textContent.includes(matchedCat.toUpperCase()));
-                    setProgramUtama(matchedCat, btn);
-                    if (matchedProg) {
-                        document.getElementById('program-spesifik-select').value = matchedProg;
-                        setProgramSpesifik(matchedProg);
-
-                        // Dynamic OpenGraph Social Media Image & Title Update
-                        const progImg = (wizStore && wizStore.allocationRulesManager) ? wizStore.allocationRulesManager.getSpecificProgramImage(matchedProg, matchedCat) : '';
-                        if (progImg && (progImg.startsWith('http') || progImg.startsWith('data:image'))) {
-                            const ogImgEl = document.getElementById('og-image');
-                            const twImgEl = document.getElementById('twitter-image');
-                            if (ogImgEl) ogImgEl.setAttribute('content', progImg);
-                            if (twImgEl) twImgEl.setAttribute('content', progImg);
-                        }
-                        document.title = `Berdonasi untuk ${matchedProg} — WIZ Babel`;
-                        const ogTitleEl = document.getElementById('og-title');
-                        const twTitleEl = document.getElementById('twitter-title');
-                        if (ogTitleEl) ogTitleEl.setAttribute('content', `Donasi Program: ${matchedProg}`);
-                        if (twTitleEl) twTitleEl.setAttribute('content', `Donasi Program: ${matchedProg}`);
-                    }
-                }
+                applyProgramFromQuery(progParam);
             } else if (typeParam) {
                 const radio = document.querySelector(`input[name="donation_type"][value="${typeParam}"]`);
                 if (radio) {
@@ -1111,11 +1228,23 @@
                 }
             }
 
+            if (nominalParam) {
+                const n = parseInt(nominalParam);
+                if (!isNaN(n) && n > 0) {
+                    setNominal(n);
+                }
+            }
+
             updateSummary();
             if (window.applySiteSettings) window.applySiteSettings();
         });
 
         window.addEventListener('wiz-sync-complete', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const progParam = urlParams.get('program');
+            if (progParam) {
+                applyProgramFromQuery(progParam);
+            }
             updateSummary();
             initAffiliateBanner();
             if (window.applySiteSettings) window.applySiteSettings();
