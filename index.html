@@ -553,20 +553,24 @@
         </div>
 
         <div class="max-w-xl mx-auto">
-            <!-- Bank BSI (Satu-satunya Rekening Aktif) -->
-            <div class="bg-surface p-xl rounded-2xl border-2 border-emerald-500/30 shadow-level-1 space-y-md flex flex-col justify-between text-center">
+            <!-- Bank BSI Rekening Aktif -->
+            <div class="bg-gradient-to-br from-emerald-50 to-teal-50 p-xl rounded-2xl border-2 border-emerald-500/40 shadow-level-1 space-y-md flex flex-col justify-between">
                 <div>
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-2">
-                        <span class="material-symbols-outlined text-sm">verified</span> Rekening Aktif
-                    </span>
-                    <h3 class="font-headline-md text-2xl font-bold text-primary" data-site-bank-name="bsi">Bank Syariah Indonesia (BSI)</h3>
-                    <p class="font-body-md text-sm text-on-surface-variant mt-0.5">Saluran Donasi Zakat, Infak &amp; Sedekah Resmi</p>
-                    <div class="mt-md font-mono text-2xl font-extrabold text-on-surface tracking-wider bg-surface-container-low py-3 px-4 rounded-xl border border-outline-variant/30 select-all" data-site-bank-no="bsi">
-                        7112223334
+                    <!-- BSI Logo + Badge -->
+                    <div class="flex items-center justify-between mb-3">
+                        <img src="assets/images/logo-bsi.jpg" alt="Bank Syariah Indonesia" class="h-10 object-contain" onerror="this.style.display='none'">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold border border-emerald-300">
+                            <span class="material-symbols-outlined text-sm">verified</span> Rekening Aktif
+                        </span>
                     </div>
-                    <p class="font-caption text-sm text-on-surface-variant font-medium mt-2" data-site-bank-holder="bsi">Atas Nama: <strong class="text-on-surface">Wahdah Inspirasi Zakat</strong></p>
+                    <h3 class="font-headline-md text-xl font-bold text-emerald-800" data-site-bank-name="bsi">Bank Syariah Indonesia (BSI)</h3>
+                    <p class="font-body-md text-sm text-on-surface-variant mt-0.5">Saluran Resmi Donasi Zakat, Infak &amp; Sedekah</p>
+                    <div class="mt-md font-mono text-3xl font-extrabold text-on-surface tracking-widest bg-white/80 py-3 px-4 rounded-xl border border-emerald-200/60 select-all text-center shadow-xs" data-site-bank-no="bsi">
+                        716 800 800
+                    </div>
+                    <p class="font-caption text-sm text-on-surface-variant font-semibold mt-2 text-center" data-site-bank-holder="bsi">A.n. <strong class="text-emerald-800">WIZ Bangka Belitung</strong></p>
                 </div>
-                <button onclick="copyToClipboard(document.querySelector('[data-site-bank-no=bsi]')?.textContent || '7112223334', 'No. Rekening BSI berhasil disalin!')" class="mt-sm w-full bg-primary hover:bg-primary-container text-on-primary py-3 rounded-xl font-label-md text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer">
+                <button onclick="copyToClipboard('716800800', 'No. Rekening BSI berhasil disalin!')" class="mt-sm w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-label-md text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer">
                     <span class="material-symbols-outlined text-base">content_copy</span>
                     <span>Salin No. Rekening BSI</span>
                 </button>
