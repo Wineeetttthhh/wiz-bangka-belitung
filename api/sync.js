@@ -39,7 +39,6 @@ function toFsValue(v) {
 function toFsFields(obj) {
     const fields = {};
     for (const [k, v] of Object.entries(obj || {})) {
-        if (k === 'id') continue;
         fields[k] = toFsValue(v);
     }
     return fields;
@@ -117,21 +116,26 @@ function loadCanonicalSeed() {
 function mergeArrays(existingArr = [], incomingArr = [], deletedIds = []) {
     const deletedSet = new Set((deletedIds || []).map(String));
     const map = new Map();
-    existingArr.forEach(item => {
-        if (item && item.id && !deletedSet.has(String(item.id)) && item.status !== 'deleted') {
-            map.set(String(item.id), item);
+    (existingArr || []).forEach(item => {
+        if (!item) return;
+        const itemId = String(item.id || item.code || '');
+        if (itemId && !deletedSet.has(itemId) && item.status !== 'deleted' && !item.isDeleted) {
+            item.id = item.id || itemId;
+            map.set(itemId, item);
         }
     });
-    incomingArr.forEach(item => {
-        if (!item || !item.id || deletedSet.has(String(item.id)) || item.status === 'deleted') return;
-        const id = String(item.id);
-        if (!map.has(id)) {
-            map.set(id, item);
+    (incomingArr || []).forEach(item => {
+        if (!item) return;
+        const itemId = String(item.id || item.code || (item.name ? `${item.name}-${item.phone || ''}` : ''));
+        if (!itemId || deletedSet.has(itemId) || item.status === 'deleted' || item.isDeleted) return;
+        item.id = item.id || itemId;
+        if (!map.has(itemId)) {
+            map.set(itemId, item);
         } else {
-            const existing = map.get(id);
+            const existing = map.get(itemId);
             const tExisting = new Date(existing.updatedAt || existing.createdAt || 0).getTime();
             const tIncoming = new Date(item.updatedAt || item.createdAt || 0).getTime();
-            if (tIncoming >= tExisting) map.set(id, { ...existing, ...item });
+            if (tIncoming >= tExisting) map.set(itemId, { ...existing, ...item });
         }
     });
     return Array.from(map.values());

@@ -39,8 +39,7 @@ const FIREBASE_CONFIG = {
 
     function toFsFields(obj) {
         const fields = {};
-        for (const [k, v] of Object.entries(obj)) {
-            if (k === 'id') continue; // id stored as document name, not field
+        for (const [k, v] of Object.entries(obj || {})) {
             fields[k] = toFsValue(v);
         }
         return fields;

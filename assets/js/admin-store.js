@@ -1151,16 +1151,20 @@
 
                 // Load local first, skipping deleted
                 local.forEach(item => {
-                    if (item && item.id && !activeDeletedSet.has(String(item.id)) && item.status !== 'deleted') {
-                        map.set(String(item.id), item);
+                    if (!item) return;
+                    const itemId = String(item.id || item.code || (item.name ? `${item.name}-${item.phone || ''}` : ''));
+                    if (itemId && !activeDeletedSet.has(itemId) && item.status !== 'deleted' && !item.isDeleted) {
+                        item.id = item.id || itemId;
+                        map.set(itemId, item);
                     }
                 });
 
                 // Merge cloud data, checking timestamps
                 cloudData.forEach(cloudItem => {
-                    if (!cloudItem || !cloudItem.id) return;
-                    const strId = String(cloudItem.id);
-                    if (activeDeletedSet.has(strId) || cloudItem.status === 'deleted' || cloudItem.isDeleted) return;
+                    if (!cloudItem) return;
+                    const strId = String(cloudItem.id || cloudItem.code || (cloudItem.name ? `${cloudItem.name}-${cloudItem.phone || ''}` : ''));
+                    if (!strId || activeDeletedSet.has(strId) || cloudItem.status === 'deleted' || cloudItem.isDeleted) return;
+                    cloudItem.id = cloudItem.id || strId;
 
                     const localItem = map.get(strId);
                     if (localItem) {
@@ -2058,13 +2062,21 @@
     const referrals = {
         getAll() {
             const deletedSet = getDeletedRefIds();
-            const rawList = (getStore(STORAGE_KEYS.REFERRALS) || []).filter(r => r && r.id && !deletedSet.has(String(r.id)) && r.status !== 'deleted' && !r.isDeleted);
+            const rawList = (getStore(STORAGE_KEYS.REFERRALS) || []).filter(r => r && (r.id || r.code || r.name) && !deletedSet.has(String(r.id || r.code)) && r.status !== 'deleted' && !r.isDeleted);
             const allDonations = getStore(STORAGE_KEYS.DONATIONS) || [];
             const allPayouts = getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || [];
 
             return rawList.map(ref => {
-                const refDonations = allDonations.filter(d => String(d.referralId) === String(ref.id));
-                const refPayouts = allPayouts.filter(p => String(p.referralId) === String(ref.id));
+                const refId = String(ref.id || ref.code || '');
+                const refCode = String(ref.code || ref.id || '');
+                const refDonations = allDonations.filter(d => {
+                    const dRefId = String(d.referralId || '');
+                    return dRefId && (dRefId === refId || dRefId.toLowerCase() === refCode.toLowerCase());
+                });
+                const refPayouts = allPayouts.filter(p => {
+                    const pRefId = String(p.referralId || '');
+                    return pRefId && (pRefId === refId || pRefId.toLowerCase() === refCode.toLowerCase());
+                });
 
                 const donationsCount = refDonations.length;
                 const totalDonationAmount = refDonations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
@@ -2080,6 +2092,8 @@
 
                 return {
                     ...ref,
+                    id: refId,
+                    code: refCode,
                     donationsCount,
                     totalDonationAmount,
                     totalFee6Percent,
@@ -2088,7 +2102,7 @@
                     totalPaid,
                     pendingBalance
                 };
-            }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            }).sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
         },
 
         getById(id) {
