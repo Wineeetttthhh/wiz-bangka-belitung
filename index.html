@@ -1115,11 +1115,11 @@
         const q = window.wizStore && window.wizStore.quotes ? window.wizStore.quotes.getToday() : null;
         if (!q) return;
         const refParam = new URLSearchParams(window.location.search).get('ref');
-        const origin = window.location.origin.includes('http') ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
+        const origin = (window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
         const donationUrl = `${origin}/donasi.html${refParam ? '?ref=' + encodeURIComponent(refParam) : ''}`;
-        const msg = `*INSPIRASI & DAKWAH HARIAN WIZ BABEL*%0A%0A"${encodeURIComponent(q.text)}"%0A%0A— *${encodeURIComponent(q.source)}*%0A%0A_Mari bersama raih keberkahan hari ini dengan bersedekah melalui Wahdah Inspirasi Zakat Bangka Belitung:_%0A${encodeURIComponent(donationUrl)}`;
+        const fullMessage = `*INSPIRASI & DAKWAH HARIAN WIZ BABEL*\n\n"${q.text}"\n\n— *${q.source}*\n\n_Mari bersama raih keberkahan hari ini dengan bersedekah melalui Wahdah Inspirasi Zakat Bangka Belitung:_\n${donationUrl}`;
 
-        window.open(`https://wa.me/?text=${msg}`, '_blank');
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(fullMessage)}`, '_blank');
     }
 
     document.addEventListener('DOMContentLoaded', async () => {

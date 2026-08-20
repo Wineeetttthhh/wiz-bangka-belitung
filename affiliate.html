@@ -881,7 +881,7 @@
                 alert('Silakan Login atau mendaftar akun affiliate terlebih dahulu agar tautan program terhubung dengan ID komisi Anda!');
                 return;
             }
-            const origin = window.location.origin.includes('http') ? window.location.origin : '';
+            const origin = (window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
             const programUrl = `${origin}/program.html?program=${encodeURIComponent(programTitle)}&ref=${encodeURIComponent(activeRef)}`;
             const pImg = (wizStore && wizStore.allocationRulesManager) ? wizStore.allocationRulesManager.getSpecificProgramImage(programTitle) : '';
             window.shareProgram(programTitle, `Mari bersama menyalurkan kepedulian melalui program ${programTitle} WIZ Bangka Belitung.`, programUrl, pImg);
@@ -916,18 +916,6 @@
                     </div>
                 </div>`;
             }).join('');
-        }
-
-        function shareAffiliateProgram(programTitle) {
-            const activeRef = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || sessionStorage.getItem('wiz_active_ref_id');
-            if (!activeRef) {
-                alert('Silakan Login atau mendaftar akun affiliate terlebih dahulu agar tautan program terhubung dengan ID komisi Anda!');
-                return;
-            }
-            const origin = window.location.origin.includes('http') ? window.location.origin : '';
-            const programUrl = `${origin}/program.html?program=${encodeURIComponent(programTitle)}&ref=${encodeURIComponent(activeRef)}`;
-            const pImg = (wizStore && wizStore.allocationRulesManager) ? wizStore.allocationRulesManager.getSpecificProgramImage(programTitle) : '';
-            window.shareProgram(programTitle, `Mari bersama menyalurkan kepedulian melalui program ${programTitle} WIZ Bangka Belitung.`, programUrl, pImg);
         }
 
         function renderAffiliateQuotesGrid() {
@@ -986,12 +974,12 @@
             if (!q) return;
 
             const refCode = getActiveAffiliateRefCode();
-            const origin = window.location.origin.includes('http') ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
+            const origin = (window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
             const donationUrl = `${origin}/donasi.html?ref=${encodeURIComponent(refCode)}`;
 
-            const msg = `*INSPIRASI & DAKWAH HARIAN WIZ BABEL*%0A%0A"${encodeURIComponent(q.text)}"%0A%0A— *${encodeURIComponent(q.source)}*%0A%0A_Mari bersama raih keberkahan hari ini dengan menyalurkan sedekah & infak terbaik melalui Wahdah Inspirasi Zakat Bangka Belitung:_%0A${encodeURIComponent(donationUrl)}`;
+            const fullText = `*INSPIRASI & DAKWAH HARIAN WIZ BABEL*\n\n"${q.text}"\n\n— *${q.source}*\n\n_Mari bersama raih keberkahan hari ini dengan menyalurkan sedekah & infak terbaik melalui Wahdah Inspirasi Zakat Bangka Belitung:_\n${donationUrl}`;
             
-            const waUrl = `https://wa.me/?text=${msg}`;
+            const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(fullText)}`;
             window.open(waUrl, '_blank');
         }
 
@@ -1006,7 +994,7 @@
             if (!q) return;
 
             const refCode = getActiveAffiliateRefCode();
-            const origin = window.location.origin.includes('http') ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
+            const origin = (window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
             const donationUrl = `${origin}/donasi.html?ref=${encodeURIComponent(refCode)}`;
 
             const shareText = `*INSPIRASI & DAKWAH HARIAN WIZ BABEL*\n\n"${q.text}"\n\n— *${q.source}*\n\n_Mari bersama raih keberkahan hari ini dengan menyalurkan sedekah & infak terbaik melalui Wahdah Inspirasi Zakat Bangka Belitung:_\n${donationUrl}`;
