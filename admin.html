@@ -1687,7 +1687,8 @@
 
                         <!-- Preview Box -->
                         <div id="news-main-preview-container" class="mt-2 hidden flex items-center gap-md p-2 bg-surface-container-low rounded-xl border border-outline-variant/30">
-                            <img id="news-main-preview" src=""
+                            <img id="news-main-preview" src="assets/images/sedekah-beras-dhuafa.jpg"
+                                onerror="this.src='assets/images/sedekah-beras-dhuafa.jpg';"
                                 class="h-28 w-44 rounded-lg object-cover border border-outline-variant/30 shadow-xs shrink-0"
                                 alt="Preview Cover">
                             <div class="text-caption space-y-1">
@@ -3044,89 +3045,130 @@
         }
 
         function handleLocalPhotoSelect(event, previewId, inputId) {
-            const file = event.target.files[0];
+            const file = event.target.files && event.target.files[0];
             if (!file) return;
 
             const filenameEl = document.getElementById('photo-filename-display');
             const uploadZone = document.getElementById('photo-upload-zone');
-
-            if (filenameEl) {
-                filenameEl.textContent = '⏳ Mengompres foto...';
-                filenameEl.style.color = '#6366f1';
-            }
-            if (uploadZone) uploadZone.style.opacity = '0.5';
-
-            const objectUrl = URL.createObjectURL(file);
             const prevImg = document.getElementById(previewId);
             const prevContainer = document.getElementById(`${previewId}-container`);
-            if (prevImg) prevImg.src = objectUrl;
-            if (prevContainer) prevContainer.classList.remove('hidden');
+            const inputEl = document.getElementById(inputId);
 
-            setTimeout(() => {
+            if (filenameEl) {
+                filenameEl.textContent = '⏳ Memproses & mengompres foto...';
+                filenameEl.style.color = '#6366f1';
+            }
+            if (uploadZone) uploadZone.style.opacity = '0.6';
+
+            const reader = new FileReader();
+            reader.onerror = function() {
+                if (filenameEl) {
+                    filenameEl.textContent = '❌ Gagal membaca file gambar. Silakan coba file lain.';
+                    filenameEl.style.color = '#ef4444';
+                }
+                if (uploadZone) uploadZone.style.opacity = '1';
+            };
+
+            reader.onload = function(e) {
+                const rawDataUrl = e.target.result;
+                if (!rawDataUrl) {
+                    if (uploadZone) uploadZone.style.opacity = '1';
+                    return;
+                }
+
+                // Prepare preview
+                if (prevImg) {
+                    prevImg.onerror = function() { this.src = 'assets/images/sedekah-beras-dhuafa.jpg'; };
+                    prevImg.src = rawDataUrl;
+                }
+                if (prevContainer) prevContainer.classList.remove('hidden');
+                if (inputEl) inputEl.value = rawDataUrl;
+
+                // Compress using canvas
                 const img = new Image();
-                img.onload = function() {
-                    const maxDim = 800;
-                    let w = img.naturalWidth;
-                    let h = img.naturalHeight;
-
-                    if (w <= maxDim && h <= maxDim && file.size < 160000) {
-                        const reader = new FileReader();
-                        reader.onload = function(ev) {
-                            const inputEl = document.getElementById(inputId);
-                            if (inputEl) inputEl.value = ev.target.result;
-                            if (prevImg) prevImg.src = ev.target.result;
-                            URL.revokeObjectURL(objectUrl);
-                            const sizeKb = Math.round(ev.target.result.length / 1024);
-                            if (filenameEl) {
-                                filenameEl.textContent = `✅ ${file.name} (${sizeKb} KB)`;
-                                filenameEl.style.color = '#16a34a';
-                            }
-                            if (uploadZone) uploadZone.style.opacity = '1';
-                        };
-                        reader.readAsDataURL(file);
-                        return;
-                    }
-
-                    if (w > maxDim || h > maxDim) {
-                        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
-                        else       { w = Math.round(w * maxDim / h); h = maxDim; }
-                    }
-
-                    const canvas = document.createElement('canvas');
-                    canvas.width  = w;
-                    canvas.height = h;
-                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-
-                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.75);
-                    const sizeKb = Math.round(compressedDataUrl.length / 1024);
-
-                    const inputEl = document.getElementById(inputId);
-                    if (inputEl) inputEl.value = compressedDataUrl;
-                    if (prevImg) prevImg.src = compressedDataUrl;
-                    URL.revokeObjectURL(objectUrl);
-
+                img.onerror = function() {
+                    // Fallback to raw data url if canvas decode fails
+                    const sizeKb = Math.round(file.size / 1024);
                     if (filenameEl) {
-                        filenameEl.textContent = `✅ ${file.name} (Tersimpan ${sizeKb} KB)`;
+                        filenameEl.textContent = `✅ ${file.name} (${sizeKb} KB)`;
                         filenameEl.style.color = '#16a34a';
                     }
                     if (uploadZone) uploadZone.style.opacity = '1';
                 };
-                img.src = objectUrl;
-            }, 10);
+
+                img.onload = function() {
+                    try {
+                        const maxDim = 900;
+                        let w = img.naturalWidth || img.width;
+                        let h = img.naturalHeight || img.height;
+
+                        if (w > maxDim || h > maxDim) {
+                            if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+                            else       { w = Math.round(w * maxDim / h); h = maxDim; }
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = w;
+                        canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.80);
+                        const finalUrl = (compressedDataUrl && compressedDataUrl.length > 100) ? compressedDataUrl : rawDataUrl;
+
+                        if (inputEl) inputEl.value = finalUrl;
+                        if (prevImg) prevImg.src = finalUrl;
+
+                        const sizeKb = Math.round(finalUrl.length / 1024);
+                        if (filenameEl) {
+                            filenameEl.textContent = `✅ ${file.name} (Tersimpan ${sizeKb} KB)`;
+                            filenameEl.style.color = '#16a34a';
+                        }
+                    } catch (err) {
+                        if (filenameEl) {
+                            filenameEl.textContent = `✅ ${file.name}`;
+                            filenameEl.style.color = '#16a34a';
+                        }
+                    } finally {
+                        if (uploadZone) uploadZone.style.opacity = '1';
+                    }
+                };
+
+                img.src = rawDataUrl;
+            };
+
+            reader.readAsDataURL(file);
+            event.target.value = '';
         }
 
         function updatePreviewFromUrl(inputId, previewId) {
             const inputEl = document.getElementById(inputId);
             const prevImg = document.getElementById(previewId);
             const prevContainer = document.getElementById(`${previewId}-container`);
+            const filenameEl = document.getElementById('photo-filename-display');
             if (!inputEl || !prevImg) return;
 
             const url = inputEl.value.trim();
             if (url) {
+                prevImg.onerror = function() {
+                    this.src = 'assets/images/sedekah-beras-dhuafa.jpg';
+                    if (filenameEl) {
+                        filenameEl.textContent = '⚠️ URL gambar tidak dapat diakses langsung, menggunakan cadangan.';
+                        filenameEl.style.color = '#d97706';
+                    }
+                };
                 prevImg.src = url;
                 if (prevContainer) prevContainer.classList.remove('hidden');
+                if (filenameEl && !filenameEl.textContent.startsWith('✅')) {
+                    filenameEl.textContent = '🔗 URL gambar aktif';
+                    filenameEl.style.color = '#0284c7';
+                }
             } else {
                 if (prevContainer) prevContainer.classList.add('hidden');
+                if (filenameEl) {
+                    filenameEl.textContent = 'JPG, PNG, WebP — Kompresi otomatis';
+                    filenameEl.style.color = '';
+                }
             }
         }
 
@@ -3157,7 +3199,7 @@
 
             container.innerHTML = activeNewsGallery.map((imgUrl, idx) => `
             <div class="flex items-center gap-2 p-2 bg-surface-container-low rounded-xl border border-outline-variant/30">
-                <img src="${imgUrl || 'assets/images/sedekah-beras-dhuafa.jpg'}" class="w-16 h-12 object-cover rounded-lg border border-outline-variant/30 shrink-0" alt="Galeri ${idx+1}">
+                <img src="${imgUrl || 'assets/images/sedekah-beras-dhuafa.jpg'}" onerror="this.src='assets/images/sedekah-beras-dhuafa.jpg';" class="w-16 h-12 object-cover rounded-lg border border-outline-variant/30 shrink-0" alt="Galeri ${idx+1}">
                 <div class="flex-1 min-w-0">
                     <input type="text" value="${imgUrl.startsWith('data:image') ? '[Foto Lokal Uploaded]' : imgUrl}" 
                         onchange="updateGalleryPhotoUrl(${idx}, this.value)"
@@ -3195,29 +3237,42 @@
         }
 
         function handleGalleryPhotoUpload(event, index) {
-            const file = event.target.files[0];
+            const file = event.target.files && event.target.files[0];
             if (!file) return;
 
-            const objectUrl = URL.createObjectURL(file);
-            const img = new Image();
-            img.onload = function() {
-                const maxDim = 800;
-                let w = img.naturalWidth;
-                let h = img.naturalHeight;
-                if (w > maxDim || h > maxDim) {
-                    if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
-                    else       { w = Math.round(w * maxDim / h); h = maxDim; }
-                }
-                const canvas = document.createElement('canvas');
-                canvas.width = w;
-                canvas.height = h;
-                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                const compressed = canvas.toDataURL('image/jpeg', 0.72);
-                activeNewsGallery[index] = compressed;
-                URL.revokeObjectURL(objectUrl);
-                renderNewsGallerySlots();
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const raw = e.target.result;
+                const img = new Image();
+                img.onerror = function() {
+                    activeNewsGallery[index] = raw;
+                    renderNewsGallerySlots();
+                };
+                img.onload = function() {
+                    try {
+                        const maxDim = 800;
+                        let w = img.naturalWidth || img.width;
+                        let h = img.naturalHeight || img.height;
+                        if (w > maxDim || h > maxDim) {
+                            if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+                            else       { w = Math.round(w * maxDim / h); h = maxDim; }
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = w;
+                        canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        const comp = canvas.toDataURL('image/jpeg', 0.75);
+                        activeNewsGallery[index] = comp;
+                    } catch (err) {
+                        activeNewsGallery[index] = raw;
+                    }
+                    renderNewsGallerySlots();
+                };
+                img.src = raw;
             };
-            img.src = objectUrl;
+            reader.readAsDataURL(file);
+            event.target.value = '';
         }
 
         // ─── Modal Open/Close/Save ──────────────────
@@ -3258,13 +3313,16 @@
                     if (authorEl) authorEl.value = article.author || sessionStorage.getItem('wiz_admin_name') || 'Admin WIZ Babel';
 
                     const imgUrl = article.imageUrl || '';
-                    if (document.getElementById('news-image-url')) document.getElementById('news-image-url').value = imgUrl;
-                    if (imgUrl) {
-                        const prev = document.getElementById('news-main-preview');
-                        if (prev) prev.src = imgUrl;
-                        const prevContainer = document.getElementById('news-main-preview-container');
+                    const inputEl = document.getElementById('news-image-url');
+                    const prev = document.getElementById('news-main-preview');
+                    const prevContainer = document.getElementById('news-main-preview-container');
+                    const filenameEl = document.getElementById('photo-filename-display');
+
+                    if (inputEl) inputEl.value = imgUrl;
+                    if (imgUrl && prev) {
+                        prev.onerror = function() { this.src = 'assets/images/sedekah-beras-dhuafa.jpg'; };
+                        prev.src = imgUrl;
                         if (prevContainer) prevContainer.classList.remove('hidden');
-                        const filenameEl = document.getElementById('photo-filename-display');
                         if (filenameEl) filenameEl.textContent = imgUrl.startsWith('data:image') ? '📎 Foto lokal (sudah diupload)' : '🔗 URL gambar aktif';
                     } else {
                         clearNewsPhoto();
