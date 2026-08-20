@@ -3,95 +3,70 @@
  * WAHDAH INSPIRASI ZAKAT (WIZ) BANGKA BELITUNG
  * Vercel Serverless Sync Engine — /api/sync
  * ============================================================
- * PERSISTENT SYNC: Reads from Firebase Firestore (primary) and
- * canonical-store.json (fallback). In-memory cache is only used
- * within a warm serverless invocation for performance.
- *
- * WHY: Vercel serverless functions can cold-start at any time,
- * wiping in-memory state. Admin changes (bank accounts, settings)
- * must persist in Firebase so all website visitors see them.
+ * PRIMARY DATABASE: Supabase PostgreSQL (REST API)
+ * Fallback: canonical-store.json
  * ============================================================
  */
 
 const fs = require('fs');
 const path = require('path');
 
-// Firebase config — must match firebase-client.js
-const FIREBASE_PROJECT_ID = 'wiz-bangka-belitung';
-const FIREBASE_API_KEY    = 'AIzaSyAl8RQSk7Jnb7r4GCclAGbcZc2X-yKRhmQ';
-const FIREBASE_BASE_URL   = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents`;
+// Supabase Configuration
+const SUPABASE_URL = 'https://ffiltrlzdbwhhhxzmzuo.supabase.co/rest/v1';
+const SUPABASE_KEY = 'sb_publishable_GiA1BOjbW2psTU36149xuA_E26wGBI3';
 
-// ─── Short-lived in-memory cache (within warm invocations only) ────────────
+const supabaseHeaders = {
+    'apikey': SUPABASE_KEY,
+    'Authorization': 'Bearer ' + SUPABASE_KEY,
+    'Content-Type': 'application/json',
+    'Prefer': 'resolution=merge-duplicates'
+};
+
+// In-memory cache for fast warm lambda hits
 let memCache = null;
 let memCacheTime = 0;
-const MEM_CACHE_TTL_MS = 15000; // 15 seconds
+const MEM_CACHE_TTL_MS = 10000; // 10s
 
-// ─── Firebase REST helpers ───────────────────────────────────────────────────
-function toFsValue(v) {
-    if (v === null || v === undefined) return { nullValue: null };
-    if (typeof v === 'boolean') return { booleanValue: v };
-    if (typeof v === 'number') return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
-    if (typeof v === 'string') return { stringValue: v };
-    if (Array.isArray(v)) return { arrayValue: { values: v.map(toFsValue) } };
-    if (typeof v === 'object') return { mapValue: { fields: toFsFields(v) } };
-    return { stringValue: String(v) };
-}
-function toFsFields(obj) {
-    const fields = {};
-    for (const [k, v] of Object.entries(obj || {})) {
-        fields[k] = toFsValue(v);
-    }
-    return fields;
-}
-function fromFsValue(v) {
-    if (!v) return null;
-    if ('nullValue' in v) return null;
-    if ('stringValue' in v) return v.stringValue;
-    if ('integerValue' in v) return Number(v.integerValue);
-    if ('doubleValue' in v) return v.doubleValue;
-    if ('booleanValue' in v) return v.booleanValue;
-    if ('timestampValue' in v) return v.timestampValue;
-    if ('arrayValue' in v) return (v.arrayValue.values || []).map(fromFsValue);
-    if ('mapValue' in v) return fromFsFields(v.mapValue.fields || {});
-    return null;
-}
-function fromFsFields(fields) {
-    const obj = {};
-    for (const [k, v] of Object.entries(fields || {})) { obj[k] = fromFsValue(v); }
-    return obj;
-}
-
-async function firebaseGet(docPath) {
+async function supabaseGetMaster() {
     try {
-        const url = `${FIREBASE_BASE_URL}/${docPath}?key=${FIREBASE_API_KEY}`;
-        const res = await fetch(url, { headers: { Accept: 'application/json' } });
+        const res = await fetch(`${SUPABASE_URL}/site_settings?key=eq.master_bundle&select=*`, {
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': 'Bearer ' + SUPABASE_KEY,
+                'Accept': 'application/json'
+            }
+        });
         if (!res.ok) return null;
-        const doc = await res.json();
-        if (!doc || !doc.fields) return null;
-        return fromFsFields(doc.fields);
-    } catch (e) {
-        console.warn('[Sync API] Firebase GET error:', e.message);
+        const list = await res.json();
+        if (Array.isArray(list) && list.length > 0 && list[0].value) {
+            return list[0].value;
+        }
+        return null;
+    } catch(e) {
+        console.warn('[Sync API] Supabase GET error:', e.message);
         return null;
     }
 }
 
-async function firebasePatch(docPath, data) {
+async function supabaseSaveMaster(data) {
     try {
-        const { id: _id, ...rest } = data;
-        const url = `${FIREBASE_BASE_URL}/${docPath}?key=${FIREBASE_API_KEY}`;
-        const res = await fetch(url, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fields: toFsFields(rest) })
+        const res = await fetch(`${SUPABASE_URL}/site_settings`, {
+            method: 'POST',
+            headers: supabaseHeaders,
+            body: JSON.stringify({
+                key: 'master_bundle',
+                value: data,
+                updated_at: new Date().toISOString()
+            })
         });
         return res.ok;
-    } catch (e) {
-        console.warn('[Sync API] Firebase PATCH error:', e.message);
+    } catch(e) {
+        console.warn('[Sync API] Supabase POST error:', e.message);
         return false;
     }
 }
 
-// ─── Canonical seed (file-based fallback) ───────────────────────────────────
+// Canonical seed fallback
 function loadCanonicalSeed() {
     try {
         const filePath = path.join(process.cwd(), 'assets', 'data', 'canonical-store.json');
@@ -112,7 +87,6 @@ function loadCanonicalSeed() {
     };
 }
 
-// ─── Merge helpers ────────────────────────────────────────────────────────────
 function mergeArrays(existingArr = [], incomingArr = [], deletedIds = []) {
     const deletedSet = new Set((deletedIds || []).map(String));
     const map = new Map();
@@ -141,69 +115,79 @@ function mergeArrays(existingArr = [], incomingArr = [], deletedIds = []) {
     return Array.from(map.values());
 }
 
-// ─── Main handler ─────────────────────────────────────────────────────────────
 module.exports = async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
 
-    if (req.method === 'OPTIONS') return res.status(200).end();
-
-    // ─── GET: Serve master state to all website visitors ───────────────────
-    if (req.method === 'GET') {
-        // 1. Try Firebase Firestore (persistent across cold starts and real-time across instances)
-        let master = null;
-        try {
-            const fbData = await firebaseGet('system_state/master_bundle');
-            if (fbData && (fbData.donations || fbData.referrals || fbData.news || fbData.site_settings || fbData.site_images || fbData.disbursements)) {
-                master = fbData;
-                console.log('[Sync API] Loaded master bundle from Firebase Firestore.');
-            }
-        } catch (e) {
-            console.warn('[Sync API] Firebase load failed, falling back to canonical seed:', e.message);
-        }
-
-        // 2. Fallback: canonical-store.json (static file, always available)
-        if (!master) {
-            master = loadCanonicalSeed();
-            console.log('[Sync API] Loaded from canonical-store.json fallback.');
-        }
-
-        return res.status(200).json({ status: 'success', serverTime: new Date().toISOString(), data: master });
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
     }
 
-    // ─── POST: Receive and merge data from admin push ─────────────────────
+    if (req.method === 'GET') {
+        try {
+            // Check in-memory cache
+            if (memCache && (Date.now() - memCacheTime < MEM_CACHE_TTL_MS)) {
+                return res.status(200).json({
+                    status: 'success',
+                    source: 'memory_cache',
+                    data: memCache
+                });
+            }
+
+            // 1. Fetch from Supabase
+            let masterData = await supabaseGetMaster();
+
+            // 2. Fallback to canonical-store.json
+            if (!masterData || !Array.isArray(masterData.news) || masterData.news.length === 0) {
+                masterData = loadCanonicalSeed();
+                // Push canonical to Supabase
+                supabaseSaveMaster(masterData).catch(() => {});
+            }
+
+            memCache = masterData;
+            memCacheTime = Date.now();
+
+            return res.status(200).json({
+                status: 'success',
+                source: 'supabase_cloud',
+                data: masterData
+            });
+        } catch (err) {
+            console.error('[Sync API GET Error]', err);
+            const fallback = loadCanonicalSeed();
+            return res.status(200).json({ status: 'success', source: 'fallback', data: fallback });
+        }
+    }
+
     if (req.method === 'POST') {
         try {
             let body = req.body;
-            if (typeof body === 'string') { try { body = JSON.parse(body); } catch(e) {} }
-            body = body || {};
+            if (typeof body === 'string') {
+                try { body = JSON.parse(body); } catch(e) { body = {}; }
+            }
+            const incoming = body || {};
 
-            const incoming = body.bundle || body.data || body;
-            const deletedIds      = body.deletedIds      || incoming.deleted_ids      || [];
-            const deletedNewsIds  = body.deletedNewsIds  || incoming.deleted_news_ids  || [];
-            const deletedDisbIds  = body.deletedDisbIds  || incoming.deleted_disb_ids  || [];
-            const deletedRefIds   = body.deletedRefIds   || incoming.deleted_ref_ids   || [];
-            const deletedQuoteIds = body.deletedQuoteIds || incoming.deleted_quote_ids || [];
-
-            // Load existing master (Firebase first, then canonical seed)
-            let master = null;
-            try {
-                const fbData = await firebaseGet('system_state/master_bundle');
-                if (fbData && (fbData.donations || fbData.referrals || fbData.news || fbData.site_settings || fbData.quotes)) master = fbData;
-            } catch(e) {}
+            // Load existing state from Supabase
+            let master = await supabaseGetMaster();
             if (!master) master = loadCanonicalSeed();
 
-            // Merge all collections — incoming news from Admin is authoritative
+            const deletedIds = Array.isArray(incoming.deleted_ids) ? incoming.deleted_ids : [];
+            const deletedNewsIds = Array.isArray(incoming.deleted_news_ids) ? incoming.deleted_news_ids : [];
+            const deletedDisbIds = Array.isArray(incoming.deleted_disb_ids) ? incoming.deleted_disb_ids : [];
+            const deletedRefIds = Array.isArray(incoming.deleted_ref_ids) ? incoming.deleted_ref_ids : [];
+            const deletedQuoteIds = Array.isArray(incoming.deleted_quote_ids) ? incoming.deleted_quote_ids : [];
+
             if (Array.isArray(incoming.donations))
                 master.donations = mergeArrays(master.donations, incoming.donations, deletedIds);
+
             if (Array.isArray(incoming.news) && incoming.news.length > 0) {
-                // Admin's published news array is authoritative (filters out any deleted/stale items)
                 master.news = incoming.news.filter(n => n && n.id && !deletedNewsIds.includes(String(n.id)) && n.status !== 'deleted');
             } else if (Array.isArray(incoming.news)) {
                 master.news = mergeArrays(master.news, incoming.news, deletedNewsIds);
             }
+
             if (Array.isArray(incoming.disbursements))
                 master.disbursements = mergeArrays(master.disbursements, incoming.disbursements, deletedDisbIds);
             if (Array.isArray(incoming.referrals))
@@ -217,16 +201,11 @@ module.exports = async function handler(req, res) {
             if (Array.isArray(incoming.admin_users) && incoming.admin_users.length > 0)
                 master.admin_users = mergeArrays(master.admin_users, incoming.admin_users, []);
 
-            // Merge settings objects (admin changes ALWAYS win — latest timestamp wins)
             if (incoming.site_images && typeof incoming.site_images === 'object')
                 master.site_images = { ...(master.site_images || {}), ...incoming.site_images };
 
-            // CRITICAL: site_settings (bank accounts, offices) — admin changes ALWAYS override
-            if (incoming.site_settings && typeof incoming.site_settings === 'object') {
-                // Incoming from admin is the source of truth for settings
+            if (incoming.site_settings && typeof incoming.site_settings === 'object')
                 master.site_settings = incoming.site_settings;
-                console.log('[Sync API] site_settings updated by admin:', JSON.stringify(incoming.site_settings).slice(0, 200));
-            }
 
             if (incoming.allocation_rules && typeof incoming.allocation_rules === 'object')
                 master.allocation_rules = { ...(master.allocation_rules || {}), ...incoming.allocation_rules };
@@ -237,7 +216,6 @@ module.exports = async function handler(req, res) {
             if (incoming.specific_prog_imgs && typeof incoming.specific_prog_imgs === 'object')
                 master.specific_prog_imgs = { ...(master.specific_prog_imgs || {}), ...incoming.specific_prog_imgs };
 
-            // Track deleted IDs
             master.deleted_ids       = Array.from(new Set([...(master.deleted_ids || []),       ...deletedIds]));
             master.deleted_news_ids  = Array.from(new Set([...(master.deleted_news_ids || []),   ...deletedNewsIds]));
             master.deleted_disb_ids  = Array.from(new Set([...(master.deleted_disb_ids || []),   ...deletedDisbIds]));
@@ -245,43 +223,37 @@ module.exports = async function handler(req, res) {
             master.deleted_quote_ids = Array.from(new Set([...(master.deleted_quote_ids || []),  ...deletedQuoteIds]));
             master.updatedAt = new Date().toISOString();
 
-            // Persist to Firebase Firestore (durable storage, survives cold starts)
-            const saved = await firebasePatch('system_state/master_bundle', master);
-            if (saved) {
-                console.log('[Sync API] Master bundle persisted to Firebase Firestore.');
-            } else {
-                console.warn('[Sync API] Firebase persist failed — changes are in-memory only until next Firebase sync.');
+            // Persist to Supabase Database
+            await supabaseSaveMaster(master);
+
+            // Also upsert individual news records to Supabase news table
+            if (Array.isArray(master.news)) {
+                for (const item of master.news) {
+                    fetch(`${SUPABASE_URL}/news`, {
+                        method: 'POST',
+                        headers: supabaseHeaders,
+                        body: JSON.stringify({
+                            id: String(item.id),
+                            title: item.title,
+                            category: item.category || 'Kegiatan & Penyaluran',
+                            content: item.content,
+                            image_url: item.imageUrl,
+                            gallery: Array.isArray(item.gallery) ? item.gallery : [],
+                            event_date: item.eventDate,
+                            status: item.status || 'published',
+                            author: item.author || 'Super Admin 1 (WIZ Babel)',
+                            created_at: item.createdAt || new Date().toISOString()
+                        })
+                    }).catch(() => {});
+                }
             }
 
-            // Also persist to Supabase
-            try {
-                const SUPABASE_URL = 'https://ffiltrlzdbwhhhxzmzuo.supabase.co/rest/v1';
-                const SUPABASE_KEY = 'sb_publishable_GiA1BOjbW2psTU36149xuA_E26wGBI3';
-                await fetch(`${SUPABASE_URL}/site_settings`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': 'Bearer ' + SUPABASE_KEY,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'resolution=merge-duplicates'
-                    },
-                    body: JSON.stringify({
-                        key: 'master_bundle',
-                        value: master,
-                        updated_at: new Date().toISOString()
-                    })
-                });
-            } catch(e) {
-                console.warn('[Sync API] Supabase site_settings sync notice:', e.message);
-            }
-
-            // Update in-memory cache
             memCache = master;
             memCacheTime = Date.now();
 
             return res.status(200).json({
                 status: 'success',
-                message: 'Master cloud state synchronized successfully',
+                message: 'Supabase master cloud state synchronized successfully',
                 serverTime: master.updatedAt,
                 data: master
             });
@@ -291,5 +263,5 @@ module.exports = async function handler(req, res) {
         }
     }
 
-    return res.status(405).json({ status: 'error', message: 'Method Not Allowed' });
+    return res.status(405).json({ status: 'error', message: 'Method not allowed' });
 };

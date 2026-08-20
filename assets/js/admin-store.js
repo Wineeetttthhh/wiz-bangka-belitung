@@ -1119,6 +1119,17 @@
                 }
             } catch (e) {}
 
+            // 2. Direct Supabase Master Bundle Push
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.upsert('site_settings', {
+                        key: 'master_bundle',
+                        value: bundle,
+                        updated_at: new Date().toISOString()
+                    });
+                } catch(e) {}
+            }
+
             // Always push to remote production endpoint so Vercel & mobile phones get it immediately
             if (window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
                 try {
@@ -1133,7 +1144,7 @@
                 }
             }
 
-            // 2. Secondary: Firestore Master Bundle & Individual News Documents
+            // 3. Secondary: Firestore Master Bundle & Individual News Documents
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 try {
                     // Sync each news article to its own document in Firestore so size never exceeds 1MB
@@ -1165,6 +1176,7 @@
         }
     }
 
+    // ─── Sync From Cloud (Supabase Primary & Vercel API) ─────────────
     async function syncFromCloud(force = false) {
         const now = Date.now();
         if (!force && (now - lastSyncTimestamp < 2000 || isSyncInProgress)) {
@@ -1176,17 +1188,29 @@
         try {
             let masterData = null;
 
-            // 1. Primary: Fetch from local or remote production Vercel Serverless API (/api/sync)
-            try {
-                const res = await fetch('/api/sync', {
-                    headers: { 'Accept': 'application/json' },
-                    cache: 'no-cache'
-                });
-                if (res.ok) {
-                    const json = await res.json();
-                    if (json && json.data) masterData = json.data;
-                }
-            } catch (err) {}
+            // 1. Primary: Direct Supabase Fetch
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    const sbRes = await window.wizSupabase.select('site_settings', { filter: 'key=eq.master_bundle' });
+                    if (sbRes && sbRes.data && sbRes.data.length > 0 && sbRes.data[0].value) {
+                        masterData = sbRes.data[0].value;
+                    }
+                } catch(e) {}
+            }
+
+            // 2. Secondary: /api/sync endpoint
+            if (!masterData) {
+                try {
+                    const res = await fetch('/api/sync', {
+                        headers: { 'Accept': 'application/json' },
+                        cache: 'no-cache'
+                    });
+                    if (res.ok) {
+                        const json = await res.json();
+                        if (json && json.data) masterData = json.data;
+                    }
+                } catch (err) {}
+            }
 
             if (!masterData && window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
                 try {
@@ -1201,7 +1225,7 @@
                 } catch(e) {}
             }
 
-            // 2. Secondary Fallback: Firestore Master Bundle
+            // 3. Third Fallback: Firestore Master Bundle
             if (!masterData && window.wizFirebase && window.wizFirebase.isConfigured()) {
                 try {
                     const { data } = await window.wizFirebase.select('system_state');
@@ -1210,12 +1234,35 @@
                 } catch(e) {}
             }
 
-            // 3. Third Fallback: Static canonical snapshot
+            // 4. Fourth Fallback: Static canonical snapshot
             if (!masterData) {
                 try {
                     const res = await fetch('assets/data/canonical-store.json', { cache: 'no-cache' });
                     if (res.ok) masterData = await res.json();
                 } catch (e) {}
+            }
+
+            // Query Supabase news table directly to ensure 100% freshness
+            let directSbNews = null;
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    const sbNewsRes = await window.wizSupabase.select('news');
+                    if (sbNewsRes && Array.isArray(sbNewsRes.data) && sbNewsRes.data.length > 0) {
+                        directSbNews = sbNewsRes.data.map(n => ({
+                            id: n.id,
+                            title: n.title,
+                            category: n.category,
+                            content: n.content,
+                            imageUrl: n.image_url,
+                            gallery: Array.isArray(n.gallery) ? n.gallery : [],
+                            eventDate: n.event_date,
+                            status: n.status,
+                            author: n.author,
+                            createdAt: n.created_at,
+                            updatedAt: n.updated_at
+                        }));
+                    }
+                } catch(e) {}
             }
 
             // Also query individual Firestore news collection to ensure 100% freshness
@@ -1334,8 +1381,8 @@
                 const mergedNews = Array.from(cloudNewsMap.values());
                 mergedNews.sort((a, b) => new Date(b.eventDate || b.createdAt || 0) - new Date(a.eventDate || a.createdAt || 0));
                 setStore(STORAGE_KEYS.NEWS, mergedNews);
-            } else if (directFsNews && Array.isArray(directFsNews) && directFsNews.length > 0) {
-                smartMerge(STORAGE_KEYS.NEWS, directFsNews, (a, b) => new Date(b.eventDate || b.createdAt || 0) - new Date(a.eventDate || a.createdAt || 0), deletedNewsSet);
+            } else if (directSbNews && Array.isArray(directSbNews) && directSbNews.length > 0) {
+                smartMerge(STORAGE_KEYS.NEWS, directSbNews, (a, b) => new Date(b.eventDate || b.createdAt || 0) - new Date(a.eventDate || a.createdAt || 0), deletedNewsSet);
             }
             if (masterData.disbursements) {
                 smartMerge(STORAGE_KEYS.DISBURSEMENTS, masterData.disbursements, (a, b) => new Date(b.disbursedAt || b.createdAt) - new Date(a.disbursedAt || a.createdAt), deletedDisbSet);

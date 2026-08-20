@@ -17,50 +17,26 @@
  * ============================================================
  */
 
-const fs = require('fs');
-const path = require('path');
+// Supabase Configuration
+const SUPABASE_URL = 'https://ffiltrlzdbwhhhxzmzuo.supabase.co/rest/v1';
+const SUPABASE_KEY = 'sb_publishable_GiA1BOjbW2psTU36149xuA_E26wGBI3';
 
-// Firebase Firestore Config (matches firebase-client.js & sync.js)
-const FIREBASE_PROJECT_ID = 'wiz-bangka-belitung';
-const FIREBASE_API_KEY    = 'AIzaSyAl8RQSk7Jnb7r4GCclAGbcZc2X-yKRhmQ';
-const FIREBASE_BASE_URL   = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents`;
-
-// ─── Firebase Firestore Deserialization ─────────────────────────────────────
-function fromFsValue(v) {
-    if (!v) return null;
-    if ('nullValue' in v) return null;
-    if ('stringValue' in v) return v.stringValue;
-    if ('integerValue' in v) return Number(v.integerValue);
-    if ('doubleValue' in v) return v.doubleValue;
-    if ('booleanValue' in v) return v.booleanValue;
-    if ('timestampValue' in v) return v.timestampValue;
-    if ('arrayValue' in v) return (v.arrayValue.values || []).map(fromFsValue);
-    if ('mapValue' in v) return fromFsFields(v.mapValue.fields || {});
-    return null;
-}
-
-function fromFsFields(fields) {
-    const obj = {};
-    for (const [k, v] of Object.entries(fields || {})) {
-        obj[k] = fromFsValue(v);
-    }
-    return obj;
-}
-
-async function firebaseGet(docPath) {
+async function supabaseGetNews(newsId) {
     try {
-        const url = `${FIREBASE_BASE_URL}/${docPath}?key=${FIREBASE_API_KEY}`;
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 1200); // 1.2s fast timeout for bots
-        const res = await fetch(url, { 
-            headers: { Accept: 'application/json' },
-            signal: controller.signal
+        let url = `${SUPABASE_URL}/news?select=*`;
+        if (newsId) {
+            url += `&id=eq.${encodeURIComponent(newsId)}`;
+        }
+        const res = await fetch(url, {
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': 'Bearer ' + SUPABASE_KEY,
+                'Accept': 'application/json'
+            }
         });
-        clearTimeout(timeoutId);
         if (!res.ok) return null;
-        const doc = await res.json();
-        if (!doc || !doc.fields) return null;
-        return fromFsFields(doc.fields);
+        const data = await res.json();
+        return Array.isArray(data) ? data : null;
     } catch (e) {
         return null;
     }
@@ -129,30 +105,19 @@ module.exports = async function handler(req, res) {
     const host = req.headers.host || 'www.wizbangkabelitung.or.id';
     const origin = `${proto}://${host}`;
 
-    // 1. Fetch all news from Firebase Master Bundle
+    // 1. Fetch news from Supabase PostgreSQL
     let allNews = [];
+    let article = null;
     try {
-        const masterBundle = await firebaseGet('system_state/master_bundle');
-        if (masterBundle && Array.isArray(masterBundle.news) && masterBundle.news.length > 0) {
-            allNews = masterBundle.news;
+        const fetched = await supabaseGetNews(newsId);
+        if (Array.isArray(fetched) && fetched.length > 0) {
+            if (newsId) {
+                article = fetched[0];
+            } else {
+                allNews = fetched;
+            }
         }
     } catch(e) {}
-
-    // 2. If article still not found, check single news document in Firebase collection
-    let article = null;
-    if (newsId) {
-        const cleanId = String(newsId).trim().toLowerCase();
-        article = allNews.find(n => n && (String(n.id) === String(newsId) || String(n.id).toLowerCase() === cleanId));
-        
-        if (!article) {
-            try {
-                const singleDoc = await firebaseGet(`news/${newsId}`);
-                if (singleDoc && singleDoc.title) {
-                    article = { ...singleDoc, id: singleDoc.id || newsId };
-                }
-            } catch(e) {}
-        }
-    }
 
     // 3. Fallback: check canonical-store.json
     if (!article) {
