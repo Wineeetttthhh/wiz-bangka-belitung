@@ -12,6 +12,7 @@
         rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script id="tailwind-config">
         tailwind.config = {
@@ -1658,10 +1659,12 @@
                     <div class="space-y-1.5">
                         <span class="font-caption text-caption font-bold text-on-surface-variant">Pilihan Foto Cepat (Preset HD):</span>
                         <div class="flex items-center gap-2 flex-wrap">
+                            <button type="button" onclick="setNewsPresetPhoto('assets/images/tebar-iftar-1.jpg', 'Foto Tebar Iftar 1')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">🌙 Tebar Iftar 1</button>
+                            <button type="button" onclick="setNewsPresetPhoto('assets/images/tebar-iftar-2.jpg', 'Foto Tebar Iftar 2')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">🌙 Tebar Iftar 2</button>
+                            <button type="button" onclick="setNewsPresetPhoto('assets/images/tebar-iftar-3.jpg', 'Foto Tebar Iftar 3')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">🌙 Tebar Iftar 3</button>
                             <button type="button" onclick="setNewsPresetPhoto('assets/images/sedekah-beras-dhuafa.jpg', 'Foto Beras Dhuafa')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">🌾 Sedekah Beras</button>
                             <button type="button" onclick="setNewsPresetPhoto('assets/images/beasiswa-tahfidz.jpg', 'Foto Beasiswa')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">🎓 Beasiswa &amp; Santri</button>
                             <button type="button" onclick="setNewsPresetPhoto('assets/images/sedekah-beras-dai.jpg', 'Foto Sembako')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">📦 Tebar Sembako</button>
-                            <button type="button" onclick="setNewsPresetPhoto('assets/images/sedekah-beras-dhuafa.jpg', 'Foto Kesehatan')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">🩺 Layanan Sehat</button>
                             <button type="button" onclick="setNewsPresetPhoto('assets/images/foto-utama-wiz.jpg', 'Foto Dakwah')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">🕌 Dakwah &amp; Markaz</button>
                         </div>
                     </div>
@@ -3042,9 +3045,57 @@
                 filenameEl.textContent = `✅ Menggunakan preset: ${label}`;
                 filenameEl.style.color = '#16a34a';
             }
+        async function compressImageFile(file, maxDim = 800, quality = 0.75) {
+            let processFile = file;
+            const isHeic = file.name && (file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif') || file.type.includes('heic') || file.type.includes('heif'));
+            if (isHeic && typeof heic2any !== 'undefined') {
+                try {
+                    const convertedBlob = await heic2any({
+                        blob: file,
+                        toType: 'image/jpeg',
+                        quality: 0.85
+                    });
+                    processFile = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+                } catch(e) {
+                    console.warn('[HEIC] Conversion error:', e);
+                }
+            }
+
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const dataUrl = e.target.result;
+                    if (!dataUrl) return resolve(null);
+
+                    const img = new Image();
+                    img.onload = function() {
+                        try {
+                            let w = img.naturalWidth || img.width;
+                            let h = img.naturalHeight || img.height;
+                            if (w > maxDim || h > maxDim) {
+                                if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+                                else       { w = Math.round(w * maxDim / h); h = maxDim; }
+                            }
+                            const canvas = document.createElement('canvas');
+                            canvas.width = w;
+                            canvas.height = h;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, w, h);
+                            const result = canvas.toDataURL('image/jpeg', quality);
+                            resolve(result || dataUrl);
+                        } catch(err) {
+                            resolve(dataUrl);
+                        }
+                    };
+                    img.onerror = function() { resolve(dataUrl); };
+                    img.src = dataUrl;
+                };
+                reader.onerror = function() { resolve(null); };
+                reader.readAsDataURL(processFile);
+            });
         }
 
-        function handleLocalPhotoSelect(event, previewId, inputId) {
+        async function handleLocalPhotoSelect(event, previewId, inputId) {
             const file = event.target.files && event.target.files[0];
             if (!file) return;
 
@@ -3055,90 +3106,38 @@
             const inputEl = document.getElementById(inputId);
 
             if (filenameEl) {
-                filenameEl.textContent = '⏳ Memproses & mengompres foto...';
-                filenameEl.style.color = '#6366f1';
+                filenameEl.textContent = '⏳ Membaca & memproses foto: ' + file.name + '...';
+                filenameEl.style.color = '#0284c7';
             }
             if (uploadZone) uploadZone.style.opacity = '0.6';
 
-            const reader = new FileReader();
-            reader.onerror = function() {
-                if (filenameEl) {
-                    filenameEl.textContent = '❌ Gagal membaca file gambar. Silakan coba file lain.';
-                    filenameEl.style.color = '#ef4444';
-                }
-                if (uploadZone) uploadZone.style.opacity = '1';
-            };
+            try {
+                const finalDataUrl = await compressImageFile(file, 800, 0.75);
+                if (finalDataUrl) {
+                    if (inputEl) inputEl.value = finalDataUrl;
+                    if (prevImg) {
+                        prevImg.onerror = function() { this.src = 'assets/images/sedekah-beras-dhuafa.jpg'; };
+                        prevImg.src = finalDataUrl;
+                    }
+                    if (prevContainer) prevContainer.classList.remove('hidden');
 
-            reader.onload = function(e) {
-                const rawDataUrl = e.target.result;
-                if (!rawDataUrl) {
-                    if (uploadZone) uploadZone.style.opacity = '1';
-                    return;
-                }
-
-                // Prepare preview
-                if (prevImg) {
-                    prevImg.onerror = function() { this.src = 'assets/images/sedekah-beras-dhuafa.jpg'; };
-                    prevImg.src = rawDataUrl;
-                }
-                if (prevContainer) prevContainer.classList.remove('hidden');
-                if (inputEl) inputEl.value = rawDataUrl;
-
-                // Compress using canvas
-                const img = new Image();
-                img.onerror = function() {
-                    // Fallback to raw data url if canvas decode fails
-                    const sizeKb = Math.round(file.size / 1024);
+                    const sizeKb = Math.round(finalDataUrl.length / 1024);
                     if (filenameEl) {
-                        filenameEl.textContent = `✅ ${file.name} (${sizeKb} KB)`;
+                        filenameEl.textContent = `✅ Foto berhasil dipilih: ${file.name} (${sizeKb} KB)`;
                         filenameEl.style.color = '#16a34a';
                     }
-                    if (uploadZone) uploadZone.style.opacity = '1';
-                };
-
-                img.onload = function() {
-                    try {
-                        const maxDim = 900;
-                        let w = img.naturalWidth || img.width;
-                        let h = img.naturalHeight || img.height;
-
-                        if (w > maxDim || h > maxDim) {
-                            if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
-                            else       { w = Math.round(w * maxDim / h); h = maxDim; }
-                        }
-
-                        const canvas = document.createElement('canvas');
-                        canvas.width = w;
-                        canvas.height = h;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, w, h);
-
-                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.80);
-                        const finalUrl = (compressedDataUrl && compressedDataUrl.length > 100) ? compressedDataUrl : rawDataUrl;
-
-                        if (inputEl) inputEl.value = finalUrl;
-                        if (prevImg) prevImg.src = finalUrl;
-
-                        const sizeKb = Math.round(finalUrl.length / 1024);
-                        if (filenameEl) {
-                            filenameEl.textContent = `✅ ${file.name} (Tersimpan ${sizeKb} KB)`;
-                            filenameEl.style.color = '#16a34a';
-                        }
-                    } catch (err) {
-                        if (filenameEl) {
-                            filenameEl.textContent = `✅ ${file.name}`;
-                            filenameEl.style.color = '#16a34a';
-                        }
-                    } finally {
-                        if (uploadZone) uploadZone.style.opacity = '1';
+                } else {
+                    if (filenameEl) {
+                        filenameEl.textContent = '❌ Gagal memuat file foto.';
+                        filenameEl.style.color = '#ef4444';
                     }
-                };
-
-                img.src = rawDataUrl;
-            };
-
-            reader.readAsDataURL(file);
-            event.target.value = '';
+                }
+            } catch(e) {
+                console.error('[Upload Error]', e);
+            } finally {
+                if (uploadZone) uploadZone.style.opacity = '1';
+                event.target.value = '';
+            }
         }
 
         function updatePreviewFromUrl(inputId, previewId) {

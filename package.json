@@ -16,5 +16,8 @@
     "sedekah"
   ],
   "author": "WIZ Bangka Belitung",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "heic-convert": "^2.1.0"
+  }
 }
