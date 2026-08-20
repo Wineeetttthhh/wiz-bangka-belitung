@@ -49,15 +49,13 @@
 
     const DEFAULT_SITE_SETTINGS = {
         banks: [
-            { id: 'bsi', bank: 'Bank BSI', number: '7112223334', holder: 'Wahdah Inspirasi Zakat' },
-            { id: 'muamalat', bank: 'Bank Muamalat', number: '1230099887', holder: 'Wahdah Inspirasi Zakat' },
-            { id: 'mandiri', bank: 'Bank Mandiri', number: '1090012345678', holder: 'Wahdah Inspirasi Zakat' },
-            { id: 'bca', bank: 'Bank BCA', number: '8830123456', holder: 'Wahdah Inspirasi Zakat' }
+            { id: 'bsi', bank: 'Bank BSI (Bank Syariah Indonesia)', number: '7112223334', holder: 'Wahdah Inspirasi Zakat', isActive: true }
         ],
         offices: [
-            { id: 'pangkalpinang', name: 'Kantor Pangkalpinang', address: 'Jl. Mentok No. 45, Pangkalpinang, Bangka Belitung', phone: '0812-7171-8000', mapsUrl: 'https://maps.google.com' },
-            { id: 'sungailiat', name: 'Kantor Sungailiat', address: 'Jl. Jenderal Sudirman No. 12, Sungailiat, Bangka', phone: '0821-8000-7171', mapsUrl: 'https://maps.google.com' }
-        ]
+            { id: 'pangkalpinang', name: 'Kantor Pangkalpinang', address: 'Jl. Mentok No. 45, Pangkalpinang, Bangka Belitung', phone: '0812-7171-8000', hotline: '081271718000', mapsUrl: 'https://maps.google.com' },
+            { id: 'sungailiat', name: 'Kantor Sungailiat', address: 'Jl. Jenderal Sudirman No. 12, Sungailiat, Bangka', phone: '0821-8000-7171', hotline: '082180007171', mapsUrl: 'https://maps.google.com' }
+        ],
+        hotline: '081271718000'
     };
 
     const DEFAULT_SITE_IMAGES = {
@@ -526,30 +524,74 @@
                 return DEFAULT_SITE_SETTINGS;
             }
             return {
-                banks: saved.banks || DEFAULT_SITE_SETTINGS.banks,
-                offices: saved.offices || DEFAULT_SITE_SETTINGS.offices
+                banks: Array.isArray(saved.banks) ? saved.banks : DEFAULT_SITE_SETTINGS.banks,
+                offices: Array.isArray(saved.offices) ? saved.offices : DEFAULT_SITE_SETTINGS.offices,
+                hotline: saved.hotline || DEFAULT_SITE_SETTINGS.hotline
             };
+        },
+        getActiveBanks() {
+            return this.get().banks.filter(b => b && b.isActive !== false && b.number);
+        },
+        async addBank(bankData) {
+            const current = this.get();
+            const newBank = {
+                id: bankData.id || ('bank-' + Date.now()),
+                bank: (bankData.bank || 'Bank Baru').trim(),
+                number: (bankData.number || '').trim(),
+                holder: (bankData.holder || 'Wahdah Inspirasi Zakat').trim(),
+                isActive: bankData.isActive !== false
+            };
+            current.banks.push(newBank);
+            return await this.update(current);
+        },
+        async updateBank(id, bankData) {
+            const current = this.get();
+            const idx = current.banks.findIndex(b => b.id === id);
+            if (idx === -1) return null;
+            current.banks[idx] = {
+                ...current.banks[idx],
+                ...bankData,
+                bank: bankData.bank !== undefined ? bankData.bank.trim() : current.banks[idx].bank,
+                number: bankData.number !== undefined ? bankData.number.trim() : current.banks[idx].number,
+                holder: bankData.holder !== undefined ? bankData.holder.trim() : current.banks[idx].holder
+            };
+            return await this.update(current);
+        },
+        async deleteBank(id) {
+            const current = this.get();
+            current.banks = current.banks.filter(b => b.id !== id);
+            return await this.update(current);
+        },
+        async toggleBank(id, isActive) {
+            const current = this.get();
+            const bank = current.banks.find(b => b.id === id);
+            if (bank) {
+                bank.isActive = (isActive !== undefined) ? isActive : !bank.isActive;
+                return await this.update(current);
+            }
+            return current;
+        },
+        async updateOffice(officeId, officeData) {
+            const current = this.get();
+            const idx = current.offices.findIndex(o => o.id === officeId);
+            if (idx !== -1) {
+                current.offices[idx] = { ...current.offices[idx], ...officeData };
+            } else {
+                current.offices.push({ id: officeId, ...officeData });
+            }
+            return await this.update(current);
         },
         async update(newSettings) {
             const current = this.get();
             const updated = {
-                banks: newSettings.banks || current.banks,
-                offices: newSettings.offices || current.offices
+                banks: Array.isArray(newSettings.banks) ? newSettings.banks : current.banks,
+                offices: Array.isArray(newSettings.offices) ? newSettings.offices : current.offices,
+                hotline: newSettings.hotline || current.hotline
             };
             setStore(STORAGE_KEYS.SITE_SETTINGS, updated);
 
             if (typeof activityLog !== 'undefined' && activityLog.add) {
                 activityLog.add('settings', 'Pengaturan Rekening Bank & Lokasi Kantor diperbarui oleh Admin Utama', sessionStorage.getItem('wiz_admin_user') || 'Admin 1');
-            }
-
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                try {
-                    await window.wizFirebase.upsert('site_settings', {
-                        key: 'global_settings',
-                        value: updated,
-                        updatedAt: new Date().toISOString()
-                    });
-                } catch(e) {}
             }
 
             // Immediately push the updated master bundle to cloud

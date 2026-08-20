@@ -935,98 +935,99 @@
             </div>
         </div>
 
-        <!-- ═══════════════════════════════════════════════════ -->
-        <!-- SECTION: VERIFIKASI & KELOLA ADMIN (ADMIN 1)        -->
-        <!-- ═══════════════════════════════════════════════════ -->
-        <div id="section-admin-users" class="flex-1 p-margin-mobile md:p-gutter overflow-y-auto space-y-xl hidden">
-            <div>
-                <h2 class="font-headline-md text-headline-md font-bold">Verifikasi &amp; Manajemen Admin</h2>
-                <p class="font-caption text-caption text-on-surface-variant">Khusus <strong>Admin 1 (Super Admin)</strong>. Menampilkan antrean verifikasi pendaftaran akun admin baru dan kelola hak akses amil.</p>
-            </div>
-
-            <!-- Pending Registrations Box -->
-            <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden p-lg">
-                <div class="flex justify-between items-center mb-md">
-                    <h3 class="font-headline-md text-headline-md text-base font-bold text-primary flex items-center gap-xs">
-                        <span class="material-symbols-outlined text-amber-500">pending_actions</span>
-                        <span>Antrean Pendaftaran Akun (Pending)</span>
-                    </h3>
-                </div>
-                <div class="overflow-x-auto" id="pending-admins-table"></div>
-            </div>
-
-            <!-- All Approved Admin Users Box -->
-            <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden p-lg">
-                <h3 class="font-headline-md text-headline-md text-base font-bold mb-md">Daftar Seluruh Admin Terverifikasi &amp; Akses Staff</h3>
-                <div class="overflow-x-auto" id="all-admins-table"></div>
-            </div>
-        </div>
-
-        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- ═════════════════════════════════════════════════�        <!-- ═══════════════════════════════════════════════════ -->
         <!-- SECTION: PENGATURAN WEB (REKENING & LOKASI KANTOR)  -->
         <!-- ═══════════════════════════════════════════════════ -->
         <div id="section-site-settings" class="flex-1 p-margin-mobile md:p-gutter overflow-y-auto space-y-xl hidden">
             <div class="flex justify-between items-center flex-wrap gap-md">
                 <div>
                     <h2 class="font-headline-md text-headline-md font-bold">Pengaturan Web Utama (Khusus Admin 1 Utama)</h2>
-                    <p class="font-caption text-caption text-on-surface-variant">Kelola nomor rekening bank transfer donasi dan alamat/lokasi kantor operasional. Perubahan di sini otomatis langsung memperbarui seluruh tampilan web utama (index, donasi, program).</p>
+                    <p class="font-caption text-caption text-on-surface-variant">Kelola nomor rekening bank donasi dinamis dan alamat/lokasi kantor operasional. Perubahan di sini otomatis langsung memperbarui seluruh tampilan website (index, donasi, program, laporan, affiliate).</p>
                 </div>
-                <button onclick="saveSiteSettingsForm(event)" class="flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm font-bold cursor-pointer">
-                    <span class="material-symbols-outlined size-[18px]">save</span> Simpan Semua Pengaturan
-                </button>
             </div>
 
-            <form id="site-settings-form" onsubmit="saveSiteSettingsForm(event)" class="space-y-xl">
-                <!-- Card 1: Rekening Bank -->
-                <div class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant/30 shadow-sm space-y-md">
-                    <h3 class="font-headline-sm text-headline-sm font-bold text-primary flex items-center gap-2">
-                        <span class="material-symbols-outlined">account_balance</span>
-                        <span>Nomor Rekening Bank Transfer Donasi</span>
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
-                        <!-- BSI -->
-                        <div class="p-md bg-surface-container-low rounded-xl border border-outline-variant/40 space-y-xs">
-                            <label class="block font-label-md text-caption font-bold text-primary">Bank BSI (Bank Syariah Indonesia)</label>
-                            <input type="text" id="setting-bank-bsi-no" placeholder="Nomor Rekening BSI" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-sm font-mono font-bold text-on-surface">
-                            <input type="text" id="setting-bank-bsi-holder" placeholder="Atas Nama (A.n)" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface">
+            <!-- Card 1: Rekening Bank Dinamis (CRUD) -->
+            <div class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant/30 shadow-sm space-y-md">
+                <div class="flex justify-between items-center flex-wrap gap-sm">
+                    <div>
+                        <h3 class="font-headline-sm text-headline-sm font-bold text-primary flex items-center gap-2">
+                            <span class="material-symbols-outlined">account_balance</span>
+                            <span>Manajemen Nomor Rekening Bank Donasi</span>
+                        </h3>
+                        <p class="text-xs text-on-surface-variant mt-1">Hanya rekening dengan status <strong class="text-emerald-700">"Aktif"</strong> yang akan ditampilkan pada formulir donasi website utama. Anda bebas menambah, mengedit, atau menonaktifkan bank sewaktu-waktu.</p>
+                    </div>
+                    <button type="button" onclick="openBankAdminModal()" class="flex items-center gap-1.5 bg-primary text-on-primary px-md py-2 rounded-xl text-xs font-bold hover:bg-primary-container transition-colors shadow-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-[16px]">add_circle</span>
+                        <span>Tambah Rekening Baru</span>
+                    </button>
+                </div>
+
+                <!-- Dynamic Bank Accounts Table / Cards -->
+                <div class="overflow-x-auto" id="admin-bank-list-container"></div>
+            </div>
+
+            <!-- Card 2: Lokasi Kantor & Kontak Operasional -->
+            <div class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant/30 shadow-sm space-y-md">
+                <div class="flex justify-between items-center flex-wrap gap-sm">
+                    <div>
+                        <h3 class="font-headline-sm text-headline-sm font-bold text-primary flex items-center gap-2">
+                            <span class="material-symbols-outlined">location_city</span>
+                            <span>Lokasi Kantor &amp; Kontak Operasional</span>
+                        </h3>
+                        <p class="text-xs text-on-surface-variant mt-1">Perubahan alamat dan kontak cabang otomatis memperbarui bagian footer & kontak di seluruh halaman web utama.</p>
+                    </div>
+                    <button type="button" onclick="saveOfficeSettings(event)" class="flex items-center gap-sm bg-primary text-on-primary px-lg py-2 rounded-xl text-xs font-bold hover:bg-primary-container transition-colors shadow-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-[16px]">save</span> Simpan Info Kantor
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                    <!-- Kantor Pangkalpinang -->
+                    <div class="p-md bg-surface-container-low rounded-xl border border-outline-variant/40 space-y-xs">
+                        <div class="flex items-center justify-between">
+                            <label class="block font-label-md text-caption font-bold text-primary">Kantor Pangkalpinang</label>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-primary/10 text-primary">Cabang 1</span>
                         </div>
-                        <!-- Muamalat -->
-                        <div class="p-md bg-surface-container-low rounded-xl border border-outline-variant/40 space-y-xs">
-                            <label class="block font-label-md text-caption font-bold text-primary">Bank Muamalat</label>
-                            <input type="text" id="setting-bank-muamalat-no" placeholder="Nomor Rekening Muamalat" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-sm font-mono font-bold text-on-surface">
-                            <input type="text" id="setting-bank-muamalat-holder" placeholder="Atas Nama (A.n)" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface">
+                        <div>
+                            <label class="block text-[11px] text-on-surface-variant mb-1 font-semibold">Alamat Lengkap</label>
+                            <textarea id="setting-office-pangkalpinang-address" rows="2" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface font-medium outline-none focus:border-primary"></textarea>
                         </div>
-                        <!-- Mandiri -->
-                        <div class="p-md bg-surface-container-low rounded-xl border border-outline-variant/40 space-y-xs">
-                            <label class="block font-label-md text-caption font-bold text-primary">Bank Mandiri</label>
-                            <input type="text" id="setting-bank-mandiri-no" placeholder="Nomor Rekening Mandiri" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-sm font-mono font-bold text-on-surface">
-                            <input type="text" id="setting-bank-mandiri-holder" placeholder="Atas Nama (A.n)" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[11px] text-on-surface-variant mb-1 font-semibold">No. Telepon Kantor</label>
+                                <input type="text" id="setting-office-pangkalpinang-phone" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface outline-none focus:border-primary">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] text-on-surface-variant mb-1 font-semibold">No. WhatsApp Hotline</label>
+                                <input type="text" id="setting-office-pangkalpinang-hotline" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface outline-none focus:border-primary" placeholder="081271718000">
+                            </div>
                         </div>
-                        <!-- BCA -->
-                        <div class="p-md bg-surface-container-low rounded-xl border border-outline-variant/40 space-y-xs">
-                            <label class="block font-label-md text-caption font-bold text-primary">Bank BCA</label>
-                            <input type="text" id="setting-bank-bca-no" placeholder="Nomor Rekening BCA" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-sm font-mono font-bold text-on-surface">
-                            <input type="text" id="setting-bank-bca-holder" placeholder="Atas Nama (A.n)" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface">
+                    </div>
+
+                    <!-- Kantor Sungailiat -->
+                    <div class="p-md bg-surface-container-low rounded-xl border border-outline-variant/40 space-y-xs">
+                        <div class="flex items-center justify-between">
+                            <label class="block font-label-md text-caption font-bold text-primary">Kantor Sungailiat</label>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-primary/10 text-primary">Cabang 2</span>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-on-surface-variant mb-1 font-semibold">Alamat Lengkap</label>
+                            <textarea id="setting-office-sungailiat-address" rows="2" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface font-medium outline-none focus:border-primary"></textarea>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[11px] text-on-surface-variant mb-1 font-semibold">No. Telepon Kantor</label>
+                                <input type="text" id="setting-office-sungailiat-phone" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface outline-none focus:border-primary">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] text-on-surface-variant mb-1 font-semibold">No. WhatsApp Hotline</label>
+                                <input type="text" id="setting-office-sungailiat-hotline" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface outline-none focus:border-primary" placeholder="082180007171">
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Card 2: Lokasi Kantor -->
-                <div class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant/30 shadow-sm space-y-md">
-                    <h3 class="font-headline-sm text-headline-sm font-bold text-primary flex items-center gap-2">
-                        <span class="material-symbols-outlined">location_city</span>
-                        <span>Lokasi Kantor &amp; Kontak Operasional</span>
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
-                        <!-- Kantor Pangkalpinang -->
-                        <div class="p-md bg-surface-container-low rounded-xl border border-outline-variant/40 space-y-xs">
-                            <label class="block font-label-md text-caption font-bold text-primary">Kantor Pangkalpinang</label>
-                            <div>
-                                <label class="block text-[11px] text-on-surface-variant mb-1">Alamat Lengkap</label>
-                                <textarea id="setting-office-pangkalpinang-address" rows="2" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface"></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-[11px] text-on-surface-variant mb-1">No. Telp / WhatsApp Operasional</label>
+            </div>
+        </div>               <label class="block text-[11px] text-on-surface-variant mb-1">No. Telp / WhatsApp Operasional</label>
                                 <input type="text" id="setting-office-pangkalpinang-phone" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface">
                             </div>
                         </div>
