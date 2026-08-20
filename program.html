@@ -1414,10 +1414,9 @@
      * and show a visible affiliate banner so the visitor knows they came via an affiliate.
      */
     function initAffiliatePropagation() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const refCode = urlParams.get('ref') || urlParams.get('affiliate') || urlParams.get('perantara');
+        const refCode = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || new URLSearchParams(window.location.search).get('perantara'));
 
-        if (!refCode) return; // No affiliate ref in URL — do nothing
+        if (!refCode) return; // No affiliate ref active — do nothing
 
         const cleanRef = refCode.trim();
 

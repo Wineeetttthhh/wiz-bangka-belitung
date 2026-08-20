@@ -781,10 +781,8 @@
                 mobTotal.textContent = formatRupiah(state.nominal);
             }
 
-            // Check active affiliate referral — ONLY from URL parameter
-            // Referral is only valid if this page was opened via an affiliate's shared link (?ref=...)
-            const urlParamsRef = new URLSearchParams(window.location.search);
-            const activeRef = urlParamsRef.get('ref') || urlParamsRef.get('affiliate') || urlParamsRef.get('perantara');
+            // Check active affiliate referral — from URL parameter or active 30-day cookie
+            const activeRef = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || new URLSearchParams(window.location.search).get('perantara'));
             const refRow = document.getElementById('summary-ref-row');
             if (activeRef && window.wizStore && window.wizStore.referrals) {
                 const refObj = window.wizStore.referrals.getByCodeOrId(activeRef);
@@ -794,13 +792,11 @@
                     refRow.classList.add('flex');
                     state.activeRefObj = refObj;
                 } else if (refRow) {
-                    // Ref code in URL but not found in DB — hide ref row
                     refRow.classList.add('hidden');
                     refRow.classList.remove('flex');
                     state.activeRefObj = null;
                 }
             } else if (refRow) {
-                // No ref in URL — hide ref row and clear state
                 refRow.classList.add('hidden');
                 refRow.classList.remove('flex');
                 state.activeRefObj = null;
@@ -911,8 +907,8 @@
 
                 // Referral ONLY from URL parameter — never from localStorage/sessionStorage
                 // This ensures direct website visitors never get an affiliate's commission automatically
-                const urlParams = new URLSearchParams(window.location.search);
-                const refParam = urlParams.get('ref') || urlParams.get('affiliate') || urlParams.get('perantara');
+                // Active referral attribution from URL or 30-day cookie
+                const refParam = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || new URLSearchParams(window.location.search).get('perantara'));
                 let refId = null;
                 let refRate = 6;
                 if (refParam && window.wizStore && window.wizStore.referrals) {
@@ -1134,19 +1130,17 @@
 
         /**
          * Affiliate Banner Init
-         * Shows banner + recurring option ONLY when page is accessed via ?ref= link.
-         * Direct visitors (no ?ref= in URL) see nothing affiliate-related.
+         * Shows banner + recurring option when accessed via ?ref= link or active 30-day affiliate cookie.
          */
         function initAffiliateBanner() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const refCode = urlParams.get('ref') || urlParams.get('affiliate') || urlParams.get('perantara');
+            const refCode = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || new URLSearchParams(window.location.search).get('perantara'));
 
             const banner = document.getElementById('donasi-affiliate-banner');
             const recurringSection = document.getElementById('recurring-donor-section');
             const bannerName = document.getElementById('donasi-ref-banner-name');
 
             if (!refCode) {
-                // No affiliate link — hide everything affiliate-related
+                // No affiliate attribution — hide banner & recurring section
                 if (banner) banner.classList.add('hidden');
                 if (recurringSection) recurringSection.classList.add('hidden');
                 return;

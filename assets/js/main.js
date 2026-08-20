@@ -18,22 +18,80 @@ document.addEventListener('DOMContentLoaded', () => {
     initDynamicProgramImages();
 });
 
+// ─── 30-DAY AFFILIATE & NEWS REFERRAL TRACKING ENGINE ─────────────────────────
+const AFFILIATE_TRACKING = {
+    DAYS: 30,
+    COOKIE_KEY: 'wiz_ref_code',
+    EXP_KEY: 'wiz_ref_exp'
+};
+
+function setAffiliateRef(refCode) {
+    if (!refCode) return;
+    try {
+        const cleanRef = String(refCode).trim();
+        if (!cleanRef) return;
+        const expiryMs = Date.now() + (AFFILIATE_TRACKING.DAYS * 24 * 60 * 60 * 1000);
+
+        // 1. Session storage (instant)
+        sessionStorage.setItem('wiz_active_ref_id', cleanRef);
+
+        // 2. Local storage (persisted across restarts for 30 days)
+        localStorage.setItem(AFFILIATE_TRACKING.COOKIE_KEY, cleanRef);
+        localStorage.setItem(AFFILIATE_TRACKING.EXP_KEY, String(expiryMs));
+
+        // 3. Document Cookie (30-day max-age: 2,592,000 seconds)
+        document.cookie = `wiz_ref=${encodeURIComponent(cleanRef)}; path=/; max-age=2592000; SameSite=Lax`;
+        console.log('[WIZ Referral Tracker] Affiliate code recorded (30-day attribution):', cleanRef);
+    } catch(e) {
+        console.warn('[WIZ Referral Tracker] Error storing ref:', e);
+    }
+}
+
+function getActiveAffiliateRef() {
+    try {
+        // 1. URL parameter takes immediate priority & refreshes 30-day timer
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlRef = urlParams.get('ref') || urlParams.get('affiliate') || urlParams.get('perantara');
+        if (urlRef) {
+            setAffiliateRef(urlRef);
+            return urlRef.trim();
+        }
+
+        // 2. Session storage
+        const sessRef = sessionStorage.getItem('wiz_active_ref_id');
+        if (sessRef) return sessRef.trim();
+
+        // 3. LocalStorage with 30-day expiration check
+        const storedRef = localStorage.getItem(AFFILIATE_TRACKING.COOKIE_KEY);
+        const storedExp = Number(localStorage.getItem(AFFILIATE_TRACKING.EXP_KEY)) || 0;
+        if (storedRef && Date.now() < storedExp) {
+            sessionStorage.setItem('wiz_active_ref_id', storedRef.trim());
+            return storedRef.trim();
+        }
+
+        // 4. Document cookie fallback
+        const match = document.cookie.match(/(?:^|;\s*)wiz_ref=([^;]+)/);
+        if (match && match[1]) {
+            const cookieRef = decodeURIComponent(match[1]).trim();
+            if (cookieRef) {
+                sessionStorage.setItem('wiz_active_ref_id', cookieRef);
+                return cookieRef;
+            }
+        }
+    } catch(e) {}
+    return '';
+}
+
+window.setAffiliateRef = setAffiliateRef;
+window.getActiveAffiliateRef = getActiveAffiliateRef;
+
 function initReferralUrlTracker() {
     try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const refParam = urlParams.get('ref') || urlParams.get('affiliate') || urlParams.get('perantara');
-        if (refParam) {
-            // IMPORTANT: Only store in sessionStorage (not localStorage)
-            // Referral is only valid for the current browsing session from the shared link
-            const cleanRef = refParam.trim();
-            sessionStorage.setItem('wiz_active_ref_id', cleanRef);
-            console.log('[WIZ Referral] Active affiliate referral code stored for this session:', cleanRef);
-        } else {
-            // If no ref in URL, clear any stale referral from previous sessions
-            sessionStorage.removeItem('wiz_active_ref_id');
+        // Automatically captures and persists active referral from URL or 30-day cookie
+        const activeRef = getActiveAffiliateRef();
+        if (activeRef) {
+            console.log('[WIZ Referral Engine] Active affiliate attribution active:', activeRef);
         }
-        // Always remove from localStorage - referral should never persist across browser sessions
-        localStorage.removeItem('wiz_active_ref_id');
     } catch(e) {}
 }
 

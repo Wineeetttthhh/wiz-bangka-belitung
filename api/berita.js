@@ -247,17 +247,19 @@ module.exports = async function handler(req, res) {
         absoluteImgUrl = `${origin}/assets/images/foto-utama-wiz.jpg`;
     }
 
+    const refCode = urlObj.searchParams.get('ref') || urlObj.searchParams.get('affiliate') || urlObj.searchParams.get('perantara') || '';
     const title = article.title || 'Berita WIZ Bangka Belitung';
     const rawContent = article.content || '';
     const excerpt = rawContent.slice(0, 180).replace(/\r?\n|\r/g, ' ') + (rawContent.length > 180 ? '...' : '');
-    const canonicalUrl = `${origin}/berita/${encodeURIComponent(article.id)}`;
-    const portalUrl = `${origin}/index.html?newsId=${encodeURIComponent(article.id)}#berita`;
+    const canonicalUrl = `${origin}/berita/${encodeURIComponent(article.id)}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
+    const donateUrl = `${origin}/donasi.html${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
+    const portalUrl = `${origin}/index.html?newsId=${encodeURIComponent(article.id)}${refCode ? '&ref=' + encodeURIComponent(refCode) : ''}#berita`;
     const formattedDate = formatDateIndo(article.eventDate || article.createdAt);
     const category = article.category || 'Kegiatan & Penyaluran';
     const author = article.author || 'Admin WIZ Babel';
     const gallery = Array.isArray(article.gallery) ? article.gallery.filter(Boolean) : [];
 
-    // Full responsive HTML with Social Media Open Graph Cards
+    // Full responsive HTML with Social Media Open Graph Cards & 30-day Affiliate Engine
     const html = `<!DOCTYPE html>
 <html lang="id">
 <head>
@@ -312,13 +314,31 @@ module.exports = async function handler(req, res) {
             }
         }
     </script>
+
+    <!-- Client-side 30-Day Referral Tracking -->
+    <script>
+        (function() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const ref = urlParams.get('ref') || urlParams.get('affiliate') || urlParams.get('perantara') || '${escapeHtml(refCode)}';
+                if (ref && ref.trim()) {
+                    const cleanRef = ref.trim();
+                    const expMs = Date.now() + (30 * 24 * 60 * 60 * 1000);
+                    sessionStorage.setItem('wiz_active_ref_id', cleanRef);
+                    localStorage.setItem('wiz_ref_code', cleanRef);
+                    localStorage.setItem('wiz_ref_exp', String(expMs));
+                    document.cookie = 'wiz_ref=' + encodeURIComponent(cleanRef) + '; path=/; max-age=2592000; SameSite=Lax';
+                }
+            } catch(e) {}
+        })();
+    </script>
 </head>
 <body class="bg-[#f8fafc] text-slate-800 font-body antialiased min-h-screen flex flex-col">
 
     <!-- Header Navigation -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
         <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-            <a href="${origin}/index.html" class="flex items-center gap-2.5 group">
+            <a href="${origin}/index.html${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}" class="flex items-center gap-2.5 group">
                 <img src="${origin}/assets/images/logo-wiz-babel.png" alt="WIZ Bangka Belitung" class="h-10 w-auto object-contain transition-transform group-hover:scale-105" onerror="this.src='${origin}/assets/images/foto-utama-wiz.jpg'"/>
                 <div class="flex flex-col">
                     <span class="font-bold text-base text-primary leading-tight font-sans">WIZ Bangka Belitung</span>
@@ -330,7 +350,7 @@ module.exports = async function handler(req, res) {
                     <span class="material-symbols-outlined text-[16px]">arrow_back</span>
                     <span>Semua Berita</span>
                 </a>
-                <a href="${origin}/donasi.html" class="inline-flex items-center gap-1.5 bg-primary hover:bg-primary-dark text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all shadow-xs">
+                <a href="${donateUrl}" class="inline-flex items-center gap-1.5 bg-primary hover:bg-primary-dark text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all shadow-xs">
                     <span class="material-symbols-outlined text-[16px]">volunteer_activism</span>
                     <span>Donasi Sekarang</span>
                 </a>
@@ -353,6 +373,11 @@ module.exports = async function handler(req, res) {
                 <span class="material-symbols-outlined text-[15px] text-slate-400">person</span>
                 ${escapeHtml(author)}
             </span>
+            ${refCode ? `
+            <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full ml-auto">
+                <span class="material-symbols-outlined text-[13px]">handshake</span>
+                <span>Mitra Kebaikan: ${escapeHtml(refCode)}</span>
+            </span>` : ''}
         </div>
 
         <!-- Article Title -->
@@ -408,23 +433,40 @@ module.exports = async function handler(req, res) {
             </div>
         </div>` : ''}
 
-        <!-- Call to Action Card -->
-        <div class="bg-gradient-to-r from-primary to-primary-dark text-white rounded-2xl p-6 md:p-8 shadow-md flex flex-col md:flex-row items-center justify-between gap-6">
-            <div class="space-y-1.5 text-center md:text-left">
-                <h3 class="text-xl font-bold font-sans">Dukung Program Kebaikan WIZ Bangka Belitung</h3>
-                <p class="text-sm text-primary-light opacity-90">Salurkan zakat, infak, dan sedekah terbaik Anda untuk kebermanfaatan ummat.</p>
+        <!-- ═══ QUICK CALL TO ACTION DONATION WIDGET ═══ -->
+        <div class="bg-gradient-to-br from-emerald-900 via-primary to-emerald-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-emerald-500/30 space-y-5">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-emerald-700/50 pb-5">
+                <div class="space-y-1">
+                    <span class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-300 uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-sm">volunteer_activism</span>
+                        Tebar Manfaat &amp; Raih Berkah
+                    </span>
+                    <h3 class="text-xl sm:text-2xl font-bold font-sans">Tersentuh dengan Kisah Kebaikan Ini?</h3>
+                    <p class="text-xs sm:text-sm text-emerald-100/90 max-w-xl">Salurkan infak dan sedekah terbaik Anda sekarang untuk mendukung program penyaluran dan pemberdayaan ummat berkelanjutan di Bangka Belitung.</p>
+                </div>
+                <div class="shrink-0">
+                    <a href="${donateUrl}" class="bg-accent hover:bg-[#e08418] text-white font-extrabold text-sm px-6 py-3.5 rounded-2xl transition-all shadow-lg flex items-center gap-2 hover:scale-105">
+                        <span class="material-symbols-outlined text-base">favorite</span>
+                        <span>Donasi Sekarang</span>
+                    </a>
+                </div>
             </div>
-            <a href="${origin}/donasi.html" class="shrink-0 bg-accent hover:bg-[#e08418] text-white font-bold text-sm px-6 py-3 rounded-xl transition-all shadow-md flex items-center gap-2">
-                <span class="material-symbols-outlined text-base">volunteer_activism</span>
-                <span>Tunaikan Donasi</span>
-            </a>
+
+            <!-- Quick Nominal Fast Links -->
+            <div class="flex flex-wrap items-center gap-2 pt-1">
+                <span class="text-xs text-emerald-200 font-semibold mr-1">Donasi Cepat:</span>
+                <a href="${donateUrl}${donateUrl.includes('?') ? '&' : '?'}amount=25000" class="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3 py-1.5 rounded-xl border border-white/20 transition-all">Rp 25.000</a>
+                <a href="${donateUrl}${donateUrl.includes('?') ? '&' : '?'}amount=50000" class="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3 py-1.5 rounded-xl border border-white/20 transition-all">Rp 50.000</a>
+                <a href="${donateUrl}${donateUrl.includes('?') ? '&' : '?'}amount=100000" class="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3 py-1.5 rounded-xl border border-white/20 transition-all">Rp 100.000</a>
+                <a href="${donateUrl}${donateUrl.includes('?') ? '&' : '?'}amount=250000" class="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3 py-1.5 rounded-xl border border-white/20 transition-all">Rp 250.000</a>
+            </div>
         </div>
 
-        <!-- Back to Home -->
-        <div class="text-center pt-4">
+        <!-- Back to Home / Portal Web -->
+        <div class="text-center pt-2">
             <a href="${portalUrl}" class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline">
                 <span class="material-symbols-outlined text-base">arrow_back</span>
-                <span>Lihat di Portal Web WIZ Bangka Belitung</span>
+                <span>Lihat Berita Lainnya di Portal Web WIZ Bangka Belitung</span>
             </a>
         </div>
     </main>
