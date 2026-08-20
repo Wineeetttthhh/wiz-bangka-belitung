@@ -169,7 +169,6 @@
             <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="#tentang-kami">Tentang Kami</a>
             <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="program.html">Program</a>
             <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="laporan.html">Laporan</a>
-            <a id="nav-link-inspirasi" class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="#quote-harian">Inspirasi</a>
             <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="#berita">Berita</a>
             <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="#kontak">Kontak</a>
         </div>
@@ -191,7 +190,6 @@
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="#tentang-kami">Tentang Kami</a>
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="program.html">Program</a>
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="laporan.html">Laporan</a>
-        <a id="mobile-nav-link-inspirasi" class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="#quote-harian">Inspirasi</a>
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="#berita">Berita</a>
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="#kontak">Kontak</a>
     </div>
@@ -442,66 +440,7 @@
     </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- INSPIRASI & FLYER HARIAN                            -->
-<!-- ═══════════════════════════════════════════════════ -->
-<section id="quote-harian" class="py-xxl bg-surface-container-low px-margin-mobile md:px-gutter border-t border-surface-variant/50">
-    <div class="max-w-4xl mx-auto space-y-lg">
-        <div class="text-center space-y-2">
-            <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold uppercase tracking-wider">
-                <span class="material-symbols-outlined text-sm">campaign</span> Inspirasi &amp; Pesan Kebaikan Hari Ini
-            </span>
-            <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">Flyer Dakwah Harian</h2>
-        </div>
 
-        <!-- Clean Flyer Card -->
-        <div class="bg-surface rounded-3xl p-6 md:p-8 border border-outline-variant/30 shadow-level-1 overflow-hidden flex flex-col md:flex-row items-center gap-8">
-            <!-- Flyer Image (Large, Crisp) -->
-            <div class="w-full md:w-1/2 flex justify-center">
-                <div class="rounded-2xl overflow-hidden shadow-md border border-outline-variant/40 bg-slate-100 max-w-sm w-full">
-                    <img id="public-quote-img" src="assets/images/foto-utama-wiz.jpg" class="w-full h-auto object-contain rounded-2xl" alt="Flyer Inspirasi WIZ" onerror="this.src='assets/images/foto-utama-wiz.jpg'">
-                </div>
-            </div>
-
-            <!-- Caption & Actions -->
-            <div class="w-full md:w-1/2 flex flex-col justify-between space-y-5">
-                <div class="space-y-3">
-                    <div class="flex items-center gap-2">
-                        <span id="public-quote-category" class="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">Motivasi &amp; Doa</span>
-                        <span id="public-quote-date" class="text-xs text-on-surface-variant font-mono"></span>
-                    </div>
-
-                    <!-- Caption Body -->
-                    <div id="public-quote-caption-container">
-                        <p id="public-quote-text" class="text-on-surface text-sm md:text-base leading-relaxed whitespace-pre-line font-medium text-slate-700"></p>
-                    </div>
-
-                    <p id="public-quote-source" class="text-xs font-bold text-primary italic"></p>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="pt-4 border-t border-outline-variant/20 flex flex-wrap gap-2.5">
-                    <button type="button" onclick="sharePublicQuoteWA()" class="flex-1 min-w-[140px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs md:text-sm py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer">
-                        <span class="material-symbols-outlined text-base">share</span>
-                        <span>Bagikan Flyer ke WA</span>
-                    </button>
-                    <button type="button" onclick="downloadPublicFlyer()" class="px-4 py-3 bg-primary/10 hover:bg-primary/20 text-primary font-bold text-xs md:text-sm rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer" title="Unduh File Gambar Flyer">
-                        <span class="material-symbols-outlined text-base">download</span>
-                        <span>Unduh Flyer</span>
-                    </button>
-                    <button type="button" onclick="copyPublicQuoteText()" class="px-4 py-3 bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-bold text-xs md:text-sm rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer" title="Salin Caption & Link">
-                        <span class="material-symbols-outlined text-base">content_copy</span>
-                        <span>Salin</span>
-                    </button>
-                    <a href="donasi.html" class="px-5 py-3 bg-[#F7941D] hover:bg-[#e08417] text-white font-bold text-xs md:text-sm rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition-all">
-                        <span class="material-symbols-outlined text-base">volunteer_activism</span>
-                        <span>Donasi</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
 <!-- Berita & Kegiatan Terbaru (Dynamic from Admin Store with Images & Event Dates) -->
 <section id="berita" class="py-xxl bg-surface px-margin-mobile md:px-gutter border-t border-surface-variant/50">
@@ -1046,173 +985,8 @@
         });
     }
 
-    // Dynamic Public Quote Renderer (Controlled Strictly by Admin)
-    function renderPublicQuote() {
-        const quoteSection = document.getElementById('quote-harian');
-        const navLinkDesktop = document.getElementById('nav-link-inspirasi');
-        const navLinkMobile = document.getElementById('mobile-nav-link-inspirasi');
-
-        if (!window.wizStore || !window.wizStore.quotes) {
-            if (quoteSection) quoteSection.style.display = 'none';
-            if (navLinkDesktop) navLinkDesktop.style.display = 'none';
-            if (navLinkMobile) navLinkMobile.style.display = 'none';
-            return;
-        }
-
-        const q = wizStore.quotes.getToday();
-
-        // KONTROL ADMIN: Jika tidak ada flyer aktif atau status draft, sembunyikan total dari Web Utama!
-        if (!q || q.status !== 'active') {
-            if (quoteSection) quoteSection.style.display = 'none';
-            if (navLinkDesktop) navLinkDesktop.style.display = 'none';
-            if (navLinkMobile) navLinkMobile.style.display = 'none';
-            return;
-        }
-
-        // Tampilkan jika ada flyer yang diaktifkan oleh admin
-        if (quoteSection) quoteSection.style.display = '';
-        if (navLinkDesktop) navLinkDesktop.style.display = '';
-        if (navLinkMobile) navLinkMobile.style.display = '';
-
-        const textEl = document.getElementById('public-quote-text');
-        const sourceEl = document.getElementById('public-quote-source');
-        const catEl = document.getElementById('public-quote-category');
-        const dateEl = document.getElementById('public-quote-date');
-        const imgEl = document.getElementById('public-quote-img');
-
-        if (imgEl && q.imageUrl) {
-            imgEl.src = q.imageUrl;
-        }
-
-        const rawText = (q.text || '').trim();
-        if (textEl) {
-            if (rawText && rawText !== '.') {
-                textEl.textContent = rawText;
-                if (textEl.parentElement) textEl.parentElement.style.display = '';
-            } else {
-                textEl.textContent = '';
-                if (textEl.parentElement) textEl.parentElement.style.display = 'none';
-            }
-        }
-
-        const rawSource = (q.source || '').trim();
-        if (sourceEl) {
-            if (rawSource && rawSource !== 'WIZ Babel' && rawSource !== '-' && rawSource !== '.') {
-                sourceEl.textContent = `— ${rawSource}`;
-                sourceEl.style.display = '';
-            } else {
-                sourceEl.textContent = '';
-                sourceEl.style.display = 'none';
-            }
-        }
-
-        if (catEl) catEl.textContent = q.category || 'Inspirasi Harian';
-        if (dateEl) dateEl.textContent = q.date || '';
-    }
-
-    function copyPublicQuoteText() {
-        const q = window.wizStore && window.wizStore.quotes ? window.wizStore.quotes.getToday() : null;
-        if (!q) return;
-        const refParam = new URLSearchParams(window.location.search).get('ref');
-        const origin = (window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
-        const donationUrl = `${origin}/donasi.html${refParam ? '?ref=' + encodeURIComponent(refParam) : ''}`;
-
-        const rawText = (q.text || '').trim();
-        const rawSource = (q.source || '').trim();
-
-        let messageParts = [`*INSPIRASI & DAKWAH HARIAN WIZ BABEL*`];
-        if (rawText && rawText !== '.') messageParts.push(`\n${rawText}`);
-        if (rawSource && rawSource !== 'WIZ Babel' && rawSource !== '-' && rawSource !== '.') messageParts.push(`\n— *${rawSource}*`);
-        messageParts.push(`\n_Mari bersama raih keberkahan hari ini dengan bersedekah melalui Wahdah Inspirasi Zakat Bangka Belitung:_\n${donationUrl}`);
-
-        const shareText = messageParts.join('\n');
-
-        navigator.clipboard.writeText(shareText).then(() => {
-            alert('✅ Caption & link donasi berhasil disalin ke papan klip!');
-        });
-    }
-
-    // Helper to convert Image URL / Base64 to a File for native sharing
-    async function urlOrBase64ToFile(imageUrl, filename = 'flyer-dakwah-wiz.jpg') {
-        if (!imageUrl) return null;
-        try {
-            if (imageUrl.startsWith('data:image/')) {
-                const arr = imageUrl.split(',');
-                const mime = arr[0].match(/:(.*?);/)[1];
-                const bstr = atob(arr[1]);
-                let n = bstr.length;
-                const u8arr = new Uint8Array(n);
-                while (n--) {
-                    u8arr[n] = bstr.charCodeAt(n);
-                }
-                return new File([u8arr], filename, { type: mime });
-            } else {
-                const resp = await fetch(imageUrl);
-                const blob = await resp.blob();
-                return new File([blob], filename, { type: blob.type || 'image/jpeg' });
-            }
-        } catch (e) {
-            console.warn('Could not convert image to file:', e);
-            return null;
-        }
-    }
-
-    async function sharePublicQuoteWA() {
-        const q = window.wizStore && window.wizStore.quotes ? window.wizStore.quotes.getToday() : null;
-        if (!q) return;
-        const refParam = new URLSearchParams(window.location.search).get('ref');
-        const origin = (window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
-        const donationUrl = `${origin}/donasi.html${refParam ? '?ref=' + encodeURIComponent(refParam) : ''}`;
-
-        const rawText = (q.text || '').trim();
-        const rawSource = (q.source || '').trim();
-
-        let messageParts = [`*INSPIRASI & DAKWAH HARIAN WIZ BABEL*`];
-        if (rawText && rawText !== '.') messageParts.push(`\n${rawText}`);
-        if (rawSource && rawSource !== 'WIZ Babel' && rawSource !== '-' && rawSource !== '.') messageParts.push(`\n— *${rawSource}*`);
-        messageParts.push(`\n_Mari bersama raih keberkahan hari ini dengan bersedekah melalui Wahdah Inspirasi Zakat Bangka Belitung:_\n${donationUrl}`);
-
-        const fullMessage = messageParts.join('\n');
-
-        // 1. Try Native Web Share API (Passes actual Flyer Image + Caption directly into WhatsApp on Android / iOS)
-        if (navigator.share && navigator.canShare && q.imageUrl) {
-            try {
-                const file = await urlOrBase64ToFile(q.imageUrl, `flyer-wiz-${q.date || 'today'}.jpg`);
-                if (file && navigator.canShare({ files: [file] })) {
-                    await navigator.share({
-                        title: 'Inspirasi & Flyer Dakwah WIZ Babel',
-                        text: fullMessage,
-                        files: [file]
-                    });
-                    return;
-                }
-            } catch (err) {
-                if (err.name === 'AbortError') return; // User closed share sheet
-                console.log('Native share fallback to WA URL:', err);
-            }
-        }
-
-        // 2. Fallback to WhatsApp URL directly (Desktop / Web without file share)
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(fullMessage)}`, '_blank');
-    }
-
-    function downloadPublicFlyer() {
-        const q = window.wizStore && window.wizStore.quotes ? window.wizStore.quotes.getToday() : null;
-        if (!q || !q.imageUrl) {
-            alert('Gambar flyer tidak ditemukan.');
-            return;
-        }
-        const a = document.createElement('a');
-        a.href = q.imageUrl;
-        a.download = `Flyer-WIZ-Dakwah-${q.date || 'hari-ini'}.jpg`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }
-
     document.addEventListener('DOMContentLoaded', async () => {
         renderPublicNews();
-        renderPublicQuote();
         updateDynamicProgramCards();
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -1224,7 +998,6 @@
         if (wizStore && wizStore.syncFromCloud) {
             await wizStore.syncFromCloud();
             renderPublicNews();
-            renderPublicQuote();
             updateDynamicProgramCards();
             if (typeof window.applySiteSettings === 'function') window.applySiteSettings();
             if (targetNewsId) {
@@ -1235,13 +1008,8 @@
 
     window.addEventListener('wiz-sync-complete', () => {
         renderPublicNews();
-        renderPublicQuote();
         if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
         if (typeof window.applySiteSettings === 'function') window.applySiteSettings();
-    });
-
-    window.addEventListener('wiz-quotes-changed', () => {
-        renderPublicQuote();
     });
 </script>
 </body>
