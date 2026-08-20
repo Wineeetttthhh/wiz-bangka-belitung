@@ -614,6 +614,7 @@
     <!-- Page Logic -->
     <script>
         let currentLoggedAffiliate = null;
+        let currentActiveSubTab = 'subtab-kpi';
 
         async function verifyAndRestoreMemberSession() {
             try {
@@ -624,7 +625,7 @@
                         const ref = wizStore.referrals.getById(parsed.id || parsed.code);
                         if (ref && ref.status !== 'deleted' && !ref.isDeleted) {
                             currentLoggedAffiliate = ref;
-                            activateMemberState(currentLoggedAffiliate);
+                            activateMemberState(currentLoggedAffiliate, true); // preserve current active tab
                             return;
                         } else {
                             // Account deleted or revoked by Admin
@@ -653,12 +654,6 @@
             renderAffiliateNewsGrid();
         });
 
-        window.addEventListener('wiz-sync-complete', () => {
-            verifyAndRestoreMemberSession();
-            renderAffiliateProgramsGrid();
-            renderAffiliateNewsGrid();
-        });
-
         function toggleAuthTab(tab) {
             const signinView = document.getElementById('auth-signin-view');
             const signupView = document.getElementById('auth-signup-view');
@@ -678,7 +673,7 @@
             }
         }
 
-        function activateMemberState(ref) {
+        function activateMemberState(ref, preserveCurrentTab = false) {
             document.getElementById('auth-state-container').classList.add('hidden');
             document.getElementById('member-state-container').classList.remove('hidden');
 
@@ -694,8 +689,8 @@
             document.getElementById('prof-acc-no').value = ref.accountNumber || '';
             document.getElementById('prof-acc-holder').value = ref.accountHolder || '';
 
-            switchMemberSubTab('subtab-kpi');
-            renderMemberDashboard();
+            const targetTab = (preserveCurrentTab && currentActiveSubTab) ? currentActiveSubTab : 'subtab-kpi';
+            switchMemberSubTab(targetTab);
         }
 
         function deactivateMemberState() {
@@ -705,6 +700,7 @@
         }
 
         function switchMemberSubTab(subtabId) {
+            currentActiveSubTab = subtabId;
             document.querySelectorAll('.member-subtab').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.member-nav-btn').forEach(el => el.classList.remove('active'));
 
@@ -1193,17 +1189,25 @@
         }
 
         window.addEventListener('wiz-sync-complete', () => {
-            renderAffiliateProgramsGrid();
-            renderAffiliateNewsGrid();
-            if (currentLoggedAffiliate) renderMemberDashboard();
+            if (currentActiveSubTab === 'subtab-kpi') {
+                if (currentLoggedAffiliate) renderMemberDashboard();
+            } else if (currentActiveSubTab === 'subtab-news') {
+                renderAffiliateNewsGrid();
+            } else if (currentActiveSubTab === 'subtab-catalog') {
+                renderAffiliateProgramsGrid();
+            }
         });
 
         window.addEventListener('wiz-news-changed', () => {
-            renderAffiliateNewsGrid();
+            if (currentActiveSubTab === 'subtab-news') {
+                renderAffiliateNewsGrid();
+            }
         });
 
         window.addEventListener('wiz-program-images-changed', () => {
-            renderAffiliateProgramsGrid();
+            if (currentActiveSubTab === 'subtab-catalog') {
+                renderAffiliateProgramsGrid();
+            }
         });
     </script>
 </body>
