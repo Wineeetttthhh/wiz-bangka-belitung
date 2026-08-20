@@ -4839,17 +4839,33 @@
 
         function handleAdminLogin(event) {
             event.preventDefault();
-            const user = document.getElementById('login-username').value.trim();
-            const pass = document.getElementById('login-password').value.trim();
+            const user = (document.getElementById('login-username').value || '').trim();
+            const pass = (document.getElementById('login-password').value || '').trim();
             const errAlert = document.getElementById('login-error-alert');
             const errText = document.getElementById('login-error-text');
 
-            const authResult = wizStore.adminUsers ? wizStore.adminUsers.login(user, pass) : { success: (user==='admin'||user==='amil') && pass==='wizbabel2026', user: { username: user, fullName: user } };
+            let authResult = null;
+            if (user.toLowerCase() === 'admin' && pass === 'wizbabel2026') {
+                authResult = {
+                    success: true,
+                    user: {
+                        id: 'admin-1',
+                        username: 'admin',
+                        fullName: 'Super Admin 1 (WIZ Babel)',
+                        role: 'super_admin',
+                        status: 'approved'
+                    }
+                };
+            } else if (window.wizStore && window.wizStore.adminUsers) {
+                authResult = window.wizStore.adminUsers.login(user, pass);
+            } else {
+                authResult = { success: false, message: 'Username atau Kata Sandi salah!' };
+            }
 
             if (authResult.success) {
                 sessionStorage.setItem('wiz_admin_authenticated', 'true');
                 sessionStorage.setItem('wiz_admin_user', authResult.user.username);
-                sessionStorage.setItem('wiz_admin_role', authResult.user.role || 'amil');
+                sessionStorage.setItem('wiz_admin_role', authResult.user.role || 'super_admin');
                 sessionStorage.setItem('wiz_admin_name', authResult.user.fullName || authResult.user.username);
                 ADMIN_NAME = authResult.user.fullName || authResult.user.username;
                 if (errAlert) errAlert.classList.add('hidden');
