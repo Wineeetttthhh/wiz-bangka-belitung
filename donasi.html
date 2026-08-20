@@ -391,7 +391,13 @@
                     <section class="bg-surface-container-lowest rounded-xl p-md sm:p-lg shadow-sm border border-outline-variant/20 space-y-sm">
                         <h2 class="font-headline-md text-headline-md font-bold text-on-surface mb-xs">Data Donatur</h2>
                         <div>
-                            <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Nama Lengkap Donatur</label>
+                            <div class="flex justify-between items-center mb-xs">
+                                <label class="block font-label-md text-label-md text-on-surface font-semibold">Nama Lengkap Donatur</label>
+                                <label class="flex items-center gap-1.5 cursor-pointer text-xs text-primary font-semibold">
+                                    <input type="checkbox" id="is-anonymous-donor" onchange="toggleAnonymousDonor(this.checked)" class="rounded text-primary focus:ring-primary w-3.5 h-3.5">
+                                    <span>Hamba Allah (Anonim)</span>
+                                </label>
+                            </div>
                             <input type="text" id="donor-name" required class="w-full bg-surface border border-outline-variant rounded-lg px-3.5 py-2.5 font-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="Masukkan nama Anda / Hamba Allah" />
                         </div>
                         <div>
@@ -401,6 +407,27 @@
                         <div>
                             <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Doa &amp; Pesan Kebaikan (Opsional)</label>
                             <textarea id="donor-message" rows="2" class="w-full bg-surface border border-outline-variant rounded-lg px-3.5 py-2.5 font-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="Tuliskan doa atau niat donasi Anda..."></textarea>
+                        </div>
+
+                        <!-- Upload Bukti Transfer (Opsional) -->
+                        <div class="pt-2 border-t border-outline-variant/30">
+                            <label class="block font-label-md text-label-md text-on-surface font-semibold mb-1 flex items-center justify-between">
+                                <span>Upload Bukti Transfer (Opsional)</span>
+                                <span class="text-[11px] text-on-surface-variant font-normal">Format JPG/PNG</span>
+                            </label>
+                            <div class="flex items-center gap-3">
+                                <label for="donor-proof-file" class="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-2 bg-surface-container border border-outline-variant hover:border-primary rounded-xl text-xs font-bold text-on-surface transition-colors shadow-xs">
+                                    <span class="material-symbols-outlined text-[16px] text-primary">add_photo_alternate</span>
+                                    <span id="proof-upload-label">Pilih Foto Bukti</span>
+                                </label>
+                                <input type="file" id="donor-proof-file" accept="image/*" onchange="handleProofImageUpload(event)" class="hidden">
+                                <div id="proof-preview-container" class="hidden items-center gap-2">
+                                    <img id="proof-preview-img" src="" alt="Bukti Transfer" class="w-10 h-10 object-cover rounded-lg border border-outline-variant">
+                                    <button type="button" onclick="removeProofImage()" class="text-rose-600 hover:text-rose-800 text-xs font-bold flex items-center gap-0.5">
+                                        <span class="material-symbols-outlined text-sm">delete</span> Hapus
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Recurring Donor Option -->
