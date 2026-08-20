@@ -1009,6 +1009,7 @@
             };
 
             // 1. Primary: Push to Vercel Serverless Sync API (/api/sync)
+            let pushedApi = false;
             try {
                 const apiRes = await fetch('/api/sync', {
                     method: 'POST',
@@ -1016,29 +1017,44 @@
                     body: JSON.stringify(payload)
                 });
                 if (apiRes.ok) {
-                    console.log('[WIZ Sync] Master state successfully pushed to /api/sync');
+                    pushedApi = true;
+                    console.log('[WIZ Sync] Master state successfully pushed to local /api/sync');
                 }
-            } catch (e) {
-                // Fallback to production domain endpoint if running in isolated view
-                if (window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
-                    try {
-                        await fetch('https://www.wizbangkabelitung.or.id/api/sync', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-                    } catch(err) {}
-                }
+            } catch (e) {}
+
+            // Fallback to production endpoint if local /api/sync was not reachable or not ok
+            if (!pushedApi && window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
+                try {
+                    await fetch('https://www.wizbangkabelitung.or.id/api/sync', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    console.log('[WIZ Sync] Master state successfully pushed to remote production /api/sync');
+                } catch(err) {}
             }
 
-            // 2. Secondary: Firestore Master Bundle (Single Document, Zero Quota Waste)
+            // 2. Secondary: Firestore Master Bundle & Individual News Documents
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 try {
+                    // Sync each news article to its own document in Firestore so size never exceeds 1MB
+                    const allNews = getStore(STORAGE_KEYS.NEWS) || [];
+                    for (const n of allNews.slice(0, 20)) {
+                        if (n && n.id) {
+                            try {
+                                await window.wizFirebase.set('news', String(n.id), n);
+                            } catch(e) {}
+                        }
+                    }
+
+                    // Save bundle
                     await window.wizFirebase.set('system_state', 'master_bundle', {
                         ...bundle,
                         updatedAt: new Date().toISOString()
                     });
-                } catch(e) {}
+                } catch(e) {
+                    console.warn('[WIZ Sync] Firestore set error:', e);
+                }
             }
 
             broadcastSync();
@@ -1052,7 +1068,7 @@
 
     async function syncFromCloud(force = false) {
         const now = Date.now();
-        if (!force && (now - lastSyncTimestamp < 2500 || isSyncInProgress)) {
+        if (!force && (now - lastSyncTimestamp < 2000 || isSyncInProgress)) {
             return;
         }
         isSyncInProgress = true;
@@ -1061,7 +1077,7 @@
         try {
             let masterData = null;
 
-            // 1. Primary: Fetch from local / production Vercel Serverless API (/api/sync)
+            // 1. Primary: Fetch from local or remote production Vercel Serverless API (/api/sync)
             try {
                 const res = await fetch('/api/sync', {
                     headers: { 'Accept': 'application/json' },
@@ -1069,37 +1085,24 @@
                 });
                 if (res.ok) {
                     const json = await res.json();
-                    if (json && json.data) {
-                        masterData = json.data;
-                    }
+                    if (json && json.data) masterData = json.data;
                 }
-            } catch (err) {
-                // Try production remote API if local is unreachable
-                if (!masterData && window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
-                    try {
-                        const res = await fetch('https://www.wizbangkabelitung.or.id/api/sync', {
-                            headers: { 'Accept': 'application/json' },
-                            cache: 'no-cache'
-                        });
-                        if (res.ok) {
-                            const json = await res.json();
-                            if (json && json.data) masterData = json.data;
-                        }
-                    } catch(e) {}
-                }
-            }
+            } catch (err) {}
 
-            // 2. Secondary Fallback: Try static canonical snapshot if serverless is cold
-            if (!masterData) {
+            if (!masterData && window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
                 try {
-                    const res = await fetch('assets/data/canonical-store.json', { cache: 'no-cache' });
+                    const res = await fetch('https://www.wizbangkabelitung.or.id/api/sync', {
+                        headers: { 'Accept': 'application/json' },
+                        cache: 'no-cache'
+                    });
                     if (res.ok) {
-                        masterData = await res.json();
+                        const json = await res.json();
+                        if (json && json.data) masterData = json.data;
                     }
-                } catch (e) {}
+                } catch(e) {}
             }
 
-            // 3. Third Fallback: Firestore Master Bundle
+            // 2. Secondary Fallback: Firestore Master Bundle
             if (!masterData && window.wizFirebase && window.wizFirebase.isConfigured()) {
                 try {
                     const { data } = await window.wizFirebase.select('system_state');
@@ -1108,10 +1111,30 @@
                 } catch(e) {}
             }
 
+            // 3. Third Fallback: Static canonical snapshot
             if (!masterData) {
+                try {
+                    const res = await fetch('assets/data/canonical-store.json', { cache: 'no-cache' });
+                    if (res.ok) masterData = await res.json();
+                } catch (e) {}
+            }
+
+            // Also query individual Firestore news collection to ensure 100% freshness
+            let directFsNews = null;
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                try {
+                    const fbNewsRes = await window.wizFirebase.select('news');
+                    if (fbNewsRes && Array.isArray(fbNewsRes.data) && fbNewsRes.data.length > 0) {
+                        directFsNews = fbNewsRes.data;
+                    }
+                } catch(e) {}
+            }
+
+            if (!masterData && !directFsNews) {
                 isSyncInProgress = false;
                 return;
             }
+            masterData = masterData || {};
 
             // Delete IDs sync
             if (Array.isArray(masterData.deleted_ids)) {
@@ -1181,8 +1204,9 @@
             if (masterData.donations) {
                 smartMerge(STORAGE_KEYS.DONATIONS, masterData.donations, (a, b) => new Date(b.createdAt) - new Date(a.createdAt), deletedSet);
             }
-            if (masterData.news) {
-                smartMerge(STORAGE_KEYS.NEWS, masterData.news, (a, b) => new Date(b.eventDate || b.createdAt || 0) - new Date(a.eventDate || a.createdAt || 0), deletedNewsSet);
+            if (masterData.news || directFsNews) {
+                const combinedNews = [...(masterData.news || []), ...(directFsNews || [])];
+                smartMerge(STORAGE_KEYS.NEWS, combinedNews, (a, b) => new Date(b.eventDate || b.createdAt || 0) - new Date(a.eventDate || a.createdAt || 0), deletedNewsSet);
             }
             if (masterData.disbursements) {
                 smartMerge(STORAGE_KEYS.DISBURSEMENTS, masterData.disbursements, (a, b) => new Date(b.disbursedAt || b.createdAt) - new Date(a.disbursedAt || a.createdAt), deletedDisbSet);
