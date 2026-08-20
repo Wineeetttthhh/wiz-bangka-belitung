@@ -3036,6 +3036,8 @@
                 filenameEl.textContent = `✅ Menggunakan preset: ${label}`;
                 filenameEl.style.color = '#16a34a';
             }
+        }
+
         async function compressImageFile(file, maxDim = 720, quality = 0.72) {
             const isHeic = file.name && (file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif') || (file.type && file.type.includes('heic')));
             let processFile = file;
