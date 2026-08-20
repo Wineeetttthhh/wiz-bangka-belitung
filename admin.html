@@ -2029,22 +2029,7 @@
             }
         }
 
-        function refreshAll() {
-            if (!window.wizStore) return;
-            try { if (typeof renderKPI === 'function') renderKPI('dashboard-kpi-grid'); } catch(e) {}
-            try { if (typeof renderKPI === 'function') renderKPI('finance-kpi-grid'); } catch(e) {}
-            try { if (typeof renderDashboardDonations === 'function') renderDashboardDonations(); } catch(e) {}
-            try { if (typeof renderDonationTable === 'function') renderDonationTable(); } catch(e) {}
-            try { if (typeof renderDisbursementTable === 'function') renderDisbursementTable(); } catch(e) {}
-            try { if (typeof renderAllocationRulesSection === 'function') renderAllocationRulesSection(); } catch(e) {}
-            try { if (typeof renderSiteImagesSection === 'function') renderSiteImagesSection(); } catch(e) {}
-            try { if (typeof renderAdminUsersSection === 'function') renderAdminUsersSection(); } catch(e) {}
-            try { if (typeof renderNewsList === 'function') renderNewsList(); } catch(e) {}
-            try { if (typeof populateReferralSelects === 'function') populateReferralSelects(); } catch(e) {}
-            try { if (typeof renderReferralsSection === 'function') renderReferralsSection(); } catch(e) {}
-            try { if (typeof renderActivityLog === 'function') renderActivityLog(); } catch(e) {}
-        }
-
+        // ─── Global Sync Event ───────────────────────────
         window.addEventListener('wiz-sync-complete', () => {
             refreshAll();
         });
@@ -4787,6 +4772,7 @@
         }
 
         function refreshAll() {
+            if (!window.wizStore) return;
             // Role-based nav visibility
             const currentUser = sessionStorage.getItem('wiz_admin_user') || '';
             const currentRole = sessionStorage.getItem('wiz_admin_role') || '';
@@ -4796,20 +4782,20 @@
             if (navAdminUsers) navAdminUsers.style.display = isSuperAdmin ? '' : 'none';
             if (navSiteSettings) navSiteSettings.style.display = isSuperAdmin ? '' : 'none';
 
-            renderKPI('kpi-grid');
-            renderDashboardDonations();
-            renderActivityLog();
-            renderProgress5Berkah();
-            renderFullDonationTable();
-            renderAllocationRulesSection();
-            renderSiteImagesSection();
-            renderSiteSettingsSection();
-            renderAdminUsersSection();
-            renderNewsList();
-            renderDisbursementTable();
-            renderFinanceSection();
-            renderReferralsSection();
-            updateBadges();
+            try { if (typeof renderKPI === 'function') renderKPI('kpi-grid'); } catch(e) { console.error('[KPI Error]', e); }
+            try { if (typeof renderKPI === 'function') renderKPI('finance-kpi-grid'); } catch(e) { console.error(e); }
+            try { if (typeof renderDashboardDonations === 'function') renderDashboardDonations(); } catch(e) { console.error('[Dashboard Donations Error]', e); }
+            try { if (typeof renderActivityLog === 'function') renderActivityLog(); } catch(e) { console.error('[Activity Log Error]', e); }
+            try { if (typeof renderProgress5Berkah === 'function') renderProgress5Berkah(); } catch(e) { console.error('[Progress Error]', e); }
+            try { if (typeof renderFullDonationTable === 'function') renderFullDonationTable(); } catch(e) { console.error(e); }
+            try { if (typeof renderAllocationRulesSection === 'function') renderAllocationRulesSection(); } catch(e) { console.error(e); }
+            try { if (typeof renderSiteImagesSection === 'function') renderSiteImagesSection(); } catch(e) { console.error(e); }
+            try { if (typeof renderAdminUsersSection === 'function') renderAdminUsersSection(); } catch(e) { console.error(e); }
+            try { if (typeof renderNewsList === 'function') renderNewsList(); } catch(e) { console.error(e); }
+            try { if (typeof renderDisbursementTable === 'function') renderDisbursementTable(); } catch(e) { console.error(e); }
+            try { if (typeof renderFinanceSection === 'function') renderFinanceSection(); } catch(e) { console.error(e); }
+            try { if (typeof renderReferralsSection === 'function') renderReferralsSection(); } catch(e) { console.error(e); }
+            try { if (typeof updateBadges === 'function') updateBadges(); } catch(e) { console.error(e); }
         }
 
         function checkAdminAuth() {
