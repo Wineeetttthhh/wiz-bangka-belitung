@@ -4,6 +4,22 @@
   "donations": [],
   "news": [
     {
+      "id": "news-tebar-iftar-ramadan",
+      "title": "Tebar Iftar Ramadan Makin Bahagia Bersama WIZ Bangka Belitung",
+      "category": "Kegiatan & Penyaluran",
+      "content": "Alhamdulillah, Wahdah Inspirasi Zakat (WIZ) Bangka Belitung menyalurkan ratusan paket buka puasa (Tebar Iftar) penuh gizi dan kebahagiaan untuk santri tahfidz, dhuafa, dan masyarakat kurang mampu di berbagai pelosok Bangka Belitung.\n\nKegiatan ini merupakan komitmen berkelanjutan WIZ Babel untuk menghadirkan senyum dan kebahagiaan di bulan suci Ramadan.\n\nTerima kasih kepada seluruh donatur dan sahabat inspirasi atas kepercayaannya.",
+      "imageUrl": "assets/images/tebar-iftar.jpg",
+      "gallery": [
+        "assets/images/tebar-iftar-1.jpg",
+        "assets/images/tebar-iftar-2.jpg",
+        "assets/images/tebar-iftar-3.jpg"
+      ],
+      "eventDate": "2026-08-20T00:00:00.000Z",
+      "status": "published",
+      "createdAt": "2026-08-20T05:00:00.000Z",
+      "author": "Admin WIZ Babel"
+    },
+    {
       "id": "news-1787199100123",
       "title": "Penyaluran 50 Paket Sembako Dhuafa Pangkalpinang",
       "category": "Kegiatan & Penyaluran",

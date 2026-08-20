@@ -50,13 +50,18 @@ function fromFsFields(fields) {
 async function firebaseGet(docPath) {
     try {
         const url = `${FIREBASE_BASE_URL}/${docPath}?key=${FIREBASE_API_KEY}`;
-        const res = await fetch(url, { headers: { Accept: 'application/json' } });
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1200); // 1.2s fast timeout for bots
+        const res = await fetch(url, { 
+            headers: { Accept: 'application/json' },
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
         if (!res.ok) return null;
         const doc = await res.json();
         if (!doc || !doc.fields) return null;
         return fromFsFields(doc.fields);
     } catch (e) {
-        console.warn('[Berita API] Firebase GET error:', e.message);
         return null;
     }
 }
@@ -136,7 +141,8 @@ module.exports = async function handler(req, res) {
     // 2. If article still not found, check single news document in Firebase collection
     let article = null;
     if (newsId) {
-        article = allNews.find(n => n && (String(n.id) === String(newsId) || String(n.id).toLowerCase() === String(newsId).toLowerCase()));
+        const cleanId = String(newsId).trim().toLowerCase();
+        article = allNews.find(n => n && (String(n.id) === String(newsId) || String(n.id).toLowerCase() === cleanId));
         
         if (!article) {
             try {
@@ -153,7 +159,16 @@ module.exports = async function handler(req, res) {
         const canonical = getCanonicalData();
         const canonList = (canonical && Array.isArray(canonical.news)) ? canonical.news : [];
         if (newsId) {
-            article = canonList.find(n => n && (String(n.id) === String(newsId) || String(n.id).toLowerCase() === String(newsId).toLowerCase()));
+            const cleanId = String(newsId).trim().toLowerCase();
+            article = canonList.find(n => n && (String(n.id) === String(newsId) || String(n.id).toLowerCase() === cleanId));
+            
+            // Fuzzy search by title keyword if direct ID match not found
+            if (!article) {
+                article = canonList.find(n => {
+                    const titleLower = String(n.title || '').toLowerCase();
+                    return cleanId.split(/[-_\s]+/).some(word => word.length > 3 && titleLower.includes(word));
+                });
+            }
         }
         if (!article && allNews.length === 0) {
             allNews = canonList;
