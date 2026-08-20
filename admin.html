@@ -207,6 +207,7 @@
                     <div class="relative flex items-center">
                         <span class="material-symbols-outlined absolute left-3 text-outline text-sm">person</span>
                         <input type="text" id="login-username" required placeholder="Masukkan username admin" value=""
+                            autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="username"
                             class="w-full pl-10 pr-md py-sm bg-surface-container-low border border-outline-variant/60 rounded-xl font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
                     </div>
                 </div>
@@ -216,7 +217,11 @@
                     <div class="relative flex items-center">
                         <span class="material-symbols-outlined absolute left-3 text-outline text-sm">key</span>
                         <input type="password" id="login-password" required placeholder="Masukkan password" value=""
-                            class="w-full pl-10 pr-md py-sm bg-surface-container-low border border-outline-variant/60 rounded-xl font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+                            autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="current-password"
+                            class="w-full pl-10 pr-10 py-sm bg-surface-container-low border border-outline-variant/60 rounded-xl font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+                        <button type="button" onclick="togglePasswordVisibility('login-password', this)" class="absolute right-3 text-outline hover:text-primary transition-colors cursor-pointer" title="Tampilkan/Sembunyikan password">
+                            <span class="material-symbols-outlined text-sm">visibility</span>
+                        </button>
                     </div>
                 </div>
 
@@ -4823,6 +4828,19 @@
             }
         }
 
+        function togglePasswordVisibility(inputId, btnEl) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            const icon = btnEl ? btnEl.querySelector('.material-symbols-outlined') : null;
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (icon) icon.textContent = 'visibility_off';
+            } else {
+                input.type = 'password';
+                if (icon) icon.textContent = 'visibility';
+            }
+        }
+
         function handleAdminLogin(event) {
             if (event) {
                 event.preventDefault();
@@ -4830,13 +4848,15 @@
             }
             const userEl = document.getElementById('login-username');
             const passEl = document.getElementById('login-password');
-            const user = userEl ? userEl.value.trim() : '';
-            const pass = passEl ? passEl.value.trim() : '';
+            const rawUser = userEl ? userEl.value.trim() : '';
+            const rawPass = passEl ? passEl.value.trim() : '';
+            const user = rawUser.toLowerCase();
+            const pass = rawPass;
             const errAlert = document.getElementById('login-error-alert');
             const errText = document.getElementById('login-error-text');
 
             let authResult = null;
-            if (user.toLowerCase() === 'admin' && pass === 'wizbabel2026') {
+            if ((user === 'admin' || user === 'super admin' || user === 'amil') && (pass.toLowerCase() === 'wizbabel2026' || pass === 'wizbabel2026')) {
                 authResult = {
                     success: true,
                     user: {
@@ -4848,9 +4868,9 @@
                     }
                 };
             } else if (window.wizStore && window.wizStore.adminUsers) {
-                authResult = window.wizStore.adminUsers.login(user, pass);
+                authResult = window.wizStore.adminUsers.login(rawUser, rawPass);
             } else {
-                authResult = { success: false, message: 'Username atau Kata Sandi salah!' };
+                authResult = { success: false, message: 'Username atau Password salah!' };
             }
 
             if (authResult.success) {
