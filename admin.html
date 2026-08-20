@@ -4941,10 +4941,15 @@
                 if (bannerSource) bannerSource.textContent = todayQuote.source && todayQuote.source !== 'WIZ Babel' && todayQuote.source !== '-' ? `— ${todayQuote.source}` : '';
                 if (bannerCategory) bannerCategory.textContent = `${todayQuote.category} • ${todayQuote.date || '-'}`;
                 if (bannerPreviewImg && todayQuote.imageUrl) bannerPreviewImg.src = todayQuote.imageUrl;
-                if (bannerEditBtn) bannerEditBtn.onclick = () => openQuoteModal(todayQuote.id);
+                if (bannerEditBtn) {
+                    bannerEditBtn.style.display = '';
+                    bannerEditBtn.onclick = () => openQuoteModal(todayQuote.id);
+                }
             } else if (bannerText) {
-                bannerText.textContent = 'Belum ada flyer aktif. Klik + Tulis Quote Baru untuk menambahkan.';
-                if (bannerSource) bannerSource.textContent = '';
+                bannerText.textContent = 'ℹ️ Tidak ada flyer aktif. Bagian Inspirasi saat ini otomatis disembunyikan dari Web Utama & Affiliate.';
+                if (bannerSource) bannerSource.textContent = 'Silakan aktifkan flyer dari tabel di bawah atau tambah flyer baru.';
+                if (bannerCategory) bannerCategory.textContent = 'Status: Disembunyikan (Nonaktif)';
+                if (bannerEditBtn) bannerEditBtn.style.display = 'none';
             }
 
             // Render table of all quotes

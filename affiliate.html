@@ -451,6 +451,12 @@
                     </div>
                 </div>
 
+                <div id="affiliate-quotes-empty-notice" class="hidden bg-slate-50 p-8 rounded-3xl text-center space-y-2 border border-slate-200">
+                    <span class="material-symbols-outlined text-4xl text-slate-400">campaign</span>
+                    <h3 class="font-bold text-slate-800 text-base">Belum Ada Flyer Dakwah Aktif</h3>
+                    <p class="text-xs text-slate-500 max-w-md mx-auto">Admin belum mengaktifkan flyer dakwah untuk saat ini. Silakan cek kembali nanti atau bagikan program kebaikan lainnya.</p>
+                </div>
+
                 <!-- Featured Flyer & Caption Card -->
                 <div id="affiliate-featured-quote" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm flex flex-col md:flex-row items-center gap-6">
                     <div class="w-full md:w-48 max-w-[200px] aspect-square rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shrink-0 shadow-xs">
@@ -927,6 +933,21 @@
             if (!wizStore || !wizStore.quotes) return;
             const allQuotes = wizStore.quotes.getAll().filter(q => q && q.status === 'active');
             const todayQuote = wizStore.quotes.getToday();
+
+            const featuredCard = document.getElementById('affiliate-featured-quote');
+            const emptyNotice = document.getElementById('affiliate-quotes-empty-notice');
+            const otherSection = document.getElementById('affiliate-other-quotes-section');
+
+            if (allQuotes.length === 0) {
+                if (featuredCard) featuredCard.style.display = 'none';
+                if (otherSection) otherSection.style.display = 'none';
+                if (emptyNotice) emptyNotice.classList.remove('hidden');
+                return;
+            }
+
+            if (emptyNotice) emptyNotice.classList.add('hidden');
+            if (featuredCard) featuredCard.style.display = todayQuote ? '' : 'none';
+            if (otherSection) otherSection.style.display = '';
 
             // Update featured
             const fText = document.getElementById('aff-today-quote-text');

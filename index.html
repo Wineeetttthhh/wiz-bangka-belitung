@@ -169,7 +169,7 @@
             <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="#tentang-kami">Tentang Kami</a>
             <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="program.html">Program</a>
             <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="laporan.html">Laporan</a>
-            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="#quote-harian">Inspirasi</a>
+            <a id="nav-link-inspirasi" class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="#quote-harian">Inspirasi</a>
             <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="affiliate.html">Affiliate Kebaikan</a>
             <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="#berita">Berita</a>
             <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="#kontak">Kontak</a>
@@ -192,7 +192,7 @@
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="#tentang-kami">Tentang Kami</a>
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="program.html">Program</a>
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="laporan.html">Laporan</a>
-        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="#quote-harian">Inspirasi</a>
+        <a id="mobile-nav-link-inspirasi" class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="#quote-harian">Inspirasi</a>
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="affiliate.html">Affiliate Kebaikan</a>
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="#berita">Berita</a>
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="#kontak">Kontak</a>
@@ -1076,11 +1076,33 @@
         });
     }
 
-    // Dynamic Public Quote Renderer (Clean Flyer + Caption)
+    // Dynamic Public Quote Renderer (Controlled Strictly by Admin)
     function renderPublicQuote() {
-        if (!window.wizStore || !window.wizStore.quotes) return;
+        const quoteSection = document.getElementById('quote-harian');
+        const navLinkDesktop = document.getElementById('nav-link-inspirasi');
+        const navLinkMobile = document.getElementById('mobile-nav-link-inspirasi');
+
+        if (!window.wizStore || !window.wizStore.quotes) {
+            if (quoteSection) quoteSection.style.display = 'none';
+            if (navLinkDesktop) navLinkDesktop.style.display = 'none';
+            if (navLinkMobile) navLinkMobile.style.display = 'none';
+            return;
+        }
+
         const q = wizStore.quotes.getToday();
-        if (!q) return;
+
+        // KONTROL ADMIN: Jika tidak ada flyer aktif atau status draft, sembunyikan total dari Web Utama!
+        if (!q || q.status !== 'active') {
+            if (quoteSection) quoteSection.style.display = 'none';
+            if (navLinkDesktop) navLinkDesktop.style.display = 'none';
+            if (navLinkMobile) navLinkMobile.style.display = 'none';
+            return;
+        }
+
+        // Tampilkan jika ada flyer yang diaktifkan oleh admin
+        if (quoteSection) quoteSection.style.display = '';
+        if (navLinkDesktop) navLinkDesktop.style.display = '';
+        if (navLinkMobile) navLinkMobile.style.display = '';
 
         const textEl = document.getElementById('public-quote-text');
         const sourceEl = document.getElementById('public-quote-source');
@@ -1244,6 +1266,10 @@
         renderPublicNews();
         renderPublicQuote();
         if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
+    });
+
+    window.addEventListener('wiz-quotes-changed', () => {
+        renderPublicQuote();
     });
 </script>
 </body>
