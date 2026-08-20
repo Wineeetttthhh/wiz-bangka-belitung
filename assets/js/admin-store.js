@@ -230,10 +230,18 @@
         localStorage.setItem(STORAGE_KEYS.DELETED_QUOTE_IDS, JSON.stringify(Array.from(set)));
     }
 
-    function getStore(key) {
-        try {
-            return JSON.parse(localStorage.getItem(key)) || null;
-        } catch { return null; }
+    function generateUUID() {
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+            return crypto.randomUUID();
+        }
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
+    function generateId() {
+        return generateUUID();
     }
 
     function setStore(key, data) {
@@ -1242,8 +1250,11 @@
                 } catch (e) {}
             }
 
-            // Query Supabase news table directly to ensure 100% freshness
+            // Query Supabase tables directly to ensure 100% freshness
             let directSbNews = null;
+            let directSbDonations = null;
+            let directSbDisbursements = null;
+
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                 try {
                     const sbNewsRes = await window.wizSupabase.select('news');
@@ -1263,20 +1274,56 @@
                         }));
                     }
                 } catch(e) {}
-            }
 
-            // Also query individual Firestore news collection to ensure 100% freshness
-            let directFsNews = null;
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 try {
-                    const fbNewsRes = await window.wizFirebase.select('news');
-                    if (fbNewsRes && Array.isArray(fbNewsRes.data) && fbNewsRes.data.length > 0) {
-                        directFsNews = fbNewsRes.data;
+                    const sbDonRes = await window.wizSupabase.select('donations');
+                    if (sbDonRes && Array.isArray(sbDonRes.data)) {
+                        directSbDonations = sbDonRes.data.map(d => ({
+                            id: d.id,
+                            donorName: d.donor_name,
+                            donorPhone: d.donor_phone,
+                            donorEmail: d.donor_email,
+                            wilayah: d.wilayah,
+                            type: d.donation_type,
+                            programUtama: d.program_utama,
+                            programSpesifik: d.program_spesifik,
+                            program: d.program,
+                            category: d.category,
+                            amount: Number(d.amount) || 0,
+                            alokasiOperasional: Number(d.alokasi_operasional) || 0,
+                            alokasiProgram: Number(d.alokasi_program) || 0,
+                            method: d.payment_method,
+                            referralId: d.referral_id,
+                            referralCode: d.referral_code,
+                            referralName: d.referral_name,
+                            referralFee: Number(d.referral_fee) || 0,
+                            notes: d.notes,
+                            status: d.status,
+                            verifiedAt: d.verified_at,
+                            verifiedBy: d.verified_by,
+                            createdAt: d.created_at
+                        }));
+                    }
+                } catch(e) {}
+
+                try {
+                    const sbDisbRes = await window.wizSupabase.select('disbursements');
+                    if (sbDisbRes && Array.isArray(sbDisbRes.data)) {
+                        directSbDisbursements = sbDisbRes.data.map(d => ({
+                            id: d.id,
+                            wilayah: d.wilayah,
+                            program: d.program,
+                            amount: Number(d.amount) || 0,
+                            description: d.description,
+                            disbursedAt: d.disbursed_at,
+                            recordedBy: d.recorded_by,
+                            createdAt: d.created_at
+                        }));
                     }
                 } catch(e) {}
             }
 
-            if (!masterData && !directFsNews) {
+            if (!masterData && !directSbDonations && !directSbDisbursements && !directSbNews) {
                 isSyncInProgress = false;
                 return;
             }
@@ -1346,10 +1393,11 @@
                 setStore(storeKey, merged);
             }
 
-            // Sync all collections
-            if (masterData && masterData.donations) {
-                smartMerge(STORAGE_KEYS.DONATIONS, masterData.donations, (a, b) => new Date(b.createdAt) - new Date(a.createdAt), deletedSet);
-            }
+            // Sync Donations: Use direct Supabase table as primary source
+            const authoritativeDonations = (directSbDonations !== null)
+                ? directSbDonations
+                : (masterData && Array.isArray(masterData.donations) ? masterData.donations : []);
+            smartMerge(STORAGE_KEYS.DONATIONS, authoritativeDonations, (a, b) => new Date(b.createdAt) - new Date(a.createdAt), deletedSet);
 
             // News Sync: Use direct Supabase news table as primary source
             const authoritativeNews = (directSbNews && Array.isArray(directSbNews) && directSbNews.length > 0)
@@ -1387,9 +1435,12 @@
                 mergedNews.sort((a, b) => new Date(b.eventDate || b.event_date || b.createdAt || 0) - new Date(a.eventDate || a.event_date || a.createdAt || 0));
                 setStore(STORAGE_KEYS.NEWS, mergedNews);
             }
-            if (masterData.disbursements) {
-                smartMerge(STORAGE_KEYS.DISBURSEMENTS, masterData.disbursements, (a, b) => new Date(b.disbursedAt || b.createdAt) - new Date(a.disbursedAt || a.createdAt), deletedDisbSet);
-            }
+
+            // Sync Disbursements: Use direct Supabase table as primary source
+            const authoritativeDisbursements = (directSbDisbursements !== null)
+                ? directSbDisbursements
+                : (masterData && Array.isArray(masterData.disbursements) ? masterData.disbursements : []);
+            smartMerge(STORAGE_KEYS.DISBURSEMENTS, authoritativeDisbursements, (a, b) => new Date(b.disbursedAt || b.createdAt) - new Date(a.disbursedAt || a.createdAt), deletedDisbSet);
             if (masterData.referrals) {
                 smartMerge(STORAGE_KEYS.REFERRALS, masterData.referrals, (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0), deletedRefSet);
             }
@@ -1591,27 +1642,18 @@
                         donor_name: newDonation.donorName,
                         donor_phone: newDonation.donorPhone,
                         donor_email: newDonation.donorEmail,
-                        wilayah: newDonation.wilayah,
+                        program_title: newDonation.program || newDonation.programSpesifik || newDonation.programUtama || 'Umum',
                         donation_type: newDonation.type,
-                        program_utama: newDonation.programUtama,
-                        program_spesifik: newDonation.programSpesifik,
-                        program: newDonation.program,
-                        category: newDonation.category,
                         amount: newDonation.amount,
-                        alokasi_operasional: newDonation.alokasiOperasional,
-                        alokasi_program: newDonation.alokasiProgram,
                         payment_method: newDonation.method,
-                        referral_id: newDonation.referralId,
-                        referral_fee: newDonation.referralFee,
                         notes: newDonation.notes,
                         status: newDonation.status,
-                        verified_at: newDonation.verifiedAt,
-                        verified_by: newDonation.verifiedBy,
                         created_at: newDonation.createdAt
                     });
                 } catch(e) {}
             }
 
+            try { await pushToCloud(); } catch(e) {}
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return newDonation;
         },
@@ -1663,10 +1705,24 @@
 
             activityLog.add('donation_edit', `Data donasi ${list[idx].donorName} (${formatRupiahCompact(list[idx].amount)}) diperbarui.`, 'Admin');
 
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.update('donations', id, list[idx]);
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.saveDonation({
+                        id: String(id),
+                        donor_name: list[idx].donorName,
+                        donor_phone: list[idx].donorPhone,
+                        donor_email: list[idx].donorEmail,
+                        program_title: list[idx].program || list[idx].programSpesifik || list[idx].programUtama || 'Umum',
+                        donation_type: list[idx].type,
+                        amount: list[idx].amount,
+                        payment_method: list[idx].method,
+                        notes: list[idx].notes,
+                        status: list[idx].status
+                    });
+                } catch(e) {}
             }
 
+            try { await pushToCloud(); } catch(e) {}
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return list[idx];
         },
@@ -1683,14 +1739,17 @@
 
             activityLog.add('verification', `Donasi ${formatRupiahCompact(list[idx].amount)} dari ${list[idx].donorName} berhasil diverifikasi.`, adminName || 'Admin');
 
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.update('donations', donationId, {
-                    status: 'verified',
-                    verifiedAt: list[idx].verifiedAt,
-                    verifiedBy: list[idx].verifiedBy
-                });
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.update('donations', donationId, {
+                        status: 'verified',
+                        verified_at: list[idx].verifiedAt,
+                        verified_by: list[idx].verifiedBy
+                    });
+                } catch(e) {}
             }
 
+            try { await pushToCloud(); } catch(e) {}
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return list[idx];
         },
@@ -1707,14 +1766,15 @@
 
             activityLog.add('rejection', `Donasi ${formatRupiahCompact(list[idx].amount)} dari ${list[idx].donorName} ditolak.`, adminName || 'Admin');
 
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.update('donations', donationId, {
-                    status: 'rejected',
-                    rejectedAt: list[idx].rejectedAt,
-                    rejectedBy: list[idx].rejectedBy
-                });
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.update('donations', donationId, {
+                        status: 'rejected'
+                    });
+                } catch(e) {}
             }
 
+            try { await pushToCloud(); } catch(e) {}
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return list[idx];
         },
@@ -1733,11 +1793,13 @@
                 activityLog.add('donation_delete', `Data donasi ${item.donorName} (${formatRupiahCompact(item.amount)}) dihapus.`, 'Admin');
             }
 
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.remove('donations', strId);
-                await window.wizFirebase.upsert('deleted_ids', { key: strId, deletedAt: new Date().toISOString() });
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.remove('donations', strId);
+                } catch(e) {}
             }
 
+            try { await pushToCloud(); } catch(e) {}
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
         },
 
@@ -2083,8 +2145,19 @@
 
             activityLog.add('disbursement', `Penyaluran dana ${formatRupiahCompact(newDisb.amount)} (${newDisb.wilayah}) untuk "${newDisb.program}" dicatat.`, newDisb.recordedBy);
 
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.insert('disbursements', newDisb);
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.saveDisbursement({
+                        id: String(newDisb.id),
+                        wilayah: newDisb.wilayah,
+                        program: newDisb.program,
+                        amount: newDisb.amount,
+                        description: newDisb.description,
+                        disbursed_at: newDisb.disbursedAt,
+                        recorded_by: newDisb.recordedBy,
+                        created_at: newDisb.createdAt
+                    });
+                } catch(e) {}
             }
 
             try { await pushToCloud(); } catch(e) {}
@@ -2103,8 +2176,17 @@
 
             activityLog.add('disbursement', `Penyaluran dana untuk "${list[idx].program}" diperbarui.`, updates.recordedBy || 'Admin');
 
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.set('disbursements', id, list[idx]);
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.update('disbursements', id, {
+                        wilayah: list[idx].wilayah,
+                        program: list[idx].program,
+                        amount: list[idx].amount,
+                        description: list[idx].description,
+                        disbursed_at: list[idx].disbursedAt,
+                        recorded_by: list[idx].recordedBy
+                    });
+                } catch(e) {}
             }
 
             try { await pushToCloud(); } catch(e) {}
@@ -2127,9 +2209,10 @@
                 activityLog.add('disbursement', `Catatan penyaluran dana "${item.program}" (${formatRupiahCompact(item.amount)}) dihapus.`, 'Admin');
             }
 
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.remove('disbursements', strId);
-                await window.wizFirebase.upsert('deleted_disb_ids', { key: strId, deletedAt: new Date().toISOString() });
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.remove('disbursements', strId);
+                } catch(e) {}
             }
 
             try { await pushToCloud(); } catch(e) {}

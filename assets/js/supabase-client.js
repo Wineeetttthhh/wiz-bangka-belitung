@@ -160,7 +160,8 @@ const SUPABASE_CONFIG = {
         remove,
 
         // Helpers for entities
-        saveDonation: (data) => insert('donations', data),
+        saveDonation: (data) => upsert('donations', data),
+        saveDisbursement: (data) => upsert('disbursements', data),
         saveReferral: (data) => upsert('referrals', data),
         saveReferralPayout: (data) => upsert('referral_payouts', data),
         saveContactMessage: (data) => insert('contact_messages', data),
