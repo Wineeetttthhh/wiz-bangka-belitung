@@ -643,20 +643,25 @@
                 </div>
 
                 <div class="space-y-sm">
-                    <!-- BSI (Satu-satunya rekening aktif saat ini) -->
-                    <div
-                        class="p-lg bg-surface border-2 border-emerald-500/40 rounded-2xl flex items-center justify-between shadow-xs">
-                        <div class="space-y-1">
-                            <span class="font-bold text-primary text-base block" data-site-bank-name="bsi">Bank Syariah Indonesia (BSI)</span>
-                            <span
-                                class="font-mono font-extrabold text-xl text-on-surface tracking-wider block" data-site-bank-no="bsi">7112223334</span>
-                            <span class="text-xs text-on-surface-variant block font-medium" data-site-bank-holder="bsi">A.n. Wahdah Inspirasi Zakat</span>
+                    <!-- BSI Rekening Aktif -->
+                    <div class="p-lg bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-500/50 rounded-2xl shadow-sm">
+                        <!-- Logo BSI -->
+                        <div class="flex items-center justify-between mb-3">
+                            <img src="assets/images/logo-bsi.jpg" alt="Bank Syariah Indonesia" class="h-9 object-contain" onerror="this.style.display='none'">
+                            <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-extrabold border border-emerald-300">✅ Rekening Aktif</span>
                         </div>
-                        <button type="button" onclick="copyAccount(document.querySelector('[data-site-bank-no=bsi]')?.textContent || '7112223334')"
-                            class="px-4 py-2.5 bg-primary text-on-primary text-xs font-bold rounded-xl shadow-sm hover:bg-primary-container transition-colors flex items-center gap-1 cursor-pointer">
-                            <span class="material-symbols-outlined text-sm">content_copy</span>
-                            <span>Salin No.</span>
-                        </button>
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="space-y-0.5">
+                                <span class="font-bold text-emerald-800 text-sm block" data-site-bank-name="bsi">Bank Syariah Indonesia (BSI)</span>
+                                <span class="font-mono font-extrabold text-2xl text-on-surface tracking-widest block" data-site-bank-no="bsi">716 800 800</span>
+                                <span class="text-xs text-on-surface-variant block font-semibold" data-site-bank-holder="bsi">A.n. WIZ Bangka Belitung</span>
+                            </div>
+                            <button type="button" onclick="copyAccount('716800800')"
+                                class="shrink-0 px-4 py-2.5 bg-emerald-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-emerald-700 transition-colors flex flex-col items-center gap-0.5 cursor-pointer">
+                                <span class="material-symbols-outlined text-base">content_copy</span>
+                                <span>Salin</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
