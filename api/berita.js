@@ -418,6 +418,7 @@ module.exports = async function handler(req, res) {
 </body>
 </html>`;
 
+    res.setHeader('X-Berita-Version', '20260820_22');
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=86400');
     return res.status(200).send(html);
