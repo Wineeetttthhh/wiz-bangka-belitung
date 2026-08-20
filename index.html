@@ -619,52 +619,23 @@
             <p class="font-body-lg text-body-lg text-on-surface-variant">Transfer donasi Anda secara mudah melalui rekening bank resmi WIZ Bangka Belitung.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-            <!-- Bank BSI -->
-            <div class="bg-surface p-lg rounded-xl border border-surface-variant shadow-level-1 space-y-sm flex flex-col justify-between">
+        <div class="max-w-xl mx-auto">
+            <!-- Bank BSI (Satu-satunya Rekening Aktif) -->
+            <div class="bg-surface p-xl rounded-2xl border-2 border-emerald-500/30 shadow-level-1 space-y-md flex flex-col justify-between text-center">
                 <div>
-                    <span class="font-headline-md text-headline-md font-bold text-primary" data-site-bank-name="bsi">Bank BSI</span>
-                    <p class="font-caption text-caption text-on-surface-variant">Bank Syariah Indonesia</p>
-                    <div class="mt-md font-mono text-body-lg font-bold text-on-surface tracking-wider bg-surface-container-low p-sm rounded border border-outline-variant/30" data-site-bank-no="bsi">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-2">
+                        <span class="material-symbols-outlined text-sm">verified</span> Rekening Aktif
+                    </span>
+                    <h3 class="font-headline-md text-2xl font-bold text-primary" data-site-bank-name="bsi">Bank Syariah Indonesia (BSI)</h3>
+                    <p class="font-body-md text-sm text-on-surface-variant mt-0.5">Saluran Donasi Zakat, Infak &amp; Sedekah Resmi</p>
+                    <div class="mt-md font-mono text-2xl font-extrabold text-on-surface tracking-wider bg-surface-container-low py-3 px-4 rounded-xl border border-outline-variant/30 select-all" data-site-bank-no="bsi">
                         7112223334
                     </div>
-                    <p class="font-caption text-caption text-outline mt-xs" data-site-bank-holder="bsi">Wahdah Inspirasi Zakat</p>
+                    <p class="font-caption text-sm text-on-surface-variant font-medium mt-2" data-site-bank-holder="bsi">Atas Nama: <strong class="text-on-surface">Wahdah Inspirasi Zakat</strong></p>
                 </div>
-                <button onclick="copyToClipboard(document.querySelector('[data-site-bank-no=bsi]')?.textContent || '7112223334', 'No. Rekening BSI berhasil disalin!')" class="mt-md w-full border border-primary text-primary hover:bg-primary hover:text-white py-xs rounded-lg font-label-md text-label-md font-semibold transition-colors flex items-center justify-center gap-xs">
-                    <span class="material-symbols-outlined text-sm">content_copy</span>
-                    <span>Salin No. Rekening</span>
-                </button>
-            </div>
-
-            <!-- Bank Mandiri -->
-            <div class="bg-surface p-lg rounded-xl border border-surface-variant shadow-level-1 space-y-sm flex flex-col justify-between">
-                <div>
-                    <span class="font-headline-md text-headline-md font-bold text-[#003366]" data-site-bank-name="mandiri">Bank Mandiri</span>
-                    <p class="font-caption text-caption text-on-surface-variant">Bank Mandiri Syariah / Reguler</p>
-                    <div class="mt-md font-mono text-body-lg font-bold text-on-surface tracking-wider bg-surface-container-low p-sm rounded border border-outline-variant/30" data-site-bank-no="mandiri">
-                        1090012345678
-                    </div>
-                    <p class="font-caption text-caption text-outline mt-xs" data-site-bank-holder="mandiri">Wahdah Inspirasi Zakat</p>
-                </div>
-                <button onclick="copyToClipboard(document.querySelector('[data-site-bank-no=mandiri]')?.textContent || '1090012345678', 'No. Rekening Mandiri berhasil disalin!')" class="mt-md w-full border border-primary text-primary hover:bg-primary hover:text-white py-xs rounded-lg font-label-md text-label-md font-semibold transition-colors flex items-center justify-center gap-xs">
-                    <span class="material-symbols-outlined text-sm">content_copy</span>
-                    <span>Salin No. Rekening</span>
-                </button>
-            </div>
-
-            <!-- Bank BCA -->
-            <div class="bg-surface p-lg rounded-xl border border-surface-variant shadow-level-1 space-y-sm flex flex-col justify-between">
-                <div>
-                    <span class="font-headline-md text-headline-md font-bold text-[#005696]" data-site-bank-name="bca">Bank BCA</span>
-                    <p class="font-caption text-caption text-on-surface-variant">Bank Central Asia</p>
-                    <div class="mt-md font-mono text-body-lg font-bold text-on-surface tracking-wider bg-surface-container-low p-sm rounded border border-outline-variant/30" data-site-bank-no="bca">
-                        8830123456
-                    </div>
-                    <p class="font-caption text-caption text-outline mt-xs" data-site-bank-holder="bca">Wahdah Inspirasi Zakat</p>
-                </div>
-                <button onclick="copyToClipboard(document.querySelector('[data-site-bank-no=bca]')?.textContent || '8830123456', 'No. Rekening BCA berhasil disalin!')" class="mt-md w-full border border-primary text-primary hover:bg-primary hover:text-white py-xs rounded-lg font-label-md text-label-md font-semibold transition-colors flex items-center justify-center gap-xs">
-                    <span class="material-symbols-outlined text-sm">content_copy</span>
-                    <span>Salin No. Rekening</span>
+                <button onclick="copyToClipboard(document.querySelector('[data-site-bank-no=bsi]')?.textContent || '7112223334', 'No. Rekening BSI berhasil disalin!')" class="mt-sm w-full bg-primary hover:bg-primary-container text-on-primary py-3 rounded-xl font-label-md text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer">
+                    <span class="material-symbols-outlined text-base">content_copy</span>
+                    <span>Salin No. Rekening BSI</span>
                 </button>
             </div>
         </div>
