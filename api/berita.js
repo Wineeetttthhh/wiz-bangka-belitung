@@ -269,14 +269,16 @@ module.exports = async function handler(req, res) {
     <meta name="description" content="${escapeHtml(excerpt)}"/>
     <link rel="icon" href="${origin}/assets/images/logo-wiz-babel.png" type="image/png"/>
 
-    <!-- Open Graph / WhatsApp / Facebook / Instagram / LinkedIn -->
+    <!-- Open Graph / WhatsApp / Facebook / Instagram / Telegram / LinkedIn -->
     <meta property="og:type" content="article"/>
     <meta property="og:site_name" content="Wahdah Inspirasi Zakat (WIZ) Bangka Belitung"/>
+    <meta property="og:locale" content="id_ID"/>
     <meta property="og:url" content="${canonicalUrl}"/>
     <meta property="og:title" content="${escapeHtml(title)}"/>
     <meta property="og:description" content="${escapeHtml(excerpt)}"/>
     <meta property="og:image" content="${absoluteImgUrl}"/>
     <meta property="og:image:secure_url" content="${absoluteImgUrl}"/>
+    <meta property="og:image:type" content="image/jpeg"/>
     <meta property="og:image:width" content="1200"/>
     <meta property="og:image:height" content="630"/>
     <meta property="og:image:alt" content="${escapeHtml(title)}"/>
@@ -287,10 +289,42 @@ module.exports = async function handler(req, res) {
     <!-- Twitter / X Cards -->
     <meta name="twitter:card" content="summary_large_image"/>
     <meta name="twitter:site" content="@wizbangka"/>
+    <meta name="twitter:creator" content="@wizbangka"/>
     <meta name="twitter:url" content="${canonicalUrl}"/>
     <meta name="twitter:title" content="${escapeHtml(title)}"/>
     <meta name="twitter:description" content="${escapeHtml(excerpt)}"/>
     <meta name="twitter:image" content="${absoluteImgUrl}"/>
+    <meta name="twitter:image:alt" content="${escapeHtml(title)}"/>
+
+    <!-- Schema.org JSON-LD Structured Data for Search Bots & Crawlers -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "NewsArticle",
+      "headline": ${JSON.stringify(title)},
+      "image": [${JSON.stringify(absoluteImgUrl)}],
+      "datePublished": ${JSON.stringify(article.createdAt || new Date().toISOString())},
+      "dateModified": ${JSON.stringify(article.updatedAt || article.createdAt || new Date().toISOString())},
+      "author": [{
+          "@type": "Organization",
+          "name": ${JSON.stringify(author)},
+          "url": ${JSON.stringify(origin)}
+      }],
+      "publisher": {
+          "@type": "Organization",
+          "name": "Wahdah Inspirasi Zakat Bangka Belitung",
+          "logo": {
+              "@type": "ImageObject",
+              "url": ${JSON.stringify(origin + '/assets/images/logo-wiz-babel.png')}
+          }
+      },
+      "description": ${JSON.stringify(excerpt)},
+      "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": ${JSON.stringify(canonicalUrl)}
+      }
+    }
+    </script>
 
     <!-- Google Fonts & Tailwind -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
