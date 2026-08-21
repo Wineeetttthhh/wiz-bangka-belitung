@@ -373,7 +373,7 @@ module.exports = async function handler(req, res) {
                     <p class="text-sm text-slate-600 mt-0.5">Ajak keluarga dan kerabat untuk bersama mendukung program keummatan.</p>
                 </div>
                 <div class="flex items-center gap-3 flex-wrap w-full md:w-auto">
-                    <a href="https://api.whatsapp.com/send?text=${encodeURIComponent('*' + title + '*\n\n' + canonicalUrl)}" target="_blank" class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold px-5 py-3 rounded-2xl text-sm shadow-md hover:shadow-lg transition-all active:scale-95">
+                    <a href="https://api.whatsapp.com/send?text=${encodeURIComponent('*' + title + '*\n\n' + excerpt + '\n\n' + canonicalUrl)}" target="_blank" class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold px-5 py-3 rounded-2xl text-sm shadow-md hover:shadow-lg transition-all active:scale-95">
                         <span class="material-symbols-outlined text-lg">share</span> Share ke WhatsApp
                     </a>
                     <a href="${donateUrl}" class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold px-5 py-3 rounded-2xl text-sm shadow-md hover:shadow-lg transition-all active:scale-95">

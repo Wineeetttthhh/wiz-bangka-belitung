@@ -1322,7 +1322,7 @@
             }
         }
 
-        async function shareAffiliateQuoteWA(quoteId) {
+        function shareAffiliateQuoteWA(quoteId) {
             if (!window.wizStore || !window.wizStore.quotes) return;
             const q = wizStore.quotes.getById(quoteId);
             if (!q) return;
@@ -1331,30 +1331,11 @@
             const origin = 'https://www.wizbangkabelitung.or.id';
             const flyerUrl = `${origin}/flyer/${encodeURIComponent(q.id)}?ref=${encodeURIComponent(activeRef)}`;
             
-            const title = q.source ? q.source : (q.category || 'Quote & Inspirasi Dakwah');
-            const quoteBody = q.text ? `"${q.text}"` : '';
-            const caption = `*${title}*\n\n${quoteBody}\n\nBaca selengkapnya & salurkan infak terbaik melalui tautan resmi:\n\n${flyerUrl}`;
+            const title = q.source ? q.source : (q.category || 'Quote & Inspirasi Harian');
+            const quoteBody = q.text ? `"${q.text}"` : 'Mari menebar inspirasi kebaikan dan kepedulian bersama WIZ Bangka Belitung.';
+            // Exact standard format with double newline before URL for WhatsApp Rich Link Card
+            const caption = `*${title}*\n\n${quoteBody}\n\n${flyerUrl}`;
 
-            // 1. Try Native Web Share API if on mobile device supporting image file sharing
-            const imgSource = q.imageUrl || 'assets/images/foto-utama-wiz.jpg';
-            if (navigator.share && navigator.canShare) {
-                try {
-                    const file = await urlOrBase64ToFile(imgSource, `flyer-wiz-${q.id || 'quote'}.jpg`);
-                    if (file && navigator.canShare({ files: [file] })) {
-                        await navigator.share({
-                            title: title,
-                            text: caption,
-                            files: [file]
-                        });
-                        return;
-                    }
-                } catch (err) {
-                    if (err.name === 'AbortError') return;
-                    console.log('Native share fallback to WA URL:', err);
-                }
-            }
-
-            // 2. Direct WhatsApp Web / App share URL with full encoding
             const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(caption);
             window.open(waUrl, '_blank');
         }
@@ -1407,46 +1388,20 @@
             }
         }
 
-        async function shareAffiliateNewsWA(newsId) {
-            if (!currentLoggedAffiliate) {
-                alert('Silakan login ke akun Mitra Penghimpunan Anda terlebih dahulu agar Kode Mitra Anda otomatis terpasang!');
-                return;
-            }
-
+        function shareAffiliateNewsWA(newsId) {
+            const refCode = getActiveAffiliateRefCode();
             const n = wizStore.news ? wizStore.news.getById(newsId) : null;
             if (!n) return;
 
-            const refCode = getActiveAffiliateRefCode();
             const origin = (window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
             const newsUrl = `${origin}/berita/${encodeURIComponent(n.id)}?ref=${encodeURIComponent(refCode)}`;
 
-            const title = n.title || 'Kabar Kebaikan WIZ Bangka Belitung';
-            const excerpt = (n.content || '').slice(0, 150).replace(/\r?\n/g, ' ') + '...';
+            const title = n.title || 'Kabar Penyaluran & Kegiatan WIZ Bangka Belitung';
+            const excerpt = (n.content || '').slice(0, 150).replace(/\r?\n/g, ' ') + (n.content && n.content.length > 150 ? '...' : '');
 
-            const caption = `*${title}*\n\n${excerpt}\n\n_Baca selengkapnya & dukung program kebaikan ini:_\n${newsUrl}`;
-
-            // 1. Try Native Web Share API (Passes actual Image File + Caption directly into WhatsApp on Android / iOS)
-            const imgSource = n.imageUrl || 'assets/images/sedekah-beras-dhuafa.jpg';
-            if (navigator.share && navigator.canShare) {
-                try {
-                    const file = await urlOrBase64ToFile(imgSource, `kegiatan-wiz-${n.id || 'berita'}.jpg`);
-                    if (file && navigator.canShare({ files: [file] })) {
-                        await navigator.share({
-                            title: title,
-                            text: caption,
-                            files: [file]
-                        });
-                        return;
-                    }
-                } catch (err) {
-                    if (err.name === 'AbortError') return; // User closed share sheet
-                    console.log('Native share fallback to WA URL:', err);
-                }
-            }
-
-            // 2. Fallback to WhatsApp URL directly (Desktop / Web without file share)
-            const msgText = `*${title}*\n\n${excerpt}\n\nBaca selengkapnya & dukung program kebaikan ini:\n\n${newsUrl}`;
-            window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(msgText), '_blank');
+            // Exact standard format with double newline before URL for WhatsApp Rich Link Card
+            const caption = `*${title}*\n\n${excerpt}\n\n${newsUrl}`;
+            window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(caption), '_blank');
         }
 
         function downloadAffiliateNewsImage(newsId) {

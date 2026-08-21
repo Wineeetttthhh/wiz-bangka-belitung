@@ -458,23 +458,32 @@
             document.body.style.overflow = '';
         }
 
+        function getPageRefCode() {
+            return (new URLSearchParams(window.location.search).get('ref') || sessionStorage.getItem('wiz_active_ref_id') || '').trim();
+        }
+
         function shareDirectWA(id) {
             if (!window.wizStore || !window.wizStore.news) return;
             const n = wizStore.news.getById(id);
             if (!n) return;
             const title = n.title || 'Berita WIZ Bangka Belitung';
+            const excerpt = (n.content || '').slice(0, 150).replace(/\r?\n/g, ' ') + (n.content && n.content.length > 150 ? '...' : '');
+            const refCode = getPageRefCode();
             const baseOrigin = 'https://www.wizbangkabelitung.or.id';
-            const shareUrl = `${baseOrigin}/berita/${encodeURIComponent(n.id)}`;
-            const shareText = `*${title}*\n\nBaca selengkapnya dokumentasi kegiatan ini:\n\n${shareUrl}`;
+            const shareUrl = `${baseOrigin}/berita/${encodeURIComponent(n.id)}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
+            // Exact standard format: *[JUDUL]*\n\n[Deskripsi]\n\n[URL]
+            const shareText = `*${title}*\n\n${excerpt}\n\n${shareUrl}`;
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
         }
 
         function shareArticleModal(platform) {
             if (!currentModalArticle) return;
             const title = currentModalArticle.title || 'Berita WIZ Bangka Belitung';
+            const excerpt = (currentModalArticle.content || '').slice(0, 150).replace(/\r?\n/g, ' ') + (currentModalArticle.content && currentModalArticle.content.length > 150 ? '...' : '');
+            const refCode = getPageRefCode();
             const baseOrigin = 'https://www.wizbangkabelitung.or.id';
-            const shareUrl = `${baseOrigin}/berita/${encodeURIComponent(currentModalArticle.id)}`;
-            const shareText = `*${title}*\n\nBaca selengkapnya dokumentasi kegiatan ini:\n\n${shareUrl}`;
+            const shareUrl = `${baseOrigin}/berita/${encodeURIComponent(currentModalArticle.id)}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
+            const shareText = `*${title}*\n\n${excerpt}\n\n${shareUrl}`;
 
             if (platform === 'wa') {
                 window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');

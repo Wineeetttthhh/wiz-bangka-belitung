@@ -959,10 +959,12 @@
     function shareArticle(platform) {
         if (!currentShareArticle) return;
         const title = currentShareArticle.title || 'Berita WIZ Bangka Belitung';
-        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const baseOrigin = isLocal ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
-        const shareUrl = `${baseOrigin}/berita/${currentShareArticle.id}`;
-        const shareText = `*${title}*\n\n${shareUrl}`;
+        const excerpt = (currentShareArticle.content || '').slice(0, 150).replace(/\r?\n/g, ' ') + (currentShareArticle.content && currentShareArticle.content.length > 150 ? '...' : '');
+        const activeRef = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || '');
+        const baseOrigin = 'https://www.wizbangkabelitung.or.id';
+        const shareUrl = `${baseOrigin}/berita/${encodeURIComponent(currentShareArticle.id)}${activeRef ? '?ref=' + encodeURIComponent(activeRef) : ''}`;
+        // Standard text format: *[JUDUL]*\n\n[Deskripsi]\n\n[URL]
+        const shareText = `*${title}*\n\n${excerpt}\n\n${shareUrl}`;
 
         if (platform === 'wa') {
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
@@ -979,7 +981,7 @@
                     toast.classList.remove('hidden');
                     setTimeout(() => toast.classList.add('hidden'), 3000);
                 } else {
-                    alert('Tautan berita dengan kartu foto berhasil disalin ke clipboard!');
+                    alert('Tautan berita berhasil disalin ke clipboard!');
                 }
             });
         }

@@ -265,7 +265,7 @@ module.exports = async function handler(req, res) {
     <script>
         function shareWhatsApp() {
             const shareUrl = '${canonicalUrl}';
-            const quoteText = '*${escapeHtml(quote.source || 'Quote & Inspirasi WIZ')}*\\n\\n"${escapeHtml(quote.text)}"\\n\\nMari raih keberkahan dengan berinfak melalui WIZ Bangka Belitung:\\n\\n' + shareUrl;
+            const quoteText = '*${escapeHtml(quote.source || 'Quote & Inspirasi Harian')}*\\n\\n"${escapeHtml(quote.text)}"\\n\\n' + shareUrl;
             const url = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(quoteText);
             window.open(url, '_blank');
         }

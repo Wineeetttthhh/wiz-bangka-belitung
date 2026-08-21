@@ -87,9 +87,8 @@ window.getActiveAffiliateRef = getActiveAffiliateRef;
 
 function shareProgram(title, desc = '', customUrl = '', customImg = '') {
     const cleanTitle = (title || 'Program Kebaikan').trim();
-    const cleanDesc = (desc || `Mari salurkan Zakat, Infak, dan Sedekah untuk program ${cleanTitle} WIZ Bangka Belitung.`).trim();
+    const cleanDesc = (desc || `Mari bersama menyalurkan Zakat, Infak, dan Sedekah untuk program ${cleanTitle} melalui Laznas WIZ Bangka Belitung.`).trim();
     const refCode = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || '');
-    const origin = (window.location.origin && window.location.origin.includes('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
     
     // Generate clean SSR slug URL
     const slug = cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-');
@@ -105,18 +104,10 @@ function shareProgram(title, desc = '', customUrl = '', customImg = '') {
         if (params.length > 0) fullUrl += `?${params.join('&')}`;
     }
     
-    const waText = `*${cleanTitle}*\n\n${cleanDesc}\n\nSalurkan donasi terbaik Anda melalui tautan resmi:\n\n${fullUrl}`;
-    
-    if (navigator.share) {
-        navigator.share({
-            title: `${cleanTitle} — WIZ Bangka Belitung`,
-            text: waText,
-            url: fullUrl
-        }).catch(() => {});
-    } else {
-        const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(waText);
-        window.open(waUrl, '_blank');
-    }
+    // Exact standard text format: *[JUDUL]*\n\n[Deskripsi]\n\n[URL]
+    const waText = `*${cleanTitle}*\n\n${cleanDesc}\n\n${fullUrl}`;
+    const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(waText);
+    window.open(waUrl, '_blank');
 }
 window.shareProgram = shareProgram;
 
@@ -182,9 +173,9 @@ function initHomeQuoteSection() {
 
     window.shareHomeQuoteWA = function() {
         const flyerUrl = `${origin}/flyer/${encodeURIComponent(today.id)}${activeRef ? '?ref=' + encodeURIComponent(activeRef) : ''}`;
-        const title = today.source ? today.source : (today.category || 'Quote & Inspirasi Dakwah');
-        const quoteBody = today.text ? `"${today.text}"` : '';
-        const caption = `*${title}*\n\n${quoteBody}\n\nBaca selengkapnya & salurkan infak terbaik melalui tautan resmi:\n\n${flyerUrl}`;
+        const title = today.source ? today.source : (today.category || 'Quote & Inspirasi Harian');
+        const quoteBody = today.text ? `"${today.text}"` : 'Mari menebar inspirasi kebaikan dan kepedulian bersama WIZ Bangka Belitung.';
+        const caption = `*${title}*\n\n${quoteBody}\n\n${flyerUrl}`;
         window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(caption), '_blank');
     };
 }

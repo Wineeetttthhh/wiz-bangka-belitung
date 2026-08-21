@@ -3396,7 +3396,7 @@
                             <span class="material-symbols-outlined text-sm">open_in_new</span>
                             <span>Lihat</span>
                         </a>
-                        <a href="https://api.whatsapp.com/send?text=${encodeURIComponent('*' + n.title + '*\n\nhttps://www.wizbangkabelitung.or.id/berita/' + n.id + '?t=' + (new Date(n.updatedAt || n.createdAt || Date.now()).getTime()))}" target="_blank" class="flex-1 md:flex-none flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl border border-[#25D366]/40 text-[#128C7E] hover:bg-[#25D366]/10 font-label-md text-caption font-bold transition-colors cursor-pointer bg-surface" title="Bagikan ke WhatsApp Story / Chat dengan Foto">
+                        <a href="https://api.whatsapp.com/send?text=${encodeURIComponent('*' + (n.title || 'Berita WIZ Babel') + '*\n\n' + (n.content ? n.content.slice(0, 120).replace(/\r?\n/g, ' ') + '...\n\n' : '') + 'https://www.wizbangkabelitung.or.id/berita/' + encodeURIComponent(n.id))}" target="_blank" class="flex-1 md:flex-none flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl border border-[#25D366]/40 text-[#128C7E] hover:bg-[#25D366]/10 font-label-md text-caption font-bold transition-colors cursor-pointer bg-surface" title="Bagikan ke WhatsApp">
                             <span class="material-symbols-outlined text-sm">share</span>
                             <span>Share WA</span>
                         </a>
@@ -5721,7 +5721,7 @@
             refreshAll();
         }
 
-        async function shareAdminQuoteWA(id) {
+        function shareAdminQuoteWA(id) {
             const q = wizStore.quotes ? wizStore.quotes.getById(id) : null;
             if (!q) return;
 
@@ -5729,29 +5729,10 @@
             const rawSource = (q.source || '').trim();
             const flyerUrl = `https://www.wizbangkabelitung.or.id/flyer/${encodeURIComponent(q.id)}`;
 
-            let messageParts = [`*${rawSource || 'INSPIRASI & DAKWAH HARIAN WIZ BABEL'}*`];
-            if (rawText && rawText !== '.') messageParts.push(`\n"${rawText}"`);
-            messageParts.push(`\nMari raih keberkahan hari ini dengan berinfak melalui Wahdah Inspirasi Zakat Bangka Belitung:\n\n${flyerUrl}`);
-
-            const fullText = messageParts.join('\n');
-
-            if (navigator.share && navigator.canShare && q.imageUrl) {
-                try {
-                    const resp = await fetch(q.imageUrl);
-                    const blob = await resp.blob();
-                    const file = new File([blob], `flyer-wiz-${q.date || 'today'}.jpg`, { type: blob.type || 'image/jpeg' });
-                    if (navigator.canShare({ files: [file] })) {
-                        await navigator.share({
-                            title: 'Flyer Dakwah Harian WIZ Babel',
-                            text: fullText,
-                            files: [file]
-                        });
-                        return;
-                    }
-                } catch(e) {
-                    if (e.name === 'AbortError') return;
-                }
-            }
+            const title = rawSource || 'Quote & Inspirasi Harian';
+            const quoteBody = (rawText && rawText !== '.') ? `"${rawText}"` : 'Mari menebar inspirasi kebaikan dan kepedulian bersama WIZ Bangka Belitung.';
+            // Exact standard format with double newline before URL for WhatsApp Rich Link Card
+            const fullText = `*${title}*\n\n${quoteBody}\n\n${flyerUrl}`;
 
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(fullText)}`, '_blank');
         }

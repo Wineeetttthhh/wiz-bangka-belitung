@@ -575,19 +575,9 @@ module.exports = async function handler(req, res) {
 
     <script>
         function handleShareClick() {
-            const shareTitle = '${escapeHtml(title)} — WIZ Bangka Belitung';
-            const shareText = '*${escapeHtml(title)}*\\n\\n${escapeHtml(description)}\\n\\nSalurkan donasi terbaik Anda melalui tautan resmi:\\n\\n${escapeHtml(canonicalUrl)}';
-            
-            if (navigator.share) {
-                navigator.share({
-                    title: shareTitle,
-                    text: shareText,
-                    url: '${escapeHtml(canonicalUrl)}'
-                }).catch(() => {});
-            } else {
-                const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(shareText);
-                window.open(waUrl, '_blank');
-            }
+            const shareText = '*${escapeHtml(title)}*\\n\\n${escapeHtml(description)}\\n\\n${escapeHtml(canonicalUrl)}';
+            const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(shareText);
+            window.open(waUrl, '_blank');
         }
     </script>
 </body>
