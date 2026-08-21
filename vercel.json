@@ -68,6 +68,10 @@
   ],
   "rewrites": [
     {
+      "source": "/program/:slug",
+      "destination": "/api/program?slug=:slug"
+    },
+    {
       "source": "/berita/:id",
       "destination": "/api/berita?id=:id"
     },

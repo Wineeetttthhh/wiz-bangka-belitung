@@ -1331,13 +1331,55 @@
         window.location.href = url;
     }
 
+    function shareSpecificProgram(programTitle) {
+        const refCode = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || new URLSearchParams(window.location.search).get('perantara') || '');
+        const origin = window.location.origin.includes('http') ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
+        const progUrl = `${origin}/program.html?program=${encodeURIComponent(programTitle)}${refCode ? '&ref=' + encodeURIComponent(refCode) : ''}`;
+        
+        const shareTitle = `Bantu Program: ${programTitle} — WIZ Bangka Belitung`;
+        const shareText = `*Bantu Program: ${programTitle}*\n\nMari bersama berdonasi dan menebar manfaat melalui program resmi WIZ Bangka Belitung:\n${progUrl}`;
+
+        if (navigator.share) {
+            navigator.share({
+                title: shareTitle,
+                text: shareText,
+                url: progUrl
+            }).catch(() => {});
+        } else {
+            const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(shareText);
+            window.open(waUrl, '_blank');
+        }
+    }
+
+    function injectShareButtonsOnCards() {
+        document.querySelectorAll('.program-card').forEach(card => {
+            if (card.querySelector('.btn-share-program')) return;
+            const titleEl = card.querySelector('h3, h4');
+            if (!titleEl) return;
+            const progTitle = (card.getAttribute('data-title') || titleEl.textContent).trim();
+            const btnContainer = card.querySelector('.p-lg, .card-body, .flex-col');
+            if (btnContainer) {
+                const shareBtn = document.createElement('button');
+                shareBtn.type = 'button';
+                shareBtn.className = 'btn-share-program w-full mt-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-label-md text-xs py-2 rounded-lg transition-colors flex items-center justify-center gap-1.5 font-semibold cursor-pointer border border-slate-200';
+                shareBtn.innerHTML = '<span class="material-symbols-outlined text-sm">share</span><span>Bagikan Program Ini</span>';
+                shareBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    shareSpecificProgram(progTitle);
+                };
+                btnContainer.appendChild(shareBtn);
+            }
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
+        injectShareButtonsOnCards();
         document.querySelectorAll('.program-card').forEach(card => {
             const btn = card.querySelector('button[onclick]');
             if (btn) {
                 card.style.cursor = 'pointer';
                 card.addEventListener('click', (e) => {
-                    if (e.target.tagName === 'BUTTON') return;
+                    if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
                     btn.click();
                 });
             }
@@ -1347,6 +1389,7 @@
         if (window.wizStore && window.wizStore.syncFromCloud) {
             await window.wizStore.syncFromCloud();
             updateDynamicProgramCards();
+            injectShareButtonsOnCards();
         }
 
         // Auto-scroll and highlight target program from URL parameter

@@ -38,6 +38,7 @@
         ALLOCATION_RULES: 'wiz_allocation_rules',
         REFERRALS: 'wiz_referrals',
         REFERRAL_PAYOUTS: 'wiz_referral_payouts',
+        DONOR_ATTRIBUTIONS: 'wiz_donor_attributions',
         QUOTES: 'wiz_quotes',
         DELETED_IDS: 'wiz_deleted_donation_ids',
         DELETED_NEWS_IDS: 'wiz_deleted_news_ids',
@@ -925,10 +926,10 @@
                 }
             }
 
-            // 3. Check DEFAULT_PROGRAM_IMAGES mapping
-            if (typeof DEFAULT_PROGRAM_IMAGES !== 'undefined') {
-                if (DEFAULT_PROGRAM_IMAGES[programName]) return DEFAULT_PROGRAM_IMAGES[programName];
-                for (const [k, v] of Object.entries(DEFAULT_PROGRAM_IMAGES)) {
+            // 3. Check DEFAULT_SPECIFIC_PROGRAM_IMAGES mapping
+            if (typeof DEFAULT_SPECIFIC_PROGRAM_IMAGES !== 'undefined') {
+                if (DEFAULT_SPECIFIC_PROGRAM_IMAGES[programName]) return DEFAULT_SPECIFIC_PROGRAM_IMAGES[programName];
+                for (const [k, v] of Object.entries(DEFAULT_SPECIFIC_PROGRAM_IMAGES)) {
                     const cleanK = String(k).trim().toLowerCase().replace(/[^a-z0-9]/g, '');
                     if (cleanK === cleanQuery || cleanQuery.includes(cleanK) || cleanK.includes(cleanQuery)) {
                         return v;
@@ -1626,6 +1627,93 @@
     }
 
     // ─── Donations Module ─────────────────────────────────
+    // ─── Donor Attributions Manager (Lifetime Recurring Donor Locking) ──
+    const donorAttributionsManager = {
+        getAll() {
+            return getStore(STORAGE_KEYS.DONOR_ATTRIBUTIONS) || {};
+        },
+        normalizePhone(phone = '') {
+            let clean = String(phone).replace(/[^0-9]/g, '');
+            if (clean.startsWith('0')) clean = '62' + clean.slice(1);
+            if (clean.startsWith('08')) clean = '628' + clean.slice(2);
+            return clean;
+        },
+        getAttribution(phone, email = '') {
+            const all = this.getAll();
+            const cleanPhone = this.normalizePhone(phone);
+            if (cleanPhone && all[cleanPhone]) return all[cleanPhone];
+            if (email) {
+                const cleanEmail = String(email).trim().toLowerCase();
+                if (all[cleanEmail]) return all[cleanEmail];
+                for (const item of Object.values(all)) {
+                    if (item && item.email && item.email.toLowerCase() === cleanEmail) {
+                        return item;
+                    }
+                }
+            }
+            return null;
+        },
+        getMitraForDonor(phone, email = '') {
+            const attr = this.getAttribution(phone, email);
+            return attr ? (attr.mitraId || attr.referralId || null) : null;
+        },
+        lockDonor(phone, email, mitraId, donorName = '') {
+            if (!mitraId) return null;
+            const cleanPhone = this.normalizePhone(phone);
+            const cleanEmail = email ? String(email).trim().toLowerCase() : '';
+            if (!cleanPhone && !cleanEmail) return null;
+
+            const all = this.getAll();
+            const existing = this.getAttribution(cleanPhone, cleanEmail);
+            if (existing && (existing.mitraId || existing.referralId)) {
+                // Permanently locked to initial mitra, preserving lifetime recurring attribution
+                return existing;
+            }
+
+            const record = {
+                phone: cleanPhone || '',
+                email: cleanEmail || '',
+                donorName: donorName || (existing ? existing.donorName : '') || 'Hamba Allah',
+                mitraId: mitraId,
+                lockedAt: new Date().toISOString(),
+                isRecurringLocked: true
+            };
+
+            if (cleanPhone) all[cleanPhone] = record;
+            if (cleanEmail) all[cleanEmail] = record;
+            setStore(STORAGE_KEYS.DONOR_ATTRIBUTIONS, all);
+
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    window.wizSupabase.upsert('donor_attributions', {
+                        phone: cleanPhone,
+                        email: cleanEmail,
+                        donor_name: donorName,
+                        mitra_id: mitraId,
+                        locked_at: record.lockedAt
+                    });
+                } catch(e) {}
+            }
+
+            console.log(`[WIZ Attribution Locking] Donor ${donorName} (${cleanPhone}) permanently attributed to Mitra: ${mitraId}`);
+            return record;
+        },
+        getDonorsByMitra(mitraId) {
+            if (!mitraId) return [];
+            const all = this.getAll();
+            const map = new Map();
+            Object.values(all).forEach(item => {
+                if (item && (item.mitraId === mitraId || item.referralId === mitraId)) {
+                    const key = item.phone || item.email;
+                    if (key && !map.has(key)) {
+                        map.set(key, item);
+                    }
+                }
+            });
+            return Array.from(map.values());
+        }
+    };
+
     const donations = {
         getAll() {
             const deletedSet = getDeletedIds();
@@ -1676,8 +1764,26 @@
             const programUtama = donation.programUtama || mapProgramToPillar(programSpesifik, donation.category) || '-';
 
             const donationAmount = Number(donation.amount) || 0;
+
+            // ── Lifetime Recurring Donor Attribution Locking ──
+            let refId = donation.referralId || null;
+            let isRecurring = false;
+            const donorPhone = donation.donorPhone || '';
+            const donorEmail = donation.donorEmail || '';
+
+            const lockedMitraId = donorAttributionsManager.getMitraForDonor(donorPhone, donorEmail);
+            if (lockedMitraId) {
+                // Donor was previously acquired by a Mitra -> Retain attribution forever for recurring donation
+                refId = lockedMitraId;
+                isRecurring = true;
+            } else if (refId) {
+                // First-time donor coming via referral link -> Lock to this initial Mitra
+                donorAttributionsManager.lockDonor(donorPhone, donorEmail, refId, donation.donorName);
+                isRecurring = false;
+            }
+
             const refRate = donation.referralRate !== undefined ? Number(donation.referralRate) : 6;
-            const refFee = donation.referralId ? (donation.referralFee !== undefined ? Number(donation.referralFee) : Math.round(donationAmount * (refRate / 100))) : 0;
+            const refFee = refId ? (donation.referralFee !== undefined ? Number(donation.referralFee) : Math.round(donationAmount * (refRate / 100))) : 0;
             const addBonus = Number(donation.additionalBonus) || 0;
 
             const newDonation = {
@@ -1692,10 +1798,11 @@
                 alokasiOperasional,
                 alokasiProgram,
                 // Referal / Perantara
-                referralId: donation.referralId || null,
+                referralId: refId,
                 referralRate: refRate,
                 referralFee: refFee,
                 additionalBonus: addBonus,
+                isRecurringDonor: isRecurring,
                 // Legacy (agar kompatibel dengan render yang sudah ada)
                 program: programSpesifik,
                 category: programUtama,
@@ -1715,7 +1822,8 @@
 
             const wilayahLabel = newDonation.wilayah !== '-' ? ` [${newDonation.wilayah}]` : '';
             const msgStatus = newDonation.status === 'verified' ? 'langsung diverifikasi' : 'menunggu verifikasi';
-            activityLog.add('donation_in', `Donasi ${formatRupiahCompact(newDonation.amount)} dari ${newDonation.donorName}${wilayahLabel} (${msgStatus}).`, donation.verifiedBy || 'Admin');
+            const recurringLabel = isRecurring ? ' [Donatur Tetap Mitra]' : '';
+            activityLog.add('donation_in', `Donasi ${formatRupiahCompact(newDonation.amount)} dari ${newDonation.donorName}${wilayahLabel}${recurringLabel} (${msgStatus}).`, donation.verifiedBy || 'Admin');
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 await window.wizFirebase.insert('donations', newDonation);
@@ -3488,6 +3596,7 @@
         siteSettings: siteSettingsManager,
         adminUsers,
         referrals,
+        donorAttributions: donorAttributionsManager,
         quotes,
         allocationRulesManager,
         activity: activityLog,

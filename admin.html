@@ -2443,7 +2443,8 @@
                     const refObj = wizStore.referrals.getById(d.referralId);
                     if (refObj) {
                         const rate = d.referralRate !== undefined ? d.referralRate : 6;
-                        refBadge = `<div class="text-[11px] text-amber-800 font-bold flex items-center gap-1 mt-0.5"><span class="material-symbols-outlined text-[13px] text-amber-600">handshake</span> Mitra: ${refObj.name} (${rate}%)</div>`;
+                        const recurringBadge = d.isRecurringDonor ? '<span class="px-1.5 py-0.5 rounded text-[9px] bg-purple-100 text-purple-800 font-bold ml-1">Donatur Tetap</span>' : '';
+                        refBadge = `<div class="text-[11px] text-amber-800 font-bold flex items-center gap-1 mt-0.5 flex-wrap"><span class="material-symbols-outlined text-[13px] text-amber-600">handshake</span> Mitra: ${refObj.name} (${rate}%)${recurringBadge}</div>`;
                     }
                 }
 
