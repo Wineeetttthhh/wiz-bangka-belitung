@@ -293,8 +293,11 @@
             <table class="w-full text-left border-collapse" id="report-table">
                 <thead>
                     <tr class="bg-surface-container text-on-surface font-label-md text-label-md border-b border-outline-variant/30">
-                        <th class="p-md font-bold">Nama Program</th>
-                        <th class="p-md font-bold text-right">Dana Masuk</th>
+                        <th class="p-md font-bold">Nama Program / Pilar</th>
+                        <th class="p-md font-bold text-right">
+                            <span>Dana Masuk</span>
+                            <p class="font-caption text-[10px] text-outline font-normal normal-case">(inkl. distribusi Infak Umum)</p>
+                        </th>
                         <th class="p-md font-bold text-right">Dana Tersalurkan</th>
                         <th class="p-md font-bold text-right">Saldo Per Program</th>
                         <th class="p-md font-bold text-center">Status</th>
@@ -429,8 +432,10 @@
         if (elDonatur) { elDonatur.textContent = stats.totalDonatur.toLocaleString('id-ID'); elDonatur.title = `${stats.totalDonatur} Donatur Terverifikasi`; }
 
         // Table render — show specific programs with full names like WIZ Berkah Hidayah (Pembangunan Markaz)
+        // getPerSpecificProgram already distributes Infak Umum proportionally per wilayah allocation rules
         const filterWilayah = document.getElementById('pub-filter-wilayah') ? document.getElementById('pub-filter-wilayah').value : 'Pangkalpinang';
         const specificProgs = wizStore.finance.getPerSpecificProgram(filterWilayah);
+        const perPillars = wizStore.finance.getPerProgram(filterWilayah);
         const tbody = document.getElementById('report-table-body');
         if (tbody) {
             if (specificProgs.length === 0) {
@@ -439,23 +444,66 @@
                         <td colspan="5" class="p-xl text-center text-on-surface-variant">
                             <div class="flex flex-col items-center justify-center gap-xs py-md">
                                 <span class="material-symbols-outlined text-4xl text-outline mb-xs">analytics</span>
-                                <p class="font-headline-md text-headline-md font-bold text-on-surface">Belum Ada Data Penyaluran & Penerimaan</p>
+                                <p class="font-headline-md text-headline-md font-bold text-on-surface">Belum Ada Data Penyaluran &amp; Penerimaan</p>
                                 <p class="font-body-md text-caption text-on-surface-variant max-w-md mt-xs">Rincian pergerakan per program akan ditampilkan secara otomatis setelah ada pencatatan penyaluran atau penerimaan donasi dari admin.</p>
                             </div>
                         </td>
                     </tr>`;
             } else {
-                tbody.innerHTML = specificProgs.map(sp => `
-                    <tr class="hover:bg-surface-container-low transition-colors">
-                        <td class="p-md text-on-surface font-semibold flex items-center gap-2">
-                            ${sp.image ? `<img src="${sp.image}" class="w-6 h-6 rounded object-cover shrink-0" />` : ''}
-                            <span>${sp.displayLabel}</span>
+                // Group rows by pillar to show pillar subtotals
+                const pillarOrder = ['Berkah Hidayah', 'Berkah Juara', 'Berkah Peduli', 'Berkah Sehat', 'Berkah Mandiri'];
+                const pillarColors = {
+                    'Berkah Hidayah': 'bg-emerald-700',
+                    'Berkah Juara': 'bg-blue-700',
+                    'Berkah Peduli': 'bg-amber-600',
+                    'Berkah Sehat': 'bg-rose-700',
+                    'Berkah Mandiri': 'bg-purple-700'
+                };
+                const pillarLabels = {
+                    'Berkah Hidayah': 'Dakwah & Pembinaan',
+                    'Berkah Juara': 'Pendidikan & Beasiswa',
+                    'Berkah Peduli': 'Sosial & Kemanusiaan',
+                    'Berkah Sehat': 'Kesehatan',
+                    'Berkah Mandiri': 'Ekonomi & Kemandirian'
+                };
+
+                let rows = '';
+                pillarOrder.forEach(pillarKey => {
+                    const pillarItems = specificProgs.filter(sp => sp.pillarKey === pillarKey);
+                    if (pillarItems.length === 0) return;
+
+                    const pillarData = perPillars.find(pp => pp.key === pillarKey);
+                    const pillarTotal = pillarData ? pillarData.masuk : pillarItems.reduce((s, sp) => s + sp.masuk, 0);
+                    const pillarSalur = pillarData ? pillarData.tersalurkan : pillarItems.reduce((s, sp) => s + sp.tersalurkan, 0);
+                    const pillarSaldo = pillarData ? pillarData.saldo : Math.max(0, pillarTotal - pillarSalur);
+                    const colorClass = pillarColors[pillarKey] || 'bg-outline';
+                    const labelText = pillarLabels[pillarKey] || pillarKey;
+
+                    rows += `<tr class="bg-surface-container border-t border-outline-variant/40">
+                        <td colspan="5" class="px-md py-xs">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full ${colorClass} shrink-0"></span>
+                                <span class="font-label-md font-bold text-xs uppercase tracking-wider text-on-surface">${pillarKey} — ${labelText}</span>
+                                <span class="ml-auto font-caption text-[11px] text-on-surface-variant">Total Pilar: ${fmt(pillarTotal)}</span>
+                            </div>
                         </td>
-                        <td class="p-md text-right text-primary font-semibold">${fmt(sp.masuk)}</td>
-                        <td class="p-md text-right text-tertiary-container font-semibold">${fmt(sp.tersalurkan)}</td>
-                        <td class="p-md text-right font-bold text-on-surface">${fmt(sp.saldo)}</td>
-                        <td class="p-md text-center"><span class="px-sm py-xs ${sp.statusClass} rounded-full font-caption text-caption font-bold">${sp.status}</span></td>
-                    </tr>`).join('');
+                    </tr>`;
+
+                    pillarItems.forEach(sp => {
+                        rows += `<tr class="hover:bg-surface-container-low transition-colors">
+                            <td class="p-md text-on-surface font-semibold pl-xl flex items-center gap-2">
+                                ${sp.image ? `<img src="${sp.image}" class="w-6 h-6 rounded object-cover shrink-0" />` : '<span class="w-6 h-6 flex-none rounded bg-surface-container text-outline flex items-center justify-center text-[10px] font-bold">WIZ</span>'}
+                                <span>${sp.displayLabel}</span>
+                            </td>
+                            <td class="p-md text-right text-primary font-semibold text-sm">${fmt(sp.masuk)}</td>
+                            <td class="p-md text-right text-tertiary-container font-semibold text-sm">${fmt(sp.tersalurkan)}</td>
+                            <td class="p-md text-right font-bold text-on-surface text-sm">${fmt(sp.saldo)}</td>
+                            <td class="p-md text-center"><span class="px-sm py-xs ${sp.statusClass} rounded-full font-caption text-caption font-bold">${sp.status}</span></td>
+                        </tr>`;
+                    });
+                });
+
+                tbody.innerHTML = rows;
             }
         }
 
@@ -498,7 +546,15 @@
         if (!containerChart || !containerLegend || !window.wizStore) return;
 
         const fmt = wizStore.utils.formatRupiahCompact;
-        const specificProgs = wizStore.finance.getPerSpecificProgram(filterWilayah);
+        const perPillars = wizStore.finance.getPerProgram(filterWilayah);
+        
+        // Get fallback default percentages from allocation rules if no donations recorded yet
+        const wRules = (wizStore.allocationRulesManager ? wizStore.allocationRulesManager.get(filterWilayah) : null) 
+            || (wizStore.allocationRules ? (wizStore.allocationRules[filterWilayah] || wizStore.allocationRules['Pangkalpinang']) : null);
+        const ruleMap = new Map();
+        if (wRules && wRules.mainAllocation) {
+            wRules.mainAllocation.forEach(m => ruleMap.set(m.key, Number(m.percent) || 0));
+        }
 
         const pillarDefs = [
             { key: 'Berkah Hidayah', label: 'Dakwah (Berkah Hidayah)', color: '#047857', bg: 'bg-emerald-50 border-emerald-200 text-emerald-900', dot: 'bg-emerald-600' },
@@ -508,30 +564,34 @@
             { key: 'Berkah Mandiri', label: 'Ekonomi (Berkah Mandiri)', color: '#7e22ce', bg: 'bg-purple-50 border-purple-200 text-purple-900', dot: 'bg-purple-600' }
         ];
 
-        let grandTotal = 0;
+        let grandTotalMasuk = 0;
         const pillarStats = pillarDefs.map(p => {
-            const items = specificProgs.filter(sp => (sp.pillarKey || sp.pillar || '').includes(p.key) || (sp.displayLabel || '').includes(p.key));
-            const totalMasuk = items.reduce((sum, item) => sum + (Number(item.masuk) || 0), 0);
-            const totalSalur = items.reduce((sum, item) => sum + (Number(item.tersalurkan) || 0), 0);
-            const value = totalMasuk > 0 ? totalMasuk : totalSalur;
-            grandTotal += value;
+            const pData = perPillars.find(pp => pp.key === p.key);
+            const totalMasuk = pData ? Number(pData.masuk) || 0 : 0;
+            const totalSalur = pData ? Number(pData.tersalurkan) || 0 : 0;
+            const saldo = pData ? Number(pData.saldo) || 0 : 0;
+            grandTotalMasuk += totalMasuk;
+            const fallbackPct = ruleMap.get(p.key) || 20;
+
             return {
                 ...p,
                 totalMasuk,
                 totalSalur,
-                value
+                saldo,
+                fallbackPct
             };
         });
 
-        // Calculate percentage
+        // Calculate proportional percentage
+        const hasRealData = grandTotalMasuk > 0;
         pillarStats.forEach(p => {
-            p.percent = grandTotal > 0 ? Math.round((p.value / grandTotal) * 100) : 0;
+            p.percent = hasRealData ? Math.round((p.totalMasuk / grandTotalMasuk) * 100) : p.fallbackPct;
+            p.value = hasRealData ? p.totalMasuk : (grandTotalMasuk === 0 && p.totalSalur > 0 ? p.totalSalur : 0);
         });
 
-        const hasRealData = grandTotal > 0;
         const displayStats = pillarStats.map(p => ({
             ...p,
-            displayPercent: hasRealData ? (p.percent || 1) : 20
+            displayPercent: p.percent || 1
         }));
 
         // Render SVG Donut Chart
@@ -561,8 +621,8 @@
                     ${strokeSegments}
                 </svg>
                 <div class="absolute flex flex-col items-center justify-center text-center p-2">
-                    <span class="font-caption text-[11px] text-on-surface-variant font-semibold">Total Alokasi</span>
-                    <span class="font-headline-md font-bold text-primary text-base">${hasRealData ? fmt(grandTotal) : '100%'}</span>
+                    <span class="font-caption text-[11px] text-on-surface-variant font-semibold">Total Terdistribusi</span>
+                    <span class="font-headline-md font-bold text-primary text-base">${hasRealData ? fmt(grandTotalMasuk) : '100%'}</span>
                     <span class="text-[10px] text-outline font-semibold">5 Pilar WIZ</span>
                 </div>
             </div>`;
@@ -578,8 +638,8 @@
                     </div>
                 </div>
                 <div class="text-right shrink-0">
-                    <span class="font-headline-md font-bold text-sm block">${hasRealData ? p.percent + '%' : '20%'}</span>
-                    <span class="text-[10px] opacity-75 font-mono font-semibold">${fmt(p.value)}</span>
+                    <span class="font-headline-md font-bold text-sm block">${p.percent}%</span>
+                    <span class="text-[10px] opacity-75 font-mono font-semibold">${fmt(p.totalMasuk > 0 ? p.totalMasuk : p.totalSalur)}</span>
                 </div>
             </div>`).join('');
     }
@@ -679,14 +739,36 @@
             console.log('[Laporan] Auto-refreshed after cloud sync.');
         });
 
+        // Listen for specific data mutation events (verify, reject, add)
+        window.addEventListener('wiz-data-changed', () => {
+            renderPublicReport();
+            console.log('[Laporan] Auto-refreshed after data change event.');
+        });
+
         // Instant cloud sync on startup for multi-device parity
         if (window.wizStore && window.wizStore.syncFromCloud) {
             await window.wizStore.syncFromCloud(true);
             renderPublicReport();
         }
+
+        // Supabase real-time subscription: watch donations table for INSERT/UPDATE
+        if (window.wizSupabase && window.wizSupabase.client) {
+            try {
+                window.wizSupabase.client
+                    .channel('laporan_donations_rt')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'donations' }, async () => {
+                        console.log('[Laporan] Supabase realtime: donations changed, refreshing...');
+                        if (window.wizStore && window.wizStore.syncFromCloud) {
+                            await window.wizStore.syncFromCloud(true);
+                        }
+                        renderPublicReport();
+                    })
+                    .subscribe();
+            } catch (e) {
+                console.warn('[Laporan] Real-time subscription failed:', e.message);
+            }
+        }
     });
 </script>
 </body>
 </html>
-
-

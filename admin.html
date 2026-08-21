@@ -3044,6 +3044,9 @@
             try { if (typeof renderDashboardDonations === 'function') renderDashboardDonations(); } catch(e) {}
             try { if (typeof renderProgress5Berkah === 'function') renderProgress5Berkah(); } catch(e) {}
             
+            // Notify other open tabs / laporan.html to refresh
+            try { window.dispatchEvent(new CustomEvent('wiz-data-changed', { detail: { action: 'verify', id } })); } catch(e) {}
+            
             alert(`✅ Donasi ${fmt(d.amount)} dari ${d.donorName} berhasil diverifikasi! Dana otomatis terakumulasi di program "${progName}" dan tercatat di Supabase.`);
         }
 
@@ -3060,6 +3063,9 @@
             try { if (typeof renderFullDonationTable === 'function') renderFullDonationTable(); } catch(e) {}
             try { if (typeof renderDashboardDonations === 'function') renderDashboardDonations(); } catch(e) {}
             try { if (typeof renderProgress5Berkah === 'function') renderProgress5Berkah(); } catch(e) {}
+            
+            // Notify other open tabs / laporan.html to refresh
+            try { window.dispatchEvent(new CustomEvent('wiz-data-changed', { detail: { action: 'reject', id } })); } catch(e) {}
             
             alert(`❌ Donasi dari ${d.donorName} telah ditolak.`);
         }

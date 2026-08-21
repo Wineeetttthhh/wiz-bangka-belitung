@@ -2645,13 +2645,26 @@
                     const dProg = (d.programSpesifik || d.program || '').trim();
                     const dLower = dProg.toLowerCase();
 
+                    let matched = false;
                     for (const [fullName, spObj] of specificItemsMap.entries()) {
                         const keyLower = spObj.itemKey.toLowerCase();
                         const fullLower = fullName.toLowerCase();
 
                         if (dLower && (dLower === keyLower || dLower.includes(keyLower) || keyLower.includes(dLower) || fullLower.includes(dLower))) {
                             spObj.masuk += Number(d.amount) || 0;
+                            matched = true;
                             break;
+                        }
+                    }
+
+                    if (!matched) {
+                        const pillar = mapProgramToPillar(d.programSpesifik || d.program, d.programUtama || d.category);
+                        const pillarItems = Array.from(specificItemsMap.values()).filter(spObj => spObj.pillarKey === pillar);
+                        if (pillarItems.length > 0) {
+                            const totalSubPct = pillarItems.reduce((acc, pi) => acc + (pi.subPercent || 0), 0) || 100;
+                            pillarItems.forEach(pi => {
+                                pi.masuk += (Number(d.amount) || 0) * ((pi.subPercent || (100 / pillarItems.length)) / totalSubPct);
+                            });
                         }
                     }
                 }
