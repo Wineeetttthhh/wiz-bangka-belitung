@@ -284,19 +284,19 @@ module.exports = async function handler(req, res) {
 
     <!-- Top Navigation Bar -->
     <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
-        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-            <a href="${origin}" class="flex items-center gap-3 group">
-                <img src="${origin}/assets/images/logo-wiz-babel.png" alt="Logo WIZ Babel" class="h-10 w-auto object-contain group-hover:scale-105 transition-transform" onerror="this.src='${origin}/assets/images/logo-wiz-babel.png'"/>
-                <div>
-                    <span class="block font-headline font-bold text-base md:text-lg text-primary leading-tight">WIZ BANGKA BELITUNG</span>
-                    <span class="block text-[11px] text-slate-500 font-medium leading-none">Wahdah Inspirasi Zakat</span>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
+            <a href="${origin}" class="flex items-center gap-2.5 shrink-0 max-w-xs group">
+                <img src="${origin}/assets/images/logo-wiz-babel.png" alt="Logo WIZ Babel" class="h-9 sm:h-11 w-auto object-contain group-hover:scale-105 transition-transform" onerror="this.src='${origin}/assets/images/logo-wiz-babel.png'"/>
+                <div class="flex flex-col">
+                    <span class="block font-headline font-bold text-sm sm:text-base text-primary leading-tight whitespace-nowrap">WIZ BANGKA BELITUNG</span>
+                    <span class="block text-[10px] sm:text-[11px] text-slate-500 font-medium leading-none whitespace-nowrap">Wahdah Inspirasi Zakat</span>
                 </div>
             </a>
-            <div class="flex items-center gap-2">
-                <a href="${origin}/index.html#berita" class="hidden sm:inline-flex items-center gap-1 text-sm font-semibold text-slate-600 hover:text-primary px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors">
-                    <span class="material-symbols-outlined text-base">arrow_back</span> Berita Lainnya
+            <div class="flex items-center gap-3 shrink-0">
+                <a href="${origin}/berita" class="hidden sm:inline-flex items-center gap-1 text-sm font-semibold text-slate-600 hover:text-primary px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors whitespace-nowrap">
+                    <span class="material-symbols-outlined text-base">arrow_back</span> Semua Berita
                 </a>
-                <a href="${donateUrl}" class="inline-flex items-center gap-1.5 bg-secondary hover:bg-emerald-600 text-white font-bold px-4 py-2 rounded-xl text-sm shadow-sm hover:shadow-md transition-all active:scale-95">
+                <a href="${donateUrl}" class="inline-flex items-center gap-1.5 bg-secondary hover:bg-emerald-600 text-white font-bold px-4 py-2 rounded-xl text-xs sm:text-sm shadow-sm hover:shadow-md transition-all active:scale-95 whitespace-nowrap shrink-0">
                     <span class="material-symbols-outlined text-base">favorite</span> Donasi Sekarang
                 </a>
             </div>
@@ -310,7 +310,7 @@ module.exports = async function handler(req, res) {
         <nav class="flex items-center gap-2 text-xs md:text-sm text-slate-500 mb-4 flex-wrap">
             <a href="${origin}" class="hover:text-primary">Beranda</a>
             <span>/</span>
-            <a href="${origin}/index.html#berita" class="hover:text-primary">Berita & Kegiatan</a>
+            <a href="${origin}/berita" class="hover:text-primary">Berita &amp; Kegiatan</a>
             <span>/</span>
             <span class="text-primary font-semibold truncate max-w-xs">${escapeHtml(category)}</span>
         </nav>
