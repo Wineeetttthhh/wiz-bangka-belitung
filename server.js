@@ -79,6 +79,30 @@ try {
 const server = http.createServer((req, res) => {
     let reqUrl = req.url.split('?')[0];
 
+    // Dynamic Specific Program Open Graph Route (/program/:slug or /program?name=...)
+    if (reqUrl.startsWith('/program/') || (reqUrl === '/program' && req.url.includes('?'))) {
+        const apiFilePath = path.join(__dirname, 'api', 'program.js');
+        if (fs.existsSync(apiFilePath)) {
+            try {
+                res.status = function(code) { this.statusCode = code; return this; };
+                res.send = function(content) {
+                    if (!this.getHeader('Content-Type')) {
+                        this.setHeader('Content-Type', 'text/html; charset=utf-8');
+                    }
+                    this.writeHead(this.statusCode || 200);
+                    this.end(content);
+                    return this;
+                };
+                delete require.cache[require.resolve(apiFilePath)];
+                const handler = require(apiFilePath);
+                handler(req, res);
+                return;
+            } catch (err) {
+                console.error('[Program Dev Router Error]', err);
+            }
+        }
+    }
+
     // Dynamic News / Berita Open Graph Route (/berita/:id)
     if (reqUrl.startsWith('/berita')) {
         const apiFilePath = path.join(__dirname, 'api', 'berita.js');
