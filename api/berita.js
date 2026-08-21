@@ -219,7 +219,7 @@ module.exports = async function handler(req, res) {
     const excerpt = rawContent.slice(0, 180).replace(/\r?\n|\r/g, ' ') + (rawContent.length > 180 ? '...' : '');
     const canonicalUrl = `${origin}/berita/${encodeURIComponent(article.id)}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
     const donateUrl = `${origin}/donasi.html${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
-    const portalUrl = `${origin}/index.html?newsId=${encodeURIComponent(article.id)}${refCode ? '&ref=' + encodeURIComponent(refCode) : ''}#berita`;
+    const portalUrl = `${origin}/berita`;
     const formattedDate = formatDateIndo(eventDate);
 
     // Full responsive HTML with Social Media Open Graph Cards & 30-day Affiliate Engine

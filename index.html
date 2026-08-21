@@ -602,9 +602,21 @@
                 <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">Berita &amp; Kegiatan Terbaru</h2>
                 <p class="font-body-lg text-body-lg text-on-surface-variant">Dokumentasi foto kegiatan dan tanggal penyaluran donasi WIZ Bangka Belitung.</p>
             </div>
+            <a href="berita.html" class="hidden sm:inline-flex items-center gap-1.5 text-primary hover:text-primary-container font-label-md text-caption font-bold transition-colors">
+                <span>Lihat Semua Berita</span>
+                <span class="material-symbols-outlined text-sm">arrow_forward</span>
+            </a>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter" id="public-news-grid">
+        </div>
+
+        <!-- Tombol Call to Action: Lihat Semua Berita & Kegiatan -->
+        <div class="flex justify-center pt-md">
+            <a href="berita.html" class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-extrabold text-sm sm:text-base px-8 py-3.5 rounded-full shadow-lg hover:shadow-emerald-600/30 transition-all hover:scale-105 cursor-pointer">
+                <span>Lihat Semua Berita &amp; Kegiatan</span>
+                <span class="material-symbols-outlined text-lg">arrow_forward</span>
+            </a>
         </div>
     </div>
 </section>
@@ -973,10 +985,12 @@
         }
     }
 
-    // Dynamic Public News Render with Cover Photos, Event Date & Photo Indicator
+    // Dynamic Public News Render (Limited to 3 latest items on Homepage)
     function renderPublicNews() {
         if (!window.wizStore) return;
-        const publishedNews = wizStore.news.getPublished();
+        const allPublished = wizStore.news.getPublished();
+        // Limit strictly to 3 latest news items on Homepage
+        const publishedNews = (allPublished || []).slice(0, 3);
         const grid = document.getElementById('public-news-grid');
         if (!grid) return;
 

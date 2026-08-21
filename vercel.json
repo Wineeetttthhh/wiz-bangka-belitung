@@ -97,7 +97,7 @@
     },
     {
       "source": "/berita",
-      "destination": "/index.html#berita"
+      "destination": "/berita.html"
     }
   ]
 }

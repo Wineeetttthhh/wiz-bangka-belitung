@@ -180,31 +180,28 @@
             <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="index.html">Beranda</a>
             <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="index.html#tentang-kami">Tentang Kami</a>
             <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="program.html">Program</a>
-            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="laporan.html">Laporan</a>
-            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="index.html#berita">Berita</a>
-            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="index.html#kontak">Kontak</a>
-        </div>
+            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="laporan.html">Laporan Transparansi</a>
+            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1" href="berita.html">Berita</a>
+        </nav>
 
-        <div class="flex items-center gap-sm">
-            <button onclick="openDonationModal('Donasi Umum')" class="hidden md:flex bg-secondary-container text-on-secondary font-label-md text-label-md px-lg py-sm rounded-lg hover:opacity-90 transition-opacity active:scale-95 shadow-sm font-bold items-center gap-xs cursor-pointer">
-                <span class="material-symbols-outlined text-sm">favorite</span>
+        <div class="flex items-center gap-xs">
+            <a href="donasi.html" class="inline-flex items-center gap-1.5 bg-[#F7941D] hover:bg-[#e08416] text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-label-md text-caption sm:text-label-md font-bold shadow-sm transition-transform active:scale-95">
+                <span class="material-symbols-outlined text-[18px]">favorite</span>
                 <span>Donasi Sekarang</span>
-            </button>
-
-            <!-- Mobile Hamburger Button -->
-            <button id="mobile-menu-btn" class="md:hidden p-xs text-on-surface-variant hover:text-primary transition-colors focus:outline-none cursor-pointer">
-                <span class="material-symbols-outlined text-2xl" id="menu-icon">menu</span>
+            </a>
+            
+            <button id="mobile-menu-btn" class="md:hidden text-on-surface p-xs rounded-lg hover:bg-surface-container transition-colors" aria-label="Menu">
+                <span class="material-symbols-outlined" id="menu-icon">menu</span>
             </button>
         </div>
     </div>
 
-    <!-- Mobile Dropdown Menu -->
-    <div id="mobile-menu" class="hidden md:hidden border-t border-outline-variant/30 bg-surface px-margin-mobile py-md space-y-md shadow-lg">
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-menu" class="hidden md:hidden bg-surface border-b border-surface-variant px-margin-mobile py-md space-y-sm">
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="index.html">Beranda</a>
-        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="index.html#tentang-kami">Tentang Kami</a>
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="program.html">Program</a>
-        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="laporan.html">Laporan</a>
-        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="index.html#berita">Berita</a>
+        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="laporan.html">Laporan Transparansi</a>
+        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="berita.html">Berita</a>
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="index.html#kontak">Kontak</a>
         <button onclick="openDonationModal('Donasi Umum')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md px-lg py-sm rounded-lg hover:opacity-90 transition-opacity active:scale-95 shadow-sm font-bold flex items-center justify-center gap-xs mt-2 cursor-pointer">
             <span class="material-symbols-outlined text-sm">favorite</span>
