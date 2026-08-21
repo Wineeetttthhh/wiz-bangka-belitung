@@ -86,44 +86,55 @@
 
 <body class="bg-slate-50 text-on-surface antialiased min-h-screen flex flex-col font-sans">
 
-    <!-- Top Navigation Header -->
+    <!-- Dedicated Isolated Portal Fundraising Header -->
     <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <a href="index.html" class="flex items-center gap-3 group">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+            <!-- Left: Brand Logo + Sub-label MITRA PENGHIMPUNAN -->
+            <a href="affiliate.html" class="flex items-center gap-3 group shrink-0">
                 <img src="assets/images/logo-wiz-official.png" onerror="this.onerror=null; this.src='assets/images/logo-wiz-babel.png';" alt="WIZ Babel" class="h-10 w-auto object-contain">
                 <div class="border-l border-slate-300 pl-3">
                     <span class="block font-extrabold text-sm text-slate-900 tracking-tight leading-none">WIZ Babel</span>
-                    <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Mitra Penghimpunan</span>
+                    <span class="text-[10px] text-emerald-700 font-bold uppercase tracking-wider">Mitra Penghimpunan</span>
                 </div>
             </a>
 
-            <nav class="hidden md:flex items-center gap-6 text-sm font-semibold text-slate-700">
-                <a href="index.html" class="hover:text-primary transition-colors">Beranda</a>
-                <a href="program.html" class="hover:text-primary transition-colors">Program</a>
-                <a href="donasi.html" class="hover:text-primary transition-colors">Donasi Langsung</a>
-                <a href="laporan.html" class="hover:text-primary transition-colors">Laporan</a>
-                <a href="affiliate.html" class="text-primary font-bold border-b-2 border-primary pb-0.5">Portal Fundraising</a>
-            </nav>
+            <!-- Right: Dynamic User Profile & Header Actions -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- State: Logged Out Header Action -->
+                <div id="header-guest-actions" class="flex items-center gap-2">
+                    <a href="index.html" class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 hover:text-slate-900 transition-colors">
+                        <span class="material-symbols-outlined text-sm">home</span>
+                        <span class="hidden sm:inline">Ke Website Utama</span>
+                        <span class="sm:hidden">Web Utama</span>
+                    </a>
+                </div>
 
-            <div class="flex items-center gap-3">
-                <a href="donasi.html"
-                    class="hidden md:flex bg-secondary text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-md hover:bg-amber-600 transition-all items-center gap-1.5">
-                    <span class="material-symbols-outlined text-base">favorite</span>
-                    <span>Donasi Sekarang</span>
-                </a>
-                <button id="aff-mobile-menu-btn" onclick="toggleAffMobileMenu()" class="md:hidden p-2 text-slate-700 hover:text-primary focus:outline-none cursor-pointer">
-                    <span class="material-symbols-outlined text-2xl" id="aff-menu-icon">menu</span>
-                </button>
+                <!-- State: Logged In Header User Card & Actions -->
+                <div id="header-member-profile" class="hidden flex items-center gap-2 sm:gap-3">
+                    <!-- User Info Pill -->
+                    <div class="flex items-center gap-2 bg-slate-100/90 border border-slate-200/80 px-2.5 sm:px-3 py-1.5 rounded-xl text-left">
+                        <div class="w-7 h-7 rounded-lg bg-primary text-white font-bold text-xs flex items-center justify-center shrink-0" id="header-avatar">
+                            A
+                        </div>
+                        <div class="min-w-0 pr-1">
+                            <span id="header-member-name" class="block font-bold text-xs text-slate-900 truncate max-w-[100px] sm:max-w-[140px] leading-tight">-</span>
+                            <span id="header-member-code" class="block font-mono text-[10px] text-emerald-700 font-bold leading-tight truncate">WIZ-XXX</span>
+                        </div>
+                    </div>
+
+                    <!-- Shortcut to Public Web -->
+                    <a href="index.html" target="_blank" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 hover:text-slate-900 transition-colors" title="Lihat Website Publik">
+                        <span class="material-symbols-outlined text-sm">open_in_new</span>
+                        <span class="hidden md:inline">Lihat Web</span>
+                    </a>
+
+                    <!-- Logout Button -->
+                    <button onclick="handleAffiliateLogout()" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-2 rounded-xl text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 border border-red-200 transition-colors cursor-pointer" title="Keluar dari Akun">
+                        <span class="material-symbols-outlined text-sm">logout</span>
+                        <span class="hidden sm:inline">Keluar</span>
+                    </button>
+                </div>
             </div>
-        </div>
-
-        <!-- Mobile Dropdown Menu for affiliate.html -->
-        <div id="aff-mobile-menu" class="hidden md:hidden border-t border-slate-200 bg-white px-4 py-3 space-y-2 shadow-lg">
-            <a href="index.html" class="block py-2 text-sm font-semibold text-slate-700 hover:text-primary">Beranda</a>
-            <a href="program.html" class="block py-2 text-sm font-semibold text-slate-700 hover:text-primary">Program</a>
-            <a href="donasi.html" class="block py-2 text-sm font-semibold text-slate-700 hover:text-primary">Donasi Langsung</a>
-            <a href="laporan.html" class="block py-2 text-sm font-semibold text-slate-700 hover:text-primary">Laporan Keuangan</a>
-            <a href="affiliate.html" class="block py-2 text-sm font-bold text-primary">Portal Fundraising</a>
         </div>
     </header>
 
@@ -698,17 +709,37 @@
             document.getElementById('auth-state-container').classList.add('hidden');
             document.getElementById('member-state-container').classList.remove('hidden');
 
+            // Header state toggle
+            const headerGuest = document.getElementById('header-guest-actions');
+            const headerMember = document.getElementById('header-member-profile');
+            if (headerGuest) headerGuest.classList.add('hidden');
+            if (headerMember) {
+                headerMember.classList.remove('hidden');
+                headerMember.classList.add('flex');
+            }
+
             const initial = (ref.name || 'A').charAt(0).toUpperCase();
-            document.getElementById('member-avatar').textContent = initial;
-            document.getElementById('member-welcome-title').textContent = `Selamat Datang, ${ref.name}!`;
-            document.getElementById('member-code-badge').textContent = ref.code || ref.id;
+            const avatarEl = document.getElementById('member-avatar');
+            if (avatarEl) avatarEl.textContent = initial;
+            const headerAvatar = document.getElementById('header-avatar');
+            if (headerAvatar) headerAvatar.textContent = initial;
+
+            const nameEl = document.getElementById('member-welcome-title');
+            if (nameEl) nameEl.textContent = `Selamat Datang, ${ref.name}!`;
+            const headerName = document.getElementById('header-member-name');
+            if (headerName) headerName.textContent = ref.name || 'Mitra';
+
+            const codeEl = document.getElementById('member-code-badge');
+            if (codeEl) codeEl.textContent = ref.code || ref.id;
+            const headerCode = document.getElementById('header-member-code');
+            if (headerCode) headerCode.textContent = ref.code || ref.id;
 
             // Populate profile settings form
-            document.getElementById('prof-name').value = ref.name || '';
-            document.getElementById('prof-phone').value = ref.phone || '';
-            document.getElementById('prof-bank').value = ref.bankName || '';
-            document.getElementById('prof-acc-no').value = ref.accountNumber || '';
-            document.getElementById('prof-acc-holder').value = ref.accountHolder || '';
+            if (document.getElementById('prof-name')) document.getElementById('prof-name').value = ref.name || '';
+            if (document.getElementById('prof-phone')) document.getElementById('prof-phone').value = ref.phone || '';
+            if (document.getElementById('prof-bank')) document.getElementById('prof-bank').value = ref.bankName || '';
+            if (document.getElementById('prof-acc-no')) document.getElementById('prof-acc-no').value = ref.accountNumber || '';
+            if (document.getElementById('prof-acc-holder')) document.getElementById('prof-acc-holder').value = ref.accountHolder || '';
 
             const targetTab = (preserveCurrentTab && currentActiveSubTab) ? currentActiveSubTab : 'subtab-kpi';
             switchMemberSubTab(targetTab);
@@ -717,6 +748,15 @@
         function deactivateMemberState() {
             document.getElementById('auth-state-container').classList.remove('hidden');
             document.getElementById('member-state-container').classList.add('hidden');
+
+            const headerGuest = document.getElementById('header-guest-actions');
+            const headerMember = document.getElementById('header-member-profile');
+            if (headerGuest) headerGuest.classList.remove('hidden');
+            if (headerMember) {
+                headerMember.classList.add('hidden');
+                headerMember.classList.remove('flex');
+            }
+
             currentLoggedAffiliate = null;
         }
 
