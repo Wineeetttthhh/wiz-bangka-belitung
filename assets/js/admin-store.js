@@ -1844,13 +1844,27 @@
 
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                 try {
-                    await window.wizSupabase.update('donations', donationId, {
-                        status: 'verified',
-                        verified_at: list[idx].verifiedAt,
-                        verified_by: list[idx].verifiedBy
+                    const sbRes = await window.wizSupabase.update('donations', String(donationId), {
+                        status: 'verified'
                     });
-                } catch(e) {}
+                    if (sbRes.error) {
+                        console.warn('[Supabase Verify Error]:', sbRes.error);
+                    } else {
+                        console.log('✅ [Supabase Verify Success]:', donationId);
+                    }
+                } catch(e) {
+                    console.warn('[Supabase Verify Exception]:', e);
+                }
             }
+
+            // Real-time broadcast updated donation to /api/sync
+            try {
+                await fetch('/api/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ donations: [list[idx]] })
+                });
+            } catch(e) {}
 
             try { await pushToCloud(); } catch(e) {}
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
@@ -1871,11 +1885,23 @@
 
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                 try {
-                    await window.wizSupabase.update('donations', donationId, {
+                    const sbRes = await window.wizSupabase.update('donations', String(donationId), {
                         status: 'rejected'
                     });
-                } catch(e) {}
+                    if (sbRes.error) console.warn('[Supabase Reject Error]:', sbRes.error);
+                } catch(e) {
+                    console.warn('[Supabase Reject Exception]:', e);
+                }
             }
+
+            // Real-time broadcast rejected donation to /api/sync
+            try {
+                await fetch('/api/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ donations: [list[idx]] })
+                });
+            } catch(e) {}
 
             try { await pushToCloud(); } catch(e) {}
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
@@ -3022,21 +3048,47 @@
         async delete(id) {
             if (!id) return;
             const strId = String(id);
-            addDeletedRefId(strId);
-
             const rawList = getStore(STORAGE_KEYS.REFERRALS) || [];
-            const ref = rawList.find(r => String(r.id) === strId);
-            const filtered = rawList.filter(r => String(r.id) !== strId);
+            const ref = rawList.find(r => String(r.id) === strId || (r.code && String(r.code) === strId));
+            const targetId = ref ? String(ref.id) : strId;
+            const targetCode = ref ? String(ref.code || '') : '';
+
+            addDeletedRefId(targetId);
+            if (targetCode) addDeletedRefId(targetCode);
+
+            const filtered = rawList.filter(r => String(r.id) !== targetId && String(r.code) !== targetId && (!targetCode || (String(r.id) !== targetCode && String(r.code) !== targetCode)));
             setStore(STORAGE_KEYS.REFERRALS, filtered);
 
             if (ref) {
-                activityLog.add('referral', `Perantara "${ref.name}" dihapus.`, 'Admin');
+                activityLog.add('referral', `Perantara "${ref.name}" (Kode: ${ref.code || ref.id}) dihapus dari database.`, 'Admin');
+            }
+
+            // Direct Supabase deletion
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.remove('referrals', targetId);
+                    if (targetCode && targetCode !== targetId) {
+                        await window.wizSupabase.remove('referrals', targetCode);
+                    }
+                    console.log('✅ [Referrals Supabase Delete Success]:', targetId);
+                } catch(e) {
+                    console.warn('[Referrals Supabase Delete Error]:', e);
+                }
             }
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.remove('referrals', strId);
-                await window.wizFirebase.upsert('deleted_ref_ids', { key: strId, deletedAt: new Date().toISOString() });
+                await window.wizFirebase.remove('referrals', targetId);
+                await window.wizFirebase.upsert('deleted_ref_ids', { key: targetId, deletedAt: new Date().toISOString() });
             }
+
+            // Real-time broadcast deleted ref IDs to /api/sync
+            try {
+                await fetch('/api/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ deleted_ref_ids: [targetId, targetCode].filter(Boolean) })
+                });
+            } catch(e) {}
 
             try {
                 if (typeof pushToCloud === 'function') {

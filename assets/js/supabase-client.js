@@ -160,7 +160,26 @@ const SUPABASE_CONFIG = {
         remove,
 
         // Helpers for entities
-        saveDonation: (data) => upsert('donations', data),
+        saveDonation: async (data) => {
+            if (!data) return { data: null, error: 'No data' };
+            const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(data.id || ''));
+            const payload = {
+                donor_name: String(data.donor_name || data.donorName || 'Hamba Allah'),
+                donor_phone: String(data.donor_phone || data.donorPhone || '-'),
+                donor_email: String(data.donor_email || data.donorEmail || ''),
+                program_title: String(data.program_title || data.programSpesifik || data.program || data.programUtama || 'Umum'),
+                donation_type: String(data.donation_type || data.type || 'Infak Terikat'),
+                amount: Number(data.amount) || 0,
+                payment_method: String(data.payment_method || data.method || 'Transfer Bank'),
+                notes: String(data.notes || '-'),
+                status: String(data.status || 'pending'),
+                created_at: data.created_at || data.createdAt || new Date().toISOString()
+            };
+            if (isValidUUID) {
+                payload.id = data.id;
+            }
+            return await upsert('donations', payload);
+        },
         saveDisbursement: (data) => upsert('disbursements', data),
         saveReferral: async (data) => {
             if (!data) return { data: null, error: 'No data' };
