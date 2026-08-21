@@ -212,8 +212,18 @@ module.exports = async function handler(req, res) {
             if (incoming.site_images && typeof incoming.site_images === 'object')
                 master.site_images = { ...(master.site_images || {}), ...incoming.site_images };
 
-            if (incoming.site_settings && typeof incoming.site_settings === 'object')
+            if (incoming.site_settings && typeof incoming.site_settings === 'object') {
                 master.site_settings = incoming.site_settings;
+                fetch(`${SUPABASE_URL}/site_settings`, {
+                    method: 'POST',
+                    headers: supabaseHeaders,
+                    body: JSON.stringify({
+                        key: 'site_settings',
+                        value: incoming.site_settings,
+                        updated_at: new Date().toISOString()
+                    })
+                }).catch(() => {});
+            }
 
             if (incoming.allocation_rules && typeof incoming.allocation_rules === 'object')
                 master.allocation_rules = { ...(master.allocation_rules || {}), ...incoming.allocation_rules };

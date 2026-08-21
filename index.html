@@ -755,8 +755,8 @@
             <p class="font-body-lg text-body-lg text-on-surface-variant">Transfer donasi Anda secara mudah melalui rekening bank resmi WIZ Bangka Belitung.</p>
         </div>
 
-        <div class="max-w-xl mx-auto">
-            <!-- Bank BSI Rekening Aktif -->
+        <div id="dynamic-site-banks-container" class="max-w-xl mx-auto">
+            <!-- Bank BSI Rekening Aktif (Dynamic fallback rendered by JS) -->
             <div class="bg-gradient-to-br from-emerald-50 to-teal-50 p-xl rounded-2xl border-2 border-emerald-500/40 shadow-level-1 space-y-md flex flex-col justify-between">
                 <div>
                     <!-- BSI Logo + Badge -->
@@ -769,11 +769,11 @@
                     <h3 class="font-headline-md text-xl font-bold text-emerald-800" data-site-bank-name="bsi">Bank Syariah Indonesia (BSI)</h3>
                     <p class="font-body-md text-sm text-on-surface-variant mt-0.5">Saluran Resmi Donasi Zakat, Infak &amp; Sedekah</p>
                     <div class="mt-md font-mono text-3xl font-extrabold text-on-surface tracking-widest bg-white/80 py-3 px-4 rounded-xl border border-emerald-200/60 select-all text-center shadow-xs" data-site-bank-no="bsi">
-                        716 800 800
+                        7168008001
                     </div>
                     <p class="font-caption text-sm text-on-surface-variant font-semibold mt-2 text-center" data-site-bank-holder="bsi">A.n. <strong class="text-emerald-800">WIZ Bangka Belitung</strong></p>
                 </div>
-                <button onclick="copyToClipboard('716800800', 'No. Rekening BSI berhasil disalin!')" class="mt-sm w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-label-md text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer">
+                <button onclick="copyToClipboard('7168008001', 'No. Rekening BSI berhasil disalin!')" class="mt-sm w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-label-md text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer">
                     <span class="material-symbols-outlined text-base">content_copy</span>
                     <span>Salin No. Rekening BSI</span>
                 </button>
@@ -1150,9 +1150,33 @@
 
     // Copy to clipboard helper
     function copyToClipboard(text, msg) {
-        navigator.clipboard.writeText(text).then(() => {
-            alert(msg || 'Nomor rekening telah disalin!');
-        });
+        const clean = String(text || '').trim();
+        const successMsg = msg || `Nomor rekening ${clean} berhasil disalin!`;
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(clean).then(() => {
+                alert(successMsg);
+            }).catch(() => {
+                fallbackCopy(clean, successMsg);
+            });
+        } else {
+            fallbackCopy(clean, successMsg);
+        }
+    }
+
+    function fallbackCopy(text, msg) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+            document.execCommand('copy');
+            alert(msg);
+        } catch(e) {
+            prompt('Salin nomor rekening:', text);
+        }
+        document.body.removeChild(ta);
     }
 
     // Dynamic Real-time Card Updater for Home Preview Cards

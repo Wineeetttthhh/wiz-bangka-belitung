@@ -453,7 +453,7 @@
                                         </div>
                                         <div>
                                             <span class="font-label-md text-label-md text-on-surface block font-bold">Transfer Bank Manual</span>
-                                            <span class="font-caption text-caption text-on-surface-variant block text-[11px]">BSI, Muamalat, Mandiri, BCA</span>
+                                            <span class="font-caption text-caption text-on-surface-variant block text-[11px]" data-site-banks-subtitle>BSI (Bank Syariah Indonesia)</span>
                                         </div>
                                     </div>
                                     <span class="material-symbols-outlined text-primary opacity-0 icon-check transition-opacity shrink-0">check_circle</span>
@@ -642,8 +642,8 @@
                     <p id="bank-modal-donor" class="font-body-md text-caption text-on-surface-variant font-medium">-</p>
                 </div>
 
-                <div class="space-y-sm">
-                    <!-- BSI Rekening Aktif -->
+                <div id="dynamic-donasi-banks-container" class="space-y-sm">
+                    <!-- BSI Rekening Aktif (Dynamic) -->
                     <div class="p-lg bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-500/50 rounded-2xl shadow-sm">
                         <!-- Logo BSI -->
                         <div class="flex items-center justify-between mb-3">
@@ -653,10 +653,10 @@
                         <div class="flex items-center justify-between gap-3">
                             <div class="space-y-0.5">
                                 <span class="font-bold text-emerald-800 text-sm block" data-site-bank-name="bsi">Bank Syariah Indonesia (BSI)</span>
-                                <span class="font-mono font-extrabold text-2xl text-on-surface tracking-widest block" data-site-bank-no="bsi">716 800 800</span>
+                                <span class="font-mono font-extrabold text-2xl text-on-surface tracking-widest block" data-site-bank-no="bsi">7168008001</span>
                                 <span class="text-xs text-on-surface-variant block font-semibold" data-site-bank-holder="bsi">A.n. WIZ Bangka Belitung</span>
                             </div>
-                            <button type="button" onclick="copyAccount('716800800')"
+                            <button type="button" onclick="copyAccount('7168008001')"
                                 class="shrink-0 px-4 py-2.5 bg-emerald-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-emerald-700 transition-colors flex flex-col items-center gap-0.5 cursor-pointer">
                                 <span class="material-symbols-outlined text-base">content_copy</span>
                                 <span>Salin</span>
@@ -1216,6 +1216,10 @@
 
         // Bank Modal Logic
         function openBankModal() {
+            if (typeof window.applySiteSettings === 'function') {
+                window.applySiteSettings();
+            }
+
             let progText = `${state.type} (${state.wilayah})`;
             if (state.type === 'Infak Terikat' && state.program !== '-') {
                 progText = `${state.program} — ${state.wilayah}`;
@@ -1240,9 +1244,32 @@
         }
 
         function copyAccount(accNum) {
-            navigator.clipboard.writeText(accNum).then(() => {
-                alert(`Nomor rekening ${accNum} berhasil disalin!`);
-            });
+            const clean = String(accNum || '').trim();
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(clean).then(() => {
+                    alert(`✅ Nomor rekening ${clean} berhasil disalin!`);
+                }).catch(() => {
+                    fallbackCopyAccount(clean);
+                });
+            } else {
+                fallbackCopyAccount(clean);
+            }
+        }
+
+        function fallbackCopyAccount(text) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                alert(`✅ Nomor rekening ${text} berhasil disalin!`);
+            } catch(e) {
+                prompt('Salin nomor rekening:', text);
+            }
+            document.body.removeChild(ta);
         }
 
         function confirmBankToWhatsApp() {

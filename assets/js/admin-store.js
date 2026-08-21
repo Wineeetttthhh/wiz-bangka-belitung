@@ -50,7 +50,7 @@
 
     const DEFAULT_SITE_SETTINGS = {
         banks: [
-            { id: 'bsi', bank: 'Bank Syariah Indonesia (BSI)', number: '716800800', holder: 'WIZ Bangka Belitung', isActive: true, logo: 'assets/images/logo-bsi.jpg' }
+            { id: 'bsi', bank: 'Bank Syariah Indonesia (BSI)', number: '7168008001', holder: 'WIZ Bangka Belitung', isActive: true, logo: 'assets/images/logo-bsi.jpg' }
         ],
         offices: [
             { id: 'pangkalpinang', name: 'Kantor Pangkalpinang', address: 'Jl. Mentok No. 45, Pangkalpinang, Bangka Belitung', phone: '0812-7171-8000', hotline: '081271718000', mapsUrl: 'https://maps.google.com' },
@@ -1595,6 +1595,9 @@
                 const mergedSettings = { ...DEFAULT_SITE_SETTINGS, ...authoritativeSettings };
                 setStore(STORAGE_KEYS.SITE_SETTINGS, mergedSettings);
                 window.dispatchEvent(new CustomEvent('wiz-site-settings-changed', { detail: mergedSettings }));
+                if (typeof window.applySiteSettings === 'function') {
+                    try { window.applySiteSettings(); } catch(e) {}
+                }
             }
             if (masterData.site_images && typeof masterData.site_images === 'object') {
                 setStore(STORAGE_KEYS.SITE_IMAGES, { ...DEFAULT_SITE_IMAGES, ...masterData.site_images });

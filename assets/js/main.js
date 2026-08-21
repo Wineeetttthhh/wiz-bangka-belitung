@@ -1766,24 +1766,122 @@ window.applySiteSettings = function () {
     }
     if (!settings) return;
 
-    // Update Bank Accounts
-    if (settings.banks && Array.isArray(settings.banks)) {
-        settings.banks.forEach(b => {
-            const bankId = (b.id || '').toLowerCase();
-            if (!bankId) return;
+    const allBanks = Array.isArray(settings.banks) && settings.banks.length > 0
+        ? settings.banks
+        : [
+            { id: 'bsi', bank: 'Bank Syariah Indonesia (BSI)', number: '7168008001', holder: 'WIZ Bangka Belitung', isActive: true, logo: 'assets/images/logo-bsi.jpg' }
+        ];
+    const activeBanks = allBanks.filter(b => b && b.isActive !== false && String(b.number || '').trim());
 
-            // Bank Account Number
-            document.querySelectorAll(`[data-site-bank-no="${bankId}"]`).forEach(el => {
-                if (el.tagName === 'INPUT') {
-                    el.value = b.number || '';
-                } else {
-                    el.textContent = b.number || '';
-                }
+    // 1. Dynamic Bank Accounts Grid on Main Website (index.html)
+    const siteBankContainer = document.getElementById('dynamic-site-banks-container');
+    if (siteBankContainer) {
+        if (activeBanks.length === 0) {
+            siteBankContainer.className = "max-w-xl mx-auto";
+            siteBankContainer.innerHTML = `<div class="p-8 text-center bg-white rounded-2xl border border-slate-200 text-slate-500 font-medium text-sm">Belum ada rekening bank aktif yang dikonfigurasi di Dashboard Admin.</div>`;
+        } else {
+            siteBankContainer.className = activeBanks.length === 1 
+                ? "max-w-xl mx-auto" 
+                : activeBanks.length === 2 
+                    ? "max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-gutter" 
+                    : "max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter";
+
+            siteBankContainer.innerHTML = activeBanks.map(b => {
+                const rawNum = String(b.number || '').trim();
+                const isBSI = (b.bank || '').toLowerCase().includes('bsi') || (b.bank || '').toLowerCase().includes('syariah indonesia') || (b.id || '').toLowerCase().includes('bsi');
+                const logoHtml = isBSI
+                    ? `<img src="assets/images/logo-bsi.jpg" alt="${b.bank}" class="h-10 object-contain" onerror="this.style.display='none'">`
+                    : `<div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-base"><span class="material-symbols-outlined text-xl">account_balance</span></div>`;
+
+                return `
+                <div class="bg-gradient-to-br from-emerald-50 to-teal-50 p-xl rounded-2xl border-2 border-emerald-500/40 shadow-level-1 space-y-md flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            ${logoHtml}
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold border border-emerald-300">
+                                <span class="material-symbols-outlined text-sm">verified</span> Rekening Aktif
+                            </span>
+                        </div>
+                        <h3 class="font-headline-md text-xl font-bold text-emerald-800">${b.bank}</h3>
+                        <p class="font-body-md text-sm text-on-surface-variant mt-0.5">Saluran Resmi Donasi Zakat, Infak &amp; Sedekah</p>
+                        <div class="mt-md font-mono text-3xl font-extrabold text-on-surface tracking-widest bg-white/80 py-3 px-4 rounded-xl border border-emerald-200/60 select-all text-center shadow-xs">
+                            ${rawNum}
+                        </div>
+                        <p class="font-caption text-sm text-on-surface-variant font-semibold mt-2 text-center">A.n. <strong class="text-emerald-800">${b.holder || 'WIZ Bangka Belitung'}</strong></p>
+                    </div>
+                    <button onclick="copyToClipboard('${rawNum}', 'No. Rekening ${b.bank} (${rawNum}) berhasil disalin!')" class="mt-sm w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-label-md text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-base">content_copy</span>
+                        <span>Salin No. Rekening ${b.bank}</span>
+                    </button>
+                </div>`;
+            }).join('');
+        }
+    }
+
+    // 2. Dynamic Bank Accounts List on Donation Checkout (donasi.html modal)
+    const donasiBankContainer = document.getElementById('dynamic-donasi-banks-container');
+    if (donasiBankContainer) {
+        if (activeBanks.length === 0) {
+            donasiBankContainer.innerHTML = `<div class="p-4 text-center text-xs text-on-surface-variant">Belum ada rekening bank aktif.</div>`;
+        } else {
+            donasiBankContainer.innerHTML = activeBanks.map(b => {
+                const rawNum = String(b.number || '').trim();
+                const isBSI = (b.bank || '').toLowerCase().includes('bsi') || (b.bank || '').toLowerCase().includes('syariah indonesia') || (b.id || '').toLowerCase().includes('bsi');
+                const logoHtml = isBSI
+                    ? `<img src="assets/images/logo-bsi.jpg" alt="${b.bank}" class="h-9 object-contain" onerror="this.style.display='none'">`
+                    : `<span class="material-symbols-outlined text-emerald-700 text-2xl">account_balance</span>`;
+
+                return `
+                <div class="p-lg bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-500/50 rounded-2xl shadow-sm space-y-2">
+                    <div class="flex items-center justify-between mb-1">
+                        ${logoHtml}
+                        <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-extrabold border border-emerald-300">✅ Rekening Aktif</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="space-y-0.5">
+                            <span class="font-bold text-emerald-800 text-sm block">${b.bank}</span>
+                            <span class="font-mono font-extrabold text-2xl text-on-surface tracking-widest block">${rawNum}</span>
+                            <span class="text-xs text-on-surface-variant block font-semibold">A.n. ${b.holder || 'WIZ Bangka Belitung'}</span>
+                        </div>
+                        <button type="button" onclick="copyAccount('${rawNum}')"
+                            class="shrink-0 px-4 py-2.5 bg-emerald-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-emerald-700 transition-colors flex flex-col items-center gap-0.5 cursor-pointer">
+                            <span class="material-symbols-outlined text-base">content_copy</span>
+                            <span>Salin</span>
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+    }
+
+    // 3. Update Bank Subtitle Labels (e.g. "BSI, Mandiri, Muamalat")
+    const bankNamesSummary = activeBanks.map(b => b.bank.replace(/Bank\s*/i, '').replace(/\(.*\)/, '').trim()).filter(Boolean).join(', ');
+    document.querySelectorAll('[data-site-banks-subtitle]').forEach(el => {
+        if (bankNamesSummary) el.textContent = bankNamesSummary;
+    });
+
+    // 4. Update Legacy Elements using data-site-bank-*
+    allBanks.forEach(b => {
+        const rawId = (b.id || '').toLowerCase();
+        const bNameLower = (b.bank || '').toLowerCase();
+        const rawNum = String(b.number || '').trim();
+        const holderVal = b.holder || 'WIZ Bangka Belitung';
+
+        // Selectors to try: exact id, or 'bsi' if bank is BSI
+        const selectors = [rawId];
+        if (bNameLower.includes('bsi') || bNameLower.includes('syariah indonesia')) selectors.push('bsi');
+        if (bNameLower.includes('muamalat')) selectors.push('muamalat');
+        if (bNameLower.includes('mandiri')) selectors.push('mandiri');
+
+        selectors.forEach(sel => {
+            if (!sel) return;
+
+            document.querySelectorAll(`[data-site-bank-no="${sel}"]`).forEach(el => {
+                if (el.tagName === 'INPUT') el.value = rawNum;
+                else el.textContent = rawNum;
             });
 
-            // Bank Holder
-            document.querySelectorAll(`[data-site-bank-holder="${bankId}"]`).forEach(el => {
-                const holderVal = b.holder || 'Wahdah Inspirasi Zakat';
+            document.querySelectorAll(`[data-site-bank-holder="${sel}"]`).forEach(el => {
                 const strongTag = el.querySelector('strong');
                 if (strongTag) {
                     strongTag.textContent = holderVal;
@@ -1798,18 +1896,14 @@ window.applySiteSettings = function () {
                 }
             });
 
-            // Bank Name
-            document.querySelectorAll(`[data-site-bank-name="${bankId}"]`).forEach(el => {
-                if (el.tagName === 'INPUT') {
-                    el.value = b.bank || '';
-                } else {
-                    el.textContent = b.bank || '';
-                }
+            document.querySelectorAll(`[data-site-bank-name="${sel}"]`).forEach(el => {
+                if (el.tagName === 'INPUT') el.value = b.bank || '';
+                else el.textContent = b.bank || '';
             });
         });
-    }
+    });
 
-    // Update Office Locations
+    // 5. Update Office Locations
     if (settings.offices && Array.isArray(settings.offices)) {
         settings.offices.forEach(off => {
             const offId = (off.id || '').toLowerCase();
