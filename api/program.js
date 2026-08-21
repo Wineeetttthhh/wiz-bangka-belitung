@@ -15,6 +15,7 @@ const path = require('path');
 
 // Default Specific Programs Metadata with curated high-res cover images
 const SPECIFIC_PROGRAMS_METADATA = {
+    // ── 1. Dakwah & Pembinaan (Berkah Hidayah) ──
     'pembangunan-markaz': {
         title: 'Pembangunan Markaz',
         pillar: 'Dakwah & Pembinaan',
@@ -23,6 +24,13 @@ const SPECIFIC_PROGRAMS_METADATA = {
         imageUrl: 'https://images.unsplash.com/photo-1542665952-14513db15293?q=80&w=1200&auto=format&fit=crop'
     },
     'pengadaan-perbaikan-kendaraan': {
+        title: 'Pengadaan & Perbaikan Kendaraan',
+        pillar: 'Dakwah & Pembinaan',
+        target: 'Rp 5.000.000',
+        description: 'Fasilitasi mobilitas para dai dalam menyebarkan dakwah ke pelosok Bangka Belitung dengan armada kendaraan operasional yang layak dan memadai.',
+        imageUrl: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=1200&auto=format&fit=crop'
+    },
+    'pengadaan-dan-perbaikan-kendaraan': {
         title: 'Pengadaan & Perbaikan Kendaraan',
         pillar: 'Dakwah & Pembinaan',
         target: 'Rp 5.000.000',
@@ -43,25 +51,97 @@ const SPECIFIC_PROGRAMS_METADATA = {
         description: 'Bantu pembinaan dan fasilitas para santri penghafal Al-Qur\'an untuk mencetak generasi penjaga wahyu di Bangka Belitung.',
         imageUrl: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=1200&auto=format&fit=crop'
     },
+    'pelatihan-public-speaking': {
+        title: 'Pelatihan Public Speaking',
+        pillar: 'Dakwah & Pembinaan',
+        target: 'Rp 8.000.000',
+        description: 'Pelatihan komunikasi dan retorika dakwah bagi para dai muda agar dapat menyampaikan risalah Islam secara santun, lugas, dan menginspirasi.',
+        imageUrl: 'https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=1200&auto=format&fit=crop'
+    },
+    'tabligh-akbar-dzulhijjah': {
+        title: 'Tabligh Akbar Dzulhijjah',
+        pillar: 'Dakwah & Pembinaan',
+        target: 'Rp 20.000.000',
+        description: 'Penyelenggaraan syiar Islam dan Tabligh Akbar bulan Dzulhijjah untuk mempererat ukhuwah dan menanamkan nilai ketaatan kepada Allah SWT.',
+        imageUrl: 'https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=1200&auto=format&fit=crop'
+    },
+    'pelatihan-guru-dirosa': {
+        title: 'Pelatihan Guru Dirosa',
+        pillar: 'Dakwah & Pembinaan',
+        target: 'Rp 10.000.000',
+        description: 'Kaderisasi pengajar Al-Qur\'an metode Dirosa untuk memberantas buta aksara Al-Qur\'an di kalangan orang dewasa di Bangka Belitung.',
+        imageUrl: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=1200&auto=format&fit=crop'
+    },
+    'pelatihan-penyelenggaraan-jenazah': {
+        title: 'Pelatihan Penyelenggaraan Jenazah',
+        pillar: 'Dakwah & Pembinaan',
+        target: 'Rp 6.000.000',
+        description: 'Bimbingan praktis fardhu kifayah tata cara pengurusan dan pemulasaran jenazah sesuai sunnah bagi masyarakat.',
+        imageUrl: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=1200&auto=format&fit=crop'
+    },
+    'pelatihan-volunteer-media-dakwah': {
+        title: 'Pelatihan Volunteer Media Dakwah',
+        pillar: 'Dakwah & Pembinaan',
+        target: 'Rp 7.500.000',
+        description: 'Pemberdayaan relawan media kreatif untuk memproduksi konten digital dakwah yang edukatif dan menyejukkan di sosial media.',
+        imageUrl: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=1200&auto=format&fit=crop'
+    },
+    'kantor-dpw-wi-babel-wiz': {
+        title: 'Kantor DPW WI Babel & WIZ',
+        pillar: 'Dakwah & Pembinaan',
+        target: 'Rp 100.000.000',
+        description: 'Pusat operasional dan pelayanan keummatan Wahdah Inspirasi Zakat serta Dewan Pengurus Wilayah di Bangka Belitung.',
+        imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop'
+    },
+    'keberangkatan-kepulangan-dai': {
+        title: 'Keberangkatan Kepulangan Dai',
+        pillar: 'Dakwah & Pembinaan',
+        target: 'Rp 15.000.000',
+        description: 'Dukungan akomodasi dan transportasi bagi para juru dakwah yang bertugas di pulau-pulau terpencil dan pelosok Bangka Belitung.',
+        imageUrl: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=1200&auto=format&fit=crop'
+    },
+
+    // ── 2. Sosial & Kemanusiaan (Berkah Peduli) ──
     'tebar-sembako': {
         title: 'Tebar Sembako Nusantara',
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 25.000.000',
-        description: 'Salurkan paket sembako bergizi untuk lansia, janda dhuafa, dan keluarga pra-sejahtera di pelosok Bangka Belitung.',
+        description: 'Salurkan paket sembako bergizi untuk lansia, janda dhuafa, dan keluarga pra-sejahtera guna meringankan beban ekonomi mereka sehari-hari di Bangka Belitung.',
+        imageUrl: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=1200&auto=format&fit=crop'
+    },
+    'tebar-sembako-nusantara': {
+        title: 'Tebar Sembako Nusantara',
+        pillar: 'Sosial & Kemanusiaan',
+        target: 'Rp 25.000.000',
+        description: 'Salurkan paket sembako bergizi untuk lansia, janda dhuafa, dan keluarga pra-sejahtera guna meringankan beban ekonomi mereka sehari-hari di Bangka Belitung.',
         imageUrl: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=1200&auto=format&fit=crop'
     },
     'sedekah-jumat': {
         title: 'Sedekah Jumat Berkah',
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 10.000.000',
-        description: 'Raih keutamaan hari Jumat dengan berbagi makanan siap santap dan sedekah produktif bagi dhuafa.',
+        description: 'Raih keutamaan hari Jumat dengan berbagi paket makanan bergizi siap santap bagi pekerja rentan dan dhuafa.',
+        imageUrl: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1200&auto=format&fit=crop'
+    },
+    'sedekah-jumat-berkah': {
+        title: 'Sedekah Jumat Berkah',
+        pillar: 'Sosial & Kemanusiaan',
+        target: 'Rp 10.000.000',
+        description: 'Raih keutamaan hari Jumat dengan berbagi paket makanan bergizi siap santap bagi pekerja rentan dan dhuafa.',
         imageUrl: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1200&auto=format&fit=crop'
     },
     'santunan-yatim': {
         title: 'Santunan Anak Yatim',
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 30.000.000',
-        description: 'Hadirkan senyum dan masa depan cerah untuk anak-anak yatim binaan di Bangka Belitung dengan santunan rutin dan pendidikan.',
+        description: 'Hadirkan senyum dan masa depan cerah untuk anak-anak yatim binaan di Bangka Belitung dengan santunan rutin dan perlengkapan sekolah.',
+        imageUrl: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1200&auto=format&fit=crop'
+    },
+    'santunan-anak-yatim': {
+        title: 'Santunan Anak Yatim',
+        pillar: 'Sosial & Kemanusiaan',
+        target: 'Rp 30.000.000',
+        description: 'Hadirkan senyum dan masa depan cerah untuk anak-anak yatim binaan di Bangka Belitung dengan santunan rutin dan perlengkapan sekolah.',
         imageUrl: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1200&auto=format&fit=crop'
     },
     'tebar-iftar': {
@@ -71,6 +151,36 @@ const SPECIFIC_PROGRAMS_METADATA = {
         description: 'Berbagi paket buka puasa berkah untuk ribuan santri, dhuafa, dan pejuang nafkah di bulan suci Ramadan.',
         imageUrl: 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb9?q=80&w=1200&auto=format&fit=crop'
     },
+    'tebar-iftar-nusantara': {
+        title: 'Tebar Iftar Ramadan',
+        pillar: 'Sosial & Kemanusiaan',
+        target: 'Rp 50.000.000',
+        description: 'Berbagi paket buka puasa berkah untuk ribuan santri, dhuafa, dan pejuang nafkah di bulan suci Ramadan.',
+        imageUrl: 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb9?q=80&w=1200&auto=format&fit=crop'
+    },
+    'tebar-quran-nusantara': {
+        title: 'Tebar Qur\'an Nusantara',
+        pillar: 'Sosial & Kemanusiaan',
+        target: 'Rp 20.000.000',
+        description: 'Distribusi mushaf Al-Qur\'an standar Madinah untuk TPQ, rumah tahfidz, dan masjid di pelosok desa binaan.',
+        imageUrl: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=1200&auto=format&fit=crop'
+    },
+    'bahagiakan-guru-ngaji': {
+        title: 'Bahagiakan Guru Ngaji',
+        pillar: 'Sosial & Kemanusiaan',
+        target: 'Rp 15.000.000',
+        description: 'Apresiasi dan kafalah bulanan bagi para ustadz dan guru ngaji sukarela yang ikhlas mengajarkan Al-Qur\'an.',
+        imageUrl: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=1200&auto=format&fit=crop'
+    },
+    'sedekah-air': {
+        title: 'Sedekah Air Bersih',
+        pillar: 'Sosial & Kemanusiaan',
+        target: 'Rp 18.000.000',
+        description: 'Penyediaan sumur bor, instalasi tandon, dan pipanisasi air bersih untuk daerah krisis kekeringan.',
+        imageUrl: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?q=80&w=1200&auto=format&fit=crop'
+    },
+
+    // ── 3. Pendidikan & Beasiswa (Berkah Juara) ──
     'beasiswa-pendidikan-juara': {
         title: 'Beasiswa Pendidikan Juara',
         pillar: 'Pendidikan & Beasiswa',
@@ -85,6 +195,15 @@ const SPECIFIC_PROGRAMS_METADATA = {
         description: 'Bantuan biaya studi dan living cost santri penghafal Qur\'an di pesantren dan perguruan tinggi.',
         imageUrl: 'https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=1200&auto=format&fit=crop'
     },
+    'perlengkapan-belajar-yatim': {
+        title: 'Perlengkapan Belajar Yatim',
+        pillar: 'Pendidikan & Beasiswa',
+        target: 'Rp 12.000.000',
+        description: 'Bantuan tas, seragam, sepatu, dan buku pelajaran untuk anak-anak yatim dhuafa menyambut tahun ajaran baru.',
+        imageUrl: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=1200&auto=format&fit=crop'
+    },
+
+    // ── 4. Kesehatan Masyarakat (Berkah Sehat) ──
     'bantuan-kesehatan-dhuafa': {
         title: 'Bantuan Kesehatan Dhuafa',
         pillar: 'Kesehatan Masyarakat',
@@ -92,11 +211,34 @@ const SPECIFIC_PROGRAMS_METADATA = {
         description: 'Layanan berobat gratis dan bantuan pengobatan bagi pasien dhuafa dan lansia kritis di Bangka Belitung.',
         imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=1200&auto=format&fit=crop'
     },
+    'bantuan-pasien-kritis-dhuafa': {
+        title: 'Bantuan Pasien Kritis Dhuafa',
+        pillar: 'Kesehatan Masyarakat',
+        target: 'Rp 20.000.000',
+        description: 'Bantuan biaya tebus obat dan rawat inap bagi pasien dhuafa kurang mampu yang tidak tercover penuh oleh asuransi.',
+        imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=1200&auto=format&fit=crop'
+    },
+    'ambulans-gratis-peduli': {
+        title: 'Ambulans Gratis Peduli',
+        pillar: 'Kesehatan Masyarakat',
+        target: 'Rp 30.000.000',
+        description: 'Operasional layanan antar jemput pasien dhuafa dan jenazah gratis 24 jam di wilayah Bangka Belitung.',
+        imageUrl: 'https://images.unsplash.com/photo-1587745416684-47b883828d6b?q=80&w=1200&auto=format&fit=crop'
+    },
+
+    // ── 5. Ekonomi & Pemberdayaan (Berkah Mandiri) ──
     'modal-usaha-mandiri': {
         title: 'Modal Usaha Mandiri',
         pillar: 'Ekonomi & Pemberdayaan',
         target: 'Rp 30.000.000',
         description: 'Bantuan modal usaha tanpa riba dan pendampingan bisnis untuk mengangkat mustahik menjadi muzakki.',
+        imageUrl: 'https://images.unsplash.com/photo-1556742049-0a670fc80782?q=80&w=1200&auto=format&fit=crop'
+    },
+    'gerobak-berkah-umkm': {
+        title: 'Gerobak Berkah UMKM',
+        pillar: 'Ekonomi & Pemberdayaan',
+        target: 'Rp 15.000.000',
+        description: 'Pengadaan gerobak usaha dan peralatan jualan bagi para kepala keluarga dhuafa untuk mandiri berpenghasilan.',
         imageUrl: 'https://images.unsplash.com/photo-1556742049-0a670fc80782?q=80&w=1200&auto=format&fit=crop'
     }
 };
@@ -171,7 +313,7 @@ module.exports = async function handler(req, res) {
     const imageUrl = rawImg.startsWith('http') ? rawImg : `${origin}/${rawImg.replace(/^\//, '')}`;
 
     const canonicalSlug = slugify(title);
-    const canonicalUrl = `${origin}/program.html?program=${encodeURIComponent(title)}${refCode ? '&ref=' + encodeURIComponent(refCode) : ''}`;
+    const canonicalUrl = `${origin}/program/${canonicalSlug}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
     const donateUrl = `${origin}/donasi.html?program=${encodeURIComponent(title)}${refCode ? '&ref=' + encodeURIComponent(refCode) : ''}`;
 
     // Set 30-Day Referral Cookie if refCode is present (max-age 2,592,000s)

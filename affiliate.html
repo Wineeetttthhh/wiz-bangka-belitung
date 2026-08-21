@@ -1031,7 +1031,8 @@
                 return;
             }
             const origin = (window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
-            const programUrl = `${origin}/program.html?program=${encodeURIComponent(programTitle)}&ref=${encodeURIComponent(activeRef)}`;
+            const slug = (programTitle || '').toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-');
+            const programUrl = `${origin}/program/${slug}?ref=${encodeURIComponent(activeRef)}`;
             const pImg = (wizStore && wizStore.allocationRulesManager) ? wizStore.allocationRulesManager.getSpecificProgramImage(programTitle) : '';
             window.shareProgram(programTitle, `Mari bersama menyalurkan kepedulian melalui program ${programTitle} WIZ Bangka Belitung.`, programUrl, pImg);
         }

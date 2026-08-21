@@ -72,6 +72,10 @@
       "destination": "/api/program?slug=:slug"
     },
     {
+      "source": "/program",
+      "destination": "/api/program"
+    },
+    {
       "source": "/berita/:id",
       "destination": "/api/berita?id=:id"
     },

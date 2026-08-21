@@ -85,6 +85,31 @@ function getActiveAffiliateRef() {
 window.setAffiliateRef = setAffiliateRef;
 window.getActiveAffiliateRef = getActiveAffiliateRef;
 
+function shareProgram(title, desc = '', customUrl = '', customImg = '') {
+    const cleanTitle = (title || 'Program Kebaikan').trim();
+    const cleanDesc = (desc || `Mari salurkan Zakat, Infak, dan Sedekah untuk program ${cleanTitle} WIZ Bangka Belitung.`).trim();
+    const refCode = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || '');
+    const origin = (window.location.origin && window.location.origin.includes('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
+    
+    // Generate clean SSR slug URL
+    const slug = cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-');
+    const fullUrl = customUrl || `${origin}/program/${slug}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
+    
+    const waText = `*${cleanTitle}*\n\n${cleanDesc}\n\nSalurkan donasi terbaik Anda melalui tautan resmi:\n${fullUrl}`;
+    
+    if (navigator.share) {
+        navigator.share({
+            title: `${cleanTitle} — WIZ Bangka Belitung`,
+            text: waText,
+            url: fullUrl
+        }).catch(() => {});
+    } else {
+        const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(waText);
+        window.open(waUrl, '_blank');
+    }
+}
+window.shareProgram = shareProgram;
+
 function initReferralUrlTracker() {
     try {
         // Automatically captures and persists active referral from URL or 30-day cookie
