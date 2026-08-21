@@ -965,6 +965,33 @@
         <p class="font-body-md text-body-md text-on-surface-variant max-w-md mx-auto mb-lg">Maaf, kami tidak menemukan program yang sesuai dengan kata kunci pencarian Anda.</p>
         <button onclick="resetFilters()" class="bg-primary text-on-primary font-label-md text-label-md px-lg py-sm rounded-lg hover:bg-primary-container transition-colors shadow-sm font-bold">Tampilkan Semua Program</button>
     </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- LIVE SOCIAL PROOF: DONATUR TERBARU & TERVERIFIKASI REAL-TIME    -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <section id="donatur-terbaru-prog" class="mt-xxl py-xl px-margin-mobile md:px-0 bg-surface-container-low rounded-3xl border border-outline-variant/30">
+        <div class="max-w-container-max mx-auto p-md md:p-xl space-y-lg">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-md">
+                <div>
+                    <span class="inline-flex items-center gap-1.5 bg-emerald-100 text-emerald-800 px-md py-xs rounded-full font-label-md text-caption font-bold uppercase tracking-wider mb-xs">
+                        <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+                        <span class="material-symbols-outlined text-[16px] text-emerald-700">verified</span>
+                        Donasi Terverifikasi Real-Time
+                    </span>
+                    <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">Donatur Terbaru &amp; Sahabat Kebaikan</h2>
+                    <p class="font-body-md text-body-md text-on-surface-variant">Terima kasih kepada para donatur yang telah menyalurkan infak, zakat, dan sedekah.</p>
+                </div>
+                <a href="laporan.html" class="inline-flex items-center gap-1 text-primary hover:text-primary-container font-label-md text-caption font-bold transition-colors">
+                    <span>Lihat Laporan Transparansi Lengkap</span>
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </a>
+            </div>
+
+            <div id="verified-donors-container-prog" class="grid grid-cols-1 md:grid-cols-2 gap-md">
+                <!-- Rendered dynamically -->
+            </div>
+        </div>
+    </section>
 </main>
 
 <!-- Footer -->
@@ -1397,8 +1424,93 @@
         }
     });
 
+    // Dynamic Real-time Verified Donors Renderer for Program Page
+    function renderVerifiedDonorsProg(containerId = 'verified-donors-container-prog') {
+        if (!window.wizStore || !wizStore.donations) return;
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const donors = (typeof wizStore.donations.getRecentVerified === 'function') 
+            ? wizStore.donations.getRecentVerified(10)
+            : [];
+        const fmt = wizStore.utils.formatRupiahCompact;
+
+        if (donors.length === 0) {
+            container.innerHTML = `
+                <div class="col-span-1 md:col-span-2 text-center py-xl bg-surface rounded-2xl border border-dashed border-outline-variant/50 p-lg text-on-surface-variant text-xs">
+                    <span class="material-symbols-outlined text-3xl text-outline mb-1">volunteer_activism</span>
+                    <p class="font-bold text-on-surface">Belum Ada Donasi Terverifikasi Baru</p>
+                    <p class="text-caption text-outline">Pilih salah satu program di atas dan jadilah orang pertama yang berdonasi!</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = donors.map((d, index) => {
+            const initials = d.isAnonymous
+                ? 'HA'
+                : (d.donorName.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase() || 'W');
+            
+            const avatarColors = [
+                'bg-emerald-100 text-emerald-800 border-emerald-300',
+                'bg-amber-100 text-amber-800 border-amber-300',
+                'bg-blue-100 text-blue-800 border-blue-300',
+                'bg-purple-100 text-purple-800 border-purple-300',
+                'bg-teal-100 text-teal-800 border-teal-300'
+            ];
+            const colorClass = avatarColors[index % avatarColors.length];
+
+            return `
+            <div class="p-md bg-surface hover:bg-surface-container-high transition-all duration-300 rounded-2xl border border-outline-variant/30 flex items-center justify-between gap-md shadow-xs hover:shadow-sm group">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-11 h-11 rounded-full ${colorClass} border flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                        ${initials}
+                    </div>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="font-bold text-on-surface text-sm truncate">${d.donorName}</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                ✅ Terverifikasi
+                            </span>
+                        </div>
+                        <p class="font-caption text-caption text-on-surface-variant truncate mt-0.5">
+                            Berdonasi untuk: <strong class="text-primary font-bold">${d.program}</strong>
+                        </p>
+                        <span class="text-[11px] text-outline flex items-center gap-1 mt-0.5">
+                            <span class="material-symbols-outlined text-[12px]">schedule</span> ${d.timeAgo}
+                            <span>•</span>
+                            <span class="font-semibold text-on-surface-variant">${d.wilayah}</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="text-right shrink-0">
+                    <span class="font-label-md text-sm font-extrabold text-primary font-mono block tracking-tight">
+                        ${fmt(d.amount)}
+                    </span>
+                    <span class="text-[10px] text-outline uppercase font-semibold">${d.method}</span>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        updateDynamicProgramCards();
+        renderVerifiedDonorsProg();
+
+        if (wizStore && wizStore.syncFromCloud) {
+            try {
+                await wizStore.syncFromCloud(true);
+            } catch(e) {}
+            updateDynamicProgramCards();
+            renderVerifiedDonorsProg();
+            if (typeof window.applySiteSettings === 'function') window.applySiteSettings();
+        }
+    });
+
     window.addEventListener('wiz-sync-complete', () => {
         updateDynamicProgramCards();
+        renderVerifiedDonorsProg();
+        if (typeof window.applySiteSettings === 'function') window.applySiteSettings();
     });
     window.addEventListener('wiz-program-images-changed', () => {
         updateDynamicProgramCards();

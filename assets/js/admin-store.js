@@ -1738,7 +1738,7 @@
                 });
             } catch(e) {}
 
-            if (window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
+            if (typeof window !== 'undefined' && window.location && window.location.hostname && window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
                 try {
                     fetch('https://www.wizbangkabelitung.or.id/api/sync', {
                         method: 'POST',
@@ -1925,7 +1925,37 @@
         },
 
         count() { return this.getVerified().length; },
-        countPending() { return this.getPending().length; }
+        countPending() { return this.getPending().length; },
+
+        getRecentVerified(limit = 10) {
+            const list = this.getVerified();
+            return list.slice(0, limit).map(d => {
+                const isInfakUmum = d.type === 'Infak Umum' || (!d.programSpesifik && d.program === 'Infak Umum');
+                const progDisplay = isInfakUmum
+                    ? 'Infak Umum (Kebaikan Semua Program)'
+                    : (d.programSpesifik || d.program || d.programUtama || 'Donasi Kebaikan');
+                
+                const rawName = (d.donorName || 'Hamba Allah').trim();
+                const isAnon = rawName.toLowerCase() === 'hamba allah' || rawName.toLowerCase() === 'anonim' || !rawName;
+                const displayName = isAnon ? 'Hamba Allah' : rawName;
+
+                return {
+                    id: d.id,
+                    donorName: displayName,
+                    isAnonymous: isAnon,
+                    program: progDisplay,
+                    programRaw: d.programSpesifik || d.program || d.type,
+                    isInfakUmum: isInfakUmum,
+                    type: d.type,
+                    wilayah: d.wilayah || 'Pangkalpinang',
+                    amount: Number(d.amount) || 0,
+                    method: d.method || 'Transfer Bank',
+                    status: 'verified',
+                    createdAt: d.createdAt || new Date().toISOString(),
+                    timeAgo: timeAgo(d.createdAt)
+                };
+            });
+        }
     };
 
     // ─── News Module ──────────────────────────────────────
@@ -2394,8 +2424,12 @@
             const pLower = (programName || '').toLowerCase().trim();
 
             const addedMasuk = verified.reduce((sum, d) => {
+                const dWilayah = d.wilayah || 'Pangkalpinang';
+                const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get) 
+                    ? (allocationRulesManager.get(dWilayah) || ALLOCATION_RULES[dWilayah])
+                    : ALLOCATION_RULES[dWilayah];
+
                 if (d.type === 'Infak Umum') {
-                    const wRules = ALLOCATION_RULES[d.wilayah || 'Pangkalpinang'];
                     if (wRules && wRules.mainAllocation) {
                         const pillar = mapProgramToPillar(programName);
                         const mainItem = wRules.mainAllocation.find(i => i.key === pillar);
@@ -2404,7 +2438,7 @@
                             const subRule = wRules.subAllocation && wRules.subAllocation[pillar];
                             if (subRule && subRule.items && subRule.items.length > 0) {
                                 const subItem = subRule.items.find(si => {
-                                    const siLower = si.key.toLowerCase();
+                                    const siLower = si.key.toLowerCase().trim();
                                     return pLower.includes(siLower) || siLower.includes(pLower);
                                 });
                                 if (subItem) {
@@ -2417,8 +2451,9 @@
                         }
                     }
                 } else {
-                    const dProg = (d.programSpesifik || d.program || '').toLowerCase();
-                    const dCat = (d.programUtama || d.category || '').toLowerCase();
+                    // Infak Terikat / Specific Program: 100% of the verified amount counts toward the program
+                    const dProg = (d.programSpesifik || d.program || '').toLowerCase().trim();
+                    const dCat = (d.programUtama || d.category || '').toLowerCase().trim();
                     if (dProg && (dProg.includes(pLower) || pLower.includes(dProg))) {
                         return sum + (Number(d.amount) || 0);
                     }
@@ -2430,7 +2465,7 @@
             }, 0);
 
             const addedSalur = disbList.reduce((sum, db) => {
-                const dbProg = (db.program || '').toLowerCase();
+                const dbProg = (db.program || '').toLowerCase().trim();
                 if (dbProg && (dbProg.includes(pLower) || pLower.includes(dbProg))) {
                     return sum + (Number(db.amount) || 0);
                 }
@@ -2461,22 +2496,10 @@
             }
 
             const programConfigs = {
-                // Berkah Hidayah (Dakwah): Pembangunan Markaz ×2 (Rp1.002.000.000 ×2) + program dakwah lainnya
-                // Markaz: 2.004.000.000 | Tabligh Akbar: 16.400.000 | Dirosa: 6.700.000 | Jenazah: 4.200.000
-                // Daurah: 11.700.000 | Tahfidz: 2.880.000 | Rumah Qur'an: 119.620.000
-                // Public Speaking: 4.200.000 | Motor Dai: 5.000.000 | Beras Dai: 30.000.000
                 'Berkah Hidayah': { label: 'WIZ Berkah Hidayah (Dakwah & Pembinaan)', target: 2204700000, baseMasuk: 0, baseSalur: 0 },
-                // Berkah Peduli (Sosial): Sembako+Beras+Jumat+Yatim+Iftar Nusantara
-                // 28.800.000 + 15.000.000 + 54.000.000 + 17.500.000 + 112.500.000
                 'Berkah Peduli': { label: 'WIZ Berkah Peduli (Sosial & Kemanusiaan)', target: 227800000, baseMasuk: 0, baseSalur: 0 },
-                // Berkah Juara (Pendidikan): Beasiswa + Tebar Alat Sekolah
-                // 300.000.000 + 54.390.000
                 'Berkah Juara': { label: 'WIZ Berkah Juara (Pendidikan & Beasiswa)', target: 354390000, baseMasuk: 0, baseSalur: 0 },
-                // Berkah Sehat (Kesehatan): Khitanan + Pengobatan Dhuafa
-                // 15.450.000 + 50.000.000
                 'Berkah Sehat': { label: 'WIZ Berkah Sehat (Kesehatan & Ambulance)', target: 65450000, baseMasuk: 0, baseSalur: 0 },
-                // Berkah Mandiri (Ekonomi): Modal Usaha Mikro + estimasi pelatihan wirausaha
-                // 60.500.000 + realistis program lainnya
                 'Berkah Mandiri': { label: 'WIZ Berkah Mandiri (Ekonomi & Pemberdayaan)', target: 100500000, baseMasuk: 0, baseSalur: 0 },
             };
 
@@ -2489,8 +2512,12 @@
             });
 
             verified.forEach(d => {
+                const dWilayah = d.wilayah || 'Pangkalpinang';
+                const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get)
+                    ? (allocationRulesManager.get(dWilayah) || ALLOCATION_RULES[dWilayah])
+                    : ALLOCATION_RULES[dWilayah];
+
                 if (d.type === 'Infak Umum') {
-                    const wRules = ALLOCATION_RULES[d.wilayah || 'Pangkalpinang'];
                     if (wRules && wRules.mainAllocation) {
                         wRules.mainAllocation.forEach(item => {
                             if (dynamicMasuk[item.key] !== undefined) {

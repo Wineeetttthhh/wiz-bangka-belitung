@@ -183,6 +183,28 @@ const SUPABASE_CONFIG = {
             }
             return await upsert('donations', payload);
         },
+        getRecentVerifiedDonations: async (limit = 10) => {
+            const res = await select('donations', {
+                filter: 'status=eq.verified',
+                order: 'created_at.desc',
+                limit: limit
+            });
+            if (res.error || !Array.isArray(res.data)) return res;
+            const mapped = res.data.map(d => ({
+                id: d.id,
+                donorName: d.donor_name || 'Hamba Allah',
+                donorPhone: d.donor_phone,
+                wilayah: d.wilayah || 'Pangkalpinang',
+                type: d.donation_type,
+                program: d.program_title || d.program || 'Infak Umum',
+                programSpesifik: d.program_spesifik || d.program_title,
+                amount: Number(d.amount) || 0,
+                method: d.payment_method,
+                status: 'verified',
+                createdAt: d.created_at
+            }));
+            return { data: mapped, error: null };
+        },
         saveDisbursement: (data) => upsert('disbursements', data),
         saveReferral: async (data) => {
             if (!data) return { data: null, error: 'No data' };
