@@ -76,6 +76,14 @@
       "destination": "/api/program"
     },
     {
+      "source": "/quote/:id",
+      "destination": "/api/quote?id=:id"
+    },
+    {
+      "source": "/quote",
+      "destination": "/api/quote"
+    },
+    {
       "source": "/berita/:id",
       "destination": "/api/berita?id=:id"
     },

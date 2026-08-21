@@ -129,12 +129,55 @@ function initReferralUrlTracker() {
     } catch(e) {}
 }
 
+function initHomeQuoteSection() {
+    if (!window.wizStore || !window.wizStore.quotes) return;
+    const today = wizStore.quotes.getToday() || (wizStore.quotes.getActive ? wizStore.quotes.getActive()[0] : null);
+    if (!today) return;
+
+    const imgEl = document.getElementById('home-quote-img');
+    const catEl = document.getElementById('home-quote-cat');
+    const textEl = document.getElementById('home-quote-text');
+    const srcEl = document.getElementById('home-quote-source');
+    const pageLink = document.getElementById('home-quote-page-link');
+    const donateBtn = document.getElementById('home-quote-donate-btn');
+
+    const defaultImg = 'assets/images/foto-utama-wiz.jpg';
+    const activeRef = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || '');
+    const origin = (window.location.origin && window.location.origin.includes('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
+
+    if (imgEl) {
+        imgEl.src = today.imageUrl || defaultImg;
+        imgEl.onerror = () => { imgEl.src = defaultImg; };
+    }
+    if (catEl) catEl.textContent = today.category || 'Quote & Inspirasi';
+    if (textEl) textEl.textContent = `"${today.text}"`;
+    if (srcEl) srcEl.innerHTML = `<span class="material-symbols-outlined text-base">menu_book</span><span>${today.source || 'Wahdah Inspirasi Zakat'}</span>`;
+    
+    if (pageLink) {
+        pageLink.href = `${origin}/quote/${encodeURIComponent(today.id)}${activeRef ? '?ref=' + encodeURIComponent(activeRef) : ''}`;
+    }
+    if (donateBtn) {
+        donateBtn.href = `donasi.html${activeRef ? '?ref=' + encodeURIComponent(activeRef) : ''}`;
+    }
+
+    window.shareHomeQuoteWA = function() {
+        const qUrl = `${origin}/quote/${encodeURIComponent(today.id)}${activeRef ? '?ref=' + encodeURIComponent(activeRef) : ''}`;
+        const caption = `*${today.source || 'Inspirasi Harian'}*\n\n"${today.text}"\n\nYuk bersama menebar kebaikan melalui Laznas WIZ Bangka Belitung:\n${qUrl}`;
+        window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(caption), '_blank');
+    };
+}
+
 window.addEventListener('wiz-sync-complete', () => {
     initDynamicSiteImages();
     initDynamicProgramImages();
     initStatsCounter();
     initProgramCatalog();
     initMutationTable();
+    initHomeQuoteSection();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    initHomeQuoteSection();
 });
 
 /**

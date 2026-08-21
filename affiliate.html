@@ -350,6 +350,10 @@
                         <span class="material-symbols-outlined text-lg">grid_view</span>
                         <span>Program &amp; Link</span>
                     </button>
+                    <button onclick="switchMemberSubTab('subtab-quotes')" id="btn-subtab-quotes" class="member-nav-btn px-5 py-3 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all rounded-xl border-b-2 border-transparent">
+                        <span class="material-symbols-outlined text-lg">format_quote</span>
+                        <span>Quote &amp; Flyer</span>
+                    </button>
                     <button onclick="switchMemberSubTab('subtab-profile')" id="btn-subtab-profile" class="member-nav-btn px-5 py-3 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all rounded-xl border-b-2 border-transparent">
                         <span class="material-symbols-outlined text-lg">settings</span>
                         <span>Pengaturan Rekening &amp; PIN</span>
@@ -544,7 +548,39 @@
                 </div>
             </div>
 
-            <!-- SUBTAB 3: Member Profile & Bank Account Settings -->
+            <!-- SUBTAB: Quote & Inspirasi Harian (Flyer Media) -->
+            <div id="subtab-quotes" class="member-subtab space-y-6 hidden">
+                <div class="border-b border-slate-200 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-2xl">format_quote</span>
+                            <span>Quote &amp; Inspirasi Harian (Flyer Media)</span>
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">Materi flyer poster dakwah siap dibagikan ke WhatsApp Story, Chat, dan Media Sosial dengan tautan referral Anda!</p>
+                    </div>
+                </div>
+
+                <!-- Featured / Today Quote Card -->
+                <div id="affiliate-featured-quote" class="bg-gradient-to-br from-emerald-950 via-emerald-900 to-primary text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden flex flex-col md:flex-row gap-6 items-center">
+                    <!-- Dynamically populated today quote -->
+                </div>
+
+                <!-- Grid of All Available Quotes -->
+                <div class="space-y-4 pt-2">
+                    <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">collections</span>
+                        <span>Koleksi Flyer &amp; Kutipan Hadits Siap Share</span>
+                    </h3>
+                    <div id="affiliate-quotes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Dynamically rendered quotes -->
+                    </div>
+                    <div id="affiliate-quotes-empty" class="hidden p-8 bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-center text-slate-500 text-xs">
+                        Belum ada flyer quote yang aktif saat ini.
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUBTAB: Member Profile & Bank Account Settings -->
             <div id="subtab-profile" class="member-subtab max-w-2xl space-y-6 hidden">
                 <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
                     <div class="border-b border-slate-100 pb-4">
@@ -777,6 +813,8 @@
                 renderAffiliateNewsGrid();
             } else if (subtabId === 'subtab-catalog') {
                 renderAffiliateProgramsGrid();
+            } else if (subtabId === 'subtab-quotes') {
+                renderAffiliateQuotesGrid();
             }
         }
 
@@ -1154,6 +1192,146 @@
 
         function getActiveAffiliateRefCode() {
             return (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || sessionStorage.getItem('wiz_active_ref_id') || 'WIZ';
+        }
+
+        function renderAffiliateQuotesGrid() {
+            if (!window.wizStore || !window.wizStore.quotes) return;
+            const quotesList = wizStore.quotes.getActive();
+            const activeRef = getActiveAffiliateRefCode();
+
+            const featuredCard = document.getElementById('affiliate-featured-quote');
+            const emptyNotice = document.getElementById('affiliate-quotes-empty');
+            const grid = document.getElementById('affiliate-quotes-grid');
+
+            if (!quotesList || quotesList.length === 0) {
+                if (featuredCard) featuredCard.style.display = 'none';
+                if (grid) grid.innerHTML = '';
+                if (emptyNotice) emptyNotice.classList.remove('hidden');
+                return;
+            }
+
+            if (emptyNotice) emptyNotice.classList.add('hidden');
+            if (featuredCard) featuredCard.style.display = '';
+
+            const today = wizStore.quotes.getToday() || quotesList[0];
+            const defaultImg = 'assets/images/foto-utama-wiz.jpg';
+            const origin = (window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
+            const todayQuoteUrl = `${origin}/quote/${encodeURIComponent(today.id)}?ref=${encodeURIComponent(activeRef)}`;
+
+            // Render Featured / Today Quote Card
+            if (featuredCard) {
+                featuredCard.innerHTML = `
+                <div class="w-full md:w-5/12 aspect-[4/5] sm:aspect-square rounded-2xl overflow-hidden bg-slate-900 border border-white/20 shrink-0 shadow-lg relative group">
+                    <img src="${today.imageUrl || defaultImg}" onerror="this.src='${defaultImg}'" class="w-full h-full object-contain" alt="${today.source || 'Flyer Quote'}">
+                    <span class="absolute top-3 left-3 bg-amber-500 text-slate-950 font-extrabold text-[10px] px-2.5 py-0.5 rounded-full shadow">
+                        ⭐ Flyer Pilihan Hari Ini
+                    </span>
+                </div>
+                <div class="flex-1 space-y-4 text-left">
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-emerald-200 text-xs font-bold border border-white/10">
+                        <span class="material-symbols-outlined text-sm">label</span>
+                        <span>${today.category || 'Quote & Inspirasi'}</span>
+                    </div>
+                    <blockquote class="text-sm sm:text-base font-medium text-white/95 italic leading-relaxed">
+                        "${today.text || 'Sedekah itu tidak akan mengurangi harta...'}"
+                    </blockquote>
+                    <p class="text-xs sm:text-sm font-extrabold text-amber-300 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-base">menu_book</span>
+                        <span>${today.source || 'Wahdah Inspirasi Zakat'}</span>
+                    </p>
+                    <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-white/10">
+                        <button type="button" onclick="shareAffiliateQuoteWA('${today.id}')" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-transform hover:scale-105 cursor-pointer">
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+                            <span>Bagikan ke WhatsApp</span>
+                        </button>
+                        <button type="button" onclick="downloadAffiliateQuoteImage('${today.id}')" class="bg-white/15 hover:bg-white/25 text-white border border-white/20 px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer" title="Unduh Flyer HD">
+                            <span class="material-symbols-outlined text-base">download</span>
+                            <span>Unduh Flyer</span>
+                        </button>
+                        <button type="button" onclick="copyAffiliateQuoteLink('${today.id}')" class="bg-white/10 hover:bg-white/20 text-white px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer" title="Salin Link Quote">
+                            <span class="material-symbols-outlined text-base">content_copy</span>
+                            <span>Salin Link</span>
+                        </button>
+                        <a href="${todayQuoteUrl}" target="_blank" class="bg-amber-400 hover:bg-amber-500 text-slate-950 px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors">
+                            <span class="material-symbols-outlined text-base">open_in_new</span>
+                            <span>Buka Halaman</span>
+                        </a>
+                    </div>
+                </div>
+                `;
+            }
+
+            // Populate Grid
+            if (grid) {
+                grid.innerHTML = quotesList.map(q => {
+                    const img = q.imageUrl || defaultImg;
+                    const qUrl = `${origin}/quote/${encodeURIComponent(q.id)}?ref=${encodeURIComponent(activeRef)}`;
+                    return `
+                    <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs hover:shadow-md transition-shadow flex flex-col">
+                        <div class="aspect-[4/5] relative bg-slate-900 overflow-hidden flex items-center justify-center">
+                            <img src="${img}" onerror="this.src='${defaultImg}'" class="w-full h-full object-contain" alt="${q.source || 'Flyer'}">
+                            <span class="absolute top-2 left-2 bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-xs">${q.category || 'Quote'}</span>
+                        </div>
+                        <div class="p-4 flex flex-col flex-grow space-y-2">
+                            <blockquote class="text-xs text-slate-700 italic line-clamp-3 leading-relaxed font-medium">"${q.text}"</blockquote>
+                            <p class="text-[11px] font-bold text-primary truncate">${q.source || 'Wahdah Inspirasi Zakat'}</p>
+                            <div class="pt-2 mt-auto border-t border-slate-100 flex items-center gap-1.5">
+                                <button type="button" onclick="shareAffiliateQuoteWA('${q.id}')" class="flex-1 bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold text-xs py-2 px-2.5 rounded-xl flex items-center justify-center gap-1 shadow-xs transition-colors cursor-pointer" title="Bagikan ke WhatsApp">
+                                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+                                    <span>Share WA</span>
+                                </button>
+                                <button type="button" onclick="downloadAffiliateQuoteImage('${q.id}')" class="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl font-bold text-xs flex items-center justify-center transition-colors cursor-pointer" title="Unduh Flyer">
+                                    <span class="material-symbols-outlined text-sm">download</span>
+                                </button>
+                                <button type="button" onclick="copyAffiliateQuoteLink('${q.id}')" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs flex items-center justify-center transition-colors cursor-pointer" title="Salin Link Quote">
+                                    <span class="material-symbols-outlined text-sm">content_copy</span>
+                                </button>
+                                <a href="${qUrl}" target="_blank" class="p-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl font-bold text-xs flex items-center justify-center transition-colors" title="Buka Halaman">
+                                    <span class="material-symbols-outlined text-sm">open_in_new</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+        }
+
+        function shareAffiliateQuoteWA(quoteId) {
+            if (!window.wizStore || !window.wizStore.quotes) return;
+            const q = wizStore.quotes.getById(quoteId);
+            if (!q) return;
+
+            const activeRef = getActiveAffiliateRefCode();
+            const origin = (window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
+            const url = `${origin}/quote/${encodeURIComponent(q.id)}?ref=${encodeURIComponent(activeRef)}`;
+            
+            const caption = `*${q.source || 'Inspirasi Harian'}*\n\n"${q.text}"\n\nYuk bersama menebar kebaikan & mari salurkan Zakat, Infak, dan Sedekah melalui link resmi:\n${url}`;
+
+            const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(caption);
+            window.open(waUrl, '_blank');
+        }
+
+        function downloadAffiliateQuoteImage(quoteId) {
+            if (!window.wizStore || !window.wizStore.quotes) return;
+            const q = wizStore.quotes.getById(quoteId);
+            if (!q || !q.imageUrl) return;
+
+            const link = document.createElement('a');
+            link.href = q.imageUrl;
+            link.download = `Flyer-WIZ-${q.id || 'quote'}.jpg`;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function copyAffiliateQuoteLink(quoteId) {
+            const activeRef = getActiveAffiliateRefCode();
+            const origin = (window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
+            const url = `${origin}/quote/${encodeURIComponent(quoteId)}?ref=${encodeURIComponent(activeRef)}`;
+            navigator.clipboard.writeText(url).then(() => {
+                alert(`✅ Link Quote & Flyer berhasil disalin:\n${url}`);
+            });
         }
 
         // Helper to convert Image URL / Base64 to a File for native sharing

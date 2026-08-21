@@ -103,6 +103,30 @@ const server = http.createServer((req, res) => {
         }
     }
 
+    // Dynamic Quote & Inspirasi Open Graph Route (/quote/:id or /quote?id=...)
+    if (reqUrl.startsWith('/quote/') || (reqUrl === '/quote' && req.url.includes('?')) || reqUrl === '/quote') {
+        const apiFilePath = path.join(__dirname, 'api', 'quote.js');
+        if (fs.existsSync(apiFilePath)) {
+            try {
+                res.status = function(code) { this.statusCode = code; return this; };
+                res.send = function(content) {
+                    if (!this.getHeader('Content-Type')) {
+                        this.setHeader('Content-Type', 'text/html; charset=utf-8');
+                    }
+                    this.writeHead(this.statusCode || 200);
+                    this.end(content);
+                    return this;
+                };
+                delete require.cache[require.resolve(apiFilePath)];
+                const handler = require(apiFilePath);
+                handler(req, res);
+                return;
+            } catch (err) {
+                console.error('[Quote Dev Router Error]', err);
+            }
+        }
+    }
+
     // Dynamic News / Berita Open Graph Route (/berita/:id)
     if (reqUrl.startsWith('/berita')) {
         const apiFilePath = path.join(__dirname, 'api', 'berita.js');
