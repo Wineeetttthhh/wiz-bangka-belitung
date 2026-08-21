@@ -1998,7 +1998,14 @@
             } catch(e) {}
 
             try { await pushToCloud(); } catch(e) {}
+
+            broadcastSync('DONATION_VERIFIED', list[idx]);
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+            window.dispatchEvent(new CustomEvent('wiz-donations-changed', { detail: { action: 'verify', id: donationId } }));
+            window.dispatchEvent(new CustomEvent('wiz-referrals-changed'));
+            try {
+                window.dispatchEvent(new CustomEvent('wiz-data-changed', { detail: { action: 'verify_donation', id: donationId } }));
+            } catch(e) {}
             return list[idx];
         },
 
@@ -2035,7 +2042,14 @@
             } catch(e) {}
 
             try { await pushToCloud(); } catch(e) {}
+
+            broadcastSync('DONATION_REJECTED', list[idx]);
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+            window.dispatchEvent(new CustomEvent('wiz-donations-changed', { detail: { action: 'reject', id: donationId } }));
+            window.dispatchEvent(new CustomEvent('wiz-referrals-changed'));
+            try {
+                window.dispatchEvent(new CustomEvent('wiz-data-changed', { detail: { action: 'reject_donation', id: donationId } }));
+            } catch(e) {}
             return list[idx];
         },
 
@@ -2059,8 +2073,24 @@
                 } catch(e) {}
             }
 
+            // Real-time broadcast of deleted donation to /api/sync
+            try {
+                await fetch('/api/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ deleted_donation_ids: [strId], deleted_ids: [strId] })
+                });
+            } catch(e) {}
+
             try { await pushToCloud(); } catch(e) {}
+
+            broadcastSync('DONATION_DELETED', { id: strId });
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+            window.dispatchEvent(new CustomEvent('wiz-donations-changed', { detail: { action: 'delete', id: strId } }));
+            window.dispatchEvent(new CustomEvent('wiz-referrals-changed'));
+            try {
+                window.dispatchEvent(new CustomEvent('wiz-data-changed', { detail: { action: 'delete_donation', id: strId } }));
+            } catch(e) {}
         },
 
         count() { return this.getVerified().length; },
@@ -2892,32 +2922,48 @@
     // ─── Referrals (Hak 6% Perantara) Module ────────────────
     const referrals = {
         getAll() {
-            const deletedSet = getDeletedRefIds();
-            const rawList = (getStore(STORAGE_KEYS.REFERRALS) || []).filter(r => r && (r.id || r.code || r.name) && !deletedSet.has(String(r.id || r.code)) && r.status !== 'deleted' && !r.isDeleted);
-            const allDonations = getStore(STORAGE_KEYS.DONATIONS) || [];
+            const deletedRefSet = getDeletedRefIds();
+            const deletedDonationSet = getDeletedIds();
+            const rawList = (getStore(STORAGE_KEYS.REFERRALS) || []).filter(r => r && (r.id || r.code || r.name) && !deletedRefSet.has(String(r.id)) && !deletedRefSet.has(String(r.code)) && r.status !== 'deleted' && !r.isDeleted);
+            
+            // Query only valid, non-deleted donations
+            const rawDonations = getStore(STORAGE_KEYS.DONATIONS) || [];
+            const activeDonations = rawDonations.filter(d => d && d.id && !deletedDonationSet.has(String(d.id)) && d.status !== 'deleted' && !d.isDeleted);
             const allPayouts = getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || [];
 
             return rawList.map(ref => {
                 const refId = String(ref.id || ref.code || '');
                 const refCode = String(ref.code || ref.id || '');
-                const refDonations = allDonations.filter(d => {
-                    const dRefId = String(d.referralId || '');
-                    return dRefId && (dRefId === refId || dRefId.toLowerCase() === refCode.toLowerCase());
-                });
-                const refPayouts = allPayouts.filter(p => {
-                    const pRefId = String(p.referralId || '');
-                    return pRefId && (pRefId === refId || pRefId.toLowerCase() === refCode.toLowerCase());
+                
+                // Match all active donations attributed to this Mitra (by ID or Code)
+                const refAllDonations = activeDonations.filter(d => {
+                    const dRef = String(d.referralId || d.referral_id || d.referralCode || d.referral_code || '');
+                    return dRef && (
+                        dRef === refId || 
+                        dRef.toLowerCase() === refId.toLowerCase() || 
+                        dRef === refCode || 
+                        dRef.toLowerCase() === refCode.toLowerCase()
+                    );
                 });
 
-                const donationsCount = refDonations.length;
-                const totalDonationAmount = refDonations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
-                const totalFee6Percent = refDonations.reduce((sum, d) => {
+                // ONLY verified / success transactions count towards incentive totals & withdrawable balance!
+                // Rejected, cancelled, or pending donations are excluded from balances.
+                const verifiedDonations = refAllDonations.filter(d => d.status === 'verified' || d.status === 'success' || d.status === 'sukses');
+
+                const donationsCount = verifiedDonations.length;
+                const totalDonationAmount = verifiedDonations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
+                const totalFee6Percent = verifiedDonations.reduce((sum, d) => {
                     const rate = d.referralRate !== undefined ? Number(d.referralRate) : Number(ref.defaultRate || 6);
                     const fee = d.referralFee !== undefined ? Number(d.referralFee) : Math.round((Number(d.amount) || 0) * (rate / 100));
                     return sum + fee;
                 }, 0);
-                const totalAdditionalBonus = refDonations.reduce((sum, d) => sum + (Number(d.additionalBonus) || 0), 0);
+                const totalAdditionalBonus = verifiedDonations.reduce((sum, d) => sum + (Number(d.additionalBonus) || 0), 0);
                 const totalEarned = totalFee6Percent + totalAdditionalBonus;
+
+                const refPayouts = allPayouts.filter(p => {
+                    const pRefId = String(p.referralId || '');
+                    return pRefId && (pRefId === refId || pRefId.toLowerCase() === refId.toLowerCase() || pRefId === refCode || pRefId.toLowerCase() === refCode.toLowerCase());
+                });
                 const totalPaid = refPayouts.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
                 const pendingBalance = Math.max(0, totalEarned - totalPaid);
 
@@ -2931,35 +2977,26 @@
                     totalAdditionalBonus,
                     totalEarned,
                     totalPaid,
-                    pendingBalance
+                    pendingBalance,
+                    donations: refAllDonations.sort((a, b) => new Date(b.createdAt || b.date || 0) - new Date(a.createdAt || a.date || 0)),
+                    payouts: refPayouts.sort((a, b) => new Date(b.paidAt || 0) - new Date(a.paidAt || 0))
                 };
             }).sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
         },
 
         getById(id) {
+            if (!id) return null;
             const all = this.getAll();
-            const ref = all.find(r => String(r.id) === String(id) || (r.code && String(r.code).toLowerCase() === String(id).toLowerCase()));
-            if (!ref) return null;
-
-            const allDonations = (getStore(STORAGE_KEYS.DONATIONS) || []).filter(d => String(d.referralId) === String(ref.id));
-            const allPayouts = (getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || []).filter(p => String(p.referralId) === String(ref.id)).sort((a, b) => new Date(b.paidAt) - new Date(a.paidAt));
-
-            return {
-                ...ref,
-                donations: allDonations,
-                payouts: allPayouts
-            };
-        },
-
-        getByCodeOrId(identifier) {
-            if (!identifier) return null;
-            const clean = String(identifier).trim().toLowerCase();
-            const all = this.getAll();
+            const clean = String(id).trim().toLowerCase();
             return all.find(r => 
                 String(r.id).toLowerCase() === clean || 
                 (r.code && String(r.code).toLowerCase() === clean) ||
-                (r.phone && r.phone.replace(/\D/g,'') === clean.replace(/\D/g,'') && clean.length > 5)
+                (r.phone && r.phone.replace(/\D/g, '') === clean.replace(/\D/g, '') && clean.length >= 5)
             ) || null;
+        },
+
+        getByCodeOrId(identifier) {
+            return this.getById(identifier);
         },
 
         async registerPublic({ name, phone, bankName, accountNumber, accountHolder, pin }) {
@@ -3062,7 +3099,9 @@
                 filterMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
             }
 
+            // ONLY verified donations in this month count towards performance KPI
             const refDonations = (ref.donations || []).filter(d => {
+                if (d.status !== 'verified' && d.status !== 'success' && d.status !== 'sukses') return false;
                 if (filterMonth === 'Semua') return true;
                 const dDate = d.createdAt || d.verifiedAt || d.date || '';
                 return dDate.startsWith(filterMonth);

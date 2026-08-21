@@ -1038,15 +1038,27 @@
                 tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400 font-medium">Belum ada donasi dari link penghimpunan Anda. Sebar link program untuk mulai menghimpun kebaikan!</td></tr>`;
             } else {
                 tbody.innerHTML = dons.map(d => {
-                    const fee = d.referralFee !== undefined ? Number(d.referralFee) : Math.round((Number(d.amount) || 0) * 0.06);
+                    const isVerified = d.status === 'verified' || d.status === 'success' || d.status === 'sukses';
+                    const isRejected = d.status === 'rejected' || d.status === 'cancelled' || d.status === 'batal';
+                    const fee = isVerified ? (d.referralFee !== undefined ? Number(d.referralFee) : Math.round((Number(d.amount) || 0) * 0.06)) : 0;
+                    
+                    let statusBadge = '';
+                    if (isVerified) {
+                        statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Verified</span>';
+                    } else if (isRejected) {
+                        statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700">Dibatalkan</span>';
+                    } else {
+                        statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">Menunggu Verifikasi</span>';
+                    }
+
                     return `
                     <tr class="border-b border-slate-100 hover:bg-slate-50">
                         <td class="p-3 font-mono text-slate-600">${d.createdAt ? d.createdAt.split('T')[0] : '-'}</td>
                         <td class="p-3 font-bold text-slate-900">${d.donorName || 'Hamba Allah'}</td>
                         <td class="p-3 text-slate-700">${d.program || d.type || '-'}</td>
-                        <td class="p-3 font-bold text-primary">Rp ${(Number(d.amount)||0).toLocaleString('id-ID')}</td>
-                        <td class="p-3 font-extrabold text-emerald-800">Rp ${fee.toLocaleString('id-ID')}</td>
-                        <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${d.status==='verified'?'bg-emerald-100 text-emerald-800':'bg-amber-100 text-amber-800'}">${d.status||'pending'}</span></td>
+                        <td class="p-3 font-bold ${isRejected ? 'text-slate-400 line-through' : 'text-primary'}">Rp ${(Number(d.amount)||0).toLocaleString('id-ID')}</td>
+                        <td class="p-3 font-extrabold ${isVerified ? 'text-emerald-800' : 'text-slate-400'}">Rp ${fee.toLocaleString('id-ID')}</td>
+                        <td class="p-3">${statusBadge}</td>
                     </tr>`;
                 }).join('');
             }

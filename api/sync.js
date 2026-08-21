@@ -173,11 +173,19 @@ module.exports = async function handler(req, res) {
             let master = await supabaseGetMaster();
             if (!master) master = loadCanonicalSeed();
 
-            const deletedIds = Array.isArray(incoming.deleted_ids) ? incoming.deleted_ids : [];
+            const deletedDonationIds = [
+                ...(Array.isArray(incoming.deleted_ids) ? incoming.deleted_ids : []),
+                ...(Array.isArray(incoming.deleted_donation_ids) ? incoming.deleted_donation_ids : [])
+            ];
+            const deletedIds = Array.from(new Set(deletedDonationIds));
             const deletedNewsIds = Array.isArray(incoming.deleted_news_ids) ? incoming.deleted_news_ids : [];
             const deletedDisbIds = Array.isArray(incoming.deleted_disb_ids) ? incoming.deleted_disb_ids : [];
             const deletedRefIds = Array.isArray(incoming.deleted_ref_ids) ? incoming.deleted_ref_ids : [];
             const deletedQuoteIds = Array.isArray(incoming.deleted_quote_ids) ? incoming.deleted_quote_ids : [];
+
+            if (deletedIds.length > 0 && Array.isArray(master.donations)) {
+                master.donations = master.donations.filter(d => d && d.id && !deletedIds.includes(String(d.id)));
+            }
 
             if (Array.isArray(incoming.donations))
                 master.donations = mergeArrays(master.donations, incoming.donations, deletedIds);
