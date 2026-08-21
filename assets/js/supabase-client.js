@@ -34,6 +34,8 @@ const SUPABASE_CONFIG = {
             'Content-Type': 'application/json',
             'apikey': SUPABASE_CONFIG.anonKey,
             'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
             ...extra
         };
     }
@@ -55,7 +57,8 @@ const SUPABASE_CONFIG = {
         try {
             const res = await fetch(url, {
                 method: 'GET',
-                headers: headers({ 'Accept': 'application/json' })
+                headers: headers({ 'Accept': 'application/json' }),
+                cache: 'no-store'
             });
             if (!res.ok) {
                 const err = await res.text();
@@ -251,6 +254,42 @@ const SUPABASE_CONFIG = {
                 return { data: resMaster.data[0].value.site_settings, error: null };
             }
             return res;
+        },
+        saveNews: async (article) => {
+            if (!article) return { data: null, error: 'No data' };
+            const payload = {
+                id: String(article.id),
+                title: String(article.title || '').trim(),
+                category: String(article.category || 'Kegiatan & Event'),
+                content: String(article.content || '').trim(),
+                image_url: String(article.imageUrl || article.image_url || ''),
+                gallery: Array.isArray(article.gallery) ? article.gallery : [],
+                event_date: article.eventDate || article.event_date || new Date().toISOString(),
+                status: String(article.status || 'published'),
+                author: String(article.author || 'Admin WIZ Babel'),
+                created_at: article.createdAt || article.created_at || new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+            return await upsert('news', payload);
+        },
+        getNews: async (onlyPublished = false) => {
+            const filter = onlyPublished ? 'status=eq.published' : undefined;
+            const res = await select('news', { filter, order: 'event_date.desc' });
+            if (res.error || !Array.isArray(res.data)) return res;
+            const mapped = res.data.map(n => ({
+                id: n.id,
+                title: n.title,
+                category: n.category,
+                content: n.content,
+                imageUrl: n.image_url,
+                gallery: Array.isArray(n.gallery) ? n.gallery : [],
+                eventDate: n.event_date,
+                status: n.status || 'published',
+                author: n.author,
+                createdAt: n.created_at,
+                updatedAt: n.updated_at
+            }));
+            return { data: mapped, error: null };
         },
         saveReferralPayout: (data) => upsert('referral_payouts', data),
         saveContactMessage: (data) => insert('contact_messages', data),

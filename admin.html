@@ -2310,11 +2310,11 @@
                 <td class="p-md text-center"><span class="px-2 py-0.5 text-xs font-bold rounded bg-emerald-100 text-emerald-800">${d.wilayah || 'Pangkalpinang'}</span></td>
                 <td class="p-md text-on-surface-variant truncate max-w-[180px]">${d.programSpesifik || d.program || d.type}</td>
                 <td class="p-md font-label-md text-label-md font-bold text-primary">${fmt(d.amount)}</td>
-                <td class="p-md text-right whitespace-nowrap">
-                    <button onclick="verifyDonation('${d.id}')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-on-primary hover:bg-primary/90 font-label-md text-label-md transition-colors font-bold mr-1">
+                <td class="p-md text-right whitespace-nowrap" onclick="event.stopPropagation()">
+                    <button type="button" onclick="event.stopPropagation(); verifyDonation('${d.id}')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-on-primary hover:bg-primary/90 font-label-md text-label-md transition-colors font-bold mr-1 cursor-pointer">
                         <span class="material-symbols-outlined size-[16px]">check_circle</span> Verifikasi
                     </button>
-                    <button onclick="showDonationDetail('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary font-label-md text-caption font-semibold">
+                    <button type="button" onclick="event.stopPropagation(); showDonationDetail('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary font-label-md text-caption font-semibold cursor-pointer">
                         <span class="material-symbols-outlined size-[14px]">visibility</span> Detail
                     </button>
                 </td>
@@ -3038,11 +3038,12 @@
 
             const adminUser = sessionStorage.getItem('wiz_admin_user') || 'Admin 1';
             await wizStore.donations.verify(id, adminUser);
+            
             refreshAll();
-            renderFullDonationTable();
-            renderRecentDonations();
-            renderOverviewStats();
-            if (typeof renderProgress5Berkah === 'function') renderProgress5Berkah();
+            try { if (typeof renderFullDonationTable === 'function') renderFullDonationTable(); } catch(e) {}
+            try { if (typeof renderDashboardDonations === 'function') renderDashboardDonations(); } catch(e) {}
+            try { if (typeof renderProgress5Berkah === 'function') renderProgress5Berkah(); } catch(e) {}
+            
             alert(`✅ Donasi ${fmt(d.amount)} dari ${d.donorName} berhasil diverifikasi! Dana otomatis terakumulasi di program "${progName}" dan tercatat di Supabase.`);
         }
 
@@ -3054,11 +3055,12 @@
 
             const adminUser = sessionStorage.getItem('wiz_admin_user') || 'Admin 1';
             await wizStore.donations.reject(id, adminUser);
+            
             refreshAll();
-            renderFullDonationTable();
-            renderRecentDonations();
-            renderOverviewStats();
-            if (typeof renderProgress5Berkah === 'function') renderProgress5Berkah();
+            try { if (typeof renderFullDonationTable === 'function') renderFullDonationTable(); } catch(e) {}
+            try { if (typeof renderDashboardDonations === 'function') renderDashboardDonations(); } catch(e) {}
+            try { if (typeof renderProgress5Berkah === 'function') renderProgress5Berkah(); } catch(e) {}
+            
             alert(`❌ Donasi dari ${d.donorName} telah ditolak.`);
         }
 

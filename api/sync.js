@@ -237,12 +237,13 @@ module.exports = async function handler(req, res) {
                             title: item.title,
                             category: item.category || 'Kegiatan & Penyaluran',
                             content: item.content,
-                            image_url: item.imageUrl,
+                            image_url: item.imageUrl || item.image_url || '',
                             gallery: Array.isArray(item.gallery) ? item.gallery : [],
-                            event_date: item.eventDate,
+                            event_date: item.eventDate || item.event_date || new Date().toISOString(),
                             status: item.status || 'published',
                             author: item.author || 'Super Admin 1 (WIZ Babel)',
-                            created_at: item.createdAt || new Date().toISOString()
+                            created_at: item.createdAt || item.created_at || new Date().toISOString(),
+                            updated_at: item.updatedAt || new Date().toISOString()
                         })
                     }).catch(() => {});
                 }

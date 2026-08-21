@@ -1453,10 +1453,9 @@
 
                     const localItem = map.get(strId);
                     if (localItem) {
-                        const cloudTime = new Date(cloudItem.updatedAt || cloudItem.createdAt || 0).getTime();
-                        const localTime = new Date(localItem.updatedAt || localItem.createdAt || 0).getTime();
-                        const mergedItem = cloudTime >= localTime ? { ...localItem, ...cloudItem } : { ...cloudItem, ...localItem };
-                        if (localItem.imageUrl && localItem.imageUrl.startsWith('data:image')) {
+                        // Supabase cloud data is the Single Source of Truth for status and properties
+                        const mergedItem = { ...localItem, ...cloudItem };
+                        if (localItem.imageUrl && localItem.imageUrl.startsWith('data:image') && (!cloudItem.imageUrl || !cloudItem.imageUrl.startsWith('data:image'))) {
                             mergedItem.imageUrl = localItem.imageUrl;
                         }
                         map.set(strId, mergedItem);
@@ -1476,34 +1475,27 @@
                 : (masterData && Array.isArray(masterData.donations) ? masterData.donations : []);
             smartMerge(STORAGE_KEYS.DONATIONS, authoritativeDonations, (a, b) => new Date(b.createdAt) - new Date(a.createdAt), deletedSet);
 
-            // News Sync: Use direct Supabase news table as primary source
+            // News Sync: Use direct Supabase news table as authoritative source
             const authoritativeNews = (directSbNews && Array.isArray(directSbNews) && directSbNews.length > 0)
                 ? directSbNews
                 : (masterData && Array.isArray(masterData.news) ? masterData.news : []);
 
             if (authoritativeNews.length > 0) {
                 const cloudNewsMap = new Map();
-                // 1. Load cloud news
+                // 1. Load authoritative cloud news
                 authoritativeNews.forEach(n => {
                     if (n && n.id && !deletedNewsSet.has(String(n.id)) && n.status !== 'deleted' && !n.isDeleted) {
                         cloudNewsMap.set(String(n.id), { ...n });
                     }
                 });
 
-                // 2. Check local articles: if local is newer or has recent edits, local wins!
+                // 2. Only retain local items if they are new local drafts not yet present in cloud
                 const local = getStore(STORAGE_KEYS.NEWS) || [];
                 local.forEach(loc => {
                     if (loc && loc.id && !deletedNewsSet.has(String(loc.id)) && loc.status !== 'deleted') {
                         const strId = String(loc.id);
                         if (!cloudNewsMap.has(strId)) {
                             cloudNewsMap.set(strId, loc);
-                        } else {
-                            const cloudItem = cloudNewsMap.get(strId);
-                            const tLocal = new Date(loc.updatedAt || loc.createdAt || 0).getTime();
-                            const tCloud = new Date(cloudItem.updatedAt || cloudItem.createdAt || 0).getTime();
-                            if (tLocal >= tCloud) {
-                                cloudNewsMap.set(strId, { ...cloudItem, ...loc });
-                            }
                         }
                     }
                 });
@@ -2185,27 +2177,43 @@
             list[idx].updatedAt = new Date().toISOString();
             setStore(STORAGE_KEYS.NEWS, list);
 
-            const statusLabel = newStatus === 'published' ? 'dipublikasikan ke web' : 'disimpan sebagai draft';
+            const statusLabel = newStatus === 'published' ? 'dipublikasikan ke web' : 'disimpan sebagai draft (disembunyikan dari web)';
             activityLog.add('news', `Status berita "${list[idx].title}" diubah: ${statusLabel}.`, sessionStorage.getItem('wiz_admin_name') || 'Admin');
 
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                 try {
                     const item = list[idx];
-                    await window.wizSupabase.upsert('news', {
+                    const sbRes = await window.wizSupabase.saveNews({
                         id: String(item.id),
                         title: item.title,
                         category: item.category,
                         content: item.content,
-                        image_url: item.imageUrl,
-                        gallery: item.gallery,
-                        event_date: item.eventDate,
+                        imageUrl: item.imageUrl,
+                        gallery: item.gallery || [],
+                        eventDate: item.eventDate,
                         status: item.status,
                         author: item.author,
-                        created_at: item.createdAt,
-                        updated_at: item.updatedAt
+                        createdAt: item.createdAt,
+                        updatedAt: item.updatedAt
                     });
-                } catch(e) {}
+                    if (sbRes.error) {
+                        console.warn('[News Toggle Supabase Error]:', sbRes.error);
+                    } else {
+                        console.log('✅ [News Toggle Supabase Success]:', item.id, item.status);
+                    }
+                } catch(e) {
+                    console.warn('[News Toggle Supabase Exception]:', e);
+                }
             }
+
+            // Real-time broadcast to /api/sync
+            try {
+                await fetch('/api/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ news: [list[idx]] })
+                });
+            } catch(e) {}
 
             if (typeof pushToCloud === 'function') {
                 pushToCloud().catch(() => {});
