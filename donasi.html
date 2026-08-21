@@ -505,7 +505,7 @@
                             </div>
                         </div>
 
-                        <button class="w-full bg-[#F7941D] text-white py-2.5 rounded-lg font-label-md text-label-md font-bold shadow-md hover:opacity-90 transition-opacity flex justify-center items-center gap-2" type="submit">
+                        <button id="checkout-submit-btn" class="w-full bg-[#F7941D] text-white py-2.5 rounded-lg font-label-md text-label-md font-bold shadow-md hover:opacity-90 transition-opacity flex justify-center items-center gap-2 cursor-pointer" type="submit">
                             <span>Lanjutkan Pembayaran</span>
                             <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
                         </button>
@@ -525,7 +525,7 @@
                 <span class="font-caption text-caption text-on-surface-variant block text-[11px]">Total Donasi</span>
                 <span class="font-headline-md text-headline-md text-primary font-bold block text-lg" id="mobile-summary-total">Rp 0</span>
             </div>
-            <button type="submit" form="donation-checkout-form" class="bg-[#F7941D] text-white px-5 py-2.5 rounded-lg font-label-md text-label-md font-bold shadow-md hover:opacity-90 transition-opacity flex items-center gap-1.5">
+            <button id="mobile-checkout-submit-btn" type="submit" form="donation-checkout-form" class="bg-[#F7941D] text-white px-5 py-2.5 rounded-lg font-label-md text-label-md font-bold shadow-md hover:opacity-90 transition-opacity flex items-center gap-1.5 cursor-pointer">
                 <span>Lanjutkan</span>
                 <span class="material-symbols-outlined text-sm">arrow_forward</span>
             </button>
@@ -1060,48 +1060,116 @@
                 return;
             }
 
-            // Save transaction to store with PENDING status
-            if (window.wizStore && window.wizStore.donations) {
+            // Visual feedback on submit buttons
+            const submitBtn = document.getElementById('checkout-submit-btn');
+            const mobSubmitBtn = document.getElementById('mobile-checkout-submit-btn');
+            const origDesktopText = submitBtn ? submitBtn.innerHTML : '';
+            const origMobileText = mobSubmitBtn ? mobSubmitBtn.innerHTML : '';
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Mencatat Donasi...</span>';
+            }
+            if (mobSubmitBtn) {
+                mobSubmitBtn.disabled = true;
+                mobSubmitBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Mencatat...</span>';
+            }
+
+            try {
+                // Determine Referral / Mitra Attribution
+                const refParam = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') ||
+                    (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || new URLSearchParams(window.location.search).get('perantara') || (typeof getCookie === 'function' ? getCookie('wiz_ref') : '') || localStorage.getItem('wiz_active_ref_id') || localStorage.getItem('wiz_affiliate_ref') || '');
+
+                let refId = null;
+                let refCode = null;
+                let refName = null;
+                let refRate = 6;
+
+                // 1. Direct referral parameter
+                if (refParam) {
+                    refId = refParam.trim();
+                    refCode = refParam.trim();
+                    if (window.wizStore && window.wizStore.referrals) {
+                        const refObj = window.wizStore.referrals.getByCodeOrId(refParam);
+                        if (refObj) {
+                            refId = refObj.id;
+                            refCode = refObj.code || refObj.id;
+                            refName = refObj.name;
+                            refRate = refObj.defaultRate || 6;
+                            state.activeRefObj = refObj;
+                        }
+                    }
+                }
+
+                // 2. Lifetime donor phone attribution locking
+                if (!refId && window.wizStore && window.wizStore.donorAttributionsManager && state.donorPhone) {
+                    const lockedMitra = window.wizStore.donorAttributionsManager.getMitraForDonor(state.donorPhone, '');
+                    if (lockedMitra) {
+                        refId = lockedMitra;
+                        refCode = lockedMitra;
+                        const refObj = window.wizStore.referrals.getByCodeOrId(lockedMitra);
+                        if (refObj) {
+                            refCode = refObj.code || refObj.id;
+                            refName = refObj.name;
+                            refRate = refObj.defaultRate || 6;
+                            state.activeRefObj = refObj;
+                        }
+                    }
+                }
+
+                // 3. Lock attribution for future donations
+                if (refId && window.wizStore && window.wizStore.donorAttributionsManager && state.donorPhone) {
+                    window.wizStore.donorAttributionsManager.lockDonor(state.donorPhone, '', refId, state.donorName);
+                }
+
                 let alokasiOperasional = 0;
                 let alokasiProgram = 0;
-                if (state.type === 'Infak Terikat') {
+                if (state.type === 'Infak Terikat' && window.wizStore) {
                     const alloc = window.wizStore.calcInfakTerikatAllocation(state.nominal);
                     alokasiOperasional = alloc.alokasiOperasional;
                     alokasiProgram = alloc.alokasiProgram;
                 }
 
-                const refParam = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || new URLSearchParams(window.location.search).get('perantara'));
-                let refId = null;
-                let refRate = 6;
-                if (refParam && window.wizStore && window.wizStore.referrals) {
-                    const refObj = window.wizStore.referrals.getByCodeOrId(refParam);
-                    if (refObj) {
-                        refId = refObj.id;
-                        refRate = refObj.defaultRate || 6;
-                        state.activeRefObj = refObj;
-                    }
-                }
-
                 const refFee = refId ? Math.round(state.nominal * (refRate / 100)) : 0;
+                const isRecurring = refId ? (document.getElementById('is-recurring-donor')?.checked || false) : false;
 
-                await window.wizStore.donations.add({
-                    donorName: state.donorName,
-                    donorPhone: state.donorPhone,
-                    wilayah: state.wilayah,
-                    type: state.type,
-                    programUtama: state.type === 'Infak Terikat' ? state.category : '-',
-                    programSpesifik: state.type === 'Infak Terikat' ? state.program : '-',
-                    program: state.type === 'Infak Terikat' ? state.program : state.type,
-                    category: state.type === 'Infak Terikat' ? state.category : 'Infak Umum',
-                    amount: state.nominal,
-                    method: state.method,
-                    notes: state.donorMessage,
-                    referralId: refId,
-                    referralRate: refRate,
-                    referralFee: refFee,
-                    isRecurringDonor: refId ? (document.getElementById('is-recurring-donor')?.checked || false) : false,
-                    status: 'pending'
-                });
+                // Immediate Transaction Recording (Status PENDING)
+                if (window.wizStore && window.wizStore.donations) {
+                    const created = await window.wizStore.donations.add({
+                        donorName: state.donorName,
+                        donorPhone: state.donorPhone,
+                        wilayah: state.wilayah,
+                        type: state.type,
+                        programUtama: state.type === 'Infak Terikat' ? state.category : '-',
+                        programSpesifik: state.type === 'Infak Terikat' ? state.program : '-',
+                        program: state.type === 'Infak Terikat' ? state.program : state.type,
+                        category: state.type === 'Infak Terikat' ? state.category : 'Infak Umum',
+                        amount: state.nominal,
+                        alokasiOperasional,
+                        alokasiProgram,
+                        method: state.method,
+                        notes: state.donorMessage,
+                        referralId: refId,
+                        referralCode: refCode || refId,
+                        referralName: refName || '',
+                        referralRate: refRate,
+                        referralFee: refFee,
+                        isRecurringDonor: isRecurring,
+                        status: 'pending'
+                    });
+                    state.currentDonationRecord = created;
+                }
+            } catch (err) {
+                console.error('[Donation Checkout Error]:', err);
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = origDesktopText;
+                }
+                if (mobSubmitBtn) {
+                    mobSubmitBtn.disabled = false;
+                    mobSubmitBtn.innerHTML = origMobileText;
+                }
             }
 
             if (state.method === 'QRIS') {

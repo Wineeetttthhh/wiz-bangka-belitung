@@ -234,6 +234,56 @@ module.exports = async function handler(req, res) {
             // Persist to Supabase Database
             await supabaseSaveMaster(master);
 
+            // Also upsert individual donation records to Supabase donations table
+            if (Array.isArray(master.donations)) {
+                for (const d of master.donations) {
+                    if (!d || !d.id) continue;
+                    const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(d.id || ''));
+                    
+                    const rawProg = d.program_title || d.programSpesifik || d.program || d.programUtama || d.type || 'Infak Umum';
+                    const wilayahStr = (d.wilayah && d.wilayah !== '-') ? ` [${d.wilayah}]` : '';
+                    const programTitleFormatted = rawProg.includes('[') ? rawProg : `${rawProg}${wilayahStr}`;
+
+                    const extraMeta = [];
+                    if (d.wilayah && d.wilayah !== '-') extraMeta.push(`Wilayah: ${d.wilayah}`);
+                    if (d.programUtama || d.program_utama) extraMeta.push(`Kategori: ${d.programUtama || d.program_utama}`);
+                    if (d.programSpesifik || d.program_spesifik) extraMeta.push(`Program: ${d.programSpesifik || d.program_spesifik}`);
+                    if (d.referralId || d.referral_id || d.referralCode || d.referral_code) {
+                        const refCode = d.referralCode || d.referral_code || d.referralId || d.referral_id;
+                        const refRate = d.referralRate !== undefined ? d.referralRate : (d.referral_rate !== undefined ? d.referral_rate : 6);
+                        const refFee = d.referralFee !== undefined ? d.referralFee : (d.referral_fee !== undefined ? d.referral_fee : 0);
+                        extraMeta.push(`Mitra: ${refCode} (${refRate}% - Rp ${refFee})`);
+                    }
+                    if (d.isRecurringDonor || d.is_recurring_donor) extraMeta.push('Donatur Tetap Mitra');
+
+                    const baseNotes = String(d.notes || '').replace(/\[Meta:[^\]]*\]/g, '').trim();
+                    const metaTag = extraMeta.length > 0 ? ` [Meta: ${extraMeta.join(' | ')}]` : '';
+                    const finalNotes = baseNotes ? (baseNotes === '-' ? metaTag.trim() : `${baseNotes}${metaTag}`) : (metaTag.trim() || '-');
+
+                    const payload = {
+                        donor_name: String(d.donorName || d.donor_name || 'Hamba Allah'),
+                        donor_phone: String(d.donorPhone || d.donor_phone || '-'),
+                        donor_email: String(d.donorEmail || d.donor_email || ''),
+                        program_title: programTitleFormatted,
+                        donation_type: String(d.type || d.donation_type || 'Infak Terikat'),
+                        amount: Number(d.amount) || 0,
+                        payment_method: String(d.method || d.payment_method || 'Transfer Bank'),
+                        notes: finalNotes,
+                        status: String(d.status || 'pending'),
+                        created_at: d.createdAt || d.created_at || new Date().toISOString()
+                    };
+                    if (isValidUUID) {
+                        payload.id = d.id;
+                    }
+
+                    fetch(`${SUPABASE_URL}/donations`, {
+                        method: 'POST',
+                        headers: supabaseHeaders,
+                        body: JSON.stringify(payload)
+                    }).catch(() => {});
+                }
+            }
+
             // Also upsert individual news records to Supabase news table
             if (Array.isArray(master.news)) {
                 for (const item of master.news) {

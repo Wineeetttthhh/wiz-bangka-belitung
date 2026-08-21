@@ -1359,31 +1359,73 @@
                 try {
                     const sbDonRes = await window.wizSupabase.select('donations');
                     if (sbDonRes && Array.isArray(sbDonRes.data)) {
-                        directSbDonations = sbDonRes.data.map(d => ({
-                            id: d.id,
-                            donorName: d.donor_name,
-                            donorPhone: d.donor_phone,
-                            donorEmail: d.donor_email,
-                            wilayah: d.wilayah,
-                            type: d.donation_type,
-                            programUtama: d.program_utama,
-                            programSpesifik: d.program_spesifik,
-                            program: d.program,
-                            category: d.category,
-                            amount: Number(d.amount) || 0,
-                            alokasiOperasional: Number(d.alokasi_operasional) || 0,
-                            alokasiProgram: Number(d.alokasi_program) || 0,
-                            method: d.payment_method,
-                            referralId: d.referral_id,
-                            referralCode: d.referral_code,
-                            referralName: d.referral_name,
-                            referralFee: Number(d.referral_fee) || 0,
-                            notes: d.notes,
-                            status: d.status,
-                            verifiedAt: d.verified_at,
-                            verifiedBy: d.verified_by,
-                            createdAt: d.created_at
-                        }));
+                        directSbDonations = sbDonRes.data.map(d => {
+                            let extractedWilayah = d.wilayah || 'Pangkalpinang';
+                            let extractedProg = d.program_spesifik || d.program_title || d.program || '-';
+                            let extractedCat = d.program_utama || d.category || '-';
+                            let extractedRef = d.referral_id || d.referral_code || null;
+                            let extractedFee = Number(d.referral_fee) || 0;
+                            let isRecurring = d.is_recurring_donor || false;
+
+                            if (d.program_title && d.program_title.includes('[')) {
+                                const mWil = d.program_title.match(/\[([^\]]+)\]/);
+                                if (mWil) extractedWilayah = mWil[1].trim();
+                            }
+
+                            if (d.notes && d.notes.includes('[Meta:')) {
+                                const m = d.notes.match(/\[Meta:([^\]]+)\]/);
+                                if (m) {
+                                    const parts = m[1].split('|').map(s => s.trim());
+                                    parts.forEach(p => {
+                                        if (p.startsWith('Wilayah:')) extractedWilayah = p.replace('Wilayah:', '').trim();
+                                        if (p.startsWith('Kategori:')) extractedCat = p.replace('Kategori:', '').trim();
+                                        if (p.startsWith('Program:')) extractedProg = p.replace('Program:', '').trim();
+                                        if (p.startsWith('Mitra:')) {
+                                            const refMatch = p.match(/Mitra:\s*([^\s(]+)/);
+                                            if (refMatch) extractedRef = refMatch[1];
+                                            const feeMatch = p.match(/Rp\s*([0-9.]+)/);
+                                            if (feeMatch) extractedFee = Number(feeMatch[1].replace(/[^0-9]/g, ''));
+                                        }
+                                        if (p.includes('Donatur Tetap')) isRecurring = true;
+                                    });
+                                }
+                            }
+
+                            if (extractedProg && extractedProg.includes('[')) {
+                                extractedProg = extractedProg.replace(/\[[^\]]+\]/g, '').trim();
+                            }
+
+                            if (!extractedCat || extractedCat === '-') {
+                                extractedCat = mapProgramToPillar(extractedProg, d.donation_type);
+                            }
+
+                            return {
+                                id: d.id,
+                                donorName: d.donor_name || 'Hamba Allah',
+                                donorPhone: d.donor_phone || '-',
+                                donorEmail: d.donor_email || '',
+                                wilayah: extractedWilayah,
+                                type: d.donation_type || 'Infak Terikat',
+                                programUtama: extractedCat,
+                                programSpesifik: extractedProg,
+                                program: extractedProg,
+                                category: extractedCat,
+                                amount: Number(d.amount) || 0,
+                                alokasiOperasional: Number(d.alokasi_operasional) || (d.donation_type === 'Infak Terikat' ? Math.round(Number(d.amount) * 0.125) : 0),
+                                alokasiProgram: Number(d.alokasi_program) || (d.donation_type === 'Infak Terikat' ? Math.round(Number(d.amount) * 0.875) : 0),
+                                method: d.payment_method || 'Transfer Bank',
+                                referralId: extractedRef,
+                                referralCode: extractedRef,
+                                referralRate: 6,
+                                referralFee: extractedFee,
+                                isRecurringDonor: isRecurring,
+                                notes: (d.notes || '-').replace(/\[Meta:[^\]]*\]/g, '').trim() || '-',
+                                status: d.status || 'pending',
+                                verifiedAt: d.verified_at || (d.status === 'verified' ? (d.updated_at || d.created_at) : null),
+                                verifiedBy: d.verified_by || (d.status === 'verified' ? 'Admin' : null),
+                                createdAt: d.created_at || new Date().toISOString()
+                            };
+                        });
                     }
                 } catch(e) {}
 
@@ -1807,6 +1849,8 @@
                 alokasiProgram,
                 // Referal / Perantara
                 referralId: refId,
+                referralCode: donation.referralCode || refId || null,
+                referralName: donation.referralName || null,
                 referralRate: refRate,
                 referralFee: refFee,
                 additionalBonus: addBonus,
@@ -1838,19 +1882,7 @@
             }
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                 try {
-                    await window.wizSupabase.saveDonation({
-                        id: String(newDonation.id),
-                        donor_name: newDonation.donorName,
-                        donor_phone: newDonation.donorPhone,
-                        donor_email: newDonation.donorEmail,
-                        program_title: newDonation.program || newDonation.programSpesifik || newDonation.programUtama || 'Umum',
-                        donation_type: newDonation.type,
-                        amount: newDonation.amount,
-                        payment_method: newDonation.method,
-                        notes: newDonation.notes,
-                        status: newDonation.status,
-                        created_at: newDonation.createdAt
-                    });
+                    await window.wizSupabase.saveDonation(newDonation);
                 } catch(e) {}
             }
 
@@ -1875,6 +1907,8 @@
 
             try { await pushToCloud(); } catch(e) {}
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+            window.dispatchEvent(new CustomEvent('wiz-donations-changed', { detail: { action: 'add', donation: newDonation } }));
+            window.dispatchEvent(new CustomEvent('wiz-referrals-changed'));
             return newDonation;
         },
 

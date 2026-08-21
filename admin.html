@@ -6061,6 +6061,19 @@
             handleInitialUrlRouting();
         });
         window.addEventListener('wiz-sync-complete', () => refreshAll());
+        window.addEventListener('wiz-donations-changed', () => refreshAll());
+        window.addEventListener('wiz-referrals-changed', () => refreshAll());
+
+        // Reactive live polling for real-time incoming donations
+        setInterval(async () => {
+            if (document.visibilityState === 'visible' && window.wizStore && typeof wizStore.syncFromCloud === 'function') {
+                try {
+                    await wizStore.syncFromCloud();
+                } catch(e) {}
+                refreshAll();
+            }
+        }, 5000);
+
         document.addEventListener('visibilitychange', async () => {
             if (document.visibilityState === 'visible') {
                 if (wizStore.syncFromCloud) await wizStore.syncFromCloud();

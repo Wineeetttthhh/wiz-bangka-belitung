@@ -166,23 +166,36 @@ const SUPABASE_CONFIG = {
         saveDonation: async (data) => {
             if (!data) return { data: null, error: 'No data' };
             const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(data.id || ''));
+            
+            const rawProg = data.program_title || data.programSpesifik || data.program || data.programUtama || data.type || 'Infak Umum';
+            const wilayahStr = (data.wilayah && data.wilayah !== '-') ? ` [${data.wilayah}]` : '';
+            const programTitleFormatted = rawProg.includes('[') ? rawProg : `${rawProg}${wilayahStr}`;
+
+            const extraMeta = [];
+            if (data.wilayah && data.wilayah !== '-') extraMeta.push(`Wilayah: ${data.wilayah}`);
+            if (data.program_utama || data.programUtama) extraMeta.push(`Kategori: ${data.program_utama || data.programUtama}`);
+            if (data.program_spesifik || data.programSpesifik) extraMeta.push(`Program: ${data.program_spesifik || data.programSpesifik}`);
+            if (data.referral_id || data.referralId || data.referral_code || data.referralCode) {
+                const refCode = data.referral_code || data.referralCode || data.referral_id || data.referralId;
+                const refRate = data.referral_rate !== undefined ? data.referral_rate : (data.referralRate !== undefined ? data.referralRate : 6);
+                const refFee = data.referral_fee !== undefined ? data.referral_fee : (data.referralFee !== undefined ? data.referralFee : 0);
+                extraMeta.push(`Mitra: ${refCode} (${refRate}% - Rp ${refFee})`);
+            }
+            if (data.isRecurringDonor || data.is_recurring_donor) extraMeta.push('Donatur Tetap Mitra');
+
+            const baseNotes = String(data.notes || '').replace(/\[Meta:[^\]]*\]/g, '').trim();
+            const metaTag = extraMeta.length > 0 ? ` [Meta: ${extraMeta.join(' | ')}]` : '';
+            const finalNotes = baseNotes ? (baseNotes === '-' ? metaTag.trim() : `${baseNotes}${metaTag}`) : (metaTag.trim() || '-');
+
             const payload = {
                 donor_name: String(data.donor_name || data.donorName || 'Hamba Allah'),
                 donor_phone: String(data.donor_phone || data.donorPhone || '-'),
                 donor_email: String(data.donor_email || data.donorEmail || ''),
-                wilayah: String(data.wilayah || 'Pangkalpinang'),
+                program_title: programTitleFormatted,
                 donation_type: String(data.donation_type || data.type || 'Infak Terikat'),
-                program_utama: String(data.program_utama || data.programUtama || data.category || '-'),
-                program_spesifik: String(data.program_spesifik || data.programSpesifik || data.program || '-'),
-                program_title: String(data.program_title || data.programSpesifik || data.program || data.programUtama || 'Umum'),
                 amount: Number(data.amount) || 0,
-                alokasi_operasional: Number(data.alokasi_operasional !== undefined ? data.alokasi_operasional : (data.alokasiOperasional || 0)),
-                alokasi_program: Number(data.alokasi_program !== undefined ? data.alokasi_program : (data.alokasiProgram || 0)),
                 payment_method: String(data.payment_method || data.method || 'Transfer Bank'),
-                referral_id: data.referral_id !== undefined ? data.referral_id : (data.referralId || null),
-                referral_code: data.referral_code !== undefined ? data.referral_code : (data.referralCode || data.referralId || null),
-                referral_fee: Number(data.referral_fee !== undefined ? data.referral_fee : (data.referralFee || 0)),
-                notes: String(data.notes || '-'),
+                notes: finalNotes,
                 status: String(data.status || 'pending'),
                 created_at: data.created_at || data.createdAt || new Date().toISOString()
             };
