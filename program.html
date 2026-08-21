@@ -1055,7 +1055,7 @@
                 <li><a href="program.html" class="hover:text-primary-fixed transition-colors font-semibold text-primary-fixed">Program Kebaikan</a></li>
                 <li><a href="index.html#kalkulator-zakat" class="hover:text-primary-fixed transition-colors">Kalkulator Zakat</a></li>
                 <li><a href="index.html#transparansi" class="hover:text-primary-fixed transition-colors">Rekening Donasi</a></li>
-                <li><a href="affiliate.html" class="hover:text-primary-fixed transition-colors flex items-center gap-1 font-semibold text-primary-fixed"><span class="material-symbols-outlined text-sm">handshake</span> Portal Affiliate</a></li>
+                <li><a href="affiliate.html" class="hover:text-primary-fixed transition-colors flex items-center gap-1 font-semibold text-primary-fixed"><span class="material-symbols-outlined text-sm">handshake</span> Portal Mitra Penghimpunan</a></li>
                 <li><a href="admin.html" class="hover:text-primary-fixed transition-colors flex items-center gap-1 font-semibold text-primary-fixed"><span class="material-symbols-outlined text-sm">lock</span> Portal Admin</a></li>
             </ul>
         </div>
@@ -1147,16 +1147,35 @@
 
 <!-- Interactive JavaScript -->
 <script>
-    // Dynamic Real-time Card Updater — 100% real data only, base always 0
+    // Dynamic Real-time Card Updater — Reaktif terhadap Saldo Aktual Tersedia (Masuk - Penyaluran)
     function updateDynamicProgramCards() {
-        if (!window.wizStore) return;
+        if (!window.wizStore || !wizStore.finance) return;
         const fmt = wizStore.utils.formatRupiahCompact;
 
+        // Helper: get custom uploaded image for a program title
+        function getCustomImg(progTitle) {
+            try {
+                if (window.wizStore && window.wizStore.allocationRulesManager) {
+                    return window.wizStore.allocationRulesManager.getSpecificProgramImage(progTitle) || '';
+                }
+                const flatMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+                return flatMap[progTitle] || '';
+            } catch(e) { return ''; }
+        }
+
         document.querySelectorAll('.program-card').forEach(card => {
-            const titleEl = card.querySelector('h3');
+            const titleEl = card.querySelector('h3, h4');
             if (!titleEl) return;
 
-            const progTitle = card.getAttribute('data-title') || titleEl.textContent.trim();
+            const progTitle = (card.getAttribute('data-title') || titleEl.textContent).trim();
+            if (!progTitle) return;
+
+            // 1. Prioritize custom photo uploaded by admin
+            const customImg = getCustomImg(progTitle);
+            if (customImg) {
+                const imgEl = card.querySelector('img');
+                if (imgEl) imgEl.src = customImg;
+            }
 
             // Always read target from data-target attribute, or parse from DOM (first time only)
             if (!card.dataset.target) {
@@ -1165,16 +1184,18 @@
                 card.dataset.target = targetVal;
             }
 
-            // Base is always 0 — only count real admin-entered data
-            const targetVal = Number(card.dataset.target);
+            const targetVal = Number(card.dataset.target) || 50000000;
+            // Base is 0 — calculate dynamic verified donations (Specific + Infak Umum) minus disbursements
             const stats = wizStore.finance.getSpecificProgramStats(progTitle, 0, targetVal);
 
-            // Update Terkumpul text
-            const terkumpulStrong = card.querySelector('.space-y-xs strong');
-            if (terkumpulStrong) terkumpulStrong.textContent = fmt(stats.terkumpul);
+            // Update Terkumpul text to Saldo Aktual Tersedia
+            const terkumpulStrong = card.querySelector('.space-y-xs strong, .mb-lg strong');
+            if (terkumpulStrong) {
+                terkumpulStrong.textContent = fmt(stats.saldo);
+            }
 
-            // Update Percentage text
-            const percentSpan = card.querySelector('.space-y-xs span.text-primary, .space-y-xs span.font-semibold');
+            // Update Percentage text (% target tercapai berdasarkan saldo aktual saat ini)
+            const percentSpan = card.querySelector('.space-y-xs span.text-primary, .space-y-xs span.font-semibold, .mb-lg .font-semibold');
             if (percentSpan && !percentSpan.textContent.includes('Terkumpul')) {
                 percentSpan.textContent = `${stats.percent}%`;
             }
@@ -1287,66 +1308,6 @@
             }
         });
         filterPrograms();
-    }
-
-    function updateDynamicProgramCards() {
-        // Helper: get custom uploaded image for a program title
-        function getCustomImg(progTitle) {
-            try {
-                if (window.wizStore && window.wizStore.allocationRulesManager) {
-                    return window.wizStore.allocationRulesManager.getSpecificProgramImage(progTitle) || '';
-                }
-                const flatMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
-                return flatMap[progTitle] || '';
-            } catch(e) { return ''; }
-        }
-
-        let specificProgs = [];
-        try {
-            if (window.wizStore && window.wizStore.finance) {
-                specificProgs = window.wizStore.finance.getPerSpecificProgram('Semua') || [];
-            }
-        } catch(e) {}
-
-        document.querySelectorAll('.program-card').forEach(card => {
-            const cardTitle = (card.getAttribute('data-title') || '').trim();
-            if (!cardTitle) return;
-
-            // 1. Prioritize custom photo uploaded by admin from local
-            const customImg = getCustomImg(cardTitle);
-            if (customImg) {
-                const imgEl = card.querySelector('img');
-                if (imgEl) imgEl.src = customImg;
-            } else if (specificProgs.length > 0) {
-                const sp = specificProgs.find(s =>
-                    s.itemKey.toLowerCase() === cardTitle.toLowerCase() ||
-                    s.fullName.toLowerCase().includes(cardTitle.toLowerCase()) ||
-                    cardTitle.toLowerCase().includes(s.itemKey.toLowerCase())
-                );
-                if (sp && sp.image) {
-                    const imgEl = card.querySelector('img');
-                    if (imgEl) imgEl.src = sp.image;
-                }
-            }
-
-            // 2. Update finance progress bar if data is available
-            if (specificProgs.length > 0) {
-                const sp = specificProgs.find(s =>
-                    s.itemKey.toLowerCase() === cardTitle.toLowerCase() ||
-                    s.fullName.toLowerCase().includes(cardTitle.toLowerCase()) ||
-                    cardTitle.toLowerCase().includes(s.itemKey.toLowerCase())
-                );
-                if (sp && window.wizStore && window.wizStore.utils) {
-                    const fmt = window.wizStore.utils.formatRupiahCompact;
-                    const terkumpulEl = card.querySelector('.mb-lg strong');
-                    const percentEl = card.querySelector('.mb-lg .font-semibold');
-                    const progressFill = card.querySelector('.mb-lg .bg-tertiary-container, .mb-lg .bg-primary');
-                    if (terkumpulEl) terkumpulEl.textContent = fmt(sp.masuk);
-                    if (percentEl) percentEl.textContent = sp.percent + '%';
-                    if (progressFill) progressFill.style.width = Math.min(sp.percent, 100) + '%';
-                }
-            }
-        });
     }
 
     // Modal Manager
@@ -1511,6 +1472,10 @@
         updateDynamicProgramCards();
         renderVerifiedDonorsProg();
         if (typeof window.applySiteSettings === 'function') window.applySiteSettings();
+    });
+    window.addEventListener('wiz-data-changed', () => {
+        updateDynamicProgramCards();
+        renderVerifiedDonorsProg();
     });
     window.addEventListener('wiz-program-images-changed', () => {
         updateDynamicProgramCards();

@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Member & Pendaftaran Affiliate Kebaikan — WIZ Bangka Belitung</title>
+    <title>Portal Member & Pendaftaran Mitra Penghimpunan Kebaikan — WIZ Bangka Belitung</title>
     <meta name="description"
-        content="Portal resmi Member & Affiliate Perantara Kebaikan Wahdah Inspirasi Zakat (WIZ) Bangka Belitung. Pantau kinerja komisi 6%, laporan bulanan, dan kelola link referral program.">
+        content="Portal resmi Member & Mitra Penghimpunan Perantara Kebaikan Wahdah Inspirasi Zakat (WIZ) Bangka Belitung. Pantau kinerja alokasi insentif 6%, laporan bulanan, dan kelola link penghimpunan program.">
 
     <script>
         // Automatic Redirection for Public Donors:
@@ -93,7 +93,7 @@
                 <img src="assets/images/logo-wiz-official.png" onerror="this.onerror=null; this.src='assets/images/logo-wiz-babel.png';" alt="WIZ Babel" class="h-10 w-auto object-contain">
                 <div class="border-l border-slate-300 pl-3">
                     <span class="block font-extrabold text-sm text-slate-900 tracking-tight leading-none">WIZ Babel</span>
-                    <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Affiliate Portal</span>
+                    <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Mitra Penghimpunan</span>
                 </div>
             </a>
 
@@ -102,7 +102,7 @@
                 <a href="program.html" class="hover:text-primary transition-colors">Program</a>
                 <a href="donasi.html" class="hover:text-primary transition-colors">Donasi Langsung</a>
                 <a href="laporan.html" class="hover:text-primary transition-colors">Laporan</a>
-                <a href="affiliate.html" class="text-primary font-bold border-b-2 border-primary pb-0.5">Affiliate Portal</a>
+                <a href="affiliate.html" class="text-primary font-bold border-b-2 border-primary pb-0.5">Portal Mitra</a>
             </nav>
 
             <div class="flex items-center gap-3">
@@ -123,13 +123,13 @@
         <div class="max-w-5xl mx-auto px-4 text-center space-y-4 relative z-10">
             <span class="inline-flex items-center gap-2 bg-emerald-500/20 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold text-emerald-300 border border-emerald-400/30 shadow-xs">
                 <span class="material-symbols-outlined text-sm">verified</span>
-                Portal Resmi Perantara &amp; Affiliate Kebaikan WIZ Babel
+                Portal Resmi Mitra Penghimpunan &amp; Relawan ZIS WIZ Babel
             </span>
             <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight text-white">
-                Sebarkan Kebaikan, Pantau Kinerja &amp; Raih Hak 6%
+                Sebarkan Kebaikan, Pantau Kinerja &amp; Raih Hak Insentif 6%
             </h1>
             <p class="text-emerald-100/90 text-sm md:text-base max-w-2xl mx-auto font-medium leading-relaxed">
-                Kelola akun perantara Anda, dapatkan tautan referral khusus program, dan pantau hasil donasi yang terhimpun secara real-time &amp; transparan.
+                Kelola akun kemitraan Anda, dapatkan tautan penghimpunan khusus program, dan pantau hasil donasi yang terhimpun secara real-time &amp; transparan.
             </p>
         </div>
     </section>
@@ -153,20 +153,20 @@
                     </button>
                     <button onclick="toggleAuthTab('signup')" id="btn-auth-signup" class="flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-slate-900">
                         <span class="material-symbols-outlined text-base">person_add</span>
-                        <span>Sign Up (Daftar Baru)</span>
+                        <span>Sign Up (Daftar Mitra)</span>
                     </button>
                 </div>
 
                 <!-- SIGN IN FORM -->
                 <div id="auth-signin-view" class="space-y-5">
                     <div class="text-center space-y-1">
-                        <h2 class="text-xl font-extrabold text-slate-900">Selamat Datang Kembali</h2>
-                        <p class="text-xs text-slate-500">Masukkan No. WhatsApp / Kode Referral dan PIN Anda untuk masuk.</p>
+                        <h2 class="text-xl font-extrabold text-slate-900">Selamat Datang Mitra Penghimpunan</h2>
+                        <p class="text-xs text-slate-500">Masukkan No. WhatsApp / Kode Mitra dan PIN Anda untuk masuk.</p>
                     </div>
 
                     <form id="affiliate-login-form" onsubmit="handleAffiliateLogin(event)" class="space-y-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">No. WhatsApp / Kode Referral <span class="text-red-500">*</span></label>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">No. WhatsApp / Kode Mitra <span class="text-red-500">*</span></label>
                             <input type="text" id="login-identifier" required placeholder="Contoh: 081234567890 atau WIZ-20260820-001"
                                 class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none font-mono">
                         </div>
@@ -183,7 +183,7 @@
                         <button type="submit" id="btn-login-submit"
                             class="w-full bg-primary hover:bg-emerald-700 text-white font-bold text-sm py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
                             <span class="material-symbols-outlined text-lg">login</span>
-                            <span>Masuk ke Portal Member</span>
+                            <span>Masuk ke Dashboard Mitra</span>
                         </button>
                     </form>
                 </div>
@@ -191,8 +191,8 @@
                 <!-- SIGN UP FORM (HIDDEN BY DEFAULT) -->
                 <div id="auth-signup-view" class="space-y-5 hidden">
                     <div class="text-center space-y-1">
-                        <h2 class="text-xl font-extrabold text-slate-900">Pendaftaran Affiliate Baru</h2>
-                        <p class="text-xs text-slate-500">Daftar gratis dalam 1 menit &amp; raih komisi hak perantara 6%.</p>
+                        <h2 class="text-xl font-extrabold text-slate-900">Pendaftaran Mitra Penghimpunan Baru</h2>
+                        <p class="text-xs text-slate-500">Daftar gratis dalam 1 menit &amp; raih alokasi insentif mitra (hak amil 6%).</p>
                     </div>
 
                     <form id="affiliate-reg-form" onsubmit="handleAffiliateRegister(event)" class="space-y-4">
@@ -236,7 +236,7 @@
                         <button type="submit" id="btn-reg-submit"
                             class="w-full bg-secondary hover:bg-amber-600 text-white font-bold text-sm py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
                             <span class="material-symbols-outlined text-lg">check_circle</span>
-                            <span>Daftar &amp; Aktifkan Akun Affiliate</span>
+                            <span>Daftar &amp; Aktifkan Akun Mitra</span>
                         </button>
                     </form>
                 </div>
@@ -295,7 +295,7 @@
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="bg-emerald-400/20 text-emerald-200 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border border-emerald-400/30">Member Aktif</span>
+                            <span class="bg-emerald-400/20 text-emerald-200 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border border-emerald-400/30">Mitra Aktif</span>
                             <span id="member-code-badge" class="font-mono bg-white/20 px-2 py-0.5 rounded text-[11px] font-bold text-white">WIZ-YYYYMMDD-XXX</span>
                         </div>
                         <h2 id="member-welcome-title" class="text-xl sm:text-2xl font-extrabold text-white mt-0.5">Selamat Datang, -</h2>
@@ -304,7 +304,7 @@
 
                 <div class="flex items-center gap-3 relative z-10">
                     <button onclick="copyMemberMainLink()" class="bg-white text-emerald-950 font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-emerald-50 transition-colors flex items-center gap-1.5 cursor-pointer">
-                        <span class="material-symbols-outlined text-base">content_copy</span> Salin Link Utama
+                        <span class="material-symbols-outlined text-base">content_copy</span> Salin Link Penghimpunan Utama
                     </button>
                     <button onclick="handleAffiliateLogout()" class="bg-red-500/20 hover:bg-red-500/30 text-white font-bold px-4 py-2.5 rounded-xl text-xs border border-red-300/30 transition-colors flex items-center gap-1 cursor-pointer">
                         <span class="material-symbols-outlined text-base">logout</span> Keluar (Logout)
@@ -325,7 +325,7 @@
                     </button>
                     <button onclick="switchMemberSubTab('subtab-catalog')" id="btn-subtab-catalog" class="member-nav-btn px-5 py-3 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all rounded-xl border-b-2 border-transparent">
                         <span class="material-symbols-outlined text-lg">grid_view</span>
-                        <span>Katalog Program &amp; Link</span>
+                        <span>Katalog Program &amp; Link Penghimpunan</span>
                     </button>
                     <button onclick="switchMemberSubTab('subtab-profile')" id="btn-subtab-profile" class="member-nav-btn px-5 py-3 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all rounded-xl border-b-2 border-transparent">
                         <span class="material-symbols-outlined text-lg">settings</span>
@@ -339,7 +339,7 @@
                 <!-- 4 KPI Counter Cards -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1">
-                        <span class="text-[11px] text-slate-500 font-semibold block uppercase tracking-wider">Total Donasi Dibawa</span>
+                        <span class="text-[11px] text-slate-500 font-semibold block uppercase tracking-wider">Total Donasi Dihimpun</span>
                         <div class="flex items-baseline justify-between">
                             <span id="kpi-total-count" class="text-2xl font-extrabold text-slate-900">0</span>
                             <span class="text-xs text-slate-400 font-semibold">Transaksi</span>
@@ -352,7 +352,7 @@
                     </div>
 
                     <div class="bg-emerald-50 p-5 rounded-2xl border border-emerald-200 shadow-xs space-y-1">
-                        <span class="text-[11px] text-emerald-800 font-semibold block uppercase tracking-wider">Total Hak Komisi (6%)</span>
+                        <span class="text-[11px] text-emerald-800 font-semibold block uppercase tracking-wider">Total Insentif Diperoleh (6%)</span>
                         <span id="kpi-total-earned" class="text-2xl font-extrabold text-emerald-900">Rp 0</span>
                     </div>
 
@@ -370,7 +370,7 @@
                                 <span class="material-symbols-outlined text-primary">analytics</span>
                                 <span>Evaluasi Kinerja Bulanan</span>
                             </h3>
-                            <p class="text-xs text-slate-500">Hasil capaian dan statistik performa referral Anda bulan ini.</p>
+                            <p class="text-xs text-slate-500">Hasil capaian dan statistik performa penghimpunan Anda bulan ini.</p>
                         </div>
 
                         <div class="flex items-center gap-2">
@@ -408,18 +408,18 @@
                                 <span class="material-symbols-outlined text-2xl">savings</span>
                             </div>
                             <div>
-                                <span class="text-[11px] text-slate-500 font-semibold block">Hak Komisi Periode Ini</span>
+                                <span class="text-[11px] text-slate-500 font-semibold block">Insentif Penghimpunan Periode Ini</span>
                                 <span id="eval-month-fee" class="text-base font-extrabold text-primary">Rp 0</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Detailed Transactions Table Brought by Affiliate -->
+                <!-- Detailed Transactions Table Brought by Mitra -->
                 <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
                     <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
                         <span class="material-symbols-outlined text-primary">format_list_bulleted</span>
-                        <span>Riwayat Donasi dari Link Referral Anda</span>
+                        <span>Riwayat Donasi dari Link Penghimpunan Anda</span>
                     </h3>
 
                     <div class="overflow-x-auto">
@@ -430,7 +430,7 @@
                                     <th class="p-3 font-bold">Donatur</th>
                                     <th class="p-3 font-bold">Program</th>
                                     <th class="p-3 font-bold">Nominal</th>
-                                    <th class="p-3 font-bold">Hak 6%</th>
+                                    <th class="p-3 font-bold">Hak Insentif (6%)</th>
                                     <th class="p-3 font-bold">Status</th>
                                 </tr>
                             </thead>
@@ -447,7 +447,7 @@
                 <div class="border-b border-slate-200 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div>
                         <h2 class="text-xl font-extrabold text-slate-900">Kabar Kegiatan &amp; Berita Siap Bagikan</h2>
-                        <p class="text-xs text-slate-500 mt-1">Bagikan dokumentasi penyaluran dan kabar kegiatan resmi WIZ Babel ke WhatsApp atau media sosial. Setiap donatur yang masuk lewat link berita Anda otomatis terhubung dengan komisi <strong>Hak 6%</strong> Anda selama 30 hari!</p>
+                        <p class="text-xs text-slate-500 mt-1">Bagikan dokumentasi penyaluran dan kabar kegiatan resmi WIZ Babel ke WhatsApp atau media sosial. Setiap donatur yang masuk lewat link berita Anda otomatis terhubung dengan alokasi <strong>Hak Insentif 6%</strong> Anda selama 30 hari!</p>
                     </div>
                 </div>
 
@@ -483,7 +483,7 @@
                                 <span class="material-symbols-outlined text-base">download</span>
                                 <span>Unduh Foto</span>
                             </button>
-                            <button type="button" id="aff-featured-copy-btn" class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer" title="Salin Link Referral Berita">
+                            <button type="button" id="aff-featured-copy-btn" class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer" title="Salin Link Penghimpunan Berita">
                                 <span class="material-symbols-outlined text-base">content_copy</span>
                                 <span>Salin Link</span>
                             </button>
@@ -512,7 +512,7 @@
                 <div class="border-b border-slate-200 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div>
                         <h2 class="text-xl font-extrabold text-slate-900">Katalog Program Siap Bagikan</h2>
-                        <p class="text-xs text-slate-500 mt-1">Pilih program di bawah untuk langsung membagikan link donasi publik dengan ID komisi Anda!</p>
+                        <p class="text-xs text-slate-500 mt-1">Pilih program di bawah untuk langsung membagikan link donasi publik dengan Kode Mitra Anda!</p>
                     </div>
                 </div>
 
@@ -763,10 +763,9 @@
                     localStorage.setItem('wiz_logged_affiliate', JSON.stringify(ref));
 
                     const refCode = ref.code || ref.id;
-                    sessionStorage.setItem('wiz_active_ref_id', refCode);
                     localStorage.setItem('wiz_active_ref_id', refCode);
 
-                    alert(`✅ ${res.message}\n\nKode Referral Anda: ${refCode}\nPIN Login Anda: ${ref.pin || pin || '1234'}\n\nAkun Anda telah otomatis terdaftar dan langsung tercatat di Dashboard Admin.`);
+                    alert(`✅ ${res.message}\n\nKode Mitra Anda: ${refCode}\nPIN Login Anda: ${ref.pin || pin || '1234'}\n\nAkun Anda telah otomatis terdaftar sebagai Mitra Penghimpunan dan langsung tercatat di Dashboard Admin.`);
                     activateMemberState(ref);
                 } else {
                     alert(`⚠️ ${res.message}`);
@@ -776,7 +775,7 @@
             }
 
             btn.disabled = false;
-            btn.innerHTML = '<span class="material-symbols-outlined text-lg">check_circle</span><span>Daftar & Aktifkan Akun Affiliate</span>';
+            btn.innerHTML = '<span class="material-symbols-outlined text-lg">check_circle</span><span>Daftar & Aktifkan Akun Mitra</span>';
         }
 
         async function handleAffiliateLogin(e) {
@@ -802,7 +801,7 @@
                 const ref = res.referral;
                 // Verify account is active and not deleted by admin
                 if (ref.status === 'deleted' || ref.isDeleted) {
-                    alert('⚠️ Akun Affiliate Anda telah dinonaktifkan atau dihapus oleh Admin Utama.');
+                    alert('⚠️ Akun Mitra Penghimpunan Anda telah dinonaktifkan atau dihapus oleh Admin Utama.');
                     if (btn) {
                         btn.disabled = false;
                         btn.innerHTML = '<span>Masuk ke Dashboard</span><span class="material-symbols-outlined text-base">arrow_forward</span>';
@@ -836,7 +835,7 @@
             sessionStorage.removeItem('wiz_active_ref_id');
             localStorage.removeItem('wiz_active_ref_id');
             deactivateMemberState();
-            if (showAlert) alert('Anda telah keluar dari Portal Member Affiliate.');
+            if (showAlert) alert('Anda telah keluar dari Portal Member Mitra Penghimpunan.');
         }
 
         function openForgotPinModal() {
@@ -906,7 +905,7 @@
                 alert(`✅ Data Rekening berhasil diperbarui!\n\nBank: ${updatedObj.bankName}\nNo. Rekening: ${updatedObj.accountNumber}\na.n: ${updatedObj.accountHolder}\n\nData ini telah tersinkronisasi 100% ke Web Admin.`);
                 activateMemberState(currentLoggedAffiliate);
             } else {
-                alert('⚠️ Gagal memperbarui data: Akun perantara tidak ditemukan di database.');
+                alert('⚠️ Gagal memperbarui data: Akun Mitra Penghimpunan tidak ditemukan di database.');
             }
         }
 
@@ -937,7 +936,7 @@
             const dons = fullRef.donations || [];
 
             if (dons.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400 font-medium">Belum ada donasi dari link referral Anda. Sebar link program untuk mulai meraih komisi!</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400 font-medium">Belum ada donasi dari link penghimpunan Anda. Sebar link program untuk mulai menghimpun kebaikan!</td></tr>`;
             } else {
                 tbody.innerHTML = dons.map(d => {
                     const fee = d.referralFee !== undefined ? Number(d.referralFee) : Math.round((Number(d.amount) || 0) * 0.06);
@@ -960,14 +959,14 @@
             const origin = window.location.origin.includes('http') ? window.location.origin : '';
             const url = `${origin}/program.html?ref=${refCode}`;
             navigator.clipboard.writeText(url).then(() => {
-                alert(`✅ Link Utama Katalog Program Affiliate Anda berhasil disalin:\n${url}`);
+                alert(`✅ Link Utama Katalog Program Mitra Anda berhasil disalin:\n${url}`);
             });
         }
 
         function shareAffiliateProgram(programTitle) {
             const activeRef = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || sessionStorage.getItem('wiz_active_ref_id');
             if (!activeRef) {
-                alert('Silakan Login atau mendaftar akun affiliate terlebih dahulu agar tautan program terhubung dengan ID komisi Anda!');
+                alert('Silakan Login atau mendaftar akun Mitra Penghimpunan terlebih dahulu agar tautan program terhubung dengan Kode Mitra Anda!');
                 return;
             }
             const origin = (window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
@@ -989,7 +988,7 @@
                 <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs flex flex-col hover:shadow-md transition-shadow">
                     <div class="aspect-video relative bg-slate-100">
                         <img src="${dynamicImg}" onerror="this.onerror=null; this.src='${defaultImg}';" class="w-full h-full object-cover" alt="${p.displayLabel}">
-                        <span class="absolute top-2 left-2 bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs">${p.pillarKey}</span>
+                        <span class="absolute top-2 left-2 bg-primary text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-xs">${p.pillarKey}</span>
                     </div>
                     <div class="p-4 flex flex-col flex-grow space-y-2">
                         <h4 class="font-bold text-slate-900 text-sm line-clamp-1">${p.displayLabel}</h4>
@@ -1081,7 +1080,7 @@
                                 <button type="button" onclick="downloadAffiliateNewsImage('${n.id}')" class="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg font-bold text-xs flex items-center justify-center transition-colors cursor-pointer" title="Unduh Foto Utama Kegiatan">
                                     <span class="material-symbols-outlined text-[15px]">download</span>
                                 </button>
-                                <button type="button" onclick="copyAffiliateNewsLink('${n.id}')" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-xs flex items-center justify-center transition-colors cursor-pointer" title="Salin Link Referral Berita">
+                                <button type="button" onclick="copyAffiliateNewsLink('${n.id}')" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-xs flex items-center justify-center transition-colors cursor-pointer" title="Salin Link Penghimpunan Berita">
                                     <span class="material-symbols-outlined text-[15px]">content_copy</span>
                                 </button>
                                 <a href="${(window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id'}/berita/${encodeURIComponent(n.id)}?ref=${encodeURIComponent(activeRef)}" target="_blank" class="p-1.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg font-bold text-xs flex items-center justify-center transition-colors" title="Buka Halaman Berita">
@@ -1125,7 +1124,7 @@
 
         async function shareAffiliateNewsWA(newsId) {
             if (!currentLoggedAffiliate) {
-                alert('Silakan login ke akun Affiliate Anda terlebih dahulu agar ID referral Anda otomatis terpasang!');
+                alert('Silakan login ke akun Mitra Penghimpunan Anda terlebih dahulu agar Kode Mitra Anda otomatis terpasang!');
                 return;
             }
 
@@ -1181,7 +1180,7 @@
 
         function copyAffiliateNewsLink(newsId) {
             if (!currentLoggedAffiliate) {
-                alert('Silakan login ke akun Affiliate Anda terlebih dahulu agar ID referral Anda otomatis terpasang!');
+                alert('Silakan login ke akun Mitra Penghimpunan Anda terlebih dahulu agar Kode Mitra Anda otomatis terpasang!');
                 return;
             }
 
@@ -1193,10 +1192,11 @@
             const newsUrl = `${origin}/berita/${encodeURIComponent(n.id)}?ref=${encodeURIComponent(refCode)}`;
 
             navigator.clipboard.writeText(newsUrl).then(() => {
-                alert(`✅ Link Referral Berita "${n.title}" dengan ID Affiliate Anda (${refCode}) berhasil disalin:\n\n${newsUrl}\n\nSetiap donatur yang mengklik tautan ini akan tersambung ke komisi 6% Anda.`);
+                alert(`✅ Link Referral Berita "${n.title}" dengan Kode Mitra Anda (${refCode}) berhasil disalin:\n\n${newsUrl}\n\nSetiap donatur yang mengklik tautan ini akan tersambung ke hak insentif 6% Anda.`);
             });
         }
 
+        // Sync and real-time event listeners
         window.addEventListener('wiz-sync-complete', () => {
             if (currentActiveSubTab === 'subtab-kpi') {
                 if (currentLoggedAffiliate) renderMemberDashboard();
@@ -1205,6 +1205,14 @@
             } else if (currentActiveSubTab === 'subtab-catalog') {
                 renderAffiliateProgramsGrid();
             }
+        });
+
+        window.addEventListener('wiz-data-changed', async () => {
+            console.log('[Mitra Portal] Data change event received, refreshing dashboard...');
+            if (wizStore && wizStore.syncFromCloud) {
+                try { await wizStore.syncFromCloud(true); } catch(e) {}
+            }
+            if (currentLoggedAffiliate) renderMemberDashboard();
         });
 
         window.addEventListener('wiz-news-changed', () => {
@@ -1218,6 +1226,31 @@
                 renderAffiliateProgramsGrid();
             }
         });
+
+        // Supabase Real-time Channel for instant cross-device updates
+        if (window.wizSupabase && window.wizSupabase.client) {
+            try {
+                window.wizSupabase.client
+                    .channel('mitra_portal_realtime')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'donations' }, async () => {
+                        console.log('[Mitra Portal] Supabase realtime: donation updated, refreshing...');
+                        if (wizStore && wizStore.syncFromCloud) {
+                            await wizStore.syncFromCloud(true);
+                        }
+                        if (currentLoggedAffiliate) renderMemberDashboard();
+                    })
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'referrals' }, async () => {
+                        console.log('[Mitra Portal] Supabase realtime: referral profile updated, refreshing...');
+                        if (wizStore && wizStore.syncFromCloud) {
+                            await wizStore.syncFromCloud(true);
+                        }
+                        if (currentLoggedAffiliate) renderMemberDashboard();
+                    })
+                    .subscribe();
+            } catch(e) {
+                console.warn('[Mitra Portal] Real-time subscription warning:', e.message);
+            }
+        }
     </script>
 </body>
 

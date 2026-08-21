@@ -329,7 +329,7 @@
             </a>
             <a class="sidebar-link flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors"
                 href="#" data-section="referrals" onclick="showSection('referrals', this)">
-                <span class="material-symbols-outlined">badge</span> Database Perantara &amp; KPI
+                <span class="material-symbols-outlined">badge</span> Database Mitra Penghimpunan &amp; KPI
             </a>
             <a class="sidebar-link flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors"
                 href="#" data-section="allocation-rules" onclick="showSection('allocation-rules', this)">
@@ -745,31 +745,48 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════════ -->
-        <!-- SECTION: KEUANGAN (LAPORAN)                        -->
+        <!-- SECTION: KEUANGAN (LAPORAN 5 PILAR UTAMA)           -->
         <!-- ═══════════════════════════════════════════════════ -->
         <div id="section-finance" class="flex-1 p-margin-mobile md:p-gutter overflow-y-auto space-y-xl hidden">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
                 <div>
-                    <h2 class="font-headline-md text-headline-md font-bold">Laporan Keuangan WIZ Bangka Belitung</h2>
-                    <p class="font-caption text-caption text-on-surface-variant">Laporan konsolidasi keseluruhan lembaga (Pangkalpinang &amp; Sungailiat).</p>
+                    <h2 class="font-headline-md text-headline-md font-bold text-on-surface flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">analytics</span>
+                        <span>Laporan Keuangan 5 Pilar Utama WIZ</span>
+                    </h2>
+                    <p class="font-caption text-caption text-on-surface-variant">Laporan konsolidasi &amp; per wilayah operasional (Dana Masuk Spesifik + Porsi Alokasi Infak Umum - Penyaluran).</p>
                 </div>
-                <button onclick="openBaselineModal()"
-                    class="flex items-center gap-sm bg-surface-container-high border border-outline-variant text-on-surface px-md py-sm rounded-lg font-label-md text-label-md font-bold hover:bg-surface-variant transition-colors">
-                    <span class="material-symbols-outlined size-[18px]">tune</span> Edit Saldo Awal / Baseline
-                </button>
+                <div class="flex items-center gap-sm flex-wrap">
+                    <select id="finance-wilayah-filter" onchange="renderFinanceSection()" class="bg-surface border border-outline-variant rounded-lg px-3 py-2 font-caption text-xs font-bold text-on-surface outline-none focus:border-primary cursor-pointer">
+                        <option value="Semua">Wilayah: Konsolidasi (Semua)</option>
+                        <option value="Pangkalpinang">Wilayah: Pangkalpinang</option>
+                        <option value="Sungailiat">Wilayah: Sungailiat</option>
+                    </select>
+                    <button onclick="openBaselineModal()"
+                        class="flex items-center gap-sm bg-surface-container-high border border-outline-variant text-on-surface px-md py-2 rounded-lg font-label-md text-xs font-bold hover:bg-surface-variant transition-colors cursor-pointer">
+                        <span class="material-symbols-outlined size-[18px]">tune</span> Edit Baseline
+                    </button>
+                    <a href="laporan.html" target="_blank"
+                        class="flex items-center gap-1 bg-primary text-on-primary px-md py-2 rounded-lg font-label-md text-xs font-bold hover:bg-primary-container transition-colors shadow-xs">
+                        <span>Laporan Publik</span>
+                        <span class="material-symbols-outlined text-sm">open_in_new</span>
+                    </a>
+                </div>
             </div>
+
+            <!-- KPI Cards Overview -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter" id="finance-kpi-grid"></div>
+
+            <!-- 5 Pilar Utama Financial Summary Table -->
             <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden">
                 <div class="p-lg border-b border-outline-variant/30 flex justify-between items-center">
                     <div>
-                        <h3 class="font-headline-md text-headline-md text-primary font-bold">Rincian Pergerakan Dana Per Program</h3>
-                        <p class="font-caption text-caption text-on-surface-variant mt-1">Data otomatis ter-update saat donasi diverifikasi atau pengeluaran disalurkan.</p>
+                        <h3 class="font-headline-md text-headline-md text-primary font-bold flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">pie_chart</span>
+                            <span>Ringkasan Keuangan 5 Pilar Utama Lembaga</span>
+                        </h3>
+                        <p class="font-caption text-caption text-on-surface-variant mt-1">Saldo akhir tiap pilar = (Dana Masuk Program Spesifik + Porsi Alokasi Infak Umum) - Total Penyaluran.</p>
                     </div>
-                    <a href="laporan.html" target="_blank"
-                        class="font-label-md text-label-md text-primary hover:underline flex items-center gap-1 font-bold">
-                        <span>Pratinjau Halaman Laporan</span>
-                        <span class="material-symbols-outlined text-sm">open_in_new</span>
-                    </a>
                 </div>
                 <div class="overflow-x-auto p-md" id="finance-breakdown-container">
                     <!-- Rendered by JS -->
@@ -840,25 +857,25 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════════ -->
-        <!-- SECTION: MANAJEMEN HAK 6% PERANTARA / REFERAL       -->
+        <!-- SECTION: DATABASE MITRA PENGHIMPUNAN & KPI          -->
         <!-- ═══════════════════════════════════════════════════ -->
         <div id="section-referrals" class="flex-1 p-margin-mobile md:p-gutter overflow-y-auto space-y-xl hidden">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
                 <div>
                     <h2 class="font-headline-md text-headline-md font-bold text-on-surface flex items-center gap-2">
                         <span class="material-symbols-outlined text-primary">badge</span>
-                        <span>Database Perantara &amp; KPI Kinerja Fundraiser</span>
+                        <span>Database Mitra Penghimpunan &amp; KPI Kinerja Fundraiser</span>
                     </h2>
-                    <p class="font-caption text-caption text-on-surface-variant">Pusat pengelolaan profil perantara/relawan fundraiser, pemantauan target KPI donatur, dan pencatatan komisi insentif.</p>
+                    <p class="font-caption text-caption text-on-surface-variant">Pusat pengelolaan profil Mitra Penghimpunan / relawan fundraiser, pemantauan target KPI donatur, dan pencatatan insentif penghimpunan.</p>
                 </div>
                 <div class="flex items-center gap-sm flex-wrap">
                     <button onclick="openReferralModal()" class="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-lg py-2.5 rounded-xl font-bold text-sm transition-all shadow-md cursor-pointer border border-emerald-500">
                         <span class="material-symbols-outlined text-base">person_add</span>
-                        <span>+ Tambah Perantara / Affiliat Baru</span>
+                        <span>+ Tambah Mitra Penghimpunan Baru</span>
                     </button>
                     <button onclick="openReferralPayoutModal()" class="flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white px-lg py-2.5 rounded-xl font-bold text-sm transition-all shadow-md cursor-pointer border border-amber-500">
                         <span class="material-symbols-outlined text-base">payments</span>
-                        <span>+ Catat Pencairan Hak</span>
+                        <span>+ Catat Pencairan Insentif</span>
                     </button>
                 </div>
             </div>
@@ -870,7 +887,7 @@
                         <span class="material-symbols-outlined text-2xl">groups</span>
                     </div>
                     <div>
-                        <p class="font-caption text-caption text-on-surface-variant font-semibold">Total Perantara Aktif</p>
+                        <p class="font-caption text-caption text-on-surface-variant font-semibold">Total Mitra Aktif</p>
                         <h3 id="kpi-ref-count" class="font-headline-md text-headline-md font-bold text-on-surface">0 Orang</h3>
                     </div>
                 </div>
@@ -880,7 +897,7 @@
                         <span class="material-symbols-outlined text-2xl">savings</span>
                     </div>
                     <div>
-                        <p class="font-caption text-caption text-on-surface-variant font-semibold">Total Hak 6% Terakumulasi</p>
+                        <p class="font-caption text-caption text-on-surface-variant font-semibold">Total Hak Insentif (6%) Terakumulasi</p>
                         <h3 id="kpi-ref-fee-total" class="font-headline-md text-headline-md font-bold text-emerald-700">Rp 0</h3>
                     </div>
                 </div>
@@ -906,15 +923,15 @@
                 </div>
             </div>
 
-            <!-- Table 1: Master Daftar Perantara -->
+            <!-- Table 1: Master Daftar Mitra Penghimpunan -->
             <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden">
                 <div class="p-lg border-b border-outline-variant/20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
                     <div>
                         <h3 class="font-headline-md text-headline-md text-base font-bold text-primary flex items-center gap-xs">
                             <span class="material-symbols-outlined text-primary">badge</span>
-                            <span>Daftar Perantara / Relawan Fundraiser</span>
+                            <span>Daftar Mitra Penghimpunan &amp; Relawan Fundraiser</span>
                         </h3>
-                        <p class="font-caption text-caption text-on-surface-variant">Admin dapat mengedit data perantara, mengubah % komisi default, atau menambah insentif operasional.</p>
+                        <p class="font-caption text-caption text-on-surface-variant">Admin dapat mengedit data mitra, mengubah % alokasi insentif default, atau menambah insentif operasional.</p>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto">
                         <select id="referral-month-filter" onchange="renderReferralsSection()" class="text-xs bg-surface border border-outline-variant rounded-lg px-3 py-1.5 font-bold outline-none focus:border-primary">
@@ -930,15 +947,15 @@
                 </div>
             </div>
 
-            <!-- Table 2: Riwayat Pencairan Hak Perantara -->
+            <!-- Table 2: Riwayat Pencairan Insentif Mitra -->
             <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden">
                 <div class="p-lg border-b border-outline-variant/20 flex justify-between items-center">
                     <div>
                         <h3 class="font-headline-md text-headline-md text-base font-bold text-amber-800 flex items-center gap-xs">
                             <span class="material-symbols-outlined text-amber-600">history_edu</span>
-                            <span>Riwayat Pencairan / Pembayaran Hak Perantara</span>
+                            <span>Riwayat Pencairan Insentif Mitra Penghimpunan</span>
                         </h3>
-                        <p class="font-caption text-caption text-on-surface-variant">Catatan histori pembayaran komisi/insentif yang telah diserahkan kepada perantara.</p>
+                        <p class="font-caption text-caption text-on-surface-variant">Catatan histori pembayaran insentif yang telah diserahkan kepada mitra penghimpunan.</p>
                     </div>
                 </div>
                 <div class="overflow-x-auto" id="referral-payouts-table-container">
@@ -1257,25 +1274,25 @@
                     </div>
                 </div>
 
-                <!-- Referal / Perantara Section -->
+                <!-- Mitra Penghimpunan / Perantara Section -->
                 <div class="p-md bg-amber-50/60 border border-amber-200/80 rounded-xl space-y-sm">
                     <div class="flex items-center justify-between">
                         <label class="font-label-md text-label-md text-amber-900 font-bold flex items-center gap-1">
                             <span class="material-symbols-outlined text-amber-600 text-sm">handshake</span>
-                            <span>Perantara / Referal Donatur (Opsional - Hak 6%)</span>
+                            <span>Mitra Penghimpunan (Perantara Donatur - Hak Insentif 6%)</span>
                         </label>
                         <span class="text-[11px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded font-semibold">Hak Amil (Bukan Mustahik)</span>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-md">
                         <div>
-                            <label class="block font-caption text-caption text-on-surface-variant mb-xs font-semibold">Pilih Perantara</label>
+                            <label class="block font-caption text-caption text-on-surface-variant mb-xs font-semibold">Pilih Mitra Penghimpunan</label>
                             <select id="man-referral-id" onchange="handleReferralSelectChange()" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2 font-caption text-on-surface outline-none focus:border-primary font-bold">
-                                <option value="">-- Tanpa Perantara --</option>
+                                <option value="">-- Tanpa Mitra Penghimpunan --</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block font-caption text-caption text-on-surface-variant mb-xs font-semibold">% Hak Perantara (Editable)</label>
+                            <label class="block font-caption text-caption text-on-surface-variant mb-xs font-semibold">% Alokasi Insentif Mitra (Editable)</label>
                             <input type="number" id="man-referral-rate" value="6" min="0" max="50" step="0.5" oninput="updateReferralCalc()" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2 font-caption text-on-surface outline-none focus:border-primary font-bold">
                         </div>
                         <div>
@@ -1285,9 +1302,9 @@
                     </div>
 
                     <div id="man-referral-calc-preview" class="hidden p-xs bg-amber-100/60 rounded text-[11px] text-amber-900 font-mono flex justify-between items-center">
-                        <span>Hak 6%: <strong id="ref-calc-fee">Rp 0</strong></span>
+                        <span>Hak Insentif (6%): <strong id="ref-calc-fee">Rp 0</strong></span>
                         <span>Insentif Tambahan: <strong id="ref-calc-bonus">Rp 0</strong></span>
-                        <span>Total Hak Perantara: <strong id="ref-calc-total" class="text-amber-800 font-bold">Rp 0</strong></span>
+                        <span>Total Insentif Mitra: <strong id="ref-calc-total" class="text-amber-800 font-bold">Rp 0</strong></span>
                     </div>
                 </div>
 
@@ -1426,14 +1443,14 @@
     </div>
 
     <!-- ═══════════════════════════════════════════════════ -->
-    <!-- MODAL: REFERRAL (TAMBAH / EDIT PERANTARA)           -->
+    <!-- MODAL: REFERRAL (TAMBAH / EDIT MITRA PENGHIMPUNAN)  -->
     <!-- ═══════════════════════════════════════════════════ -->
     <div id="referral-modal" class="modal-backdrop">
         <div class="modal-dialog">
             <div class="p-lg border-b border-surface-variant flex justify-between items-center sticky top-0 bg-surface z-20">
                 <h3 id="referral-modal-title" class="font-headline-md text-body-lg font-bold text-primary flex items-center gap-xs">
                     <span class="material-symbols-outlined text-primary">person_add</span>
-                    <span>Tambah Perantara / Relawan Baru</span>
+                    <span>Tambah Mitra Penghimpunan Baru</span>
                 </h3>
                 <button type="button" onclick="closeReferralModal()" class="text-outline hover:text-on-surface p-1"><span class="material-symbols-outlined">close</span></button>
             </div>
@@ -1441,7 +1458,7 @@
                 <input type="hidden" id="ref-edit-id" value="">
 
                 <div>
-                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Nama Lengkap Perantara / Relawan *</label>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Nama Lengkap Mitra Penghimpunan *</label>
                     <input type="text" id="ref-name" required class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none" placeholder="Contoh: Ustadz Ahmad Hidayat">
                 </div>
 
@@ -1451,7 +1468,7 @@
                         <input type="tel" id="ref-phone" required class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none" placeholder="08xxxxxxxxxx">
                     </div>
                     <div>
-                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Hak Persentase Default (%) *</label>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Alokasi Insentif Default (%) *</label>
                         <input type="number" id="ref-default-rate" required value="6" min="0" max="50" step="0.5" class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none font-bold text-primary" placeholder="6">
                         <p class="font-caption text-[11px] text-on-surface-variant mt-0.5">Persentase bawaan untuk donasi baru (dapat disesuaikan admin per donasi).</p>
                     </div>
@@ -1493,7 +1510,7 @@
                 </div>
 
                 <div class="flex gap-md pt-sm">
-                    <button type="submit" class="flex-1 bg-primary text-on-primary py-3 rounded-lg font-label-md text-label-md font-bold hover:bg-primary-container transition-colors">Simpan Data Perantara</button>
+                    <button type="submit" class="flex-1 bg-primary text-on-primary py-3 rounded-lg font-label-md text-label-md font-bold hover:bg-primary-container transition-colors">Simpan Data Mitra Penghimpunan</button>
                     <button type="button" onclick="closeReferralModal()" class="px-lg py-3 border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors">Batal</button>
                 </div>
             </form>
@@ -1501,14 +1518,14 @@
     </div>
 
     <!-- ═══════════════════════════════════════════════════ -->
-    <!-- MODAL: REFERRAL PAYOUT (CATAT PENCAIRAN HAK)       -->
+    <!-- MODAL: REFERRAL PAYOUT (CATAT PENCAIRAN INSENTIF)   -->
     <!-- ═══════════════════════════════════════════════════ -->
     <div id="referral-payout-modal" class="modal-backdrop">
         <div class="modal-dialog">
             <div class="p-lg border-b border-surface-variant flex justify-between items-center sticky top-0 bg-surface z-20">
                 <h3 id="referral-payout-modal-title" class="font-headline-md text-body-lg font-bold text-amber-800 flex items-center gap-xs">
                     <span class="material-symbols-outlined text-amber-600">payments</span>
-                    <span>Catat Pencairan Hak Perantara</span>
+                    <span>Catat Pencairan Insentif Mitra Penghimpunan</span>
                 </h3>
                 <button type="button" onclick="closeReferralPayoutModal()" class="text-outline hover:text-on-surface p-1"><span class="material-symbols-outlined">close</span></button>
             </div>
@@ -1516,20 +1533,20 @@
                 <input type="hidden" id="payout-edit-id" value="">
 
                 <div>
-                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Pilih Perantara / Relawan *</label>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Pilih Mitra Penghimpunan *</label>
                     <select id="payout-ref-id" required onchange="updatePayoutModalInfo()" class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none font-bold">
-                        <option value="">-- Pilih Perantara --</option>
+                        <option value="">-- Pilih Mitra Penghimpunan --</option>
                     </select>
                 </div>
 
                 <!-- Info Box Sisa Pending -->
                 <div id="payout-ref-info" class="hidden p-md bg-amber-50 border border-amber-200 rounded-xl space-y-1 text-xs text-amber-900">
                     <div class="flex justify-between font-bold">
-                        <span>Total Hak Terakumulasi: <strong id="payout-info-earned">Rp 0</strong></span>
+                        <span>Total Insentif Terakumulasi: <strong id="payout-info-earned">Rp 0</strong></span>
                         <span>Sudah Dicairkan: <strong id="payout-info-paid">Rp 0</strong></span>
                     </div>
                     <div class="flex justify-between font-mono text-sm pt-1 border-t border-amber-200">
-                        <span>Sisa Hak Belum Dicairkan (Pending):</span>
+                        <span>Sisa Insentif Belum Dicairkan (Pending):</span>
                         <strong id="payout-info-pending" class="text-amber-800 text-base">Rp 0</strong>
                     </div>
                     <p id="payout-info-bank" class="text-[11px] text-amber-700 italic pt-1"></p>
@@ -1563,11 +1580,11 @@
 
                 <div>
                     <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Catatan Pencairan</label>
-                    <textarea id="payout-notes" rows="2" class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none" placeholder="Misal: Pencairan komisi bulan Ramadan / Insentif kegiatan lapangan..."></textarea>
+                    <textarea id="payout-notes" rows="2" class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none" placeholder="Misal: Pencairan insentif bulan Ramadan / Insentif kegiatan lapangan..."></textarea>
                 </div>
 
                 <div class="flex gap-md pt-sm">
-                    <button type="submit" class="flex-1 bg-amber-600 text-white py-3 rounded-lg font-label-md text-label-md font-bold hover:bg-amber-700 transition-colors">Simpan Pencairan Hak</button>
+                    <button type="submit" class="flex-1 bg-amber-600 text-white py-3 rounded-lg font-label-md text-label-md font-bold hover:bg-amber-700 transition-colors">Simpan Pencairan Insentif</button>
                     <button type="button" onclick="closeReferralPayoutModal()" class="px-lg py-3 border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors">Batal</button>
                 </div>
             </form>
@@ -1575,7 +1592,7 @@
     </div>
 
     <!-- ═══════════════════════════════════════════════════ -->
-    <!-- MODAL: DETAIL RINCIAN PERANTARA                     -->
+    <!-- MODAL: DETAIL RINCIAN MITRA PENGHIMPUNAN            -->
     <!-- ═══════════════════════════════════════════════════ -->
     <div id="referral-detail-modal" class="modal-backdrop">
         <div class="modal-dialog max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -1583,7 +1600,7 @@
                 <div>
                     <h3 id="ref-detail-title" class="font-headline-md text-headline-md font-bold text-primary flex items-center gap-xs">
                         <span class="material-symbols-outlined text-primary">badge</span>
-                        <span>Rincian &amp; Histori Hak Perantara</span>
+                        <span>Rincian &amp; Histori Insentif Mitra</span>
                     </h3>
                     <p id="ref-detail-subtitle" class="font-caption text-caption text-on-surface-variant"></p>
                 </div>
@@ -1599,7 +1616,7 @@
                 <!-- Tab Controls -->
                 <div class="flex border-b border-outline-variant/30 gap-md">
                     <button id="tab-ref-donations-btn" onclick="switchRefDetailTab('donations')" class="pb-2 text-xs font-bold border-b-2 border-primary text-primary cursor-pointer">Daftar Donatur / Donasi (0)</button>
-                    <button id="tab-ref-payouts-btn" onclick="switchRefDetailTab('payouts')" class="pb-2 text-xs font-bold border-b-2 border-transparent text-on-surface-variant cursor-pointer">Riwayat Pencairan Hak (0)</button>
+                    <button id="tab-ref-payouts-btn" onclick="switchRefDetailTab('payouts')" class="pb-2 text-xs font-bold border-b-2 border-transparent text-on-surface-variant cursor-pointer">Riwayat Pencairan Insentif (0)</button>
                 </div>
 
                 <!-- Tab 1: Donasi Container -->
@@ -2192,7 +2209,7 @@
                 dashboard: 'Dashboard Overview',
                 donations: 'Manajemen Pemasukan / Donasi',
                 disbursements: 'Manajemen Pengeluaran / Penyaluran',
-                referrals: 'Database Perantara & KPI',
+                referrals: 'Database Mitra Penghimpunan & KPI',
                 'allocation-rules': 'Aturan Alokasi Dana (Allocation Rules)',
                 'site-images': 'Foto Web Utama & Program Spesifik',
                 'site-settings': 'Pengaturan Web Utama (Rekening & Lokasi Kantor)',
@@ -2426,7 +2443,7 @@
                     const refObj = wizStore.referrals.getById(d.referralId);
                     if (refObj) {
                         const rate = d.referralRate !== undefined ? d.referralRate : 6;
-                        refBadge = `<div class="text-[11px] text-amber-800 font-bold flex items-center gap-1 mt-0.5"><span class="material-symbols-outlined text-[13px] text-amber-600">handshake</span> Perantara: ${refObj.name} (${rate}%)</div>`;
+                        refBadge = `<div class="text-[11px] text-amber-800 font-bold flex items-center gap-1 mt-0.5"><span class="material-symbols-outlined text-[13px] text-amber-600">handshake</span> Mitra: ${refObj.name} (${rate}%)</div>`;
                     }
                 }
 
@@ -2455,7 +2472,7 @@
                         <button onclick="showDonationDetail('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary font-label-md text-caption font-semibold mr-1 cursor-pointer">
                             <span class="material-symbols-outlined text-[14px]">visibility</span> Detail
                         </button>
-                        <button onclick="editManualDonation('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 font-label-md text-caption font-bold mr-1 cursor-pointer" title="Edit transaksi & perantara">
+                        <button onclick="editManualDonation('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 font-label-md text-caption font-bold mr-1 cursor-pointer" title="Edit transaksi & mitra penghimpunan">
                             <span class="material-symbols-outlined text-[14px]">edit</span> Edit
                         </button>
                         <button onclick="deleteDonation('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-error/30 text-error hover:bg-error/5 font-label-md text-caption font-semibold cursor-pointer">
@@ -3089,7 +3106,7 @@
             if (wizStore.referrals) {
                 if (d.referralId) {
                     const refObj = wizStore.referrals.getById(d.referralId);
-                    const refName = refObj ? refObj.name : 'Perantara';
+                    const refName = refObj ? refObj.name : 'Mitra Penghimpunan';
                     const rate = d.referralRate !== undefined ? d.referralRate : 6;
                     const fee = d.referralFee !== undefined ? d.referralFee : Math.round(d.amount * (rate / 100));
                     const bonus = d.additionalBonus || 0;
@@ -3098,35 +3115,35 @@
                         <div class="flex justify-between items-center">
                             <p class="font-caption text-caption font-bold text-amber-900 flex items-center gap-1">
                                 <span class="material-symbols-outlined text-sm text-amber-600">handshake</span>
-                                Perantara / Referal Donatur (Hak Amil):
+                                Mitra Penghimpunan Donatur (Hak Amil 6%):
                             </p>
                             <button onclick="editManualDonation('${d.id}'); closeDonationDetail();" class="px-2.5 py-1 bg-amber-600 text-white rounded text-[11px] font-bold hover:bg-amber-700 cursor-pointer transition-colors shadow-xs">
-                                ✏️ Edit Perantara &amp; Hak %
+                                ✏️ Edit Mitra &amp; Alokasi Insentif
                             </button>
                         </div>
                         <div class="flex justify-between font-bold text-xs">
-                            <span>Nama Perantara: <strong class="text-amber-900 text-sm">${refName}</strong></span>
-                            <span>Rate Hak: <strong class="text-amber-800">${rate}%</strong></span>
+                            <span>Nama Mitra: <strong class="text-amber-900 text-sm">${refName}</strong></span>
+                            <span>Alokasi Insentif: <strong class="text-amber-800">${rate}%</strong></span>
                         </div>
                         <div class="flex justify-between text-xs font-mono pt-1 border-t border-amber-200">
-                            <span>Hak Komisi (${rate}%): <strong>${fmt(fee)}</strong></span>
-                            <span>Insentif Operasional: <strong>${fmt(bonus)}</strong></span>
-                            <span>Total Hak: <strong class="text-amber-800 font-bold">${fmt(fee + bonus)}</strong></span>
+                            <span>Hak Insentif (${rate}%): <strong>${fmt(fee)}</strong></span>
+                            <span>Insentif Tambahan: <strong>${fmt(bonus)}</strong></span>
+                            <span>Total Insentif Mitra: <strong class="text-amber-800 font-bold">${fmt(fee + bonus)}</strong></span>
                         </div>
                         ${d.isRecurringDonor ? `
                         <div class="flex items-center gap-1.5 pt-1.5 border-t border-amber-200">
                             <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-full text-[11px] font-extrabold border border-emerald-300">
                                 <span class="material-symbols-outlined text-[13px]">repeat</span> DONATUR TETAP BULANAN
                             </span>
-                            <span class="text-[11px] text-amber-700 italic">Perantara mendapat hak komisi setiap bulan selama donatur ini aktif berdonasi.</span>
+                            <span class="text-[11px] text-amber-700 italic">Mitra mendapat alokasi insentif setiap bulan selama donatur ini aktif berdonasi.</span>
                         </div>` : ''}
                     </div>`;
                 } else {
                     refInfoHtml = `
                     <div class="col-span-2 p-sm bg-slate-50 rounded-xl border border-dashed border-slate-300 flex justify-between items-center text-xs">
-                        <span class="text-slate-600 font-medium">Belum ada perantara / referal ditautkan ke donasi ini.</span>
+                        <span class="text-slate-600 font-medium">Belum ada Mitra Penghimpunan ditautkan ke donasi ini.</span>
                         <button onclick="editManualDonation('${d.id}'); closeDonationDetail();" class="px-2.5 py-1 bg-amber-600 text-white rounded font-bold hover:bg-amber-700 cursor-pointer transition-colors shadow-xs">
-                            + Tautkan Perantara (Hak 6%)
+                            + Tautkan Mitra Penghimpunan (Hak 6%)
                         </button>
                     </div>`;
                 }
@@ -3141,14 +3158,11 @@
                         <span>Foto Bukti Transfer Pembayaran Donatur:</span>
                     </p>
                     <div class="flex flex-col sm:flex-row items-center gap-3">
-                        <a href="${d.proofImage}" target="_blank" class="block shrink-0">
-                            <img src="${d.proofImage}" alt="Bukti Transfer" class="w-32 h-32 object-cover rounded-lg border-2 border-blue-300 shadow-sm hover:opacity-90 transition-opacity cursor-pointer">
-                        </a>
-                        <div class="space-y-1 text-xs text-blue-900">
-                            <p class="font-semibold">Bukti pembayaran telah diunggah oleh donatur.</p>
-                            <p class="text-blue-700 text-[11px]">Klik foto untuk melihat ukuran penuh di tab baru.</p>
-                            <a href="${d.proofImage}" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 shadow-xs">
-                                <span class="material-symbols-outlined text-sm">open_in_new</span> Buka Bukti Penuh
+                        <img src="${d.proofImage}" alt="Bukti Transfer" class="max-h-60 max-w-full rounded-lg border border-blue-300 shadow-xs cursor-pointer object-contain bg-white" onclick="window.open('${d.proofImage}', '_blank')">
+                        <div class="text-xs text-on-surface-variant space-y-1">
+                            <p>📌 Klik gambar untuk melihat ukuran penuh / mengunduh.</p>
+                            <a href="${d.proofImage}" target="_blank" download="Bukti-Donasi-${d.id}.jpg" class="inline-flex items-center gap-1 text-primary font-bold hover:underline">
+                                <span class="material-symbols-outlined text-sm">download</span> Unduh Bukti Transfer
                             </a>
                         </div>
                     </div>
@@ -3224,7 +3238,7 @@
                         <span class="material-symbols-outlined text-[18px]">check_circle</span> Pulihkan &amp; Setujui Donasi
                     </button>
                 ` : ''}
-                <button onclick="editManualDonation('${d.id}'); closeDonationDetail();" class="px-4 bg-surface-container border border-outline-variant text-on-surface py-2.5 rounded-xl font-label-md font-bold hover:bg-surface-variant transition-colors cursor-pointer">Edit Transaksi &amp; Perantara</button>
+                <button onclick="editManualDonation('${d.id}'); closeDonationDetail();" class="px-4 bg-surface-container border border-outline-variant text-on-surface py-2.5 rounded-xl font-label-md font-bold hover:bg-surface-variant transition-colors cursor-pointer">Edit Transaksi &amp; Mitra Penghimpunan</button>
                 <button onclick="deleteDonation('${d.id}'); closeDonationDetail();" class="px-4 border border-error/40 text-error hover:bg-error/5 rounded-xl font-label-md font-bold transition-colors cursor-pointer">Hapus</button>
             </div>`;
 
@@ -4887,7 +4901,7 @@
             }
         }
 
-        // ─── Referrals (Hak 6% Perantara) UI Handlers ─────────
+        // ─── Mitra Penghimpunan (Hak 6% Insentif) UI Handlers ─────────
         function populateReferralSelects() {
             if (!wizStore.referrals) return;
             const activeRefs = wizStore.referrals.getAll().filter(r => r.status === 'active');
@@ -4895,7 +4909,7 @@
             const manSelect = document.getElementById('man-referral-id');
             const payoutSelect = document.getElementById('payout-ref-id');
 
-            const optionsHtml = '<option value="">-- Tanpa Perantara --</option>' +
+            const optionsHtml = '<option value="">-- Tanpa Mitra Penghimpunan --</option>' +
                 activeRefs.map(r => `<option value="${r.id}">${r.name} (${r.defaultRate || 6}%)</option>`).join('');
 
             if (manSelect) {
@@ -4906,7 +4920,7 @@
 
             if (payoutSelect) {
                 const curVal = payoutSelect.value;
-                payoutSelect.innerHTML = '<option value="">-- Pilih Perantara --</option>' +
+                payoutSelect.innerHTML = '<option value="">-- Pilih Mitra Penghimpunan --</option>' +
                     wizStore.referrals.getAll().map(r => `<option value="${r.id}">${r.name} (Sisa Pending: ${wizStore.utils.formatRupiahCompact(r.pendingBalance)})</option>`).join('');
                 payoutSelect.value = curVal;
             }
@@ -4993,20 +5007,20 @@
                 const refContainer = document.getElementById('referrals-table-container');
                 if (refContainer) {
                     if (filteredRefs.length === 0) {
-                        refContainer.innerHTML = '<div class="p-lg text-center text-on-surface-variant text-sm italic">Belum ada data perantara / relawan fundraiser. Klik "+ Tambah Perantara Baru" di atas untuk menambahkan data perantara.</div>';
+                        refContainer.innerHTML = '<div class="p-lg text-center text-on-surface-variant text-sm italic">Belum ada data Mitra Penghimpunan / relawan fundraiser. Klik "+ Tambah Mitra Penghimpunan Baru" di atas untuk menambahkan data.</div>';
                     } else {
                         refContainer.innerHTML = `
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-surface-container-low border-b border-outline-variant/30 font-label-md text-caption text-on-surface-variant">
-                                    <th class="p-sm">Nama &amp; Kode Affiliate</th>
+                                    <th class="p-sm">Nama &amp; Kode Mitra</th>
                                     <th class="p-sm">Evaluasi Bulanan</th>
                                     <th class="p-sm">Kontak &amp; Rekening</th>
                                     <th class="p-sm text-center">% Default</th>
-                                    <th class="p-sm text-right">Donasi Diraih</th>
-                                    <th class="p-sm text-right">Hak 6%</th>
+                                    <th class="p-sm text-right">Donasi Dihimpun</th>
+                                    <th class="p-sm text-right">Hak Insentif (6%)</th>
                                     <th class="p-sm text-right">Insentif Tambahan</th>
-                                    <th class="p-sm text-right">Total Hak</th>
+                                    <th class="p-sm text-right">Total Insentif Diterima</th>
                                     <th class="p-sm text-right">Sudah Dicairkan</th>
                                     <th class="p-sm text-right">Sisa Pending</th>
                                     <th class="p-sm text-right">Aksi</th>
@@ -5019,7 +5033,7 @@
                                     return `
                                 <tr class="hover:bg-surface-container-lowest/60 transition-colors">
                                     <td class="p-sm">
-                                        <div class="font-bold text-on-surface text-sm">${r.name || 'Perantara'}</div>
+                                        <div class="font-bold text-on-surface text-sm">${r.name || 'Mitra Penghimpunan'}</div>
                                         <div class="font-mono text-[11px] font-bold text-primary">Kode: ${r.code || r.id}</div>
                                         <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${r.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'}">${r.status === 'active' ? 'Aktif' : 'Non-Aktif'}</span>
                                     </td>
@@ -5045,7 +5059,7 @@
                                         <button onclick="openReferralDetailModal('${r.id}')" class="px-2 py-1 bg-primary/10 text-primary hover:bg-primary/20 rounded font-bold transition-colors">Detail</button>
                                         <button onclick="openReferralPayoutModal('${r.id}')" class="px-2 py-1 bg-amber-600 text-white hover:bg-amber-700 rounded font-bold transition-colors">Cairkan</button>
                                         <button onclick="editReferral('${r.id}')" class="px-2 py-1 border border-outline-variant text-on-surface-variant hover:text-primary rounded font-semibold transition-colors">Edit</button>
-                                        <button onclick="deleteReferral('${r.id}')" class="inline-flex items-center gap-0.5 px-2 py-1 border border-error/40 text-error bg-error/5 hover:bg-error/15 rounded font-bold text-xs transition-colors cursor-pointer" title="Hapus perantara dari sistem & Supabase">
+                                        <button onclick="deleteReferral('${r.id}')" class="inline-flex items-center gap-0.5 px-2 py-1 border border-error/40 text-error bg-error/5 hover:bg-error/15 rounded font-bold text-xs transition-colors cursor-pointer" title="Hapus mitra dari sistem & Supabase">
                                             <span class="material-symbols-outlined text-[13px]">delete</span> Hapus
                                         </button>
                                     </td>
@@ -5061,14 +5075,14 @@
                 const allPayouts = wizStore.referrals.getPayouts() || [];
                 if (payoutsContainer) {
                     if (allPayouts.length === 0) {
-                        payoutsContainer.innerHTML = '<div class="p-md text-center text-on-surface-variant text-xs italic">Belum ada riwayat pencairan hak perantara.</div>';
+                        payoutsContainer.innerHTML = '<div class="p-md text-center text-on-surface-variant text-xs italic">Belum ada riwayat pencairan insentif mitra penghimpunan.</div>';
                     } else {
                         payoutsContainer.innerHTML = `
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-surface-container-low border-b border-outline-variant/30 font-label-md text-caption text-on-surface-variant">
                                     <th class="p-sm">Tanggal Pencairan</th>
-                                    <th class="p-sm">Perantara / Penerima</th>
+                                    <th class="p-sm">Mitra / Penerima</th>
                                     <th class="p-sm text-right">Nominal Pencairan</th>
                                     <th class="p-sm">Metode / No. Ref</th>
                                     <th class="p-sm">Catatan</th>
@@ -5079,7 +5093,7 @@
                                 ${allPayouts.map(p => `
                                 <tr>
                                     <td class="p-sm text-on-surface-variant font-mono">${wizStore.utils.formatDate(p.paidAt)}</td>
-                                    <td class="p-sm font-bold text-on-surface">${p.referralName || 'Perantara'}</td>
+                                    <td class="p-sm font-bold text-on-surface">${p.referralName || 'Mitra Penghimpunan'}</td>
                                     <td class="p-sm text-right font-bold text-amber-800 text-sm">${fmt(p.amount || 0)}</td>
                                     <td class="p-sm">
                                         <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-900 font-bold text-[11px]">${p.paymentMethod || '-'}</span>
@@ -5102,7 +5116,7 @@
         // Referral CRUD Modal Handlers
         function openReferralModal(editId) {
             document.getElementById('ref-edit-id').value = editId || '';
-            document.getElementById('referral-modal-title').innerHTML = editId ? '<span class="material-symbols-outlined text-primary">edit_square</span><span>Edit Perantara / Relawan</span>' : '<span class="material-symbols-outlined text-primary">person_add</span><span>Tambah Perantara / Relawan Baru</span>';
+            document.getElementById('referral-modal-title').innerHTML = editId ? '<span class="material-symbols-outlined text-primary">edit_square</span><span>Edit Mitra Penghimpunan</span>' : '<span class="material-symbols-outlined text-primary">person_add</span><span>Tambah Mitra Penghimpunan Baru</span>';
             if (!editId) {
                 document.getElementById('referral-form').reset();
                 document.getElementById('ref-default-rate').value = '6';
@@ -5170,11 +5184,11 @@
         async function deleteReferral(id) {
             const r = wizStore.referrals.getById(id);
             const label = r ? `"${r.name}" (${r.code || r.id})` : 'ini';
-            if (!confirm(`⚠️ PERINGATAN: Apakah Anda yakin ingin menghapus data perantara/affiliator ${label}?\n\nTindakan ini akan menghapus akun dari sistem dan database Supabase secara permanen.`)) return;
+            if (!confirm(`⚠️ PERINGATAN: Apakah Anda yakin ingin menghapus data Mitra Penghimpunan ${label}?\n\nTindakan ini akan menghapus akun dari sistem dan database Supabase secara permanen.`)) return;
             await wizStore.referrals.delete(id);
             refreshAll();
             renderReferralsSection();
-            alert(`✅ Data perantara ${label} berhasil dihapus dari sistem & database Supabase.`);
+            alert(`✅ Data Mitra Penghimpunan ${label} berhasil dihapus dari sistem & database Supabase.`);
         }
 
         // Referral Payout Modal Handlers
@@ -5245,9 +5259,113 @@
         }
 
         async function deleteReferralPayout(payoutId) {
-            if (!confirm('Hapus riwayat pencairan ini? Sisa pending perantara akan kembali bertambah.')) return;
+            if (!confirm('Hapus riwayat pencairan ini? Sisa pending mitra penghimpunan akan kembali bertambah.')) return;
             await wizStore.referrals.deletePayout(payoutId);
             refreshAll();
+        }
+
+        // ─── Finance Section (5 Pilar Utama Summary) ─────────
+        function renderFinanceSection() {
+            if (!window.wizStore || !wizStore.finance) return;
+
+            const filterWilayah = document.getElementById('finance-wilayah-filter') ? document.getElementById('finance-wilayah-filter').value : 'Semua';
+            const fmt = wizStore.utils.formatRupiahCompact;
+
+            // Render Finance KPI Grid
+            renderKPI('finance-kpi-grid');
+
+            const container = document.getElementById('finance-breakdown-container');
+            if (!container) return;
+
+            const perPillars = wizStore.finance.getPerProgram(filterWilayah);
+            if (!perPillars || perPillars.length === 0) {
+                container.innerHTML = '<div class="p-lg text-center text-on-surface-variant font-body-md">Belum ada data keuangan untuk ditampilkan.</div>';
+                return;
+            }
+
+            const pillarMeta = {
+                'Berkah Hidayah': { icon: 'menu_book', category: 'Dakwah & Pembinaan', color: 'text-emerald-700 bg-emerald-50 border-emerald-200', barColor: 'bg-emerald-600' },
+                'Berkah Juara': { icon: 'school', category: 'Pendidikan & Beasiswa', color: 'text-blue-700 bg-blue-50 border-blue-200', barColor: 'bg-blue-600' },
+                'Berkah Peduli': { icon: 'volunteer_activism', category: 'Sosial & Kemanusiaan', color: 'text-amber-700 bg-amber-50 border-amber-200', barColor: 'bg-amber-600' },
+                'Berkah Sehat': { icon: 'health_and_safety', category: 'Kesehatan & Ambulance', color: 'text-rose-700 bg-rose-50 border-rose-200', barColor: 'bg-rose-600' },
+                'Berkah Mandiri': { icon: 'storefront', category: 'Ekonomi & Pemberdayaan', color: 'text-purple-700 bg-purple-50 border-purple-200', barColor: 'bg-purple-600' }
+            };
+
+            let totalMasuk = 0;
+            let totalSalur = 0;
+            let totalSaldo = 0;
+            let totalTarget = 0;
+
+            const rows = perPillars.map(p => {
+                const meta = pillarMeta[p.key] || { icon: 'category', category: p.key, color: 'text-primary bg-primary/10 border-primary/20', barColor: 'bg-primary' };
+                totalMasuk += p.masuk;
+                totalSalur += p.tersalurkan;
+                totalSaldo += p.saldo;
+                totalTarget += (p.target || 0);
+
+                const percentTarget = p.target > 0 ? Math.min(100, Math.round((p.masuk / p.target) * 100)) : 0;
+                const percentSalur = p.masuk > 0 ? Math.min(100, Math.round((p.tersalurkan / p.masuk) * 100)) : 0;
+
+                return `
+                <tr class="hover:bg-surface-container-lowest/60 transition-colors">
+                    <td class="p-md">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${meta.color}">
+                                <span class="material-symbols-outlined text-lg">${meta.icon}</span>
+                            </div>
+                            <div>
+                                <div class="font-bold text-on-surface text-sm flex items-center gap-1.5">
+                                    <span>${p.key}</span>
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold ${meta.color}">${meta.category}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="p-md text-center">
+                        <div class="font-bold text-xs text-on-surface font-mono">${fmt(p.target)}</div>
+                        <div class="w-20 bg-surface-container rounded-full h-1.5 mx-auto mt-1 overflow-hidden">
+                            <div class="${meta.barColor} h-1.5 rounded-full" style="width: ${percentTarget}%"></div>
+                        </div>
+                        <span class="text-[10px] text-on-surface-variant font-mono">${percentTarget}% target</span>
+                    </td>
+                    <td class="p-md text-right font-bold text-primary text-sm">${fmt(p.masuk)}</td>
+                    <td class="p-md text-right font-bold text-tertiary-container text-sm">${fmt(p.tersalurkan)}</td>
+                    <td class="p-md text-right font-bold text-on-surface text-sm">
+                        <span class="${p.saldo > 0 ? 'text-emerald-800 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200' : 'text-slate-400'}">${fmt(p.saldo)}</span>
+                    </td>
+                    <td class="p-md text-center">
+                        <span class="px-2.5 py-1 ${p.statusClass} rounded-full font-caption text-caption font-bold inline-block">${p.status}</span>
+                        <div class="text-[10px] text-outline mt-0.5 font-mono">${percentSalur}% tersalurkan</div>
+                    </td>
+                </tr>`;
+            }).join('');
+
+            container.innerHTML = `
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="bg-surface-container-low border-b border-outline-variant/30 font-label-md text-caption text-on-surface-variant">
+                        <th class="p-md">Pilar Program Utama</th>
+                        <th class="p-md text-center">Target Tahunan</th>
+                        <th class="p-md text-right">Dana Masuk (Spesifik + Infak Umum)</th>
+                        <th class="p-md text-right">Dana Tersalurkan</th>
+                        <th class="p-md text-right">Sisa Saldo Amanah</th>
+                        <th class="p-md text-center">Realisasi &amp; Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/20 font-body-md text-xs">
+                    ${rows}
+                </tbody>
+                <tfoot class="bg-surface-container-low font-bold text-on-surface border-t-2 border-outline-variant/40">
+                    <tr>
+                        <td class="p-md font-bold text-xs">TOTAL KONSOLIDASI (5 PILAR)</td>
+                        <td class="p-md text-center text-xs font-mono">${fmt(totalTarget)}</td>
+                        <td class="p-md text-right text-primary font-bold text-sm">${fmt(totalMasuk)}</td>
+                        <td class="p-md text-right text-tertiary-container font-bold text-sm">${fmt(totalSalur)}</td>
+                        <td class="p-md text-right text-emerald-900 font-bold text-sm">${fmt(totalSaldo)}</td>
+                        <td class="p-md text-center text-xs font-semibold text-primary">Saldo Siap Salur</td>
+                    </tr>
+                </tfoot>
+            </table>`;
         }
 
         // Referral Detail Modal Handlers
@@ -5263,14 +5381,14 @@
             document.getElementById('ref-detail-subtitle').textContent = `${ref.name} (${ref.phone}) • ${ref.bankName} ${ref.accountNumber} (a.n ${ref.accountHolder})`;
 
             document.getElementById('ref-detail-summary').innerHTML = `
-                <div><span class="text-on-surface-variant font-semibold">Total Donasi Diraih:</span> <strong class="block text-sm text-on-surface font-bold">${fmt(ref.totalDonationAmount)}</strong></div>
-                <div><span class="text-on-surface-variant font-semibold">Hak 6% Terakumulasi:</span> <strong class="block text-sm text-emerald-700 font-bold">${fmt(ref.totalFee6Percent)}</strong></div>
+                <div><span class="text-on-surface-variant font-semibold">Total Donasi Dihimpun:</span> <strong class="block text-sm text-on-surface font-bold">${fmt(ref.totalDonationAmount)}</strong></div>
+                <div><span class="text-on-surface-variant font-semibold">Hak Insentif (6%):</span> <strong class="block text-sm text-emerald-700 font-bold">${fmt(ref.totalFee6Percent)}</strong></div>
                 <div><span class="text-on-surface-variant font-semibold">Insentif Tambahan:</span> <strong class="block text-sm text-purple-700 font-bold">${fmt(ref.totalAdditionalBonus)}</strong></div>
-                <div><span class="text-on-surface-variant font-semibold">Sisa Hak Pending:</span> <strong class="block text-sm text-amber-800 font-bold">${fmt(ref.pendingBalance)}</strong></div>
+                <div><span class="text-on-surface-variant font-semibold">Sisa Insentif Pending:</span> <strong class="block text-sm text-amber-800 font-bold">${fmt(ref.pendingBalance)}</strong></div>
             `;
 
             document.getElementById('tab-ref-donations-btn').textContent = `Daftar Donatur / Donasi (${ref.donations.length})`;
-            document.getElementById('tab-ref-payouts-btn').textContent = `Riwayat Pencairan Hak (${ref.payouts.length})`;
+            document.getElementById('tab-ref-payouts-btn').textContent = `Riwayat Pencairan Insentif (${ref.payouts.length})`;
 
             switchRefDetailTab('donations');
             showModal('referral-detail-modal');
@@ -5298,7 +5416,7 @@
                 conPay.classList.add('hidden');
 
                 if (ref.donations.length === 0) {
-                    conDon.innerHTML = '<div class="p-md text-center text-xs text-on-surface-variant italic">Belum ada transaksi donasi yang ditautkan ke perantara ini.</div>';
+                    conDon.innerHTML = '<div class="p-md text-center text-xs text-on-surface-variant italic">Belum ada transaksi donasi yang ditautkan ke mitra penghimpunan ini.</div>';
                 } else {
                     conDon.innerHTML = `
                     <table class="w-full text-left border-collapse text-xs">
@@ -5308,10 +5426,10 @@
                                 <th class="p-2">Donatur</th>
                                 <th class="p-2">Program</th>
                                 <th class="p-2 text-right">Nominal Donasi</th>
-                                <th class="p-2 text-right">Rate %</th>
-                                <th class="p-2 text-right">Hak 6%</th>
+                                <th class="p-2 text-right">% Insentif</th>
+                                <th class="p-2 text-right">Hak Insentif 6%</th>
                                 <th class="p-2 text-right">Insentif Tambahan</th>
-                                <th class="p-2 text-right">Total Hak Transaction</th>
+                                <th class="p-2 text-right">Total Insentif Transaksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-outline-variant/20">
@@ -5341,7 +5459,7 @@
                 conDon.classList.add('hidden');
 
                 if (ref.payouts.length === 0) {
-                    conPay.innerHTML = '<div class="p-md text-center text-xs text-on-surface-variant italic">Belum ada riwayat pencairan/pembayaran hak perantara ini.</div>';
+                    conPay.innerHTML = '<div class="p-md text-center text-xs text-on-surface-variant italic">Belum ada riwayat pencairan insentif mitra penghimpunan ini.</div>';
                 } else {
                     conPay.innerHTML = `
                     <table class="w-full text-left border-collapse text-xs">

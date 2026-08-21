@@ -852,15 +852,39 @@
             }
 
             noticeBox.classList.remove('hidden');
-            titleEl.textContent = `Alokasi Otomatis Infak Umum — ${state.wilayah}`;
+            titleEl.textContent = `Alokasi Otomatis Infak Umum — Wilayah ${state.wilayah}`;
 
-            const rules = INFAK_UMUM_RULES[state.wilayah] || [];
-            breakdownEl.innerHTML = rules.map(r => `
-            <div class="bg-white p-2 rounded border border-outline-variant/30 flex justify-between items-center">
-                <span class="text-on-surface">${r.name}</span>
-                <span class="text-primary font-bold">${r.pct}%</span>
-            </div>
-        `).join('');
+            let items = [];
+            if (window.wizStore && typeof window.wizStore.calcInfakUmumAllocation === 'function') {
+                items = window.wizStore.calcInfakUmumAllocation(state.nominal, state.wilayah);
+            }
+
+            if (!items || items.length === 0) {
+                // Fallback default rules
+                const fallback = (INFAK_UMUM_RULES && INFAK_UMUM_RULES[state.wilayah]) || [
+                    { name: 'Berkah Hidayah', pct: 35 },
+                    { name: 'Berkah Juara', pct: 27 },
+                    { name: 'Berkah Peduli', pct: 18 },
+                    { name: 'Berkah Sehat', pct: 5 },
+                    { name: 'Dana Saving & Operasional', pct: 15 }
+                ];
+                items = fallback.map(f => ({
+                    key: f.name || f.key,
+                    percent: f.pct || f.percent || 20,
+                    amount: Math.round((state.nominal || 0) * ((f.pct || f.percent || 20) / 100))
+                }));
+            }
+
+            const hasNominal = state.nominal > 0;
+            breakdownEl.innerHTML = items.map(r => `
+                <div class="bg-white p-2.5 rounded-lg border border-outline-variant/30 flex flex-col justify-between">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-on-surface font-semibold text-xs truncate" title="${r.key}">${r.key}</span>
+                        <span class="text-primary font-bold text-[11px] bg-primary/10 px-1.5 py-0.5 rounded">${r.percent}%</span>
+                    </div>
+                    ${hasNominal ? `<div class="text-right font-mono font-bold text-xs text-primary">${formatRupiah(r.amount)}</div>` : ''}
+                </div>
+            `).join('');
         }
 
         function updateSummary() {
@@ -888,13 +912,13 @@
                 mobTotal.textContent = formatRupiah(state.nominal);
             }
 
-            // Check active affiliate referral — from URL parameter or active 30-day cookie
+            // Check active Mitra Penghimpunan referral — from URL parameter or active 30-day attribution
             const activeRef = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || new URLSearchParams(window.location.search).get('perantara'));
             const refRow = document.getElementById('summary-ref-row');
             if (activeRef && window.wizStore && window.wizStore.referrals) {
                 const refObj = window.wizStore.referrals.getByCodeOrId(activeRef);
                 if (refObj && refRow) {
-                    document.getElementById('summary-ref-name').textContent = refObj.code || refObj.id;
+                    document.getElementById('summary-ref-name').textContent = `${refObj.name} (${refObj.code || refObj.id})`;
                     refRow.classList.remove('hidden');
                     refRow.classList.add('flex');
                     state.activeRefObj = refObj;

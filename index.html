@@ -408,6 +408,74 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- VISUALISASI DINAMIS: DISTRIBUSI INFAK UMUM BERBASIS WILAYAH      -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section id="distribusi-infak-umum" class="py-xxl px-margin-mobile md:px-gutter bg-surface border-t border-b border-surface-variant/40">
+    <div class="max-w-container-max mx-auto space-y-xl">
+        <!-- Section Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-md">
+            <div class="space-y-xs max-w-2xl">
+                <span class="inline-flex items-center gap-1.5 bg-primary/10 text-primary px-md py-xs rounded-full font-label-md text-caption font-bold uppercase tracking-wider">
+                    <span class="material-symbols-outlined text-[16px]">pie_chart</span>
+                    Alokasi Otomatis &amp; Transparansi 100%
+                </span>
+                <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">Distribusi Dinamis 'Infak Umum' Berbasis Wilayah</h2>
+                <p class="font-body-lg text-body-lg text-on-surface-variant">Setiap rupiah dari donasi <strong>Infak Umum</strong> otomatis dipecah dan didistribusikan ke 5 Pilar program WIZ sesuai persentase kebutuhan cabang operasional.</p>
+            </div>
+            
+            <!-- Wilayah Switcher Tabs -->
+            <div class="flex items-center gap-1 bg-surface-container-low p-1 rounded-xl border border-outline-variant/30 shrink-0">
+                <button type="button" onclick="switchInfakUmumWilayah('Pangkalpinang', this)" class="infak-tab-btn active px-4 py-2 rounded-lg text-xs font-bold transition-all bg-primary text-white shadow-xs">Pangkalpinang</button>
+                <button type="button" onclick="switchInfakUmumWilayah('Sungailiat', this)" class="infak-tab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all text-on-surface-variant hover:text-primary">Sungailiat</button>
+                <button type="button" onclick="switchInfakUmumWilayah('Semua', this)" class="infak-tab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all text-on-surface-variant hover:text-primary">Semua Wilayah</button>
+            </div>
+        </div>
+
+        <!-- Main Grid Container: Donut Chart + Pillars Breakdown -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-xl items-center bg-surface-container-lowest p-lg md:p-xl rounded-3xl border border-outline-variant/30 shadow-level-1">
+            
+            <!-- Left Column: Interactive SVG Donut Chart & Simulator -->
+            <div class="lg:col-span-5 flex flex-col items-center justify-center space-y-6">
+                <!-- SVG Chart Target -->
+                <div id="home-infak-chart-container" class="relative flex items-center justify-center w-full min-h-[220px]">
+                    <!-- Rendered by JS -->
+                </div>
+
+                <!-- Live Nominal Simulator -->
+                <div class="w-full bg-surface-container-low p-4 rounded-2xl border border-outline-variant/30 space-y-2">
+                    <label class="block text-xs font-bold text-on-surface flex items-center justify-between">
+                        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm text-primary">calculate</span> Simulasikan Nominal Infak Anda:</span>
+                        <span class="text-[10px] text-outline font-semibold">Simulasi Real-Time</span>
+                    </label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-2.5 text-xs font-bold text-outline">Rp</span>
+                        <input type="number" id="home-sim-amount" value="100000" min="10000" step="10000" oninput="handleHomeSimulationChange(this.value)"
+                            class="w-full pl-9 pr-3 py-2 text-sm font-bold font-mono text-primary bg-white border border-outline-variant/50 rounded-xl focus:outline-none focus:border-primary">
+                    </div>
+                    <div class="flex gap-1.5 pt-1">
+                        <button type="button" onclick="setHomeSimAmount(50000)" class="flex-1 py-1 text-[11px] font-bold rounded-lg bg-white border border-outline-variant/40 hover:border-primary text-on-surface-variant transition-colors">50rb</button>
+                        <button type="button" onclick="setHomeSimAmount(100000)" class="flex-1 py-1 text-[11px] font-bold rounded-lg bg-white border border-outline-variant/40 hover:border-primary text-on-surface-variant transition-colors">100rb</button>
+                        <button type="button" onclick="setHomeSimAmount(250000)" class="flex-1 py-1 text-[11px] font-bold rounded-lg bg-white border border-outline-variant/40 hover:border-primary text-on-surface-variant transition-colors">250rb</button>
+                        <button type="button" onclick="setHomeSimAmount(500000)" class="flex-1 py-1 text-[11px] font-bold rounded-lg bg-white border border-outline-variant/40 hover:border-primary text-on-surface-variant transition-colors">500rb</button>
+                    </div>
+                </div>
+
+                <a id="home-infak-cta-btn" href="donasi.html?type=Infak%20Umum&wilayah=Pangkalpinang" class="w-full bg-[#F7941D] hover:opacity-95 text-white py-3.5 px-6 rounded-xl font-label-md text-label-md font-bold text-center flex items-center justify-center gap-2 shadow-sm transition-transform hover:scale-[1.01]">
+                    <span class="material-symbols-outlined text-base">volunteer_activism</span>
+                    <span>Salurkan Infak Umum (Pangkalpinang)</span>
+                </a>
+            </div>
+
+            <!-- Right Column: 5 Pillars Detailed Breakdown List -->
+            <div class="lg:col-span-7 space-y-3" id="home-infak-pillars-container">
+                <!-- Rendered dynamically by JS -->
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
 <!-- LIVE SOCIAL PROOF: DONATUR TERBARU & TERVERIFIKASI REAL-TIME    -->
 <!-- ═══════════════════════════════════════════════════════════════ -->
 <section id="donatur-terbaru" class="py-xxl px-margin-mobile md:px-gutter bg-surface border-t border-b border-surface-variant/40">
@@ -671,7 +739,7 @@
             <ul class="space-y-2 font-label-md text-label-md text-surface-variant/80">
                 <li><a class="hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 inline-block focus:ring-2 focus:ring-primary-fixed" href="laporan.html">Laporan Publik Realtime</a></li>
                 <li><a class="hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 inline-block focus:ring-2 focus:ring-primary-fixed" href="#tentang-kami">Tentang WIZ Babel</a></li>
-                <li><a class="hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 flex items-center gap-1 focus:ring-2 focus:ring-primary-fixed text-primary-fixed dark:text-primary font-semibold" href="affiliate.html"><span class="material-symbols-outlined text-sm">handshake</span> Portal Affiliate</a></li>
+                <li><a class="hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 flex items-center gap-1 focus:ring-2 focus:ring-primary-fixed text-primary-fixed dark:text-primary font-semibold" href="affiliate.html"><span class="material-symbols-outlined text-sm">handshake</span> Portal Mitra Penghimpunan</a></li>
                 <li><a class="hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 flex items-center gap-1 focus:ring-2 focus:ring-primary-fixed text-primary-fixed dark:text-primary font-semibold" href="admin.html"><span class="material-symbols-outlined text-sm">lock</span> Portal Admin</a></li>
             </ul>
         </div>
@@ -1091,10 +1159,123 @@
         }).join('');
     }
 
+    // ─── Dynamic Infak Umum Distribution Widget ─────────────────────
+    let currentInfakWilayah = 'Pangkalpinang';
+    let currentSimAmount = 100000;
+
+    function switchInfakUmumWilayah(wilayah, btn) {
+        currentInfakWilayah = wilayah;
+        document.querySelectorAll('.infak-tab-btn').forEach(b => {
+            b.className = 'infak-tab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all text-on-surface-variant hover:text-primary';
+        });
+        if (btn) {
+            btn.className = 'infak-tab-btn active px-4 py-2 rounded-lg text-xs font-bold transition-all bg-primary text-white shadow-xs';
+        }
+        renderInfakUmumDistributionWidget();
+    }
+
+    function handleHomeSimulationChange(val) {
+        currentSimAmount = Number(val) || 0;
+        renderInfakUmumDistributionWidget();
+    }
+
+    function setHomeSimAmount(val) {
+        currentSimAmount = Number(val) || 0;
+        const input = document.getElementById('home-sim-amount');
+        if (input) input.value = currentSimAmount;
+        renderInfakUmumDistributionWidget();
+    }
+
+    function renderInfakUmumDistributionWidget() {
+        if (!window.wizStore) return;
+        const chartContainer = document.getElementById('home-infak-chart-container');
+        const pillarsContainer = document.getElementById('home-infak-pillars-container');
+        const ctaBtn = document.getElementById('home-infak-cta-btn');
+        if (!chartContainer || !pillarsContainer) return;
+
+        const fmt = wizStore.utils.formatRupiahCompact;
+        const wilayah = currentInfakWilayah;
+
+        if (ctaBtn) {
+            ctaBtn.href = `donasi.html?type=Infak%20Umum&wilayah=${encodeURIComponent(wilayah === 'Semua' ? 'Pangkalpinang' : wilayah)}`;
+            ctaBtn.querySelector('span:last-child').textContent = `Salurkan Infak Umum (${wilayah === 'Semua' ? 'Bangka Belitung' : wilayah})`;
+        }
+
+        // Get dynamic allocation items
+        const allocItems = wizStore.calcInfakUmumAllocation(currentSimAmount, wilayah === 'Semua' ? 'Pangkalpinang' : wilayah) || [];
+        
+        const pillarMeta = {
+            'Berkah Hidayah': { label: 'Dakwah & Pembinaan', color: '#047857', bg: 'bg-emerald-50 border-emerald-200 text-emerald-950', dot: 'bg-emerald-600', icon: 'auto_stories' },
+            'Berkah Juara': { label: 'Pendidikan & Beasiswa', color: '#0284c7', bg: 'bg-sky-50 border-sky-200 text-sky-950', dot: 'bg-sky-600', icon: 'school' },
+            'Berkah Peduli': { label: 'Sosial & Kemanusiaan', color: '#ea580c', bg: 'bg-amber-50 border-amber-200 text-amber-950', dot: 'bg-amber-600', icon: 'favorite' },
+            'Berkah Sehat': { label: 'Kesehatan & Ambulance', color: '#0d9488', bg: 'bg-teal-50 border-teal-200 text-teal-950', dot: 'bg-teal-600', icon: 'medical_services' },
+            'Berkah Mandiri': { label: 'Ekonomi & Pemberdayaan', color: '#7e22ce', bg: 'bg-purple-50 border-purple-200 text-purple-950', dot: 'bg-purple-600', icon: 'storefront' },
+            'Dana Saving': { label: 'Dana Cadangan Program', color: '#475569', bg: 'bg-slate-50 border-slate-200 text-slate-900', dot: 'bg-slate-600', icon: 'savings' },
+            'Operasional': { label: 'Operasional Cabang', color: '#64748b', bg: 'bg-slate-50 border-slate-200 text-slate-900', dot: 'bg-slate-600', icon: 'settings' }
+        };
+
+        // Render SVG Donut Chart
+        const circumference = 2 * Math.PI * 65; // ~408.4
+        let accumulatedOffset = 0;
+        const totalPct = allocItems.reduce((sum, item) => sum + (Number(item.percent) || 0), 0) || 100;
+
+        const strokeSegments = allocItems.map(item => {
+            const pct = Number(item.percent) || 0;
+            const strokeLength = (pct / totalPct) * circumference;
+            const meta = pillarMeta[item.key] || { color: '#008444' };
+            const seg = `<circle cx="80" cy="80" r="65" fill="none" stroke="${meta.color}" stroke-width="22" 
+                stroke-dasharray="${strokeLength.toFixed(1)} ${(circumference - strokeLength).toFixed(1)}" 
+                stroke-dashoffset="${(-accumulatedOffset).toFixed(1)}" class="transition-all duration-700 hover:opacity-85 cursor-pointer"></circle>`;
+            accumulatedOffset += strokeLength;
+            return seg;
+        }).join('');
+
+        chartContainer.innerHTML = `
+            <div class="relative flex items-center justify-center">
+                <svg width="200" height="200" viewBox="0 0 160 160" class="transform -rotate-90">
+                    <circle cx="80" cy="80" r="65" fill="none" stroke="#f1f5f9" stroke-width="22"></circle>
+                    ${strokeSegments}
+                </svg>
+                <div class="absolute flex flex-col items-center justify-center text-center p-2">
+                    <span class="font-caption text-[11px] text-on-surface-variant font-semibold">Infak Disimulasikan</span>
+                    <span class="font-headline-md font-extrabold text-primary text-base">${fmt(currentSimAmount)}</span>
+                    <span class="text-[10px] text-outline font-semibold">Alokasi 100% Valid</span>
+                </div>
+            </div>
+        `;
+
+        // Render 5 Pillars breakdown cards
+        pillarsContainer.innerHTML = allocItems.map(item => {
+            const meta = pillarMeta[item.key] || { label: item.key, bg: 'bg-slate-50 border-slate-200 text-slate-900', dot: 'bg-primary', icon: 'category' };
+            const subItems = item.subAllocation && item.subAllocation.items ? item.subAllocation.items.map(si => si.key).slice(0, 3).join(', ') : '';
+
+            return `
+            <div class="p-3.5 rounded-2xl border ${meta.bg} flex items-center justify-between gap-3 shadow-xs hover:shadow-sm transition-all">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-white/80 border border-white flex items-center justify-center shrink-0 text-primary shadow-xs">
+                        <span class="material-symbols-outlined text-xl">${meta.icon}</span>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                            <h4 class="font-bold text-xs sm:text-sm text-on-surface truncate">${item.key}</h4>
+                            <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-white border border-outline-variant/40 text-primary shrink-0">${item.percent}%</span>
+                        </div>
+                        <p class="text-[11px] opacity-80 truncate mt-0.5">${meta.label} ${subItems ? `• <span class="italic text-[10px]">(${subItems})</span>` : ''}</p>
+                    </div>
+                </div>
+                <div class="text-right shrink-0">
+                    <span class="text-[10px] uppercase opacity-75 font-semibold block">Porsi Dana</span>
+                    <span class="font-headline-md font-mono font-bold text-xs sm:text-sm text-primary block">${fmt(item.amount)}</span>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
         renderPublicNews();
         updateDynamicProgramCards();
         renderVerifiedDonors();
+        renderInfakUmumDistributionWidget();
 
         const urlParams = new URLSearchParams(window.location.search);
         const targetNewsId = urlParams.get('newsId');
@@ -1109,6 +1290,7 @@
             renderPublicNews();
             updateDynamicProgramCards();
             renderVerifiedDonors();
+            renderInfakUmumDistributionWidget();
             if (typeof window.applySiteSettings === 'function') window.applySiteSettings();
             if (targetNewsId) {
                 openPublicNewsModal(targetNewsId);
@@ -1120,7 +1302,14 @@
         renderPublicNews();
         if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
         if (typeof renderVerifiedDonors === 'function') renderVerifiedDonors();
+        if (typeof renderInfakUmumDistributionWidget === 'function') renderInfakUmumDistributionWidget();
         if (typeof window.applySiteSettings === 'function') window.applySiteSettings();
+    });
+
+    window.addEventListener('wiz-data-changed', () => {
+        if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
+        if (typeof renderVerifiedDonors === 'function') renderVerifiedDonors();
+        if (typeof renderInfakUmumDistributionWidget === 'function') renderInfakUmumDistributionWidget();
     });
 </script>
 </body>

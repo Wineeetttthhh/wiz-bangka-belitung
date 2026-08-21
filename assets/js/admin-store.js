@@ -437,18 +437,27 @@
 
     /**
      * Hitung alokasi Infak Umum dari suatu nominal untuk wilayah tertentu.
-     * Kembalikan array item { key, percent, amount }
+     * Kembalikan array item { key, percent, amount, subAllocation }
      */
     function calcInfakUmumAllocation(amount, wilayah) {
-        const rule = ALLOCATION_RULES[wilayah];
-        if (!rule) return [];
+        const targetWilayah = wilayah || 'Pangkalpinang';
+        const rule = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get)
+            ? (allocationRulesManager.get(targetWilayah) || ALLOCATION_RULES[targetWilayah] || ALLOCATION_RULES['Pangkalpinang'])
+            : (ALLOCATION_RULES[targetWilayah] || ALLOCATION_RULES['Pangkalpinang']);
+        if (!rule || !rule.mainAllocation) return [];
         const validation = validateAllocationRule(rule.mainAllocation);
-        if (!validation.valid) return null; // rule invalid, jangan gunakan
-        return rule.mainAllocation.map(item => ({
-            key: item.key,
-            percent: item.percent,
-            amount: Math.round(amount * item.percent / 100)
-        }));
+        if (!validation.valid) return [];
+        const numAmount = Number(amount) || 0;
+        return rule.mainAllocation.map(item => {
+            const pillarAmount = Math.round(numAmount * (Number(item.percent) || 0) / 100);
+            const subRule = rule.subAllocation && rule.subAllocation[item.key] ? rule.subAllocation[item.key] : null;
+            return {
+                key: item.key,
+                percent: Number(item.percent) || 0,
+                amount: pillarAmount,
+                subAllocation: subRule
+            };
+        });
     }
 
     /**
@@ -1807,10 +1816,19 @@
                         donor_name: list[idx].donorName,
                         donor_phone: list[idx].donorPhone,
                         donor_email: list[idx].donorEmail,
-                        program_title: list[idx].program || list[idx].programSpesifik || list[idx].programUtama || 'Umum',
+                        wilayah: list[idx].wilayah,
                         donation_type: list[idx].type,
+                        program_utama: programUtama,
+                        program_spesifik: programSpesifik,
+                        program_title: list[idx].program || list[idx].programSpesifik || list[idx].programUtama || 'Umum',
                         amount: list[idx].amount,
+                        alokasi_operasional: alokasiOperasional,
+                        alokasi_program: alokasiProgram,
                         payment_method: list[idx].method,
+                        referral_id: refId,
+                        referral_code: refId,
+                        referral_rate: refRate,
+                        referral_fee: refFee,
                         notes: list[idx].notes,
                         status: list[idx].status
                     });
@@ -1819,6 +1837,11 @@
 
             try { await pushToCloud(); } catch(e) {}
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+            try {
+                window.dispatchEvent(new CustomEvent('wiz-data-changed', {
+                    detail: { action: 'update_donation', id: String(id), referralId: refId, fee: refFee }
+                }));
+            } catch(e) {}
             return list[idx];
         },
 
@@ -2473,17 +2496,22 @@
             }, 0);
 
             const base = Number(defaultBase) || 0;
-            const target = Number(defaultTarget) || 1000000;
-            const totalTerkumpul = base + addedMasuk;
-            const sisaSaldo = totalTerkumpul - addedSalur;
-            const percent = target > 0 ? Math.min(100, Math.round((totalTerkumpul / target) * 100)) : 0;
+            const target = Number(defaultTarget) || 50000000;
+            const totalMasuk = base + addedMasuk;
+            const saldoAktual = Math.max(0, totalMasuk - addedSalur);
+            
+            // Reaktif terhadap pengeluaran: Progress bar (%) dan nominal di kartu program 
+            // merujuk pada Saldo Aktual Tersedia (Total Masuk - Total Pengeluaran)
+            const percent = target > 0 ? Math.min(100, Math.max(0, Math.round((saldoAktual / target) * 100))) : 0;
 
             return {
-                terkumpul: totalTerkumpul,
-                tersalurkan: addedSalur,
-                saldo: Math.max(0, sisaSaldo),
+                terkumpul: saldoAktual, // Saldo Aktual Tersedia yang tampil di UI kartu
+                totalMasuk: totalMasuk, // Akumulasi kotor dana masuk
+                masuk: totalMasuk,
+                tersalurkan: addedSalur, // Dana terpakai / disalurkan
+                saldo: saldoAktual,     // Saldo sisa
                 target: target,
-                percent: percent
+                percent: isNaN(percent) ? 0 : percent
             };
         },
 
@@ -2704,6 +2732,9 @@
                 const totalMasuk = Math.round(sp.masuk);
                 const totalSalur = Math.round(sp.tersalurkan);
                 const saldo = Math.max(0, totalMasuk - totalSalur);
+                const target = Number(sp.target) || 50000000;
+                const percent = target > 0 ? Math.min(100, Math.max(0, Math.round((saldo / target) * 100))) : 0;
+
                 let status = 'Aktif Disalurkan';
                 let statusClass = 'bg-emerald-100 text-emerald-800';
                 if (saldo <= 0 && totalSalur > 0) {
@@ -2722,6 +2753,9 @@
                     masuk: totalMasuk,
                     tersalurkan: totalSalur,
                     saldo: saldo,
+                    terkumpul: saldo, // Saldo Aktual
+                    target: target,
+                    percent: isNaN(percent) ? 0 : percent,
                     status: status,
                     statusClass: statusClass
                 };
