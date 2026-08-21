@@ -742,6 +742,15 @@
                 if (res.success) {
                     const ref = res.referral;
 
+                    // Direct Supabase insert confirmation
+                    if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                        try {
+                            await window.wizSupabase.saveReferral(ref);
+                        } catch(e) {
+                            console.warn('[Affiliate Reg] Direct Supabase save error:', e);
+                        }
+                    }
+
                     // Push master bundle to cloud to guarantee instant visibility on Admin Dashboard
                     if (wizStore.pushToCloud) {
                         try {
@@ -757,7 +766,7 @@
                     sessionStorage.setItem('wiz_active_ref_id', refCode);
                     localStorage.setItem('wiz_active_ref_id', refCode);
 
-                    alert(`✅ ${res.message}\n\nKode Referral Anda: ${refCode}\nPIN Login Anda: ${ref.pin}\n\nAkun Anda telah otomatis terdaftar dan langsung tercatat di Dashboard Admin.`);
+                    alert(`✅ ${res.message}\n\nKode Referral Anda: ${refCode}\nPIN Login Anda: ${ref.pin || pin || '1234'}\n\nAkun Anda telah otomatis terdaftar dan langsung tercatat di Dashboard Admin.`);
                     activateMemberState(ref);
                 } else {
                     alert(`⚠️ ${res.message}`);

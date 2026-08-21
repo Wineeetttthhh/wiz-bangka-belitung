@@ -162,7 +162,77 @@ const SUPABASE_CONFIG = {
         // Helpers for entities
         saveDonation: (data) => upsert('donations', data),
         saveDisbursement: (data) => upsert('disbursements', data),
-        saveReferral: (data) => upsert('referrals', data),
+        saveReferral: async (data) => {
+            if (!data) return { data: null, error: 'No data' };
+            const rawNotes = data.notes || '';
+            const pinPart = data.pin ? ` [PIN:${data.pin}]` : '';
+            const notesWithPin = rawNotes.includes('[PIN:') ? rawNotes : (rawNotes + pinPart);
+
+            const mapped = {
+                id: String(data.id || data.code),
+                code: String(data.code || data.id),
+                name: String(data.name || 'Affiliator'),
+                phone: String(data.phone || '-'),
+                bank_name: String(data.bank_name || data.bankName || '-'),
+                account_number: String(data.account_number || data.accountNumber || '-'),
+                account_holder: String(data.account_holder || data.accountHolder || data.name || '-'),
+                default_rate: Number(data.default_rate !== undefined ? data.default_rate : (data.defaultRate !== undefined ? data.defaultRate : 6)),
+                status: String(data.status || 'active'),
+                notes: notesWithPin,
+                created_at: data.created_at || data.createdAt || new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+            return await upsert('referrals', mapped);
+        },
+        getReferrals: async () => {
+            const res = await select('referrals');
+            if (res.error || !Array.isArray(res.data)) return res;
+            const mappedList = res.data.map(r => {
+                let pinVal = '1234';
+                if (r.notes && r.notes.includes('[PIN:')) {
+                    const m = r.notes.match(/\[PIN:([^\]]+)\]/);
+                    if (m) pinVal = m[1];
+                } else if (r.phone) {
+                    pinVal = r.phone.replace(/\D/g, '').slice(-4) || '1234';
+                }
+                return {
+                    id: r.id,
+                    code: r.code || r.id,
+                    name: r.name,
+                    phone: r.phone,
+                    bankName: r.bank_name,
+                    accountNumber: r.account_number,
+                    accountHolder: r.account_holder,
+                    defaultRate: Number(r.default_rate) || 6,
+                    status: r.status || 'active',
+                    notes: r.notes ? r.notes.replace(/\s*\[PIN:[^\]]+\]/, '').trim() : '',
+                    pin: pinVal,
+                    createdAt: r.created_at,
+                    updatedAt: r.updated_at
+                };
+            });
+            return { data: mappedList, error: null };
+        },
+        saveSiteSettings: async (settings) => {
+            if (!settings) return { data: null, error: 'No data' };
+            const res1 = await upsert('site_settings', {
+                key: 'site_settings',
+                value: settings,
+                updated_at: new Date().toISOString()
+            });
+            return res1;
+        },
+        getSiteSettings: async () => {
+            const res = await select('site_settings', { filter: 'key=eq.site_settings' });
+            if (res.data && res.data.length > 0 && res.data[0].value) {
+                return { data: res.data[0].value, error: null };
+            }
+            const resMaster = await select('site_settings', { filter: 'key=eq.master_bundle' });
+            if (resMaster.data && resMaster.data.length > 0 && resMaster.data[0].value && resMaster.data[0].value.site_settings) {
+                return { data: resMaster.data[0].value.site_settings, error: null };
+            }
+            return res;
+        },
         saveReferralPayout: (data) => upsert('referral_payouts', data),
         saveContactMessage: (data) => insert('contact_messages', data),
         saveZakatRecord: (data) => insert('zakat_records', data)

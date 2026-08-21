@@ -1998,6 +1998,65 @@
         </div>
     </div>
 
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- MODAL: KELOLA REKENING BANK DONASI (ADD / EDIT)    -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div id="modal-bank-admin" class="modal-backdrop">
+        <div class="modal-dialog max-w-md">
+            <div class="p-lg border-b border-surface-variant flex justify-between items-center sticky top-0 bg-surface z-20">
+                <h3 id="bank-modal-admin-title" class="font-headline-md text-body-lg font-bold text-primary flex items-center gap-xs">
+                    <span class="material-symbols-outlined">account_balance</span>
+                    <span>Tambah Rekening Bank Baru</span>
+                </h3>
+                <button type="button" onclick="hideModal('modal-bank-admin')" class="text-outline hover:text-on-surface p-1 cursor-pointer">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="form-bank-admin" class="p-lg space-y-md" onsubmit="saveBankAdminForm(event)">
+                <input type="hidden" id="bank-admin-edit-id" value="">
+
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Nama Bank *</label>
+                    <input type="text" id="bank-admin-name" required list="bank-name-suggestions" class="w-full bg-surface border border-outline-variant rounded-lg p-3 font-body-md text-on-surface focus:border-primary outline-none text-xs" placeholder="Contoh: Bank Syariah Indonesia (BSI)">
+                    <datalist id="bank-name-suggestions">
+                        <option value="Bank Syariah Indonesia (BSI)"></option>
+                        <option value="Bank Muamalat"></option>
+                        <option value="Bank Mandiri"></option>
+                        <option value="Bank BCA"></option>
+                        <option value="Bank BRI"></option>
+                        <option value="Bank BNI"></option>
+                        <option value="Bank Sumsel Babel Syariah"></option>
+                    </datalist>
+                </div>
+
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Nomor Rekening *</label>
+                    <input type="text" id="bank-admin-number" required class="w-full bg-surface border border-outline-variant rounded-lg p-3 font-mono font-bold text-on-surface focus:border-primary outline-none text-xs tracking-wider" placeholder="Contoh: 716800800">
+                </div>
+
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Atas Nama Pemilik Rekening *</label>
+                    <input type="text" id="bank-admin-holder" required class="w-full bg-surface border border-outline-variant rounded-lg p-3 font-body-md text-on-surface focus:border-primary outline-none text-xs" placeholder="Contoh: WIZ Bangka Belitung" value="Wahdah Inspirasi Zakat">
+                </div>
+
+                <div class="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl border border-outline-variant/40">
+                    <input type="checkbox" id="bank-admin-active" class="w-4 h-4 text-primary rounded cursor-pointer" checked>
+                    <label for="bank-admin-active" class="text-xs font-semibold text-on-surface cursor-pointer">
+                        Aktifkan Rekening Ini (Tampil di Formulir Donasi Website)
+                    </label>
+                </div>
+
+                <div class="flex justify-end gap-sm pt-sm border-t border-outline-variant/30">
+                    <button type="button" onclick="hideModal('modal-bank-admin')" class="px-md py-2 border border-outline-variant rounded-lg text-xs font-semibold text-on-surface-variant hover:bg-surface-container-low transition-colors cursor-pointer">Batal</button>
+                    <button type="submit" id="btn-save-bank-admin" class="flex items-center gap-1.5 px-lg py-2 bg-primary text-on-primary rounded-lg text-xs font-bold hover:bg-primary-container transition-colors shadow-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-[16px]">save</span>
+                        <span>Simpan Rekening</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Supabase Client & Admin Store -->
     <script src="assets/js/supabase-client.js?v=20260820_24"></script>
     <script src="assets/js/admin-store.js?v=20260820_24"></script>
@@ -4541,75 +4600,237 @@
             const settings = wizStore.siteSettings.get();
             if (!settings) return;
 
-            if (settings.banks && Array.isArray(settings.banks)) {
-                settings.banks.forEach(b => {
-                    const id = (b.id || '').toLowerCase();
-                    const noEl = document.getElementById(`setting-bank-${id}-no`);
-                    const holderEl = document.getElementById(`setting-bank-${id}-holder`);
-                    if (noEl && b.number) noEl.value = b.number;
-                    if (holderEl && b.holder) holderEl.value = b.holder;
-                });
+            // 1. Render Dynamic Bank Accounts
+            const container = document.getElementById('admin-bank-list-container');
+            const banks = Array.isArray(settings.banks) ? settings.banks : [];
+
+            if (container) {
+                if (banks.length === 0) {
+                    container.innerHTML = `
+                        <div class="p-lg text-center bg-surface-container-low rounded-xl border border-outline-variant/30 text-on-surface-variant text-xs italic">
+                            Belum ada rekening bank yang tersimpan. Klik tombol "+ Tambah Rekening Baru" di atas untuk menambahkan nomor rekening donasi.
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-surface-container-low border-b border-outline-variant/30 font-label-md text-caption text-on-surface-variant">
+                                    <th class="p-sm">Nama Bank</th>
+                                    <th class="p-sm">Nomor Rekening</th>
+                                    <th class="p-sm">Atas Nama</th>
+                                    <th class="p-sm text-center">Status</th>
+                                    <th class="p-sm text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-outline-variant/20 font-body-md text-xs">
+                                ${banks.map(b => {
+                                    const isActive = b.isActive !== false;
+                                    const bId = b.id || ('bank-' + Math.random().toString(36).substr(2, 9));
+                                    return `
+                                    <tr class="hover:bg-surface-container-lowest/60 transition-colors">
+                                        <td class="p-sm font-bold text-on-surface flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-primary text-base">account_balance</span>
+                                            <span>${b.bank || 'Bank'}</span>
+                                        </td>
+                                        <td class="p-sm font-mono font-bold text-primary tracking-wider text-sm">
+                                            ${b.number || '-'}
+                                        </td>
+                                        <td class="p-sm font-medium text-on-surface-variant">
+                                            ${b.holder || 'Wahdah Inspirasi Zakat'}
+                                        </td>
+                                        <td class="p-sm text-center">
+                                            <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${isActive ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-slate-100 text-slate-600 border border-slate-300'}">
+                                                ${isActive ? '✅ Aktif' : '⏸️ Non-Aktif'}
+                                            </span>
+                                        </td>
+                                        <td class="p-sm text-right space-x-1 whitespace-nowrap">
+                                            <button type="button" onclick="toggleBankStatus('${bId}')" class="px-2 py-1 text-xs rounded font-semibold transition-colors ${isActive ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'}">
+                                                ${isActive ? 'Nonaktifkan' : 'Aktifkan'}
+                                            </button>
+                                            <button type="button" onclick="openBankAdminModal('${bId}')" class="px-2 py-1 bg-primary/10 text-primary hover:bg-primary/20 rounded font-bold transition-colors">
+                                                Edit
+                                            </button>
+                                            <button type="button" onclick="deleteBankAdmin('${bId}')" class="px-2 py-1 border border-error/30 text-error hover:bg-error/5 rounded font-semibold transition-colors">
+                                                Hapus
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                }
             }
 
+            // 2. Populate Office Settings
             if (settings.offices && Array.isArray(settings.offices)) {
                 settings.offices.forEach(off => {
                     const id = (off.id || '').toLowerCase();
                     const addrEl = document.getElementById(`setting-office-${id}-address`);
                     const phoneEl = document.getElementById(`setting-office-${id}-phone`);
+                    const hotlineEl = document.getElementById(`setting-office-${id}-hotline`);
                     if (addrEl && off.address) addrEl.value = off.address;
                     if (phoneEl && off.phone) phoneEl.value = off.phone;
+                    if (hotlineEl && (off.hotline || settings.hotline)) hotlineEl.value = off.hotline || settings.hotline;
                 });
             }
         }
 
-        async function saveSiteSettingsForm(e) {
+        function openBankAdminModal(bankId = null) {
+            const modal = document.getElementById('modal-bank-admin');
+            const titleEl = document.getElementById('bank-modal-admin-title');
+            const form = document.getElementById('form-bank-admin');
+            if (form) form.reset();
+
+            const editIdEl = document.getElementById('bank-admin-edit-id');
+            const nameEl = document.getElementById('bank-admin-name');
+            const numEl = document.getElementById('bank-admin-number');
+            const holderEl = document.getElementById('bank-admin-holder');
+            const activeEl = document.getElementById('bank-admin-active');
+
+            if (bankId && window.wizStore && wizStore.siteSettings) {
+                const settings = wizStore.siteSettings.get();
+                const bank = (settings.banks || []).find(b => String(b.id) === String(bankId));
+                if (bank) {
+                    if (titleEl) titleEl.innerHTML = '<span class="material-symbols-outlined">edit</span><span>Edit Rekening Bank</span>';
+                    if (editIdEl) editIdEl.value = bank.id;
+                    if (nameEl) nameEl.value = bank.bank || '';
+                    if (numEl) numEl.value = bank.number || '';
+                    if (holderEl) holderEl.value = bank.holder || 'Wahdah Inspirasi Zakat';
+                    if (activeEl) activeEl.checked = bank.isActive !== false;
+                }
+            } else {
+                if (titleEl) titleEl.innerHTML = '<span class="material-symbols-outlined">add_circle</span><span>Tambah Rekening Bank Baru</span>';
+                if (editIdEl) editIdEl.value = '';
+                if (holderEl) holderEl.value = 'Wahdah Inspirasi Zakat';
+                if (activeEl) activeEl.checked = true;
+            }
+
+            showModal('modal-bank-admin');
+        }
+
+        async function saveBankAdminForm(e) {
             if (e) e.preventDefault();
-            if (!window.wizStore || !wizStore.siteSettings) {
-                alert('Pengaturan belum tersedia. Tunggu sebentar dan coba lagi.');
-                return;
-            }
-            const currentUser = sessionStorage.getItem('wiz_admin_user') || '';
-            const currentRole = sessionStorage.getItem('wiz_admin_role') || '';
-            if (currentUser !== 'admin' && currentRole !== 'super_admin') {
-                alert('Akses Ditolak: Hanya Admin 1 Utama yang dapat mengubah pengaturan website.');
+            if (!window.wizStore || !wizStore.siteSettings) return;
+
+            const editId = document.getElementById('bank-admin-edit-id')?.value.trim();
+            const bankName = document.getElementById('bank-admin-name')?.value.trim();
+            const accountNumber = document.getElementById('bank-admin-number')?.value.trim();
+            const accountHolder = document.getElementById('bank-admin-holder')?.value.trim() || 'Wahdah Inspirasi Zakat';
+            const isActive = document.getElementById('bank-admin-active')?.checked;
+
+            if (!bankName || !accountNumber) {
+                alert('Nama Bank dan Nomor Rekening wajib diisi!');
                 return;
             }
 
-            const updatedSettings = {
-                banks: [
-                    { id: 'bsi',      bank: 'Bank BSI',      number: (document.getElementById('setting-bank-bsi-no')?.value || '').trim(),      holder: (document.getElementById('setting-bank-bsi-holder')?.value || '').trim() },
-                    { id: 'muamalat', bank: 'Bank Muamalat', number: (document.getElementById('setting-bank-muamalat-no')?.value || '').trim(), holder: (document.getElementById('setting-bank-muamalat-holder')?.value || '').trim() },
-                    { id: 'mandiri',  bank: 'Bank Mandiri',  number: (document.getElementById('setting-bank-mandiri-no')?.value || '').trim(),  holder: (document.getElementById('setting-bank-mandiri-holder')?.value || '').trim() },
-                    { id: 'bca',      bank: 'Bank BCA',      number: (document.getElementById('setting-bank-bca-no')?.value || '').trim(),      holder: (document.getElementById('setting-bank-bca-holder')?.value || '').trim() }
-                ],
-                offices: [
-                    { id: 'pangkalpinang', name: 'Kantor Pangkalpinang', address: (document.getElementById('setting-office-pangkalpinang-address')?.value || '').trim(), phone: (document.getElementById('setting-office-pangkalpinang-phone')?.value || '').trim() },
-                    { id: 'sungailiat',    name: 'Kantor Sungailiat',    address: (document.getElementById('setting-office-sungailiat-address')?.value || '').trim(),    phone: (document.getElementById('setting-office-sungailiat-phone')?.value || '').trim() }
-                ]
-            };
-
-            const btnSubmit = document.querySelector('#form-site-settings button[type="submit"]');
-            const originalText = btnSubmit ? btnSubmit.innerHTML : '';
-            if (btnSubmit) {
-                btnSubmit.disabled = true;
-                btnSubmit.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Menyimpan & Menyinkronkan...</span>';
+            const btn = document.getElementById('btn-save-bank-admin');
+            const orig = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Menyimpan ke Supabase...</span>';
             }
 
             try {
-                await wizStore.siteSettings.update(updatedSettings);
-                if (wizStore.pushToCloud) {
-                    await wizStore.pushToCloud();
+                if (editId) {
+                    await wizStore.siteSettings.updateBank(editId, {
+                        bank: bankName,
+                        number: accountNumber,
+                        holder: accountHolder,
+                        isActive: isActive
+                    });
+                } else {
+                    const newId = 'bank-' + bankName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-') + '-' + Date.now();
+                    await wizStore.siteSettings.addBank({
+                        id: newId,
+                        bank: bankName,
+                        number: accountNumber,
+                        holder: accountHolder,
+                        isActive: isActive
+                    });
                 }
-                alert('✅ Pengaturan Rekening Bank & Lokasi Kantor berhasil disimpan dan langsung disinkronkan ke seluruh halaman web utama!');
-            } catch (err) {
-                alert('⚠️ Berhasil disimpan secara lokal, namun terjadi kendala sinkronisasi online: ' + err.message);
-            } finally {
-                if (btnSubmit) {
-                    btnSubmit.disabled = false;
-                    btnSubmit.innerHTML = originalText;
-                }
+
+                hideModal('modal-bank-admin');
+                renderSiteSettingsSection();
                 if (window.applySiteSettings) window.applySiteSettings();
-                refreshAll();
+                alert(`✅ Rekening ${bankName} (${accountNumber}) berhasil disimpan ke Supabase & langsung aktif di website!`);
+            } catch(err) {
+                alert('⚠️ Gagal menyimpan rekening: ' + err.message);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = orig;
+                }
+            }
+        }
+
+        async function toggleBankStatus(bankId) {
+            if (!window.wizStore || !wizStore.siteSettings) return;
+            await wizStore.siteSettings.toggleBank(bankId);
+            renderSiteSettingsSection();
+            if (window.applySiteSettings) window.applySiteSettings();
+        }
+
+        async function deleteBankAdmin(bankId) {
+            if (!window.wizStore || !wizStore.siteSettings) return;
+            const settings = wizStore.siteSettings.get();
+            const target = (settings.banks || []).find(b => String(b.id) === String(bankId));
+            const label = target ? `${target.bank} (${target.number})` : 'rekening ini';
+
+            if (!confirm(`Hapus rekening donasi ${label}?\n\nRekening ini tidak akan lagi tampil di website.`)) return;
+
+            await wizStore.siteSettings.deleteBank(bankId);
+            renderSiteSettingsSection();
+            if (window.applySiteSettings) window.applySiteSettings();
+            alert(`✅ Rekening ${label} berhasil dihapus.`);
+        }
+
+        async function saveOfficeSettings(e) {
+            if (e) e.preventDefault();
+            if (!window.wizStore || !wizStore.siteSettings) return;
+
+            const pangkalpinangAddr = document.getElementById('setting-office-pangkalpinang-address')?.value.trim() || '';
+            const pangkalpinangPhone = document.getElementById('setting-office-pangkalpinang-phone')?.value.trim() || '';
+            const pangkalpinangHotline = document.getElementById('setting-office-pangkalpinang-hotline')?.value.trim() || '';
+
+            const sungailiatAddr = document.getElementById('setting-office-sungailiat-address')?.value.trim() || '';
+            const sungailiatPhone = document.getElementById('setting-office-sungailiat-phone')?.value.trim() || '';
+            const sungailiatHotline = document.getElementById('setting-office-sungailiat-hotline')?.value.trim() || '';
+
+            const current = wizStore.siteSettings.get();
+            const updatedOffices = [
+                {
+                    id: 'pangkalpinang',
+                    name: 'Kantor Pangkalpinang',
+                    address: pangkalpinangAddr || (current.offices && current.offices[0] ? current.offices[0].address : ''),
+                    phone: pangkalpinangPhone || (current.offices && current.offices[0] ? current.offices[0].phone : ''),
+                    hotline: pangkalpinangHotline || current.hotline || '081271718000',
+                    mapsUrl: 'https://maps.google.com'
+                },
+                {
+                    id: 'sungailiat',
+                    name: 'Kantor Sungailiat',
+                    address: sungailiatAddr || (current.offices && current.offices[1] ? current.offices[1].address : ''),
+                    phone: sungailiatPhone || (current.offices && current.offices[1] ? current.offices[1].phone : ''),
+                    hotline: sungailiatHotline || '082180007171',
+                    mapsUrl: 'https://maps.google.com'
+                }
+            ];
+
+            const updatedSettings = {
+                ...current,
+                offices: updatedOffices,
+                hotline: pangkalpinangHotline || current.hotline || '081271718000'
+            };
+
+            try {
+                await wizStore.siteSettings.update(updatedSettings);
+                if (window.applySiteSettings) window.applySiteSettings();
+                alert('✅ Informasi alamat kantor & hotline operasional berhasil disimpan ke Supabase & diperbarui di seluruh website!');
+            } catch(err) {
+                alert('⚠️ Gagal menyimpan info kantor: ' + err.message);
             }
         }
 
@@ -5403,8 +5624,8 @@
             const isSuperAdmin = currentUser === 'admin' || currentRole === 'super_admin';
             const navAdminUsers = document.getElementById('nav-admin-users');
             const navSiteSettings = document.getElementById('nav-site-settings');
-            if (navAdminUsers) navAdminUsers.style.display = isSuperAdmin ? '' : 'none';
-            if (navSiteSettings) navSiteSettings.style.display = isSuperAdmin ? '' : 'none';
+            if (navAdminUsers) navAdminUsers.style.display = '';
+            if (navSiteSettings) navSiteSettings.style.display = '';
 
             const section = getActiveSection();
 
@@ -5426,6 +5647,8 @@
                 try { if (typeof renderAllocationRulesSection === 'function') renderAllocationRulesSection(); } catch(e) { console.error(e); }
             } else if (section === 'site-images') {
                 try { if (typeof renderSiteImagesSection === 'function') renderSiteImagesSection(); } catch(e) { console.error(e); }
+            } else if (section === 'site-settings') {
+                try { if (typeof renderSiteSettingsSection === 'function') renderSiteSettingsSection(); } catch(e) { console.error(e); }
             } else if (section === 'admin-users') {
                 try { if (typeof renderAdminUsersSection === 'function') renderAdminUsersSection(); } catch(e) { console.error(e); }
             } else if (section === 'news') {

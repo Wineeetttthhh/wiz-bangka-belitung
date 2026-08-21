@@ -604,6 +604,15 @@
                 activityLog.add('settings', 'Pengaturan Rekening Bank & Lokasi Kantor diperbarui oleh Admin Utama', sessionStorage.getItem('wiz_admin_user') || 'Admin 1');
             }
 
+            // Immediately save to direct Supabase site_settings table
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.saveSiteSettings(updated);
+                } catch(e) {
+                    console.warn('[Site Settings] Supabase save error:', e);
+                }
+            }
+
             // Immediately push the updated master bundle to cloud
             try {
                 if (typeof pushToCloud === 'function') {
@@ -1306,6 +1315,8 @@
             let directSbNews = null;
             let directSbDonations = null;
             let directSbDisbursements = null;
+            let directSbReferrals = null;
+            let directSbSettings = null;
 
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                 try {
@@ -1373,9 +1384,23 @@
                         }));
                     }
                 } catch(e) {}
+
+                try {
+                    const sbRefRes = await window.wizSupabase.getReferrals();
+                    if (sbRefRes && Array.isArray(sbRefRes.data) && sbRefRes.data.length > 0) {
+                        directSbReferrals = sbRefRes.data;
+                    }
+                } catch(e) {}
+
+                try {
+                    const sbSetRes = await window.wizSupabase.getSiteSettings();
+                    if (sbSetRes && sbSetRes.data && typeof sbSetRes.data === 'object') {
+                        directSbSettings = sbSetRes.data;
+                    }
+                } catch(e) {}
             }
 
-            if (!masterData && !directSbDonations && !directSbDisbursements && !directSbNews) {
+            if (!masterData && !directSbDonations && !directSbDisbursements && !directSbNews && !directSbReferrals && !directSbSettings) {
                 isSyncInProgress = false;
                 return;
             }
@@ -1493,9 +1518,15 @@
                 ? directSbDisbursements
                 : (masterData && Array.isArray(masterData.disbursements) ? masterData.disbursements : []);
             smartMerge(STORAGE_KEYS.DISBURSEMENTS, authoritativeDisbursements, (a, b) => new Date(b.disbursedAt || b.createdAt) - new Date(a.disbursedAt || a.createdAt), deletedDisbSet);
-            if (masterData.referrals) {
-                smartMerge(STORAGE_KEYS.REFERRALS, masterData.referrals, (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0), deletedRefSet);
+
+            // Sync Referrals / Affiliators: Use direct Supabase table as primary source
+            const authoritativeReferrals = (directSbReferrals !== null)
+                ? directSbReferrals
+                : (masterData && Array.isArray(masterData.referrals) ? masterData.referrals : []);
+            if (authoritativeReferrals && authoritativeReferrals.length > 0) {
+                smartMerge(STORAGE_KEYS.REFERRALS, authoritativeReferrals, (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0), deletedRefSet);
             }
+
             if (masterData.referral_payouts) {
                 smartMerge(STORAGE_KEYS.REFERRAL_PAYOUTS, masterData.referral_payouts, (a, b) => new Date(b.paidAt || 0) - new Date(a.paidAt || 0));
             }
@@ -1503,13 +1534,13 @@
                 smartMerge(STORAGE_KEYS.QUOTES, masterData.quotes, (a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0), deletedQuoteSet);
                 window.dispatchEvent(new CustomEvent('wiz-quotes-changed'));
             }
-            if (masterData.site_settings && typeof masterData.site_settings === 'object') {
-                const rawSettings = masterData.site_settings.value || masterData.site_settings;
-                if (rawSettings && typeof rawSettings === 'object') {
-                    const mergedSettings = { ...DEFAULT_SITE_SETTINGS, ...rawSettings };
-                    setStore(STORAGE_KEYS.SITE_SETTINGS, mergedSettings);
-                    window.dispatchEvent(new CustomEvent('wiz-site-settings-changed', { detail: mergedSettings }));
-                }
+
+            // Sync Site Settings: Direct Supabase or masterData
+            const authoritativeSettings = directSbSettings || (masterData.site_settings ? (masterData.site_settings.value || masterData.site_settings) : null);
+            if (authoritativeSettings && typeof authoritativeSettings === 'object') {
+                const mergedSettings = { ...DEFAULT_SITE_SETTINGS, ...authoritativeSettings };
+                setStore(STORAGE_KEYS.SITE_SETTINGS, mergedSettings);
+                window.dispatchEvent(new CustomEvent('wiz-site-settings-changed', { detail: mergedSettings }));
             }
             if (masterData.site_images && typeof masterData.site_images === 'object') {
                 setStore(STORAGE_KEYS.SITE_IMAGES, { ...DEFAULT_SITE_IMAGES, ...masterData.site_images });
@@ -2886,9 +2917,25 @@
 
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                 try {
-                    await window.wizSupabase.saveReferral(newRef);
-                } catch(e) {}
+                    const sbRes = await window.wizSupabase.saveReferral(newRef);
+                    if (sbRes.error) {
+                        console.warn('[Referrals Supabase Insert Error]:', sbRes.error);
+                    } else {
+                        console.log('✅ [Referrals Supabase Insert Success]:', newRef.code);
+                    }
+                } catch(e) {
+                    console.warn('[Referrals Supabase Exception]:', e);
+                }
             }
+
+            // Real-time broadcast of new referral to local & production /api/sync
+            try {
+                await fetch('/api/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ referrals: [newRef] })
+                });
+            } catch(e) {}
 
             try {
                 if (typeof pushToCloud === 'function') {
@@ -2944,9 +2991,21 @@
 
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                 try {
-                    await window.wizSupabase.saveReferral(list[idx]);
+                    const sbRes = await window.wizSupabase.saveReferral(list[idx]);
+                    if (sbRes.error) {
+                        console.warn('[Referrals Supabase Update Error]:', sbRes.error);
+                    }
                 } catch(e) {}
             }
+
+            // Real-time broadcast of updated referral to /api/sync
+            try {
+                await fetch('/api/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ referrals: [list[idx]] })
+                });
+            } catch(e) {}
 
             try {
                 if (typeof pushToCloud === 'function') {

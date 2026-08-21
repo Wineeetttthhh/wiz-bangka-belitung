@@ -248,6 +248,48 @@ module.exports = async function handler(req, res) {
                 }
             }
 
+            // Also upsert individual referral records to Supabase referrals table
+            if (Array.isArray(master.referrals)) {
+                for (const r of master.referrals) {
+                    if (!r || (!r.id && !r.code)) continue;
+                    const rawNotes = r.notes || '';
+                    const pinPart = r.pin ? ` [PIN:${r.pin}]` : '';
+                    const notesWithPin = rawNotes.includes('[PIN:') ? rawNotes : (rawNotes + pinPart);
+
+                    fetch(`${SUPABASE_URL}/referrals`, {
+                        method: 'POST',
+                        headers: supabaseHeaders,
+                        body: JSON.stringify({
+                            id: String(r.id || r.code),
+                            code: String(r.code || r.id),
+                            name: String(r.name || 'Affiliator'),
+                            phone: String(r.phone || '-'),
+                            bank_name: String(r.bankName || r.bank_name || '-'),
+                            account_number: String(r.accountNumber || r.account_number || '-'),
+                            account_holder: String(r.accountHolder || r.account_holder || r.name || '-'),
+                            default_rate: Number(r.defaultRate !== undefined ? r.defaultRate : (r.default_rate !== undefined ? r.default_rate : 6)),
+                            status: String(r.status || 'active'),
+                            notes: notesWithPin,
+                            created_at: r.createdAt || r.created_at || new Date().toISOString(),
+                            updated_at: new Date().toISOString()
+                        })
+                    }).catch(() => {});
+                }
+            }
+
+            // Also upsert site_settings direct key
+            if (master.site_settings && typeof master.site_settings === 'object') {
+                fetch(`${SUPABASE_URL}/site_settings`, {
+                    method: 'POST',
+                    headers: supabaseHeaders,
+                    body: JSON.stringify({
+                        key: 'site_settings',
+                        value: master.site_settings,
+                        updated_at: new Date().toISOString()
+                    })
+                }).catch(() => {});
+            }
+
             memCache = master;
             memCacheTime = Date.now();
 
