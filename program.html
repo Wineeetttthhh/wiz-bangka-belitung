@@ -182,13 +182,13 @@
         </div>
 
         <div class="flex items-center gap-sm">
-            <button onclick="openDonationModal('Donasi Umum')" class="bg-secondary-container text-on-secondary font-label-md text-label-md px-lg py-sm rounded-lg hover:opacity-90 transition-opacity active:scale-95 shadow-sm font-bold flex items-center gap-xs">
+            <button onclick="openDonationModal('Donasi Umum')" class="hidden md:flex bg-secondary-container text-on-secondary font-label-md text-label-md px-lg py-sm rounded-lg hover:opacity-90 transition-opacity active:scale-95 shadow-sm font-bold items-center gap-xs cursor-pointer">
                 <span class="material-symbols-outlined text-sm">favorite</span>
                 <span>Donasi Sekarang</span>
             </button>
 
             <!-- Mobile Hamburger Button -->
-            <button id="mobile-menu-btn" class="md:hidden p-xs text-on-surface-variant hover:text-primary transition-colors focus:outline-none">
+            <button id="mobile-menu-btn" class="md:hidden p-xs text-on-surface-variant hover:text-primary transition-colors focus:outline-none cursor-pointer">
                 <span class="material-symbols-outlined text-2xl" id="menu-icon">menu</span>
             </button>
         </div>
@@ -202,6 +202,10 @@
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="laporan.html">Laporan</a>
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="index.html#berita">Berita</a>
         <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-xs border-b-2 border-transparent" href="index.html#kontak">Kontak</a>
+        <button onclick="openDonationModal('Donasi Umum')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md px-lg py-sm rounded-lg hover:opacity-90 transition-opacity active:scale-95 shadow-sm font-bold flex items-center justify-center gap-xs mt-2 cursor-pointer">
+            <span class="material-symbols-outlined text-sm">favorite</span>
+            <span>Donasi Sekarang</span>
+        </button>
     </div>
 </nav>
 
