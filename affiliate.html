@@ -1207,20 +1207,34 @@
         }
 
         function renderAffiliateQuotesGrid() {
-            if (!window.wizStore || !window.wizStore.quotes) return;
-            const quotesList = wizStore.quotes.getActive();
-            const activeRef = getActiveAffiliateRefCode();
+            const btnSubtab = document.getElementById('btn-subtab-quotes');
+            const subtabContainer = document.getElementById('subtab-quotes');
 
+            if (!window.wizStore || !window.wizStore.quotes) {
+                if (btnSubtab) btnSubtab.style.display = 'none';
+                if (subtabContainer) subtabContainer.classList.add('hidden');
+                return;
+            }
+
+            const isEnabled = (typeof wizStore.quotes.isEnabled === 'function') ? wizStore.quotes.isEnabled() : true;
+            const quotesList = (typeof wizStore.quotes.getActive === 'function') ? wizStore.quotes.getActive() : [];
+
+            // AUTO-HIDE: If disabled or no active quotes exist, hide the subtab button completely
+            if (!isEnabled || !quotesList || quotesList.length === 0) {
+                if (btnSubtab) btnSubtab.style.display = 'none';
+                if (currentActiveSubTab === 'subtab-quotes') {
+                    switchMemberSubTab('subtab-kpi');
+                }
+                if (subtabContainer) subtabContainer.classList.add('hidden');
+                return;
+            }
+
+            if (btnSubtab) btnSubtab.style.display = '';
+
+            const activeRef = getActiveAffiliateRefCode();
             const featuredCard = document.getElementById('affiliate-featured-quote');
             const emptyNotice = document.getElementById('affiliate-quotes-empty');
             const grid = document.getElementById('affiliate-quotes-grid');
-
-            if (!quotesList || quotesList.length === 0) {
-                if (featuredCard) featuredCard.style.display = 'none';
-                if (grid) grid.innerHTML = '';
-                if (emptyNotice) emptyNotice.classList.remove('hidden');
-                return;
-            }
 
             if (emptyNotice) emptyNotice.classList.add('hidden');
             if (featuredCard) featuredCard.style.display = '';
@@ -1447,12 +1461,15 @@
 
         // Sync and real-time event listeners
         window.addEventListener('wiz-sync-complete', () => {
+            renderAffiliateQuotesGrid();
             if (currentActiveSubTab === 'subtab-kpi') {
                 if (currentLoggedAffiliate) renderMemberDashboard();
             } else if (currentActiveSubTab === 'subtab-news') {
                 renderAffiliateNewsGrid();
             } else if (currentActiveSubTab === 'subtab-catalog') {
                 renderAffiliateProgramsGrid();
+            } else if (currentActiveSubTab === 'subtab-quotes') {
+                renderAffiliateQuotesGrid();
             }
         });
 
@@ -1461,6 +1478,7 @@
             if (wizStore && wizStore.syncFromCloud) {
                 try { await wizStore.syncFromCloud(true); } catch(e) {}
             }
+            renderAffiliateQuotesGrid();
             if (currentLoggedAffiliate) renderMemberDashboard();
         });
 
@@ -1468,6 +1486,14 @@
             if (currentActiveSubTab === 'subtab-news') {
                 renderAffiliateNewsGrid();
             }
+        });
+
+        window.addEventListener('wiz-quotes-changed', () => {
+            renderAffiliateQuotesGrid();
+        });
+
+        window.addEventListener('wiz-site-settings-changed', () => {
+            renderAffiliateQuotesGrid();
         });
 
         window.addEventListener('wiz-program-images-changed', () => {

@@ -130,9 +130,28 @@ function initReferralUrlTracker() {
 }
 
 function initHomeQuoteSection() {
-    if (!window.wizStore || !window.wizStore.quotes) return;
-    const today = wizStore.quotes.getToday() || (wizStore.quotes.getActive ? wizStore.quotes.getActive()[0] : null);
-    if (!today) return;
+    const sectionEl = document.getElementById('quote-harian');
+    if (!sectionEl) return;
+
+    if (!window.wizStore || !window.wizStore.quotes) {
+        sectionEl.classList.add('hidden');
+        sectionEl.style.display = 'none';
+        return;
+    }
+
+    const isEnabled = (typeof wizStore.quotes.isEnabled === 'function') ? wizStore.quotes.isEnabled() : true;
+    const today = (typeof wizStore.quotes.getToday === 'function') ? wizStore.quotes.getToday() : null;
+
+    // AUTO-HIDE: If disabled or no active quote exists, completely hide section without placeholder gap
+    if (!isEnabled || !today) {
+        sectionEl.classList.add('hidden');
+        sectionEl.style.display = 'none';
+        return;
+    }
+
+    // Active quote exists: reveal section with smooth layout flow
+    sectionEl.classList.remove('hidden');
+    sectionEl.style.display = '';
 
     const imgEl = document.getElementById('home-quote-img');
     const catEl = document.getElementById('home-quote-cat');
@@ -173,6 +192,14 @@ window.addEventListener('wiz-sync-complete', () => {
     initStatsCounter();
     initProgramCatalog();
     initMutationTable();
+    initHomeQuoteSection();
+});
+
+window.addEventListener('wiz-quotes-changed', () => {
+    initHomeQuoteSection();
+});
+
+window.addEventListener('wiz-site-settings-changed', () => {
     initHomeQuoteSection();
 });
 

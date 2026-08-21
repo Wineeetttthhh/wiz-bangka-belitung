@@ -3424,14 +3424,47 @@
 
     // ─── Daily Quotes & Inspirasi Module ──────────────────
     const quotes = {
+        isEnabled() {
+            const rawSetting = getStore(STORAGE_KEYS.SITE_SETTINGS) || {};
+            if (rawSetting.quotes_enabled !== undefined) {
+                return Boolean(rawSetting.quotes_enabled);
+            }
+            const activeList = this.getAll().filter(q => q && q.status === 'active');
+            return activeList.length > 0;
+        },
+
+        async setEnabled(enabled) {
+            const settings = getStore(STORAGE_KEYS.SITE_SETTINGS) || {};
+            settings.quotes_enabled = Boolean(enabled);
+            setStore(STORAGE_KEYS.SITE_SETTINGS, settings);
+            
+            try {
+                if (typeof pushToCloud === 'function') {
+                    await pushToCloud();
+                }
+            } catch(e) {}
+
+            window.dispatchEvent(new CustomEvent('wiz-quotes-changed'));
+            window.dispatchEvent(new CustomEvent('wiz-site-settings-changed', { detail: settings }));
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+            broadcastSync('QUOTES_VISIBILITY_CHANGED', { enabled: Boolean(enabled) });
+            return settings.quotes_enabled;
+        },
+
         getAll() {
             const deletedQuoteSet = getDeletedQuoteIds();
             const list = (getStore(STORAGE_KEYS.QUOTES) || DEFAULT_QUOTES).filter(q => q && q.id && !deletedQuoteSet.has(String(q.id)) && q.status !== 'deleted' && !q.isDeleted);
             return list.sort((a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0));
         },
 
+        getActive() {
+            if (!this.isEnabled()) return [];
+            return this.getAll().filter(q => q && q.status === 'active');
+        },
+
         getToday() {
-            const all = this.getAll().filter(q => q && q.status === 'active');
+            if (!this.isEnabled()) return null;
+            const all = this.getActive();
             if (all.length === 0) return null;
             const now = new Date();
             const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;

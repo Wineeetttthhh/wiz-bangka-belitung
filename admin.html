@@ -1073,6 +1073,26 @@
                 </button>
             </div>
 
+            <!-- Master Visibility Toggle Card -->
+            <div class="bg-surface-container-lowest rounded-2xl p-lg border border-outline-variant/30 shadow-sm flex items-center justify-between flex-wrap gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                        <span class="material-symbols-outlined">visibility</span>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-on-surface">Tampilkan Modul Quote di Website Utama &amp; Portal Mitra</h4>
+                        <p class="text-xs text-on-surface-variant">Jika dinonaktifkan (OFF) atau tidak ada quote aktif, seluruh seksi quote di web utama dan portal mitra akan disembunyikan total (*auto-hide*).</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span id="quote-module-status-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">Aktif Tayang</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="quote-visibility-toggle" class="sr-only peer" onchange="handleQuoteVisibilityToggle(this.checked)" checked>
+                        <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                    </label>
+                </div>
+            </div>
+
             <!-- Active Today Quote Banner Preview -->
             <div id="quote-today-banner-preview" class="bg-surface-container-lowest rounded-2xl p-lg border border-outline-variant/30 shadow-sm flex flex-col md:flex-row items-center gap-6">
                 <div class="w-32 h-32 rounded-xl overflow-hidden border border-outline-variant shrink-0 bg-slate-100 flex items-center justify-center">
@@ -5487,10 +5507,40 @@
         }
 
         // ─── Quote & Inspirasi Harian Handlers ────────────
+        async function handleQuoteVisibilityToggle(checked) {
+            if (!window.wizStore || !window.wizStore.quotes) return;
+            try {
+                await wizStore.quotes.setEnabled(checked);
+                renderQuotesSection();
+                showNotification(checked ? '✅ Modul Quote diaktifkan di Website & Portal Mitra' : 'ℹ️ Modul Quote dinonaktifkan (disembunyikan total)');
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
         function renderQuotesSection() {
             if (!window.wizStore || !window.wizStore.quotes) return;
+            const isEnabled = (typeof wizStore.quotes.isEnabled === 'function') ? wizStore.quotes.isEnabled() : true;
             const allQuotes = wizStore.quotes.getAll();
             const todayQuote = wizStore.quotes.getToday();
+
+            // Update visibility toggle & status badge
+            const visibilityToggle = document.getElementById('quote-visibility-toggle');
+            const visibilityBadge = document.getElementById('quote-module-status-badge');
+
+            if (visibilityToggle) visibilityToggle.checked = isEnabled;
+            if (visibilityBadge) {
+                if (isEnabled && allQuotes.some(q => q.status === 'active')) {
+                    visibilityBadge.textContent = 'Aktif Tayang';
+                    visibilityBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800';
+                } else if (!isEnabled) {
+                    visibilityBadge.textContent = 'Nonaktif (Disembunyikan)';
+                    visibilityBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700';
+                } else {
+                    visibilityBadge.textContent = 'Kosong (Disembunyikan)';
+                    visibilityBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800';
+                }
+            }
 
             // Update today's banner preview
             const bannerText = document.getElementById('today-quote-text');
@@ -5502,7 +5552,7 @@
 
             if (countBadge) countBadge.textContent = `${allQuotes.length} Flyer`;
 
-            if (todayQuote) {
+            if (todayQuote && isEnabled) {
                 const rawT = (todayQuote.text || '').trim();
                 if (bannerText) bannerText.textContent = rawT && rawT !== '.' ? rawT : '(Flyer tanpa teks caption tambahan)';
                 if (bannerSource) bannerSource.textContent = todayQuote.source && todayQuote.source !== 'WIZ Babel' && todayQuote.source !== '-' ? `— ${todayQuote.source}` : '';
@@ -5513,9 +5563,11 @@
                     bannerEditBtn.onclick = () => openQuoteModal(todayQuote.id);
                 }
             } else if (bannerText) {
-                bannerText.textContent = 'ℹ️ Tidak ada flyer aktif. Bagian Inspirasi saat ini otomatis disembunyikan dari Web Utama & Affiliate.';
-                if (bannerSource) bannerSource.textContent = 'Silakan aktifkan flyer dari tabel di bawah atau tambah flyer baru.';
-                if (bannerCategory) bannerCategory.textContent = 'Status: Disembunyikan (Nonaktif)';
+                bannerText.textContent = !isEnabled 
+                    ? '🔒 Modul dinonaktifkan via tombol toggle di atas. Seluruh seksi Quote otomatis disembunyikan total dari Web Utama & Portal Mitra.'
+                    : 'ℹ️ Tidak ada flyer aktif. Seluruh seksi Quote saat ini otomatis disembunyikan dari Web Utama & Portal Mitra.';
+                if (bannerSource) bannerSource.textContent = isEnabled ? 'Silakan aktifkan flyer dari tabel di bawah atau tambah flyer baru.' : 'Geser toggle di atas ke posisi ON jika ingin menampilkan kembali.';
+                if (bannerCategory) bannerCategory.textContent = 'Status: Disembunyikan Total (Auto-Hide)';
                 if (bannerEditBtn) bannerEditBtn.style.display = 'none';
             }
 
