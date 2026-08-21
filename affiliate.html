@@ -1242,7 +1242,7 @@
             const today = wizStore.quotes.getToday() || quotesList[0];
             const defaultImg = 'assets/images/foto-utama-wiz.jpg';
             const origin = (window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
-            const todayQuoteUrl = `${origin}/quote/${encodeURIComponent(today.id)}?ref=${encodeURIComponent(activeRef)}`;
+            const todayQuoteUrl = `${origin}/flyer/${encodeURIComponent(today.id)}?ref=${encodeURIComponent(activeRef)}`;
 
             // Render Featured / Today Quote Card
             if (featuredCard) {
@@ -1274,7 +1274,7 @@
                             <span class="material-symbols-outlined text-base">download</span>
                             <span>Unduh Flyer</span>
                         </button>
-                        <button type="button" onclick="copyAffiliateQuoteLink('${today.id}')" class="bg-white/10 hover:bg-white/20 text-white px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer" title="Salin Link Quote">
+                        <button type="button" onclick="copyAffiliateQuoteLink('${today.id}')" class="bg-white/10 hover:bg-white/20 text-white px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer" title="Salin Link Flyer">
                             <span class="material-symbols-outlined text-base">content_copy</span>
                             <span>Salin Link</span>
                         </button>
@@ -1291,7 +1291,7 @@
             if (grid) {
                 grid.innerHTML = quotesList.map(q => {
                     const img = q.imageUrl || defaultImg;
-                    const qUrl = `${origin}/quote/${encodeURIComponent(q.id)}?ref=${encodeURIComponent(activeRef)}`;
+                    const qUrl = `${origin}/flyer/${encodeURIComponent(q.id)}?ref=${encodeURIComponent(activeRef)}`;
                     return `
                     <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs hover:shadow-md transition-shadow flex flex-col">
                         <div class="aspect-[4/5] relative bg-slate-900 overflow-hidden flex items-center justify-center">
@@ -1309,7 +1309,7 @@
                                 <button type="button" onclick="downloadAffiliateQuoteImage('${q.id}')" class="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl font-bold text-xs flex items-center justify-center transition-colors cursor-pointer" title="Unduh Flyer">
                                     <span class="material-symbols-outlined text-sm">download</span>
                                 </button>
-                                <button type="button" onclick="copyAffiliateQuoteLink('${q.id}')" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs flex items-center justify-center transition-colors cursor-pointer" title="Salin Link Quote">
+                                <button type="button" onclick="copyAffiliateQuoteLink('${q.id}')" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs flex items-center justify-center transition-colors cursor-pointer" title="Salin Link Flyer">
                                     <span class="material-symbols-outlined text-sm">content_copy</span>
                                 </button>
                                 <a href="${qUrl}" target="_blank" class="p-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl font-bold text-xs flex items-center justify-center transition-colors" title="Buka Halaman">
@@ -1322,17 +1322,39 @@
             }
         }
 
-        function shareAffiliateQuoteWA(quoteId) {
+        async function shareAffiliateQuoteWA(quoteId) {
             if (!window.wizStore || !window.wizStore.quotes) return;
             const q = wizStore.quotes.getById(quoteId);
             if (!q) return;
 
             const activeRef = getActiveAffiliateRefCode();
             const origin = (window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
-            const url = `${origin}/quote/${encodeURIComponent(q.id)}?ref=${encodeURIComponent(activeRef)}`;
+            const flyerUrl = `${origin}/flyer/${encodeURIComponent(q.id)}?ref=${encodeURIComponent(activeRef)}`;
             
-            const caption = `*${q.source || 'Inspirasi Harian'}*\n\n"${q.text}"\n\nYuk bersama menebar kebaikan & mari salurkan Zakat, Infak, dan Sedekah melalui link resmi:\n${url}`;
+            const title = q.source ? q.source : (q.category || 'Quote & Inspirasi Dakwah');
+            const quoteBody = q.text ? `"${q.text}"` : '';
+            const caption = `${title}\n\n${quoteBody}\n\nBaca selengkapnya & salurkan infak terbaik melalui tautan berikut:\n${flyerUrl}`;
 
+            // 1. Try Native Web Share API if on mobile device supporting image file sharing
+            const imgSource = q.imageUrl || 'assets/images/foto-utama-wiz.jpg';
+            if (navigator.share && navigator.canShare) {
+                try {
+                    const file = await urlOrBase64ToFile(imgSource, `flyer-wiz-${q.id || 'quote'}.jpg`);
+                    if (file && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            title: title,
+                            text: caption,
+                            files: [file]
+                        });
+                        return;
+                    }
+                } catch (err) {
+                    if (err.name === 'AbortError') return;
+                    console.log('Native share fallback to WA URL:', err);
+                }
+            }
+
+            // 2. Direct WhatsApp Web / App share URL
             const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(caption);
             window.open(waUrl, '_blank');
         }
@@ -1354,9 +1376,9 @@
         function copyAffiliateQuoteLink(quoteId) {
             const activeRef = getActiveAffiliateRefCode();
             const origin = (window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
-            const url = `${origin}/quote/${encodeURIComponent(quoteId)}?ref=${encodeURIComponent(activeRef)}`;
-            navigator.clipboard.writeText(url).then(() => {
-                alert(`✅ Link Quote & Flyer berhasil disalin:\n${url}`);
+            const flyerUrl = `${origin}/flyer/${encodeURIComponent(quoteId)}?ref=${encodeURIComponent(activeRef)}`;
+            navigator.clipboard.writeText(flyerUrl).then(() => {
+                alert(`✅ Link Flyer & Quote dengan Kode Mitra (${activeRef}) berhasil disalin:\n\n${flyerUrl}\n\nSetiap donasi dari link ini otomatis tersambung ke hak insentif 6% Anda.`);
             });
         }
 

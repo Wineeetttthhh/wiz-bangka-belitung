@@ -103,8 +103,8 @@ const server = http.createServer((req, res) => {
         }
     }
 
-    // Dynamic Quote & Inspirasi Open Graph Route (/quote/:id or /quote?id=...)
-    if (reqUrl.startsWith('/quote/') || (reqUrl === '/quote' && req.url.includes('?')) || reqUrl === '/quote') {
+    // Dynamic Quote & Inspirasi / Flyer Open Graph Route (/quote/:id, /flyer/:id, etc.)
+    if (reqUrl.startsWith('/quote') || reqUrl.startsWith('/flyer')) {
         const apiFilePath = path.join(__dirname, 'api', 'quote.js');
         if (fs.existsSync(apiFilePath)) {
             try {

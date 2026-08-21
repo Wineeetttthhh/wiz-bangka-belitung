@@ -76,6 +76,14 @@
       "destination": "/api/program"
     },
     {
+      "source": "/flyer/:id",
+      "destination": "/api/quote?id=:id"
+    },
+    {
+      "source": "/flyer",
+      "destination": "/api/quote"
+    },
+    {
       "source": "/quote/:id",
       "destination": "/api/quote?id=:id"
     },

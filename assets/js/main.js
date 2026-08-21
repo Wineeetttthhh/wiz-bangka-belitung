@@ -173,15 +173,17 @@ function initHomeQuoteSection() {
     if (srcEl) srcEl.innerHTML = `<span class="material-symbols-outlined text-base">menu_book</span><span>${today.source || 'Wahdah Inspirasi Zakat'}</span>`;
     
     if (pageLink) {
-        pageLink.href = `${origin}/quote/${encodeURIComponent(today.id)}${activeRef ? '?ref=' + encodeURIComponent(activeRef) : ''}`;
+        pageLink.href = `${origin}/flyer/${encodeURIComponent(today.id)}${activeRef ? '?ref=' + encodeURIComponent(activeRef) : ''}`;
     }
     if (donateBtn) {
         donateBtn.href = `donasi.html${activeRef ? '?ref=' + encodeURIComponent(activeRef) : ''}`;
     }
 
     window.shareHomeQuoteWA = function() {
-        const qUrl = `${origin}/quote/${encodeURIComponent(today.id)}${activeRef ? '?ref=' + encodeURIComponent(activeRef) : ''}`;
-        const caption = `*${today.source || 'Inspirasi Harian'}*\n\n"${today.text}"\n\nYuk bersama menebar kebaikan melalui Laznas WIZ Bangka Belitung:\n${qUrl}`;
+        const flyerUrl = `${origin}/flyer/${encodeURIComponent(today.id)}${activeRef ? '?ref=' + encodeURIComponent(activeRef) : ''}`;
+        const title = today.source ? today.source : (today.category || 'Quote & Inspirasi Dakwah');
+        const quoteBody = today.text ? `"${today.text}"` : '';
+        const caption = `${title}\n\n${quoteBody}\n\nBaca selengkapnya & salurkan infak terbaik melalui tautan berikut:\n${flyerUrl}`;
         window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(caption), '_blank');
     };
 }

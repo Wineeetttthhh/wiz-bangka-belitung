@@ -57,10 +57,10 @@ module.exports = async function handler(req, res) {
     let quoteId = urlObj.searchParams.get('id');
     const refCode = (urlObj.searchParams.get('ref') || urlObj.searchParams.get('affiliate') || urlObj.searchParams.get('perantara') || '').trim();
 
-    // Parse from path /quote/[id] if applicable
+    // Parse from path /flyer/[id] or /quote/[id] if applicable
     if (!quoteId) {
         const parts = urlObj.pathname.split('/').filter(Boolean);
-        const qIdx = parts.indexOf('quote');
+        const qIdx = parts.findIndex(p => p === 'quote' || p === 'flyer');
         if (qIdx !== -1 && parts[qIdx + 1]) {
             quoteId = decodeURIComponent(parts[qIdx + 1]);
         }
@@ -91,11 +91,15 @@ module.exports = async function handler(req, res) {
         quote = allQuotes.find(q => q.status === 'active') || allQuotes[0] || DEFAULT_QUOTES[0];
     }
 
-    // Determine high-res image URL
-    const rawImg = quote.imageUrl || 'assets/images/foto-utama-wiz.jpg';
-    const imageUrl = rawImg.startsWith('http') ? rawImg : `${origin}/${rawImg.replace(/^\//, '')}`;
+    // Determine high-res public image URL (Crawler-friendly, non-base64)
+    let imageUrl = quote.imageUrl || 'assets/images/foto-utama-wiz.jpg';
+    if (!imageUrl || imageUrl.startsWith('data:image') || imageUrl.startsWith('blob:')) {
+        imageUrl = 'https://images.unsplash.com/photo-1542665952-14513db15293?q=80&w=1200&auto=format&fit=crop';
+    } else if (!imageUrl.startsWith('http')) {
+        imageUrl = `${origin}/${imageUrl.replace(/^\//, '')}`;
+    }
 
-    const canonicalUrl = `${origin}/quote/${quote.id}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
+    const canonicalUrl = `${origin}/flyer/${quote.id}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
     const donateUrl = `${origin}/donasi.html${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
     const programUrl = `${origin}/program.html${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
 
@@ -107,31 +111,34 @@ module.exports = async function handler(req, res) {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=600');
 
+    const metaTitle = quote.source ? `${quote.source} • Quote & Inspirasi WIZ` : 'Quote & Inspirasi Dakwah — WIZ Bangka Belitung';
+    const metaDesc = `"${quote.text}" — Baca selengkapnya & salurkan infak terbaik melalui Laznas Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.`;
+
     const html = `<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${escapeHtml(quote.source || 'Quote & Inspirasi Harian')} — WIZ Bangka Belitung</title>
-    <meta name="description" content="${escapeHtml(quote.text)}">
+    <title>${escapeHtml(metaTitle)}</title>
+    <meta name="description" content="${escapeHtml(metaDesc)}">
     <link rel="icon" href="${origin}/assets/images/logo-wiz-babel.png" type="image/png">
 
     <!-- Open Graph / WhatsApp / Facebook / Telegram / Instagram -->
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="WIZ Bangka Belitung">
     <meta property="og:title" content="${escapeHtml(quote.source || quote.category || 'Quote & Inspirasi Harian')}">
-    <meta property="og:description" content="${escapeHtml(quote.text)}">
+    <meta property="og:description" content="${escapeHtml(metaDesc)}">
     <meta property="og:image" content="${escapeHtml(imageUrl)}">
     <meta property="og:image:secure_url" content="${escapeHtml(imageUrl)}">
     <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
+    <meta property="og:image:height" content="1200">
     <meta property="og:image:type" content="image/jpeg">
     <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${escapeHtml(quote.source || 'Quote & Inspirasi Harian')}">
-    <meta name="twitter:description" content="${escapeHtml(quote.text)}">
+    <meta name="twitter:description" content="${escapeHtml(metaDesc)}">
     <meta name="twitter:image" content="${escapeHtml(imageUrl)}">
 
     <!-- Google Fonts & Tailwind -->
@@ -263,7 +270,9 @@ module.exports = async function handler(req, res) {
 
     <script>
         const quoteUrl = '${escapeHtml(canonicalUrl)}';
-        const quoteText = \`*${escapeHtml(quote.source || 'Inspirasi Harian')}*\n\n"${escapeHtml(quote.text)}"\n\nMari bersama menebar kebaikan melalui Laznas WIZ Bangka Belitung:\n\${quoteUrl}\`;
+        const quoteTitle = '${escapeHtml(quote.source ? quote.source : 'Quote & Inspirasi Harian WIZ')}';
+        const quoteBody = '${escapeHtml(quote.text ? '"' + quote.text + '"' : '')}';
+        const quoteText = \`\${quoteTitle}\\n\\n\${quoteBody}\\n\\nBaca selengkapnya & salurkan infak terbaik melalui tautan berikut:\\n\${quoteUrl}\`;
 
         function shareQuoteWA() {
             const url = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(quoteText);
