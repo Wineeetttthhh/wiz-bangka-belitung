@@ -1037,8 +1037,8 @@
 
 
 
-        async function handleCheckoutSubmit(e) {
-            e.preventDefault();
+        function handleCheckoutSubmit(e) {
+            if (e) e.preventDefault();
             const isAnon = document.getElementById('is-anonymous-donor')?.checked;
             state.donorName = isAnon ? 'Hamba Allah' : (document.getElementById('donor-name').value || 'Hamba Allah');
             state.donorPhone = document.getElementById('donor-phone').value;
@@ -1060,21 +1060,14 @@
                 return;
             }
 
-            // Visual feedback on submit buttons
-            const submitBtn = document.getElementById('checkout-submit-btn');
-            const mobSubmitBtn = document.getElementById('mobile-checkout-submit-btn');
-            const origDesktopText = submitBtn ? submitBtn.innerHTML : '';
-            const origMobileText = mobSubmitBtn ? mobSubmitBtn.innerHTML : '';
-
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Mencatat Donasi...</span>';
-            }
-            if (mobSubmitBtn) {
-                mobSubmitBtn.disabled = true;
-                mobSubmitBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Mencatat...</span>';
+            // 🚀 Langsung Tampilkan Modal Pembayaran (QRIS / Rekening Bank) Instan (< 50ms)
+            if (state.method === 'QRIS') {
+                openQRISModal();
+            } else {
+                openBankModal();
             }
 
+            // Pencatatan Transaksi Seketika di Background (Non-blocking)
             try {
                 // Determine Referral / Mitra Attribution
                 const refParam = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') ||
@@ -1135,7 +1128,7 @@
 
                 // Immediate Transaction Recording (Status PENDING)
                 if (window.wizStore && window.wizStore.donations) {
-                    const created = await window.wizStore.donations.add({
+                    window.wizStore.donations.add({
                         donorName: state.donorName,
                         donorPhone: state.donorPhone,
                         wilayah: state.wilayah,
@@ -1156,26 +1149,14 @@
                         referralFee: refFee,
                         isRecurringDonor: isRecurring,
                         status: 'pending'
+                    }).then(created => {
+                        state.currentDonationRecord = created;
+                    }).catch(err => {
+                        console.error('[Donation Persistence Error]:', err);
                     });
-                    state.currentDonationRecord = created;
                 }
             } catch (err) {
-                console.error('[Donation Checkout Error]:', err);
-            } finally {
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = origDesktopText;
-                }
-                if (mobSubmitBtn) {
-                    mobSubmitBtn.disabled = false;
-                    mobSubmitBtn.innerHTML = origMobileText;
-                }
-            }
-
-            if (state.method === 'QRIS') {
-                openQRISModal();
-            } else {
-                openBankModal();
+                console.error('[Donation Checkout Processing Error]:', err);
             }
         }
 

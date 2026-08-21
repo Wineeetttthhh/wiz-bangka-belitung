@@ -1361,19 +1361,21 @@
                     if (sbDonRes && Array.isArray(sbDonRes.data)) {
                         directSbDonations = sbDonRes.data.map(d => {
                             let extractedWilayah = d.wilayah || 'Pangkalpinang';
-                            let extractedProg = d.program_spesifik || d.program_title || d.program || '-';
+                            let extractedProg = String(d.program_spesifik || d.program_title || d.program || '-');
                             let extractedCat = d.program_utama || d.category || '-';
                             let extractedRef = d.referral_id || d.referral_code || null;
                             let extractedFee = Number(d.referral_fee) || 0;
                             let isRecurring = d.is_recurring_donor || false;
 
-                            if (d.program_title && d.program_title.includes('[')) {
-                                const mWil = d.program_title.match(/\[([^\]]+)\]/);
+                            const progTitleStr = String(d.program_title || '');
+                            if (progTitleStr.includes('[')) {
+                                const mWil = progTitleStr.match(/\[([^\]]+)\]/);
                                 if (mWil) extractedWilayah = mWil[1].trim();
                             }
 
-                            if (d.notes && d.notes.includes('[Meta:')) {
-                                const m = d.notes.match(/\[Meta:([^\]]+)\]/);
+                            const notesStr = String(d.notes || '');
+                            if (notesStr.includes('[Meta:')) {
+                                const m = notesStr.match(/\[Meta:([^\]]+)\]/);
                                 if (m) {
                                     const parts = m[1].split('|').map(s => s.trim());
                                     parts.forEach(p => {
@@ -1391,7 +1393,7 @@
                                 }
                             }
 
-                            if (extractedProg && extractedProg.includes('[')) {
+                            if (extractedProg.includes('[')) {
                                 extractedProg = extractedProg.replace(/\[[^\]]+\]/g, '').trim();
                             }
 
@@ -1877,38 +1879,40 @@
             const recurringLabel = isRecurring ? ' [Donatur Tetap Mitra]' : '';
             activityLog.add('donation_in', `Donasi ${formatRupiahCompact(newDonation.amount)} dari ${newDonation.donorName}${wilayahLabel}${recurringLabel} (${msgStatus}).`, donation.verifiedBy || 'Admin');
 
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.insert('donations', newDonation);
-            }
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                try {
-                    await window.wizSupabase.saveDonation(newDonation);
-                } catch(e) {}
-            }
+            // Dispatch local events immediately
+            window.dispatchEvent(new CustomEvent('wiz-donations-changed', { detail: { action: 'add', donation: newDonation } }));
+            window.dispatchEvent(new CustomEvent('wiz-referrals-changed'));
 
-            // Real-time broadcast of new donation to local & production /api/sync
-            try {
-                await fetch('/api/sync', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ donations: [newDonation] })
-                });
-            } catch(e) {}
-
-            if (typeof window !== 'undefined' && window.location && window.location.hostname && window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
-                try {
-                    fetch('https://www.wizbangkabelitung.or.id/api/sync', {
+            // Background Async Cloud Persistence (Non-blocking: instant < 50ms response for donor)
+            (async () => {
+                const cloudTasks = [];
+                if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                    cloudTasks.push(window.wizFirebase.insert('donations', newDonation).catch(() => {}));
+                }
+                if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                    cloudTasks.push(window.wizSupabase.saveDonation(newDonation).catch(() => {}));
+                }
+                cloudTasks.push(
+                    fetch('/api/sync', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ donations: [newDonation] })
-                    }).catch(() => {});
-                } catch(e) {}
-            }
+                    }).catch(() => {})
+                );
+                if (typeof window !== 'undefined' && window.location && window.location.hostname && window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
+                    cloudTasks.push(
+                        fetch('https://www.wizbangkabelitung.or.id/api/sync', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ donations: [newDonation] })
+                        }).catch(() => {})
+                    );
+                }
+                await Promise.allSettled(cloudTasks);
+                try { await pushToCloud(); } catch(e) {}
+                window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+            })();
 
-            try { await pushToCloud(); } catch(e) {}
-            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
-            window.dispatchEvent(new CustomEvent('wiz-donations-changed', { detail: { action: 'add', donation: newDonation } }));
-            window.dispatchEvent(new CustomEvent('wiz-referrals-changed'));
             return newDonation;
         },
 
