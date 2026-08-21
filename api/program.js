@@ -4,7 +4,7 @@
  * Dynamic Program Reader & Social Media Open Graph (OG) Generator
  * Endpoint: /program/:slug  or  /api/program?name=:name&ref=:ref
  * ============================================================
- * Menghasilkan kartu preview Open Graph (OG) kaya foto resolusi tinggi
+ * Menghasilkan kartu preview Open Graph (OG) kaya foto resolusi tinggi 1200x630
  * untuk WhatsApp Chat, WhatsApp Story, Facebook, Twitter/X, Telegram,
  * dan mengatribusikan kode referral mitra selama 30 hari via Cookie.
  * ============================================================
@@ -13,7 +13,12 @@
 const fs = require('fs');
 const path = require('path');
 
-// Default Specific Programs Metadata with curated high-res cover images
+const SUPABASE_URL = 'https://ffiltrlzdbwhhhxzmzuo.supabase.co/rest/v1';
+const SUPABASE_KEY = 'sb_publishable_GiA1BOjbW2psTU36149xuA_E26wGBI3';
+
+const DEFAULT_FALLBACK_IMAGE = 'https://www.wizbangkabelitung.or.id/assets/images/foto-utama-wiz.jpg';
+
+// Curated Specific Programs Metadata with high-res 1200x630 cover photos
 const SPECIFIC_PROGRAMS_METADATA = {
     // ── 1. Dakwah & Pembinaan (Berkah Hidayah) ──
     'pembangunan-markaz': {
@@ -86,12 +91,26 @@ const SPECIFIC_PROGRAMS_METADATA = {
         description: 'Pemberdayaan relawan media kreatif untuk memproduksi konten digital dakwah yang edukatif dan menyejukkan di sosial media.',
         imageUrl: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=1200&auto=format&fit=crop'
     },
+    'lomba-desain-poster-dakwah': {
+        title: 'Lomba Desain Poster Dakwah',
+        pillar: 'Dakwah & Pembinaan',
+        target: 'Rp 5.000.000',
+        description: 'Ajang kreasi dakwah visual bagi generasi muda untuk menyebarkan pesan kebaikan melalui seni digital.',
+        imageUrl: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=1200&auto=format&fit=crop'
+    },
     'kantor-dpw-wi-babel-wiz': {
         title: 'Kantor DPW WI Babel & WIZ',
         pillar: 'Dakwah & Pembinaan',
         target: 'Rp 100.000.000',
         description: 'Pusat operasional dan pelayanan keummatan Wahdah Inspirasi Zakat serta Dewan Pengurus Wilayah di Bangka Belitung.',
         imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop'
+    },
+    'mukerwil-mukernas-muktamar': {
+        title: 'Mukerwil Mukernas Muktamar',
+        pillar: 'Dakwah & Pembinaan',
+        target: 'Rp 15.000.000',
+        description: 'Musyawarah kerja dan evaluasi program dakwah berkala untuk memastikan tata kelola amanah dan profesional.',
+        imageUrl: 'https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=1200&auto=format&fit=crop'
     },
     'keberangkatan-kepulangan-dai': {
         title: 'Keberangkatan Kepulangan Dai',
@@ -115,6 +134,20 @@ const SPECIFIC_PROGRAMS_METADATA = {
         target: 'Rp 25.000.000',
         description: 'Salurkan paket sembako bergizi untuk lansia, janda dhuafa, dan keluarga pra-sejahtera guna meringankan beban ekonomi mereka sehari-hari di Bangka Belitung.',
         imageUrl: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=1200&auto=format&fit=crop'
+    },
+    'sedekah-beras-dhuafa': {
+        title: 'Sedekah Beras Dhuafa',
+        pillar: 'Sosial & Kemanusiaan',
+        target: 'Rp 20.000.000',
+        description: 'Penyaluran beras premium berkualitas bagi para janda dhuafa, anak yatim, dan keluarga miskin di pelosok desa.',
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/sedekah-beras-dhuafa.jpg'
+    },
+    'sedekah-beras-dai': {
+        title: 'Sedekah Beras Dai',
+        pillar: 'Sosial & Kemanusiaan',
+        target: 'Rp 15.000.000',
+        description: 'Bantuan logistik beras dan sembako untuk menunjang kehidupan para dai dan asatidz yang mengabdi membina umat di pedalaman Bangka Belitung.',
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/sedekah-beras-dai.jpg'
     },
     'sedekah-jumat': {
         title: 'Sedekah Jumat Berkah',
@@ -149,14 +182,14 @@ const SPECIFIC_PROGRAMS_METADATA = {
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 50.000.000',
         description: 'Berbagi paket buka puasa berkah untuk ribuan santri, dhuafa, dan pejuang nafkah di bulan suci Ramadan.',
-        imageUrl: 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb9?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/tebar-iftar.jpg'
     },
     'tebar-iftar-nusantara': {
         title: 'Tebar Iftar Ramadan',
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 50.000.000',
         description: 'Berbagi paket buka puasa berkah untuk ribuan santri, dhuafa, dan pejuang nafkah di bulan suci Ramadan.',
-        imageUrl: 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb9?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/tebar-iftar.jpg'
     },
     'tebar-quran-nusantara': {
         title: 'Tebar Qur\'an Nusantara',
@@ -179,6 +212,13 @@ const SPECIFIC_PROGRAMS_METADATA = {
         description: 'Penyediaan sumur bor, instalasi tandon, dan pipanisasi air bersih untuk daerah krisis kekeringan.',
         imageUrl: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?q=80&w=1200&auto=format&fit=crop'
     },
+    'sedekah-air-bersih': {
+        title: 'Sedekah Air Bersih',
+        pillar: 'Sosial & Kemanusiaan',
+        target: 'Rp 18.000.000',
+        description: 'Penyediaan sumur bor, instalasi tandon, dan pipanisasi air bersih untuk daerah krisis kekeringan.',
+        imageUrl: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?q=80&w=1200&auto=format&fit=crop'
+    },
 
     // ── 3. Pendidikan & Beasiswa (Berkah Juara) ──
     'beasiswa-pendidikan-juara': {
@@ -188,12 +228,19 @@ const SPECIFIC_PROGRAMS_METADATA = {
         description: 'Dukung biaya SPP dan perlengkapan sekolah bagi siswa berprestasi dari keluarga kurang mampu.',
         imageUrl: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1200&auto=format&fit=crop'
     },
+    'beasiswa-tahfidz': {
+        title: 'Beasiswa Tahfidz & Dhuafa',
+        pillar: 'Pendidikan & Beasiswa',
+        target: 'Rp 35.000.000',
+        description: 'Bantuan biaya studi dan living cost santri penghafal Qur\'an di pesantren dan perguruan tinggi.',
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/beasiswa-tahfidz.jpg'
+    },
     'beasiswa-tahfidz-dhuafa': {
         title: 'Beasiswa Tahfidz & Dhuafa',
         pillar: 'Pendidikan & Beasiswa',
         target: 'Rp 35.000.000',
         description: 'Bantuan biaya studi dan living cost santri penghafal Qur\'an di pesantren dan perguruan tinggi.',
-        imageUrl: 'https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/beasiswa-tahfidz.jpg'
     },
     'perlengkapan-belajar-yatim': {
         title: 'Perlengkapan Belajar Yatim',
@@ -225,6 +272,13 @@ const SPECIFIC_PROGRAMS_METADATA = {
         description: 'Operasional layanan antar jemput pasien dhuafa dan jenazah gratis 24 jam di wilayah Bangka Belitung.',
         imageUrl: 'https://images.unsplash.com/photo-1587745416684-47b883828d6b?q=80&w=1200&auto=format&fit=crop'
     },
+    'khitanan-massal-dhuafa': {
+        title: 'Khitanan Massal Dhuafa',
+        pillar: 'Kesehatan Masyarakat',
+        target: 'Rp 15.000.000',
+        description: 'Program khitanan massal gratis medis profesional dan santunan bingkisan untuk anak-anak dhuafa.',
+        imageUrl: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?q=80&w=1200&auto=format&fit=crop'
+    },
 
     // ── 5. Ekonomi & Pemberdayaan (Berkah Mandiri) ──
     'modal-usaha-mandiri': {
@@ -234,11 +288,25 @@ const SPECIFIC_PROGRAMS_METADATA = {
         description: 'Bantuan modal usaha tanpa riba dan pendampingan bisnis untuk mengangkat mustahik menjadi muzakki.',
         imageUrl: 'https://images.unsplash.com/photo-1556742049-0a670fc80782?q=80&w=1200&auto=format&fit=crop'
     },
+    'modal-usaha-dhuafa': {
+        title: 'Modal Usaha Dhuafa',
+        pillar: 'Ekonomi & Pemberdayaan',
+        target: 'Rp 25.000.000',
+        description: 'Bantuan permodalan produktif dan alat kerja bagi pelaku usaha mikro pra-sejahtera agar mandiri.',
+        imageUrl: 'https://images.unsplash.com/photo-1556742049-0a670fc80782?q=80&w=1200&auto=format&fit=crop'
+    },
     'gerobak-berkah-umkm': {
         title: 'Gerobak Berkah UMKM',
         pillar: 'Ekonomi & Pemberdayaan',
         target: 'Rp 15.000.000',
         description: 'Pengadaan gerobak usaha dan peralatan jualan bagi para kepala keluarga dhuafa untuk mandiri berpenghasilan.',
+        imageUrl: 'https://images.unsplash.com/photo-1556742049-0a670fc80782?q=80&w=1200&auto=format&fit=crop'
+    },
+    'pelatihan-keterampilan-wirausaha': {
+        title: 'Pelatihan Keterampilan Wirausaha',
+        pillar: 'Ekonomi & Pemberdayaan',
+        target: 'Rp 10.000.000',
+        description: 'Bimbingan teknis kewirausahaan, manajemen keuangan usaha kecil, dan pemasaran digital untuk UMKM dhuafa.',
         imageUrl: 'https://images.unsplash.com/photo-1556742049-0a670fc80782?q=80&w=1200&auto=format&fit=crop'
     }
 };
@@ -260,6 +328,27 @@ function escapeHtml(str = '') {
         .replace(/'/g, '&#039;');
 }
 
+async function getLiveCloudMetadata() {
+    try {
+        const res = await fetch(`${SUPABASE_URL}/site_settings?key=eq.master_bundle&select=*`, {
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Accept': 'application/json'
+            }
+        });
+        if (res.ok) {
+            const list = await res.json();
+            if (Array.isArray(list) && list.length > 0 && list[0].value) {
+                return list[0].value;
+            }
+        }
+    } catch(e) {
+        console.warn('[Program API] Supabase fetch error:', e.message);
+    }
+    return null;
+}
+
 module.exports = async function handler(req, res) {
     const urlObj = new URL(req.url, `http://${req.headers.host || 'www.wizbangkabelitung.or.id'}`);
     let progQuery = urlObj.searchParams.get('program') || urlObj.searchParams.get('name') || urlObj.searchParams.get('slug') || urlObj.searchParams.get('id');
@@ -274,77 +363,88 @@ module.exports = async function handler(req, res) {
         }
     }
 
-    const proto = req.headers['x-forwarded-proto'] || 'https';
-    const host = req.headers.host || 'www.wizbangkabelitung.or.id';
-    const origin = `${proto}://${host}`;
+    const origin = 'https://www.wizbangkabelitung.or.id';
 
-    // Find program metadata
+    // 1. Fetch Cloud Master Bundle for custom overrides
+    const cloudBundle = await getLiveCloudMetadata();
+    const specificImgsMap = (cloudBundle && cloudBundle.specific_prog_imgs) ? cloudBundle.specific_prog_imgs : {};
+
+    // 2. Find program metadata
     let selectedProgram = null;
     if (progQuery) {
         const querySlug = slugify(progQuery);
         if (SPECIFIC_PROGRAMS_METADATA[querySlug]) {
-            selectedProgram = SPECIFIC_PROGRAMS_METADATA[querySlug];
+            selectedProgram = { ...SPECIFIC_PROGRAMS_METADATA[querySlug] };
         } else {
-            // Fuzzy search by title words
+            // Fuzzy search by title or slug match
             for (const [key, prog] of Object.entries(SPECIFIC_PROGRAMS_METADATA)) {
-                if (key.includes(querySlug) || querySlug.includes(key) || slugify(prog.title).includes(querySlug)) {
-                    selectedProgram = prog;
+                if (key === querySlug || key.includes(querySlug) || querySlug.includes(key) || slugify(prog.title) === querySlug || slugify(prog.title).includes(querySlug)) {
+                    selectedProgram = { ...prog };
                     break;
                 }
             }
         }
     }
 
-    // Default if not found or broad program visit
+    // 3. Fallback if not found
     if (!selectedProgram) {
+        const fallbackTitle = progQuery ? decodeURIComponent(progQuery).replace(/-/g, ' ') : 'Katalog Program Kebaikan & ZIS';
         selectedProgram = {
-            title: progQuery ? decodeURIComponent(progQuery) : 'Katalog Program Kebaikan & ZIS',
+            title: fallbackTitle,
             pillar: 'Wahdah Inspirasi Zakat',
             target: 'Transparan & Berkelanjutan',
-            description: 'Salurkan Zakat, Infak, dan Sedekah Anda melalui program terverifikasi Wahdah Inspirasi Zakat (WIZ) Bangka Belitung untuk kemaslahatan ummat.',
-            imageUrl: 'https://images.unsplash.com/photo-1542665952-14513db15293?q=80&w=1200&auto=format&fit=crop'
+            description: `Salurkan Zakat, Infak, dan Sedekah Anda melalui program ${fallbackTitle} Wahdah Inspirasi Zakat (WIZ) Bangka Belitung untuk kemaslahatan ummat.`,
+            imageUrl: DEFAULT_FALLBACK_IMAGE
         };
     }
 
-    // Dynamic Image Override from query parameter or canonical store
+    // 4. Dynamic Image Override (from Supabase admin upload, query param, or metadata)
     const imgQuery = urlObj.searchParams.get('img');
     if (imgQuery && (imgQuery.startsWith('http://') || imgQuery.startsWith('https://') || imgQuery.startsWith('assets/'))) {
         selectedProgram.imageUrl = imgQuery.trim();
-    } else {
-        try {
-            const canonicalPath = path.join(__dirname, '..', 'assets', 'data', 'canonical-store.json');
-            if (fs.existsSync(canonicalPath)) {
-                const cData = JSON.parse(fs.readFileSync(canonicalPath, 'utf8'));
-                if (cData && cData.specificProgramImages && cData.specificProgramImages[selectedProgram.title]) {
-                    selectedProgram.imageUrl = cData.specificProgramImages[selectedProgram.title];
-                }
-            }
-        } catch(e) {}
+    } else if (specificImgsMap[selectedProgram.title]) {
+        selectedProgram.imageUrl = specificImgsMap[selectedProgram.title];
     }
 
     const title = selectedProgram.title;
     const pillar = selectedProgram.pillar;
     const description = selectedProgram.description;
-    const rawImg = selectedProgram.imageUrl;
-    const imageUrl = rawImg.startsWith('http') ? rawImg : `${origin}/${rawImg.replace(/^\//, '')}`;
+    const rawImg = selectedProgram.imageUrl || DEFAULT_FALLBACK_IMAGE;
+
+    // Determine absolute image URL for OG Meta Tags (Must be absolute HTTP/HTTPS URL)
+    let ogImageUrl = rawImg;
+    if (ogImageUrl.startsWith('data:image') || ogImageUrl.startsWith('blob:')) {
+        // If image in database is base64, use the specific program's high-res Unsplash image or default fallback for crawler
+        const fallbackMeta = SPECIFIC_PROGRAMS_METADATA[slugify(title)];
+        ogImageUrl = (fallbackMeta && fallbackMeta.imageUrl && !fallbackMeta.imageUrl.startsWith('data:image')) 
+            ? fallbackMeta.imageUrl 
+            : DEFAULT_FALLBACK_IMAGE;
+    } else if (!ogImageUrl.startsWith('http')) {
+        ogImageUrl = `${origin}/${ogImageUrl.replace(/^\//, '')}`;
+    }
+
+    // Determine actual page image source for HTML body
+    let pageImgSrc = rawImg;
+    if (pageImgSrc && !pageImgSrc.startsWith('http') && !pageImgSrc.startsWith('data:image')) {
+        pageImgSrc = `${origin}/${pageImgSrc.replace(/^\//, '')}`;
+    }
 
     const canonicalSlug = slugify(title);
     let canonicalUrl = `${origin}/program/${canonicalSlug}`;
     const params = [];
     if (refCode) params.push(`ref=${encodeURIComponent(refCode)}`);
-    if (imgQuery) params.push(`img=${encodeURIComponent(imgQuery)}`);
     if (params.length > 0) canonicalUrl += `?${params.join('&')}`;
 
     const donateUrl = `${origin}/donasi.html?program=${encodeURIComponent(title)}${refCode ? '&ref=' + encodeURIComponent(refCode) : ''}`;
 
-    // Set 30-Day Referral Cookie if refCode is present (max-age 2,592,000s)
+    // Set 30-Day Referral Cookie if refCode is present (max-age 2,592,000s = 30 days)
     if (refCode) {
         res.setHeader('Set-Cookie', `wiz_ref=${encodeURIComponent(refCode)}; Path=/; Max-Age=2592000; SameSite=Lax`);
     }
 
     // Return Rich SSR HTML with OpenGraph tags for WhatsApp, Facebook, Twitter, Telegram
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=600');
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120');
 
     const html = `<!DOCTYPE html>
 <html lang="id">
@@ -358,10 +458,10 @@ module.exports = async function handler(req, res) {
     <!-- Open Graph / WhatsApp / Facebook / Telegram / Instagram -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="WIZ Bangka Belitung">
-    <meta property="og:title" content="${escapeHtml(title)}">
+    <meta property="og:title" content="${escapeHtml(title)} — WIZ Bangka Belitung">
     <meta property="og:description" content="${escapeHtml(description)}">
-    <meta property="og:image" content="${escapeHtml(imageUrl)}">
-    <meta property="og:image:secure_url" content="${escapeHtml(imageUrl)}">
+    <meta property="og:image" content="${escapeHtml(ogImageUrl)}">
+    <meta property="og:image:secure_url" content="${escapeHtml(ogImageUrl)}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:type" content="image/jpeg">
@@ -370,9 +470,9 @@ module.exports = async function handler(req, res) {
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="${escapeHtml(title)}">
+    <meta name="twitter:title" content="${escapeHtml(title)} — WIZ Bangka Belitung">
     <meta name="twitter:description" content="${escapeHtml(description)}">
-    <meta name="twitter:image" content="${escapeHtml(imageUrl)}">
+    <meta name="twitter:image" content="${escapeHtml(ogImageUrl)}">
 
     <!-- Google Fonts & Tailwind -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -393,17 +493,17 @@ module.exports = async function handler(req, res) {
         })();
     </script>
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans min-h-screen flex flex-col antialiased">
+<body class="bg-slate-50 text-slate-900 font-sans min-h-screen flex flex-col antialiased selection:bg-emerald-100 selection:text-emerald-900">
     <!-- Header -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-xs">
         <div class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
             <a href="${origin}/index.html" class="flex items-center gap-2.5">
                 <img src="${origin}/assets/images/logo-wiz-babel.png" alt="WIZ Babel" class="h-9 w-auto object-contain">
-                <span class="font-extrabold text-sm text-slate-900">WIZ Babel</span>
+                <span class="font-extrabold text-sm text-slate-900">WIZ Bangka Belitung</span>
             </a>
             <div class="flex items-center gap-2">
                 <a href="${origin}/program.html" class="text-xs font-semibold text-slate-600 hover:text-emerald-600 px-3 py-1.5 rounded-lg">Katalog Program</a>
-                <a href="${escapeHtml(donateUrl)}" class="bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs px-4 py-2 rounded-full shadow transition-all flex items-center gap-1">
+                <a href="${escapeHtml(donateUrl)}" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-full shadow transition-all flex items-center gap-1">
                     <span class="material-symbols-outlined text-sm">favorite</span> Donasi
                 </a>
             </div>
@@ -414,8 +514,8 @@ module.exports = async function handler(req, res) {
     <main class="max-w-3xl mx-auto px-4 py-8 flex-grow space-y-6 w-full">
         <div class="bg-white rounded-3xl overflow-hidden shadow-xl border border-slate-200">
             <div class="relative aspect-video w-full bg-slate-900 overflow-hidden">
-                <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(title)}" class="w-full h-full object-cover">
-                <span class="absolute top-4 left-4 bg-emerald-600/90 text-white text-xs font-bold px-3.5 py-1 rounded-full shadow backdrop-blur-xs">
+                <img src="${escapeHtml(pageImgSrc)}" alt="${escapeHtml(title)}" class="w-full h-full object-cover">
+                <span class="absolute top-4 left-4 bg-emerald-600 text-white text-xs font-bold px-3.5 py-1 rounded-full shadow backdrop-blur-xs">
                     ${escapeHtml(pillar)}
                 </span>
             </div>
@@ -430,30 +530,42 @@ module.exports = async function handler(req, res) {
                     </p>
                 </div>
 
-                <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div class="bg-emerald-50/60 border border-emerald-100 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <div>
                         <span class="text-xs text-slate-500 font-semibold block">Target Program:</span>
                         <span class="text-lg font-extrabold text-emerald-800">${escapeHtml(selectedProgram.target)}</span>
                     </div>
-                    <div class="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
+                    <div class="text-xs font-semibold text-emerald-800 flex items-center gap-1.5 bg-emerald-100/70 px-3 py-1.5 rounded-xl border border-emerald-200">
                         <span class="material-symbols-outlined text-emerald-600 text-base">verified</span>
                         <span>Program Resmi Terverifikasi WIZ Babel</span>
                     </div>
                 </div>
 
                 <div class="space-y-3 pt-2">
-                    <a href="${escapeHtml(donateUrl)}" class="w-full bg-amber-500 hover:bg-amber-600 active:scale-98 text-white font-extrabold text-base py-3.5 rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 text-center">
-                        <span class="material-symbols-outlined">favorite</span>
-                        <span>Donasi Sekarang Untuk Program Ini</span>
+                    <a href="${escapeHtml(donateUrl)}" class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-extrabold text-base py-3.5 rounded-2xl shadow-md hover:shadow-emerald-600/30 transition-all flex items-center justify-center gap-2 text-center">
+                        <span class="material-symbols-outlined">volunteer_activism</span>
+                        <span>Tunaikan Donasi Untuk Program Ini</span>
                     </a>
 
-                    <button onclick="handleShareClick()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-3 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
-                        <span class="material-symbols-outlined text-base">share</span>
-                        <span>Bagikan Program Ini ke WhatsApp / Sosmed</span>
+                    <button type="button" onclick="handleShareClick()" class="w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-sm py-3.5 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer">
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+                        <span>Bagikan Program Ini ke WhatsApp</span>
                     </button>
                 </div>
             </div>
         </div>
+
+        ${refCode ? `
+        <!-- Referral / Mitra Attribution Banner -->
+        <div class="bg-gradient-to-r from-emerald-900 to-slate-900 text-white rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4 border border-emerald-700/50 shadow-md">
+            <div class="space-y-0.5">
+                <span class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400">Jalur Kebaikan Sahabat Mitra</span>
+                <p class="text-xs text-white/90 font-medium">Anda terhubung melalui Mitra WIZ: <strong class="text-emerald-300 font-bold">${escapeHtml(refCode)}</strong></p>
+            </div>
+            <a href="${origin}/affiliate.html" class="shrink-0 bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors border border-white/20">
+                Info Kemitraan
+            </a>
+        </div>` : ''}
     </main>
 
     <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
@@ -462,8 +574,8 @@ module.exports = async function handler(req, res) {
 
     <script>
         function handleShareClick() {
-            const shareTitle = 'Bantu Program: ${escapeHtml(title)}';
-            const shareText = '${escapeHtml(title)}\\n\\n${escapeHtml(description)}\\n\\nMari berdonasi bersama WIZ Bangka Belitung melalui tautan resmi:\\n${escapeHtml(canonicalUrl)}';
+            const shareTitle = '${escapeHtml(title)} — WIZ Bangka Belitung';
+            const shareText = '*${escapeHtml(title)}*\\n\\n${escapeHtml(description)}\\n\\nSalurkan donasi terbaik Anda melalui tautan resmi:\\n\\n${escapeHtml(canonicalUrl)}';
             
             if (navigator.share) {
                 navigator.share({

@@ -1358,18 +1358,15 @@
             return;
         }
         const refCode = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || new URLSearchParams(window.location.search).get('perantara') || '');
-        const origin = (window.location.origin && window.location.origin.includes('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
+        const origin = 'https://www.wizbangkabelitung.or.id';
         const slug = slugify(programTitle);
         let progUrl = `${origin}/program/${slug}`;
         const params = [];
         if (refCode) params.push(`ref=${encodeURIComponent(refCode)}`);
-        if (cardImg && (cardImg.startsWith('http') || cardImg.startsWith('assets/'))) {
-            params.push(`img=${encodeURIComponent(cardImg)}`);
-        }
         if (params.length > 0) progUrl += `?${params.join('&')}`;
         
         const shareTitle = `${programTitle} — WIZ Bangka Belitung`;
-        const shareText = `*${programTitle}*\n\nMari salurkan kepedulian Anda melalui program resmi WIZ Bangka Belitung:\n${progUrl}`;
+        const shareText = `*${programTitle}*\n\nMari salurkan kepedulian Anda melalui program resmi WIZ Bangka Belitung:\n\n${progUrl}`;
 
         if (navigator.share) {
             navigator.share({

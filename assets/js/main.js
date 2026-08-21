@@ -1599,48 +1599,50 @@ function initBackgroundAnimation() {
 
 // ─── Global Share Program Helper ──────────────────────────
 window.shareProgram = async function (programTitle, description, customUrl, customImg) {
-    const title = programTitle || 'Program Kebaikan WIZ Babel';
-    const desc = description || 'Yuk dukung dan berdonasi melalui Wahdah Inspirasi Zakat (WIZ) Bangka Belitung!';
+    const cleanTitle = (programTitle || 'Program Kebaikan').trim();
+    const cleanDesc = (description || `Mari salurkan Zakat, Infak, dan Sedekah untuk program ${cleanTitle} Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.`).trim();
     
-    let activeRef = sessionStorage.getItem('wiz_active_ref_id') || localStorage.getItem('wiz_active_ref_id') || '';
-    let baseUrlStr = customUrl;
-    if (!baseUrlStr) {
-        // Direct public donors to program.html first so they can read program details & photos before donating
-        const origin = window.location.origin.includes('http') ? window.location.origin : '';
-        baseUrlStr = origin + '/program.html';
-    }
+    let activeRef = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || 
+                    sessionStorage.getItem('wiz_active_ref_id') || 
+                    localStorage.getItem('wiz_affiliate_ref') || 
+                    (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || '');
     
-    let shareUrl = baseUrlStr;
-    if (!shareUrl.includes('program=')) {
-        shareUrl += (shareUrl.includes('?') ? '&' : '?') + 'program=' + encodeURIComponent(title);
-    }
-    if (activeRef && !shareUrl.includes('ref=')) {
-        shareUrl += '&ref=' + encodeURIComponent(activeRef);
+    const baseDomain = 'https://www.wizbangkabelitung.or.id';
+    const slug = cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-');
+    
+    let fullUrl = customUrl;
+    if (!fullUrl) {
+        fullUrl = `${baseDomain}/program/${slug}`;
+        const params = [];
+        if (activeRef) params.push(`ref=${encodeURIComponent(activeRef)}`);
+        if (params.length > 0) fullUrl += `?${params.join('&')}`;
     }
 
     let programImg = customImg || '';
     if (!programImg && window.wizStore && window.wizStore.allocationRulesManager && window.wizStore.allocationRulesManager.getSpecificProgramImage) {
-        programImg = window.wizStore.allocationRulesManager.getSpecificProgramImage(title) || '';
+        programImg = window.wizStore.allocationRulesManager.getSpecificProgramImage(cleanTitle) || '';
     }
-    const defaultImg = 'https://wizbangkabelitung.or.id/assets/images/sedekah-beras-dhuafa.jpg';
+    const defaultImg = 'https://www.wizbangkabelitung.or.id/assets/images/foto-utama-wiz.jpg';
     if (!programImg) programImg = defaultImg;
+
+    const waText = `*${cleanTitle}*\n\n${cleanDesc}\n\nSalurkan donasi terbaik Anda melalui tautan resmi:\n\n${fullUrl}`;
 
     if (navigator.share) {
         try {
             await navigator.share({
-                title: `WIZ Babel — ${title}`,
-                text: `${title}: ${desc}`,
-                url: shareUrl
+                title: `${cleanTitle} — WIZ Bangka Belitung`,
+                text: waText,
+                url: fullUrl
             });
             return;
         } catch (e) {
-            if (e.name !== 'AbortError') console.warn('Native share failed, fallback to modal:', e);
-            else return; // User cancelled native share sheet
+            if (e.name === 'AbortError') return; // User cancelled
+            console.warn('Native share failed, fallback to modal:', e);
         }
     }
 
     // Fallback: Open Share Modal
-    openShareModal(title, desc, shareUrl, programImg);
+    openShareModal(cleanTitle, cleanDesc, fullUrl, programImg);
 };
 
 window.openShareModal = function (title, desc, url, programImg) {
