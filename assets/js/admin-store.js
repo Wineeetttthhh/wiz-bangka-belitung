@@ -1584,8 +1584,35 @@
             if (masterData.referral_payouts) {
                 smartMerge(STORAGE_KEYS.REFERRAL_PAYOUTS, masterData.referral_payouts, (a, b) => new Date(b.paidAt || 0) - new Date(a.paidAt || 0));
             }
-            if (masterData.quotes) {
-                smartMerge(STORAGE_KEYS.QUOTES, masterData.quotes, (a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0), deletedQuoteSet);
+            if (masterData.quotes && Array.isArray(masterData.quotes)) {
+                // Authoritative cloud quotes: Single Source of Truth
+                const cloudQuotesMap = new Map();
+                masterData.quotes.forEach(q => {
+                    if (q && q.id && !deletedQuoteSet.has(String(q.id)) && q.status !== 'deleted' && !q.isDeleted) {
+                        cloudQuotesMap.set(String(q.id), { ...q });
+                    }
+                });
+
+                const isAdmin = typeof window !== 'undefined' && (
+                    window.location.pathname.includes('admin') || 
+                    window.location.href.includes('admin.html')
+                );
+
+                if (isAdmin) {
+                    const localQuotes = getStore(STORAGE_KEYS.QUOTES) || [];
+                    localQuotes.forEach(loc => {
+                        if (loc && loc.id && !deletedQuoteSet.has(String(loc.id)) && loc.status !== 'deleted' && !loc.isDeleted) {
+                            const strId = String(loc.id);
+                            if (!cloudQuotesMap.has(strId)) {
+                                cloudQuotesMap.set(strId, loc);
+                            }
+                        }
+                    });
+                }
+
+                const mergedQuotes = Array.from(cloudQuotesMap.values());
+                mergedQuotes.sort((a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0));
+                setStore(STORAGE_KEYS.QUOTES, mergedQuotes);
                 window.dispatchEvent(new CustomEvent('wiz-quotes-changed'));
             }
 
@@ -3494,8 +3521,10 @@
 
         getAll() {
             const deletedQuoteSet = getDeletedQuoteIds();
-            const list = (getStore(STORAGE_KEYS.QUOTES) || DEFAULT_QUOTES).filter(q => q && q.id && !deletedQuoteSet.has(String(q.id)) && q.status !== 'deleted' && !q.isDeleted);
-            return list.sort((a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0));
+            const stored = getStore(STORAGE_KEYS.QUOTES);
+            const list = Array.isArray(stored) ? stored : DEFAULT_QUOTES;
+            return list.filter(q => q && q.id && !deletedQuoteSet.has(String(q.id)) && q.status !== 'deleted' && !q.isDeleted)
+                .sort((a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0));
         },
 
         getActive() {

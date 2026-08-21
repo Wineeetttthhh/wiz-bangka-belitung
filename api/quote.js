@@ -2,7 +2,7 @@
  * ============================================================
  * WAHDAH INSPIRASI ZAKAT (WIZ) BANGKA BELITUNG
  * Dynamic Daily Quote & Flyer Open Graph (OG) Generator & SSR Page
- * Endpoint: /quote/:id  or  /api/quote?id=:id&ref=:ref
+ * Endpoint: /quote/:id  or  /flyer/:id  or  /api/quote?id=:id&ref=:ref
  * ============================================================
  * Menghasilkan kartu preview Open Graph (OG) kaya flyer poster resolusi tinggi
  * untuk WhatsApp Chat, Status WhatsApp, Facebook, Telegram, dan Instagram,
@@ -13,32 +13,17 @@
 const fs = require('fs');
 const path = require('path');
 
+const SUPABASE_URL = 'https://ffiltrlzdbwhhhxzmzuo.supabase.co/rest/v1';
+const SUPABASE_KEY = 'sb_publishable_GiA1BOjbW2psTU36149xuA_E26wGBI3';
+
 const DEFAULT_QUOTES = [
     {
         id: 'quote-1',
         text: 'Sedekah itu tidak akan mengurangi harta. Tidak ada orang yang memberi maaf kepada orang lain melainkan Allah akan menambah kemuliaannya.',
         source: 'HR. Muslim no. 2588',
         category: 'Sedekah & Keberkahan',
-        imageUrl: 'https://images.unsplash.com/photo-1542665952-14513db15293?q=80&w=1200&auto=format&fit=crop',
+        imageUrl: 'assets/images/foto-utama-wiz.jpg',
         date: '2026-08-20',
-        status: 'active'
-    },
-    {
-        id: 'quote-2',
-        text: 'Tidak ada suatu hari pun ketika seorang hamba memasuki waktu pagi melainkan turun dua malaikat. Salah satunya berdoa: Ya Allah, berikanlah ganti bagi orang yang berinfak.',
-        source: 'HR. Bukhari no. 1442 & Muslim no. 1010',
-        category: 'Infak Subuh',
-        imageUrl: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=1200&auto=format&fit=crop',
-        date: '2026-08-21',
-        status: 'active'
-    },
-    {
-        id: 'quote-3',
-        text: 'Bentengilah hartamu dengan zakat, obatilah orang-orang sakitmu dengan sedekah, dan persiapkanlah doa untuk menghadapi bencana.',
-        source: 'HR. Ath-Thabarani',
-        category: 'Zakat & Penyucian Jiwa',
-        imageUrl: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1200&auto=format&fit=crop',
-        date: '2026-08-19',
         status: 'active'
     }
 ];
@@ -50,6 +35,39 @@ function escapeHtml(str = '') {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
+}
+
+async function getLiveQuotes() {
+    try {
+        const res = await fetch(`${SUPABASE_URL}/site_settings?key=eq.master_bundle&select=*`, {
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Accept': 'application/json'
+            }
+        });
+        if (res.ok) {
+            const list = await res.json();
+            if (Array.isArray(list) && list.length > 0 && list[0].value && Array.isArray(list[0].value.quotes) && list[0].value.quotes.length > 0) {
+                return list[0].value.quotes;
+            }
+        }
+    } catch(e) {
+        console.warn('[Quote API] Supabase fetch error:', e.message);
+    }
+
+    // Fallback to canonical-store.json
+    try {
+        const canonicalPath = path.join(__dirname, '..', 'assets', 'data', 'canonical-store.json');
+        if (fs.existsSync(canonicalPath)) {
+            const cData = JSON.parse(fs.readFileSync(canonicalPath, 'utf8'));
+            if (cData && Array.isArray(cData.quotes) && cData.quotes.length > 0) {
+                return cData.quotes;
+            }
+        }
+    } catch (e) {}
+
+    return DEFAULT_QUOTES;
 }
 
 module.exports = async function handler(req, res) {
@@ -66,40 +84,39 @@ module.exports = async function handler(req, res) {
         }
     }
 
-    const proto = req.headers['x-forwarded-proto'] || 'https';
     const host = req.headers.host || 'www.wizbangkabelitung.or.id';
-    const origin = `${proto}://${host}`;
+    const origin = 'https://www.wizbangkabelitung.or.id';
 
-    // Load Quotes from canonical-store.json
-    let allQuotes = [...DEFAULT_QUOTES];
-    try {
-        const canonicalPath = path.join(__dirname, '..', 'assets', 'data', 'canonical-store.json');
-        if (fs.existsSync(canonicalPath)) {
-            const cData = JSON.parse(fs.readFileSync(canonicalPath, 'utf8'));
-            if (cData && Array.isArray(cData.quotes) && cData.quotes.length > 0) {
-                allQuotes = cData.quotes;
-            }
-        }
-    } catch (e) {}
+    // Load fresh quotes from Supabase Cloud
+    const allQuotes = await getLiveQuotes();
 
     // Find requested quote
     let quote = null;
-    if (quoteId && quoteId !== 'latest' && quoteId !== 'today') {
-        quote = allQuotes.find(q => String(q.id).toLowerCase() === String(quoteId).toLowerCase() || String(q.id) === String(quoteId));
+    const cleanId = String(quoteId || '').trim();
+
+    if (cleanId && cleanId !== 'latest' && cleanId !== 'today') {
+        quote = allQuotes.find(q => String(q.id).toLowerCase() === cleanId.toLowerCase() || String(q.id) === cleanId);
     }
     if (!quote) {
+        // Pick first active quote, or newest quote
         quote = allQuotes.find(q => q.status === 'active') || allQuotes[0] || DEFAULT_QUOTES[0];
     }
 
-    // Determine high-res public image URL (Crawler-friendly, non-base64)
-    let imageUrl = quote.imageUrl || 'assets/images/foto-utama-wiz.jpg';
-    if (!imageUrl || imageUrl.startsWith('data:image') || imageUrl.startsWith('blob:')) {
-        imageUrl = 'https://images.unsplash.com/photo-1542665952-14513db15293?q=80&w=1200&auto=format&fit=crop';
-    } else if (!imageUrl.startsWith('http')) {
-        imageUrl = `${origin}/${imageUrl.replace(/^\//, '')}`;
+    // Determine actual page image source (Supports high-res base64 or URL)
+    let pageImgSrc = quote.imageUrl || 'assets/images/foto-utama-wiz.jpg';
+    if (pageImgSrc && !pageImgSrc.startsWith('http') && !pageImgSrc.startsWith('data:image')) {
+        pageImgSrc = `${origin}/${pageImgSrc.replace(/^\//, '')}`;
     }
 
-    const canonicalUrl = `${origin}/flyer/${quote.id}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
+    // Determine Open Graph image URL for bots (Crawlers require absolute http/https URL)
+    let ogImageUrl = quote.imageUrl || 'assets/images/foto-utama-wiz.jpg';
+    if (!ogImageUrl || ogImageUrl.startsWith('data:image') || ogImageUrl.startsWith('blob:')) {
+        ogImageUrl = `${origin}/assets/images/foto-utama-wiz.jpg`;
+    } else if (!ogImageUrl.startsWith('http')) {
+        ogImageUrl = `${origin}/${ogImageUrl.replace(/^\//, '')}`;
+    }
+
+    const canonicalUrl = `${origin}/flyer/${encodeURIComponent(quote.id)}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
     const donateUrl = `${origin}/donasi.html${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
     const programUrl = `${origin}/program.html${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
 
@@ -109,7 +126,7 @@ module.exports = async function handler(req, res) {
     }
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=600');
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120');
 
     const metaTitle = quote.source ? `${quote.source} • Quote & Inspirasi WIZ` : 'Quote & Inspirasi Dakwah — WIZ Bangka Belitung';
     const metaDesc = `"${quote.text}" — Baca selengkapnya & salurkan infak terbaik melalui Laznas Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.`;
@@ -128,8 +145,8 @@ module.exports = async function handler(req, res) {
     <meta property="og:site_name" content="WIZ Bangka Belitung">
     <meta property="og:title" content="${escapeHtml(quote.source || quote.category || 'Quote & Inspirasi Harian')}">
     <meta property="og:description" content="${escapeHtml(metaDesc)}">
-    <meta property="og:image" content="${escapeHtml(imageUrl)}">
-    <meta property="og:image:secure_url" content="${escapeHtml(imageUrl)}">
+    <meta property="og:image" content="${escapeHtml(ogImageUrl)}">
+    <meta property="og:image:secure_url" content="${escapeHtml(ogImageUrl)}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="1200">
     <meta property="og:image:type" content="image/jpeg">
@@ -139,7 +156,7 @@ module.exports = async function handler(req, res) {
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${escapeHtml(quote.source || 'Quote & Inspirasi Harian')}">
     <meta name="twitter:description" content="${escapeHtml(metaDesc)}">
-    <meta name="twitter:image" content="${escapeHtml(imageUrl)}">
+    <meta name="twitter:image" content="${escapeHtml(ogImageUrl)}">
 
     <!-- Google Fonts & Tailwind -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
@@ -183,11 +200,11 @@ module.exports = async function handler(req, res) {
         <article class="bg-white rounded-3xl overflow-hidden shadow-xl border border-slate-200">
             <!-- Flyer Image -->
             <div class="relative w-full bg-slate-900 overflow-hidden flex items-center justify-center group">
-                <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(quote.source || 'Flyer Quote')}" class="w-full h-auto max-h-[600px] object-contain transition-transform duration-500">
+                <img src="${escapeHtml(pageImgSrc)}" alt="${escapeHtml(quote.source || 'Flyer Quote')}" class="w-full h-auto max-h-[650px] object-contain transition-transform duration-500">
                 <span class="absolute top-4 left-4 bg-emerald-600 text-white text-xs font-bold px-3.5 py-1 rounded-full shadow backdrop-blur-xs">
                     ${escapeHtml(quote.category || 'Quote Dakwah')}
                 </span>
-                <a href="${escapeHtml(imageUrl)}" download="Flyer-WIZ-${escapeHtml(quote.id)}.jpg" target="_blank" class="absolute bottom-4 right-4 bg-black/70 hover:bg-black text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow backdrop-blur-xs flex items-center gap-1.5 transition-colors">
+                <a href="${escapeHtml(pageImgSrc)}" download="Flyer-WIZ-${escapeHtml(quote.id)}.jpg" target="_blank" class="absolute bottom-4 right-4 bg-black/70 hover:bg-black text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow backdrop-blur-xs flex items-center gap-1.5 transition-colors">
                     <span class="material-symbols-outlined text-sm">download</span> Unduh Flyer
                 </a>
             </div>
@@ -200,98 +217,60 @@ module.exports = async function handler(req, res) {
                         <blockquote class="text-base sm:text-xl font-medium text-slate-800 italic leading-relaxed pt-2">
                             "${escapeHtml(quote.text)}"
                         </blockquote>
-                        <div class="flex items-center justify-between flex-wrap gap-2 pt-2 border-t border-emerald-200/50">
-                            <span class="font-extrabold text-xs sm:text-sm text-emerald-800 flex items-center gap-1.5">
+                        <div class="flex items-center justify-between flex-wrap gap-2 pt-2 border-t border-emerald-200/60">
+                            <p class="text-xs sm:text-sm font-extrabold text-emerald-800 flex items-center gap-1.5">
                                 <span class="material-symbols-outlined text-base">menu_book</span>
-                                ${escapeHtml(quote.source || 'Wahdah Inspirasi Zakat')}
-                            </span>
-                            <span class="text-xs text-slate-500 font-medium">
-                                ${escapeHtml(quote.date || 'Inspirasi Harian')}
-                            </span>
+                                <span>${escapeHtml(quote.source || 'Wahdah Inspirasi Zakat')}</span>
+                            </p>
+                            <span class="text-[11px] text-slate-400 font-medium">${quote.date || ''}</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Call to Action Box: Donasi Sekarang -->
-                <div class="bg-gradient-to-r from-emerald-950 via-emerald-900 to-primary text-white rounded-3xl p-6 sm:p-7 shadow-lg space-y-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-2xl text-amber-400">volunteer_activism</span>
-                        </div>
-                        <div>
-                            <h3 class="text-base sm:text-lg font-extrabold leading-tight">Salurkan Kebaikan Hari Ini</h3>
-                            <p class="text-xs text-emerald-100/90">Wujudkan hikmah kutipan di atas dengan berbagi kepada sesama melalui Laznas WIZ Bangka Belitung.</p>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-                        <a href="${escapeHtml(donateUrl)}&amount=10000" class="bg-white/15 hover:bg-white/25 text-white font-bold text-xs py-2.5 rounded-xl text-center border border-white/20 transition-all">Rp 10.000</a>
-                        <a href="${escapeHtml(donateUrl)}&amount=50000" class="bg-white/15 hover:bg-white/25 text-white font-bold text-xs py-2.5 rounded-xl text-center border border-white/20 transition-all">Rp 50.000</a>
-                        <a href="${escapeHtml(donateUrl)}&amount=100000" class="bg-white/15 hover:bg-white/25 text-white font-bold text-xs py-2.5 rounded-xl text-center border border-white/20 transition-all">Rp 100.000</a>
-                        <a href="${escapeHtml(donateUrl)}&amount=500000" class="bg-white/15 hover:bg-white/25 text-white font-bold text-xs py-2.5 rounded-xl text-center border border-white/20 transition-all">Rp 500.000</a>
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row gap-3 pt-2">
-                        <a href="${escapeHtml(donateUrl)}" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-sm py-3.5 rounded-2xl text-center shadow-lg transition-all flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined text-lg">favorite</span> Donasi Bebas Nominal
-                        </a>
-                        <a href="${escapeHtml(programUrl)}" class="bg-white/10 hover:bg-white/20 text-white font-bold text-xs py-3.5 px-5 rounded-2xl text-center border border-white/20 transition-all flex items-center justify-center gap-1.5">
-                            <span class="material-symbols-outlined text-sm">grid_view</span> Lihat Program
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Social Share Bar -->
-                <div class="border-t border-slate-100 pt-6 space-y-3">
-                    <span class="text-xs font-bold text-slate-500 block uppercase tracking-wider">Bagikan Inspirasi Ini:</span>
-                    <div class="flex flex-wrap gap-2.5">
-                        <button onclick="shareQuoteWA()" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-xs cursor-pointer">
-                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
-                            <span>WhatsApp</span>
-                        </button>
-                        <button onclick="shareQuoteTelegram()" class="bg-[#0088cc] hover:bg-[#0077b5] text-white px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-xs cursor-pointer">
-                            <span class="material-symbols-outlined text-sm">send</span>
-                            <span>Telegram</span>
-                        </button>
-                        <button onclick="copyQuoteLink()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-xs cursor-pointer">
-                            <span class="material-symbols-outlined text-sm">content_copy</span>
-                            <span>Salin Tautan</span>
-                        </button>
-                    </div>
+                <!-- Call to Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                    <a href="${escapeHtml(donateUrl)}" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-6 rounded-2xl shadow-lg hover:shadow-emerald-600/30 transition-all flex items-center justify-center gap-2 text-sm text-center">
+                        <span class="material-symbols-outlined text-base">volunteer_activism</span>
+                        <span>Salurkan Infaq &amp; Sedekah</span>
+                    </a>
+                    <button type="button" onclick="shareWhatsApp()" class="bg-[#25D366] hover:bg-[#20ba59] text-white font-bold py-3.5 px-6 rounded-2xl shadow-lg hover:shadow-green-600/30 transition-all flex items-center justify-center gap-2 text-sm cursor-pointer">
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+                        <span>Bagikan ke WhatsApp</span>
+                    </button>
                 </div>
             </div>
         </article>
+
+        <!-- Referral / Mitra Attribution Banner -->
+        ${refCode ? `
+        <div class="bg-gradient-to-r from-emerald-900 to-slate-900 text-white rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4 border border-emerald-700/50 shadow-md">
+            <div class="space-y-0.5">
+                <span class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400">Jalur Kebaikan Sahabat Mitra</span>
+                <p class="text-xs text-white/90 font-medium">Anda terhubung melalui Mitra WIZ: <strong class="text-emerald-300 font-bold">${escapeHtml(refCode)}</strong></p>
+            </div>
+            <a href="${origin}/affiliate.html" class="shrink-0 bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors border border-white/20">
+                Info Kemitraan
+            </a>
+        </div>` : ''}
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
-        <p>&copy; ${new Date().getFullYear()} Laznas Wahdah Inspirasi Zakat (WIZ) Bangka Belitung. Amanah, Profesional, dan Terpercaya.</p>
+    <footer class="bg-slate-900 text-slate-400 py-8 px-4 text-center text-xs space-y-2 border-t border-slate-800">
+        <p class="font-bold text-slate-300">© 2026 Wahdah Inspirasi Zakat (WIZ) Bangka Belitung</p>
+        <p>Lembaga Amil Zakat Nasional — Amanah, Profesional, &amp; Transparan</p>
+        <p><a href="${origin}/index.html" class="text-emerald-400 hover:underline">wizbangkabelitung.or.id</a></p>
     </footer>
 
     <script>
-        const quoteUrl = '${escapeHtml(canonicalUrl)}';
-        const quoteTitle = '${escapeHtml(quote.source ? quote.source : 'Quote & Inspirasi Harian WIZ')}';
-        const quoteBody = '${escapeHtml(quote.text ? '"' + quote.text + '"' : '')}';
-        const quoteText = \`\${quoteTitle}\\n\\n\${quoteBody}\\n\\nBaca selengkapnya & salurkan infak terbaik melalui tautan berikut:\\n\${quoteUrl}\`;
-
-        function shareQuoteWA() {
+        function shareWhatsApp() {
+            const shareUrl = '${canonicalUrl}';
+            const quoteText = '*${escapeHtml(quote.source || 'Quote & Inspirasi WIZ')}*\\n\\n"${escapeHtml(quote.text)}"\\n\\nMari raih keberkahan dengan berinfak melalui WIZ Bangka Belitung:\\n\\n' + shareUrl;
             const url = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(quoteText);
             window.open(url, '_blank');
-        }
-
-        function shareQuoteTelegram() {
-            const url = 'https://t.me/share/url?url=' + encodeURIComponent(quoteUrl) + '&text=' + encodeURIComponent(quoteText);
-            window.open(url, '_blank');
-        }
-
-        function copyQuoteLink() {
-            navigator.clipboard.writeText(quoteUrl).then(() => {
-                alert('✅ Link Quote & Flyer berhasil disalin ke clipboard:\n' + quoteUrl);
-            });
         }
     </script>
 </body>
 </html>`;
 
-    res.send(html);
+    return res.status(200).send(html);
 };

@@ -1328,12 +1328,12 @@
             if (!q) return;
 
             const activeRef = getActiveAffiliateRefCode();
-            const origin = (window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
+            const origin = 'https://www.wizbangkabelitung.or.id';
             const flyerUrl = `${origin}/flyer/${encodeURIComponent(q.id)}?ref=${encodeURIComponent(activeRef)}`;
             
             const title = q.source ? q.source : (q.category || 'Quote & Inspirasi Dakwah');
             const quoteBody = q.text ? `"${q.text}"` : '';
-            const caption = `${title}\n\n${quoteBody}\n\nBaca selengkapnya & salurkan infak terbaik melalui tautan berikut:\n${flyerUrl}`;
+            const caption = `*${title}*\n\n${quoteBody}\n\nBaca selengkapnya & salurkan infak terbaik melalui tautan resmi:\n\n${flyerUrl}`;
 
             // 1. Try Native Web Share API if on mobile device supporting image file sharing
             const imgSource = q.imageUrl || 'assets/images/foto-utama-wiz.jpg';
@@ -1354,7 +1354,7 @@
                 }
             }
 
-            // 2. Direct WhatsApp Web / App share URL
+            // 2. Direct WhatsApp Web / App share URL with full encoding
             const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(caption);
             window.open(waUrl, '_blank');
         }
@@ -1445,8 +1445,8 @@
             }
 
             // 2. Fallback to WhatsApp URL directly (Desktop / Web without file share)
-            const msg = `*${title}*%0A%0A${encodeURIComponent(excerpt)}%0A%0A_Baca selengkapnya & dukung program kebaikan ini:_%0A${encodeURIComponent(newsUrl)}`;
-            window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+            const msgText = `*${title}*\n\n${excerpt}\n\nBaca selengkapnya & dukung program kebaikan ini:\n\n${newsUrl}`;
+            window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(msgText), '_blank');
         }
 
         function downloadAffiliateNewsImage(newsId) {

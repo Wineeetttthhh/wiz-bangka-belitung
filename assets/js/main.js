@@ -93,9 +93,10 @@ function shareProgram(title, desc = '', customUrl = '', customImg = '') {
     
     // Generate clean SSR slug URL
     const slug = cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-');
+    const baseDomain = 'https://www.wizbangkabelitung.or.id';
     let fullUrl = customUrl;
     if (!fullUrl) {
-        fullUrl = `${origin}/program/${slug}`;
+        fullUrl = `${baseDomain}/program/${slug}`;
         const params = [];
         if (refCode) params.push(`ref=${encodeURIComponent(refCode)}`);
         if (customImg && (customImg.startsWith('http') || customImg.startsWith('assets/'))) {
@@ -104,7 +105,7 @@ function shareProgram(title, desc = '', customUrl = '', customImg = '') {
         if (params.length > 0) fullUrl += `?${params.join('&')}`;
     }
     
-    const waText = `*${cleanTitle}*\n\n${cleanDesc}\n\nSalurkan donasi terbaik Anda melalui tautan resmi:\n${fullUrl}`;
+    const waText = `*${cleanTitle}*\n\n${cleanDesc}\n\nSalurkan donasi terbaik Anda melalui tautan resmi:\n\n${fullUrl}`;
     
     if (navigator.share) {
         navigator.share({
@@ -162,7 +163,7 @@ function initHomeQuoteSection() {
 
     const defaultImg = 'assets/images/foto-utama-wiz.jpg';
     const activeRef = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || '');
-    const origin = (window.location.origin && window.location.origin.includes('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
+    const origin = 'https://www.wizbangkabelitung.or.id';
 
     if (imgEl) {
         imgEl.src = today.imageUrl || defaultImg;
@@ -183,7 +184,7 @@ function initHomeQuoteSection() {
         const flyerUrl = `${origin}/flyer/${encodeURIComponent(today.id)}${activeRef ? '?ref=' + encodeURIComponent(activeRef) : ''}`;
         const title = today.source ? today.source : (today.category || 'Quote & Inspirasi Dakwah');
         const quoteBody = today.text ? `"${today.text}"` : '';
-        const caption = `${title}\n\n${quoteBody}\n\nBaca selengkapnya & salurkan infak terbaik melalui tautan berikut:\n${flyerUrl}`;
+        const caption = `*${title}*\n\n${quoteBody}\n\nBaca selengkapnya & salurkan infak terbaik melalui tautan resmi:\n\n${flyerUrl}`;
         window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(caption), '_blank');
     };
 }
@@ -1706,19 +1707,19 @@ window.openShareModal = function (title, desc, url, programImg) {
     const imgEl = document.getElementById('share-modal-img');
     if (imgEl) imgEl.src = activeImg;
 
-    let waText = `*${title}*\n${desc}\n\n`;
+    let waText = `*${title}*\n\n${desc}\n\n`;
     if (activeImg && activeImg.startsWith('http')) {
-        waText += `🖼️ *Foto Program*: ${activeImg}\n`;
+        waText += `🖼️ *Foto Program*: ${activeImg}\n\n`;
     }
-    waText += `👉 *Salurkan Donasi Terbaik Anda*:\n`;
+    waText += `👉 *Salurkan Donasi Terbaik Anda*:\n\n${url}`;
 
-    const encodedText = encodeURIComponent(waText);
+    const encodedFull = encodeURIComponent(waText);
     const encodedUrl = encodeURIComponent(url);
 
-    document.getElementById('share-btn-wa').href = `https://api.whatsapp.com/send?text=${encodedText}${encodedUrl}`;
+    document.getElementById('share-btn-wa').href = `https://api.whatsapp.com/send?text=${encodedFull}`;
     document.getElementById('share-btn-fb').href = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
-    document.getElementById('share-btn-tw').href = `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`;
-    document.getElementById('share-btn-tg').href = `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`;
+    document.getElementById('share-btn-tw').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodedUrl}`;
+    document.getElementById('share-btn-tg').href = `https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent(title)}`;
 
     modal.classList.remove('opacity-0', 'pointer-events-none');
     setTimeout(() => {
