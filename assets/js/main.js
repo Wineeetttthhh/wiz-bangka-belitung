@@ -93,7 +93,16 @@ function shareProgram(title, desc = '', customUrl = '', customImg = '') {
     
     // Generate clean SSR slug URL
     const slug = cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-');
-    const fullUrl = customUrl || `${origin}/program/${slug}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
+    let fullUrl = customUrl;
+    if (!fullUrl) {
+        fullUrl = `${origin}/program/${slug}`;
+        const params = [];
+        if (refCode) params.push(`ref=${encodeURIComponent(refCode)}`);
+        if (customImg && (customImg.startsWith('http') || customImg.startsWith('assets/'))) {
+            params.push(`img=${encodeURIComponent(customImg)}`);
+        }
+        if (params.length > 0) fullUrl += `?${params.join('&')}`;
+    }
     
     const waText = `*${cleanTitle}*\n\n${cleanDesc}\n\nSalurkan donasi terbaik Anda melalui tautan resmi:\n${fullUrl}`;
     

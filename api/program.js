@@ -306,6 +306,22 @@ module.exports = async function handler(req, res) {
         };
     }
 
+    // Dynamic Image Override from query parameter or canonical store
+    const imgQuery = urlObj.searchParams.get('img');
+    if (imgQuery && (imgQuery.startsWith('http://') || imgQuery.startsWith('https://') || imgQuery.startsWith('assets/'))) {
+        selectedProgram.imageUrl = imgQuery.trim();
+    } else {
+        try {
+            const canonicalPath = path.join(__dirname, '..', 'assets', 'data', 'canonical-store.json');
+            if (fs.existsSync(canonicalPath)) {
+                const cData = JSON.parse(fs.readFileSync(canonicalPath, 'utf8'));
+                if (cData && cData.specificProgramImages && cData.specificProgramImages[selectedProgram.title]) {
+                    selectedProgram.imageUrl = cData.specificProgramImages[selectedProgram.title];
+                }
+            }
+        } catch(e) {}
+    }
+
     const title = selectedProgram.title;
     const pillar = selectedProgram.pillar;
     const description = selectedProgram.description;
@@ -313,7 +329,12 @@ module.exports = async function handler(req, res) {
     const imageUrl = rawImg.startsWith('http') ? rawImg : `${origin}/${rawImg.replace(/^\//, '')}`;
 
     const canonicalSlug = slugify(title);
-    const canonicalUrl = `${origin}/program/${canonicalSlug}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
+    let canonicalUrl = `${origin}/program/${canonicalSlug}`;
+    const params = [];
+    if (refCode) params.push(`ref=${encodeURIComponent(refCode)}`);
+    if (imgQuery) params.push(`img=${encodeURIComponent(imgQuery)}`);
+    if (params.length > 0) canonicalUrl += `?${params.join('&')}`;
+
     const donateUrl = `${origin}/donasi.html?program=${encodeURIComponent(title)}${refCode ? '&ref=' + encodeURIComponent(refCode) : ''}`;
 
     // Set 30-Day Referral Cookie if refCode is present (max-age 2,592,000s)

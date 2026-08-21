@@ -77,35 +77,43 @@
         'Santunan Mualaf': 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=800&auto=format&fit=crop',
         'Tahfidz': 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=800&auto=format&fit=crop',
         'Pelatihan Public Speaking': 'https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=800&auto=format&fit=crop',
-        'Tabligh Akbar Dzulhijjah': 'https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=800&auto=format&fit=crop',
+        'Tabligh Akbar Dzulhijjah': 'https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=800&auto=format&fit=crop',
         'Pelatihan Guru Dirosa': 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=800&auto=format&fit=crop',
         'Pelatihan Penyelenggaraan Jenazah': 'https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=800&auto=format&fit=crop',
-        'Pelatihan Volunteer Media Dakwah': 'https://images.unsplash.com/photo-1542665952-14513db15293?q=80&w=800&auto=format&fit=crop',
+        'Pelatihan Volunteer Media Dakwah': 'https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=800&auto=format&fit=crop',
         'Lomba Desain Poster Dakwah': 'https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=800&auto=format&fit=crop',
         'Kantor DPW WI Babel & WIZ': 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=800&auto=format&fit=crop',
         'Mukerwil Mukernas Muktamar': 'https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=800&auto=format&fit=crop',
         'Keberangkatan Kepulangan Dai': 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=800&auto=format&fit=crop',
 
         'Tebar Sembako': 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop',
-        'Sedekah Jumat': 'assets/images/foto-utama-wiz.jpg',
-        'Santunan Yatim': 'assets/images/foto-utama-wiz.jpg',
-        'Tebar Iftar Nusantara': 'assets/images/tebar-iftar.jpg',
-        'Tebar Ifthar Nusantara': 'assets/images/tebar-iftar.jpg',
-        'Tebar Iftar': 'assets/images/tebar-iftar.jpg',
+        'Tebar Sembako Nusantara': 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=800&auto=format&fit=crop',
+        'Sedekah Jumat': 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800&auto=format&fit=crop',
+        'Sedekah Jumat Berkah': 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800&auto=format&fit=crop',
+        'Santunan Yatim': 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800&auto=format&fit=crop',
+        'Santunan Anak Yatim': 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800&auto=format&fit=crop',
+        'Tebar Iftar': 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb9?q=80&w=800&auto=format&fit=crop',
+        'Tebar Iftar Nusantara': 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb9?q=80&w=800&auto=format&fit=crop',
+        'Tebar Ifthar Nusantara': 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb9?q=80&w=800&auto=format&fit=crop',
         "Tebar Qur'an Nusantara": 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=800&auto=format&fit=crop',
         'Bahagiakan Guru Ngaji': 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=800&auto=format&fit=crop',
         'Sedekah Air': 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?q=80&w=800&auto=format&fit=crop',
+        'Sedekah Air Bersih': 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?q=80&w=800&auto=format&fit=crop',
 
         'Beasiswa Pendidikan Juara': 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=800&auto=format&fit=crop',
         'Beasiswa Tahfidz & Dhuafa': 'https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=800&auto=format&fit=crop',
         'Perlengkapan Belajar Yatim': 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=800&auto=format&fit=crop',
 
+        'Bantuan Kesehatan Dhuafa': 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop',
+        'Bantuan Pasien Kritis Dhuafa': 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop',
+        'Ambulans Gratis Peduli': 'https://images.unsplash.com/photo-1587745416684-47b883828d6b?q=80&w=800&auto=format&fit=crop',
         'Khitanan Massal Dhuafa': 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?q=80&w=800&auto=format&fit=crop',
         'Layanan Pengobatan Gratis': 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop',
-        'Ambulance Gratis Ummat': 'https://images.unsplash.com/photo-1587745416684-47953f16f02f?q=80&w=800&auto=format&fit=crop',
 
-        'Modal Usaha Dhuafa': 'https://images.unsplash.com/photo-1556742049-0a67daf4004a?q=80&w=800&auto=format&fit=crop',
-        'Pelatihan Keterampilan Wirausaha': 'https://images.unsplash.com/photo-1556742049-0a67daf4004a?q=80&w=800&auto=format&fit=crop'
+        'Modal Usaha Mandiri': 'https://images.unsplash.com/photo-1556742049-0a670fc80782?q=80&w=800&auto=format&fit=crop',
+        'Modal Usaha Dhuafa': 'https://images.unsplash.com/photo-1556742049-0a670fc80782?q=80&w=800&auto=format&fit=crop',
+        'Gerobak Berkah UMKM': 'https://images.unsplash.com/photo-1556742049-0a670fc80782?q=80&w=800&auto=format&fit=crop',
+        'Pelatihan Keterampilan Wirausaha': 'https://images.unsplash.com/photo-1556742049-0a670fc80782?q=80&w=800&auto=format&fit=crop'
     };
 
     const DEFAULT_ADMIN_USERS = [

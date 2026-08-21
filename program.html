@@ -1344,14 +1344,29 @@
     }
 
     function shareSpecificProgram(programTitle) {
+        let cardImg = '';
+        document.querySelectorAll('.program-card').forEach(card => {
+            const title = (card.getAttribute('data-title') || card.querySelector('h3, h4')?.textContent || '').trim();
+            if (title === programTitle || title.toLowerCase() === programTitle.toLowerCase()) {
+                const imgEl = card.querySelector('img');
+                if (imgEl && imgEl.src) cardImg = imgEl.src;
+            }
+        });
+
         if (typeof window.shareProgram === 'function') {
-            window.shareProgram(programTitle);
+            window.shareProgram(programTitle, '', '', cardImg);
             return;
         }
         const refCode = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || new URLSearchParams(window.location.search).get('perantara') || '');
         const origin = (window.location.origin && window.location.origin.includes('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
         const slug = slugify(programTitle);
-        const progUrl = `${origin}/program/${slug}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
+        let progUrl = `${origin}/program/${slug}`;
+        const params = [];
+        if (refCode) params.push(`ref=${encodeURIComponent(refCode)}`);
+        if (cardImg && (cardImg.startsWith('http') || cardImg.startsWith('assets/'))) {
+            params.push(`img=${encodeURIComponent(cardImg)}`);
+        }
+        if (params.length > 0) progUrl += `?${params.join('&')}`;
         
         const shareTitle = `${programTitle} — WIZ Bangka Belitung`;
         const shareText = `*${programTitle}*\n\nMari salurkan kepedulian Anda melalui program resmi WIZ Bangka Belitung:\n${progUrl}`;

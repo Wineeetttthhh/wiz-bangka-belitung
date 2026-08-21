@@ -1030,11 +1030,8 @@
                 alert('Silakan Login atau mendaftar akun Mitra Penghimpunan terlebih dahulu agar tautan program terhubung dengan Kode Mitra Anda!');
                 return;
             }
-            const origin = (window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
-            const slug = (programTitle || '').toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-');
-            const programUrl = `${origin}/program/${slug}?ref=${encodeURIComponent(activeRef)}`;
             const pImg = (wizStore && wizStore.allocationRulesManager) ? wizStore.allocationRulesManager.getSpecificProgramImage(programTitle) : '';
-            window.shareProgram(programTitle, `Mari bersama menyalurkan kepedulian melalui program ${programTitle} WIZ Bangka Belitung.`, programUrl, pImg);
+            window.shareProgram(programTitle, `Mari bersama menyalurkan kepedulian melalui program ${programTitle} WIZ Bangka Belitung.`, '', pImg);
         }
 
         function renderAffiliateProgramsGrid() {
