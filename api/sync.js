@@ -183,6 +183,7 @@ module.exports = async function handler(req, res) {
             const deletedDisbIds = Array.isArray(incoming.deleted_disb_ids) ? incoming.deleted_disb_ids : [];
             const deletedRefIds = Array.isArray(incoming.deleted_ref_ids) ? incoming.deleted_ref_ids : [];
             const deletedQuoteIds = Array.isArray(incoming.deleted_quote_ids) ? incoming.deleted_quote_ids : [];
+            const deletedProgramIds = Array.isArray(incoming.deleted_program_ids) ? incoming.deleted_program_ids : [];
 
             if (deletedIds.length > 0 && Array.isArray(master.donations)) {
                 master.donations = master.donations.filter(d => d && d.id && !deletedIds.includes(String(d.id)));
@@ -195,6 +196,12 @@ module.exports = async function handler(req, res) {
                 master.news = incoming.news.filter(n => n && n.id && !deletedNewsIds.includes(String(n.id)) && n.status !== 'deleted');
             } else if (Array.isArray(incoming.news)) {
                 master.news = mergeArrays(master.news, incoming.news, deletedNewsIds);
+            }
+
+            if (Array.isArray(incoming.programs) && incoming.programs.length > 0) {
+                master.programs = incoming.programs.filter(p => p && p.id && !deletedProgramIds.includes(String(p.id)) && p.status !== 'deleted');
+            } else if (Array.isArray(incoming.programs)) {
+                master.programs = mergeArrays(master.programs, incoming.programs, deletedProgramIds);
             }
 
             if (Array.isArray(incoming.disbursements))
@@ -235,11 +242,12 @@ module.exports = async function handler(req, res) {
             if (incoming.specific_prog_imgs && typeof incoming.specific_prog_imgs === 'object')
                 master.specific_prog_imgs = { ...(master.specific_prog_imgs || {}), ...incoming.specific_prog_imgs };
 
-            master.deleted_ids       = Array.from(new Set([...(master.deleted_ids || []),       ...deletedIds]));
-            master.deleted_news_ids  = Array.from(new Set([...(master.deleted_news_ids || []),   ...deletedNewsIds]));
-            master.deleted_disb_ids  = Array.from(new Set([...(master.deleted_disb_ids || []),   ...deletedDisbIds]));
-            master.deleted_ref_ids   = Array.from(new Set([...(master.deleted_ref_ids || []),    ...deletedRefIds]));
-            master.deleted_quote_ids = Array.from(new Set([...(master.deleted_quote_ids || []),  ...deletedQuoteIds]));
+            master.deleted_ids         = Array.from(new Set([...(master.deleted_ids || []),         ...deletedIds]));
+            master.deleted_news_ids    = Array.from(new Set([...(master.deleted_news_ids || []),     ...deletedNewsIds]));
+            master.deleted_disb_ids    = Array.from(new Set([...(master.deleted_disb_ids || []),     ...deletedDisbIds]));
+            master.deleted_ref_ids     = Array.from(new Set([...(master.deleted_ref_ids || []),      ...deletedRefIds]));
+            master.deleted_quote_ids   = Array.from(new Set([...(master.deleted_quote_ids || []),    ...deletedQuoteIds]));
+            master.deleted_program_ids = Array.from(new Set([...(master.deleted_program_ids || []),  ...deletedProgramIds]));
             master.updatedAt = new Date().toISOString();
 
             // Persist to Supabase Database

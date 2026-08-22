@@ -40,11 +40,13 @@
         REFERRAL_PAYOUTS: 'wiz_referral_payouts',
         DONOR_ATTRIBUTIONS: 'wiz_donor_attributions',
         QUOTES: 'wiz_quotes',
+        PROGRAMS: 'wiz_programs',
         DELETED_IDS: 'wiz_deleted_donation_ids',
         DELETED_NEWS_IDS: 'wiz_deleted_news_ids',
         DELETED_DISB_IDS: 'wiz_deleted_disb_ids',
         DELETED_REF_IDS: 'wiz_deleted_ref_ids',
         DELETED_QUOTE_IDS: 'wiz_deleted_quote_ids',
+        DELETED_PROGRAM_IDS: 'wiz_deleted_program_ids',
         INITIALIZED: 'wiz_store_initialized'
     };
 
@@ -235,6 +237,19 @@
         const set = getDeletedQuoteIds();
         set.add(String(id));
         localStorage.setItem(STORAGE_KEYS.DELETED_QUOTE_IDS, JSON.stringify(Array.from(set)));
+    }
+
+    function getDeletedProgramIds() {
+        try {
+            return new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.DELETED_PROGRAM_IDS) || '[]'));
+        } catch { return new Set(); }
+    }
+
+    function addDeletedProgramId(id) {
+        if (!id) return;
+        const set = getDeletedProgramIds();
+        set.add(String(id));
+        localStorage.setItem(STORAGE_KEYS.DELETED_PROGRAM_IDS, JSON.stringify(Array.from(set)));
     }
 
     function generateUUID() {
@@ -1338,11 +1353,13 @@
                 custom_specific_programs: JSON.parse(localStorage.getItem('wiz_custom_specific_programs') || '{}'),
                 specific_prog_imgs: JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}'),
                 quotes: getStore(STORAGE_KEYS.QUOTES) || DEFAULT_QUOTES,
+                programs: getStore(STORAGE_KEYS.PROGRAMS) || DEFAULT_PROGRAMS,
                 deleted_ids: Array.from(getDeletedIds()),
                 deleted_news_ids: Array.from(getDeletedNewsIds()),
                 deleted_disb_ids: Array.from(getDeletedDisbIds()),
                 deleted_ref_ids: Array.from(getDeletedRefIds()),
-                deleted_quote_ids: Array.from(getDeletedQuoteIds())
+                deleted_quote_ids: Array.from(getDeletedQuoteIds()),
+                deleted_program_ids: Array.from(getDeletedProgramIds())
             };
 
             const payload = {
@@ -1352,7 +1369,8 @@
                 deletedNewsIds: bundle.deleted_news_ids,
                 deletedDisbIds: bundle.deleted_disb_ids,
                 deletedRefIds: bundle.deleted_ref_ids,
-                deletedQuoteIds: bundle.deleted_quote_ids
+                deletedQuoteIds: bundle.deleted_quote_ids,
+                deletedProgramIds: bundle.deleted_program_ids
             };
 
             // 1. Primary: Push to Vercel Serverless Sync API (/api/sync)
@@ -1836,8 +1854,12 @@
             if (masterData.admin_users && Array.isArray(masterData.admin_users) && masterData.admin_users.length > 0) {
                 smartMerge(STORAGE_KEYS.ADMIN_USERS, masterData.admin_users, null);
             }
+            if (masterData.programs && Array.isArray(masterData.programs) && masterData.programs.length > 0) {
+                smartMerge(STORAGE_KEYS.PROGRAMS, masterData.programs, getDeletedProgramIds());
+                window.dispatchEvent(new CustomEvent('wiz-programs-changed'));
+            }
 
-            console.log('[WIZ Sync] Cross-device parity sync complete. News:', (getStore(STORAGE_KEYS.NEWS) || []).length, 'Donations:', (getStore(STORAGE_KEYS.DONATIONS) || []).length);
+            console.log('[WIZ Sync] Cross-device parity sync complete. News:', (getStore(STORAGE_KEYS.NEWS) || []).length, 'Programs:', (getStore(STORAGE_KEYS.PROGRAMS) || []).length, 'Donations:', (getStore(STORAGE_KEYS.DONATIONS) || []).length);
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
         } catch (e) {
             console.warn('[WIZ Sync] Sync error, staying on local storage:', e);
@@ -2707,6 +2729,254 @@
         }
     };
 
+    // ─── Programs (Program Kebaikan & Campaign) Module ──────────
+    const DEFAULT_PROGRAMS = [
+        {
+            id: 'prog-pray-for-ntt',
+            title: 'Pray For NTT',
+            slug: 'pray-for-ntt',
+            pillar: 'Berkah Peduli',
+            category: 'Sosial & Kemanusiaan',
+            target: 'Rp 50.000.000',
+            targetAmount: 50000000,
+            description: 'Salurkan kepedulian dan bantuan darurat bencana untuk saudara-saudara kita terdampak bencana di Nusa Tenggara Timur (NTT).',
+            imageUrl: 'assets/images/sedekah-beras-dhuafa.jpg',
+            status: 'published',
+            createdAt: '2026-08-22T17:00:00.000Z',
+            updatedAt: '2026-08-22T17:00:00.000Z',
+            author: 'Admin WIZ Babel'
+        },
+        {
+            id: 'prog-sedekah-beras-dhuafa',
+            title: 'Sedekah Beras Dhuafa',
+            slug: 'sedekah-beras-dhuafa',
+            pillar: 'Berkah Peduli',
+            category: 'Sosial & Kemanusiaan',
+            target: 'Rp 15.000.000',
+            targetAmount: 15000000,
+            description: 'Bantuan pangan dan beras premium untuk keluarga dhuafa dan lansia pra-sejahtera di pelosok Bangka Belitung.',
+            imageUrl: 'assets/images/sedekah-beras-dhuafa.jpg',
+            status: 'published',
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+            author: 'Admin WIZ Babel'
+        },
+        {
+            id: 'prog-beasiswa-pendidikan-juara',
+            title: 'Beasiswa Pendidikan Juara',
+            slug: 'beasiswa-pendidikan-juara',
+            pillar: 'Berkah Juara',
+            category: 'Pendidikan & Beasiswa',
+            target: 'Rp 25.000.000',
+            targetAmount: 25000000,
+            description: 'Dukungan biaya pendidikan, seragam, dan perlengkapan sekolah bagi anak-anak yatim dan dhuafa berprestasi.',
+            imageUrl: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=800&auto=format&fit=crop',
+            status: 'published',
+            createdAt: '2026-01-02T00:00:00.000Z',
+            updatedAt: '2026-01-02T00:00:00.000Z',
+            author: 'Admin WIZ Babel'
+        },
+        {
+            id: 'prog-pembangunan-markaz',
+            title: 'Pembangunan Markaz Dakwah',
+            slug: 'pembangunan-markaz',
+            pillar: 'Berkah Hidayah',
+            category: 'Dakwah & Pembinaan',
+            target: 'Rp 2.004.000.000',
+            targetAmount: 2004000000,
+            description: 'Dukung pembangunan pusat kegiatan dakwah dan pembinaan umat di Bangka Belitung.',
+            imageUrl: 'https://images.unsplash.com/photo-1542665952-14513db15293?q=80&w=800&auto=format&fit=crop',
+            status: 'published',
+            createdAt: '2026-01-03T00:00:00.000Z',
+            updatedAt: '2026-01-03T00:00:00.000Z',
+            author: 'Admin WIZ Babel'
+        },
+        {
+            id: 'prog-bantuan-kesehatan-dhuafa',
+            title: 'Bantuan Kesehatan Dhuafa',
+            slug: 'bantuan-kesehatan-dhuafa',
+            pillar: 'Berkah Sehat',
+            category: 'Kesehatan Masyarakat',
+            target: 'Rp 20.000.000',
+            targetAmount: 20000000,
+            description: 'Bantuan biaya pengobatan dan operasional medis untuk pasien dhuafa kurang mampu.',
+            imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop',
+            status: 'published',
+            createdAt: '2026-01-04T00:00:00.000Z',
+            updatedAt: '2026-01-04T00:00:00.000Z',
+            author: 'Admin WIZ Babel'
+        },
+        {
+            id: 'prog-tebar-iftar',
+            title: 'Tebar Ifthar Nusantara',
+            slug: 'tebar-iftar',
+            pillar: 'Berkah Peduli',
+            category: 'Sosial & Kemanusiaan',
+            target: 'Rp 30.000.000',
+            targetAmount: 30000000,
+            description: 'Penyaluran paket makanan buka puasa berkah untuk santri dan dhuafa di Bangka Belitung.',
+            imageUrl: 'assets/images/tebar-iftar.jpg',
+            status: 'published',
+            createdAt: '2026-01-05T00:00:00.000Z',
+            updatedAt: '2026-01-05T00:00:00.000Z',
+            author: 'Admin WIZ Babel'
+        }
+    ];
+
+    const programs = {
+        getAll() {
+            const deletedSet = getDeletedProgramIds();
+            let raw = getStore(STORAGE_KEYS.PROGRAMS);
+            if (!Array.isArray(raw) || raw.length === 0) {
+                raw = DEFAULT_PROGRAMS;
+                setStore(STORAGE_KEYS.PROGRAMS, raw);
+            }
+            return raw
+                .filter(p => p && p.id && !deletedSet.has(String(p.id)) && p.status !== 'deleted' && !p.isDeleted)
+                .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        },
+
+        getPublished() {
+            return this.getAll().filter(p => p.status === 'published');
+        },
+
+        getDrafts() {
+            return this.getAll().filter(p => p.status === 'draft');
+        },
+
+        getById(id) {
+            return this.getAll().find(p => String(p.id) === String(id) || String(p.slug) === String(id)) || null;
+        },
+
+        getBySlug(slug) {
+            const cleanSlug = String(slug || '').toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-');
+            return this.getAll().find(p => p.slug === cleanSlug || (p.title && p.title.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-') === cleanSlug)) || null;
+        },
+
+        async add(progData) {
+            const list = getStore(STORAGE_KEYS.PROGRAMS) || [];
+            const cleanTitle = String(progData.title || '').trim();
+            if (!cleanTitle) throw new Error('Judul program wajib diisi!');
+
+            const pillar = progData.pillar || 'Berkah Peduli';
+            const cleanSlug = cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-');
+            const authorName = (progData.author || sessionStorage.getItem('wiz_admin_name') || 'Admin WIZ Babel').trim();
+
+            const newProgram = {
+                id: progData.id || ('prog-' + cleanSlug + '-' + Date.now().toString(36)),
+                title: cleanTitle,
+                slug: cleanSlug,
+                pillar: pillar,
+                category: progData.category || mapProgramToPillar(cleanTitle, pillar) || 'Sosial & Kemanusiaan',
+                target: progData.target || 'Rp 15.000.000',
+                targetAmount: Number(String(progData.target || '').replace(/[^0-9]/g, '')) || 15000000,
+                description: (progData.description || '').trim(),
+                imageUrl: progData.imageUrl || progData.image || (allocationRulesManager ? allocationRulesManager.getSpecificProgramImage(cleanTitle, pillar) : '') || 'assets/images/foto-utama-wiz.jpg',
+                status: progData.status === 'draft' ? 'draft' : 'published',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                author: authorName
+            };
+
+            const filtered = list.filter(p => p.title.toLowerCase() !== cleanTitle.toLowerCase());
+            filtered.unshift(newProgram);
+            setStore(STORAGE_KEYS.PROGRAMS, filtered);
+
+            if (allocationRulesManager) {
+                await allocationRulesManager.addOrUpdateSpecificProgram(pillar, cleanTitle, newProgram.imageUrl);
+            }
+
+            activityLog.add('system_config', `Program "${cleanTitle}" (${pillar}) disimpan dengan status: ${newProgram.status === 'published' ? 'Dipublikasikan' : 'Draft'}.`, authorName);
+
+            window.dispatchEvent(new CustomEvent('wiz-programs-changed', { detail: newProgram }));
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+
+            (async () => {
+                try {
+                    if (typeof pushToCloud === 'function') await pushToCloud();
+                } catch(e) {}
+            })();
+
+            return newProgram;
+        },
+
+        async update(id, updates) {
+            const list = this.getAll();
+            const idx = list.findIndex(p => String(p.id) === String(id) || String(p.slug) === String(id));
+            if (idx === -1) return null;
+
+            const old = list[idx];
+            const updated = {
+                ...old,
+                ...updates,
+                updatedAt: new Date().toISOString()
+            };
+
+            if (updates.title) {
+                updated.slug = updates.title.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-');
+            }
+            if (updates.target) {
+                updated.targetAmount = Number(String(updates.target).replace(/[^0-9]/g, '')) || updated.targetAmount;
+            }
+
+            list[idx] = updated;
+            setStore(STORAGE_KEYS.PROGRAMS, list);
+
+            if (updates.imageUrl && allocationRulesManager) {
+                allocationRulesManager.updateSpecificProgramImageByName(updated.title, updates.imageUrl);
+            }
+
+            activityLog.add('system_config', `Program "${updated.title}" diperbarui (Status: ${updated.status}).`, sessionStorage.getItem('wiz_admin_name') || 'Admin');
+
+            window.dispatchEvent(new CustomEvent('wiz-programs-changed', { detail: updated }));
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+
+            (async () => {
+                try {
+                    if (typeof pushToCloud === 'function') await pushToCloud();
+                } catch(e) {}
+            })();
+
+            return updated;
+        },
+
+        async togglePublish(id) {
+            const prog = this.getById(id);
+            if (!prog) return null;
+            const newStatus = prog.status === 'published' ? 'draft' : 'published';
+            return await this.update(id, { status: newStatus });
+        },
+
+        async delete(id) {
+            const strId = String(id);
+            addDeletedProgramId(strId);
+
+            const list = this.getAll();
+            const item = list.find(p => String(p.id) === strId || String(p.slug) === strId);
+            if (!item) return false;
+
+            const filtered = list.filter(p => String(p.id) !== strId && String(p.slug) !== strId);
+            setStore(STORAGE_KEYS.PROGRAMS, filtered);
+
+            if (allocationRulesManager) {
+                await allocationRulesManager.deleteSpecificProgram(item.pillar, item.title);
+            }
+
+            activityLog.add('system_config', `Program "${item.title}" telah dihapus.`, sessionStorage.getItem('wiz_admin_name') || 'Admin');
+
+            window.dispatchEvent(new CustomEvent('wiz-programs-changed', { detail: { deletedId: strId } }));
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+
+            (async () => {
+                try {
+                    if (typeof pushToCloud === 'function') await pushToCloud();
+                } catch(e) {}
+            })();
+
+            return true;
+        }
+    };
+
     // ─── Disbursements (Penyaluran Dana) Module ──────────
     const disbursements = {
         getAll() {
@@ -3072,6 +3342,31 @@
                         });
                     }
                 });
+            } catch(e) {}
+
+            // Also merge any published programs from programs module
+            try {
+                if (typeof programs !== 'undefined' && programs.getPublished) {
+                    const pubList = programs.getPublished();
+                    pubList.forEach(p => {
+                        const fullName = `${p.pillar} - ${p.title}`;
+                        const displayLabel = `WIZ ${p.pillar} (${p.title})`;
+                        if (!specificItemsMap.has(fullName)) {
+                            const dynamicImg = p.imageUrl || (allocationRulesManager ? allocationRulesManager.getSpecificProgramImage(p.title, p.pillar) : '') || '';
+                            specificItemsMap.set(fullName, {
+                                fullName,
+                                displayLabel,
+                                pillarKey: p.pillar,
+                                itemKey: p.title,
+                                subPercent: 0,
+                                mainPercent: 0,
+                                image: dynamicImg,
+                                masuk: 0,
+                                tersalurkan: 0
+                            });
+                        }
+                    });
+                }
             } catch(e) {}
 
             // 1. Calculate Dana Masuk per Specific Program
@@ -3974,6 +4269,7 @@
         donations,
         finance,
         news,
+        programs,
         disbursements,
         baselines,
         siteImages,

@@ -830,19 +830,23 @@
 
             <!-- Tab 2 Container: Foto & Kelola Program Spesifik -->
             <div id="container-site-specific-images" class="space-y-md hidden">
-                <div class="p-md bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-md">
+                <div class="p-md bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-900 text-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-md shadow-xs">
                     <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-emerald-700 text-xl">grid_view</span>
+                        <span class="material-symbols-outlined text-emerald-700 text-2xl">grid_view</span>
                         <div>
-                            <span class="font-bold text-sm block">Kelola Master Program Spesifik</span>
-                            <span class="text-emerald-800">Tambah program spesifik baru, edit nama &amp; pilar, hapus program, serta upload foto kustom per program.</span>
+                            <span class="font-bold text-sm block">Kelola Program Kebaikan &amp; Campaign</span>
+                            <span class="text-emerald-800">Tambah program baru, atur status (Draft / Publish), edit deskripsi, dan upload foto banner.</span>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2 shrink-0 flex-wrap">
-                        <input type="text" id="specific-prog-search" oninput="renderSpecificProgramImagesSection()" placeholder="🔍 Cari program spesifik..." class="text-xs bg-white border border-slate-300 rounded-xl px-3 py-2 w-52 outline-none focus:border-primary font-medium shadow-xs">
-                        <button onclick="resetDefaultSpecificPrograms()" class="flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-md py-2.5 rounded-xl font-bold text-xs transition-all shadow-xs cursor-pointer" title="Pulihkan seluruh daftar program bawaan">
+                    <div class="flex items-center gap-2 shrink-0 flex-wrap w-full md:w-auto justify-between md:justify-end">
+                        <div class="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-300 shadow-xs">
+                            <button id="prog-filter-all" onclick="setSpecificProgramStatusFilter('all')" class="prog-filter-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white transition-all">Semua</button>
+                            <button id="prog-filter-published" onclick="setSpecificProgramStatusFilter('published')" class="prog-filter-btn px-2.5 py-1 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-100 transition-all">🟢 Published</button>
+                            <button id="prog-filter-draft" onclick="setSpecificProgramStatusFilter('draft')" class="prog-filter-btn px-2.5 py-1 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-100 transition-all">🟡 Draft</button>
+                        </div>
+                        <input type="text" id="specific-prog-search" oninput="renderSpecificProgramImagesSection()" placeholder="🔍 Cari program..." class="text-xs bg-white border border-slate-300 rounded-xl px-3 py-2 w-44 outline-none focus:border-primary font-medium shadow-xs">
+                        <button onclick="resetDefaultSpecificPrograms()" class="flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-3 py-2 rounded-xl font-bold text-xs transition-all shadow-xs cursor-pointer" title="Pulihkan daftar program bawaan">
                             <span class="material-symbols-outlined text-sm text-slate-500">restart_alt</span>
-                            <span>Reset Bawaan</span>
                         </button>
                         <button onclick="openSpecificProgramModal()" class="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-lg py-2.5 rounded-xl font-bold text-xs transition-all shadow-md cursor-pointer border border-emerald-500">
                             <span class="material-symbols-outlined text-sm">add_circle</span>
@@ -1652,37 +1656,125 @@
     <!-- MODAL: KELOLA PROGRAM SPESIFIK (TAMBAH / EDIT)       -->
     <!-- ═══════════════════════════════════════════════════ -->
     <div id="specific-program-modal" class="modal-backdrop">
-        <div class="modal-dialog max-w-md">
-            <div class="p-lg border-b border-surface-variant flex justify-between items-center">
-                <h3 id="spec-prog-modal-title" class="font-headline-md text-body-lg font-bold text-primary flex items-center gap-2">
-                    <span class="material-symbols-outlined">grid_view</span>
-                    <span>Tambah Program Spesifik Baru</span>
-                </h3>
-                <button type="button" onclick="closeSpecificProgramModal()" class="text-outline hover:text-on-surface"><span class="material-symbols-outlined">close</span></button>
+        <div class="modal-dialog max-w-xl max-h-[92vh] overflow-y-auto rounded-2xl shadow-2xl">
+            <div class="p-lg border-b border-surface-variant flex justify-between items-center sticky top-0 bg-surface z-20">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-2xl">grid_view</span>
+                    <h3 id="spec-prog-modal-title" class="font-headline-md text-headline-md font-bold text-primary">Tambah Program Kebaikan Baru</h3>
+                </div>
+                <button type="button" onclick="closeSpecificProgramModal()" class="text-outline hover:text-on-surface p-1 rounded-full hover:bg-surface-container"><span class="material-symbols-outlined">close</span></button>
             </div>
-            <form id="specific-program-form" class="p-lg space-y-md" onsubmit="handleSpecificProgramSave(event)">
+            <form id="specific-program-form" class="p-lg space-y-lg" onsubmit="handleSpecificProgramSave(event)">
+                <input type="hidden" id="spec-prog-id" value="">
                 <input type="hidden" id="spec-prog-old-pillar" value="">
                 <input type="hidden" id="spec-prog-old-title" value="">
 
-                <div>
-                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Program Utama / Pilar <span class="text-error">*</span></label>
-                    <select id="spec-prog-pillar" required class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
-                        <option value="Berkah Hidayah">Berkah Hidayah (Dakwah &amp; Markaz)</option>
-                        <option value="Berkah Peduli">Berkah Peduli (Sosial &amp; Sembako)</option>
-                        <option value="Berkah Juara">Berkah Juara (Pendidikan &amp; Beasiswa)</option>
-                        <option value="Berkah Sehat">Berkah Sehat (Kesehatan &amp; Khitanan)</option>
-                        <option value="Berkah Mandiri">Berkah Mandiri (Ekonomi &amp; Wirausaha)</option>
-                    </select>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-bold mb-xs">Pilar Program Utama <span class="text-error">*</span></label>
+                        <select id="spec-prog-pillar" required class="w-full bg-surface border border-outline-variant rounded-xl px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none shadow-xs font-semibold">
+                            <option value="Berkah Peduli">Berkah Peduli (Sosial &amp; Kemanusiaan)</option>
+                            <option value="Berkah Hidayah">Berkah Hidayah (Dakwah &amp; Markaz)</option>
+                            <option value="Berkah Juara">Berkah Juara (Pendidikan &amp; Beasiswa)</option>
+                            <option value="Berkah Sehat">Berkah Sehat (Kesehatan &amp; Medis)</option>
+                            <option value="Berkah Mandiri">Berkah Mandiri (Ekonomi &amp; Wirausaha)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-bold mb-xs">Target Donasi (Rp)</label>
+                        <input type="text" id="spec-prog-target" class="w-full bg-surface border border-outline-variant rounded-xl px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none shadow-xs" placeholder="Rp 50.000.000" value="Rp 50.000.000">
+                    </div>
                 </div>
 
                 <div>
-                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Nama Program Spesifik <span class="text-error">*</span></label>
-                    <input type="text" id="spec-prog-title" required class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none" placeholder="Contoh: Pembangunan Markaz Tahfidz">
+                    <label class="block font-label-md text-label-md text-on-surface font-bold mb-xs">Nama / Judul Program <span class="text-error">*</span></label>
+                    <input type="text" id="spec-prog-title" required class="w-full bg-surface border border-outline-variant rounded-xl px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none shadow-xs font-bold text-sm" placeholder="Contoh: Pray For NTT atau Sedekah Beras Dhuafa">
                 </div>
 
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-bold mb-xs">Deskripsi &amp; Cerita Singkat</label>
+                    <textarea id="spec-prog-desc" rows="3" class="w-full bg-surface border border-outline-variant rounded-xl p-3 font-body-md text-on-surface focus:border-primary outline-none shadow-xs resize-none" placeholder="Tuliskan tujuan dan ajakan donasi program ini..."></textarea>
+                </div>
+
+                <!-- Cover Foto Program -->
+                <div class="border border-outline-variant/40 rounded-2xl p-md bg-surface-container-lowest space-y-md shadow-xs">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="font-label-md text-label-md font-bold text-primary flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[20px]">add_a_photo</span>
+                                <span>Foto Cover Program</span>
+                            </h4>
+                            <p class="font-caption text-caption text-on-surface-variant mt-0.5">Foto yang akan tampil di Beranda, Katalog Program, Portal Mitra &amp; Preview WhatsApp.</p>
+                        </div>
+                    </div>
+
+                    <!-- Preset HD Quick Pickers -->
+                    <div class="space-y-1.5">
+                        <span class="font-caption text-caption font-bold text-on-surface-variant">Pilihan Foto Cepat:</span>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <button type="button" onclick="setSpecificProgramPresetPhoto('assets/images/sedekah-beras-dhuafa.jpg')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">🌾 Beras Dhuafa</button>
+                            <button type="button" onclick="setSpecificProgramPresetPhoto('assets/images/beasiswa-tahfidz.jpg')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">🎓 Beasiswa</button>
+                            <button type="button" onclick="setSpecificProgramPresetPhoto('assets/images/tebar-iftar.jpg')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">🌙 Tebar Ifthar</button>
+                            <button type="button" onclick="setSpecificProgramPresetPhoto('assets/images/foto-utama-wiz.jpg')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">🕌 Markaz Dakwah</button>
+                        </div>
+                    </div>
+
+                    <!-- Upload Box -->
+                    <div class="space-y-2">
+                        <div onclick="document.getElementById('spec-prog-file-upload').click()" class="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-primary/40 rounded-2xl bg-primary/5 hover:bg-primary/10 cursor-pointer transition-all group">
+                            <span class="material-symbols-outlined text-primary text-3xl mb-1 group-hover:scale-110 transition-transform">cloud_upload</span>
+                            <span class="font-label-md text-label-md text-primary font-bold">Pilih foto dari komputer / galeri HP</span>
+                            <span class="font-caption text-caption text-on-surface-variant mt-0.5">JPG, PNG, WebP — Otomatis dikompres optimal</span>
+                        </div>
+                        <input type="file" id="spec-prog-file-upload" accept="image/*" onchange="handleModalProgramPhotoSelect(event)" style="display: none;">
+                        
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="spec-prog-img-url" class="flex-1 bg-surface border border-outline-variant rounded-xl px-3 py-2 font-caption text-on-surface outline-none focus:border-primary" placeholder="Atau tempel URL gambar di sini...">
+                            <button type="button" onclick="clearModalProgramPhoto()" class="px-3 py-2 border border-outline-variant text-on-surface-variant rounded-xl text-caption hover:text-error hover:border-error transition-colors">Reset</button>
+                        </div>
+
+                        <!-- Preview Box -->
+                        <div id="spec-prog-preview-container" class="mt-2 flex items-center gap-md p-2 bg-surface-container-low rounded-xl border border-outline-variant/30">
+                            <img id="spec-prog-main-preview" src="assets/images/sedekah-beras-dhuafa.jpg" onerror="this.src='assets/images/sedekah-beras-dhuafa.jpg';" class="h-24 w-40 rounded-lg object-cover border border-outline-variant/30 shadow-xs shrink-0" alt="Preview">
+                            <div class="text-caption space-y-1">
+                                <span class="font-bold text-primary flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm">check_circle</span>
+                                    <span>Foto Cover Terpasang</span>
+                                </span>
+                                <p class="text-on-surface-variant text-[11px]">Siap ditampilkan saat program diterbitkan.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Publikasi Section (Draft vs Publish) -->
+                <div class="space-y-sm">
+                    <label class="block font-label-md text-label-md text-on-surface font-bold">Status Publikasi Program <span class="text-error">*</span></label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
+                        <label class="flex items-center gap-sm p-3 bg-surface rounded-xl border border-outline-variant cursor-pointer hover:bg-emerald-50/50 transition-colors">
+                            <input type="radio" name="spec-prog-status" value="published" checked class="text-primary focus:ring-primary">
+                            <div>
+                                <span class="font-body-md font-bold text-emerald-700 block">🚀 Publikasikan Sekarang</span>
+                                <span class="font-caption text-caption text-on-surface-variant">Langsung tampil di Beranda, Katalog Program &amp; Portal Mitra.</span>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-sm p-3 bg-surface rounded-xl border border-outline-variant cursor-pointer hover:bg-surface-container transition-colors">
+                            <input type="radio" name="spec-prog-status" value="draft" class="text-primary focus:ring-primary">
+                            <div>
+                                <span class="font-body-md font-bold text-on-surface block">⏳ Simpan Sebagai Draft</span>
+                                <span class="font-caption text-caption text-on-surface-variant">Hanya tersimpan di Admin, belum muncul di halaman publik.</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
                 <div class="flex gap-md pt-sm">
-                    <button type="submit" class="flex-1 bg-emerald-600 text-white py-3 rounded-lg font-label-md text-label-md font-bold hover:bg-emerald-700 transition-colors cursor-pointer">Simpan Program Spesifik</button>
-                    <button type="button" onclick="closeSpecificProgramModal()" class="px-lg py-3 border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors cursor-pointer">Batal</button>
+                    <button type="submit" class="flex-1 bg-primary text-on-primary py-3 rounded-xl font-label-md text-label-md font-bold hover:bg-primary-container transition-all shadow-md cursor-pointer flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-sm">save</span>
+                        <span id="spec-prog-submit-btn-text">Simpan &amp; Terapkan Program</span>
+                    </button>
+                    <button type="button" onclick="closeSpecificProgramModal()" class="px-lg py-3 border border-outline-variant rounded-xl font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors cursor-pointer">Batal</button>
                 </div>
             </form>
         </div>
@@ -4325,23 +4417,102 @@
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
         }
 
+        let currentProgramFilterStatus = 'all';
+
+        function setSpecificProgramStatusFilter(status) {
+            currentProgramFilterStatus = status;
+            document.querySelectorAll('.prog-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-emerald-600', 'text-white');
+                btn.classList.add('text-slate-700');
+            });
+            const activeBtn = document.getElementById('prog-filter-' + status);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-700');
+                activeBtn.classList.add('bg-emerald-600', 'text-white');
+            }
+            renderSpecificProgramImagesSection();
+        }
+
+        function setSpecificProgramPresetPhoto(url) {
+            const imgEl = document.getElementById('spec-prog-main-preview');
+            const urlInput = document.getElementById('spec-prog-img-url');
+            if (imgEl) imgEl.src = url;
+            if (urlInput) urlInput.value = url;
+        }
+
+        function clearModalProgramPhoto() {
+            setSpecificProgramPresetPhoto('assets/images/sedekah-beras-dhuafa.jpg');
+        }
+
+        function handleModalProgramPhotoSelect(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const dataUrl = e.target.result;
+                const img = new Image();
+                img.onload = function() {
+                    const maxDim = 720;
+                    let w = img.naturalWidth, h = img.naturalHeight;
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+                        else       { w = Math.round(w * maxDim / h); h = maxDim; }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    const compressed = canvas.toDataURL('image/jpeg', 0.68);
+                    setSpecificProgramPresetPhoto(compressed);
+                };
+                img.src = dataUrl;
+            };
+            reader.readAsDataURL(file);
+        }
+
         function openSpecificProgramModal(editPillar = '', editTitle = '') {
             const modal = document.getElementById('specific-program-modal');
             const modalTitle = document.getElementById('spec-prog-modal-title');
             const form = document.getElementById('specific-program-form');
             if (!modal || !modalTitle || !form) return;
-            
+
             document.getElementById('spec-prog-old-pillar').value = editPillar;
             document.getElementById('spec-prog-old-title').value = editTitle;
+            document.getElementById('spec-prog-id').value = '';
 
             if (editTitle) {
-                modalTitle.innerHTML = '<span class="material-symbols-outlined text-primary">edit_note</span><span>Edit Program Spesifik</span>';
+                modalTitle.innerHTML = '<span class="material-symbols-outlined text-primary text-2xl">edit_note</span><span>Edit Program Kebaikan</span>';
                 document.getElementById('spec-prog-pillar').value = editPillar;
                 document.getElementById('spec-prog-title').value = editTitle;
+
+                let progObj = null;
+                if (window.wizStore && window.wizStore.programs) {
+                    progObj = window.wizStore.programs.getAll().find(p => p.title.toLowerCase() === editTitle.toLowerCase());
+                }
+
+                if (progObj) {
+                    document.getElementById('spec-prog-id').value = progObj.id || '';
+                    document.getElementById('spec-prog-target').value = progObj.target || 'Rp 50.000.000';
+                    document.getElementById('spec-prog-desc').value = progObj.description || '';
+                    setSpecificProgramPresetPhoto(progObj.imageUrl || 'assets/images/sedekah-beras-dhuafa.jpg');
+                    const statusRadios = document.getElementsByName('spec-prog-status');
+                    for (const r of statusRadios) {
+                        r.checked = (r.value === progObj.status);
+                    }
+                } else {
+                    const currentImg = (window.wizStore && window.wizStore.allocationRulesManager) ? window.wizStore.allocationRulesManager.getSpecificProgramImage(editTitle, editPillar) : 'assets/images/sedekah-beras-dhuafa.jpg';
+                    setSpecificProgramPresetPhoto(currentImg);
+                    document.getElementById('spec-prog-target').value = 'Rp 50.000.000';
+                    document.getElementById('spec-prog-desc').value = `Salurkan donasi dan sedekah terbaik Anda untuk mendukung program ${editTitle}.`;
+                }
             } else {
-                modalTitle.innerHTML = '<span class="material-symbols-outlined text-primary">grid_view</span><span>Tambah Program Spesifik Baru</span>';
+                modalTitle.innerHTML = '<span class="material-symbols-outlined text-primary text-2xl">grid_view</span><span>Tambah Program Kebaikan Baru</span>';
                 form.reset();
                 if (editPillar) document.getElementById('spec-prog-pillar').value = editPillar;
+                setSpecificProgramPresetPhoto('assets/images/sedekah-beras-dhuafa.jpg');
+                const statusRadios = document.getElementsByName('spec-prog-status');
+                for (const r of statusRadios) {
+                    if (r.value === 'published') r.checked = true;
+                }
             }
 
             showModal('specific-program-modal');
@@ -4355,57 +4526,93 @@
 
         async function handleSpecificProgramSave(e) {
             e.preventDefault();
+            const progId = document.getElementById('spec-prog-id').value;
             const pillar = document.getElementById('spec-prog-pillar').value;
             const newTitle = document.getElementById('spec-prog-title').value.trim();
+            const target = document.getElementById('spec-prog-target').value.trim() || 'Rp 15.000.000';
+            const desc = document.getElementById('spec-prog-desc').value.trim();
+            const imgEl = document.getElementById('spec-prog-main-preview');
+            const imgUrl = (imgEl && imgEl.src) ? imgEl.src : (document.getElementById('spec-prog-img-url').value || 'assets/images/sedekah-beras-dhuafa.jpg');
+
+            let status = 'published';
+            const statusRadios = document.getElementsByName('spec-prog-status');
+            for (const r of statusRadios) {
+                if (r.checked) status = r.value;
+            }
+
             const oldPillar = document.getElementById('spec-prog-old-pillar').value;
             const oldTitle = document.getElementById('spec-prog-old-title').value;
 
             if (!newTitle) return;
 
-            // If edit mode and title changed, remove old
+            // If renaming old program
             if (oldTitle && oldPillar && (oldTitle !== newTitle || oldPillar !== pillar)) {
                 if (window.wizStore && window.wizStore.allocationRulesManager) {
                     await window.wizStore.allocationRulesManager.deleteSpecificProgram(oldPillar, oldTitle);
                 }
             }
 
-            if (window.wizStore && window.wizStore.allocationRulesManager) {
-                await window.wizStore.allocationRulesManager.addOrUpdateSpecificProgram(pillar, newTitle);
-            } else {
-                const map = getSpecificProgramsMap();
-                if (!map[pillar]) map[pillar] = [];
-                if (!map[pillar].includes(newTitle)) {
-                    map[pillar].push(newTitle);
+            if (window.wizStore && window.wizStore.programs) {
+                if (progId) {
+                    await window.wizStore.programs.update(progId, {
+                        title: newTitle,
+                        pillar: pillar,
+                        target: target,
+                        description: desc,
+                        imageUrl: imgUrl,
+                        status: status
+                    });
+                } else {
+                    await window.wizStore.programs.add({
+                        title: newTitle,
+                        pillar: pillar,
+                        target: target,
+                        description: desc,
+                        imageUrl: imgUrl,
+                        status: status
+                    });
                 }
-                await saveSpecificProgramsMap(map);
+            } else {
+                if (window.wizStore && window.wizStore.allocationRulesManager) {
+                    await window.wizStore.allocationRulesManager.addOrUpdateSpecificProgram(pillar, newTitle, imgUrl);
+                }
             }
 
             closeSpecificProgramModal();
             renderSpecificProgramImagesSection();
             
+            const msgStatus = status === 'published' ? 'dipublikasikan & aktif di Web Utama serta Portal Mitra' : 'disimpan sebagai Draft';
             if (typeof showNotification === 'function') {
-                showNotification(`✅ Program "${newTitle}" (${pillar}) berhasil disimpan dan langsung aktif di Web Utama & Portal Mitra!`);
+                showNotification(`✅ Program "${newTitle}" berhasil ${msgStatus}!`);
             }
 
-            // Refresh donation dropdown if open
             const catVal = document.getElementById('man-program-utama') ? document.getElementById('man-program-utama').value : '';
             if (catVal) handleAdminProgramUtamaChange(catVal);
         }
 
-        async function deleteSpecificProgramItem(pillar, title) {
-            if (!confirm(`Apakah Anda yakin ingin menghapus program spesifik "${title}" dari pilar ${pillar}?`)) return;
+        async function toggleSpecificProgramStatus(progIdOrTitle) {
+            if (!window.wizStore || !window.wizStore.programs) return;
+            const prog = window.wizStore.programs.getById(progIdOrTitle) || window.wizStore.programs.getAll().find(p => p.title.toLowerCase() === String(progIdOrTitle).toLowerCase());
+            if (!prog) return;
+
+            const res = await window.wizStore.programs.togglePublish(prog.id);
+            renderSpecificProgramImagesSection();
+            if (typeof showNotification === 'function' && res) {
+                const label = res.status === 'published' ? 'dipublikasikan ke Web Utama & Portal Mitra' : 'disimpan sebagai Draft (disembunyikan dari web)';
+                showNotification(`✅ Status program "${res.title}" diubah: ${label}.`);
+            }
+        }
+
+        async function deleteSpecificProgramItem(pillar, title, progId = '') {
+            if (!confirm(`Apakah Anda yakin ingin menghapus program "${title}"?`)) return;
+
+            if (window.wizStore && window.wizStore.programs) {
+                const targetId = progId || (window.wizStore.programs.getAll().find(p => p.title.toLowerCase() === title.toLowerCase()) || {}).id || title;
+                await window.wizStore.programs.delete(targetId);
+            }
 
             if (window.wizStore && window.wizStore.allocationRulesManager) {
                 await window.wizStore.allocationRulesManager.deleteSpecificProgram(pillar, title);
-            } else {
-                const map = getSpecificProgramsMap();
-                if (map[pillar]) {
-                    const idx = map[pillar].indexOf(title);
-                    if (idx !== -1) {
-                        map[pillar].splice(idx, 1);
-                    }
-                }
-                await saveSpecificProgramsMap(map);
             }
 
             renderSpecificProgramImagesSection();
@@ -4420,27 +4627,50 @@
 
         function renderSpecificProgramImagesSection() {
             const container = document.getElementById('specific-images-grid');
-            if (!container || !wizStore.allocationRulesManager) return;
+            if (!container) return;
 
             const searchInput = document.getElementById('specific-prog-search');
             const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
 
-            const map = getSpecificProgramsMap();
             let allPrograms = [];
+            if (window.wizStore && window.wizStore.programs) {
+                allPrograms = window.wizStore.programs.getAll().map(p => ({
+                    id: p.id,
+                    title: p.title,
+                    pillar: p.pillar,
+                    target: p.target || 'Rp 50.000.000',
+                    desc: p.description || '',
+                    imageUrl: p.imageUrl || (window.wizStore.allocationRulesManager ? window.wizStore.allocationRulesManager.getSpecificProgramImage(p.title, p.pillar) : 'assets/images/foto-utama-wiz.jpg'),
+                    status: p.status || 'published'
+                }));
+            } else {
+                const map = getSpecificProgramsMap();
+                Object.entries(map).forEach(([pillar, progs]) => {
+                    if (Array.isArray(progs)) {
+                        progs.forEach(pTitle => {
+                            allPrograms.push({
+                                id: 'prog-' + pTitle.toLowerCase().replace(/\s+/g, '-'),
+                                title: pTitle,
+                                pillar: pillar,
+                                target: 'Rp 50.000.000',
+                                desc: '',
+                                imageUrl: (window.wizStore && window.wizStore.allocationRulesManager) ? window.wizStore.allocationRulesManager.getSpecificProgramImage(pTitle, pillar) : 'assets/images/foto-utama-wiz.jpg',
+                                status: 'published'
+                            });
+                        });
+                    }
+                });
+            }
 
-            Object.entries(map).forEach(([pillar, progs]) => {
-                if (Array.isArray(progs)) {
-                    progs.forEach(pTitle => {
-                        if (!query || pTitle.toLowerCase().includes(query) || pillar.toLowerCase().includes(query)) {
-                            allPrograms.push({ pillar, title: pTitle });
-                        }
-                    });
-                }
+            let filtered = allPrograms.filter(item => {
+                const matchQuery = !query || item.title.toLowerCase().includes(query) || item.pillar.toLowerCase().includes(query);
+                const matchStatus = (currentProgramFilterStatus === 'all') || (item.status === currentProgramFilterStatus);
+                return matchQuery && matchStatus;
             });
 
-            if (allPrograms.length === 0) {
+            if (filtered.length === 0) {
                 container.innerHTML = `<div class="col-span-full p-xl text-center text-on-surface-variant text-sm italic">
-                    ${query ? `Tidak ada program spesifik yang cocok dengan kata kunci "<strong>${query}</strong>".` : 'Belum ada program spesifik. Klik "+ Tambah Program Baru" di atas untuk menambahkan program.'}
+                    ${query ? `Tidak ada program yang cocok dengan kata kunci "<strong>${query}</strong>".` : 'Belum ada program di kategori ini. Klik "+ Tambah Program Baru" untuk membuat program.'}
                 </div>`;
                 return;
             }
@@ -4453,41 +4683,51 @@
                 'Berkah Mandiri': 'bg-purple-700 text-white'
             };
 
-            const customImgStore = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
-
-            container.innerHTML = allPrograms.map((item, idx) => {
-                const isCustom = Boolean(customImgStore[item.title]);
-                const currentImg = wizStore.allocationRulesManager.getSpecificProgramImage(item.title, item.pillar);
+            container.innerHTML = filtered.map((item, idx) => {
+                const isPublished = item.status === 'published';
                 const safeId = 'spec-file-' + idx;
                 const badgeStyle = pillarBadgeColor[item.pillar] || 'bg-primary text-on-primary';
                 const escapedTitle = item.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const escapedId = (item.id || '').replace(/'/g, "\\'");
                 
                 return `
-                <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 p-md flex flex-col justify-between space-y-md">
+                <div class="bg-surface-container-lowest rounded-2xl shadow-sm border ${isPublished ? 'border-outline-variant/30' : 'border-amber-300 bg-amber-50/20'} p-md flex flex-col justify-between space-y-md">
                     <div>
-                        <div class="relative h-44 rounded-lg overflow-hidden border border-outline-variant/30 mb-sm bg-slate-100 flex items-center justify-center">
-                            <img id="prev-${safeId}" src="${currentImg}" alt="${escapedTitle}" class="w-full h-full object-cover">
+                        <div class="relative h-44 rounded-xl overflow-hidden border border-outline-variant/30 mb-sm bg-slate-100 flex items-center justify-center">
+                            <img id="prev-${safeId}" src="${item.imageUrl}" alt="${escapedTitle}" class="w-full h-full object-cover">
                             <span class="absolute top-2 left-2 ${badgeStyle} px-2.5 py-0.5 rounded-full text-[11px] font-bold shadow-xs">${item.pillar}</span>
+                            <span class="absolute top-2 right-2 px-2.5 py-0.5 rounded-full text-[11px] font-bold shadow-xs ${isPublished ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white'}">
+                                ${isPublished ? '🟢 Published' : '🟡 Draft'}
+                            </span>
                         </div>
                         <h4 class="font-label-md font-bold text-on-surface text-sm mb-0.5 line-clamp-2">${item.title}</h4>
-                        <p class="font-caption text-caption text-on-surface-variant">Program Spesifik ${item.pillar}</p>
+                        <div class="flex items-center justify-between text-xs text-on-surface-variant mb-1">
+                            <span>Program Spesifik ${item.pillar}</span>
+                            <span class="font-bold text-primary">${item.target}</span>
+                        </div>
                     </div>
 
                     <div class="pt-sm border-t border-outline-variant/20 flex flex-col gap-2">
                         <div class="flex gap-1.5">
-                            <label for="${safeId}" class="flex-1 py-1.5 bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 shadow-xs">
-                                <span class="material-symbols-outlined text-sm">cloud_upload</span>
-                                <span>Upload Foto</span>
-                            </label>
+                            <button type="button" onclick="toggleSpecificProgramStatus('${escapedId}')" class="flex-1 py-1.5 ${isPublished ? 'bg-amber-100 text-amber-900 hover:bg-amber-200 border border-amber-300' : 'bg-emerald-600 text-white hover:bg-emerald-700'} rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-sm">${isPublished ? 'pause_circle' : 'rocket_launch'}</span>
+                                <span>${isPublished ? 'Jadikan Draft' : 'Publikasikan'}</span>
+                            </button>
                             <button type="button" onclick="openSpecificProgramModal('${item.pillar}', '${escapedTitle}')" class="px-2.5 py-1.5 border border-outline-variant text-on-surface hover:text-primary rounded-lg text-xs font-semibold transition-colors flex items-center gap-1 cursor-pointer">
                                 <span class="material-symbols-outlined text-sm">edit</span> Edit
                             </button>
-                            <button type="button" onclick="deleteSpecificProgramItem('${item.pillar}', '${escapedTitle}')" class="px-2.5 py-1.5 border border-error/30 text-error hover:bg-error/5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1 cursor-pointer">
+                            <button type="button" onclick="deleteSpecificProgramItem('${item.pillar}', '${escapedTitle}', '${escapedId}')" class="px-2.5 py-1.5 border border-error/30 text-error hover:bg-error/5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1 cursor-pointer">
                                 <span class="material-symbols-outlined text-sm">delete</span>
                             </button>
                         </div>
-                        <input type="file" id="${safeId}" accept="image/*" class="hidden" onchange="handleSpecificProgramPhotoUpload(event, '${escapedTitle}', '${safeId}')">
-                        ${isCustom ? `<p class="text-[11px] text-emerald-700 font-semibold text-center">✅ Foto Kustom Aktif</p>` : `<p class="text-[11px] text-on-surface-variant font-medium text-center">📷 Foto Bawaan Web (Bisa Diganti)</p>`}
+                        <div class="flex items-center justify-between px-1">
+                            <label for="${safeId}" class="text-[11px] text-primary hover:underline cursor-pointer font-bold flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[14px]">photo_camera</span>
+                                <span>Ganti Foto Card</span>
+                            </label>
+                            <input type="file" id="${safeId}" accept="image/*" class="hidden" onchange="handleSpecificProgramPhotoUpload(event, '${escapedTitle}', '${safeId}')">
+                            <span class="text-[11px] ${isPublished ? 'text-emerald-700 font-semibold' : 'text-amber-700 font-medium'}">${isPublished ? '✅ Aktif di Web' : '⏳ Hanya di Admin'}</span>
+                        </div>
                     </div>
                 </div>`;
             }).join('');
@@ -4499,7 +4739,6 @@
 
             const prevImg = safeId ? document.getElementById('prev-' + safeId) : null;
 
-            // Instant preview
             const objectUrl = URL.createObjectURL(file);
             if (prevImg) { prevImg.src = objectUrl; prevImg.classList.remove('opacity-40'); }
 
@@ -4519,10 +4758,17 @@
                     URL.revokeObjectURL(objectUrl);
                     if (prevImg) prevImg.src = compressed;
 
+                    if (window.wizStore && window.wizStore.programs) {
+                        const existing = window.wizStore.programs.getAll().find(p => p.title.toLowerCase() === progTitle.toLowerCase());
+                        if (existing) {
+                            await window.wizStore.programs.update(existing.id, { imageUrl: compressed });
+                        }
+                    }
+
                     if (window.wizStore && window.wizStore.allocationRulesManager) {
                         await window.wizStore.allocationRulesManager.updateSpecificProgramImageByName(progTitle, compressed);
-                        renderSpecificProgramImagesSection();
                     }
+                    renderSpecificProgramImagesSection();
                 };
                 img.src = objectUrl;
             }, 10);

@@ -1406,10 +1406,6 @@
 
     function renderCustomDynamicPrograms() {
         if (!window.wizStore) return;
-        let customMap = {};
-        try {
-            customMap = JSON.parse(localStorage.getItem('wiz_custom_specific_programs') || '{}');
-        } catch(e) {}
 
         const existingTitles = new Set();
         document.querySelectorAll('.program-card').forEach(c => {
@@ -1418,6 +1414,67 @@
         });
 
         let addedCount = 0;
+
+        // 1. First render published programs from wizStore.programs
+        if (window.wizStore.programs && typeof window.wizStore.programs.getPublished === 'function') {
+            const published = window.wizStore.programs.getPublished();
+            published.forEach(p => {
+                const normTitle = (p.title || '').trim().toLowerCase();
+                if (!existingTitles.has(normTitle)) {
+                    existingTitles.add(normTitle);
+                    addedCount++;
+
+                    const catKey = PILLAR_TO_CATEGORY_MAP[p.pillar] || 'sosial';
+                    const section = document.querySelector(`.program-section[data-section-category="${catKey}"]`) || document.querySelector('.program-section');
+                    if (!section) return;
+                    const grid = section.querySelector('.grid');
+                    if (!grid) return;
+
+                    const dynamicImg = p.imageUrl || (window.wizStore.allocationRulesManager ? window.wizStore.allocationRulesManager.getSpecificProgramImage(p.title, p.pillar) : 'assets/images/foto-utama-wiz.jpg');
+                    const card = document.createElement('article');
+                    card.className = 'program-card dynamic-added bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full cursor-pointer';
+                    card.setAttribute('data-category', catKey);
+                    card.setAttribute('data-title', p.title);
+                    card.setAttribute('data-target', String(p.targetAmount || 50000000));
+
+                    card.innerHTML = `
+                        <div class="relative overflow-hidden aspect-video bg-surface-container">
+                            <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="${escapeHtml(p.title)}" src="${dynamicImg}" onerror="this.onerror=null; this.src='assets/images/foto-utama-wiz.jpg';" alt="${escapeHtml(p.title)}"/>
+                            <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">${escapeHtml(p.pillar)}</span>
+                        </div>
+                        <div class="p-lg flex flex-col flex-grow">
+                            <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">${escapeHtml(p.title)}</h3>
+                            <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">${escapeHtml(p.description || `Salurkan kepedulian dan donasi terbaik Anda untuk program ${p.title} bersama WIZ Babel.`)}</p>
+                            <div class="mb-lg space-y-xs">
+                                <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                                    <span>Terkumpul: <strong>Rp 0</strong></span>
+                                    <span class="font-semibold text-primary">0%</span>
+                                </div>
+                                <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                                    <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                                <div class="text-right font-caption text-caption text-outline">Target: ${escapeHtml(p.target || 'Rp 50.000.000')}</div>
+                            </div>
+                            <button onclick="openDonationModal('${escapeHtml(p.title)}')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold cursor-pointer">Donasi Sekarang</button>
+                        </div>
+                    `;
+
+                    card.addEventListener('click', (e) => {
+                        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+                        openDonationModal(p.title);
+                    });
+
+                    grid.appendChild(card);
+                }
+            });
+        }
+
+        // 2. Also check custom specific programs map
+        let customMap = {};
+        try {
+            customMap = JSON.parse(localStorage.getItem('wiz_custom_specific_programs') || '{}');
+        } catch(e) {}
+
         Object.entries(customMap).forEach(([pillarKey, titles]) => {
             const catKey = PILLAR_TO_CATEGORY_MAP[pillarKey] || 'sosial';
             const section = document.querySelector(`.program-section[data-section-category="${catKey}"]`);
@@ -1461,7 +1518,7 @@
                                     </div>
                                     <div class="text-right font-caption text-caption text-outline">Target: Rp 15.000.000</div>
                                 </div>
-                                <button onclick="openDonationModal('${escapeHtml(title)}')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                                <button onclick="openDonationModal('${escapeHtml(title)}')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold cursor-pointer">Donasi Sekarang</button>
                             </div>
                         `;
 

@@ -120,6 +120,13 @@ const SPECIFIC_PROGRAMS_METADATA = {
     },
 
     // ── 2. Sosial & Kemanusiaan (Berkah Peduli) ──
+    'pray-for-ntt': {
+        title: 'Pray For NTT',
+        pillar: 'Sosial & Kemanusiaan',
+        target: 'Rp 50.000.000',
+        description: 'Salurkan kepedulian dan bantuan darurat bencana untuk saudara-saudara kita terdampak bencana di Nusa Tenggara Timur (NTT).',
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/sedekah-beras-dhuafa.jpg'
+    },
     'tebar-sembako': {
         title: 'Tebar Sembako Dhuafa',
         pillar: 'Sosial & Kemanusiaan',
@@ -389,23 +396,39 @@ module.exports = async function handler(req, res) {
                 }
             }
         }
-        // Check cloudBundle custom programs
-        const customProgMap = (cloudBundle && cloudBundle.custom_specific_programs) ? cloudBundle.custom_specific_programs : {};
-        for (const [pKey, pArr] of Object.entries(customProgMap)) {
-            if (Array.isArray(pArr)) {
-                for (const itemTitle of pArr) {
-                    if (slugify(itemTitle) === querySlug || itemTitle.toLowerCase() === cleanProgQuery.toLowerCase()) {
-                        selectedProgram = {
-                            title: itemTitle,
-                            pillar: pKey,
-                            target: 'Rp 15.000.000',
-                            description: `Salurkan infak dan sedekah terbaik Anda untuk program ${itemTitle} Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.`,
-                            imageUrl: specificImgsMap[itemTitle] || DEFAULT_FALLBACK_IMAGE
-                        };
-                        break;
+        // Check cloudBundle programs collection
+        if (cloudBundle && Array.isArray(cloudBundle.programs)) {
+            const foundProg = cloudBundle.programs.find(p => p && (slugify(p.title) === querySlug || p.slug === querySlug || p.id === querySlug || p.title.toLowerCase() === cleanProgQuery.toLowerCase()));
+            if (foundProg && foundProg.status !== 'deleted') {
+                selectedProgram = {
+                    title: foundProg.title,
+                    pillar: foundProg.pillar,
+                    target: foundProg.target || 'Rp 50.000.000',
+                    description: foundProg.description || `Salurkan kepedulian dan donasi terbaik Anda untuk program ${foundProg.title} bersama WIZ Babel.`,
+                    imageUrl: specificImgsMap[foundProg.title] || foundProg.imageUrl || DEFAULT_FALLBACK_IMAGE
+                };
+            }
+        }
+
+        // Check cloudBundle custom programs map
+        if (!selectedProgram) {
+            const customProgMap = (cloudBundle && cloudBundle.custom_specific_programs) ? cloudBundle.custom_specific_programs : {};
+            for (const [pKey, pArr] of Object.entries(customProgMap)) {
+                if (Array.isArray(pArr)) {
+                    for (const itemTitle of pArr) {
+                        if (slugify(itemTitle) === querySlug || itemTitle.toLowerCase() === cleanProgQuery.toLowerCase()) {
+                            selectedProgram = {
+                                title: itemTitle,
+                                pillar: pKey,
+                                target: 'Rp 15.000.000',
+                                description: `Salurkan infak dan sedekah terbaik Anda untuk program ${itemTitle} Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.`,
+                                imageUrl: specificImgsMap[itemTitle] || DEFAULT_FALLBACK_IMAGE
+                            };
+                            break;
+                        }
                     }
+                    if (selectedProgram) break;
                 }
-                if (selectedProgram) break;
             }
         }
     }
