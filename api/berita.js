@@ -349,12 +349,8 @@ module.exports = async function handler(req, res) {
     <!-- Header Navigation -->
     <header class="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-slate-100 shadow-xs">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
-            <a href="${origin}/index.html" class="flex items-center gap-2.5 sm:gap-3 group">
-                <img src="${origin}/assets/images/logo-wiz-babel.png" alt="WIZ Bangka Belitung" class="h-9 sm:h-11 w-auto object-contain transition-transform group-hover:scale-105"/>
-                <div class="leading-tight">
-                    <span class="block font-headline font-bold text-sm sm:text-base text-slate-900">Wahdah Inspirasi Zakat</span>
-                    <span class="block text-[11px] sm:text-xs text-primary font-bold tracking-wider uppercase">Bangka Belitung</span>
-                </div>
+            <a href="${origin}/index.html" class="flex items-center group py-1.5 shrink-0 max-w-[160px]">
+                <img src="${origin}/assets/images/logo-wiz-babel.png" alt="WIZ Bangka Belitung" class="h-10 sm:h-12 w-auto object-contain transition-transform group-hover:scale-105 block"/>
             </a>
             <div class="flex items-center gap-2 sm:gap-3">
                 <a href="${portalUrl}" class="hidden sm:inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-primary transition-colors px-3 py-2 rounded-xl hover:bg-slate-50">

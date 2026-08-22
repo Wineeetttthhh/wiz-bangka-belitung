@@ -330,9 +330,8 @@ module.exports = async function handler(req, res) {
     <!-- Header -->
     <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50 shadow-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
-            <a href="${origin}/index.html" class="flex items-center gap-2.5 shrink-0 max-w-xs group">
-                <img src="${origin}/assets/images/logo-wiz-babel.png" alt="WIZ Babel" class="h-9 sm:h-11 w-auto object-contain transition-transform group-hover:scale-105">
-                <span class="font-extrabold text-sm sm:text-base text-slate-900 leading-tight whitespace-nowrap">WIZ Bangka Belitung</span>
+            <a href="${origin}/index.html" class="flex items-center group py-1.5 shrink-0 max-w-[160px]">
+                <img src="${origin}/assets/images/logo-wiz-babel.png" alt="WIZ Babel" class="h-10 sm:h-12 w-auto object-contain transition-transform group-hover:scale-105 block">
             </a>
             <div class="flex items-center gap-3 shrink-0">
                 <a href="${origin}/program.html${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}" class="hidden sm:inline-flex text-xs sm:text-sm font-semibold text-slate-600 hover:text-emerald-600 px-3 py-2 rounded-xl hover:bg-slate-100 transition-colors whitespace-nowrap">Katalog Program</a>
