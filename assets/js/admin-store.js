@@ -2041,6 +2041,17 @@
         return 'Berkah Hidayah';
     }
 
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+    window.escapeHtml = escapeHtml;
+
     // ─── Donations Module ─────────────────────────────────
     // ─── Donor Attributions Manager (Lifetime Recurring Donor Locking) ──
     const donorAttributionsManager = {
@@ -4805,7 +4816,7 @@
         pushToCloud,
         fullBidirectionalSync,
         broadcastSync,
-        utils: { formatRupiahCompact, formatDate, formatDateTime, timeAgo, generateId, mapProgramToPillar }
+        utils: { formatRupiahCompact, formatDate, formatDateTime, timeAgo, generateId, mapProgramToPillar, escapeHtml }
     };
 
     console.log('[WIZ Store] Initialized with real-time cloud sync & 10s auto-polling. Collections ready.');
