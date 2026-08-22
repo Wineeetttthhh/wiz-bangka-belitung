@@ -4699,15 +4699,19 @@
                 const escapedId = (item.id || '').replace(/'/g, "\\'");
                 
                 return `
-                <div class="bg-surface-container-lowest rounded-2xl shadow-sm border ${isPublished ? 'border-outline-variant/30' : 'border-amber-300 bg-amber-50/20'} p-md flex flex-col justify-between space-y-md">
+                <div class="rounded-2xl shadow-sm border ${isPublished ? 'bg-surface-container-lowest border-outline-variant/30 ring-1 ring-emerald-500/20' : 'bg-amber-50/30 border-2 border-amber-400 ring-2 ring-amber-400/20'} p-md flex flex-col justify-between space-y-md">
                     <div>
                         <div class="relative h-44 rounded-xl overflow-hidden border border-outline-variant/30 mb-sm bg-slate-100 flex items-center justify-center">
                             <img id="prev-${safeId}" src="${item.imageUrl}" alt="${escapedTitle}" class="w-full h-full object-cover">
                             <span class="absolute top-2 left-2 ${badgeStyle} px-2.5 py-0.5 rounded-full text-[11px] font-bold shadow-xs">${item.pillar}</span>
-                            <span class="absolute top-2 right-2 px-2.5 py-0.5 rounded-full text-[11px] font-bold shadow-xs ${isPublished ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white'}">
-                                ${isPublished ? '🟢 Published' : '🟡 Draft'}
+                            <span class="absolute top-2 right-2 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold shadow-xs flex items-center gap-1 ${isPublished ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-slate-950'}">
+                                ${isPublished ? '<span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>🟢 TAYANG DI WEB' : '🔒 DRAFT (DISEMBUNYIKAN)'}
                             </span>
                         </div>
+                        ${!isPublished ? `<div class="bg-amber-100/90 border border-amber-300 text-amber-900 text-[11px] font-medium px-2.5 py-1 rounded-lg flex items-center gap-1.5 mb-2">
+                            <span class="material-symbols-outlined text-sm text-amber-700">info</span>
+                            <span>Status: <strong>Draft</strong> (Belum tayang di web). Klik tombol hijau di bawah untuk menayangkan.</span>
+                        </div>` : ''}
                         <h4 class="font-label-md font-bold text-on-surface text-sm mb-0.5 line-clamp-2">${item.title}</h4>
                         <div class="flex items-center justify-between text-xs text-on-surface-variant mb-1">
                             <span>Program Spesifik ${item.pillar}</span>
@@ -4717,24 +4721,26 @@
 
                     <div class="pt-sm border-t border-outline-variant/20 flex flex-col gap-2">
                         <div class="flex gap-1.5">
-                            <button type="button" onclick="toggleSpecificProgramStatus('${escapedId}')" class="flex-1 py-1.5 ${isPublished ? 'bg-amber-100 text-amber-900 hover:bg-amber-200 border border-amber-300' : 'bg-emerald-600 text-white hover:bg-emerald-700'} rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-1 cursor-pointer">
-                                <span class="material-symbols-outlined text-sm">${isPublished ? 'pause_circle' : 'rocket_launch'}</span>
-                                <span>${isPublished ? 'Jadikan Draft' : 'Publikasikan'}</span>
+                            <button type="button" onclick="toggleSpecificProgramStatus('${escapedId}')" class="flex-1 py-2 ${isPublished ? 'bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-300' : 'bg-emerald-600 text-white hover:bg-emerald-700 font-extrabold shadow-md hover:scale-[1.01]'} rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                                <span class="material-symbols-outlined text-base">${isPublished ? 'visibility_off' : 'rocket_launch'}</span>
+                                <span>${isPublished ? 'Sembunyikan (Draft)' : 'TAYANGKAN KE WEB'}</span>
                             </button>
-                            <button type="button" onclick="openSpecificProgramModal('${item.pillar}', '${escapedTitle}')" class="px-2.5 py-1.5 border border-outline-variant text-on-surface hover:text-primary rounded-lg text-xs font-semibold transition-colors flex items-center gap-1 cursor-pointer">
+                            <button type="button" onclick="openSpecificProgramModal('${item.pillar}', '${escapedTitle}')" class="px-2.5 py-2 border border-outline-variant text-on-surface hover:text-primary rounded-xl text-xs font-semibold transition-colors flex items-center gap-1 cursor-pointer">
                                 <span class="material-symbols-outlined text-sm">edit</span> Edit
                             </button>
-                            <button type="button" onclick="deleteSpecificProgramItem('${item.pillar}', '${escapedTitle}', '${escapedId}')" class="px-2.5 py-1.5 border border-error/30 text-error hover:bg-error/5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1 cursor-pointer">
+                            <button type="button" onclick="deleteSpecificProgramItem('${item.pillar}', '${escapedTitle}', '${escapedId}')" class="px-2.5 py-2 border border-error/30 text-error hover:bg-error/5 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1 cursor-pointer">
                                 <span class="material-symbols-outlined text-sm">delete</span>
                             </button>
                         </div>
-                        <div class="flex items-center justify-between px-1">
+                        <div class="flex items-center justify-between px-1 pt-0.5">
                             <label for="${safeId}" class="text-[11px] text-primary hover:underline cursor-pointer font-bold flex items-center gap-1">
                                 <span class="material-symbols-outlined text-[14px]">photo_camera</span>
                                 <span>Ganti Foto Card</span>
                             </label>
                             <input type="file" id="${safeId}" accept="image/*" class="hidden" onchange="handleSpecificProgramPhotoUpload(event, '${escapedTitle}', '${safeId}')">
-                            <span class="text-[11px] ${isPublished ? 'text-emerald-700 font-semibold' : 'text-amber-700 font-medium'}">${isPublished ? '✅ Aktif di Web' : '⏳ Hanya di Admin'}</span>
+                            <span class="text-[11px] ${isPublished ? 'text-emerald-700 font-bold flex items-center gap-0.5' : 'text-amber-800 font-semibold flex items-center gap-0.5'}">
+                                ${isPublished ? '✅ Aktif di Web & Mitra' : '⏳ Hanya di Admin'}
+                            </span>
                         </div>
                     </div>
                 </div>`;
