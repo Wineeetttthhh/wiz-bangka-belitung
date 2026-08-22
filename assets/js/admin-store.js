@@ -1130,6 +1130,124 @@
 
             return true;
         },
+        getSpecificProgramImage(title, pillar = '') {
+            if (!title) return 'assets/images/foto-utama-wiz.jpg';
+            const cleanTitle = String(title).trim();
+            
+            // 1. Check custom uploaded images store
+            try {
+                const imgMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+                if (imgMap[cleanTitle]) return imgMap[cleanTitle];
+                for (const [k, v] of Object.entries(imgMap)) {
+                    if (k.toLowerCase() === cleanTitle.toLowerCase()) return v;
+                }
+            } catch(e) {}
+
+            // 2. Check programs store
+            try {
+                if (typeof programs !== 'undefined' && programs.getAll) {
+                    const found = programs.getAll().find(p => p && p.title && p.title.toLowerCase() === cleanTitle.toLowerCase());
+                    if (found && found.imageUrl) return found.imageUrl;
+                }
+            } catch(e) {}
+
+            // 3. Check allocation rules subAllocation
+            try {
+                const rules = this.getAll();
+                for (const wData of Object.values(rules)) {
+                    if (wData && wData.subAllocation) {
+                        for (const sub of Object.values(wData.subAllocation)) {
+                            if (sub && sub.items) {
+                                const item = sub.items.find(i => (i.key || '').toLowerCase() === cleanTitle.toLowerCase());
+                                if (item && item.image) return item.image;
+                            }
+                        }
+                    }
+                }
+            } catch(e) {}
+
+            // 4. Default pillar fallback
+            const pillarPhotos = {
+                'Berkah Hidayah': 'assets/images/foto-utama-wiz.jpg',
+                'Berkah Peduli': 'assets/images/sedekah-beras-dhuafa.jpg',
+                'Berkah Juara': 'assets/images/beasiswa-tahfidz.jpg',
+                'Berkah Sehat': 'assets/images/tebar-iftar-3.jpg',
+                'Berkah Mandiri': 'https://images.unsplash.com/photo-1556742049-0a67e5572293?q=80&w=800&auto=format&fit=crop'
+            };
+            return pillarPhotos[pillar] || 'assets/images/foto-utama-wiz.jpg';
+        },
+        async updateSpecificProgramImageByName(title, imgDataUrl) {
+            if (!title || !imgDataUrl) return false;
+            const cleanTitle = String(title).trim();
+
+            let imgMap = {};
+            try {
+                imgMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+            } catch(e) {}
+            imgMap[cleanTitle] = imgDataUrl;
+            localStorage.setItem('wiz_specific_prog_imgs', JSON.stringify(imgMap));
+
+            try {
+                if (typeof programs !== 'undefined' && programs.getAll) {
+                    const allP = programs.getAll();
+                    const target = allP.find(p => p && p.title && p.title.toLowerCase() === cleanTitle.toLowerCase());
+                    if (target) {
+                        await programs.update(target.id, { imageUrl: imgDataUrl });
+                    }
+                }
+            } catch(e) {}
+
+            try {
+                const rules = this.getAll();
+                let modified = false;
+                for (const [wKey, wData] of Object.entries(rules)) {
+                    if (wData && wData.subAllocation) {
+                        for (const sub of Object.values(wData.subAllocation)) {
+                            if (sub && sub.items) {
+                                sub.items.forEach(i => {
+                                    if ((i.key || '').toLowerCase() === cleanTitle.toLowerCase()) {
+                                        i.image = imgDataUrl;
+                                        modified = true;
+                                    }
+                                });
+                            }
+                        }
+                    }
+                    if (modified) {
+                        await this.update(wKey, wData);
+                    }
+                }
+            } catch(e) {}
+
+            try {
+                if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                    await window.wizSupabase.upsert('site_settings', {
+                        id: 'specific_prog_imgs',
+                        key: 'specific_prog_imgs',
+                        value: imgMap,
+                        updated_at: new Date().toISOString()
+                    });
+                }
+                if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                    await window.wizFirebase.upsert('site_settings', {
+                        key: 'specific_prog_imgs',
+                        data: imgMap,
+                        updatedAt: new Date().toISOString()
+                    });
+                }
+                if (typeof pushToCloud === 'function') {
+                    await pushToCloud();
+                }
+            } catch(e) {}
+
+            window.dispatchEvent(new CustomEvent('wiz-program-images-changed', { detail: { title: cleanTitle, image: imgDataUrl } }));
+            window.dispatchEvent(new CustomEvent('wiz-programs-changed'));
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+            if (typeof broadcastSync === 'function') {
+                broadcastSync('PROGRAM_IMAGES_UPDATED', { title: cleanTitle, image: imgDataUrl });
+            }
+            return true;
+        },
         getSpecificProgramList(wilayah) {
             const result = [];
             const allRules = this.getAll();
@@ -1696,9 +1814,13 @@
 
                     const localItem = map.get(strId);
                     if (localItem) {
-                        // Supabase cloud data is the Single Source of Truth for status and properties
-                        const mergedItem = { ...localItem, ...cloudItem };
-                        if (localItem.imageUrl && localItem.imageUrl.startsWith('data:image') && (!cloudItem.imageUrl || !cloudItem.imageUrl.startsWith('data:image'))) {
+                        let mergedItem;
+                        if (localItem.updatedAt && cloudItem.updatedAt && new Date(localItem.updatedAt) > new Date(cloudItem.updatedAt)) {
+                            mergedItem = { ...cloudItem, ...localItem };
+                        } else {
+                            mergedItem = { ...localItem, ...cloudItem };
+                        }
+                        if (localItem.imageUrl && (!cloudItem.imageUrl || localItem.imageUrl.startsWith('data:image') || (localItem.updatedAt && new Date(localItem.updatedAt) > new Date(cloudItem.updatedAt || 0)))) {
                             mergedItem.imageUrl = localItem.imageUrl;
                         }
                         map.set(strId, mergedItem);
@@ -1855,7 +1977,7 @@
                 smartMerge(STORAGE_KEYS.ADMIN_USERS, masterData.admin_users, null);
             }
             if (masterData.programs && Array.isArray(masterData.programs) && masterData.programs.length > 0) {
-                smartMerge(STORAGE_KEYS.PROGRAMS, masterData.programs, getDeletedProgramIds());
+                smartMerge(STORAGE_KEYS.PROGRAMS, masterData.programs, (a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0), getDeletedProgramIds());
                 window.dispatchEvent(new CustomEvent('wiz-programs-changed'));
             }
 

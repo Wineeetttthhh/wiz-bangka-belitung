@@ -1605,7 +1605,7 @@
         });
 
         window.addEventListener('storage', (e) => {
-            if (e.key === 'wiz_custom_specific_programs' || e.key === 'wiz_specific_prog_imgs' || e.key === 'wiz_allocation_rules') {
+            if (!e.key || e.key.startsWith('wiz_')) {
                 renderCustomDynamicPrograms();
                 updateDynamicProgramCards();
                 injectShareButtonsOnCards();
