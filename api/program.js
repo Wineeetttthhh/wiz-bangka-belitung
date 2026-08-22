@@ -321,13 +321,17 @@ async function getLiveCloudMetadata() {
     }
 
     try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 2500);
         const res = await fetch(`${SUPABASE_URL}/site_settings?key=eq.master_bundle&select=*`, {
+            signal: controller.signal,
             headers: {
                 'apikey': SUPABASE_KEY,
                 'Authorization': `Bearer ${SUPABASE_KEY}`,
                 'Accept': 'application/json'
             }
         });
+        clearTimeout(timeout);
         if (res.ok) {
             const list = await res.json();
             if (Array.isArray(list) && list.length > 0 && list[0].value) {
@@ -488,13 +492,62 @@ module.exports = async function handler(req, res) {
 
     // ─── Related Programs List (Pilihan Program Kebaikan Lainnya) ───
     const RELATED_PROGRAM_CANDIDATES = [
-        { slug: 'sedekah-beras-dhuafa', title: 'Sedekah Beras Dhuafa', pillar: 'Sosial & Kemanusiaan', target: 'Rp 15.000.000', img: 'assets/images/sedekah-beras-dhuafa.jpg' },
-        { slug: 'beasiswa-pendidikan-juara', title: 'Beasiswa Pendidikan Juara', pillar: 'Pendidikan & Beasiswa', target: 'Rp 25.000.000', img: 'assets/images/beasiswa-tahfidz.jpg' },
-        { slug: 'pembangunan-markaz', title: 'Pembangunan Markaz Dakwah', pillar: 'Dakwah & Pembinaan', target: 'Rp 2.004.000.000', img: 'assets/images/foto-utama-wiz.jpg' },
-        { slug: 'bantuan-kesehatan-dhuafa', title: 'Bantuan Kesehatan Dhuafa', pillar: 'Kesehatan Masyarakat', target: 'Rp 20.000.000', img: 'assets/images/sedekah-beras-dhuafa.jpg' },
-        { slug: 'santunan-yatim', title: 'Santunan Anak Yatim', pillar: 'Sosial & Kemanusiaan', target: 'Rp 10.000.000', img: 'assets/images/foto-utama-wiz.jpg' },
-        { slug: 'sedekah-air', title: 'Sedekah Air Bersih', pillar: 'Sosial & Kemanusiaan', target: 'Rp 15.000.000', img: 'assets/images/foto-utama-wiz.jpg' },
-        { slug: 'perlengkapan-belajar-yatim', title: 'Perlengkapan Belajar Yatim', pillar: 'Pendidikan & Beasiswa', target: 'Rp 12.000.000', img: 'assets/images/beasiswa-tahfidz.jpg' }
+        { 
+            slug: 'sedekah-beras-dhuafa', 
+            title: 'Sedekah Beras Dhuafa', 
+            pillar: 'Sosial & Kemanusiaan', 
+            target: 'Rp 15.000.000', 
+            img: specificImgsMap['Sedekah Beras Dhuafa'] || 'assets/images/sedekah-beras-dhuafa.jpg' 
+        },
+        { 
+            slug: 'beasiswa-pendidikan-juara', 
+            title: 'Beasiswa Pendidikan Juara', 
+            pillar: 'Pendidikan & Beasiswa', 
+            target: 'Rp 25.000.000', 
+            img: specificImgsMap['Beasiswa Pendidikan Juara'] || 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=800&auto=format&fit=crop' 
+        },
+        { 
+            slug: 'pembangunan-markaz', 
+            title: 'Pembangunan Markaz Dakwah', 
+            pillar: 'Dakwah & Pembinaan', 
+            target: 'Rp 2.004.000.000', 
+            img: specificImgsMap['Pembangunan Markaz'] || 'https://images.unsplash.com/photo-1542665952-14513db15293?q=80&w=800&auto=format&fit=crop' 
+        },
+        { 
+            slug: 'bantuan-kesehatan-dhuafa', 
+            title: 'Bantuan Kesehatan Dhuafa', 
+            pillar: 'Kesehatan Masyarakat', 
+            target: 'Rp 20.000.000', 
+            img: specificImgsMap['Bantuan Kesehatan Dhuafa'] || 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop' 
+        },
+        { 
+            slug: 'tebar-iftar', 
+            title: 'Tebar Ifthar Nusantara', 
+            pillar: 'Sosial & Kemanusiaan', 
+            target: 'Rp 30.000.000', 
+            img: specificImgsMap['Tebar Iftar'] || 'assets/images/tebar-iftar.jpg' 
+        },
+        { 
+            slug: 'sedekah-air', 
+            title: 'Sedekah Air Bersih', 
+            pillar: 'Sosial & Kemanusiaan', 
+            target: 'Rp 15.000.000', 
+            img: specificImgsMap['Sedekah Air'] || 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?q=80&w=800&auto=format&fit=crop' 
+        },
+        { 
+            slug: 'santunan-yatim', 
+            title: 'Santunan Anak Yatim', 
+            pillar: 'Sosial & Kemanusiaan', 
+            target: 'Rp 10.000.000', 
+            img: specificImgsMap['Santunan Yatim'] || 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800&auto=format&fit=crop' 
+        },
+        { 
+            slug: 'ambulans-gratis-peduli', 
+            title: 'Layanan Ambulans Gratis', 
+            pillar: 'Kesehatan Masyarakat', 
+            target: 'Rp 25.000.000', 
+            img: specificImgsMap['Ambulans Gratis Peduli'] || 'https://images.unsplash.com/photo-1587745416684-47b883828d6b?q=80&w=800&auto=format&fit=crop' 
+        }
     ];
 
     const relatedPrograms = RELATED_PROGRAM_CANDIDATES
@@ -506,7 +559,10 @@ module.exports = async function handler(req, res) {
     const relatedCardsHtml = relatedPrograms.map(item => {
         const itemProgUrl = `${origin}/program/${item.slug}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
         const itemDonateUrl = `${origin}/donasi.html?program=${encodeURIComponent(item.title)}${refCode ? '&ref=' + encodeURIComponent(refCode) : ''}`;
-        const itemImgSrc = item.img.startsWith('http') ? item.img : `${origin}/${item.img.replace(/^\//, '')}`;
+        let itemImgSrc = item.img || 'assets/images/foto-utama-wiz.jpg';
+        if (!itemImgSrc.startsWith('http') && !itemImgSrc.startsWith('data:image')) {
+            itemImgSrc = `${origin}/${itemImgSrc.replace(/^\//, '')}`;
+        }
 
         return `
         <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between">
