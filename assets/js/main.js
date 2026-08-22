@@ -119,28 +119,301 @@ window.showWhatsAppShareToast = function(customMsg) {
     }, 4500);
 };
 
-function shareProgram(title, desc = '', customUrl = '', customImg = '') {
+// ─── UNIVERSAL MULTI-PLATFORM SHARE MODAL ─────────────────────────────────────
+let _currentUniversalShare = null;
+
+function ensureUniversalShareModal() {
+    let modal = document.getElementById('wiz-universal-share-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'wiz-universal-share-modal';
+        modal.className = 'fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300';
+        modal.innerHTML = `
+        <div class="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden transform scale-95 transition-transform duration-300 flex flex-col max-h-[92vh]" id="wiz-universal-share-dialog">
+            <!-- Modal Header -->
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80 sticky top-0 z-10">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
+                        <span class="material-symbols-outlined text-xl">share</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base leading-snug">Bagikan Program Kebaikan</h3>
+                        <p class="text-xs text-slate-500">Pilih media sosial untuk menyebarkan syiar donasi</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeUniversalShareModal()" class="w-8 h-8 rounded-full bg-slate-200/70 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors cursor-pointer" title="Tutup">
+                    <span class="material-symbols-outlined text-lg">close</span>
+                </button>
+            </div>
+
+            <!-- Program Preview Card -->
+            <div class="p-5 overflow-y-auto space-y-4">
+                <div class="flex gap-3.5 p-3 rounded-2xl bg-slate-50 border border-slate-200/80 items-center">
+                    <div class="w-20 h-16 rounded-xl overflow-hidden shrink-0 bg-slate-200">
+                        <img id="wiz-share-card-img" src="assets/images/foto-utama-wiz.jpg" class="w-full h-full object-cover" alt="Preview">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <span id="wiz-share-card-pillar" class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary mb-1">Pilar Program</span>
+                        <h4 id="wiz-share-card-title" class="font-bold text-slate-900 text-sm truncate">Judul Program</h4>
+                        <p id="wiz-share-card-desc" class="text-xs text-slate-500 line-clamp-1">Salurkan sedekah terbaik Anda bersama WIZ Bangka Belitung.</p>
+                    </div>
+                </div>
+
+                <!-- Social Media Sharing Grid -->
+                <div>
+                    <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">Pilih Media Sosial</span>
+                    <div class="grid grid-cols-4 gap-2.5">
+                        <!-- WhatsApp Chat -->
+                        <button type="button" onclick="triggerSocialShare('wa')" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 hover:border-[#25D366] hover:bg-[#25D366]/5 transition-all group cursor-pointer shadow-2xs">
+                            <div class="w-11 h-11 rounded-2xl bg-[#25D366] text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform mb-1.5">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+                            </div>
+                            <span class="text-xs font-bold text-slate-800">WhatsApp</span>
+                            <span class="text-[10px] text-slate-400">Chat / Grup</span>
+                        </button>
+
+                        <!-- WhatsApp Status -->
+                        <button type="button" onclick="triggerSocialShare('wa_status')" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all group cursor-pointer shadow-2xs">
+                            <div class="w-11 h-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform mb-1.5">
+                                <span class="material-symbols-outlined text-2xl">donut_large</span>
+                            </div>
+                            <span class="text-xs font-bold text-slate-800">WA Status</span>
+                            <span class="text-[10px] text-slate-400">Story WA</span>
+                        </button>
+
+                        <!-- Instagram -->
+                        <button type="button" onclick="triggerSocialShare('ig')" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 hover:border-[#E1306C] hover:bg-pink-50 transition-all group cursor-pointer shadow-2xs">
+                            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform mb-1.5">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                            </div>
+                            <span class="text-xs font-bold text-slate-800">Instagram</span>
+                            <span class="text-[10px] text-slate-400">Story / Bio</span>
+                        </button>
+
+                        <!-- Telegram -->
+                        <button type="button" onclick="triggerSocialShare('tg')" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 hover:border-[#0088cc] hover:bg-sky-50 transition-all group cursor-pointer shadow-2xs">
+                            <div class="w-11 h-11 rounded-2xl bg-[#0088cc] text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform mb-1.5">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.458c.538-.196 1.006.128.832.941z"/></svg>
+                            </div>
+                            <span class="text-xs font-bold text-slate-800">Telegram</span>
+                            <span class="text-[10px] text-slate-400">Channel/Grup</span>
+                        </button>
+
+                        <!-- Facebook -->
+                        <button type="button" onclick="triggerSocialShare('fb')" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 hover:border-[#1877F2] hover:bg-blue-50 transition-all group cursor-pointer shadow-2xs">
+                            <div class="w-11 h-11 rounded-2xl bg-[#1877F2] text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform mb-1.5">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M9 8H6v4h3v12h5V12h3.642L18 8h-4V6.333C14 5.374 14.5 5 15.688 5H18V0h-3.808C10.595 0 9 1.582 9 4.615V8z"/></svg>
+                            </div>
+                            <span class="text-xs font-bold text-slate-800">Facebook</span>
+                            <span class="text-[10px] text-slate-400">Feed / Grup</span>
+                        </button>
+
+                        <!-- X / Twitter -->
+                        <button type="button" onclick="triggerSocialShare('tw')" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 hover:border-black hover:bg-slate-100 transition-all group cursor-pointer shadow-2xs">
+                            <div class="w-11 h-11 rounded-2xl bg-black text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform mb-1.5">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                            </div>
+                            <span class="text-xs font-bold text-slate-800">X (Twitter)</span>
+                            <span class="text-[10px] text-slate-400">Post Tweet</span>
+                        </button>
+
+                        <!-- Native Mobile Share Sheet -->
+                        <button type="button" onclick="triggerSocialShare('native')" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 hover:border-primary hover:bg-primary/5 transition-all group cursor-pointer shadow-2xs">
+                            <div class="w-11 h-11 rounded-2xl bg-primary text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform mb-1.5">
+                                <span class="material-symbols-outlined text-2xl">share</span>
+                            </div>
+                            <span class="text-xs font-bold text-slate-800">Lainnya</span>
+                            <span class="text-[10px] text-slate-400">App Lainnya</span>
+                        </button>
+
+                        <!-- Copy Link -->
+                        <button type="button" onclick="triggerSocialShare('copy')" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 hover:border-slate-400 hover:bg-slate-50 transition-all group cursor-pointer shadow-2xs">
+                            <div class="w-11 h-11 rounded-2xl bg-slate-700 text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform mb-1.5">
+                                <span class="material-symbols-outlined text-2xl">link</span>
+                            </div>
+                            <span class="text-xs font-bold text-slate-800">Salin Link</span>
+                            <span class="text-[10px] text-slate-400">Ke Clipboard</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- URL Bar with Copy Button -->
+                <div class="pt-2">
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Tautan Langsung Program</label>
+                    <div class="flex items-center gap-1.5 p-1.5 bg-slate-100 rounded-2xl border border-slate-200">
+                        <input type="text" id="wiz-share-input-url" readonly class="bg-transparent text-xs text-slate-700 px-3 py-1 flex-1 font-mono outline-none select-all" value="">
+                        <button type="button" onclick="triggerSocialShare('copy')" id="wiz-share-btn-copy-input" class="bg-primary hover:bg-primary/90 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1 transition-all cursor-pointer shrink-0">
+                            <span class="material-symbols-outlined text-sm">content_copy</span>
+                            <span>Salin</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Copy Ready-to-Use Caption Button -->
+                <div class="pt-1">
+                    <button type="button" onclick="copyShareCaption()" id="wiz-share-btn-caption" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs py-2.5 px-3 rounded-2xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs">
+                        <span class="material-symbols-outlined text-base text-emerald-700">edit_note</span>
+                        <span>Salin Teks Ajakan Siap Posting (Caption Lengkap)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        `;
+        document.body.appendChild(modal);
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeUniversalShareModal();
+        });
+    }
+    return modal;
+}
+
+function openUniversalShareModal(title, pillar = 'Sosial & Kemanusiaan', imageUrl = '', desc = '', customUrl = '') {
+    ensureUniversalShareModal();
     const cleanTitle = (title || 'Program Kebaikan').trim();
-    const refCode = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || '');
+    const cleanPillar = (pillar || 'Sosial & Kemanusiaan').trim();
+    const cleanImg = imageUrl || 'assets/images/foto-utama-wiz.jpg';
+    const cleanDesc = desc || `Salurkan kepedulian dan donasi terbaik Anda untuk program ${cleanTitle} bersama Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.`;
+
+    const activeRef = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || 
+                      (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || '');
     
-    // Generate clean SSR slug URL
     const slug = cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-');
-    const baseDomain = 'https://www.wizbangkabelitung.or.id';
+    const baseOrigin = 'https://www.wizbangkabelitung.or.id';
     let fullUrl = customUrl;
     if (!fullUrl) {
-        fullUrl = `${baseDomain}/program/${slug}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
+        fullUrl = `${baseOrigin}/program/${slug}${activeRef ? '?ref=' + encodeURIComponent(activeRef) : ''}`;
     }
-    
-    if (typeof window.showWhatsAppShareToast === 'function') {
-        window.showWhatsAppShareToast('Tunggu 1–2 detik di layar WhatsApp hingga kartu foto program muncul besar sebelum menekan kirim status ✨');
+
+    _currentUniversalShare = {
+        title: cleanTitle,
+        pillar: cleanPillar,
+        imageUrl: cleanImg,
+        desc: cleanDesc,
+        url: fullUrl,
+        ref: activeRef
+    };
+
+    const imgEl = document.getElementById('wiz-share-card-img');
+    if (imgEl) imgEl.src = cleanImg;
+    const pillarEl = document.getElementById('wiz-share-card-pillar');
+    if (pillarEl) pillarEl.textContent = cleanPillar;
+    const titleEl = document.getElementById('wiz-share-card-title');
+    if (titleEl) titleEl.textContent = cleanTitle;
+    const descEl = document.getElementById('wiz-share-card-desc');
+    if (descEl) descEl.textContent = cleanDesc;
+    const inputUrl = document.getElementById('wiz-share-input-url');
+    if (inputUrl) inputUrl.value = fullUrl;
+
+    const modal = document.getElementById('wiz-universal-share-modal');
+    const dialog = document.getElementById('wiz-universal-share-dialog');
+    if (modal && dialog) {
+        modal.classList.remove('opacity-0', 'pointer-events-none');
+        modal.classList.add('opacity-100');
+        dialog.classList.remove('scale-95');
+        dialog.classList.add('scale-100');
+        document.body.style.overflow = 'hidden';
     }
-    
-    // Send pure URL only to WhatsApp so Open Graph thumbnail card renders reliably on WhatsApp Status
-    const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(fullUrl);
-    setTimeout(() => {
-        window.open(waUrl, '_blank');
-    }, 300);
 }
+
+function closeUniversalShareModal() {
+    const modal = document.getElementById('wiz-universal-share-modal');
+    const dialog = document.getElementById('wiz-universal-share-dialog');
+    if (!modal) return;
+    modal.classList.add('opacity-0', 'pointer-events-none');
+    modal.classList.remove('opacity-100');
+    if (dialog) {
+        dialog.classList.add('scale-95');
+        dialog.classList.remove('scale-100');
+    }
+    document.body.style.overflow = '';
+}
+
+function triggerSocialShare(platform) {
+    if (!_currentUniversalShare) return;
+    const { title, url, desc } = _currentUniversalShare;
+
+    if (platform === 'wa') {
+        const text = `*${title}*\n\n${desc}\n\nSalurkan donasi terbaik Anda melalui tautan resmi berikut:\n👉 ${url}`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    } else if (platform === 'wa_status') {
+        if (typeof window.showWhatsAppShareToast === 'function') {
+            window.showWhatsAppShareToast('Tunggu 1–2 detik di layar WhatsApp hingga kartu preview gambar muncul sebelum menekan kirim Status ✨');
+        }
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(url)}`, '_blank');
+    } else if (platform === 'ig') {
+        copyShareCaption(true);
+        setTimeout(() => {
+            window.open('https://www.instagram.com/', '_blank');
+        }, 1200);
+    } else if (platform === 'tg') {
+        const text = `${title}\n\n${desc}`;
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+    } else if (platform === 'fb') {
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+    } else if (platform === 'tw') {
+        const text = `Mari bersama dukung program "${title}" bersama WIZ Bangka Belitung.\n\n`;
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+    } else if (platform === 'native') {
+        if (navigator.share) {
+            navigator.share({
+                title: title,
+                text: `${title} - ${desc}`,
+                url: url
+            }).catch(() => {});
+        } else {
+            triggerSocialShare('copy');
+        }
+    } else if (platform === 'copy') {
+        navigator.clipboard.writeText(url).then(() => {
+            const btn = document.getElementById('wiz-share-btn-copy-input');
+            if (btn) {
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<span class="material-symbols-outlined text-sm">check</span><span>Tersalin!</span>';
+                btn.classList.add('bg-emerald-600');
+                setTimeout(() => {
+                    btn.innerHTML = orig;
+                    btn.classList.remove('bg-emerald-600');
+                }, 2500);
+            }
+            if (typeof window.showWhatsAppShareToast === 'function') {
+                window.showWhatsAppShareToast('✅ Tautan program berhasil disalin ke clipboard!');
+            }
+        });
+    }
+}
+
+function copyShareCaption(isForInstagram = false) {
+    if (!_currentUniversalShare) return;
+    const { title, url, desc, pillar } = _currentUniversalShare;
+    const caption = `🌟 *PROGRAM KEBAIKAN: ${title.toUpperCase()}* 🌟\n(Pilar ${pillar} - WIZ Bangka Belitung)\n\n${desc}\n\n"Siapa yang menunjukkan kepada kebaikan, maka dia mendapatkan pahala seperti pahala orang yang melakukannya." (HR. Muslim)\n\nSalurkan donasi dan kepedulian terbaik Anda melalui tautan resmi di bawah ini:\n👉 ${url}\n\nYuk sebar luaskan info kebaikan ini ke keluarga, kerabat, dan sahabat kita ✨`;
+
+    navigator.clipboard.writeText(caption).then(() => {
+        const btn = document.getElementById('wiz-share-btn-caption');
+        if (btn) {
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<span class="material-symbols-outlined text-base text-emerald-700">check_circle</span><span>✅ Teks Ajakan Lengkap Berhasil Disalin!</span>';
+            setTimeout(() => {
+                btn.innerHTML = orig;
+            }, 3000);
+        }
+        if (typeof window.showWhatsAppShareToast === 'function') {
+            const msg = isForInstagram 
+                ? '📋 Teks & Tautan telah disalin! Membuka Instagram... (Tempel di Story Stiker Link / Bio)' 
+                : '✅ Format teks ajakan & link donasi berhasil disalin ke clipboard!';
+            window.showWhatsAppShareToast(msg);
+        }
+    });
+}
+
+function shareProgram(title, desc = '', customUrl = '', customImg = '') {
+    openUniversalShareModal(title, '', customImg, desc, customUrl);
+}
+
+window.openUniversalShareModal = openUniversalShareModal;
+window.closeUniversalShareModal = closeUniversalShareModal;
+window.triggerSocialShare = triggerSocialShare;
+window.copyShareCaption = copyShareCaption;
 window.shareProgram = shareProgram;
 
 function initReferralUrlTracker() {

@@ -1526,7 +1526,13 @@
                                 <div class="bg-primary h-2 rounded-full" style="width: ${stats.percent}%"></div>
                             </div>
                         </div>
-                        <button onclick="openDonationModal('${escapeHtml(item.title)}')" class="w-full bg-[#F7941D] text-white font-label-md text-label-md py-sm rounded-lg hover:opacity-90 transition-opacity font-bold cursor-pointer">Donasi Sekarang</button>
+                        <div class="mt-auto space-y-2">
+                            <button onclick="openDonationModal('${escapeHtml(item.title)}')" class="w-full bg-[#F7941D] text-white font-label-md text-label-md py-sm rounded-lg hover:opacity-90 transition-opacity font-bold cursor-pointer">Donasi Sekarang</button>
+                            <button onclick="event.stopPropagation(); openUniversalShareModal('${escapeHtml(item.title)}', '${escapeHtml(item.pillar)}', '${escapeHtml(item.img)}', '${escapeHtml(item.desc)}')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2 rounded-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-slate-200 shadow-2xs">
+                                <span class="material-symbols-outlined text-base">share</span>
+                                <span>Bagikan Program Ini</span>
+                            </button>
+                        </div>
                     </div>
                 </article>`;
             }).join('');
