@@ -262,7 +262,15 @@ const PROGRAM_IMAGE_MAP = {
     'bantuan-pasien-kritis-dhuafa':         'assets/images/sedekah-beras-dhuafa.jpg',
     'ambulans-gratis-peduli':               'assets/images/sedekah-beras-dhuafa.jpg',
     'sedekah-beras-dhuafa':                 'assets/images/sedekah-beras-dhuafa.jpg',
-    'tebar-sembako':                        'assets/images/sedekah-beras-dhuafa.jpg'
+    'tebar-sembako':                        'assets/images/sedekah-beras-dhuafa.jpg',
+    // Social & Kemanusiaan – foto kegiatan lapangan
+    'pray-for-ntt':                         'assets/images/sedekah-beras-dhuafa.jpg',
+    'tebar-sembako-dhuafa':                 'assets/images/sedekah-beras-dhuafa.jpg',
+    'santunan-mualaf':                      'assets/images/sedekah-beras-dhuafa.jpg',
+    'khitanan-massal-dhuafa':               'assets/images/sedekah-beras-dhuafa.jpg',
+    'modal-usaha-mandiri':                  'assets/images/foto-utama-wiz.jpg',
+    'modal-usaha-dhuafa':                   'assets/images/foto-utama-wiz.jpg',
+    'gerobak-berkah-umkm':                  'assets/images/foto-utama-wiz.jpg',
 };
 
 async function resolveProgramRaw(slug) {
