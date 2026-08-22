@@ -486,6 +486,57 @@ module.exports = async function handler(req, res) {
 
     const donateUrl = `${origin}/donasi.html?program=${encodeURIComponent(title)}${refCode ? '&ref=' + encodeURIComponent(refCode) : ''}`;
 
+    // ─── Related Programs List (Pilihan Program Kebaikan Lainnya) ───
+    const RELATED_PROGRAM_CANDIDATES = [
+        { slug: 'sedekah-beras-dhuafa', title: 'Sedekah Beras Dhuafa', pillar: 'Sosial & Kemanusiaan', target: 'Rp 15.000.000', img: 'assets/images/sedekah-beras-dhuafa.jpg' },
+        { slug: 'beasiswa-pendidikan-juara', title: 'Beasiswa Pendidikan Juara', pillar: 'Pendidikan & Beasiswa', target: 'Rp 25.000.000', img: 'assets/images/beasiswa-tahfidz.jpg' },
+        { slug: 'pembangunan-markaz', title: 'Pembangunan Markaz Dakwah', pillar: 'Dakwah & Pembinaan', target: 'Rp 2.004.000.000', img: 'assets/images/foto-utama-wiz.jpg' },
+        { slug: 'bantuan-kesehatan-dhuafa', title: 'Bantuan Kesehatan Dhuafa', pillar: 'Kesehatan Masyarakat', target: 'Rp 20.000.000', img: 'assets/images/sedekah-beras-dhuafa.jpg' },
+        { slug: 'santunan-yatim', title: 'Santunan Anak Yatim', pillar: 'Sosial & Kemanusiaan', target: 'Rp 10.000.000', img: 'assets/images/foto-utama-wiz.jpg' },
+        { slug: 'sedekah-air', title: 'Sedekah Air Bersih', pillar: 'Sosial & Kemanusiaan', target: 'Rp 15.000.000', img: 'assets/images/foto-utama-wiz.jpg' },
+        { slug: 'perlengkapan-belajar-yatim', title: 'Perlengkapan Belajar Yatim', pillar: 'Pendidikan & Beasiswa', target: 'Rp 12.000.000', img: 'assets/images/beasiswa-tahfidz.jpg' }
+    ];
+
+    const relatedPrograms = RELATED_PROGRAM_CANDIDATES
+        .filter(c => c.slug !== canonicalSlug && slugify(c.title) !== canonicalSlug)
+        .slice(0, 4);
+
+    const catalogUrl = `${origin}/program.html${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
+
+    const relatedCardsHtml = relatedPrograms.map(item => {
+        const itemProgUrl = `${origin}/program/${item.slug}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
+        const itemDonateUrl = `${origin}/donasi.html?program=${encodeURIComponent(item.title)}${refCode ? '&ref=' + encodeURIComponent(refCode) : ''}`;
+        const itemImgSrc = item.img.startsWith('http') ? item.img : `${origin}/${item.img.replace(/^\//, '')}`;
+
+        return `
+        <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between">
+            <div>
+                <div class="relative aspect-video w-full bg-slate-900 overflow-hidden">
+                    <img src="${escapeHtml(itemImgSrc)}" alt="${escapeHtml(item.title)}" class="w-full h-full object-cover">
+                    <span class="absolute top-2 left-2 bg-emerald-700/90 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-xs">
+                        ${escapeHtml(item.pillar)}
+                    </span>
+                </div>
+                <div class="p-4 space-y-1.5">
+                    <h3 class="font-bold text-slate-900 text-sm leading-snug line-clamp-2">
+                        ${escapeHtml(item.title)}
+                    </h3>
+                    <p class="text-xs text-slate-500 font-medium">
+                        Target: <strong class="text-emerald-700 font-bold">${escapeHtml(item.target)}</strong>
+                    </p>
+                </div>
+            </div>
+            <div class="p-4 pt-0 grid grid-cols-2 gap-2">
+                <a href="${escapeHtml(itemProgUrl)}" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold py-2 px-2 rounded-xl text-center transition-colors">
+                    Detail Program
+                </a>
+                <a href="${escapeHtml(itemDonateUrl)}" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 px-2 rounded-xl text-center transition-colors shadow-xs">
+                    Donasi Cepat
+                </a>
+            </div>
+        </div>`;
+    }).join('');
+
     // Set 30-Day Referral Cookie if refCode is present (max-age 2,592,000s = 30 days)
     if (refCode) {
         res.setHeader('Set-Cookie', `wiz_ref=${encodeURIComponent(refCode)}; Path=/; Max-Age=2592000; SameSite=Lax`);
@@ -566,8 +617,9 @@ module.exports = async function handler(req, res) {
         </div>
     </header>
 
-    <!-- Main Hero Card -->
-    <main class="max-w-3xl mx-auto px-4 py-8 flex-grow space-y-6 w-full">
+    <!-- Main Content -->
+    <main class="max-w-3xl mx-auto px-4 py-8 flex-grow space-y-8 w-full">
+        <!-- Main Hero Program Card -->
         <div class="bg-white rounded-3xl overflow-hidden shadow-xl border border-slate-200">
             <div class="relative aspect-video w-full bg-slate-900 overflow-hidden">
                 <img src="${escapeHtml(pageImgSrc)}" alt="${escapeHtml(title)}" class="w-full h-full object-cover">
@@ -611,6 +663,34 @@ module.exports = async function handler(req, res) {
             </div>
         </div>
 
+        <!-- Other Programs Section (Pilihan Program Kebaikan Lainnya) -->
+        <section class="space-y-4 pt-2">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+                        <span class="material-symbols-outlined text-emerald-600 text-xl sm:text-2xl">category</span>
+                        <span>Pilihan Program Kebaikan Lainnya</span>
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Salurkan juga kebaikan Anda untuk berbagai program kemaslahatan ummat lainnya.</p>
+                </div>
+                <a href="${catalogUrl}" class="hidden sm:inline-flex items-center gap-1 text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-3 py-2 rounded-xl transition-colors shrink-0">
+                    <span>Semua Program</span>
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                ${relatedCardsHtml}
+            </div>
+
+            <div class="pt-2 text-center">
+                <a href="${catalogUrl}" class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-500 text-slate-800 hover:text-emerald-700 font-bold text-xs sm:text-sm shadow-sm hover:shadow-md transition-all">
+                    <span class="material-symbols-outlined text-lg text-emerald-600">explore</span>
+                    <span>Jelajahi Seluruh Katalog Program Donasi WIZ Babel</span>
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </a>
+            </div>
+        </section>
     </main>
 
     <!-- Footer -->

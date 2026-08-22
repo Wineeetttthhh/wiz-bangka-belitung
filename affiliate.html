@@ -1074,14 +1074,39 @@
             });
         }
 
+        function cleanProgramTitle(title) {
+            let clean = String(title || '').trim();
+            const parenMatch = clean.match(/\(([^)]+)\)/);
+            if (parenMatch && parenMatch[1]) {
+                clean = parenMatch[1].trim();
+            }
+            return clean;
+        }
+
         function shareAffiliateProgram(programTitle) {
             const activeRef = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || sessionStorage.getItem('wiz_active_ref_id');
             if (!activeRef) {
                 alert('Silakan Login atau mendaftar akun Mitra Penghimpunan terlebih dahulu agar tautan program terhubung dengan Kode Mitra Anda!');
                 return;
             }
-            const pImg = (wizStore && wizStore.allocationRulesManager) ? wizStore.allocationRulesManager.getSpecificProgramImage(programTitle) : '';
-            window.shareProgram(programTitle, `Mari bersama menyalurkan kepedulian melalui program ${programTitle} WIZ Bangka Belitung.`, '', pImg);
+            const cleanName = cleanProgramTitle(programTitle);
+            const pImg = (wizStore && wizStore.allocationRulesManager) ? wizStore.allocationRulesManager.getSpecificProgramImage(cleanName) : '';
+            window.shareProgram(cleanName, '', '', pImg);
+        }
+
+        function copyAffiliateProgramLink(programTitle) {
+            const activeRef = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || sessionStorage.getItem('wiz_active_ref_id');
+            if (!activeRef) {
+                alert('Silakan Login terlebih dahulu!');
+                return;
+            }
+            const cleanName = cleanProgramTitle(programTitle);
+            const slug = cleanName.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-');
+            const origin = 'https://www.wizbangkabelitung.or.id';
+            const url = `${origin}/program/${slug}?ref=${encodeURIComponent(activeRef)}`;
+            navigator.clipboard.writeText(url).then(() => {
+                alert(`✅ Link Program Penghimpunan berhasil disalin:\n${url}`);
+            });
         }
 
         function renderAffiliateProgramsGrid() {
@@ -1103,11 +1128,15 @@
                         <h4 class="font-bold text-slate-900 text-sm line-clamp-1">${p.displayLabel}</h4>
                         <p class="text-xs text-slate-500">Terkumpul: <strong class="text-primary">Rp ${(p.masuk || 0).toLocaleString('id-ID')}</strong></p>
                         
-                        <div class="pt-2 mt-auto">
+                        <div class="pt-2 mt-auto grid grid-cols-4 gap-2">
                             <button onclick="shareAffiliateProgram('${p.displayLabel}')"
-                                class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-1.5 cursor-pointer">
-                                <span class="material-symbols-outlined text-sm">share</span>
-                                <span>Bagikan Link Program Ini</span>
+                                class="col-span-3 bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer" title="Bagikan ke WhatsApp">
+                                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+                                <span>Bagikan WA</span>
+                            </button>
+                            <button onclick="copyAffiliateProgramLink('${p.displayLabel}')"
+                                class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2.5 rounded-xl flex items-center justify-center transition-colors cursor-pointer" title="Salin Link Program">
+                                <span class="material-symbols-outlined text-base">content_copy</span>
                             </button>
                         </div>
                     </div>

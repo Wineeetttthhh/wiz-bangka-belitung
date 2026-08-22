@@ -246,6 +246,8 @@ const PROGRAM_IMAGE_MAP = {
     'pembangunan-markaz':                   'assets/images/foto-utama-wiz.jpg',
     'wiz-berkah-hidayah-pembangunan-markaz':'assets/images/foto-utama-wiz.jpg',
     'beasiswa-pendidikan-juara':            'assets/images/beasiswa-tahfidz.jpg',
+    'perlengkapan-belajar-yatim':           'assets/images/beasiswa-tahfidz.jpg',
+    'wiz-berkah-juara-perlengkapan-belajar-yatim': 'assets/images/beasiswa-tahfidz.jpg',
     'beasiswa-tahfidz':                     'assets/images/beasiswa-tahfidz.jpg',
     'beasiswa-tahfidz-dhuafa':              'assets/images/beasiswa-tahfidz.jpg',
     'tebar-iftar':                          'assets/images/tebar-iftar.jpg',
