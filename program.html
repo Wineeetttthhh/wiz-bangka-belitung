@@ -1433,137 +1433,78 @@
     function renderCustomDynamicPrograms() {
         if (!window.wizStore) return;
 
-        const existingTitles = new Set();
-        document.querySelectorAll('.program-card').forEach(c => {
-            const t = (c.getAttribute('data-title') || c.querySelector('h3, h4')?.textContent || '').trim().toLowerCase();
-            if (t) existingTitles.add(t);
-        });
-
-        let addedCount = 0;
-
-        // 1. First render published programs from wizStore.programs
+        let published = [];
         if (window.wizStore.programs && typeof window.wizStore.programs.getPublished === 'function') {
-            const published = window.wizStore.programs.getPublished();
-            published.forEach(p => {
-                const normTitle = (p.title || '').trim().toLowerCase();
-                if (!existingTitles.has(normTitle)) {
-                    existingTitles.add(normTitle);
-                    addedCount++;
-
-                    const catKey = PILLAR_TO_CATEGORY_MAP[p.pillar] || 'sosial';
-                    const section = document.querySelector(`.program-section[data-section-category="${catKey}"]`) || document.querySelector('.program-section');
-                    if (!section) return;
-                    const grid = section.querySelector('.grid');
-                    if (!grid) return;
-
-                    const dynamicImg = p.imageUrl || (window.wizStore.allocationRulesManager ? window.wizStore.allocationRulesManager.getSpecificProgramImage(p.title, p.pillar) : 'assets/images/foto-utama-wiz.jpg');
-                    const card = document.createElement('article');
-                    card.className = 'program-card dynamic-added bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full cursor-pointer';
-                    card.setAttribute('data-category', catKey);
-                    card.setAttribute('data-title', p.title);
-                    card.setAttribute('data-target', String(p.targetAmount || 50000000));
-
-                    card.innerHTML = `
-                        <div class="relative overflow-hidden aspect-video bg-surface-container">
-                            <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="${escapeHtml(p.title)}" src="${dynamicImg}" onerror="this.onerror=null; this.src='assets/images/foto-utama-wiz.jpg';" alt="${escapeHtml(p.title)}"/>
-                            <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">${escapeHtml(p.pillar)}</span>
-                        </div>
-                        <div class="p-lg flex flex-col flex-grow">
-                            <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">${escapeHtml(p.title)}</h3>
-                            <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">${escapeHtml(p.description || `Salurkan kepedulian dan donasi terbaik Anda untuk program ${p.title} bersama WIZ Babel.`)}</p>
-                            <div class="mb-lg space-y-xs">
-                                <div class="flex justify-between font-caption text-caption text-on-surface-variant">
-                                    <span>Terkumpul: <strong>Rp 0</strong></span>
-                                    <span class="font-semibold text-primary">0%</span>
-                                </div>
-                                <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
-                                    <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
-                                </div>
-                                <div class="text-right font-caption text-caption text-outline">Target: ${escapeHtml(p.target || 'Rp 50.000.000')}</div>
-                            </div>
-                            <button onclick="openDonationModal('${escapeHtml(p.title)}')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold cursor-pointer">Donasi Sekarang</button>
-                        </div>
-                    `;
-
-                    card.addEventListener('click', (e) => {
-                        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
-                        openDonationModal(p.title);
-                    });
-
-                    grid.appendChild(card);
-                }
-            });
+            published = window.wizStore.programs.getPublished();
         }
 
-        // 2. Also check custom specific programs map
-        let customMap = {};
-        try {
-            customMap = JSON.parse(localStorage.getItem('wiz_custom_specific_programs') || '{}');
-        } catch(e) {}
+        if (!published || published.length === 0) return;
 
-        Object.entries(customMap).forEach(([pillarKey, titles]) => {
-            const catKey = PILLAR_TO_CATEGORY_MAP[pillarKey] || 'sosial';
+        const fmt = (window.wizStore.utils && window.wizStore.utils.formatRupiahCompact) 
+            ? window.wizStore.utils.formatRupiahCompact 
+            : (v => 'Rp ' + Number(v||0).toLocaleString('id-ID'));
+
+        const categorySections = [
+            { catKey: 'dakwah', pillars: ['Berkah Hidayah', 'Dakwah & Pembinaan', 'Dakwah'] },
+            { catKey: 'sosial', pillars: ['Berkah Peduli', 'Sosial & Kemanusiaan', 'Sosial'] },
+            { catKey: 'pendidikan', pillars: ['Berkah Juara', 'Pendidikan & Beasiswa', 'Pendidikan'] },
+            { catKey: 'kesehatan', pillars: ['Berkah Sehat', 'Kesehatan Masyarakat', 'Kesehatan'] },
+            { catKey: 'ekonomi', pillars: ['Berkah Mandiri', 'Ekonomi & Pemberdayaan', 'Ekonomi'] }
+        ];
+
+        categorySections.forEach(({ catKey, pillars }) => {
             const section = document.querySelector(`.program-section[data-section-category="${catKey}"]`);
             if (!section) return;
-
             const grid = section.querySelector('.grid');
             if (!grid) return;
 
-            if (Array.isArray(titles)) {
-                titles.forEach(title => {
-                    const normTitle = title.trim().toLowerCase();
-                    if (!existingTitles.has(normTitle)) {
-                        existingTitles.add(normTitle);
-                        addedCount++;
+            const categoryPrograms = published.filter(p => pillars.includes(p.pillar) || pillars.includes(p.category));
+            if (categoryPrograms.length === 0) return;
 
-                        const dynamicImg = (window.wizStore.allocationRulesManager) 
-                            ? window.wizStore.allocationRulesManager.getSpecificProgramImage(title, pillarKey)
-                            : 'assets/images/sedekah-beras-dhuafa.jpg';
+            grid.innerHTML = categoryPrograms.map(p => {
+                const stats = (window.wizStore.finance && typeof window.wizStore.finance.getSpecificProgramStats === 'function')
+                    ? window.wizStore.finance.getSpecificProgramStats(p.title, 0, p.targetAmount || 15000000)
+                    : { percent: 0, saldo: 0 };
 
-                        const card = document.createElement('article');
-                        card.className = 'program-card dynamic-added bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full cursor-pointer';
-                        card.setAttribute('data-category', catKey);
-                        card.setAttribute('data-title', title);
-                        card.setAttribute('data-target', '15000000');
+                const dynamicImg = (window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function')
+                    ? window.wizStore.allocationRulesManager.getSpecificProgramImage(p.title, p.pillar)
+                    : (p.imageUrl || 'assets/images/foto-utama-wiz.jpg');
 
-                        card.innerHTML = `
-                            <div class="relative overflow-hidden aspect-video bg-surface-container">
-                                <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="${escapeHtml(title)}" src="${dynamicImg}" onerror="this.onerror=null; this.src='assets/images/foto-utama-wiz.jpg';" alt="${escapeHtml(title)}"/>
-                                <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">${escapeHtml(pillarKey)}</span>
+                const targetLabel = p.target || (`Rp ${(p.targetAmount || 15000000).toLocaleString('id-ID')}`);
+
+                return `
+                <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full cursor-pointer" data-category="${catKey}" data-title="${escapeHtml(p.title)}" data-target="${p.targetAmount || 15000000}">
+                    <div class="relative overflow-hidden aspect-video bg-surface-container">
+                        <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="${escapeHtml(p.title)}" src="${dynamicImg}" onerror="this.onerror=null; this.src='assets/images/foto-utama-wiz.jpg';" alt="${escapeHtml(p.title)}"/>
+                        <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">${escapeHtml(p.pillar)}</span>
+                    </div>
+                    <div class="p-lg flex flex-col flex-grow">
+                        <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">${escapeHtml(p.title)}</h3>
+                        <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">${escapeHtml(p.description || `Salurkan kepedulian dan donasi terbaik Anda untuk program ${p.title} bersama WIZ Babel.`)}</p>
+                        <div class="mb-lg space-y-xs">
+                            <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                                <span>Terkumpul: <strong class="text-primary">${fmt(stats.saldo)}</strong></span>
+                                <span class="font-semibold text-primary">${stats.percent}%</span>
                             </div>
-                            <div class="p-lg flex flex-col flex-grow">
-                                <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">${escapeHtml(title)}</h3>
-                                <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Salurkan infak dan sedekah terbaik Anda untuk program ${escapeHtml(title)} Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.</p>
-                                <div class="mb-lg space-y-xs">
-                                    <div class="flex justify-between font-caption text-caption text-on-surface-variant">
-                                        <span>Terkumpul: <strong>Rp 0</strong></span>
-                                        <span class="font-semibold text-primary">0%</span>
-                                    </div>
-                                    <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
-                                        <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
-                                    </div>
-                                    <div class="text-right font-caption text-caption text-outline">Target: Rp 15.000.000</div>
-                                </div>
-                                <button onclick="openDonationModal('${escapeHtml(title)}')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold cursor-pointer">Donasi Sekarang</button>
+                            <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                                <div class="bg-primary h-2 rounded-full transition-all duration-500" style="width: ${stats.percent}%"></div>
                             </div>
-                        `;
-
-                        card.addEventListener('click', (e) => {
-                            if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
-                            openDonationModal(title);
-                        });
-
-                        grid.appendChild(card);
-                    }
-                });
-            }
+                            <div class="text-right font-caption text-caption text-outline">Target: ${escapeHtml(targetLabel)}</div>
+                        </div>
+                        <div class="mt-auto space-y-2">
+                            <button onclick="openDonationModal('${escapeHtml(p.title)}')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold cursor-pointer">Donasi Sekarang</button>
+                            <button onclick="event.stopPropagation(); shareSpecificProgram('${escapeHtml(p.title)}')" class="w-full bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] font-bold text-xs py-2 rounded-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-[#25D366]/30">
+                                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+                                <span>Bagikan Program Ini</span>
+                            </button>
+                        </div>
+                    </div>
+                </article>`;
+            }).join('');
         });
 
-        if (addedCount > 0) {
-            injectShareButtonsOnCards();
-            updateDynamicProgramCards();
-            filterPrograms();
-        }
+        injectShareButtonsOnCards();
+        filterPrograms();
     }
 
     document.addEventListener('DOMContentLoaded', async () => {

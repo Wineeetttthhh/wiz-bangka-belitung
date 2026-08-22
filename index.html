@@ -1429,7 +1429,7 @@
         if (window.wizStore.programs && typeof window.wizStore.programs.getPublished === 'function') {
             const published = window.wizStore.programs.getPublished();
             if (published && published.length > 0) {
-                displayList = published.slice(0, 3).map(p => ({
+                displayList = published.slice(0, 6).map(p => ({
                     title: p.title,
                     pillar: p.pillar,
                     desc: p.description || `Salurkan kepedulian dan donasi terbaik Anda untuk program ${p.title} bersama WIZ Babel.`,

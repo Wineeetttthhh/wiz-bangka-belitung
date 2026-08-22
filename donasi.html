@@ -699,6 +699,7 @@
                 "Keberangkatan & Kepulangan Dai"
             ],
             'Berkah Peduli': [
+                "Pray For NTT",
                 "Tebar Sembako",
                 "Sedekah Beras & Sembako Dhuafa",
                 "Sedekah Beras Dhuafa",
@@ -734,6 +735,16 @@
         function getProgramMap() {
             let map = JSON.parse(JSON.stringify(SPECIFIC_PROGRAMS));
             try {
+                if (window.wizStore && window.wizStore.programs && typeof window.wizStore.programs.getPublished === 'function') {
+                    const published = window.wizStore.programs.getPublished();
+                    published.forEach(p => {
+                        const pPillar = p.pillar || 'Berkah Peduli';
+                        if (!map[pPillar]) map[pPillar] = [];
+                        if (!map[pPillar].includes(p.title)) {
+                            map[pPillar].unshift(p.title);
+                        }
+                    });
+                }
                 const saved = localStorage.getItem('wiz_custom_specific_programs');
                 if (saved) {
                     const parsed = JSON.parse(saved);
