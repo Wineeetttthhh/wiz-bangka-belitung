@@ -286,7 +286,7 @@ module.exports = async function handler(req, res) {
     <link rel="icon" href="${origin}/assets/images/logo-wiz-babel.png" type="image/png"/>
 
     <!-- Open Graph / WhatsApp / Facebook / Instagram / Telegram / LinkedIn -->
-    <meta property="og:type" content="article"/>
+    <meta property="og:type" content="website"/>
     <meta property="og:site_name" content="Wahdah Inspirasi Zakat (WIZ) Bangka Belitung"/>
     <meta property="og:locale" content="id_ID"/>
     <meta property="og:url" content="${canonicalUrl}"/>

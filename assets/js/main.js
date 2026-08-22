@@ -1616,14 +1616,13 @@ window.shareProgram = async function (programTitle, description, customUrl, cust
     const defaultImg = 'https://www.wizbangkabelitung.or.id/assets/images/foto-utama-wiz.jpg';
     if (!programImg) programImg = defaultImg;
 
-    const waText = `*${cleanTitle}*\n\n${cleanDesc}\n\nSalurkan donasi terbaik Anda melalui tautan resmi:\n\n${fullUrl}`;
+    const waText = `*${cleanTitle}*\n\n${cleanDesc}\n\n${fullUrl}`;
 
     if (navigator.share) {
         try {
             await navigator.share({
                 title: `${cleanTitle} — WIZ Bangka Belitung`,
-                text: waText,
-                url: fullUrl
+                text: waText
             });
             return;
         } catch (e) {
@@ -1700,11 +1699,7 @@ window.openShareModal = function (title, desc, url, programImg) {
     const imgEl = document.getElementById('share-modal-img');
     if (imgEl) imgEl.src = activeImg;
 
-    let waText = `*${title}*\n\n${desc}\n\n`;
-    if (activeImg && activeImg.startsWith('http')) {
-        waText += `🖼️ *Foto Program*: ${activeImg}\n\n`;
-    }
-    waText += `👉 *Salurkan Donasi Terbaik Anda*:\n\n${url}`;
+    const waText = `*${title}*\n\n${desc}\n\n${url}`;
 
     const encodedFull = encodeURIComponent(waText);
     const encodedUrl = encodeURIComponent(url);

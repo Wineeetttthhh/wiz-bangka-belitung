@@ -1363,13 +1363,12 @@
         if (params.length > 0) progUrl += `?${params.join('&')}`;
         
         const shareTitle = `${programTitle} — WIZ Bangka Belitung`;
-        const shareText = `*${programTitle}*\n\nMari salurkan kepedulian Anda melalui program resmi WIZ Bangka Belitung:\n\n${progUrl}`;
+        const shareText = `*${programTitle}*\n\nMari salurkan kepedulian Anda melalui program resmi WIZ Bangka Belitung.\n\n${progUrl}`;
 
         if (navigator.share) {
             navigator.share({
                 title: shareTitle,
-                text: shareText,
-                url: progUrl
+                text: shareText
             }).catch(() => {});
         } else {
             const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(shareText);
