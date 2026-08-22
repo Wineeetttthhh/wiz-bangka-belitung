@@ -3425,7 +3425,7 @@
             }
         }
 
-        async function compressImageFile(file, maxDim = 720, quality = 0.72) {
+        async function compressImageFile(file, targetWidth = 1200, targetHeight = 630, quality = 0.82) {
             const isHeic = file.name && (file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif') || (file.type && file.type.includes('heic')));
             let processFile = file;
 
@@ -3434,33 +3434,11 @@
                     const convertedBlob = await heic2any({
                         blob: file,
                         toType: 'image/jpeg',
-                        quality: 0.75
+                        quality: 0.8
                     });
                     processFile = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
                 } catch(e) {
                     console.warn('[HEIC] Conversion error:', e);
-                }
-            }
-
-            // Use createImageBitmap if supported for instant hardware-accelerated resize
-            if (typeof createImageBitmap !== 'undefined' && !isHeic) {
-                try {
-                    const bmp = await createImageBitmap(processFile);
-                    let w = bmp.width;
-                    let h = bmp.height;
-                    if (w > maxDim || h > maxDim) {
-                        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
-                        else       { w = Math.round(w * maxDim / h); h = maxDim; }
-                    }
-                    const canvas = document.createElement('canvas');
-                    canvas.width = w;
-                    canvas.height = h;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(bmp, 0, 0, w, h);
-                    bmp.close();
-                    return canvas.toDataURL('image/jpeg', quality);
-                } catch (e) {
-                    // Fallback to FileReader below
                 }
             }
 
@@ -3473,17 +3451,47 @@
                     const img = new Image();
                     img.onload = function() {
                         try {
-                            let w = img.naturalWidth || img.width;
-                            let h = img.naturalHeight || img.height;
-                            if (w > maxDim || h > maxDim) {
-                                if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
-                                else       { w = Math.round(w * maxDim / h); h = maxDim; }
-                            }
+                            const srcW = img.naturalWidth || img.width;
+                            const srcH = img.naturalHeight || img.height;
+
                             const canvas = document.createElement('canvas');
-                            canvas.width = w;
-                            canvas.height = h;
+                            canvas.width = targetWidth;   // 1200
+                            canvas.height = targetHeight; // 630
                             const ctx = canvas.getContext('2d');
-                            ctx.drawImage(img, 0, 0, w, h);
+
+                            // 1. Fill backdrop (dark slate gradient #0f172a -> #1e293b)
+                            const grad = ctx.createLinearGradient(0, 0, 1200, 630);
+                            grad.addColorStop(0, '#0f172a');
+                            grad.addColorStop(1, '#1e293b');
+                            ctx.fillStyle = grad;
+                            ctx.fillRect(0, 0, 1200, 630);
+
+                            // 2. Draw blurred studio background for complete filled look
+                            ctx.save();
+                            ctx.filter = 'blur(16px) brightness(0.55)';
+                            let bgW = 1200;
+                            let bgH = 630;
+                            if (srcW / srcH > 1200 / 630) {
+                                bgW = 630 * (srcW / srcH);
+                            } else {
+                                bgH = 1200 / (srcW / srcH);
+                            }
+                            ctx.drawImage(img, (1200 - bgW) / 2, (630 - bgH) / 2, bgW, bgH);
+                            ctx.restore();
+
+                            // 3. Draw main image centered (fit contain)
+                            const scale = Math.min(1200 / srcW, 630 / srcH);
+                            const drawW = srcW * scale;
+                            const drawH = srcH * scale;
+                            const drawX = (1200 - drawW) / 2;
+                            const drawY = (630 - drawH) / 2;
+
+                            ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+                            ctx.shadowBlur = 12;
+                            ctx.shadowOffsetY = 3;
+
+                            ctx.drawImage(img, drawX, drawY, drawW, drawH);
+
                             const result = canvas.toDataURL('image/jpeg', quality);
                             resolve(result || dataUrl);
                         } catch(err) {
