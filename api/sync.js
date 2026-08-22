@@ -167,7 +167,8 @@ module.exports = async function handler(req, res) {
             if (typeof body === 'string') {
                 try { body = JSON.parse(body); } catch(e) { body = {}; }
             }
-            const incoming = body || {};
+            const bundleData = (body && typeof body.bundle === 'object') ? body.bundle : {};
+            const incoming = { ...bundleData, ...body };
 
             // Load existing state from Supabase
             let master = await supabaseGetMaster();

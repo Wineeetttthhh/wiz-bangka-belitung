@@ -3,9 +3,10 @@
  * WAHDAH INSPIRASI ZAKAT (WIZ) BANGKA BELITUNG
  * Dynamic Daily Quote & Flyer Open Graph (OG) Generator & SSR Page
  * Endpoint: /quote/:id  or  /flyer/:id  or  /api/quote?id=:id&ref=:ref
+ * Direct Image: /flyer-image/:id.jpg  or  /api/quote?id=:id&img=1
  * ============================================================
  * Menghasilkan kartu preview Open Graph (OG) kaya flyer poster resolusi tinggi
- * untuk WhatsApp Chat, Status WhatsApp, Facebook, Telegram, dan Instagram,
+ * untuk WhatsApp Chat, Status WhatsApp, Facebook, Telegram, LinkedIn, dan Instagram,
  * serta mengatribusikan kode referral mitra selama 30 hari via Cookie.
  * ============================================================
  */
@@ -25,8 +26,31 @@ const DEFAULT_QUOTES = [
         imageUrl: 'assets/images/foto-utama-wiz.jpg',
         date: '2026-08-20',
         status: 'active'
+    },
+    {
+        id: 'quote-2',
+        text: 'Tidak ada suatu hari pun ketika seorang hamba memasuki waktu pagi melainkan turun dua malaikat. Salah satunya berdoa: Ya Allah, berikanlah ganti bagi orang yang berinfak.',
+        source: 'HR. Bukhari no. 1442 & Muslim no. 1010',
+        category: 'Infak Subuh',
+        imageUrl: 'assets/images/sedekah-beras-dhuafa.jpg',
+        date: '2026-08-19',
+        status: 'active'
+    },
+    {
+        id: 'quote-3',
+        text: 'Bentengilah hartamu dengan zakat, obatilah orang-orang sakit di antaramu dengan sedekah, dan hadapilah berbagai cobaan dengan doa.',
+        source: 'HR. Abu Dawud & At-Thabrani',
+        category: 'Zakat & Penyucian Jiwa',
+        imageUrl: 'assets/images/sedekah-beras-dai.jpg',
+        date: '2026-08-18',
+        status: 'active'
     }
 ];
+
+// In-memory cache for ultra-fast serverless execution (< 15ms)
+let cachedQuotes = null;
+let cachedQuotesTime = 0;
+const CACHE_TTL_MS = 20000; // 20s
 
 function escapeHtml(str = '') {
     return String(str)
@@ -38,16 +62,19 @@ function escapeHtml(str = '') {
 }
 
 function getMimeType(dataUriOrPath = '') {
-    if (dataUriOrPath.startsWith('data:image/png')) return 'image/png';
-    if (dataUriOrPath.startsWith('data:image/webp')) return 'image/webp';
-    if (dataUriOrPath.startsWith('data:image/gif')) return 'image/gif';
-    if (dataUriOrPath.endsWith('.png')) return 'image/png';
-    if (dataUriOrPath.endsWith('.webp')) return 'image/webp';
-    if (dataUriOrPath.endsWith('.gif')) return 'image/gif';
+    if (!dataUriOrPath) return 'image/jpeg';
+    const s = String(dataUriOrPath).toLowerCase();
+    if (s.startsWith('data:image/png') || s.endsWith('.png')) return 'image/png';
+    if (s.startsWith('data:image/webp') || s.endsWith('.webp')) return 'image/webp';
+    if (s.startsWith('data:image/gif') || s.endsWith('.gif')) return 'image/gif';
     return 'image/jpeg';
 }
 
 async function getLiveQuotes() {
+    if (cachedQuotes && (Date.now() - cachedQuotesTime < CACHE_TTL_MS)) {
+        return cachedQuotes;
+    }
+
     try {
         const res = await fetch(`${SUPABASE_URL}/site_settings?key=eq.master_bundle&select=*`, {
             headers: {
@@ -59,7 +86,9 @@ async function getLiveQuotes() {
         if (res.ok) {
             const list = await res.json();
             if (Array.isArray(list) && list.length > 0 && list[0].value && Array.isArray(list[0].value.quotes) && list[0].value.quotes.length > 0) {
-                return list[0].value.quotes;
+                cachedQuotes = list[0].value.quotes;
+                cachedQuotesTime = Date.now();
+                return cachedQuotes;
             }
         }
     } catch(e) {
@@ -68,111 +97,172 @@ async function getLiveQuotes() {
 
     // Fallback to canonical-store.json
     try {
-        const canonicalPath = path.join(__dirname, '..', 'assets', 'data', 'canonical-store.json');
+        const canonicalPath = path.join(process.cwd(), 'assets', 'data', 'canonical-store.json');
         if (fs.existsSync(canonicalPath)) {
             const cData = JSON.parse(fs.readFileSync(canonicalPath, 'utf8'));
             if (cData && Array.isArray(cData.quotes) && cData.quotes.length > 0) {
-                return cData.quotes;
+                cachedQuotes = cData.quotes;
+                cachedQuotesTime = Date.now();
+                return cachedQuotes;
             }
         }
     } catch (e) {}
 
+    cachedQuotes = DEFAULT_QUOTES;
+    cachedQuotesTime = Date.now();
     return DEFAULT_QUOTES;
 }
 
 module.exports = async function handler(req, res) {
+    const origin = 'https://www.wizbangkabelitung.or.id';
     const urlObj = new URL(req.url, `http://${req.headers.host || 'www.wizbangkabelitung.or.id'}`);
-    let quoteId = urlObj.searchParams.get('id');
-    const refCode = (urlObj.searchParams.get('ref') || urlObj.searchParams.get('affiliate') || urlObj.searchParams.get('perantara') || '').trim();
+    
+    // Support query param ?id=... or req.query.id
+    let quoteId = (req.query && req.query.id) || urlObj.searchParams.get('id');
+    const refCode = ((req.query && (req.query.ref || req.query.affiliate || req.query.perantara)) || 
+                     urlObj.searchParams.get('ref') || urlObj.searchParams.get('affiliate') || urlObj.searchParams.get('perantara') || '').trim();
 
-    // Parse from path /flyer/[id] or /quote/[id] if applicable
+    // Parse from path /flyer/[id], /quote/[id], /flyer-image/[id], /quote-image/[id] if applicable
     if (!quoteId) {
         const parts = urlObj.pathname.split('/').filter(Boolean);
-        const qIdx = parts.findIndex(p => p === 'quote' || p === 'flyer');
+        const qIdx = parts.findIndex(p => p === 'quote' || p === 'flyer' || p === 'flyer-image' || p === 'quote-image' || p === 'flyer-img' || p === 'quote-img');
         if (qIdx !== -1 && parts[qIdx + 1]) {
             quoteId = decodeURIComponent(parts[qIdx + 1]);
         }
     }
 
-    const host = req.headers.host || 'www.wizbangkabelitung.or.id';
-    const origin = 'https://www.wizbangkabelitung.or.id';
+    // Check if direct binary image is requested via ?img=1 or path
+    const isImageRequest = urlObj.searchParams.get('img') === '1' || 
+                           urlObj.searchParams.has('img') ||
+                           urlObj.pathname.includes('flyer-image') || 
+                           urlObj.pathname.includes('quote-image') ||
+                           urlObj.pathname.includes('flyer-img') || 
+                           urlObj.pathname.includes('quote-img');
 
-    // Load fresh quotes from Supabase Cloud
+    // Clean quoteId: strip extension (.jpg, .png, etc.)
+    const cleanId = String(quoteId || '').replace(/\.(jpe?g|png|webp|gif)$/i, '').trim();
+
+    // Load fresh quotes (with memory cache for speed)
     const allQuotes = await getLiveQuotes();
 
     // Find requested quote
     let quote = null;
-    const cleanId = String(quoteId || '').trim();
-
     if (cleanId && cleanId !== 'latest' && cleanId !== 'today') {
-        quote = allQuotes.find(q => String(q.id).toLowerCase() === cleanId.toLowerCase() || String(q.id) === cleanId);
+        quote = allQuotes.find(q => {
+            if (!q || !q.id) return false;
+            const qStr = String(q.id).trim();
+            const qClean = qStr.replace(/\.(jpe?g|png|webp|gif)$/i, '');
+            return qStr.toLowerCase() === cleanId.toLowerCase() || 
+                   qClean.toLowerCase() === cleanId.toLowerCase();
+        });
     }
+
     if (!quote) {
         // Pick first active quote, or newest quote
         quote = allQuotes.find(q => q.status === 'active') || allQuotes[0] || DEFAULT_QUOTES[0];
     }
 
     const rawImg = (quote.imageUrl || '').trim();
+    const mimeType = getMimeType(rawImg);
 
-    // ─── Direct Image Endpoint (?img=1) for WhatsApp / FB Open Graph Crawler ─
-    if (urlObj.searchParams.get('img') === '1' || urlObj.searchParams.has('img')) {
-        const imgVal = rawImg || 'assets/images/foto-utama-wiz.jpg';
-        if (imgVal.startsWith('data:image/')) {
-            const mime = getMimeType(imgVal);
-            const base64Data = imgVal.split(',')[1] || '';
-            const buffer = Buffer.from(base64Data, 'base64');
-            res.setHeader('Content-Type', mime);
-            res.setHeader('Content-Length', buffer.length);
-            res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=86400');
-            return res.status(200).end(buffer);
-        } else if (imgVal.startsWith('http://') || imgVal.startsWith('https://')) {
-            res.writeHead(302, { Location: imgVal });
-            return res.end();
-        } else {
-            const cleanPath = imgVal.startsWith('/') ? imgVal.slice(1) : imgVal;
-            const fullPath = path.join(process.cwd(), cleanPath || 'assets/images/foto-utama-wiz.jpg');
-            if (fs.existsSync(fullPath)) {
-                const mime = getMimeType(cleanPath);
-                const fileBuf = fs.readFileSync(fullPath);
-                res.setHeader('Content-Type', mime);
-                res.setHeader('Content-Length', fileBuf.length);
-                res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=86400');
-                return res.status(200).end(fileBuf);
-            } else {
-                const defaultPath = path.join(process.cwd(), 'assets', 'images', 'foto-utama-wiz.jpg');
-                if (fs.existsSync(defaultPath)) {
-                    const fileBuf = fs.readFileSync(defaultPath);
-                    res.setHeader('Content-Type', 'image/jpeg');
+    // ─── 1. DIRECT BINARY IMAGE ENDPOINT (< 2s instant serve for WhatsApp crawler) ───
+    if (isImageRequest) {
+        const defaultImgPath = path.join(process.cwd(), 'assets', 'images', 'foto-utama-wiz.jpg');
+
+        if (rawImg.startsWith('data:image/')) {
+            // Decode Base64 JPEG/PNG buffer directly
+            try {
+                const base64Data = rawImg.split(',')[1] || '';
+                const buffer = Buffer.from(base64Data, 'base64');
+                res.setHeader('Content-Type', mimeType);
+                res.setHeader('Content-Length', buffer.length);
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.setHeader('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable');
+                return res.status(200).end(buffer);
+            } catch (err) {
+                console.error('[Quote Image API] Base64 decode error:', err);
+            }
+        } else if (rawImg.startsWith('http://') || rawImg.startsWith('https://')) {
+            // Direct fetch & stream to avoid 302 redirect for crawlers
+            try {
+                const imgFetch = await fetch(rawImg);
+                if (imgFetch.ok) {
+                    const arrayBuf = await imgFetch.arrayBuffer();
+                    const buf = Buffer.from(arrayBuf);
+                    res.setHeader('Content-Type', imgFetch.headers.get('content-type') || mimeType);
+                    res.setHeader('Content-Length', buf.length);
+                    res.setHeader('Access-Control-Allow-Origin', '*');
                     res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400');
-                    return res.status(200).end(fileBuf);
+                    return res.status(200).end(buf);
                 }
+            } catch(e) {}
+        } else if (rawImg) {
+            // Local physical file from public assets
+            const cleanPath = rawImg.replace(/^\//, '');
+            const fullPath = path.join(process.cwd(), cleanPath);
+            if (fs.existsSync(fullPath)) {
+                const fileBuf = fs.readFileSync(fullPath);
+                res.setHeader('Content-Type', mimeType);
+                res.setHeader('Content-Length', fileBuf.length);
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+                return res.status(200).end(fileBuf);
             }
         }
+
+        // Final fallback: serve default banner image
+        if (fs.existsSync(defaultImgPath)) {
+            const fileBuf = fs.readFileSync(defaultImgPath);
+            res.setHeader('Content-Type', 'image/jpeg');
+            res.setHeader('Content-Length', fileBuf.length);
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+            return res.status(200).end(fileBuf);
+        }
+
+        return res.status(404).send('Image not found');
     }
 
-    // Determine actual page image source (Supports high-res base64 or URL)
-    let pageImgSrc = rawImg || 'assets/images/foto-utama-wiz.jpg';
+    // ─── 2. RESOLVE DIRECT ABSOLUTE OPEN GRAPH IMAGE URL ───────────────────────
+    let ogImageUrl = '';
+    let ogImageSecureUrl = '';
+
+    if (rawImg.startsWith('data:image/')) {
+        // Direct physical endpoint with .jpg extension for WhatsApp / FB Open Graph Crawler
+        const directImgUrl = `${origin}/flyer-image/${encodeURIComponent(quote.id)}.jpg`;
+        ogImageUrl = directImgUrl;
+        ogImageSecureUrl = directImgUrl;
+    } else if (rawImg.startsWith('http://') || rawImg.startsWith('https://')) {
+        ogImageUrl = rawImg;
+        ogImageSecureUrl = rawImg.replace(/^http:\/\//i, 'https://');
+    } else if (rawImg) {
+        const cleanPath = rawImg.replace(/^\//, '');
+        const directImgUrl = `${origin}/${cleanPath}`;
+        ogImageUrl = directImgUrl;
+        ogImageSecureUrl = directImgUrl;
+    } else {
+        const defaultImgUrl = `${origin}/assets/images/foto-utama-wiz.jpg`;
+        ogImageUrl = defaultImgUrl;
+        ogImageSecureUrl = defaultImgUrl;
+    }
+
+    // Determine actual page rendered image source (Supports high-res base64 or URL)
+    let pageImgSrc = rawImg || `${origin}/assets/images/foto-utama-wiz.jpg`;
     if (pageImgSrc && !pageImgSrc.startsWith('http') && !pageImgSrc.startsWith('data:image')) {
         pageImgSrc = `${origin}/${pageImgSrc.replace(/^\//, '')}`;
     }
 
-    // ─── Resolve absolute Open Graph Image URL ──────────────────────────────
-    let ogImageUrl = '';
-    if (rawImg.startsWith('data:image/')) {
-        // WhatsApp / FB crawler cannot read data URLs. We serve direct binary image via ?img=1 endpoint!
-        ogImageUrl = `${origin}/api/quote?id=${encodeURIComponent(quote.id)}&img=1`;
-    } else if (rawImg.startsWith('http://') || rawImg.startsWith('https://')) {
-        ogImageUrl = rawImg;
-    } else if (rawImg) {
-        const cleanPath = rawImg.startsWith('/') ? rawImg.slice(1) : rawImg;
-        ogImageUrl = `${origin}/${cleanPath}`;
-    } else {
-        ogImageUrl = `${origin}/assets/images/foto-utama-wiz.jpg`;
-    }
-
-    const canonicalUrl = `${origin}/flyer/${encodeURIComponent(quote.id)}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
+    const routeBase = urlObj.pathname.startsWith('/quote') ? 'quote' : 'flyer';
+    const canonicalUrl = `${origin}/${routeBase}/${encodeURIComponent(quote.id)}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
     const donateUrl = `${origin}/donasi.html${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
-    const programUrl = `${origin}/program.html${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
+
+    // Meta Title & Description
+    const ogTitle = (quote.source && quote.source.trim() && quote.source !== '-' && quote.source !== '.') ? quote.source.trim() : 'Inspirasi WIZ';
+    const pageTitle = `${ogTitle} • Wahdah Inspirasi Zakat Bangka Belitung`;
+    const quoteBody = (quote.text || '').trim();
+    const ogDesc = quoteBody && quoteBody !== '-' && quoteBody !== '.' 
+        ? `"${quoteBody}" — Mari raih keberkahan dengan berinfak melalui WIZ Bangka Belitung.` 
+        : 'Mari raih keberkahan dengan berinfak melalui WIZ Bangka Belitung.';
 
     // Set 30-Day Referral Cookie if refCode is present (max-age 2,592,000s = 30 days)
     if (refCode) {
@@ -182,29 +272,28 @@ module.exports = async function handler(req, res) {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120');
 
-    const metaTitle = quote.source ? `${quote.source} • Inspirasi WIZ` : 'Inspirasi WIZ — Wahdah Inspirasi Zakat';
-    const metaDesc = quote.text ? `"${quote.text}" — Mari raih keberkahan dengan berinfak melalui WIZ Bangka Belitung.` : 'Mari raih keberkahan dengan berinfak melalui WIZ Bangka Belitung.';
-    const mimeType = getMimeType(rawImg);
-
+    // ─── 3. RENDER FULL SSR HTML WITH STRICT OPEN GRAPH TAGS ───────────────────
     const html = `<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${escapeHtml(metaTitle)}</title>
-    <meta name="description" content="${escapeHtml(metaDesc)}">
+    <title>${escapeHtml(pageTitle)}</title>
+    <meta name="description" content="${escapeHtml(ogDesc)}">
     <link rel="icon" href="${origin}/assets/images/logo-wiz-babel.png" type="image/png">
 
-    <!-- Open Graph / WhatsApp / Facebook / Telegram / Instagram -->
+    <!-- Open Graph / WhatsApp / Facebook / Telegram / Instagram / LinkedIn -->
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="WIZ Bangka Belitung">
-    <meta property="og:title" content="${escapeHtml(quote.source || quote.category || 'Inspirasi WIZ')}">
-    <meta property="og:description" content="${escapeHtml(metaDesc)}">
+    <meta property="og:site_name" content="Wahdah Inspirasi Zakat (WIZ) Bangka Belitung">
+    <meta property="og:locale" content="id_ID">
+    <meta property="og:title" content="${escapeHtml(ogTitle)}">
+    <meta property="og:description" content="${escapeHtml(ogDesc)}">
     <meta property="og:image" content="${escapeHtml(ogImageUrl)}">
-    <meta property="og:image:secure_url" content="${escapeHtml(ogImageUrl)}">
+    <meta property="og:image:secure_url" content="${escapeHtml(ogImageSecureUrl)}">
     <meta property="og:image:type" content="${escapeHtml(mimeType)}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="${escapeHtml(ogTitle)}">
     <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
     <link rel="image_src" href="${escapeHtml(ogImageUrl)}">
     <meta name="thumbnail" content="${escapeHtml(ogImageUrl)}">
@@ -212,14 +301,35 @@ module.exports = async function handler(req, res) {
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="${escapeHtml(quote.source || 'Inspirasi WIZ')}">
-    <meta name="twitter:description" content="${escapeHtml(metaDesc)}">
+    <meta name="twitter:site" content="@wizbangkabelitung">
+    <meta name="twitter:title" content="${escapeHtml(ogTitle)}">
+    <meta name="twitter:description" content="${escapeHtml(ogDesc)}">
     <meta name="twitter:image" content="${escapeHtml(ogImageUrl)}">
 
     <!-- Google Fonts & Tailwind -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0369a1',
+                        'primary-dark': '#075985',
+                        secondary: '#10b981',
+                        accent: '#f59e0b'
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        headline: ['Outfit', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
 
     <script>
         // Store refCode in LocalStorage & SessionStorage for 30 days
@@ -267,9 +377,10 @@ module.exports = async function handler(req, res) {
 
             <!-- Quote Text Details -->
             <div class="p-6 sm:p-8 space-y-4">
+                ${quote.text && quote.text.trim() ? `
                 <blockquote class="text-base sm:text-lg text-slate-800 font-medium italic leading-relaxed">
                     "${escapeHtml(quote.text)}"
-                </blockquote>
+                </blockquote>` : ''}
 
                 <div class="flex items-center gap-2 text-emerald-800 font-bold text-sm sm:text-base border-t border-slate-100 pt-4">
                     <span class="material-symbols-outlined text-lg">menu_book</span>
@@ -313,7 +424,9 @@ module.exports = async function handler(req, res) {
     <script>
         function shareWhatsApp() {
             const shareUrl = '${canonicalUrl}';
-            const quoteText = '*${escapeHtml(quote.source || 'Quote & Inspirasi Harian')}*\\n\\n"${escapeHtml(quote.text)}"\\n\\n' + shareUrl;
+            const quoteText = '*${escapeHtml(quote.source || 'Inspirasi WIZ')}*' +
+                              ${quote.text && quote.text.trim() ? `'\\n\\n"${escapeHtml(quote.text.trim())}"'` : "''"} +
+                              '\\n\\n' + shareUrl;
             const url = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(quoteText);
             window.open(url, '_blank');
         }

@@ -3,6 +3,7 @@
  * WAHDAH INSPIRASI ZAKAT (WIZ) BANGKA BELITUNG
  * Dynamic Program Reader & Social Media Open Graph (OG) Generator
  * Endpoint: /program/:slug  or  /api/program?name=:name&ref=:ref
+ * Direct Image: /program-image/:slug.jpg or /api/program?slug=:slug&img=1
  * ============================================================
  * Menghasilkan kartu preview Open Graph (OG) kaya foto resolusi tinggi 1200x630
  * untuk WhatsApp Chat, WhatsApp Story, Facebook, Twitter/X, Telegram,
@@ -17,6 +18,11 @@ const SUPABASE_URL = 'https://ffiltrlzdbwhhhxzmzuo.supabase.co/rest/v1';
 const SUPABASE_KEY = 'sb_publishable_GiA1BOjbW2psTU36149xuA_E26wGBI3';
 
 const DEFAULT_FALLBACK_IMAGE = 'https://www.wizbangkabelitung.or.id/assets/images/foto-utama-wiz.jpg';
+
+// In-memory cache for ultra-fast serverless execution
+let cachedCloudBundle = null;
+let cachedCloudBundleTime = 0;
+const CACHE_TTL_MS = 20000; // 20s
 
 // Curated Specific Programs Metadata with high-res 1200x630 cover photos
 const SPECIFIC_PROGRAMS_METADATA = {
@@ -59,109 +65,81 @@ const SPECIFIC_PROGRAMS_METADATA = {
     'pelatihan-public-speaking': {
         title: 'Pelatihan Public Speaking',
         pillar: 'Dakwah & Pembinaan',
-        target: 'Rp 8.000.000',
-        description: 'Pelatihan komunikasi dan retorika dakwah bagi para dai muda agar dapat menyampaikan risalah Islam secara santun, lugas, dan menginspirasi.',
-        imageUrl: 'https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=1200&auto=format&fit=crop'
+        target: 'Rp 4.000.000',
+        description: 'Tingkatkan kapasitas komunikasi, retorika, dan dakwah para da\'i muda serta relawan dakwah di Bangka Belitung.',
+        imageUrl: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?q=80&w=1200&auto=format&fit=crop'
     },
     'tabligh-akbar-dzulhijjah': {
         title: 'Tabligh Akbar Dzulhijjah',
         pillar: 'Dakwah & Pembinaan',
-        target: 'Rp 20.000.000',
-        description: 'Penyelenggaraan syiar Islam dan Tabligh Akbar bulan Dzulhijjah untuk mempererat ukhuwah dan menanamkan nilai ketaatan kepada Allah SWT.',
-        imageUrl: 'https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=1200&auto=format&fit=crop'
+        target: 'Rp 10.000.000',
+        description: 'Syiar dakwah akbar menyambut bulan haji dan qurban untuk mempererat ukhuwah Islamiyah masyarakat Bangka Belitung.',
+        imageUrl: 'https://images.unsplash.com/photo-1542665952-14513db15293?q=80&w=1200&auto=format&fit=crop'
     },
     'pelatihan-guru-dirosa': {
         title: 'Pelatihan Guru Dirosa',
         pillar: 'Dakwah & Pembinaan',
-        target: 'Rp 10.000.000',
-        description: 'Kaderisasi pengajar Al-Qur\'an metode Dirosa untuk memberantas buta aksara Al-Qur\'an di kalangan orang dewasa di Bangka Belitung.',
-        imageUrl: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=1200&auto=format&fit=crop'
+        target: 'Rp 6.000.000',
+        description: 'Pelatihan metode Dirosa (Pendidikan Al-Qur\'an Orang Dewasa) untuk mencetak guru-guru ngaji yang kompeten.',
+        imageUrl: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1200&auto=format&fit=crop'
     },
     'pelatihan-penyelenggaraan-jenazah': {
         title: 'Pelatihan Penyelenggaraan Jenazah',
         pillar: 'Dakwah & Pembinaan',
-        target: 'Rp 6.000.000',
-        description: 'Bimbingan praktis fardhu kifayah tata cara pengurusan dan pemulasaran jenazah sesuai sunnah bagi masyarakat.',
-        imageUrl: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=1200&auto=format&fit=crop'
+        target: 'Rp 5.000.000',
+        description: 'Edukasi fardhu kifayah tata cara memandikan, mengafani, menyalatkan, dan menguburkan jenazah sesuai sunnah.',
+        imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200&auto=format&fit=crop'
     },
-    'pelatihan-volunteer-media-dakwah': {
-        title: 'Pelatihan Volunteer Media Dakwah',
+    'pelatihan-relawan-media-dakwah': {
+        title: 'Pelatihan Relawan Media Dakwah',
         pillar: 'Dakwah & Pembinaan',
-        target: 'Rp 7.500.000',
-        description: 'Pemberdayaan relawan media kreatif untuk memproduksi konten digital dakwah yang edukatif dan menyejukkan di sosial media.',
-        imageUrl: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=1200&auto=format&fit=crop'
+        target: 'Rp 5.000.000',
+        description: 'Pelatihan konten kreatif, fotografi, videografi, dan jurnalistik dakwah digital bagi generasi muda.',
+        imageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop'
     },
     'lomba-desain-poster-dakwah': {
         title: 'Lomba Desain Poster Dakwah',
         pillar: 'Dakwah & Pembinaan',
-        target: 'Rp 5.000.000',
-        description: 'Ajang kreasi dakwah visual bagi generasi muda untuk menyebarkan pesan kebaikan melalui seni digital.',
-        imageUrl: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=1200&auto=format&fit=crop'
+        target: 'Rp 3.000.000',
+        description: 'Wadah kreativitas visual pemuda muslim dalam menyebarkan pesan kebaikan dan nilai-nilai Islam.',
+        imageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop'
     },
-    'kantor-dpw-wi-babel-wiz': {
+    'kantor-dpw-wi-babel-dan-wiz': {
         title: 'Kantor DPW WI Babel & WIZ',
         pillar: 'Dakwah & Pembinaan',
-        target: 'Rp 100.000.000',
-        description: 'Pusat operasional dan pelayanan keummatan Wahdah Inspirasi Zakat serta Dewan Pengurus Wilayah di Bangka Belitung.',
-        imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop'
+        target: 'Rp 150.000.000',
+        description: 'Pengadaan dan renovasi pusat pelayanan administrasi ummat, dakwah terpadu, dan kantor Laznas WIZ Bangka Belitung.',
+        imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop'
     },
-    'mukerwil-mukernas-muktamar': {
-        title: 'Mukerwil Mukernas Muktamar',
+    'pengadaan-celengan-besar': {
+        title: 'Pengadaan Celengan Sedekah Subuh',
         pillar: 'Dakwah & Pembinaan',
-        target: 'Rp 15.000.000',
-        description: 'Musyawarah kerja dan evaluasi program dakwah berkala untuk memastikan tata kelola amanah dan profesional.',
-        imageUrl: 'https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=1200&auto=format&fit=crop'
-    },
-    'keberangkatan-kepulangan-dai': {
-        title: 'Keberangkatan Kepulangan Dai',
-        pillar: 'Dakwah & Pembinaan',
-        target: 'Rp 15.000.000',
-        description: 'Dukungan akomodasi dan transportasi bagi para juru dakwah yang bertugas di pulau-pulau terpencil dan pelosok Bangka Belitung.',
-        imageUrl: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=1200&auto=format&fit=crop'
+        target: 'Rp 5.000.000',
+        description: 'Penyediaan sarana infak harian di masjid, perkantoran, dan pertokoan untuk menggalakkan gerakan gemar sedekah.',
+        imageUrl: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?q=80&w=1200&auto=format&fit=crop'
     },
 
     // ── 2. Sosial & Kemanusiaan (Berkah Peduli) ──
     'tebar-sembako': {
-        title: 'Tebar Sembako Nusantara',
+        title: 'Tebar Sembako Dhuafa',
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 25.000.000',
-        description: 'Salurkan paket sembako bergizi untuk lansia, janda dhuafa, dan keluarga pra-sejahtera guna meringankan beban ekonomi mereka sehari-hari di Bangka Belitung.',
-        imageUrl: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=1200&auto=format&fit=crop'
-    },
-    'tebar-sembako-nusantara': {
-        title: 'Tebar Sembako Nusantara',
-        pillar: 'Sosial & Kemanusiaan',
-        target: 'Rp 25.000.000',
-        description: 'Salurkan paket sembako bergizi untuk lansia, janda dhuafa, dan keluarga pra-sejahtera guna meringankan beban ekonomi mereka sehari-hari di Bangka Belitung.',
-        imageUrl: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=1200&auto=format&fit=crop'
+        description: 'Penyaluran paket bahan pangan pokok untuk keluarga dhuafa, janda lansia, dan yatim di pelosok Bangka Belitung.',
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/sedekah-beras-dhuafa.jpg'
     },
     'sedekah-beras-dhuafa': {
         title: 'Sedekah Beras Dhuafa',
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 20.000.000',
-        description: 'Penyaluran beras premium berkualitas bagi para janda dhuafa, anak yatim, dan keluarga miskin di pelosok desa.',
+        description: 'Bantuan beras premium secara berkala untuk mencukupi kebutuhan pokok para mustahik dan santri pondok pesantren.',
         imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/sedekah-beras-dhuafa.jpg'
     },
-    'sedekah-beras-dai': {
-        title: 'Sedekah Beras Dai',
-        pillar: 'Sosial & Kemanusiaan',
-        target: 'Rp 15.000.000',
-        description: 'Bantuan logistik beras dan sembako untuk menunjang kehidupan para dai dan asatidz yang mengabdi membina umat di pedalaman Bangka Belitung.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/sedekah-beras-dai.jpg'
-    },
-    'sedekah-jumat': {
-        title: 'Sedekah Jumat Berkah',
+    'sedekah-jumat-sedulang-berkah': {
+        title: 'Sedekah Jumat (Sedulang Berkah)',
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 10.000.000',
-        description: 'Raih keutamaan hari Jumat dengan berbagi paket makanan bergizi siap santap bagi pekerja rentan dan dhuafa.',
-        imageUrl: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1200&auto=format&fit=crop'
-    },
-    'sedekah-jumat-berkah': {
-        title: 'Sedekah Jumat Berkah',
-        pillar: 'Sosial & Kemanusiaan',
-        target: 'Rp 10.000.000',
-        description: 'Raih keutamaan hari Jumat dengan berbagi paket makanan bergizi siap santap bagi pekerja rentan dan dhuafa.',
-        imageUrl: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1200&auto=format&fit=crop'
+        description: 'Berbagi paket makanan siap santap dan sedekah jumat berkah untuk jamaah masjid, musafir, dan pekerja harian.',
+        imageUrl: 'https://images.unsplash.com/photo-1547592180-85f173990554?q=80&w=1200&auto=format&fit=crop'
     },
     'santunan-yatim': {
         title: 'Santunan Anak Yatim',
@@ -328,7 +306,20 @@ function escapeHtml(str = '') {
         .replace(/'/g, '&#039;');
 }
 
+function getMimeType(filePathOrDataUrl) {
+    if (!filePathOrDataUrl) return 'image/jpeg';
+    const s = String(filePathOrDataUrl).toLowerCase();
+    if (s.startsWith('data:image/png') || s.endsWith('.png')) return 'image/png';
+    if (s.startsWith('data:image/webp') || s.endsWith('.webp')) return 'image/webp';
+    if (s.startsWith('data:image/gif') || s.endsWith('.gif')) return 'image/gif';
+    return 'image/jpeg';
+}
+
 async function getLiveCloudMetadata() {
+    if (cachedCloudBundle && (Date.now() - cachedCloudBundleTime < CACHE_TTL_MS)) {
+        return cachedCloudBundle;
+    }
+
     try {
         const res = await fetch(`${SUPABASE_URL}/site_settings?key=eq.master_bundle&select=*`, {
             headers: {
@@ -340,7 +331,9 @@ async function getLiveCloudMetadata() {
         if (res.ok) {
             const list = await res.json();
             if (Array.isArray(list) && list.length > 0 && list[0].value) {
-                return list[0].value;
+                cachedCloudBundle = list[0].value;
+                cachedCloudBundleTime = Date.now();
+                return cachedCloudBundle;
             }
         }
     } catch(e) {
@@ -350,20 +343,28 @@ async function getLiveCloudMetadata() {
 }
 
 module.exports = async function handler(req, res) {
+    const origin = 'https://www.wizbangkabelitung.or.id';
     const urlObj = new URL(req.url, `http://${req.headers.host || 'www.wizbangkabelitung.or.id'}`);
-    let progQuery = urlObj.searchParams.get('program') || urlObj.searchParams.get('name') || urlObj.searchParams.get('slug') || urlObj.searchParams.get('id');
-    const refCode = (urlObj.searchParams.get('ref') || urlObj.searchParams.get('affiliate') || urlObj.searchParams.get('perantara') || '').trim();
+    let progQuery = (req.query && (req.query.slug || req.query.program || req.query.name || req.query.id)) ||
+                    urlObj.searchParams.get('program') || urlObj.searchParams.get('name') || urlObj.searchParams.get('slug') || urlObj.searchParams.get('id');
+    const refCode = ((req.query && (req.query.ref || req.query.affiliate || req.query.perantara)) ||
+                     urlObj.searchParams.get('ref') || urlObj.searchParams.get('affiliate') || urlObj.searchParams.get('perantara') || '').trim();
 
-    // Parse from path /program/[slug] if applicable
+    const isImageRequest = urlObj.searchParams.get('img') === '1' || 
+                           urlObj.searchParams.has('img') ||
+                           urlObj.pathname.includes('program-image') || 
+                           urlObj.pathname.includes('program-img');
+
+    // Parse from path /program/[slug] or /program-image/[slug] if applicable
     if (!progQuery) {
         const parts = urlObj.pathname.split('/').filter(Boolean);
-        const progIdx = parts.indexOf('program');
+        const progIdx = parts.findIndex(p => p === 'program' || p === 'program-image' || p === 'program-img');
         if (progIdx !== -1 && parts[progIdx + 1]) {
             progQuery = decodeURIComponent(parts[progIdx + 1]);
         }
     }
 
-    const origin = 'https://www.wizbangkabelitung.or.id';
+    const cleanProgQuery = String(progQuery || '').replace(/\.(jpe?g|png|webp|gif)$/i, '').trim();
 
     // 1. Fetch Cloud Master Bundle for custom overrides
     const cloudBundle = await getLiveCloudMetadata();
@@ -371,8 +372,8 @@ module.exports = async function handler(req, res) {
 
     // 2. Find program metadata
     let selectedProgram = null;
-    if (progQuery) {
-        const querySlug = slugify(progQuery);
+    if (cleanProgQuery) {
+        const querySlug = slugify(cleanProgQuery);
         if (SPECIFIC_PROGRAMS_METADATA[querySlug]) {
             selectedProgram = { ...SPECIFIC_PROGRAMS_METADATA[querySlug] };
         } else {
@@ -388,7 +389,7 @@ module.exports = async function handler(req, res) {
 
     // 3. Fallback if not found
     if (!selectedProgram) {
-        const fallbackTitle = progQuery ? decodeURIComponent(progQuery).replace(/-/g, ' ') : 'Katalog Program Kebaikan & ZIS';
+        const fallbackTitle = cleanProgQuery ? decodeURIComponent(cleanProgQuery).replace(/-/g, ' ') : 'Katalog Program Kebaikan & ZIS';
         selectedProgram = {
             title: fallbackTitle,
             pillar: 'Wahdah Inspirasi Zakat',
@@ -410,17 +411,83 @@ module.exports = async function handler(req, res) {
     const pillar = selectedProgram.pillar;
     const description = selectedProgram.description;
     const rawImg = selectedProgram.imageUrl || DEFAULT_FALLBACK_IMAGE;
+    const mimeType = getMimeType(rawImg);
+    const canonicalSlug = slugify(title);
 
-    // Determine absolute image URL for OG Meta Tags (Must be absolute HTTP/HTTPS URL)
-    let ogImageUrl = rawImg;
-    if (ogImageUrl.startsWith('data:image') || ogImageUrl.startsWith('blob:')) {
-        // If image in database is base64, use the specific program's high-res Unsplash image or default fallback for crawler
-        const fallbackMeta = SPECIFIC_PROGRAMS_METADATA[slugify(title)];
-        ogImageUrl = (fallbackMeta && fallbackMeta.imageUrl && !fallbackMeta.imageUrl.startsWith('data:image')) 
-            ? fallbackMeta.imageUrl 
-            : DEFAULT_FALLBACK_IMAGE;
-    } else if (!ogImageUrl.startsWith('http')) {
-        ogImageUrl = `${origin}/${ogImageUrl.replace(/^\//, '')}`;
+    // ─── 1. SERVE BINARY IMAGE DIRECTLY IF REQUESTED ─────────────────────────────
+    if (isImageRequest) {
+        const defaultPath = path.join(process.cwd(), 'assets', 'images', 'foto-utama-wiz.jpg');
+
+        if (rawImg.startsWith('data:image/')) {
+            try {
+                const base64Data = rawImg.split(',')[1] || '';
+                const buffer = Buffer.from(base64Data, 'base64');
+                res.setHeader('Content-Type', mimeType);
+                res.setHeader('Content-Length', buffer.length);
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.setHeader('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable');
+                return res.status(200).end(buffer);
+            } catch (err) {
+                console.error('[Program Image API] Base64 decode error:', err);
+            }
+        } else if (rawImg.startsWith('http://') || rawImg.startsWith('https://')) {
+            try {
+                const imgFetch = await fetch(rawImg);
+                if (imgFetch.ok) {
+                    const arrayBuf = await imgFetch.arrayBuffer();
+                    const buf = Buffer.from(arrayBuf);
+                    res.setHeader('Content-Type', imgFetch.headers.get('content-type') || mimeType);
+                    res.setHeader('Content-Length', buf.length);
+                    res.setHeader('Access-Control-Allow-Origin', '*');
+                    res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+                    return res.status(200).end(buf);
+                }
+            } catch(e) {}
+        } else if (rawImg) {
+            const cleanPath = rawImg.replace(/^\//, '');
+            const fullPath = path.join(process.cwd(), cleanPath);
+            if (fs.existsSync(fullPath)) {
+                const fileBuf = fs.readFileSync(fullPath);
+                res.setHeader('Content-Type', mimeType);
+                res.setHeader('Content-Length', fileBuf.length);
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+                return res.status(200).end(fileBuf);
+            }
+        }
+
+        if (fs.existsSync(defaultPath)) {
+            const fileBuf = fs.readFileSync(defaultPath);
+            res.setHeader('Content-Type', 'image/jpeg');
+            res.setHeader('Content-Length', fileBuf.length);
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+            return res.status(200).end(fileBuf);
+        }
+
+        return res.status(404).send('Image not found');
+    }
+
+    // ─── 2. RESOLVE DIRECT ABSOLUTE OPEN GRAPH IMAGE URL ───────────────────────
+    let ogImageUrl = '';
+    let ogImageSecureUrl = '';
+
+    if (rawImg.startsWith('data:image/')) {
+        const directImgUrl = `${origin}/program-image/${encodeURIComponent(canonicalSlug)}.jpg`;
+        ogImageUrl = directImgUrl;
+        ogImageSecureUrl = directImgUrl;
+    } else if (rawImg.startsWith('http://') || rawImg.startsWith('https://')) {
+        ogImageUrl = rawImg;
+        ogImageSecureUrl = rawImg.replace(/^http:\/\//i, 'https://');
+    } else if (rawImg) {
+        const cleanPath = rawImg.replace(/^\//, '');
+        const directImgUrl = `${origin}/${cleanPath}`;
+        ogImageUrl = directImgUrl;
+        ogImageSecureUrl = directImgUrl;
+    } else {
+        const defaultImgUrl = DEFAULT_FALLBACK_IMAGE;
+        ogImageUrl = defaultImgUrl;
+        ogImageSecureUrl = defaultImgUrl;
     }
 
     // Determine actual page image source for HTML body
@@ -429,7 +496,6 @@ module.exports = async function handler(req, res) {
         pageImgSrc = `${origin}/${pageImgSrc.replace(/^\//, '')}`;
     }
 
-    const canonicalSlug = slugify(title);
     let canonicalUrl = `${origin}/program/${canonicalSlug}`;
     const params = [];
     if (refCode) params.push(`ref=${encodeURIComponent(refCode)}`);
@@ -457,24 +523,31 @@ module.exports = async function handler(req, res) {
 
     <!-- Open Graph / WhatsApp / Facebook / Telegram / Instagram -->
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="WIZ Bangka Belitung">
+    <meta property="og:site_name" content="Wahdah Inspirasi Zakat (WIZ) Bangka Belitung">
+    <meta property="og:locale" content="id_ID">
     <meta property="og:title" content="${escapeHtml(title)} — WIZ Bangka Belitung">
     <meta property="og:description" content="${escapeHtml(description)}">
     <meta property="og:image" content="${escapeHtml(ogImageUrl)}">
-    <meta property="og:image:secure_url" content="${escapeHtml(ogImageUrl)}">
+    <meta property="og:image:secure_url" content="${escapeHtml(ogImageSecureUrl)}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:type" content="${mimeType}">
     <meta property="og:image:alt" content="${escapeHtml(title)}">
     <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
+    <link rel="image_src" href="${escapeHtml(ogImageUrl)}">
+    <meta name="thumbnail" content="${escapeHtml(ogImageUrl)}">
+    <meta itemprop="image" content="${escapeHtml(ogImageUrl)}">
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@wizbangkabelitung">
     <meta name="twitter:title" content="${escapeHtml(title)} — WIZ Bangka Belitung">
     <meta name="twitter:description" content="${escapeHtml(description)}">
     <meta name="twitter:image" content="${escapeHtml(ogImageUrl)}">
 
     <!-- Google Fonts & Tailwind -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -569,6 +642,7 @@ module.exports = async function handler(req, res) {
         </div>` : ''}
     </main>
 
+    <!-- Footer -->
     <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
         &copy; 2026 Wahdah Inspirasi Zakat (WIZ) Bangka Belitung. All rights reserved.
     </footer>

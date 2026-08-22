@@ -3,6 +3,7 @@
  * WAHDAH INSPIRASI ZAKAT (WIZ) BANGKA BELITUNG
  * Dynamic News Reader & Social Media Open Graph Generator
  * Endpoint: /berita/:id  or  /api/berita?id=:id
+ * Direct Image: /berita-image/:id.jpg  or  /api/berita?id=:id&img=1
  * ============================================================
  * Menghasilkan kartu preview Open Graph (OG) kaya foto
  * untuk WhatsApp Chat, WhatsApp Story, Facebook, Twitter/X,
@@ -17,7 +18,20 @@ const path = require('path');
 const SUPABASE_URL = 'https://ffiltrlzdbwhhhxzmzuo.supabase.co/rest/v1';
 const SUPABASE_KEY = 'sb_publishable_GiA1BOjbW2psTU36149xuA_E26wGBI3';
 
+// In-memory cache for ultra-fast serverless execution
+let cachedNewsMap = new Map();
+let cachedNewsAll = null;
+let cachedNewsTime = 0;
+const CACHE_TTL_MS = 20000; // 20s
+
 async function supabaseGetNews(newsId) {
+    if (newsId && cachedNewsMap.has(newsId) && (Date.now() - cachedNewsTime < CACHE_TTL_MS)) {
+        return [cachedNewsMap.get(newsId)];
+    }
+    if (!newsId && cachedNewsAll && (Date.now() - cachedNewsTime < CACHE_TTL_MS)) {
+        return cachedNewsAll;
+    }
+
     try {
         let url = `${SUPABASE_URL}/news?select=*`;
         if (newsId) {
@@ -32,7 +46,17 @@ async function supabaseGetNews(newsId) {
         });
         if (!res.ok) return null;
         const data = await res.json();
-        return Array.isArray(data) ? data : null;
+        if (Array.isArray(data)) {
+            if (newsId && data.length > 0) {
+                cachedNewsMap.set(newsId, data[0]);
+            } else if (!newsId) {
+                cachedNewsAll = data;
+                data.forEach(n => { if (n && n.id) cachedNewsMap.set(String(n.id), n); });
+            }
+            cachedNewsTime = Date.now();
+            return data;
+        }
+        return null;
     } catch (e) {
         return null;
     }
@@ -72,41 +96,43 @@ function formatDateIndo(isoStr) {
 }
 
 function getMimeType(filePathOrDataUrl) {
-    if (filePathOrDataUrl.startsWith('data:image/png')) return 'image/png';
-    if (filePathOrDataUrl.startsWith('data:image/webp')) return 'image/webp';
-    if (filePathOrDataUrl.startsWith('data:image/gif')) return 'image/gif';
-    if (filePathOrDataUrl.endsWith('.png')) return 'image/png';
-    if (filePathOrDataUrl.endsWith('.webp')) return 'image/webp';
-    if (filePathOrDataUrl.endsWith('.gif')) return 'image/gif';
-    if (filePathOrDataUrl.endsWith('.svg')) return 'image/svg+xml';
+    if (!filePathOrDataUrl) return 'image/jpeg';
+    const s = String(filePathOrDataUrl).toLowerCase();
+    if (s.startsWith('data:image/png') || s.endsWith('.png')) return 'image/png';
+    if (s.startsWith('data:image/webp') || s.endsWith('.webp')) return 'image/webp';
+    if (s.startsWith('data:image/gif') || s.endsWith('.gif')) return 'image/gif';
+    if (s.endsWith('.svg')) return 'image/svg+xml';
     return 'image/jpeg';
 }
 
 module.exports = async function handler(req, res) {
+    const origin = 'https://www.wizbangkabelitung.or.id';
     const urlObj = new URL(req.url, `http://${req.headers.host || 'www.wizbangkabelitung.or.id'}`);
-    let newsId = urlObj.searchParams.get('id') || urlObj.searchParams.get('newsId');
-    const isImageRequest = urlObj.searchParams.get('img') === '1' || urlObj.searchParams.get('image') === '1';
+    let newsId = (req.query && req.query.id) || urlObj.searchParams.get('id') || urlObj.searchParams.get('newsId');
+    const isImageRequest = urlObj.searchParams.get('img') === '1' || 
+                           urlObj.searchParams.has('img') ||
+                           urlObj.pathname.includes('berita-image') || 
+                           urlObj.pathname.includes('berita-img');
 
-    // Parse ID from path /berita/[id] if applicable
+    // Parse ID from path /berita/[id] or /berita-image/[id] if applicable
     if (!newsId) {
         const parts = urlObj.pathname.split('/').filter(Boolean);
-        const beritaIndex = parts.indexOf('berita');
+        const beritaIndex = parts.findIndex(p => p === 'berita' || p === 'berita-image' || p === 'berita-img');
         if (beritaIndex !== -1 && parts[beritaIndex + 1]) {
             newsId = decodeURIComponent(parts[beritaIndex + 1]);
         }
     }
 
-    const proto = req.headers['x-forwarded-proto'] || 'https';
-    const host = req.headers.host || 'www.wizbangkabelitung.or.id';
-    const origin = `${proto}://${host}`;
+    // Clean newsId: strip extension (.jpg, .png)
+    const cleanNewsId = String(newsId || '').replace(/\.(jpe?g|png|webp|gif)$/i, '').trim();
 
     // 1. Fetch news from Supabase PostgreSQL
     let allNews = [];
     let article = null;
     try {
-        const fetched = await supabaseGetNews(newsId);
+        const fetched = await supabaseGetNews(cleanNewsId);
         if (Array.isArray(fetched) && fetched.length > 0) {
-            if (newsId) {
+            if (cleanNewsId) {
                 article = fetched[0];
             } else {
                 allNews = fetched;
@@ -118,15 +144,15 @@ module.exports = async function handler(req, res) {
     if (!article) {
         const canonical = getCanonicalData();
         const canonList = (canonical && Array.isArray(canonical.news)) ? canonical.news : [];
-        if (newsId) {
-            const cleanId = String(newsId).trim().toLowerCase();
-            article = canonList.find(n => n && (String(n.id) === String(newsId) || String(n.id).toLowerCase() === cleanId));
+        if (cleanNewsId) {
+            const cleanIdLower = cleanNewsId.toLowerCase();
+            article = canonList.find(n => n && (String(n.id) === cleanNewsId || String(n.id).toLowerCase() === cleanIdLower));
             
             // Fuzzy search by title keyword if direct ID match not found
             if (!article) {
                 article = canonList.find(n => {
                     const titleLower = String(n.title || '').toLowerCase();
-                    return cleanId.split(/[-_\s]+/).some(word => word.length > 3 && titleLower.includes(word));
+                    return cleanIdLower.split(/[-_\s]+/).some(word => word.length > 3 && titleLower.includes(word));
                 });
             }
         }
@@ -135,15 +161,15 @@ module.exports = async function handler(req, res) {
         }
     }
 
-    // 3. If no specific newsId was passed in URL (e.g. visiting /berita), default to latest news
-    if (!article && !newsId && allNews.length > 0) {
+    // 3. If no specific newsId was passed in URL, default to latest news
+    if (!article && !cleanNewsId && allNews.length > 0) {
         article = allNews[0];
     }
 
     // 4. Default fallback article if still not found
     if (!article) {
         article = {
-            id: newsId || 'wiz-berita-default',
+            id: cleanNewsId || 'wiz-berita-default',
             title: 'Berita & Kegiatan Penyaluran — WIZ Bangka Belitung',
             content: 'Dokumentasi kegiatan penyaluran dan pemberdayaan ummat oleh Wahdah Inspirasi Zakat (WIZ) Bangka Belitung. Silakan kunjungi website utama untuk melihat berita dan laporan lengkap.',
             imageUrl: 'assets/images/foto-utama-wiz.jpg',
@@ -164,65 +190,92 @@ module.exports = async function handler(req, res) {
     const category = article.category || 'Kegiatan & Penyaluran';
     const author = article.author || 'Admin WIZ Babel';
     const gallery = Array.isArray(article.gallery) ? article.gallery.filter(Boolean) : [];
+    const mimeType = getMimeType(rawImg);
 
-    // ─── Serve Binary Image directly if requested (?img=1) ─────────────────────
+    // ─── 1. SERVE BINARY IMAGE DIRECTLY IF REQUESTED ─────────────────────────────
     if (isImageRequest) {
-        const imgVal = rawImg || 'assets/images/foto-utama-wiz.jpg';
-        if (imgVal.startsWith('data:image/')) {
-            const mime = getMimeType(imgVal);
-            const base64Data = imgVal.split(',')[1] || '';
-            const buffer = Buffer.from(base64Data, 'base64');
-            res.setHeader('Content-Type', mime);
-            res.setHeader('Content-Length', buffer.length);
-            res.setHeader('Cache-Control', 'public, max-age=86400, must-revalidate');
-            return res.status(200).end(buffer);
-        } else if (imgVal.startsWith('http://') || imgVal.startsWith('https://')) {
-            res.writeHead(302, { Location: imgVal });
-            return res.end();
-        } else {
-            const cleanPath = imgVal.startsWith('/') ? imgVal.slice(1) : imgVal;
-            const fullPath = path.join(process.cwd(), cleanPath || 'assets/images/foto-utama-wiz.jpg');
-            if (fs.existsSync(fullPath)) {
-                const mime = getMimeType(cleanPath);
-                const fileBuf = fs.readFileSync(fullPath);
-                res.setHeader('Content-Type', mime);
-                res.setHeader('Content-Length', fileBuf.length);
-                res.setHeader('Cache-Control', 'public, max-age=86400, must-revalidate');
-                return res.status(200).end(fileBuf);
-            } else {
-                const defaultPath = path.join(process.cwd(), 'assets', 'images', 'foto-utama-wiz.jpg');
-                if (fs.existsSync(defaultPath)) {
-                    const fileBuf = fs.readFileSync(defaultPath);
-                    res.setHeader('Content-Type', 'image/jpeg');
-                    res.setHeader('Cache-Control', 'public, max-age=86400');
-                    return res.status(200).end(fileBuf);
+        const defaultPath = path.join(process.cwd(), 'assets', 'images', 'foto-utama-wiz.jpg');
+
+        if (rawImg.startsWith('data:image/')) {
+            try {
+                const base64Data = rawImg.split(',')[1] || '';
+                const buffer = Buffer.from(base64Data, 'base64');
+                res.setHeader('Content-Type', mimeType);
+                res.setHeader('Content-Length', buffer.length);
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.setHeader('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable');
+                return res.status(200).end(buffer);
+            } catch (err) {
+                console.error('[Berita Image API] Base64 error:', err);
+            }
+        } else if (rawImg.startsWith('http://') || rawImg.startsWith('https://')) {
+            try {
+                const imgFetch = await fetch(rawImg);
+                if (imgFetch.ok) {
+                    const arrayBuf = await imgFetch.arrayBuffer();
+                    const buf = Buffer.from(arrayBuf);
+                    res.setHeader('Content-Type', imgFetch.headers.get('content-type') || mimeType);
+                    res.setHeader('Content-Length', buf.length);
+                    res.setHeader('Access-Control-Allow-Origin', '*');
+                    res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+                    return res.status(200).end(buf);
                 }
+            } catch(e) {}
+        } else if (rawImg) {
+            const cleanPath = rawImg.replace(/^\//, '');
+            const fullPath = path.join(process.cwd(), cleanPath);
+            if (fs.existsSync(fullPath)) {
+                const fileBuf = fs.readFileSync(fullPath);
+                res.setHeader('Content-Type', mimeType);
+                res.setHeader('Content-Length', fileBuf.length);
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+                return res.status(200).end(fileBuf);
             }
         }
+
+        if (fs.existsSync(defaultPath)) {
+            const fileBuf = fs.readFileSync(defaultPath);
+            res.setHeader('Content-Type', 'image/jpeg');
+            res.setHeader('Content-Length', fileBuf.length);
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+            return res.status(200).end(fileBuf);
+        }
+
+        return res.status(404).send('Image not found');
     }
 
-    // ─── Resolve absolute Open Graph Image URL ──────────────────────────────
+    // ─── 2. RESOLVE DIRECT ABSOLUTE OPEN GRAPH IMAGE URL ───────────────────────
     let absoluteImgUrl = '';
+    let secureImgUrl = '';
+
     if (rawImg.startsWith('data:image/')) {
-        // WhatsApp / FB crawler cannot read data URLs. We serve it via ?img=1 endpoint!
-        absoluteImgUrl = `${origin}/api/berita?id=${encodeURIComponent(article.id)}&img=1`;
+        const directUrl = `${origin}/berita-image/${encodeURIComponent(article.id)}.jpg`;
+        absoluteImgUrl = directUrl;
+        secureImgUrl = directUrl;
     } else if (rawImg.startsWith('http://') || rawImg.startsWith('https://')) {
         absoluteImgUrl = rawImg;
+        secureImgUrl = rawImg.replace(/^http:\/\//i, 'https://');
     } else if (rawImg) {
-        const cleanPath = rawImg.startsWith('/') ? rawImg.slice(1) : rawImg;
-        absoluteImgUrl = `${origin}/${cleanPath}`;
+        const cleanPath = rawImg.replace(/^\//, '');
+        const directUrl = `${origin}/${cleanPath}`;
+        absoluteImgUrl = directUrl;
+        secureImgUrl = directUrl;
     } else {
-        absoluteImgUrl = `${origin}/assets/images/foto-utama-wiz.jpg`;
+        const defaultUrl = `${origin}/assets/images/foto-utama-wiz.jpg`;
+        absoluteImgUrl = defaultUrl;
+        secureImgUrl = defaultUrl;
     }
 
-    const refCode = urlObj.searchParams.get('ref') || urlObj.searchParams.get('affiliate') || urlObj.searchParams.get('perantara') || '';
+    const refCode = (urlObj.searchParams.get('ref') || urlObj.searchParams.get('affiliate') || urlObj.searchParams.get('perantara') || '').trim();
     const excerpt = rawContent.slice(0, 180).replace(/\r?\n|\r/g, ' ') + (rawContent.length > 180 ? '...' : '');
     const canonicalUrl = `${origin}/berita/${encodeURIComponent(article.id)}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
     const donateUrl = `${origin}/donasi.html${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
     const portalUrl = `${origin}/berita`;
     const formattedDate = formatDateIndo(eventDate);
 
-    // Full responsive HTML with Social Media Open Graph Cards & 30-day Affiliate Engine
+    // Full responsive HTML with Social Media Open Graph Cards & 30-day Referral Engine
     const html = `<!DOCTYPE html>
 <html lang="id">
 <head>
@@ -240,11 +293,14 @@ module.exports = async function handler(req, res) {
     <meta property="og:title" content="${escapeHtml(title)}"/>
     <meta property="og:description" content="${escapeHtml(excerpt)}"/>
     <meta property="og:image" content="${absoluteImgUrl}"/>
-    <meta property="og:image:secure_url" content="${absoluteImgUrl}"/>
+    <meta property="og:image:secure_url" content="${secureImgUrl}"/>
     <meta property="og:image:alt" content="${escapeHtml(title)}"/>
-    <meta property="og:image:type" content="${getMimeType(rawImg)}"/>
+    <meta property="og:image:type" content="${mimeType}"/>
     <meta property="og:image:width" content="1200"/>
     <meta property="og:image:height" content="630"/>
+    <link rel="image_src" href="${absoluteImgUrl}"/>
+    <meta name="thumbnail" content="${absoluteImgUrl}"/>
+    <meta itemprop="image" content="${absoluteImgUrl}"/>
 
     <!-- Twitter / X Cards -->
     <meta name="twitter:card" content="summary_large_image"/>
@@ -280,93 +336,116 @@ module.exports = async function handler(req, res) {
         }
     </script>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col selection:bg-primary selection:text-white">
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-primary selection:text-white">
 
-    <!-- Top Navigation Bar -->
-    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
-            <a href="${origin}" class="flex items-center gap-2.5 shrink-0 max-w-xs group">
-                <img src="${origin}/assets/images/logo-wiz-babel.png" alt="Logo WIZ Babel" class="h-9 sm:h-11 w-auto object-contain group-hover:scale-105 transition-transform" onerror="this.src='${origin}/assets/images/logo-wiz-babel.png'"/>
-                <div class="flex flex-col">
-                    <span class="block font-headline font-bold text-sm sm:text-base text-primary leading-tight whitespace-nowrap">WIZ BANGKA BELITUNG</span>
-                    <span class="block text-[10px] sm:text-[11px] text-slate-500 font-medium leading-none whitespace-nowrap">Wahdah Inspirasi Zakat</span>
+    <!-- Referral / Mitra Attribution Handler -->
+    <script>
+        (function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const ref = urlParams.get('ref') || urlParams.get('affiliate') || urlParams.get('perantara');
+            if (ref) {
+                try {
+                    sessionStorage.setItem('wiz_active_ref_id', ref);
+                    localStorage.setItem('wiz_affiliate_ref', ref);
+                    localStorage.setItem('wiz_affiliate_exp', Date.now() + (30 * 24 * 60 * 60 * 1000));
+                } catch(e) {}
+            }
+        })();
+    </script>
+
+    <!-- Header Navigation -->
+    <header class="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-slate-100 shadow-xs">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
+            <a href="${origin}/index.html" class="flex items-center gap-2.5 sm:gap-3 group">
+                <img src="${origin}/assets/images/logo-wiz-babel.png" alt="WIZ Bangka Belitung" class="h-9 sm:h-11 w-auto object-contain transition-transform group-hover:scale-105"/>
+                <div class="leading-tight">
+                    <span class="block font-headline font-bold text-sm sm:text-base text-slate-900">Wahdah Inspirasi Zakat</span>
+                    <span class="block text-[11px] sm:text-xs text-primary font-bold tracking-wider uppercase">Bangka Belitung</span>
                 </div>
             </a>
-            <div class="flex items-center gap-3 shrink-0">
-                <a href="${origin}/berita" class="hidden sm:inline-flex items-center gap-1 text-sm font-semibold text-slate-600 hover:text-primary px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors whitespace-nowrap">
-                    <span class="material-symbols-outlined text-base">arrow_back</span> Semua Berita
+            <div class="flex items-center gap-2 sm:gap-3">
+                <a href="${portalUrl}" class="hidden sm:inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-primary transition-colors px-3 py-2 rounded-xl hover:bg-slate-50">
+                    <span class="material-symbols-outlined text-lg">newspaper</span> Semua Berita
                 </a>
-                <a href="${donateUrl}" class="inline-flex items-center gap-1.5 bg-secondary hover:bg-emerald-600 text-white font-bold px-4 py-2 rounded-xl text-xs sm:text-sm shadow-sm hover:shadow-md transition-all active:scale-95 whitespace-nowrap shrink-0">
-                    <span class="material-symbols-outlined text-base">favorite</span> Donasi Sekarang
+                <a href="${donateUrl}" class="inline-flex items-center gap-1.5 bg-primary hover:bg-primary-dark text-white font-bold text-xs sm:text-sm px-4 py-2 sm:px-5 sm:py-2.5 rounded-full shadow-md hover:shadow-lg transition-all active:scale-95">
+                    <span class="material-symbols-outlined text-sm sm:text-base">favorite</span>
+                    <span>Donasi Sekarang</span>
                 </a>
             </div>
         </div>
     </header>
 
-    <!-- Main Content Container -->
-    <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-6 md:py-10">
-        
-        <!-- Breadcrumb & Category -->
-        <nav class="flex items-center gap-2 text-xs md:text-sm text-slate-500 mb-4 flex-wrap">
-            <a href="${origin}" class="hover:text-primary">Beranda</a>
-            <span>/</span>
-            <a href="${origin}/berita" class="hover:text-primary">Berita &amp; Kegiatan</a>
-            <span>/</span>
-            <span class="text-primary font-semibold truncate max-w-xs">${escapeHtml(category)}</span>
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 flex-grow w-full">
+
+        <!-- Breadcrumbs -->
+        <nav class="flex items-center gap-2 text-xs text-slate-500 mb-6 flex-wrap">
+            <a href="${origin}/index.html" class="hover:text-primary transition-colors">Beranda</a>
+            <span class="text-slate-300">/</span>
+            <a href="${portalUrl}" class="hover:text-primary transition-colors">Berita &amp; Kegiatan</a>
+            <span class="text-slate-300">/</span>
+            <span class="text-slate-900 font-semibold truncate max-w-xs">${escapeHtml(title)}</span>
         </nav>
 
         <!-- Article Card -->
-        <article class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
-            
-            <!-- Article Header -->
-            <div class="p-6 md:p-10 border-b border-slate-100">
-                <div class="flex items-center gap-2 mb-3 flex-wrap">
-                    <span class="bg-primary/10 text-primary font-bold text-xs px-3 py-1 rounded-full border border-primary/20">
-                        ${escapeHtml(category)}
-                    </span>
-                    <span class="text-xs text-slate-500 flex items-center gap-1">
-                        <span class="material-symbols-outlined text-sm text-slate-400">calendar_today</span>
-                        ${escapeHtml(formattedDate)}
-                    </span>
-                    <span class="text-xs text-slate-500 flex items-center gap-1">
-                        <span class="material-symbols-outlined text-sm text-slate-400">person</span>
-                        Oleh: <strong>${escapeHtml(author)}</strong>
-                    </span>
-                </div>
+        <article class="bg-white rounded-3xl overflow-hidden shadow-xl shadow-slate-200/50 border border-slate-100 mb-10">
 
-                <h1 class="font-headline font-extrabold text-2xl md:text-4xl text-slate-900 leading-tight tracking-tight">
-                    ${escapeHtml(title)}
-                </h1>
+            <!-- Featured Image -->
+            <div class="relative w-full bg-slate-900 overflow-hidden group">
+                <img src="${escapeHtml(absoluteImgUrl)}" alt="${escapeHtml(title)}" class="w-full h-auto max-h-[500px] object-cover object-center transition-transform duration-700 group-hover:scale-105" onerror="this.src='${origin}/assets/images/foto-utama-wiz.jpg'"/>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+                <span class="absolute top-4 left-4 bg-primary/90 backdrop-blur-md text-white text-xs font-bold px-3.5 py-1.5 rounded-full shadow-lg flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">label</span>
+                    ${escapeHtml(category)}
+                </span>
             </div>
 
-            <!-- Featured Cover Photo -->
-            <div class="relative bg-slate-900 aspect-[16/9] w-full overflow-hidden">
-                <img src="${absoluteImgUrl}" alt="${escapeHtml(title)}" class="w-full h-full object-cover"/>
-            </div>
+            <!-- Content Area -->
+            <div class="p-6 sm:p-10 space-y-6">
 
-            <!-- Article Body -->
-            <div class="p-6 md:p-10 space-y-6 text-slate-700 text-base md:text-lg leading-relaxed font-normal">
-                ${rawContent.split(/\r?\n\r?\n/).filter(Boolean).map(p => `
-                    <p class="whitespace-pre-line leading-relaxed">${escapeHtml(p)}</p>
-                `).join('')}
-            </div>
-
-            <!-- Multi-Photo Gallery if exists -->
-            ${gallery.length > 0 ? `
-            <div class="p-6 md:p-10 bg-slate-50/70 border-t border-slate-200">
-                <h3 class="font-headline font-bold text-lg md:text-xl text-slate-900 mb-4 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">collections</span> Galeri Foto Dokumentasi
-                </h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    ${gallery.map((img, i) => `
-                        <div class="relative rounded-2xl overflow-hidden shadow-xs border border-slate-200 aspect-[4/3] bg-slate-200 group">
-                            <img src="${img.startsWith('http') || img.startsWith('/') ? img : `${origin}/${img}`}" alt="Dokumentasi ${i+1}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
+                <!-- Meta Header -->
+                <div class="space-y-3 border-b border-slate-100 pb-6">
+                    <h1 class="font-headline font-extrabold text-2xl sm:text-3xl md:text-4xl text-slate-900 leading-tight">
+                        ${escapeHtml(title)}
+                    </h1>
+                    <div class="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm text-slate-500 flex-wrap">
+                        <div class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-primary text-base">calendar_today</span>
+                            <span>${formattedDate}</span>
                         </div>
-                    `).join('')}
+                        <div class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-primary text-base">person</span>
+                            <span>${escapeHtml(author)}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-primary text-base">verified</span>
+                            <span class="text-emerald-700 font-semibold">Dokumentasi Resmi WIZ Babel</span>
+                        </div>
+                    </div>
                 </div>
-            </div>` : ''}
 
-            <!-- Social Share Bar & Call to Action -->
+                <!-- Body Text -->
+                <div class="prose prose-slate max-w-none text-slate-700 leading-relaxed sm:text-lg whitespace-pre-line space-y-4">
+                    ${escapeHtml(rawContent)}
+                </div>
+
+                <!-- Gallery Grid if Available -->
+                ${gallery.length > 0 ? `
+                <div class="pt-6 border-t border-slate-100 space-y-4">
+                    <h3 class="font-headline font-bold text-slate-900 text-lg sm:text-xl flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">photo_library</span> Galeri Dokumentasi Penyaluran
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+                        ${gallery.map(img => `
+                        <div class="rounded-2xl overflow-hidden shadow-xs border border-slate-100 group relative aspect-video bg-slate-100">
+                            <img src="${img.startsWith('http') ? escapeHtml(img) : origin + '/' + escapeHtml(img.replace(/^\//, ''))}" alt="Galeri Kegiatan" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onerror="this.src='${origin}/assets/images/foto-utama-wiz.jpg'"/>
+                        </div>`).join('')}
+                    </div>
+                </div>` : ''}
+
+            </div>
+
+            <!-- Call to Action Banner -->
             <div class="p-6 md:p-10 bg-gradient-to-br from-primary/5 via-emerald-50/50 to-primary/5 border-t border-slate-200 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div>
                     <h4 class="font-headline font-bold text-slate-900 text-lg">Bagikan Berita Kebaikan Ini</h4>
@@ -384,42 +463,31 @@ module.exports = async function handler(req, res) {
 
         </article>
 
-        <!-- Back to Portal Button -->
-        <div class="mt-8 text-center">
-            <a href="${portalUrl}" class="inline-flex items-center gap-2 text-primary font-bold hover:underline text-sm md:text-base">
-                <span class="material-symbols-outlined">arrow_back</span> Kembali ke Berita di Website Utama WIZ Babel
+        <!-- Referral Attribution Banner -->
+        ${refCode ? `
+        <div class="bg-gradient-to-r from-slate-900 to-primary text-white rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4 shadow-md">
+            <div class="space-y-0.5">
+                <span class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400">Jalur Kebaikan Sahabat Mitra</span>
+                <p class="text-xs text-slate-200">Anda terhubung melalui Mitra WIZ: <strong class="text-white font-bold">${escapeHtml(refCode)}</strong></p>
+            </div>
+            <a href="${origin}/affiliate.html" class="shrink-0 bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors border border-white/20">
+                Info Kemitraan
             </a>
-        </div>
+        </div>` : ''}
 
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 mt-12 py-8 text-center text-xs text-slate-500">
-        <div class="max-w-4xl mx-auto px-4 space-y-2">
-            <p class="font-semibold text-slate-700">© 2026 Wahdah Inspirasi Zakat (WIZ) Kepulauan Bangka Belitung</p>
-            <p>Jl. RE. Martadinata, Kel. Opas Indah, Kec. Taman Sari, Kota Pangkalpinang | Hotline: 0852-6701-4475</p>
-        </div>
+    <footer class="border-t border-slate-200 bg-white py-8 text-center text-xs text-slate-500 space-y-2">
+        <p class="font-semibold text-slate-700">&copy; 2026 Wahdah Inspirasi Zakat (WIZ) Bangka Belitung</p>
+        <p>Lembaga Amil Zakat Nasional — Amanah, Profesional, &amp; Transparan</p>
+        <p><a href="${origin}/index.html" class="text-primary hover:underline">wizbangkabelitung.or.id</a></p>
     </footer>
 
-    <!-- Affiliate Tracker Script (30-day Cookie Attribution) -->
-    <script>
-        (function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const ref = urlParams.get('ref') || urlParams.get('affiliate') || urlParams.get('perantara');
-            if (ref) {
-                try {
-                    localStorage.setItem('wiz_referral_code', ref.trim());
-                    localStorage.setItem('wiz_referral_timestamp', Date.now().toString());
-                    document.cookie = "wiz_ref=" + encodeURIComponent(ref.trim()) + "; path=/; max-age=" + (30*86400);
-                } catch(e) {}
-            }
-        })();
-    </script>
 </body>
 </html>`;
 
-    res.setHeader('X-Berita-Version', '20260820_22');
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=86400');
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120');
     return res.status(200).send(html);
 };

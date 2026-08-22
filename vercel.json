@@ -68,6 +68,78 @@
   ],
   "rewrites": [
     {
+      "source": "/flyer-image/:id.jpg",
+      "destination": "/api/quote?id=:id&img=1"
+    },
+    {
+      "source": "/flyer-image/:id.png",
+      "destination": "/api/quote?id=:id&img=1"
+    },
+    {
+      "source": "/flyer-image/:id.webp",
+      "destination": "/api/quote?id=:id&img=1"
+    },
+    {
+      "source": "/flyer-image/:id",
+      "destination": "/api/quote?id=:id&img=1"
+    },
+    {
+      "source": "/flyer-img/:id.jpg",
+      "destination": "/api/quote?id=:id&img=1"
+    },
+    {
+      "source": "/flyer-img/:id.png",
+      "destination": "/api/quote?id=:id&img=1"
+    },
+    {
+      "source": "/flyer-img/:id",
+      "destination": "/api/quote?id=:id&img=1"
+    },
+    {
+      "source": "/quote-image/:id.jpg",
+      "destination": "/api/quote?id=:id&img=1"
+    },
+    {
+      "source": "/quote-image/:id.png",
+      "destination": "/api/quote?id=:id&img=1"
+    },
+    {
+      "source": "/quote-image/:id.webp",
+      "destination": "/api/quote?id=:id&img=1"
+    },
+    {
+      "source": "/quote-image/:id",
+      "destination": "/api/quote?id=:id&img=1"
+    },
+    {
+      "source": "/quote-img/:id.jpg",
+      "destination": "/api/quote?id=:id&img=1"
+    },
+    {
+      "source": "/quote-img/:id.png",
+      "destination": "/api/quote?id=:id&img=1"
+    },
+    {
+      "source": "/quote-img/:id",
+      "destination": "/api/quote?id=:id&img=1"
+    },
+    {
+      "source": "/berita-image/:id.jpg",
+      "destination": "/api/berita?id=:id&img=1"
+    },
+    {
+      "source": "/berita-image/:id",
+      "destination": "/api/berita?id=:id&img=1"
+    },
+    {
+      "source": "/program-image/:slug.jpg",
+      "destination": "/api/program?slug=:slug&img=1"
+    },
+    {
+      "source": "/program-image/:slug",
+      "destination": "/api/program?slug=:slug&img=1"
+    },
+    {
       "source": "/program/:slug",
       "destination": "/api/program?slug=:slug"
     },
