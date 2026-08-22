@@ -4782,6 +4782,40 @@
                     if (window.wizStore && window.wizStore.allocationRulesManager) {
                         await window.wizStore.allocationRulesManager.updateSpecificProgramImageByName(progTitle, compressed);
                     }
+
+                    // ── Segera simpan foto ke Supabase master_bundle.specific_prog_imgs ──
+                    // Ini memastikan server OG Image (og-image.js) langsung mendapatkan foto
+                    // yang benar tanpa harus menunggu sinkronisasi penuh dari admin.
+                    (async () => {
+                        try {
+                            // Coba kirim ke production Vercel terlebih dahulu
+                            const targets = [];
+                            if (window.location.hostname === 'www.wizbangkabelitung.or.id' || window.location.hostname === 'wizbangkabelitung.or.id') {
+                                targets.push('/api/sync-photo');
+                            } else {
+                                targets.push('/api/sync-photo');
+                                targets.push('https://www.wizbangkabelitung.or.id/api/sync-photo');
+                            }
+                            for (const url of targets) {
+                                try {
+                                    const r = await fetch(url, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ programTitle: progTitle, imageUrl: compressed })
+                                    });
+                                    if (r.ok) {
+                                        const result = await r.json();
+                                        console.log(`[Admin] ✅ Foto "${progTitle}" berhasil disimpan ke Supabase via ${url}:`, result.message);
+                                    } else {
+                                        console.warn(`[Admin] ⚠️ sync-photo failed at ${url}:`, r.status);
+                                    }
+                                } catch(e) {
+                                    console.warn(`[Admin] sync-photo error at ${url}:`, e.message);
+                                }
+                            }
+                        } catch(e) {}
+                    })();
+
                     renderSpecificProgramImagesSection();
                 };
                 img.src = objectUrl;
