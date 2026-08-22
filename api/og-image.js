@@ -346,8 +346,12 @@ module.exports = async function handler(req, res) {
     const urlObj = new URL(req.url, 'https://www.wizbangkabelitung.or.id');
     const type = (urlObj.searchParams.get('type') || '').toLowerCase().trim();
     const id = String(urlObj.searchParams.get('id') || '').replace(/\.(jpe?g|png|webp|gif)$/i, '').trim();
+    // ?src= is the pre-resolved image URL forwarded directly from api/program.js
+    // This avoids a second Supabase lookup and ensures the correct photo is shown
+    const srcParam = urlObj.searchParams.get('src') || '';
 
-    const cacheKey = `${type}:${id || 'default'}`;
+    // Cache key includes src so different images for same program ID are cached separately
+    const cacheKey = srcParam ? `${type}:${id}:${srcParam}` : `${type}:${id || 'default'}`;
     const cachedBuf = getCached(cacheKey);
     if (cachedBuf) {
         return sendJpegImage(res, cachedBuf);
@@ -355,7 +359,10 @@ module.exports = async function handler(req, res) {
 
     let rawSource = 'assets/images/foto-utama-wiz.jpg';
 
-    if (type === 'news' && id) {
+    // Priority 1: Use forwarded ?src= if it's a valid HTTPS URL
+    if (srcParam && (srcParam.startsWith('https://') || srcParam.startsWith('http://'))) {
+        rawSource = srcParam;
+    } else if (type === 'news' && id) {
         rawSource = await resolveNewsRaw(id);
     } else if ((type === 'quote' || type === 'flyer') && id) {
         rawSource = await resolveQuoteRaw(id);

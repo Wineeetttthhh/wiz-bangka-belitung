@@ -528,9 +528,21 @@ module.exports = async function handler(req, res) {
         return res.status(404).send('Image not found');
     }
 
-    // ─── 2. DEDICATED OG IMAGE URL (always via /api/og-image for WhatsApp crawler) ─
-    // Single stable endpoint returning binary JPEG <300KB with 1hr cache
-    const ogImageUrl = `${origin}/api/og-image?type=program&id=${encodeURIComponent(canonicalSlug)}`;
+    // ─── 2. OG IMAGE URL ──────────────────────────────────────────────────────────
+    // Strategy:
+    //   a) base64 image → serve via /api/program?slug=...&img=1 (direct binary, no proxy)
+    //   b) https:// URL  → route via /api/og-image with ?src= param (cropped 1200x630)
+    //   c) local file    → route via /api/og-image (Jimp crop fallback)
+    let ogImageUrl;
+    if (rawImg && rawImg.startsWith('data:image/')) {
+        // Direct binary serve — most reliable for base64 blobs stored in Supabase
+        ogImageUrl = `${origin}/api/program?slug=${encodeURIComponent(canonicalSlug)}&img=1`;
+    } else if (rawImg && rawImg.startsWith('https://')) {
+        // Forward the exact URL so og-image uses it without a second Supabase lookup
+        ogImageUrl = `${origin}/api/og-image?type=program&id=${encodeURIComponent(canonicalSlug)}&src=${encodeURIComponent(rawImg)}`;
+    } else {
+        ogImageUrl = `${origin}/api/og-image?type=program&id=${encodeURIComponent(canonicalSlug)}`;
+    }
     const ogImageSecureUrl = ogImageUrl;
 
     // Determine actual page image source for HTML body display
