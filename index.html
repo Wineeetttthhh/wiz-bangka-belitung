@@ -1455,10 +1455,26 @@
         if (typeof window.applySiteSettings === 'function') window.applySiteSettings();
     });
 
+    window.addEventListener('wiz-programs-changed', () => {
+        if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
+        if (typeof renderInfakUmumDistributionWidget === 'function') renderInfakUmumDistributionWidget();
+    });
+
+    window.addEventListener('wiz-program-images-changed', () => {
+        if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
+    });
+
     window.addEventListener('wiz-data-changed', () => {
         if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
         if (typeof renderVerifiedDonors === 'function') renderVerifiedDonors();
         if (typeof renderInfakUmumDistributionWidget === 'function') renderInfakUmumDistributionWidget();
+    });
+
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'wiz_custom_specific_programs' || e.key === 'wiz_specific_prog_imgs' || e.key === 'wiz_allocation_rules') {
+            if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
+            if (typeof renderInfakUmumDistributionWidget === 'function') renderInfakUmumDistributionWidget();
+        }
     });
 </script>
 </body>

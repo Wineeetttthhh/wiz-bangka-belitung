@@ -947,10 +947,144 @@
 
             // 4. Fallback to pillar image
             const cleanPillarKey = (pillar || '').toLowerCase().replace(/\s+/g, '_');
-            if (DEFAULT_SITE_IMAGES[cleanPillarKey]) {
-                return DEFAULT_SITE_IMAGES[cleanPillarKey];
-            }
             return DEFAULT_SITE_IMAGES.berkah_hidayah;
+        },
+
+        async addOrUpdateSpecificProgram(pillar, title, imageUrl = '') {
+            if (!pillar || !title) return false;
+            const cleanTitle = String(title).trim();
+            const cleanPillar = String(pillar).trim();
+
+            // 1. Update localStorage wiz_custom_specific_programs map
+            let customMap = {};
+            try {
+                customMap = JSON.parse(localStorage.getItem('wiz_custom_specific_programs') || '{}');
+            } catch(e) {}
+            if (!customMap[cleanPillar]) customMap[cleanPillar] = [];
+            if (!customMap[cleanPillar].includes(cleanTitle)) {
+                customMap[cleanPillar].push(cleanTitle);
+            }
+            localStorage.setItem('wiz_custom_specific_programs', JSON.stringify(customMap));
+
+            // 2. If imageUrl is provided, save to flat images store & siteImages
+            if (imageUrl) {
+                try {
+                    const flatImgs = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+                    flatImgs[cleanTitle] = imageUrl;
+                    localStorage.setItem('wiz_specific_prog_imgs', JSON.stringify(flatImgs));
+                    const imgKey = 'prog_img_' + cleanTitle.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+                    siteImages.update(imgKey, imageUrl, `Foto Program: ${cleanTitle}`);
+                } catch(e) {}
+            }
+
+            // 3. Update subAllocation across all branches in allocationRules
+            const allRules = this.getAll();
+            for (const [wKey, wData] of Object.entries(allRules)) {
+                if (!wData.subAllocation) wData.subAllocation = {};
+                if (!wData.subAllocation[cleanPillar]) {
+                    wData.subAllocation[cleanPillar] = { items: [] };
+                }
+                const items = wData.subAllocation[cleanPillar].items || [];
+                const existing = items.find(i => (i.key || '').toLowerCase() === cleanTitle.toLowerCase());
+                if (!existing) {
+                    items.push({
+                        key: cleanTitle,
+                        percent: 0,
+                        image: imageUrl || this.getSpecificProgramImage(cleanTitle, cleanPillar) || ''
+                    });
+                } else if (imageUrl) {
+                    existing.image = imageUrl;
+                }
+                wData.subAllocation[cleanPillar].items = items;
+                await this.update(wKey, wData);
+            }
+
+            // 4. Cloud sync (Supabase & Firebase)
+            try {
+                if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                    await window.wizSupabase.upsert('site_settings', {
+                        id: 'custom_specific_programs',
+                        key: 'custom_specific_programs',
+                        value: customMap,
+                        updated_at: new Date().toISOString()
+                    });
+                }
+                if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                    await window.wizFirebase.upsert('site_settings', {
+                        key: 'custom_specific_programs',
+                        data: customMap,
+                        updatedAt: new Date().toISOString()
+                    });
+                }
+                if (typeof pushToCloud === 'function') {
+                    await pushToCloud();
+                }
+            } catch(e) {}
+
+            // 5. Broadcast to all open tabs and components
+            window.dispatchEvent(new CustomEvent('wiz-programs-changed', { detail: { pillar: cleanPillar, title: cleanTitle } }));
+            window.dispatchEvent(new CustomEvent('wiz-program-images-changed'));
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+            if (typeof broadcastSync === 'function') {
+                broadcastSync('PROGRAMS_UPDATED', customMap);
+            }
+
+            return true;
+        },
+
+        async deleteSpecificProgram(pillar, title) {
+            if (!pillar || !title) return false;
+            const cleanTitle = String(title).trim();
+            const cleanPillar = String(pillar).trim();
+
+            // 1. Remove from wiz_custom_specific_programs
+            let customMap = {};
+            try {
+                customMap = JSON.parse(localStorage.getItem('wiz_custom_specific_programs') || '{}');
+                if (customMap[cleanPillar]) {
+                    customMap[cleanPillar] = customMap[cleanPillar].filter(t => t.toLowerCase() !== cleanTitle.toLowerCase());
+                    localStorage.setItem('wiz_custom_specific_programs', JSON.stringify(customMap));
+                }
+            } catch(e) {}
+
+            // 2. Remove from allocationRules subAllocation across all branches
+            const allRules = this.getAll();
+            for (const [wKey, wData] of Object.entries(allRules)) {
+                if (wData.subAllocation && wData.subAllocation[cleanPillar] && wData.subAllocation[cleanPillar].items) {
+                    wData.subAllocation[cleanPillar].items = wData.subAllocation[cleanPillar].items.filter(i => (i.key || '').toLowerCase() !== cleanTitle.toLowerCase());
+                    await this.update(wKey, wData);
+                }
+            }
+
+            // 3. Cloud sync
+            try {
+                if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                    await window.wizSupabase.upsert('site_settings', {
+                        id: 'custom_specific_programs',
+                        key: 'custom_specific_programs',
+                        value: customMap,
+                        updated_at: new Date().toISOString()
+                    });
+                }
+                if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                    await window.wizFirebase.upsert('site_settings', {
+                        key: 'custom_specific_programs',
+                        data: customMap,
+                        updatedAt: new Date().toISOString()
+                    });
+                }
+                if (typeof pushToCloud === 'function') {
+                    await pushToCloud();
+                }
+            } catch(e) {}
+
+            window.dispatchEvent(new CustomEvent('wiz-programs-changed', { detail: { deleted: cleanTitle } }));
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+            if (typeof broadcastSync === 'function') {
+                broadcastSync('PROGRAMS_UPDATED', customMap);
+            }
+
+            return true;
         },
         getSpecificProgramList(wilayah) {
             const result = [];
@@ -1634,6 +1768,32 @@
                 const existingMap = JSON.parse(localStorage.getItem('wiz_custom_specific_programs') || '{}');
                 const mergedMap = { ...existingMap, ...masterData.custom_specific_programs };
                 localStorage.setItem('wiz_custom_specific_programs', JSON.stringify(mergedMap));
+                
+                // Synchronize into allocationRulesManager subAllocation
+                try {
+                    const allRules = allocationRulesManager.getAll();
+                    let rulesModified = false;
+                    for (const [wKey, wData] of Object.entries(allRules)) {
+                        if (!wData.subAllocation) wData.subAllocation = {};
+                        for (const [pillarKey, titles] of Object.entries(mergedMap)) {
+                            if (!wData.subAllocation[pillarKey]) wData.subAllocation[pillarKey] = { items: [] };
+                            const items = wData.subAllocation[pillarKey].items || [];
+                            if (Array.isArray(titles)) {
+                                titles.forEach(t => {
+                                    if (!items.find(i => (i.key || '').toLowerCase() === t.toLowerCase())) {
+                                        items.push({ key: t, percent: 0, image: allocationRulesManager.getSpecificProgramImage(t, pillarKey) || '' });
+                                        rulesModified = true;
+                                    }
+                                });
+                            }
+                            wData.subAllocation[pillarKey].items = items;
+                        }
+                    }
+                    if (rulesModified) {
+                        setStore(STORAGE_KEYS.ALLOCATION_RULES, allRules);
+                    }
+                } catch(e) {}
+                window.dispatchEvent(new CustomEvent('wiz-programs-changed', { detail: mergedMap }));
             }
             if (masterData.specific_prog_imgs && typeof masterData.specific_prog_imgs === 'object') {
                 const existingImgs = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
@@ -2857,6 +3017,33 @@
                     });
                 });
             });
+
+            // Also merge any custom programs added from admin
+            try {
+                const customMap = JSON.parse(localStorage.getItem('wiz_custom_specific_programs') || '{}');
+                Object.entries(customMap).forEach(([pillarKey, titles]) => {
+                    if (Array.isArray(titles)) {
+                        titles.forEach(itemKey => {
+                            const fullName = `${pillarKey} - ${itemKey}`;
+                            const displayLabel = `WIZ ${pillarKey} (${itemKey})`;
+                            if (!specificItemsMap.has(fullName)) {
+                                const dynamicImg = (allocationRulesManager ? allocationRulesManager.getSpecificProgramImage(itemKey, pillarKey) : '') || '';
+                                specificItemsMap.set(fullName, {
+                                    fullName,
+                                    displayLabel,
+                                    pillarKey,
+                                    itemKey,
+                                    subPercent: 0,
+                                    mainPercent: 0,
+                                    image: dynamicImg,
+                                    masuk: 0,
+                                    tersalurkan: 0
+                                });
+                            }
+                        });
+                    }
+                });
+            } catch(e) {}
 
             // 1. Calculate Dana Masuk per Specific Program
             verified.forEach(d => {

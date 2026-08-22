@@ -4276,11 +4276,53 @@
             if (catVal) handleAdminProgramUtamaChange(catVal);
         }
 
-        function saveSpecificProgramsMap(map) {
+        async function saveSpecificProgramsMap(map) {
             localStorage.setItem('wiz_custom_specific_programs', JSON.stringify(map));
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                window.wizFirebase.upsert('site_settings', { key: 'custom_specific_programs', data: map, updatedAt: new Date().toISOString() });
+            if (window.wizStore && window.wizStore.allocationRulesManager) {
+                const rules = window.wizStore.allocationRulesManager.getAll();
+                for (const [wKey, wData] of Object.entries(rules)) {
+                    if (!wData.subAllocation) wData.subAllocation = {};
+                    let modified = false;
+                    for (const [pillarKey, titles] of Object.entries(map)) {
+                        if (!wData.subAllocation[pillarKey]) {
+                            wData.subAllocation[pillarKey] = { items: [] };
+                            modified = true;
+                        }
+                        const existingItems = wData.subAllocation[pillarKey].items || [];
+                        titles.forEach(t => {
+                            const found = existingItems.find(i => (i.key || '').toLowerCase() === t.toLowerCase());
+                            if (!found) {
+                                const img = window.wizStore.allocationRulesManager.getSpecificProgramImage(t, pillarKey) || '';
+                                existingItems.push({ key: t, percent: 0, image: img });
+                                modified = true;
+                            }
+                        });
+                        wData.subAllocation[pillarKey].items = existingItems;
+                    }
+                    if (modified) {
+                        await window.wizStore.allocationRulesManager.update(wKey, wData);
+                    }
+                }
             }
+
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                try {
+                    window.wizFirebase.upsert('site_settings', { key: 'custom_specific_programs', data: map, updatedAt: new Date().toISOString() });
+                } catch(e) {}
+            }
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    window.wizSupabase.upsert('site_settings', { id: 'custom_specific_programs', key: 'custom_specific_programs', value: map, updated_at: new Date().toISOString() });
+                } catch(e) {}
+            }
+            try {
+                if (typeof pushToCloud === 'function') {
+                    await pushToCloud();
+                }
+            } catch(e) {}
+
+            window.dispatchEvent(new CustomEvent('wiz-programs-changed', { detail: map }));
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
         }
 
         function openSpecificProgramModal(editPillar = '', editTitle = '') {
@@ -4311,7 +4353,7 @@
             if (form) form.reset();
         }
 
-        function handleSpecificProgramSave(e) {
+        async function handleSpecificProgramSave(e) {
             e.preventDefault();
             const pillar = document.getElementById('spec-prog-pillar').value;
             const newTitle = document.getElementById('spec-prog-title').value.trim();
@@ -4320,57 +4362,57 @@
 
             if (!newTitle) return;
 
-            const map = getSpecificProgramsMap();
-
-            // If edit mode
-            if (oldTitle && oldPillar) {
-                if (map[oldPillar]) {
-                    const idx = map[oldPillar].indexOf(oldTitle);
-                    if (idx !== -1) {
-                        map[oldPillar].splice(idx, 1);
-                    }
+            // If edit mode and title changed, remove old
+            if (oldTitle && oldPillar && (oldTitle !== newTitle || oldPillar !== pillar)) {
+                if (window.wizStore && window.wizStore.allocationRulesManager) {
+                    await window.wizStore.allocationRulesManager.deleteSpecificProgram(oldPillar, oldTitle);
                 }
             }
 
-            if (!map[pillar]) map[pillar] = [];
-            if (!map[pillar].includes(newTitle)) {
-                map[pillar].push(newTitle);
+            if (window.wizStore && window.wizStore.allocationRulesManager) {
+                await window.wizStore.allocationRulesManager.addOrUpdateSpecificProgram(pillar, newTitle);
+            } else {
+                const map = getSpecificProgramsMap();
+                if (!map[pillar]) map[pillar] = [];
+                if (!map[pillar].includes(newTitle)) {
+                    map[pillar].push(newTitle);
+                }
+                await saveSpecificProgramsMap(map);
             }
 
-            // Migrate image key if title changed
-            if (oldTitle && oldTitle !== newTitle) {
-                try {
-                    const flatMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
-                    if (flatMap[oldTitle]) {
-                        flatMap[newTitle] = flatMap[oldTitle];
-                        delete flatMap[oldTitle];
-                        localStorage.setItem('wiz_specific_prog_imgs', JSON.stringify(flatMap));
-                    }
-                } catch(err) {}
-            }
-
-            saveSpecificProgramsMap(map);
             closeSpecificProgramModal();
             renderSpecificProgramImagesSection();
+            
+            if (typeof showNotification === 'function') {
+                showNotification(`✅ Program "${newTitle}" (${pillar}) berhasil disimpan dan langsung aktif di Web Utama & Portal Mitra!`);
+            }
 
             // Refresh donation dropdown if open
             const catVal = document.getElementById('man-program-utama') ? document.getElementById('man-program-utama').value : '';
             if (catVal) handleAdminProgramUtamaChange(catVal);
         }
 
-        function deleteSpecificProgramItem(pillar, title) {
+        async function deleteSpecificProgramItem(pillar, title) {
             if (!confirm(`Apakah Anda yakin ingin menghapus program spesifik "${title}" dari pilar ${pillar}?`)) return;
 
-            const map = getSpecificProgramsMap();
-            if (map[pillar]) {
-                const idx = map[pillar].indexOf(title);
-                if (idx !== -1) {
-                    map[pillar].splice(idx, 1);
+            if (window.wizStore && window.wizStore.allocationRulesManager) {
+                await window.wizStore.allocationRulesManager.deleteSpecificProgram(pillar, title);
+            } else {
+                const map = getSpecificProgramsMap();
+                if (map[pillar]) {
+                    const idx = map[pillar].indexOf(title);
+                    if (idx !== -1) {
+                        map[pillar].splice(idx, 1);
+                    }
                 }
+                await saveSpecificProgramsMap(map);
             }
 
-            saveSpecificProgramsMap(map);
             renderSpecificProgramImagesSection();
+            
+            if (typeof showNotification === 'function') {
+                showNotification(`✅ Program "${title}" berhasil dihapus.`);
+            }
 
             const catVal = document.getElementById('man-program-utama') ? document.getElementById('man-program-utama').value : '';
             if (catVal) handleAdminProgramUtamaChange(catVal);

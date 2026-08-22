@@ -1503,7 +1503,19 @@
         });
 
         window.addEventListener('wiz-program-images-changed', () => {
-            if (currentActiveSubTab === 'subtab-catalog') {
+            renderAffiliateProgramsGrid();
+        });
+
+        window.addEventListener('wiz-programs-changed', () => {
+            renderAffiliateProgramsGrid();
+        });
+
+        window.addEventListener('wiz-sync-complete', () => {
+            renderAffiliateProgramsGrid();
+        });
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'wiz_custom_specific_programs' || e.key === 'wiz_specific_prog_imgs' || e.key === 'wiz_allocation_rules') {
                 renderAffiliateProgramsGrid();
             }
         });

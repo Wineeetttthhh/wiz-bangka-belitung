@@ -1391,7 +1391,100 @@
         });
     }
 
+    const PILLAR_TO_CATEGORY_MAP = {
+        'Berkah Hidayah': 'dakwah',
+        'Dakwah & Pembinaan': 'dakwah',
+        'Berkah Peduli': 'sosial',
+        'Sosial & Kemanusiaan': 'sosial',
+        'Berkah Juara': 'pendidikan',
+        'Pendidikan & Beasiswa': 'pendidikan',
+        'Berkah Sehat': 'kesehatan',
+        'Kesehatan Masyarakat': 'kesehatan',
+        'Berkah Mandiri': 'ekonomi',
+        'Ekonomi & Pemberdayaan': 'ekonomi'
+    };
+
+    function renderCustomDynamicPrograms() {
+        if (!window.wizStore) return;
+        let customMap = {};
+        try {
+            customMap = JSON.parse(localStorage.getItem('wiz_custom_specific_programs') || '{}');
+        } catch(e) {}
+
+        const existingTitles = new Set();
+        document.querySelectorAll('.program-card').forEach(c => {
+            const t = (c.getAttribute('data-title') || c.querySelector('h3, h4')?.textContent || '').trim().toLowerCase();
+            if (t) existingTitles.add(t);
+        });
+
+        let addedCount = 0;
+        Object.entries(customMap).forEach(([pillarKey, titles]) => {
+            const catKey = PILLAR_TO_CATEGORY_MAP[pillarKey] || 'sosial';
+            const section = document.querySelector(`.program-section[data-section-category="${catKey}"]`);
+            if (!section) return;
+
+            const grid = section.querySelector('.grid');
+            if (!grid) return;
+
+            if (Array.isArray(titles)) {
+                titles.forEach(title => {
+                    const normTitle = title.trim().toLowerCase();
+                    if (!existingTitles.has(normTitle)) {
+                        existingTitles.add(normTitle);
+                        addedCount++;
+
+                        const dynamicImg = (window.wizStore.allocationRulesManager) 
+                            ? window.wizStore.allocationRulesManager.getSpecificProgramImage(title, pillarKey)
+                            : 'assets/images/sedekah-beras-dhuafa.jpg';
+
+                        const card = document.createElement('article');
+                        card.className = 'program-card dynamic-added bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full cursor-pointer';
+                        card.setAttribute('data-category', catKey);
+                        card.setAttribute('data-title', title);
+                        card.setAttribute('data-target', '15000000');
+
+                        card.innerHTML = `
+                            <div class="relative overflow-hidden aspect-video bg-surface-container">
+                                <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="${escapeHtml(title)}" src="${dynamicImg}" onerror="this.onerror=null; this.src='assets/images/foto-utama-wiz.jpg';" alt="${escapeHtml(title)}"/>
+                                <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">${escapeHtml(pillarKey)}</span>
+                            </div>
+                            <div class="p-lg flex flex-col flex-grow">
+                                <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">${escapeHtml(title)}</h3>
+                                <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">Salurkan infak dan sedekah terbaik Anda untuk program ${escapeHtml(title)} Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.</p>
+                                <div class="mb-lg space-y-xs">
+                                    <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                                        <span>Terkumpul: <strong>Rp 0</strong></span>
+                                        <span class="font-semibold text-primary">0%</span>
+                                    </div>
+                                    <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                                        <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                    </div>
+                                    <div class="text-right font-caption text-caption text-outline">Target: Rp 15.000.000</div>
+                                </div>
+                                <button onclick="openDonationModal('${escapeHtml(title)}')" class="w-full bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</button>
+                            </div>
+                        `;
+
+                        card.addEventListener('click', (e) => {
+                            if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+                            openDonationModal(title);
+                        });
+
+                        grid.appendChild(card);
+                    }
+                });
+            }
+        });
+
+        if (addedCount > 0) {
+            injectShareButtonsOnCards();
+            updateDynamicProgramCards();
+            filterPrograms();
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
+        renderCustomDynamicPrograms();
         injectShareButtonsOnCards();
         document.querySelectorAll('.program-card').forEach(card => {
             const btn = card.querySelector('button[onclick]');
@@ -1407,9 +1500,34 @@
         updateDynamicProgramCards();
         if (window.wizStore && window.wizStore.syncFromCloud) {
             await window.wizStore.syncFromCloud();
+            renderCustomDynamicPrograms();
             updateDynamicProgramCards();
             injectShareButtonsOnCards();
         }
+
+        window.addEventListener('wiz-sync-complete', () => {
+            renderCustomDynamicPrograms();
+            updateDynamicProgramCards();
+            injectShareButtonsOnCards();
+        });
+
+        window.addEventListener('wiz-programs-changed', () => {
+            renderCustomDynamicPrograms();
+            updateDynamicProgramCards();
+            injectShareButtonsOnCards();
+        });
+
+        window.addEventListener('wiz-program-images-changed', () => {
+            updateDynamicProgramCards();
+        });
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'wiz_custom_specific_programs' || e.key === 'wiz_specific_prog_imgs' || e.key === 'wiz_allocation_rules') {
+                renderCustomDynamicPrograms();
+                updateDynamicProgramCards();
+                injectShareButtonsOnCards();
+            }
+        });
 
         // Auto-scroll and highlight target program from URL parameter
         const urlParams = new URLSearchParams(window.location.search);

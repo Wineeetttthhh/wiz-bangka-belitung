@@ -389,6 +389,25 @@ module.exports = async function handler(req, res) {
                 }
             }
         }
+        // Check cloudBundle custom programs
+        const customProgMap = (cloudBundle && cloudBundle.custom_specific_programs) ? cloudBundle.custom_specific_programs : {};
+        for (const [pKey, pArr] of Object.entries(customProgMap)) {
+            if (Array.isArray(pArr)) {
+                for (const itemTitle of pArr) {
+                    if (slugify(itemTitle) === querySlug || itemTitle.toLowerCase() === cleanProgQuery.toLowerCase()) {
+                        selectedProgram = {
+                            title: itemTitle,
+                            pillar: pKey,
+                            target: 'Rp 15.000.000',
+                            description: `Salurkan infak dan sedekah terbaik Anda untuk program ${itemTitle} Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.`,
+                            imageUrl: specificImgsMap[itemTitle] || DEFAULT_FALLBACK_IMAGE
+                        };
+                        break;
+                    }
+                }
+                if (selectedProgram) break;
+            }
+        }
     }
 
     // 3. Fallback if not found
