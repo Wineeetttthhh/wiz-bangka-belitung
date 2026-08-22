@@ -555,27 +555,27 @@ module.exports = async function handler(req, res) {
     <meta name="description" content="${escapeHtml(description)}">
     <link rel="icon" href="${origin}/assets/images/logo-wiz-babel.png" type="image/png">
 
-    <!-- Open Graph / WhatsApp / Facebook / Telegram / Instagram -->
-    <meta property="og:type" content="website">
+    <!-- Open Graph / WhatsApp / Facebook / Instagram / Telegram / LinkedIn -->
+    <meta property="og:type" content="article">
     <meta property="og:site_name" content="Wahdah Inspirasi Zakat (WIZ) Bangka Belitung">
     <meta property="og:locale" content="id_ID">
-    <meta property="og:title" content="${escapeHtml(title)} — WIZ Bangka Belitung">
+    <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
+    <meta property="og:title" content="${escapeHtml(title)}">
     <meta property="og:description" content="${escapeHtml(description)}">
     <meta property="og:image" content="${escapeHtml(ogImageUrl)}">
     <meta property="og:image:secure_url" content="${escapeHtml(ogImageSecureUrl)}">
+    <meta property="og:image:alt" content="${escapeHtml(title)}">
+    <meta property="og:image:type" content="image/jpeg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:type" content="image/jpeg">
-    <meta property="og:image:alt" content="${escapeHtml(title)}">
-    <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
     <link rel="image_src" href="${ogImageUrl}">
     <meta name="thumbnail" content="${ogImageUrl}">
     <meta itemprop="image" content="${ogImageUrl}">
 
-    <!-- Twitter / X -->
+    <!-- Twitter / X Cards -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@wizbangkabelitung">
-    <meta name="twitter:title" content="${escapeHtml(title)} — WIZ Bangka Belitung">
+    <meta name="twitter:title" content="${escapeHtml(title)}">
     <meta name="twitter:description" content="${escapeHtml(description)}">
     <meta name="twitter:image" content="${ogImageUrl}">
 
@@ -693,6 +693,16 @@ module.exports = async function handler(req, res) {
         </section>
     </main>
 
+    <!-- Floating WhatsApp Share Guidance Toast -->
+    <div id="wa-share-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] max-w-sm w-[92%] bg-slate-900/95 text-white text-xs font-semibold px-4 py-3.5 rounded-2xl shadow-2xl border border-emerald-500/40 backdrop-blur-md transition-all duration-300 transform translate-y-12 opacity-0 pointer-events-none flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-lg animate-pulse">timer</span>
+        </div>
+        <p class="leading-snug text-slate-200">
+            Tunggu <strong class="text-emerald-300">1–2 detik</strong> di layar WhatsApp agar kartu foto program muncul besar sebelum kirim ✨
+        </p>
+    </div>
+
     <!-- Footer -->
     <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
         &copy; 2026 Wahdah Inspirasi Zakat (WIZ) Bangka Belitung. All rights reserved.
@@ -700,8 +710,19 @@ module.exports = async function handler(req, res) {
 
     <script>
         function handleShareClick() {
+            const toast = document.getElementById('wa-share-toast');
+            if (toast) {
+                toast.classList.remove('translate-y-12', 'opacity-0', 'pointer-events-none');
+                toast.classList.add('translate-y-0', 'opacity-100');
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-0', 'opacity-100');
+                    toast.classList.add('translate-y-12', 'opacity-0', 'pointer-events-none');
+                }, 4000);
+            }
             const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent('${canonicalUrl}');
-            window.open(waUrl, '_blank');
+            setTimeout(() => {
+                window.open(waUrl, '_blank');
+            }, 300);
         }
     </script>
 </body>

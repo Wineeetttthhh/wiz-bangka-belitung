@@ -132,12 +132,14 @@ function shareProgram(title, desc = '', customUrl = '', customImg = '') {
     }
     
     if (typeof window.showWhatsAppShareToast === 'function') {
-        window.showWhatsAppShareToast();
+        window.showWhatsAppShareToast('Tunggu 1–2 detik di layar WhatsApp hingga kartu foto program muncul besar sebelum menekan kirim status ✨');
     }
     
     // Send pure URL only to WhatsApp so Open Graph thumbnail card renders reliably on WhatsApp Status
     const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(fullUrl);
-    window.open(waUrl, '_blank');
+    setTimeout(() => {
+        window.open(waUrl, '_blank');
+    }, 300);
 }
 window.shareProgram = shareProgram;
 
