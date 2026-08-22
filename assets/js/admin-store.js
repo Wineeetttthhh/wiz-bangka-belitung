@@ -3564,6 +3564,12 @@
 
             activityLog.add('quote', `Quote harian baru "${newQuote.source}" ditambahkan.`, newQuote.author);
 
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.upsert('quotes', newQuote);
+                } catch(e) {}
+            }
+
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 try {
                     await window.wizFirebase.insert('quotes', newQuote);
@@ -3591,6 +3597,12 @@
             setStore(STORAGE_KEYS.QUOTES, list);
 
             activityLog.add('quote', `Quote harian "${list[idx].source}" diperbarui.`, updates.author || 'Admin');
+
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.upsert('quotes', list[idx]);
+                } catch(e) {}
+            }
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 try {
@@ -3621,6 +3633,12 @@
 
             if (quote) {
                 activityLog.add('quote', `Quote "${quote.source}" dihapus.`, 'Admin');
+            }
+
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.remove('quotes', strId);
+                } catch(e) {}
             }
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {

@@ -1977,12 +1977,14 @@
                 <!-- Upload Flyer Poster -->
                 <div class="space-y-xs">
                     <label class="block font-label-md text-label-md text-on-surface font-semibold">Gambar Flyer / Poster Dakwah *</label>
-                    <div class="flex items-center gap-4 bg-surface-container-low p-3 rounded-xl border border-outline-variant/40">
-                        <img id="quote-preview-image" src="assets/images/foto-utama-wiz.jpg" class="w-20 h-20 rounded-xl object-contain bg-white border border-outline-variant shrink-0" onerror="this.src='assets/images/foto-utama-wiz.jpg'">
-                        <div class="flex-1 space-y-1">
+                    <div class="flex items-center gap-4 bg-surface-container-low p-3.5 rounded-xl border border-outline-variant/40">
+                        <div class="w-20 h-24 rounded-xl overflow-hidden bg-slate-900 border border-outline-variant shrink-0 flex items-center justify-center relative">
+                            <img id="quote-preview-image" src="assets/images/foto-utama-wiz.jpg" class="w-full h-full object-contain" onerror="this.src='assets/images/foto-utama-wiz.jpg'">
+                        </div>
+                        <div class="flex-1 space-y-1.5">
                             <input type="file" id="quote-file-input" accept="image/*,.heic,.heif" onchange="handleQuotePhotoSelect(event)" class="text-xs text-on-surface file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-primary file:text-on-primary hover:file:bg-primary-container cursor-pointer">
                             <input type="hidden" id="quote-input-image" value="assets/images/foto-utama-wiz.jpg">
-                            <p class="text-[11px] text-on-surface-variant">Pilih foto flyer atau poster dakwah harian (JPG/PNG/WebP).</p>
+                            <p id="quote-filename-display" class="text-[11px] text-on-surface-variant font-medium">Pilih foto flyer atau poster dakwah harian (JPG/PNG/WebP/HEIC dari galeri/lokal).</p>
                         </div>
                     </div>
                 </div>
@@ -3453,38 +3455,40 @@
                         try {
                             const srcW = img.naturalWidth || img.width;
                             const srcH = img.naturalHeight || img.height;
+                            const W = Math.max(10, Math.round(targetWidth));
+                            const H = Math.max(10, Math.round(targetHeight));
 
                             const canvas = document.createElement('canvas');
-                            canvas.width = targetWidth;   // 1200
-                            canvas.height = targetHeight; // 630
+                            canvas.width = W;
+                            canvas.height = H;
                             const ctx = canvas.getContext('2d');
 
-                            // 1. Fill backdrop (dark slate gradient #0f172a -> #1e293b)
-                            const grad = ctx.createLinearGradient(0, 0, 1200, 630);
+                            // 1. Fill backdrop (dark slate gradient)
+                            const grad = ctx.createLinearGradient(0, 0, W, H);
                             grad.addColorStop(0, '#0f172a');
                             grad.addColorStop(1, '#1e293b');
                             ctx.fillStyle = grad;
-                            ctx.fillRect(0, 0, 1200, 630);
+                            ctx.fillRect(0, 0, W, H);
 
                             // 2. Draw blurred studio background for complete filled look
                             ctx.save();
                             ctx.filter = 'blur(16px) brightness(0.55)';
-                            let bgW = 1200;
-                            let bgH = 630;
-                            if (srcW / srcH > 1200 / 630) {
-                                bgW = 630 * (srcW / srcH);
+                            let bgW = W;
+                            let bgH = H;
+                            if (srcW / srcH > W / H) {
+                                bgW = H * (srcW / srcH);
                             } else {
-                                bgH = 1200 / (srcW / srcH);
+                                bgH = W / (srcW / srcH);
                             }
-                            ctx.drawImage(img, (1200 - bgW) / 2, (630 - bgH) / 2, bgW, bgH);
+                            ctx.drawImage(img, (W - bgW) / 2, (H - bgH) / 2, bgW, bgH);
                             ctx.restore();
 
                             // 3. Draw main image centered (fit contain)
-                            const scale = Math.min(1200 / srcW, 630 / srcH);
+                            const scale = Math.min(W / srcW, H / srcH);
                             const drawW = srcW * scale;
                             const drawH = srcH * scale;
-                            const drawX = (1200 - drawW) / 2;
-                            const drawY = (630 - drawH) / 2;
+                            const drawX = (W - drawW) / 2;
+                            const drawY = (H - drawH) / 2;
 
                             ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
                             ctx.shadowBlur = 12;
@@ -3495,6 +3499,68 @@
                             const result = canvas.toDataURL('image/jpeg', quality);
                             resolve(result || dataUrl);
                         } catch(err) {
+                            resolve(dataUrl);
+                        }
+                    };
+                    img.onerror = function() { resolve(dataUrl); };
+                    img.src = dataUrl;
+                };
+                reader.onerror = function() { resolve(null); };
+                reader.readAsDataURL(processFile);
+            });
+        }
+
+        async function compressFlyerImageFile(file, maxDimension = 1200, quality = 0.84) {
+            const isHeic = file.name && (file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif') || (file.type && file.type.includes('heic')));
+            let processFile = file;
+
+            if (isHeic && typeof heic2any !== 'undefined') {
+                try {
+                    const convertedBlob = await heic2any({
+                        blob: file,
+                        toType: 'image/jpeg',
+                        quality: 0.85
+                    });
+                    processFile = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+                } catch(e) {
+                    console.warn('[HEIC] Conversion error:', e);
+                }
+            }
+
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const dataUrl = e.target.result;
+                    if (!dataUrl) return resolve(null);
+
+                    const img = new Image();
+                    img.onload = function() {
+                        try {
+                            const srcW = img.naturalWidth || img.width;
+                            const srcH = img.naturalHeight || img.height;
+
+                            let targetW = srcW;
+                            let targetH = srcH;
+                            if (srcW > maxDimension || srcH > maxDimension) {
+                                if (srcW >= srcH) {
+                                    targetW = maxDimension;
+                                    targetH = Math.round((srcH * maxDimension) / srcW);
+                                } else {
+                                    targetH = maxDimension;
+                                    targetW = Math.round((srcW * maxDimension) / srcH);
+                                }
+                            }
+
+                            const canvas = document.createElement('canvas');
+                            canvas.width = targetW;
+                            canvas.height = targetH;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, targetW, targetH);
+
+                            const result = canvas.toDataURL('image/jpeg', quality);
+                            resolve(result || dataUrl);
+                        } catch(err) {
+                            console.warn('[Flyer Compress Error]', err);
                             resolve(dataUrl);
                         }
                     };
@@ -5652,25 +5718,36 @@
             const todayStr = new Date().toISOString().split('T')[0];
             document.getElementById('quote-input-date').value = todayStr;
             document.getElementById('quote-input-status').value = 'active';
-            document.getElementById('quote-input-image').value = 'assets/images/foto-utama-wiz.jpg';
-            document.getElementById('quote-preview-image').src = 'assets/images/foto-utama-wiz.jpg';
+            
+            const fileInput = document.getElementById('quote-file-input');
+            if (fileInput) fileInput.value = '';
+            const filenameEl = document.getElementById('quote-filename-display');
 
             if (editId) {
                 const q = wizStore.quotes.getById(editId);
                 if (q) {
-                    document.getElementById('quote-modal-title').innerHTML = '<span class="material-symbols-outlined">edit</span><span>Edit Quote Harian</span>';
+                    document.getElementById('quote-modal-title').innerHTML = '<span class="material-symbols-outlined">edit</span><span>Edit Flyer &amp; Quote Harian</span>';
                     document.getElementById('quote-input-text').value = q.text || '';
                     document.getElementById('quote-input-source').value = q.source || '';
                     document.getElementById('quote-input-category').value = q.category || 'Sedekah & Keberkahan';
                     document.getElementById('quote-input-date').value = q.date || todayStr;
                     document.getElementById('quote-input-status').value = q.status || 'active';
-                    if (q.imageUrl) {
-                        document.getElementById('quote-input-image').value = q.imageUrl;
-                        document.getElementById('quote-preview-image').src = q.imageUrl;
+                    const activeImg = q.imageUrl || 'assets/images/foto-utama-wiz.jpg';
+                    document.getElementById('quote-input-image').value = activeImg;
+                    document.getElementById('quote-preview-image').src = activeImg;
+                    if (filenameEl) {
+                        filenameEl.textContent = 'Foto flyer saat ini terpasang. Pilih berkas baru di bawah jika ingin mengganti foto.';
+                        filenameEl.style.color = '#64748b';
                     }
                 }
             } else {
-                document.getElementById('quote-modal-title').innerHTML = '<span class="material-symbols-outlined">format_quote</span><span>Tulis Quote &amp; Inspirasi Harian</span>';
+                document.getElementById('quote-modal-title').innerHTML = '<span class="material-symbols-outlined">format_quote</span><span>Tambah Flyer &amp; Quote Harian</span>';
+                document.getElementById('quote-input-image').value = 'assets/images/foto-utama-wiz.jpg';
+                document.getElementById('quote-preview-image').src = 'assets/images/foto-utama-wiz.jpg';
+                if (filenameEl) {
+                    filenameEl.textContent = 'Pilih foto flyer atau poster dakwah harian dari galeri/komputer (JPG/PNG/WebP/HEIC).';
+                    filenameEl.style.color = '#64748b';
+                }
             }
             showModal('quote-modal');
         }
@@ -5678,37 +5755,77 @@
         function closeQuoteModal() {
             hideModal('quote-modal');
             document.getElementById('quote-form').reset();
+            const filenameEl = document.getElementById('quote-filename-display');
+            if (filenameEl) filenameEl.textContent = '';
         }
 
         async function handleQuotePhotoSelect(event) {
             const file = event.target.files && event.target.files[0];
             if (!file) return;
+
+            const previewImg = document.getElementById('quote-preview-image');
+            const inputEl = document.getElementById('quote-input-image');
+            const filenameEl = document.getElementById('quote-filename-display');
+
+            // 1. Instant 0ms Preview from local file
+            const isHeic = file.name && (file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif'));
+            if (!isHeic && previewImg) {
+                try {
+                    previewImg.src = URL.createObjectURL(file);
+                } catch(e) {}
+            }
+
+            if (filenameEl) {
+                filenameEl.textContent = isHeic ? '⏳ Mengonversi format iPhone...' : '⏳ Memproses & mengompres foto flyer...';
+                filenameEl.style.color = '#0284c7';
+            }
+
             try {
-                const base64 = await compressImageFile(file, 800, 0.75);
-                document.getElementById('quote-input-image').value = base64;
-                document.getElementById('quote-preview-image').src = base64;
+                // Compress flyer maintaining exact natural aspect ratio (portrait/square/landscape)
+                const base64 = await compressFlyerImageFile(file, 1200, 0.84);
+                if (base64) {
+                    if (inputEl) inputEl.value = base64;
+                    if (previewImg) previewImg.src = base64;
+                    const sizeKb = Math.round(base64.length * 0.75 / 1024);
+                    if (filenameEl) {
+                        filenameEl.textContent = `✅ Foto flyer siap (${file.name} — ${sizeKb} KB)`;
+                        filenameEl.style.color = '#16a34a';
+                    }
+                } else {
+                    if (filenameEl) {
+                        filenameEl.textContent = '❌ Gagal memuat file foto flyer.';
+                        filenameEl.style.color = '#ef4444';
+                    }
+                }
             } catch(e) {
                 console.error('[Quote Photo Error]', e);
+                if (filenameEl) {
+                    filenameEl.textContent = '❌ Terjadi kesalahan saat memproses foto.';
+                    filenameEl.style.color = '#ef4444';
+                }
             }
         }
 
         async function handleQuoteSave(e) {
             e.preventDefault();
             const editId = document.getElementById('quote-edit-id').value;
+            const chosenImg = (document.getElementById('quote-input-image').value || '').trim() || 'assets/images/foto-utama-wiz.jpg';
             const data = {
                 text: document.getElementById('quote-input-text').value.trim(),
                 source: document.getElementById('quote-input-source').value.trim(),
                 category: document.getElementById('quote-input-category').value,
                 date: document.getElementById('quote-input-date').value,
                 status: document.getElementById('quote-input-status').value,
-                imageUrl: document.getElementById('quote-input-image').value || 'assets/images/foto-utama-wiz.jpg',
-                author: ADMIN_NAME || 'Admin WIZ Babel'
+                imageUrl: chosenImg,
+                author: (typeof ADMIN_NAME !== 'undefined' && ADMIN_NAME) ? ADMIN_NAME : (sessionStorage.getItem('wiz_admin_name') || 'Admin WIZ Babel')
             };
 
             if (editId) {
                 await wizStore.quotes.update(editId, data);
+                showNotification('✅ Flyer Quote harian berhasil diperbarui!');
             } else {
                 await wizStore.quotes.add(data);
+                showNotification('✅ Flyer Quote harian baru berhasil ditambahkan!');
             }
             closeQuoteModal();
             refreshAll();
