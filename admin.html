@@ -3510,7 +3510,7 @@
             });
         }
 
-        async function compressFlyerImageFile(file, maxDimension = 1200, quality = 0.84) {
+        async function compressFlyerImageFile(file, maxDimension = 960, quality = 0.75) {
             const isHeic = file.name && (file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif') || (file.type && file.type.includes('heic')));
             let processFile = file;
 
@@ -4506,7 +4506,7 @@
             setTimeout(() => {
                 const img = new Image();
                 img.onload = async function() {
-                    const maxDim = 800;
+                    const maxDim = 720;
                     let w = img.naturalWidth, h = img.naturalHeight;
                     if (w > maxDim || h > maxDim) {
                         if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
@@ -4515,7 +4515,7 @@
                     const canvas = document.createElement('canvas');
                     canvas.width = w; canvas.height = h;
                     canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                    const compressed = canvas.toDataURL('image/jpeg', 0.75);
+                    const compressed = canvas.toDataURL('image/jpeg', 0.68);
                     URL.revokeObjectURL(objectUrl);
                     if (prevImg) prevImg.src = compressed;
 

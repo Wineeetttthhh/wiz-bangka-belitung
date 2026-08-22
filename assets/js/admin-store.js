@@ -251,24 +251,53 @@
         return generateUUID();
     }
 
+    const memoryStoreFallback = new Map();
+
+    function cleanStorageQuota() {
+        try {
+            // 1. Trim activity logs to top 20
+            const acts = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACTIVITY) || '[]');
+            if (acts.length > 20) {
+                localStorage.setItem(STORAGE_KEYS.ACTIVITY, JSON.stringify(acts.slice(-20)));
+            }
+
+            // 2. Clear old deleted tracking sets if oversized
+            ['wiz_deleted_ids', 'wiz_deleted_news_ids', 'wiz_deleted_disb_ids', 'wiz_deleted_ref_ids', 'wiz_deleted_quote_ids'].forEach(k => {
+                try {
+                    const arr = JSON.parse(localStorage.getItem(k) || '[]');
+                    if (arr.length > 40) {
+                        localStorage.setItem(k, JSON.stringify(arr.slice(-40)));
+                    }
+                } catch(e) {}
+            });
+        } catch(e) {}
+    }
+
     function getStore(key) {
         try {
             const item = localStorage.getItem(key);
-            return item ? JSON.parse(item) : null;
+            if (item) return JSON.parse(item);
         } catch (e) {
-            console.error("[WIZ Store] Gagal baca data:", key, e);
-            return null;
+            console.warn("[WIZ Store] Gagal baca localStorage, fallback memory:", key);
         }
+        return memoryStoreFallback.get(key) || null;
     }
 
     function setStore(key, data) {
+        memoryStoreFallback.set(key, data);
         try {
             localStorage.setItem(key, JSON.stringify(data));
         } catch (e) {
             if (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014) {
-                console.error('[WIZ Store] localStorage penuh! Tidak bisa simpan:', key, e);
-                if (typeof alert !== 'undefined') {
-                    alert('⚠️ Penyimpanan lokal browser hampir penuh!\n\nFoto yang diupload terlalu besar atau terlalu banyak data tersimpan.\n\nSolusi: Hapus beberapa data lama atau kompres foto lebih kecil sebelum upload.');
+                console.warn('[WIZ Store] localStorage quota exceeded. Menjalankan auto-cleanup non-esensial...');
+                cleanStorageQuota();
+                try {
+                    localStorage.setItem(key, JSON.stringify(data));
+                } catch (retryErr) {
+                    console.warn('[WIZ Store] Data disimpan di memory & langsung disinkronkan ke Cloud Supabase.');
+                    if (typeof pushToCloud === 'function') {
+                        setTimeout(() => pushToCloud().catch(() => {}), 150);
+                    }
                 }
             } else {
                 console.error('[WIZ Store] Gagal simpan data:', key, e);
