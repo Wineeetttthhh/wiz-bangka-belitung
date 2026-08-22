@@ -463,18 +463,6 @@ module.exports = async function handler(req, res) {
 
         </article>
 
-        <!-- Referral Attribution Banner -->
-        ${refCode ? `
-        <div class="bg-gradient-to-r from-slate-900 to-primary text-white rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4 shadow-md">
-            <div class="space-y-0.5">
-                <span class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400">Jalur Kebaikan Sahabat Mitra</span>
-                <p class="text-xs text-slate-200">Anda terhubung melalui Mitra WIZ: <strong class="text-white font-bold">${escapeHtml(refCode)}</strong></p>
-            </div>
-            <a href="${origin}/affiliate.html" class="shrink-0 bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors border border-white/20">
-                Info Kemitraan
-            </a>
-        </div>` : ''}
-
     </main>
 
     <!-- Footer -->
