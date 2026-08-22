@@ -1157,6 +1157,37 @@
         if (!window.wizStore || !wizStore.finance) return;
         const fmt = wizStore.utils.formatRupiahCompact;
 
+        // Sync with wizStore.programs for draft hiding and dynamic photos/targets
+        if (window.wizStore.programs && typeof window.wizStore.programs.getAll === 'function') {
+            const allPrograms = window.wizStore.programs.getAll();
+            const progMap = new Map(allPrograms.map(p => [(p.title || '').trim().toLowerCase(), p]));
+            
+            document.querySelectorAll('.program-card').forEach(card => {
+                const titleEl = card.querySelector('h3, h4');
+                const progTitle = (card.getAttribute('data-title') || (titleEl ? titleEl.textContent : '')).trim().toLowerCase();
+                const progObj = progMap.get(progTitle);
+                if (progObj) {
+                    if (progObj.status === 'draft' || progObj.status === 'deleted') {
+                        card.style.display = 'none';
+                        return;
+                    } else {
+                        card.style.display = '';
+                        if (progObj.imageUrl) {
+                            const imgEl = card.querySelector('img');
+                            if (imgEl) imgEl.src = progObj.imageUrl;
+                        }
+                        if (progObj.target) {
+                            const targetOutline = card.querySelector('.text-outline');
+                            if (targetOutline) targetOutline.textContent = `Target: ${progObj.target}`;
+                        }
+                        if (progObj.targetAmount) {
+                            card.dataset.target = progObj.targetAmount;
+                        }
+                    }
+                }
+            });
+        }
+
         // Helper: get custom uploaded image for a program title
         function getCustomImg(progTitle) {
             try {
@@ -1169,20 +1200,19 @@
         }
 
         document.querySelectorAll('.program-card').forEach(card => {
+            if (card.style.display === 'none') return;
             const titleEl = card.querySelector('h3, h4');
             if (!titleEl) return;
 
             const progTitle = (card.getAttribute('data-title') || titleEl.textContent).trim();
             if (!progTitle) return;
 
-            // 1. Prioritize custom photo uploaded by admin
             const customImg = getCustomImg(progTitle);
             if (customImg) {
                 const imgEl = card.querySelector('img');
                 if (imgEl) imgEl.src = customImg;
             }
 
-            // Always read target from data-target attribute, or parse from DOM (first time only)
             if (!card.dataset.target) {
                 const targetText = card.querySelector('.text-outline')?.textContent || '';
                 const targetVal = parseInt(targetText.replace(/[^0-9]/g, '')) || 50000000;
@@ -1190,22 +1220,18 @@
             }
 
             const targetVal = Number(card.dataset.target) || 50000000;
-            // Base is 0 — calculate dynamic verified donations (Specific + Infak Umum) minus disbursements
             const stats = wizStore.finance.getSpecificProgramStats(progTitle, 0, targetVal);
 
-            // Update Terkumpul text to Saldo Aktual Tersedia
             const terkumpulStrong = card.querySelector('.space-y-xs strong, .mb-lg strong');
             if (terkumpulStrong) {
                 terkumpulStrong.textContent = fmt(stats.saldo);
             }
 
-            // Update Percentage text (% target tercapai berdasarkan saldo aktual saat ini)
             const percentSpan = card.querySelector('.space-y-xs span.text-primary, .space-y-xs span.font-semibold, .mb-lg .font-semibold');
             if (percentSpan && !percentSpan.textContent.includes('Terkumpul')) {
                 percentSpan.textContent = `${stats.percent}%`;
             }
 
-            // Update Progress Bar width
             const progressBar = card.querySelector('.bg-tertiary-container, .bg-primary');
             if (progressBar) {
                 progressBar.style.width = `${stats.percent}%`;

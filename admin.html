@@ -4360,12 +4360,20 @@
             return map;
         }
 
-        function resetDefaultSpecificPrograms() {
-            if (!confirm('Apakah Anda yakin ingin memulihkan seluruh daftar program spesifik bawaan lembaga?')) return;
+        async function resetDefaultSpecificPrograms() {
+            if (!confirm('Apakah Anda yakin ingin memulihkan seluruh 31 program spesifik bawaan lembaga?')) return;
             localStorage.removeItem('wiz_custom_specific_programs');
+            localStorage.removeItem('wiz_deleted_program_ids');
+            localStorage.removeItem('wiz_programs');
+            if (window.wizStore && window.wizStore.programs) {
+                window.wizStore.programs.getAll();
+            }
             renderSpecificProgramImagesSection();
             const catVal = document.getElementById('man-program-utama') ? document.getElementById('man-program-utama').value : '';
             if (catVal) handleAdminProgramUtamaChange(catVal);
+            if (typeof showNotification === 'function') {
+                showNotification('✅ Seluruh 31 program kebaikan bawaan berhasil dipulihkan!');
+            }
         }
 
         async function saveSpecificProgramsMap(map) {
