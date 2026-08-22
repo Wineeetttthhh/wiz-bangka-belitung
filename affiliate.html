@@ -1067,8 +1067,8 @@
         function copyMemberMainLink() {
             if (!currentLoggedAffiliate) return;
             const refCode = currentLoggedAffiliate.code || currentLoggedAffiliate.id;
-            const origin = window.location.origin.includes('http') ? window.location.origin : '';
-            const url = `${origin}/program.html?ref=${refCode}`;
+            const origin = 'https://www.wizbangkabelitung.or.id';
+            const url = `${origin}/program.html?ref=${encodeURIComponent(refCode)}`;
             navigator.clipboard.writeText(url).then(() => {
                 alert(`✅ Link Fundraising Anda berhasil disalin:\n${url}`);
             });
@@ -1331,12 +1331,12 @@
             const origin = 'https://www.wizbangkabelitung.or.id';
             const flyerUrl = `${origin}/flyer/${encodeURIComponent(q.id)}?ref=${encodeURIComponent(activeRef)}`;
             
-            const title = q.source ? q.source : (q.category || 'Quote & Inspirasi Harian');
-            const quoteBody = q.text ? `"${q.text}"` : 'Mari menebar inspirasi kebaikan dan kepedulian bersama WIZ Bangka Belitung.';
-            // Exact standard format with double newline before URL for WhatsApp Rich Link Card
-            const caption = `*${title}*\n\n${quoteBody}\n\n${flyerUrl}`;
-
-            const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(caption);
+            if (typeof window.showWhatsAppShareToast === 'function') {
+                window.showWhatsAppShareToast('Tunggu 1–2 detik di WhatsApp hingga flyer poster muncul sebelum kirim Status ✨');
+            }
+            
+            // Send pure URL only to WhatsApp so Open Graph thumbnail card renders reliably on WhatsApp Status
+            const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(flyerUrl);
             window.open(waUrl, '_blank');
         }
 
@@ -1356,7 +1356,7 @@
 
         function copyAffiliateQuoteLink(quoteId) {
             const activeRef = getActiveAffiliateRefCode();
-            const origin = (window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
+            const origin = 'https://www.wizbangkabelitung.or.id';
             const flyerUrl = `${origin}/flyer/${encodeURIComponent(quoteId)}?ref=${encodeURIComponent(activeRef)}`;
             navigator.clipboard.writeText(flyerUrl).then(() => {
                 alert(`✅ Link Flyer & Quote dengan Kode Mitra (${activeRef}) berhasil disalin:\n\n${flyerUrl}\n\nSetiap donasi dari link ini otomatis tersambung ke hak insentif 6% Anda.`);
@@ -1393,15 +1393,15 @@
             const n = wizStore.news ? wizStore.news.getById(newsId) : null;
             if (!n) return;
 
-            const origin = (window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
+            const origin = 'https://www.wizbangkabelitung.or.id';
             const newsUrl = `${origin}/berita/${encodeURIComponent(n.id)}?ref=${encodeURIComponent(refCode)}`;
 
-            const title = n.title || 'Kabar Penyaluran & Kegiatan WIZ Bangka Belitung';
-            const excerpt = (n.content || '').slice(0, 150).replace(/\r?\n/g, ' ') + (n.content && n.content.length > 150 ? '...' : '');
+            if (typeof window.showWhatsAppShareToast === 'function') {
+                window.showWhatsAppShareToast('Tunggu 1–2 detik di WhatsApp hingga foto kegiatan muncul sebelum kirim Status ✨');
+            }
 
-            // Exact standard format with double newline before URL for WhatsApp Rich Link Card
-            const caption = `*${title}*\n\n${excerpt}\n\n${newsUrl}`;
-            window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(caption), '_blank');
+            // Send pure URL only to WhatsApp so Open Graph thumbnail card renders reliably on WhatsApp Status
+            window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(newsUrl), '_blank');
         }
 
         function downloadAffiliateNewsImage(newsId) {
@@ -1428,7 +1428,7 @@
             if (!n) return;
 
             const refCode = getActiveAffiliateRefCode();
-            const origin = (window.location.origin && window.location.origin.startsWith('http')) ? window.location.origin : 'https://www.wizbangkabelitung.or.id';
+            const origin = 'https://www.wizbangkabelitung.or.id';
             const newsUrl = `${origin}/berita/${encodeURIComponent(n.id)}?ref=${encodeURIComponent(refCode)}`;
 
             navigator.clipboard.writeText(newsUrl).then(() => {

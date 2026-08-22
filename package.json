@@ -17,7 +17,7 @@
   ],
   "author": "WIZ Bangka Belitung",
   "license": "MIT",
-  "devDependencies": {
+  "dependencies": {
     "heic-convert": "^2.1.0",
     "jimp": "^1.6.1"
   }

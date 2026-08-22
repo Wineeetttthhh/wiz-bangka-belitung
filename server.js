@@ -162,6 +162,14 @@ const server = http.createServer((req, res) => {
                 req.on('data', chunk => { body += chunk; });
                 req.on('end', async () => {
                     req.body = body;
+                    // Parse query parameters
+                    try {
+                        const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+                        req.query = Object.fromEntries(parsedUrl.searchParams.entries());
+                    } catch (e) {
+                        req.query = {};
+                    }
+
                     // Custom res helper for express/serverless style
                     res.status = function(code) {
                         this.statusCode = code;
@@ -173,6 +181,14 @@ const server = http.createServer((req, res) => {
                             'Access-Control-Allow-Origin': '*'
                         });
                         this.end(JSON.stringify(data));
+                        return this;
+                    };
+                    res.send = function(content) {
+                        if (!this.getHeader('Content-Type')) {
+                            this.setHeader('Content-Type', 'text/html; charset=utf-8');
+                        }
+                        this.writeHead(this.statusCode || 200);
+                        this.end(content);
                         return this;
                     };
 

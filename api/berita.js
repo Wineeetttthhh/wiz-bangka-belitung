@@ -246,26 +246,19 @@ module.exports = async function handler(req, res) {
         return res.status(404).send('Image not found');
     }
 
-    // ─── 2. RESOLVE DIRECT ABSOLUTE OPEN GRAPH IMAGE URL ───────────────────────
-    let absoluteImgUrl = '';
-    let secureImgUrl = '';
+    // ─── 2. DEDICATED OG IMAGE URL (always via /api/og-image for WhatsApp crawler) ─
+    // The /api/og-image endpoint always returns a valid binary JPEG < 300KB
+    const ogImageUrl = `${origin}/api/og-image?type=news&id=${encodeURIComponent(article.id)}`;
+    const secureImgUrl = ogImageUrl; // same URL, always https
 
+    // Determine actual page body image (can still use base64/direct for display quality)
+    let absoluteImgUrl = ogImageUrl; // fallback
     if (rawImg.startsWith('data:image/')) {
-        const directUrl = `${origin}/berita-image/${encodeURIComponent(article.id)}.jpg`;
-        absoluteImgUrl = directUrl;
-        secureImgUrl = directUrl;
+        absoluteImgUrl = `${origin}/berita-image/${encodeURIComponent(article.id)}.jpg`;
     } else if (rawImg.startsWith('http://') || rawImg.startsWith('https://')) {
         absoluteImgUrl = rawImg;
-        secureImgUrl = rawImg.replace(/^http:\/\//i, 'https://');
     } else if (rawImg) {
-        const cleanPath = rawImg.replace(/^\//, '');
-        const directUrl = `${origin}/${cleanPath}`;
-        absoluteImgUrl = directUrl;
-        secureImgUrl = directUrl;
-    } else {
-        const defaultUrl = `${origin}/assets/images/foto-utama-wiz.jpg`;
-        absoluteImgUrl = defaultUrl;
-        secureImgUrl = defaultUrl;
+        absoluteImgUrl = `${origin}/${rawImg.replace(/^\//, '')}`;
     }
 
     const refCode = (urlObj.searchParams.get('ref') || urlObj.searchParams.get('affiliate') || urlObj.searchParams.get('perantara') || '').trim();
@@ -292,22 +285,22 @@ module.exports = async function handler(req, res) {
     <meta property="og:url" content="${canonicalUrl}"/>
     <meta property="og:title" content="${escapeHtml(title)}"/>
     <meta property="og:description" content="${escapeHtml(excerpt)}"/>
-    <meta property="og:image" content="${absoluteImgUrl}"/>
-    <meta property="og:image:secure_url" content="${secureImgUrl}"/>
+    <meta property="og:image" content="${ogImageUrl}"/>
+    <meta property="og:image:secure_url" content="${ogImageUrl}"/>
     <meta property="og:image:alt" content="${escapeHtml(title)}"/>
-    <meta property="og:image:type" content="${mimeType}"/>
+    <meta property="og:image:type" content="image/jpeg"/>
     <meta property="og:image:width" content="1200"/>
     <meta property="og:image:height" content="630"/>
-    <link rel="image_src" href="${absoluteImgUrl}"/>
-    <meta name="thumbnail" content="${absoluteImgUrl}"/>
-    <meta itemprop="image" content="${absoluteImgUrl}"/>
+    <link rel="image_src" href="${ogImageUrl}"/>
+    <meta name="thumbnail" content="${ogImageUrl}"/>
+    <meta itemprop="image" content="${ogImageUrl}"/>
 
     <!-- Twitter / X Cards -->
     <meta name="twitter:card" content="summary_large_image"/>
     <meta name="twitter:site" content="@wizbangkabelitung"/>
     <meta name="twitter:title" content="${escapeHtml(title)}"/>
     <meta name="twitter:description" content="${escapeHtml(excerpt)}"/>
-    <meta name="twitter:image" content="${absoluteImgUrl}"/>
+    <meta name="twitter:image" content="${ogImageUrl}"/>
 
     <!-- Google Fonts & Tailwind -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -452,7 +445,7 @@ module.exports = async function handler(req, res) {
                     <p class="text-sm text-slate-600 mt-0.5">Ajak keluarga dan kerabat untuk bersama mendukung program keummatan.</p>
                 </div>
                 <div class="flex items-center gap-3 flex-wrap w-full md:w-auto">
-                    <a href="https://api.whatsapp.com/send?text=${encodeURIComponent('*' + title + '*\n\n' + excerpt + '\n\n' + canonicalUrl)}" target="_blank" class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold px-5 py-3 rounded-2xl text-sm shadow-md hover:shadow-lg transition-all active:scale-95">
+                    <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(canonicalUrl)}" target="_blank" class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold px-5 py-3 rounded-2xl text-sm shadow-md hover:shadow-lg transition-all active:scale-95">
                         <span class="material-symbols-outlined text-lg">share</span> Share ke WhatsApp
                     </a>
                     <a href="${donateUrl}" class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold px-5 py-3 rounded-2xl text-sm shadow-md hover:shadow-lg transition-all active:scale-95">

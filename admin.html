@@ -3396,7 +3396,7 @@
                             <span class="material-symbols-outlined text-sm">open_in_new</span>
                             <span>Lihat</span>
                         </a>
-                        <a href="https://api.whatsapp.com/send?text=${encodeURIComponent('*' + (n.title || 'Berita WIZ Babel') + '*\n\n' + ((n.content || '').slice(0, 150).replace(/\r?\n/g, ' ').trim() + (n.content && n.content.length > 150 ? '...' : '')) + '\n\nhttps://www.wizbangkabelitung.or.id/berita/' + encodeURIComponent(n.id))}" target="_blank" class="flex-1 md:flex-none flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl border border-[#25D366]/40 text-[#128C7E] hover:bg-[#25D366]/10 font-label-md text-caption font-bold transition-colors cursor-pointer bg-surface" title="Bagikan ke WhatsApp">
+                        <a href="https://api.whatsapp.com/send?text=${encodeURIComponent('https://www.wizbangkabelitung.or.id/berita/' + encodeURIComponent(n.id))}" target="_blank" class="flex-1 md:flex-none flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl border border-[#25D366]/40 text-[#128C7E] hover:bg-[#25D366]/10 font-label-md text-caption font-bold transition-colors cursor-pointer bg-surface" title="Bagikan ke WhatsApp">
                             <span class="material-symbols-outlined text-sm">share</span>
                             <span>Share WA</span>
                         </a>
@@ -5733,16 +5733,8 @@
             const q = wizStore.quotes ? wizStore.quotes.getById(id) : null;
             if (!q) return;
 
-            const rawText = (q.text || '').trim();
-            const rawSource = (q.source || '').trim();
             const flyerUrl = `https://www.wizbangkabelitung.or.id/flyer/${encodeURIComponent(q.id)}`;
-
-            const title = rawSource || 'Quote & Inspirasi Harian';
-            const quoteBody = (rawText && rawText !== '.') ? `"${rawText}"` : 'Mari menebar inspirasi kebaikan dan kepedulian bersama WIZ Bangka Belitung.';
-            // Exact standard format with double newline before URL for WhatsApp Rich Link Card
-            const fullText = `*${title}*\n\n${quoteBody}\n\n${flyerUrl}`;
-
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(fullText)}`, '_blank');
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(flyerUrl)}`, '_blank');
         }
 
         function downloadAdminFlyerToday() {

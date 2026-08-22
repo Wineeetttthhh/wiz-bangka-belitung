@@ -958,16 +958,17 @@
 
     function shareArticle(platform) {
         if (!currentShareArticle) return;
-        const title = currentShareArticle.title || 'Berita WIZ Bangka Belitung';
-        const excerpt = (currentShareArticle.content || '').slice(0, 150).replace(/\r?\n/g, ' ') + (currentShareArticle.content && currentShareArticle.content.length > 150 ? '...' : '');
         const activeRef = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || '');
         const baseOrigin = 'https://www.wizbangkabelitung.or.id';
         const shareUrl = `${baseOrigin}/berita/${encodeURIComponent(currentShareArticle.id)}${activeRef ? '?ref=' + encodeURIComponent(activeRef) : ''}`;
-        // Standard text format: *[JUDUL]*\n\n[Deskripsi]\n\n[URL]
-        const shareText = `*${title}*\n\n${excerpt}\n\n${shareUrl}`;
+        const title = currentShareArticle.title || 'Berita WIZ Bangka Belitung';
 
         if (platform === 'wa') {
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+            if (typeof window.showWhatsAppShareToast === 'function') {
+                window.showWhatsAppShareToast('Tunggu 1–2 detik di WhatsApp hingga kartu preview gambar muncul sebelum kirim Status ✨');
+            }
+            // Send pure URL only to WhatsApp so Open Graph thumbnail card renders reliably on WhatsApp Status
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareUrl)}`, '_blank');
         } else if (platform === 'fb') {
             window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank');
         } else if (platform === 'tw') {

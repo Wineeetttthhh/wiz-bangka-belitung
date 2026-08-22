@@ -48,11 +48,37 @@
       ]
     },
     {
-      "source": "/api/(.*)",
+      "source": "/api/og-image",
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
+          "value": "public, max-age=3600, s-maxage=3600"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    },
+    {
+      "source": "/(flyer|quote|berita|program)-image/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, s-maxage=3600"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    },
+    {
+      "source": "/api/(berita|quote|program)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=60, s-maxage=120"
         }
       ]
     },
@@ -61,12 +87,20 @@
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, max-age=3600, must-revalidate"
+          "value": "public, max-age=3600, s-maxage=3600"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
         }
       ]
     }
   ],
   "rewrites": [
+    {
+      "source": "/api/og-image",
+      "destination": "/api/og-image"
+    },
     {
       "source": "/flyer-image/:id.jpg",
       "destination": "/api/quote?id=:id&img=1"

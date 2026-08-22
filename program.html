@@ -1351,29 +1351,17 @@
         });
 
         if (typeof window.shareProgram === 'function') {
-            window.shareProgram(programTitle, '', '', cardImg);
+            window.shareProgram(programTitle);
             return;
         }
         const refCode = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || new URLSearchParams(window.location.search).get('perantara') || '');
         const origin = 'https://www.wizbangkabelitung.or.id';
         const slug = slugify(programTitle);
-        let progUrl = `${origin}/program/${slug}`;
-        const params = [];
-        if (refCode) params.push(`ref=${encodeURIComponent(refCode)}`);
-        if (params.length > 0) progUrl += `?${params.join('&')}`;
+        const progUrl = `${origin}/program/${slug}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
         
-        const shareTitle = `${programTitle} — WIZ Bangka Belitung`;
-        const shareText = `*${programTitle}*\n\nMari salurkan kepedulian Anda melalui program resmi WIZ Bangka Belitung.\n\n${progUrl}`;
-
-        if (navigator.share) {
-            navigator.share({
-                title: shareTitle,
-                text: shareText
-            }).catch(() => {});
-        } else {
-            const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(shareText);
-            window.open(waUrl, '_blank');
-        }
+        // Send pure URL only to WhatsApp so Open Graph thumbnail card renders reliably on WhatsApp Status
+        const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(progUrl);
+        window.open(waUrl, '_blank');
     }
 
     function injectShareButtonsOnCards() {

@@ -223,30 +223,11 @@ module.exports = async function handler(req, res) {
         return res.status(404).send('Image not found');
     }
 
-    // ─── 2. RESOLVE DIRECT ABSOLUTE OPEN GRAPH IMAGE URL ───────────────────────
-    let ogImageUrl = '';
-    let ogImageSecureUrl = '';
+    // ─── 2. DEDICATED OG IMAGE URL (always via /api/og-image for WhatsApp crawler) ─
+    // Single clean endpoint serving binary JPEG <300KB with proper caching
+    const ogImageUrl = `${origin}/api/og-image?type=quote&id=${encodeURIComponent(quote.id)}`;
 
-    if (rawImg.startsWith('data:image/')) {
-        // Direct physical endpoint with .jpg extension for WhatsApp / FB Open Graph Crawler
-        const directImgUrl = `${origin}/flyer-image/${encodeURIComponent(quote.id)}.jpg`;
-        ogImageUrl = directImgUrl;
-        ogImageSecureUrl = directImgUrl;
-    } else if (rawImg.startsWith('http://') || rawImg.startsWith('https://')) {
-        ogImageUrl = rawImg;
-        ogImageSecureUrl = rawImg.replace(/^http:\/\//i, 'https://');
-    } else if (rawImg) {
-        const cleanPath = rawImg.replace(/^\//, '');
-        const directImgUrl = `${origin}/${cleanPath}`;
-        ogImageUrl = directImgUrl;
-        ogImageSecureUrl = directImgUrl;
-    } else {
-        const defaultImgUrl = `${origin}/assets/images/foto-utama-wiz.jpg`;
-        ogImageUrl = defaultImgUrl;
-        ogImageSecureUrl = defaultImgUrl;
-    }
-
-    // Determine actual page rendered image source (Supports high-res base64 or URL)
+    // Page body image (higher quality, can be base64 or direct URL)
     let pageImgSrc = rawImg || `${origin}/assets/images/foto-utama-wiz.jpg`;
     if (pageImgSrc && !pageImgSrc.startsWith('http') && !pageImgSrc.startsWith('data:image')) {
         pageImgSrc = `${origin}/${pageImgSrc.replace(/^\//, '')}`;
@@ -288,23 +269,23 @@ module.exports = async function handler(req, res) {
     <meta property="og:locale" content="id_ID">
     <meta property="og:title" content="${escapeHtml(ogTitle)}">
     <meta property="og:description" content="${escapeHtml(ogDesc)}">
-    <meta property="og:image" content="${escapeHtml(ogImageUrl)}">
-    <meta property="og:image:secure_url" content="${escapeHtml(ogImageSecureUrl)}">
-    <meta property="og:image:type" content="${escapeHtml(mimeType)}">
+    <meta property="og:image" content="${ogImageUrl}">
+    <meta property="og:image:secure_url" content="${ogImageUrl}">
+    <meta property="og:image:type" content="image/jpeg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="${escapeHtml(ogTitle)}">
     <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
-    <link rel="image_src" href="${escapeHtml(ogImageUrl)}">
-    <meta name="thumbnail" content="${escapeHtml(ogImageUrl)}">
-    <meta itemprop="image" content="${escapeHtml(ogImageUrl)}">
+    <link rel="image_src" href="${ogImageUrl}">
+    <meta name="thumbnail" content="${ogImageUrl}">
+    <meta itemprop="image" content="${ogImageUrl}">
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@wizbangkabelitung">
     <meta name="twitter:title" content="${escapeHtml(ogTitle)}">
     <meta name="twitter:description" content="${escapeHtml(ogDesc)}">
-    <meta name="twitter:image" content="${escapeHtml(ogImageUrl)}">
+    <meta name="twitter:image" content="${ogImageUrl}">
 
     <!-- Google Fonts & Tailwind -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -413,10 +394,7 @@ module.exports = async function handler(req, res) {
     <script>
         function shareWhatsApp() {
             const shareUrl = '${canonicalUrl}';
-            const quoteText = '*${escapeHtml(quote.source || 'Inspirasi WIZ')}*' +
-                              ${quote.text && quote.text.trim() ? `'\\n\\n"${escapeHtml(quote.text.trim())}"'` : "''"} +
-                              '\\n\\n' + shareUrl;
-            const url = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(quoteText);
+            const url = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(shareUrl);
             window.open(url, '_blank');
         }
     </script>

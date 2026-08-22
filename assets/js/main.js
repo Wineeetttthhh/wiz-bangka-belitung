@@ -85,9 +85,42 @@ function getActiveAffiliateRef() {
 window.setAffiliateRef = setAffiliateRef;
 window.getActiveAffiliateRef = getActiveAffiliateRef;
 
+window.showWhatsAppShareToast = function(customMsg) {
+    let toast = document.getElementById('wiz-wa-share-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'wiz-wa-share-toast';
+        toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] bg-slate-900/95 backdrop-blur-md text-white text-xs sm:text-sm font-medium px-4 py-3 rounded-2xl shadow-2xl border border-emerald-500/30 flex items-center gap-3 max-w-[90vw] sm:max-w-md transition-all duration-300 transform translate-y-12 opacity-0 pointer-events-none';
+        toast.innerHTML = `
+            <div class="w-8 h-8 rounded-xl bg-[#25D366] text-white flex items-center justify-center shrink-0 shadow-md">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+            </div>
+            <div class="leading-tight flex-1">
+                <span class="block font-bold text-emerald-400 text-xs">Membuka WhatsApp...</span>
+                <span id="wiz-wa-share-toast-msg" class="text-[11px] text-slate-200">Tunggu 1–2 detik di layar WhatsApp hingga kartu preview gambar muncul sebelum menekan tombol Kirim Status ✨</span>
+            </div>
+        `;
+        document.body.appendChild(toast);
+    }
+
+    if (customMsg) {
+        const msgEl = document.getElementById('wiz-wa-share-toast-msg');
+        if (msgEl) msgEl.textContent = customMsg;
+    }
+
+    // Show toast
+    toast.classList.remove('translate-y-12', 'opacity-0', 'pointer-events-none');
+    toast.classList.add('translate-y-0', 'opacity-100');
+
+    clearTimeout(window._wizToastTimer);
+    window._wizToastTimer = setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-12', 'opacity-0', 'pointer-events-none');
+    }, 4500);
+};
+
 function shareProgram(title, desc = '', customUrl = '', customImg = '') {
     const cleanTitle = (title || 'Program Kebaikan').trim();
-    const cleanDesc = (desc || `Mari bersama menyalurkan Zakat, Infak, dan Sedekah untuk program ${cleanTitle} melalui Laznas WIZ Bangka Belitung.`).trim();
     const refCode = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || '');
     
     // Generate clean SSR slug URL
@@ -95,18 +128,15 @@ function shareProgram(title, desc = '', customUrl = '', customImg = '') {
     const baseDomain = 'https://www.wizbangkabelitung.or.id';
     let fullUrl = customUrl;
     if (!fullUrl) {
-        fullUrl = `${baseDomain}/program/${slug}`;
-        const params = [];
-        if (refCode) params.push(`ref=${encodeURIComponent(refCode)}`);
-        if (customImg && (customImg.startsWith('http') || customImg.startsWith('assets/'))) {
-            params.push(`img=${encodeURIComponent(customImg)}`);
-        }
-        if (params.length > 0) fullUrl += `?${params.join('&')}`;
+        fullUrl = `${baseDomain}/program/${slug}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
     }
     
-    // Exact standard text format: *[JUDUL]*\n\n[Deskripsi]\n\n[URL]
-    const waText = `*${cleanTitle}*\n\n${cleanDesc}\n\n${fullUrl}`;
-    const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(waText);
+    if (typeof window.showWhatsAppShareToast === 'function') {
+        window.showWhatsAppShareToast();
+    }
+    
+    // Send pure URL only to WhatsApp so Open Graph thumbnail card renders reliably on WhatsApp Status
+    const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(fullUrl);
     window.open(waUrl, '_blank');
 }
 window.shareProgram = shareProgram;
@@ -173,10 +203,10 @@ function initHomeQuoteSection() {
 
     window.shareHomeQuoteWA = function() {
         const flyerUrl = `${origin}/flyer/${encodeURIComponent(today.id)}${activeRef ? '?ref=' + encodeURIComponent(activeRef) : ''}`;
-        const title = today.source ? today.source : (today.category || 'Quote & Inspirasi Harian');
-        const quoteBody = today.text ? `"${today.text}"` : 'Mari menebar inspirasi kebaikan dan kepedulian bersama WIZ Bangka Belitung.';
-        const caption = `*${title}*\n\n${quoteBody}\n\n${flyerUrl}`;
-        window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(caption), '_blank');
+        if (typeof window.showWhatsAppShareToast === 'function') {
+            window.showWhatsAppShareToast();
+        }
+        window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(flyerUrl), '_blank');
     };
 }
 
@@ -1699,12 +1729,9 @@ window.openShareModal = function (title, desc, url, programImg) {
     const imgEl = document.getElementById('share-modal-img');
     if (imgEl) imgEl.src = activeImg;
 
-    const waText = `*${title}*\n\n${desc}\n\n${url}`;
-
-    const encodedFull = encodeURIComponent(waText);
     const encodedUrl = encodeURIComponent(url);
 
-    document.getElementById('share-btn-wa').href = `https://api.whatsapp.com/send?text=${encodedFull}`;
+    document.getElementById('share-btn-wa').href = `https://api.whatsapp.com/send?text=${encodedUrl}`;
     document.getElementById('share-btn-fb').href = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
     document.getElementById('share-btn-tw').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodedUrl}`;
     document.getElementById('share-btn-tg').href = `https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent(title)}`;

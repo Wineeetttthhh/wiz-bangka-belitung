@@ -468,29 +468,12 @@ module.exports = async function handler(req, res) {
         return res.status(404).send('Image not found');
     }
 
-    // ─── 2. RESOLVE DIRECT ABSOLUTE OPEN GRAPH IMAGE URL ───────────────────────
-    let ogImageUrl = '';
-    let ogImageSecureUrl = '';
+    // ─── 2. DEDICATED OG IMAGE URL (always via /api/og-image for WhatsApp crawler) ─
+    // Single stable endpoint returning binary JPEG <300KB with 1hr cache
+    const ogImageUrl = `${origin}/api/og-image?type=program&id=${encodeURIComponent(canonicalSlug)}`;
+    const ogImageSecureUrl = ogImageUrl;
 
-    if (rawImg.startsWith('data:image/')) {
-        const directImgUrl = `${origin}/program-image/${encodeURIComponent(canonicalSlug)}.jpg`;
-        ogImageUrl = directImgUrl;
-        ogImageSecureUrl = directImgUrl;
-    } else if (rawImg.startsWith('http://') || rawImg.startsWith('https://')) {
-        ogImageUrl = rawImg;
-        ogImageSecureUrl = rawImg.replace(/^http:\/\//i, 'https://');
-    } else if (rawImg) {
-        const cleanPath = rawImg.replace(/^\//, '');
-        const directImgUrl = `${origin}/${cleanPath}`;
-        ogImageUrl = directImgUrl;
-        ogImageSecureUrl = directImgUrl;
-    } else {
-        const defaultImgUrl = DEFAULT_FALLBACK_IMAGE;
-        ogImageUrl = defaultImgUrl;
-        ogImageSecureUrl = defaultImgUrl;
-    }
-
-    // Determine actual page image source for HTML body
+    // Determine actual page image source for HTML body display
     let pageImgSrc = rawImg;
     if (pageImgSrc && !pageImgSrc.startsWith('http') && !pageImgSrc.startsWith('data:image')) {
         pageImgSrc = `${origin}/${pageImgSrc.replace(/^\//, '')}`;
@@ -531,19 +514,19 @@ module.exports = async function handler(req, res) {
     <meta property="og:image:secure_url" content="${escapeHtml(ogImageSecureUrl)}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:type" content="${mimeType}">
+    <meta property="og:image:type" content="image/jpeg">
     <meta property="og:image:alt" content="${escapeHtml(title)}">
     <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
-    <link rel="image_src" href="${escapeHtml(ogImageUrl)}">
-    <meta name="thumbnail" content="${escapeHtml(ogImageUrl)}">
-    <meta itemprop="image" content="${escapeHtml(ogImageUrl)}">
+    <link rel="image_src" href="${ogImageUrl}">
+    <meta name="thumbnail" content="${ogImageUrl}">
+    <meta itemprop="image" content="${ogImageUrl}">
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@wizbangkabelitung">
     <meta name="twitter:title" content="${escapeHtml(title)} — WIZ Bangka Belitung">
     <meta name="twitter:description" content="${escapeHtml(description)}">
-    <meta name="twitter:image" content="${escapeHtml(ogImageUrl)}">
+    <meta name="twitter:image" content="${ogImageUrl}">
 
     <!-- Google Fonts & Tailwind -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -638,8 +621,7 @@ module.exports = async function handler(req, res) {
 
     <script>
         function handleShareClick() {
-            const shareText = '*${escapeHtml(title)}*\\n\\n${escapeHtml(description)}\\n\\n${escapeHtml(canonicalUrl)}';
-            const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(shareText);
+            const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent('${canonicalUrl}');
             window.open(waUrl, '_blank');
         }
     </script>

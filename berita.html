@@ -466,27 +466,30 @@
             if (!window.wizStore || !window.wizStore.news) return;
             const n = wizStore.news.getById(id);
             if (!n) return;
-            const title = n.title || 'Berita WIZ Bangka Belitung';
-            const excerpt = (n.content || '').slice(0, 150).replace(/\r?\n/g, ' ') + (n.content && n.content.length > 150 ? '...' : '');
             const refCode = getPageRefCode();
             const baseOrigin = 'https://www.wizbangkabelitung.or.id';
             const shareUrl = `${baseOrigin}/berita/${encodeURIComponent(n.id)}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
-            // Exact standard format: *[JUDUL]*\n\n[Deskripsi]\n\n[URL]
-            const shareText = `*${title}*\n\n${excerpt}\n\n${shareUrl}`;
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+            
+            if (typeof window.showWhatsAppShareToast === 'function') {
+                window.showWhatsAppShareToast('Tunggu 1–2 detik di WhatsApp hingga kartu preview gambar muncul sebelum kirim Status ✨');
+            }
+
+            // Send pure URL only to WhatsApp so Open Graph thumbnail card renders reliably on WhatsApp Status
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareUrl)}`, '_blank');
         }
 
         function shareArticleModal(platform) {
             if (!currentModalArticle) return;
-            const title = currentModalArticle.title || 'Berita WIZ Bangka Belitung';
-            const excerpt = (currentModalArticle.content || '').slice(0, 150).replace(/\r?\n/g, ' ') + (currentModalArticle.content && currentModalArticle.content.length > 150 ? '...' : '');
             const refCode = getPageRefCode();
             const baseOrigin = 'https://www.wizbangkabelitung.or.id';
             const shareUrl = `${baseOrigin}/berita/${encodeURIComponent(currentModalArticle.id)}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
-            const shareText = `*${title}*\n\n${excerpt}\n\n${shareUrl}`;
 
             if (platform === 'wa') {
-                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+                if (typeof window.showWhatsAppShareToast === 'function') {
+                    window.showWhatsAppShareToast('Tunggu 1–2 detik di WhatsApp hingga kartu preview gambar muncul sebelum kirim Status ✨');
+                }
+                // Send pure URL only to WhatsApp so Open Graph thumbnail card renders reliably on WhatsApp Status
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareUrl)}`, '_blank');
             } else if (platform === 'copy') {
                 navigator.clipboard.writeText(shareUrl).then(() => {
                     const toast = document.getElementById('share-toast');
