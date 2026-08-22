@@ -449,8 +449,22 @@ module.exports = async function handler(req, res) {
     const imgQuery = urlObj.searchParams.get('img');
     if (imgQuery && (imgQuery.startsWith('http://') || imgQuery.startsWith('https://') || imgQuery.startsWith('assets/'))) {
         selectedProgram.imageUrl = imgQuery.trim();
-    } else if (specificImgsMap[selectedProgram.title]) {
-        selectedProgram.imageUrl = specificImgsMap[selectedProgram.title];
+    } else {
+        const checkSlug = slugify(selectedProgram.title);
+        // A. specificImgsMap
+        for (const [title, imgUrl] of Object.entries(specificImgsMap)) {
+            if (imgUrl && (slugify(title) === checkSlug || title.toLowerCase() === selectedProgram.title.toLowerCase())) {
+                selectedProgram.imageUrl = imgUrl;
+                break;
+            }
+        }
+        // B. programs in cloudBundle
+        if (cloudBundle && Array.isArray(cloudBundle.programs)) {
+            const foundInPrograms = cloudBundle.programs.find(p => p && p.imageUrl && (slugify(p.title) === checkSlug || p.slug === checkSlug || p.id === checkSlug));
+            if (foundInPrograms && foundInPrograms.imageUrl) {
+                selectedProgram.imageUrl = foundInPrograms.imageUrl;
+            }
+        }
     }
 
     const title = selectedProgram.title;

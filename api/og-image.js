@@ -268,30 +268,70 @@ const PROGRAM_IMAGE_MAP = {
 async function resolveProgramRaw(slug) {
     const cleanSlug = slugify(slug);
 
-    // 1. Try Supabase master_bundle specific_prog_imgs
+    // 1. Try Supabase master_bundle (specific_prog_imgs, programs, allocation_rules)
     try {
         const resp = await fetch(`${SUPABASE_URL}/site_settings?key=eq.master_bundle&select=value`, {
             headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
         });
         if (resp.ok) {
             const rows = await resp.json();
-            if (rows[0] && rows[0].value && rows[0].value.specific_prog_imgs) {
-                const imgs = rows[0].value.specific_prog_imgs;
-                for (const [title, imgUrl] of Object.entries(imgs)) {
-                    if (slugify(title) === cleanSlug && imgUrl) {
-                        return imgUrl;
+            if (rows[0] && rows[0].value) {
+                const val = rows[0].value;
+                // A. specific_prog_imgs map (direct title-to-image mapping)
+                if (val.specific_prog_imgs) {
+                    for (const [title, imgUrl] of Object.entries(val.specific_prog_imgs)) {
+                        if (imgUrl && (slugify(title) === cleanSlug || title.toLowerCase() === slug.toLowerCase())) {
+                            return imgUrl;
+                        }
+                    }
+                }
+                // B. programs list (dynamic programs added in Admin)
+                if (Array.isArray(val.programs)) {
+                    for (const p of val.programs) {
+                        if (p && p.imageUrl && (slugify(p.title) === cleanSlug || p.slug === cleanSlug || p.id === cleanSlug || p.title.toLowerCase() === slug.toLowerCase())) {
+                            return p.imageUrl;
+                        }
+                    }
+                }
+                // C. allocation_rules specific program items
+                if (val.allocation_rules) {
+                    for (const pillar of Object.values(val.allocation_rules)) {
+                        if (pillar && Array.isArray(pillar.subAllocations)) {
+                            for (const sub of pillar.subAllocations) {
+                                if (sub && sub.imageUrl && (slugify(sub.name) === cleanSlug || sub.name.toLowerCase() === slug.toLowerCase())) {
+                                    return sub.imageUrl;
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
     } catch (e) {}
 
-    // 2. Try static map
+    // 2. Try Supabase 'programs' table directly
+    try {
+        const pResp = await fetch(`${SUPABASE_URL}/programs?select=*`, {
+            headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
+        });
+        if (pResp.ok) {
+            const progs = await pResp.json();
+            if (Array.isArray(progs)) {
+                for (const p of progs) {
+                    if (p && p.imageUrl && (slugify(p.title) === cleanSlug || p.slug === cleanSlug || p.id === cleanSlug || p.title.toLowerCase() === slug.toLowerCase())) {
+                        return p.imageUrl;
+                    }
+                }
+            }
+        }
+    } catch(e) {}
+
+    // 3. Try static map
     if (PROGRAM_IMAGE_MAP[cleanSlug]) {
         return PROGRAM_IMAGE_MAP[cleanSlug];
     }
 
-    // 3. Fuzzy search in static map
+    // 4. Fuzzy search in static map
     for (const [key, localImg] of Object.entries(PROGRAM_IMAGE_MAP)) {
         if (cleanSlug.includes(key) || key.includes(cleanSlug)) {
             return localImg;
