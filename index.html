@@ -334,7 +334,7 @@
             <p class="font-body-lg text-body-lg text-on-surface-variant">Pilar program penyaluran zakat, infak, dan sedekah tepat sasaran untuk masyarakat Babel.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter" id="home-featured-programs-grid">
             <!-- Program Preview Card 1 -->
             <article data-title="Sedekah Beras Dhuafa" class="program-card bg-surface rounded-xl overflow-hidden shadow-level-1 hover:shadow-level-2 transition-all border border-surface-variant flex flex-col">
                 <div class="relative aspect-video overflow-hidden">
@@ -1420,8 +1420,96 @@
         }).join('');
     }
 
+    function renderHomeFeaturedPrograms() {
+        const grid = document.getElementById('home-featured-programs-grid');
+        if (!grid || !window.wizStore) return;
+
+        let customMap = {};
+        try {
+            customMap = JSON.parse(localStorage.getItem('wiz_custom_specific_programs') || '{}');
+        } catch(e) {}
+
+        const customList = [];
+        Object.entries(customMap).forEach(([pillarKey, list]) => {
+            if (Array.isArray(list)) {
+                list.forEach(t => {
+                    customList.push({ title: t, pillar: pillarKey });
+                });
+            }
+        });
+
+        if (customList.length > 0) {
+            const basePrograms = [
+                { title: 'Sedekah Beras Dhuafa', pillar: 'Sosial', desc: 'Bantuan kebutuhan pokok untuk lansia dan keluarga pra-sejahtera.', defaultImg: 'assets/images/sedekah-beras-dhuafa.jpg' },
+                { title: "Beasiswa Tahfidz Qur'an", pillar: 'Dakwah', desc: 'Beasiswa penuh bagi santri penghafal Al-Qur\'an yatim dhuafa.', defaultImg: 'assets/images/foto-utama-wiz.jpg' },
+                { title: 'Beasiswa Pendidikan Juara', pillar: 'Pendidikan', desc: 'Bantuan biaya sekolah dan kelengkapan perlengkapan belajar.', defaultImg: 'assets/images/beasiswa-tahfidz.jpg' }
+            ];
+
+            const displayList = [];
+            // Add custom programs (e.g. 'Pray For NTT') at the front
+            customList.slice(-3).reverse().forEach(c => {
+                const img = (window.wizStore && window.wizStore.allocationRulesManager) 
+                    ? window.wizStore.allocationRulesManager.getSpecificProgramImage(c.title, c.pillar) 
+                    : 'assets/images/foto-utama-wiz.jpg';
+                displayList.push({
+                    title: c.title,
+                    pillar: c.pillar,
+                    desc: `Salurkan kepedulian dan donasi terbaik Anda untuk program ${c.title} bersama WIZ Babel.`,
+                    img: img
+                });
+            });
+
+            // Fill remaining slots
+            basePrograms.forEach(b => {
+                if (displayList.length < 3 && !displayList.find(d => d.title.toLowerCase() === b.title.toLowerCase())) {
+                    const img = (window.wizStore && window.wizStore.allocationRulesManager) 
+                        ? window.wizStore.allocationRulesManager.getSpecificProgramImage(b.title, b.pillar) 
+                        : b.defaultImg;
+                    displayList.push({
+                        title: b.title,
+                        pillar: b.pillar,
+                        desc: b.desc,
+                        img: img
+                    });
+                }
+            });
+
+            grid.innerHTML = displayList.map(item => {
+                const stats = (window.wizStore && window.wizStore.finance) 
+                    ? window.wizStore.finance.getSpecificProgramStats(item.title, 0, 15000000) 
+                    : { percent: 0, saldo: 0 };
+                const fmt = (window.wizStore && window.wizStore.utils) 
+                    ? window.wizStore.utils.formatRupiahCompact 
+                    : (v => 'Rp 0');
+
+                return `
+                <article data-title="${escapeHtml(item.title)}" class="program-card bg-surface rounded-xl overflow-hidden shadow-level-1 hover:shadow-level-2 transition-all border border-surface-variant flex flex-col">
+                    <div class="relative aspect-video overflow-hidden">
+                        <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" src="${escapeHtml(item.img)}" onerror="this.onerror=null; this.src='assets/images/foto-utama-wiz.jpg';" alt="${escapeHtml(item.title)}"/>
+                        <span class="absolute top-sm left-sm bg-primary text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">${escapeHtml(item.pillar)}</span>
+                    </div>
+                    <div class="p-lg flex flex-col flex-grow">
+                        <h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-xs">${escapeHtml(item.title)}</h3>
+                        <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-2">${escapeHtml(item.desc)}</p>
+                        <div class="mb-lg space-y-xs">
+                            <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                                <span>Terkumpul: <strong>${fmt(stats.saldo)}</strong></span>
+                                <span class="font-semibold text-primary">${stats.percent}%</span>
+                            </div>
+                            <div class="w-full bg-surface-variant rounded-full h-2">
+                                <div class="bg-primary h-2 rounded-full" style="width: ${stats.percent}%"></div>
+                            </div>
+                        </div>
+                        <button onclick="openDonationModal('${escapeHtml(item.title)}')" class="w-full bg-[#F7941D] text-white font-label-md text-label-md py-sm rounded-lg hover:opacity-90 transition-opacity font-bold">Donasi Sekarang</button>
+                    </div>
+                </article>`;
+            }).join('');
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
         renderPublicNews();
+        renderHomeFeaturedPrograms();
         updateDynamicProgramCards();
         renderVerifiedDonors();
         renderInfakUmumDistributionWidget();
@@ -1437,6 +1525,7 @@
                 await wizStore.syncFromCloud(true);
             } catch(e) {}
             renderPublicNews();
+            renderHomeFeaturedPrograms();
             updateDynamicProgramCards();
             renderVerifiedDonors();
             renderInfakUmumDistributionWidget();
@@ -1449,6 +1538,7 @@
 
     window.addEventListener('wiz-sync-complete', () => {
         renderPublicNews();
+        renderHomeFeaturedPrograms();
         if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
         if (typeof renderVerifiedDonors === 'function') renderVerifiedDonors();
         if (typeof renderInfakUmumDistributionWidget === 'function') renderInfakUmumDistributionWidget();
@@ -1456,15 +1546,18 @@
     });
 
     window.addEventListener('wiz-programs-changed', () => {
+        renderHomeFeaturedPrograms();
         if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
         if (typeof renderInfakUmumDistributionWidget === 'function') renderInfakUmumDistributionWidget();
     });
 
     window.addEventListener('wiz-program-images-changed', () => {
+        renderHomeFeaturedPrograms();
         if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
     });
 
     window.addEventListener('wiz-data-changed', () => {
+        renderHomeFeaturedPrograms();
         if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
         if (typeof renderVerifiedDonors === 'function') renderVerifiedDonors();
         if (typeof renderInfakUmumDistributionWidget === 'function') renderInfakUmumDistributionWidget();
@@ -1472,6 +1565,7 @@
 
     window.addEventListener('storage', (e) => {
         if (e.key === 'wiz_custom_specific_programs' || e.key === 'wiz_specific_prog_imgs' || e.key === 'wiz_allocation_rules') {
+            renderHomeFeaturedPrograms();
             if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
             if (typeof renderInfakUmumDistributionWidget === 'function') renderInfakUmumDistributionWidget();
         }
