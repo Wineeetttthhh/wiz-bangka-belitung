@@ -276,38 +276,63 @@ const PROGRAM_IMAGE_MAP = {
 async function resolveProgramRaw(slug) {
     const cleanSlug = slugify(slug);
 
-    // 1. Try Supabase master_bundle (specific_prog_imgs, programs, allocation_rules)
+    // 1. Try Supabase master_bundle, site_images, and specific_prog_imgs
     try {
-        const resp = await fetch(`${SUPABASE_URL}/site_settings?key=eq.master_bundle&select=value`, {
+        const resp = await fetch(`${SUPABASE_URL}/site_settings?key=in.(master_bundle,site_images,specific_prog_imgs)&select=*`, {
             headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
         });
         if (resp.ok) {
             const rows = await resp.json();
-            if (rows[0] && rows[0].value) {
-                const val = rows[0].value;
-                // A. specific_prog_imgs map (direct title-to-image mapping)
-                if (val.specific_prog_imgs) {
-                    for (const [title, imgUrl] of Object.entries(val.specific_prog_imgs)) {
+            if (Array.isArray(rows) && rows.length > 0) {
+                const mbRow = rows.find(r => r.key === 'master_bundle');
+                const siRow = rows.find(r => r.key === 'site_images');
+                const spiRow = rows.find(r => r.key === 'specific_prog_imgs');
+
+                // A. Check dedicated specific_prog_imgs row
+                if (spiRow && spiRow.value && typeof spiRow.value === 'object') {
+                    for (const [title, imgUrl] of Object.entries(spiRow.value)) {
                         if (imgUrl && (slugify(title) === cleanSlug || title.toLowerCase() === slug.toLowerCase())) {
                             return imgUrl;
                         }
                     }
                 }
-                // B. programs list (dynamic programs added in Admin)
-                if (Array.isArray(val.programs)) {
-                    for (const p of val.programs) {
-                        if (p && p.imageUrl && (slugify(p.title) === cleanSlug || p.slug === cleanSlug || p.id === cleanSlug || p.title.toLowerCase() === slug.toLowerCase())) {
-                            return p.imageUrl;
+
+                // B. Check dedicated site_images row
+                if (siRow && siRow.value && typeof siRow.value === 'object') {
+                    const progKey = 'prog_' + cleanSlug.replace(/-/g, '_');
+                    if (siRow.value[progKey]) return siRow.value[progKey];
+                    if (siRow.value['__prog__' + slug]) return siRow.value['__prog__' + slug];
+                    for (const [title, imgUrl] of Object.entries(siRow.value)) {
+                        if (imgUrl && (slugify(title) === cleanSlug || title.toLowerCase() === slug.toLowerCase())) {
+                            return imgUrl;
                         }
                     }
                 }
-                // C. allocation_rules specific program items
-                if (val.allocation_rules) {
-                    for (const pillar of Object.values(val.allocation_rules)) {
-                        if (pillar && Array.isArray(pillar.subAllocations)) {
-                            for (const sub of pillar.subAllocations) {
-                                if (sub && sub.imageUrl && (slugify(sub.name) === cleanSlug || sub.name.toLowerCase() === slug.toLowerCase())) {
-                                    return sub.imageUrl;
+
+                // C. Check master_bundle row
+                if (mbRow && mbRow.value) {
+                    const val = mbRow.value;
+                    if (val.specific_prog_imgs) {
+                        for (const [title, imgUrl] of Object.entries(val.specific_prog_imgs)) {
+                            if (imgUrl && (slugify(title) === cleanSlug || title.toLowerCase() === slug.toLowerCase())) {
+                                return imgUrl;
+                            }
+                        }
+                    }
+                    if (Array.isArray(val.programs)) {
+                        for (const p of val.programs) {
+                            if (p && p.imageUrl && (slugify(p.title) === cleanSlug || p.slug === cleanSlug || p.id === cleanSlug || p.title.toLowerCase() === slug.toLowerCase())) {
+                                return p.imageUrl;
+                            }
+                        }
+                    }
+                    if (val.allocation_rules) {
+                        for (const pillar of Object.values(val.allocation_rules)) {
+                            if (pillar && Array.isArray(pillar.subAllocations)) {
+                                for (const sub of pillar.subAllocations) {
+                                    if (sub && sub.imageUrl && (slugify(sub.name) === cleanSlug || sub.name.toLowerCase() === slug.toLowerCase())) {
+                                        return sub.imageUrl;
+                                    }
                                 }
                             }
                         }

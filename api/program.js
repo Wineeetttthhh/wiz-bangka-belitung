@@ -381,7 +381,7 @@ async function getLiveCloudMetadata() {
     try {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 2500);
-        const res = await fetch(`${SUPABASE_URL}/site_settings?key=eq.master_bundle&select=*`, {
+        const res = await fetch(`${SUPABASE_URL}/site_settings?key=in.(master_bundle,site_images,specific_prog_imgs)&select=*`, {
             signal: controller.signal,
             headers: {
                 'apikey': SUPABASE_KEY,
@@ -392,8 +392,22 @@ async function getLiveCloudMetadata() {
         clearTimeout(timeout);
         if (res.ok) {
             const list = await res.json();
-            if (Array.isArray(list) && list.length > 0 && list[0].value) {
-                cachedCloudBundle = list[0].value;
+            if (Array.isArray(list) && list.length > 0) {
+                const mbRow = list.find(r => r.key === 'master_bundle');
+                const siRow = list.find(r => r.key === 'site_images');
+                const spiRow = list.find(r => r.key === 'specific_prog_imgs');
+
+                let mergedBundle = (mbRow && mbRow.value) ? { ...mbRow.value } : {};
+                if (!mergedBundle.site_images) mergedBundle.site_images = {};
+                if (siRow && siRow.value) {
+                    Object.assign(mergedBundle.site_images, siRow.value);
+                }
+                if (!mergedBundle.specific_prog_imgs) mergedBundle.specific_prog_imgs = {};
+                if (spiRow && spiRow.value) {
+                    Object.assign(mergedBundle.specific_prog_imgs, spiRow.value);
+                }
+
+                cachedCloudBundle = mergedBundle;
                 cachedCloudBundleTime = Date.now();
                 return cachedCloudBundle;
             }

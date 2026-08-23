@@ -56,21 +56,21 @@
             { id: 'bsi', bank: 'Bank Syariah Indonesia (BSI)', number: '7168008001', holder: 'WIZ Bangka Belitung', isActive: true, logo: 'assets/images/logo-bsi.jpg' }
         ],
         offices: [
-            { id: 'pangkalpinang', name: 'Kantor Pangkalpinang', address: 'Jl. Mentok No. 45, Pangkalpinang, Bangka Belitung', phone: '0812-7171-8000', hotline: '081271718000', mapsUrl: 'https://maps.google.com' },
-            { id: 'sungailiat', name: 'Kantor Sungailiat', address: 'Jl. Jenderal Sudirman No. 12, Sungailiat, Bangka', phone: '0821-8000-7171', hotline: '082180007171', mapsUrl: 'https://maps.google.com' }
+            { id: 'pangkalpinang', name: 'Kantor Pangkalpinang', address: 'Jl. Mentok No. 45, Pangkalpinang, Bangka Belitung', phone: '0823-8083-0808', hotline: '082380830808', mapsUrl: 'https://maps.google.com' },
+            { id: 'sungailiat', name: 'Kantor Sungailiat', address: 'Jl. Jenderal Sudirman No. 12, Sungailiat, Bangka', phone: '0822-8224-4899', hotline: '082282244899', mapsUrl: 'https://maps.google.com' }
         ],
-        hotline: '081271718000'
+        hotline: '082380830808'
     };
 
     const DEFAULT_SITE_IMAGES = {
-        hero_card: 'assets/images/default-program-wiz.jpg',
-        about_img: 'assets/images/default-program-wiz.jpg',
+        hero_card: 'assets/images/foto-utama-wiz.jpg',
+        about_img: 'assets/images/foto-utama-wiz.jpg',
         berkah_hidayah: 'assets/images/default-program-wiz.jpg',
         berkah_juara: 'assets/images/beasiswa-pendidikan-juara.jpg',
         berkah_sehat: 'assets/images/bantuan-pengobatan.jpg',
         berkah_peduli: 'assets/images/sedekah-beras-dhuafa.jpg',
         berkah_mandiri: 'assets/images/modal-usaha-dhuafa.jpg',
-        banner_donasi: 'assets/images/default-program-wiz.jpg'
+        banner_donasi: 'assets/images/foto-utama-wiz.jpg'
     };
 
     const DEFAULT_SPECIFIC_PROGRAM_IMAGES = {
@@ -700,18 +700,56 @@
             }
 
             window.dispatchEvent(new CustomEvent('wiz-program-images-changed', { detail: { key, url } }));
+            window.dispatchEvent(new CustomEvent('wiz-site-images-changed', { detail: current }));
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
 
-            // Background non-blocking cloud push
+            if (typeof BroadcastChannel !== 'undefined') {
+                try {
+                    const bc = new BroadcastChannel('wiz_sync_channel');
+                    bc.postMessage({ type: 'site-images-updated', key, url, siteImages: current });
+                    bc.close();
+                } catch(e) {}
+            }
+
+            // Immediate Cloud sync to Supabase dedicated key and API endpoints
             (async () => {
                 try {
+                    // 1. Tulis ke standalone site_images key di Supabase
+                    if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                        await window.wizSupabase.upsert('site_settings', {
+                            key: 'site_images',
+                            value: current,
+                            updated_at: new Date().toISOString()
+                        });
+                    }
+
+                    // 2. Call /api/sync-photo endpoint
+                    const syncTargets = ['/api/sync-photo'];
+                    if (window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
+                        syncTargets.push('https://www.wizbangkabelitung.or.id/api/sync-photo');
+                    }
+                    for (const target of syncTargets) {
+                        try {
+                            await fetch(target, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ siteImageKey: key, imageUrl: url, siteImages: current })
+                            });
+                        } catch(e) {}
+                    }
+
+                    // 3. Push master state so master_bundle is also updated
+                    if (typeof pushToCloud === 'function') {
+                        pushToCloud().catch(() => {});
+                    }
+
+                    // 4. Push to Firebase if configured
                     if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                         await window.wizFirebase.set('site_images', key, { key, url, label: label || key, updatedAt: new Date().toISOString() });
                     }
-                    if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                        await window.wizSupabase.upsert('site_images', { id: key, key: key, image_url: url, label: label || key, updated_at: new Date().toISOString() });
-                    }
-                } catch(e) {}
+                } catch(e) {
+                    console.warn('[siteImages.update] Cloud sync notice:', e.message);
+                }
             })();
 
             return current;
@@ -726,20 +764,42 @@
             window.dispatchEvent(new CustomEvent('wiz-program-images-changed'));
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
 
-            // Background non-blocking cloud push
+            // Immediate & non-blocking Cloud sync — tulis HANYA ke dedicated site_images key
             (async () => {
                 try {
+                    // 1. Tulis ke standalone site_images key (cepat, tidak perlu baca master_bundle)
+                    if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                        await window.wizSupabase.upsert('site_settings', {
+                            key: 'site_images',
+                            value: current,
+                            updated_at: new Date().toISOString()
+                        });
+                    }
+
+                    // 2. Call /api/sync-photo endpoint with batch images (server-side backup sync)
+                    const syncTargets = ['/api/sync-photo'];
+                    if (window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
+                        syncTargets.push('https://www.wizbangkabelitung.or.id/api/sync-photo');
+                    }
+                    for (const target of syncTargets) {
+                        try {
+                            await fetch(target, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ siteImages: imagesObj })
+                            });
+                        } catch(e) {}
+                    }
+
+                    // 3. Push to Firebase if configured
                     if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                         for (const [key, url] of Object.entries(imagesObj)) {
                             await window.wizFirebase.set('site_images', key, { key, url, label: key, updatedAt: new Date().toISOString() });
                         }
                     }
-                    if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                        for (const [key, url] of Object.entries(imagesObj)) {
-                            await window.wizSupabase.upsert('site_images', { id: key, key: key, image_url: url, label: key, updated_at: new Date().toISOString() });
-                        }
-                    }
-                } catch(e) {}
+                } catch(e) {
+                    console.warn('[siteImages.updateAll] Cloud sync notice:', e.message);
+                }
             })();
 
             return current;
@@ -871,9 +931,11 @@
                         if (action === 'register_admin_user' || action === 'update_admin_user') {
                             const u = payload.user;
                             if (u) {
-                                const idx = mb.admin_users.findIndex(x => String(x.id) === String(u.id) || (x.username && u.username && x.username.toLowerCase() === u.username.toLowerCase()));
-                                if (idx !== -1) mb.admin_users[idx] = { ...mb.admin_users[idx], ...u };
-                                else mb.admin_users.push(u);
+                                const cleanU = (u.username || '').toLowerCase();
+                                mb.deleted_admin_ids = mb.deleted_admin_ids.filter(x => String(x) !== String(u.id) && String(x).toLowerCase() !== cleanU);
+                                const idx = mb.admin_users.findIndex(x => String(x.id) === String(u.id) || (x.username && u.username && x.username.toLowerCase() === cleanU));
+                                if (idx !== -1) mb.admin_users[idx] = { ...mb.admin_users[idx], ...u, updatedAt: new Date().toISOString() };
+                                else mb.admin_users.push({ ...u, updatedAt: new Date().toISOString() });
                             }
                         } else if (action === 'approve_admin_user') {
                             const targetId = String(payload.id);
@@ -886,8 +948,12 @@
                             }
                         } else if (action === 'delete_admin_user') {
                             const targetId = String(payload.id);
+                            const target = mb.admin_users.find(x => String(x.id) === targetId);
                             mb.admin_users = mb.admin_users.filter(x => String(x.id) !== targetId && x.username !== 'admin');
                             if (!mb.deleted_admin_ids.includes(targetId)) mb.deleted_admin_ids.push(targetId);
+                            if (target && target.username && !mb.deleted_admin_ids.includes(target.username.toLowerCase())) {
+                                mb.deleted_admin_ids.push(target.username.toLowerCase());
+                            }
                         }
 
                         mb.updatedAt = new Date().toISOString();
@@ -906,7 +972,7 @@
         getAll() {
             const deletedSet = getDeletedAdminIds();
             let users = (getStore(STORAGE_KEYS.ADMIN_USERS) || DEFAULT_ADMIN_USERS)
-                .filter(u => u && (u.id || u.username) && !deletedSet.has(String(u.id)) && u.status !== 'deleted' && !u.isDeleted);
+                .filter(u => u && (u.id || u.username) && !deletedSet.has(String(u.id)) && (!u.username || !deletedSet.has(u.username.toLowerCase())) && u.status !== 'deleted' && u.status !== 'rejected' && !u.isDeleted);
             if (!users.some(u => u.username === 'admin')) {
                 users.unshift(DEFAULT_ADMIN_USERS[0]);
                 setStore(STORAGE_KEYS.ADMIN_USERS, users);
@@ -928,6 +994,13 @@
             }
             if (cleanUser === 'admin') {
                 return { success: false, message: 'Username "admin" adalah akun Admin 1 Utama dan tidak dapat didaftarkan ulang.' };
+            }
+
+            // Remove from deleted set if previously deleted
+            const delSet = getDeletedAdminIds();
+            if (delSet.has(cleanUser)) {
+                delSet.delete(cleanUser);
+                localStorage.setItem(STORAGE_KEYS.DELETED_ADMIN_IDS, JSON.stringify(Array.from(delSet)));
             }
 
             let list = this.getAll();
@@ -1024,14 +1097,20 @@
                 return { success: false, message: 'Username "admin" adalah akun Admin 1 Utama dan tidak dapat didaftarkan ulang.' };
             }
 
+            // Remove from deleted set if re-registering
+            const delSet = getDeletedAdminIds();
+            if (delSet.has(cleanUser)) {
+                delSet.delete(cleanUser);
+                localStorage.setItem(STORAGE_KEYS.DELETED_ADMIN_IDS, JSON.stringify(Array.from(delSet)));
+            }
+
             let list = this.getAll();
             const existing = list.find(u => u.username.toLowerCase() === cleanUser);
 
             if (existing) {
                 if (existing.status === 'approved') {
-                    return { success: false, message: 'Username ini sudah terdaftar dan aktif. Silakan masuk melalui tab Masuk ke Dashboard.' };
+                    return { success: false, message: 'Username ini sudah terdaftar dan aktif. Silakan masuk melalui tab Masuk Admin.' };
                 }
-                // Update pending application with latest submitted data
                 existing.fullName = cleanName;
                 existing.phone = cleanPhone;
                 existing.password = cleanPass;
@@ -1042,7 +1121,7 @@
 
                 setStore(STORAGE_KEYS.ADMIN_USERS, list);
                 if (typeof activityLog !== 'undefined' && activityLog.add) {
-                    activityLog.add('auth', `Pembaruan pendaftaran akun admin: '${cleanUser}' (Menunggu verifikasi Admin 1)`, cleanUser);
+                    activityLog.add('auth', `Pembaruan pendaftaran akun admin: '${cleanUser}' (Menunggu persetujuan Admin 1)`, cleanUser);
                 }
 
                 window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
@@ -1071,7 +1150,7 @@
             list.push(newUser);
             setStore(STORAGE_KEYS.ADMIN_USERS, list);
             if (typeof activityLog !== 'undefined' && activityLog.add) {
-                activityLog.add('auth', `Pendaftaran akun admin baru: '${cleanUser}' (Menunggu verifikasi Admin 1)`, cleanUser);
+                activityLog.add('auth', `Pendaftaran akun admin baru: '${cleanUser}' (Menunggu persetujuan Admin 1)`, cleanUser);
             }
 
             window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
@@ -1082,7 +1161,7 @@
                 setTimeout(() => pushToCloud().catch(() => {}), 100);
             }
 
-            return { success: true, user: newUser, message: 'Pendaftaran berhasil! Akun Anda otomatis masuk antrean dan menunggu persetujuan dari Admin 1 Utama.' };
+            return { success: true, user: newUser, message: 'Pendaftaran berhasil! Akun Anda otomatis masuk antrean dan menunggu persetujuan Admin 1 Utama untuk dapat login.' };
         },
         login(username, password) {
             const cleanUser = (username || '').trim().toLowerCase();
@@ -1099,18 +1178,18 @@
             }
 
             if (found.status === 'pending') {
-                return { success: false, message: 'Akun Anda belum disetujui oleh Admin 1 Utama. Silakan hubungi Super Admin untuk verifikasi.' };
+                return { success: false, message: 'Akun Anda belum disetujui oleh Admin 1 Utama. Silakan hubungi Admin 1 untuk verifikasi.' };
             }
 
             if (found.status === 'rejected') {
-                return { success: false, message: 'Pendaftaran akun Anda ditolak oleh Admin 1 Utama.' };
+                return { success: false, message: 'Akun admin ini dinonaktifkan atau ditolak oleh Admin 1 Utama.' };
             }
 
             return { success: true, user: found };
         },
         async approve(id, adminActor) {
             let list = this.getAll();
-            const idx = list.findIndex(u => String(u.id) === String(id));
+            const idx = list.findIndex(u => String(u.id) === String(id) || (u.username && u.username.toLowerCase() === String(id).toLowerCase()));
             if (idx === -1) return { success: false, message: 'Pengguna tidak ditemukan' };
 
             list[idx].status = 'approved';
@@ -1120,13 +1199,13 @@
             setStore(STORAGE_KEYS.ADMIN_USERS, list);
 
             if (typeof activityLog !== 'undefined' && activityLog.add) {
-                activityLog.add('auth', `Akun admin '${list[idx].username}' telah diverifikasi & disetujui`, adminActor || 'Admin 1');
+                activityLog.add('auth', `Akun admin '${list[idx].username}' telah disetujui & diaktifkan`, adminActor || 'Admin 1');
             }
 
             window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
             broadcastSync('UPDATE_ADMIN_USERS', list);
 
-            microSyncAdmin('approve_admin_user', { id, verifiedBy: adminActor || 'Admin 1' });
+            microSyncAdmin('approve_admin_user', { id: list[idx].id, verifiedBy: adminActor || 'Admin 1' });
             if (typeof pushToCloud === 'function') {
                 setTimeout(() => pushToCloud().catch(() => {}), 100);
             }
@@ -1134,45 +1213,40 @@
         },
         async reject(id, adminActor) {
             let list = this.getAll();
-            const idx = list.findIndex(u => String(u.id) === String(id));
-            if (idx === -1) return { success: false, message: 'Pengguna tidak ditemukan' };
-
-            list[idx].status = 'rejected';
-            list[idx].updatedAt = new Date().toISOString();
-            setStore(STORAGE_KEYS.ADMIN_USERS, list);
+            const target = list.find(u => String(u.id) === String(id) || (u.username && u.username.toLowerCase() === String(id).toLowerCase()));
+            if (!target) return { success: true };
+            if (target.username === 'admin') return { success: false, message: 'Akun Admin 1 tidak dapat ditolak/dihapus.' };
 
             if (typeof activityLog !== 'undefined' && activityLog.add) {
-                activityLog.add('auth', `Pendaftaran akun admin '${list[idx].username}' ditolak`, adminActor || 'Admin 1');
+                activityLog.add('auth', `Pendaftaran akun admin '${target.username}' tidak disetujui / ditolak permanen`, adminActor || 'Admin 1');
             }
 
-            window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
-            broadcastSync('UPDATE_ADMIN_USERS', list);
-
-            microSyncAdmin('update_admin_user', { user: list[idx] });
-            if (typeof pushToCloud === 'function') {
-                setTimeout(() => pushToCloud().catch(() => {}), 100);
-            }
-            return { success: true };
+            return this.delete(target.id || id);
         },
         async delete(id) {
             let list = this.getAll();
-            const target = list.find(u => String(u.id) === String(id));
+            const target = list.find(u => String(u.id) === String(id) || (u.username && u.username.toLowerCase() === String(id).toLowerCase()));
             if (target && target.username === 'admin') {
                 return { success: false, message: 'Akun Super Admin 1 utama tidak dapat dihapus.' };
             }
 
-            addDeletedAdminId(id);
-            list = list.filter(u => String(u.id) !== String(id));
+            const targetId = target ? String(target.id) : String(id);
+            addDeletedAdminId(targetId);
+            if (target && target.username) {
+                addDeletedAdminId(target.username.toLowerCase());
+            }
+
+            list = list.filter(u => String(u.id) !== targetId && (!target || u.username.toLowerCase() !== target.username.toLowerCase()));
             setStore(STORAGE_KEYS.ADMIN_USERS, list);
 
             if (typeof activityLog !== 'undefined' && activityLog.add) {
-                activityLog.add('auth', `Akses admin '${target ? target.username : id}' dicabut/dihapus`, sessionStorage.getItem('wiz_admin_user') || 'Admin 1');
+                activityLog.add('auth', `Akses admin '${target ? target.username : id}' dihapus permanen`, sessionStorage.getItem('wiz_admin_user') || 'Admin 1');
             }
 
             window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
             broadcastSync('UPDATE_ADMIN_USERS', list);
 
-            microSyncAdmin('delete_admin_user', { id });
+            microSyncAdmin('delete_admin_user', { id: targetId });
             if (typeof pushToCloud === 'function') {
                 setTimeout(() => pushToCloud().catch(() => {}), 100);
             }
@@ -1281,29 +1355,89 @@
             const imgKey = 'prog_img_' + programName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
             siteImages.update(imgKey, imageDataUrl, `Foto Program: ${programName}`);
 
-            // 4. Save to Firebase Cloud in background
-            const imgRecord = {
-                id: imgKey,
-                key: programName,
-                image_url: imageDataUrl,
-                updated_at: new Date().toISOString()
-            };
+            // 4. Update programs store if exists
+            try {
+                const progs = getStore(STORAGE_KEYS.PROGRAMS) || [];
+                let pModified = false;
+                progs.forEach(p => {
+                    if (p && p.title && p.title.toLowerCase() === programName.toLowerCase()) {
+                        p.imageUrl = imageDataUrl;
+                        pModified = true;
+                    }
+                });
+                if (pModified) setStore(STORAGE_KEYS.PROGRAMS, progs);
+            } catch(e) {}
 
             window.dispatchEvent(new CustomEvent('wiz-program-images-changed', { detail: { name: programName, image: imageDataUrl } }));
+            window.dispatchEvent(new CustomEvent('wiz-programs-changed'));
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
 
+            // Immediate Cloud sync to Supabase & Firebase
             (async () => {
                 try {
-                    if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                        await window.wizFirebase.set('site_images', imgRecord.id, imgRecord);
-                    }
+                    // 1. Direct Supabase site_settings upsert (specific_prog_imgs & master_bundle)
                     if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                        await window.wizSupabase.upsert('site_images', imgRecord);
+                        const flatMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+                        await window.wizSupabase.upsert('site_settings', {
+                            key: 'specific_prog_imgs',
+                            value: flatMap,
+                            updated_at: new Date().toISOString()
+                        });
+
+                        try {
+                            const mbRes = await window.wizSupabase.select('site_settings', { filter: 'key=eq.master_bundle' });
+                            if (mbRes && mbRes.data && mbRes.data[0] && mbRes.data[0].value) {
+                                const mb = mbRes.data[0].value;
+                                if (!mb.specific_prog_imgs) mb.specific_prog_imgs = {};
+                                mb.specific_prog_imgs[programName] = imageDataUrl;
+                                if (Array.isArray(mb.programs)) {
+                                    mb.programs.forEach(p => {
+                                        if (p && p.title && p.title.toLowerCase() === programName.toLowerCase()) {
+                                            p.imageUrl = imageDataUrl;
+                                        }
+                                    });
+                                }
+                                mb.updatedAt = new Date().toISOString();
+                                await window.wizSupabase.upsert('site_settings', {
+                                    key: 'master_bundle',
+                                    value: mb,
+                                    updated_at: new Date().toISOString()
+                                });
+                            }
+                        } catch(e) {}
                     }
+
+                    // 2. Call /api/sync-photo endpoint
+                    const syncTargets = ['/api/sync-photo'];
+                    if (window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
+                        syncTargets.push('https://www.wizbangkabelitung.or.id/api/sync-photo');
+                    }
+                    for (const target of syncTargets) {
+                        try {
+                            await fetch(target, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ programTitle: programName, imageUrl: imageDataUrl })
+                            });
+                        } catch(e) {}
+                    }
+
+                    // 3. Push to Firebase if configured
+                    if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                        await window.wizFirebase.set('site_images', imgKey, {
+                            id: imgKey,
+                            key: programName,
+                            image_url: imageDataUrl,
+                            updated_at: new Date().toISOString()
+                        });
+                    }
+
                     if (typeof pushToCloud === 'function') {
                         await pushToCloud();
                     }
-                } catch(e) {}
+                } catch(e) {
+                    console.warn('[updateSpecificProgramImageByName] Cloud sync notice:', e.message);
+                }
             })();
 
             return updated;
@@ -2182,12 +2316,16 @@
             if (Array.isArray(masterData.deleted_quote_ids)) {
                 masterData.deleted_quote_ids.forEach(id => addDeletedQuoteId(id));
             }
+            if (Array.isArray(masterData.deleted_admin_ids)) {
+                masterData.deleted_admin_ids.forEach(id => addDeletedAdminId(id));
+            }
 
             const deletedSet = getDeletedIds();
             const deletedNewsSet = getDeletedNewsIds();
             const deletedDisbSet = getDeletedDisbIds();
             const deletedRefSet = getDeletedRefIds();
             const deletedQuoteSet = getDeletedQuoteIds();
+            const deletedAdminSet = getDeletedAdminIds();
 
             function smartMerge(storeKey, cloudData, sortFn, activeDeletedSet = deletedSet) {
                 if (!cloudData || !Array.isArray(cloudData)) return;
@@ -2198,7 +2336,8 @@
                 local.forEach(item => {
                     if (!item) return;
                     const itemId = String(item.id || item.code || (item.name ? `${item.name}-${item.phone || ''}` : ''));
-                    if (itemId && !activeDeletedSet.has(itemId) && item.status !== 'deleted' && !item.isDeleted) {
+                    const cleanUsername = (item.username || '').toLowerCase();
+                    if (itemId && !activeDeletedSet.has(itemId) && (!cleanUsername || !activeDeletedSet.has(cleanUsername)) && item.status !== 'deleted' && item.status !== 'rejected' && !item.isDeleted) {
                         item.id = item.id || itemId;
                         map.set(itemId, item);
                     }
@@ -2208,7 +2347,8 @@
                 cloudData.forEach(cloudItem => {
                     if (!cloudItem) return;
                     const strId = String(cloudItem.id || cloudItem.code || (cloudItem.name ? `${cloudItem.name}-${cloudItem.phone || ''}` : ''));
-                    if (!strId || activeDeletedSet.has(strId) || cloudItem.status === 'deleted' || cloudItem.isDeleted) return;
+                    const cleanCloudUser = (cloudItem.username || '').toLowerCase();
+                    if (!strId || activeDeletedSet.has(strId) || (cleanCloudUser && activeDeletedSet.has(cleanCloudUser)) || cloudItem.status === 'deleted' || cloudItem.status === 'rejected' || cloudItem.isDeleted) return;
                     cloudItem.id = cloudItem.id || strId;
 
                     const localItem = map.get(strId);
@@ -2344,10 +2484,46 @@
                     try { window.applySiteSettings(); } catch(e) {}
                 }
             }
-            if (masterData.site_images && typeof masterData.site_images === 'object') {
-                setStore(STORAGE_KEYS.SITE_IMAGES, { ...DEFAULT_SITE_IMAGES, ...masterData.site_images });
-                window.dispatchEvent(new CustomEvent('wiz-program-images-changed'));
+            // Baca standalone site_images & specific_prog_imgs key dari Supabase (prioritas utama untuk gambar)
+            let cloudSiteImgsDirect = null;
+            let cloudSpecificProgImgsDirect = null;
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    const siRes = await window.wizSupabase.select('site_settings', { filter: 'key=eq.site_images' });
+                    if (siRes && siRes.data && siRes.data[0] && siRes.data[0].value) {
+                        cloudSiteImgsDirect = siRes.data[0].value;
+                    }
+                } catch(e) {}
+                try {
+                    const spRes = await window.wizSupabase.select('site_settings', { filter: 'key=eq.specific_prog_imgs' });
+                    if (spRes && spRes.data && spRes.data[0] && spRes.data[0].value) {
+                        cloudSpecificProgImgsDirect = spRes.data[0].value;
+                    }
+                } catch(e) {}
             }
+            // Gabungkan: DEFAULT_SITE_IMAGES + masterData.site_images + cloudSiteImgsDirect + local
+            const _localSiteImgs = getStore(STORAGE_KEYS.SITE_IMAGES) || {};
+            const _cloudSiteImgs = Object.assign({}, DEFAULT_SITE_IMAGES, masterData.site_images || {}, cloudSiteImgsDirect || {});
+            
+            // Pertahankan nilai lokal yang valid jika cloud masih default
+            for (const [k, v] of Object.entries(_localSiteImgs)) {
+                if (v && v !== DEFAULT_SITE_IMAGES[k] && (!_cloudSiteImgs[k] || _cloudSiteImgs[k] === DEFAULT_SITE_IMAGES[k])) {
+                    _cloudSiteImgs[k] = v;
+                }
+            }
+            if (cloudSiteImgsDirect && typeof cloudSiteImgsDirect === 'object') {
+                Object.assign(_cloudSiteImgs, cloudSiteImgsDirect);
+            }
+
+            setStore(STORAGE_KEYS.SITE_IMAGES, _cloudSiteImgs);
+            window.dispatchEvent(new CustomEvent('wiz-program-images-changed'));
+            window.dispatchEvent(new CustomEvent('wiz-site-images-changed', { detail: _cloudSiteImgs }));
+
+            // Gabungkan specific_prog_imgs
+            const existingProgImgs = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+            const mergedProgImgs = { ...existingProgImgs, ...(masterData.specific_prog_imgs || {}), ...(cloudSpecificProgImgsDirect || {}) };
+            localStorage.setItem('wiz_specific_prog_imgs', JSON.stringify(mergedProgImgs));
+
             if (masterData.custom_specific_programs && typeof masterData.custom_specific_programs === 'object' && Object.keys(masterData.custom_specific_programs).length > 0) {
                 const existingMap = JSON.parse(localStorage.getItem('wiz_custom_specific_programs') || '{}');
                 const mergedMap = { ...existingMap, ...masterData.custom_specific_programs };
@@ -2379,24 +2555,22 @@
                 } catch(e) {}
                 window.dispatchEvent(new CustomEvent('wiz-programs-changed', { detail: mergedMap }));
             }
-            if (masterData.specific_prog_imgs && typeof masterData.specific_prog_imgs === 'object') {
-                const existingImgs = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
-                const mergedImgs = { ...existingImgs, ...masterData.specific_prog_imgs };
-                localStorage.setItem('wiz_specific_prog_imgs', JSON.stringify(mergedImgs));
-                window.dispatchEvent(new CustomEvent('wiz-program-images-changed'));
-            }
             if (masterData.baselines && typeof masterData.baselines === 'object') {
                 setStore(STORAGE_KEYS.BASELINES, masterData.baselines);
             }
-            if (masterData.admin_users && Array.isArray(masterData.admin_users) && masterData.admin_users.length > 0) {
-                const deletedAdminSet = getDeletedAdminIds();
-                const cloudAdmins = masterData.admin_users.filter(u => u && (u.id || u.username) && u.status !== 'deleted' && !u.isDeleted);
-                cloudAdmins.forEach(u => {
-                    if (deletedAdminSet.has(String(u.id))) deletedAdminSet.delete(String(u.id));
-                    if (u.username && deletedAdminSet.has(u.username.toLowerCase())) deletedAdminSet.delete(u.username.toLowerCase());
-                });
-                localStorage.setItem(STORAGE_KEYS.DELETED_ADMIN_IDS, JSON.stringify(Array.from(deletedAdminSet)));
-                smartMerge(STORAGE_KEYS.ADMIN_USERS, cloudAdmins, (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0), deletedAdminSet);
+            if (masterData.admin_users && Array.isArray(masterData.admin_users)) {
+                const currentDeletedAdminSet = getDeletedAdminIds();
+                const cloudAdmins = masterData.admin_users.filter(u => u && (u.id || u.username) && !currentDeletedAdminSet.has(String(u.id)) && (!u.username || !currentDeletedAdminSet.has(u.username.toLowerCase())) && u.status !== 'deleted' && u.status !== 'rejected' && !u.isDeleted);
+                
+                smartMerge(STORAGE_KEYS.ADMIN_USERS, cloudAdmins, (a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0), currentDeletedAdminSet);
+                
+                // Clean up any remaining deleted or rejected admins in local store
+                let curAdmins = getStore(STORAGE_KEYS.ADMIN_USERS) || [];
+                curAdmins = curAdmins.filter(u => u && (u.id || u.username) && !currentDeletedAdminSet.has(String(u.id)) && (!u.username || !currentDeletedAdminSet.has(u.username.toLowerCase())) && u.status !== 'deleted' && u.status !== 'rejected' && !u.isDeleted);
+                if (!curAdmins.some(u => u.username === 'admin')) {
+                    curAdmins.unshift(DEFAULT_ADMIN_USERS[0]);
+                }
+                setStore(STORAGE_KEYS.ADMIN_USERS, curAdmins);
                 window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
             }
             if (masterData.programs && Array.isArray(masterData.programs) && masterData.programs.length > 0) {
@@ -5230,7 +5404,7 @@
 
     // Automatic recurring background cloud sync every 12 seconds (when tab is active)
     setInterval(async () => {
-        if (document.visibilityState === 'visible') {
+        if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
             try {
                 await syncFromCloud();
                 window.dispatchEvent(new CustomEvent('wiz-sync-complete'));

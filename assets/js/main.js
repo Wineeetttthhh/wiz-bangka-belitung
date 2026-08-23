@@ -494,6 +494,12 @@ window.addEventListener('wiz-sync-complete', () => {
     initHomeQuoteSection();
 });
 
+window.addEventListener('wiz-program-images-changed', () => {
+    initDynamicSiteImages();
+    initDynamicProgramImages();
+    initProgramCatalog();
+});
+
 window.addEventListener('wiz-quotes-changed', () => {
     initHomeQuoteSection();
 });
@@ -502,9 +508,44 @@ window.addEventListener('wiz-site-settings-changed', () => {
     initHomeQuoteSection();
 });
 
+window.addEventListener('wiz-program-images-changed', () => {
+    initDynamicSiteImages();
+    initDynamicProgramImages();
+});
+
+window.addEventListener('wiz-site-images-changed', () => {
+    initDynamicSiteImages();
+});
+
+window.addEventListener('wiz-sync-complete', () => {
+    initDynamicSiteImages();
+    initDynamicProgramImages();
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     initHomeQuoteSection();
+    initDynamicSiteImages();
+    initDynamicProgramImages();
 });
+
+window.addEventListener('storage', (e) => {
+    if (!e.key || e.key === 'wiz_site_images' || e.key === 'wiz_specific_prog_imgs' || e.key.startsWith('wiz_')) {
+        initDynamicSiteImages();
+        initDynamicProgramImages();
+    }
+});
+
+if (typeof BroadcastChannel !== 'undefined') {
+    try {
+        const syncChannel = new BroadcastChannel('wiz_sync_channel');
+        syncChannel.onmessage = (e) => {
+            if (e.data && (e.data.type === 'site-images-updated' || e.data.type === 'hero-image-updated')) {
+                initDynamicSiteImages();
+                initDynamicProgramImages();
+            }
+        };
+    } catch (err) {}
+}
 
 /**
  * Dynamic Site Images Loader from Store with Resilient Fallback
@@ -512,24 +553,36 @@ document.addEventListener('DOMContentLoaded', () => {
 function initDynamicSiteImages() {
     if (!window.wizStore || !window.wizStore.siteImages) return;
     const images = window.wizStore.siteImages.getAll();
-    const fallbackDefault = 'assets/images/sedekah-beras-dhuafa.jpg';
+    const fallbackDefault = 'assets/images/foto-utama-wiz.jpg';
 
     document.querySelectorAll('[data-site-img]').forEach(el => {
         const key = el.getAttribute('data-site-img');
-        const targetSrc = (key && images[key]) ? images[key] : fallbackDefault;
+        const targetSrc = (key && images[key]) ? images[key] : (el.getAttribute('data-default-src') || fallbackDefault);
+        if (!targetSrc) return;
+
         if (el.tagName === 'IMG') {
             el.onerror = function() {
                 if (this.src !== fallbackDefault && !this.src.endsWith(fallbackDefault)) {
                     this.src = fallbackDefault;
                 }
             };
-            if (!el.src || !el.src.includes(targetSrc)) {
-                el.src = targetSrc;
-            }
+            el.src = targetSrc;
+            el.setAttribute('src', targetSrc);
         } else {
             el.style.backgroundImage = `url('${targetSrc}')`;
         }
     });
+
+    // Also explicitly target hero image by ID if present
+    const heroEl = document.getElementById('main-hero-img');
+    if (heroEl && images.hero_card) {
+        if (heroEl.tagName === 'IMG') {
+            heroEl.src = images.hero_card;
+            heroEl.setAttribute('src', images.hero_card);
+        } else {
+            heroEl.style.backgroundImage = `url('${images.hero_card}')`;
+        }
+    }
 }
 
 /**
@@ -1319,8 +1372,12 @@ Saya telah menyalurkan / ingin konfirmasi donasi melalui website WIZ Babel:
 
 Mohon dapat diverifikasi dan dikirimkan konfirmasi/bukti resi donasinya. Terima kasih. Jazakumullah khairan.`;
 
+            const wilayahInput = document.getElementById('donation-wilayah-select') || document.querySelector('input[name="donation_wilayah"]:checked');
+            const targetWilayah = (wilayahInput ? wilayahInput.value : '').toLowerCase();
+            const targetPhone = (targetWilayah.includes('sungailiat') || targetWilayah.includes('sungai liat')) ? '6282282244899' : '6282380830808';
+
             const encodedMessage = encodeURIComponent(message);
-            const waUrl = `https://wa.me/6282380830808?text=${encodedMessage}`;
+            const waUrl = `https://wa.me/${targetPhone}?text=${encodedMessage}`;
 
             // Save transaction to Supabase cloud if enabled
             if (window.wizSupabase) {

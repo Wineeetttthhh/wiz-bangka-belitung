@@ -273,28 +273,40 @@
                         <div class="grid grid-cols-2 gap-2 sm:gap-3">
                             <label class="option-card cursor-pointer relative">
                                 <input class="peer sr-only" name="wilayah" onchange="handleWilayahChange(this)" type="radio" value="Pangkalpinang" checked />
-                                <div class="border border-outline-variant rounded-lg p-3 transition-all duration-200 hover:border-primary/50 group h-full">
-                                    <div class="flex justify-between items-start mb-xs">
-                                        <div class="flex items-center gap-1.5">
-                                            <span class="material-symbols-outlined text-primary text-lg">location_city</span>
-                                            <span class="font-label-md text-label-md text-on-surface font-bold">Pangkalpinang</span>
+                                <div class="border border-outline-variant rounded-lg p-3 transition-all duration-200 hover:border-primary/50 group h-full flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex justify-between items-start mb-xs">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="material-symbols-outlined text-primary text-lg">location_city</span>
+                                                <span class="font-label-md text-label-md text-on-surface font-bold">Pangkalpinang</span>
+                                            </div>
+                                            <span class="material-symbols-outlined text-primary opacity-0 icon-check transition-opacity text-lg">check_circle</span>
                                         </div>
-                                        <span class="material-symbols-outlined text-primary opacity-0 icon-check transition-opacity text-lg">check_circle</span>
+                                        <p class="font-caption text-caption text-on-surface-variant text-[11px]">Wilayah Pangkalpinang</p>
                                     </div>
-                                    <p class="font-caption text-caption text-on-surface-variant text-[11px]">Wilayah Pangkalpinang</p>
+                                    <div class="mt-2 pt-1.5 border-t border-outline-variant/30 flex items-center gap-1 text-[10.5px] font-bold text-emerald-700">
+                                        <span class="material-symbols-outlined text-[13px]">chat</span>
+                                        <span>WA: 0823-8083-0808</span>
+                                    </div>
                                 </div>
                             </label>
                             <label class="option-card cursor-pointer relative">
                                 <input class="peer sr-only" name="wilayah" onchange="handleWilayahChange(this)" type="radio" value="Sungailiat" />
-                                <div class="border border-outline-variant rounded-lg p-3 transition-all duration-200 hover:border-primary/50 group h-full">
-                                    <div class="flex justify-between items-start mb-xs">
-                                        <div class="flex items-center gap-1.5">
-                                            <span class="material-symbols-outlined text-primary text-lg">location_city</span>
-                                            <span class="font-label-md text-label-md text-on-surface font-bold">Sungailiat</span>
+                                <div class="border border-outline-variant rounded-lg p-3 transition-all duration-200 hover:border-primary/50 group h-full flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex justify-between items-start mb-xs">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="material-symbols-outlined text-primary text-lg">location_city</span>
+                                                <span class="font-label-md text-label-md text-on-surface font-bold">Sungailiat</span>
+                                            </div>
+                                            <span class="material-symbols-outlined text-primary opacity-0 icon-check transition-opacity text-lg">check_circle</span>
                                         </div>
-                                        <span class="material-symbols-outlined text-primary opacity-0 icon-check transition-opacity text-lg">check_circle</span>
+                                        <p class="font-caption text-caption text-on-surface-variant text-[11px]">Wilayah Sungailiat</p>
                                     </div>
-                                    <p class="font-caption text-caption text-on-surface-variant text-[11px]">Wilayah Sungailiat</p>
+                                    <div class="mt-2 pt-1.5 border-t border-outline-variant/30 flex items-center gap-1 text-[10.5px] font-bold text-emerald-700">
+                                        <span class="material-symbols-outlined text-[13px]">chat</span>
+                                        <span>WA: 0822-8224-4899</span>
+                                    </div>
                                 </div>
                             </label>
                         </div>
@@ -510,6 +522,10 @@
                                 <span class="font-label-md text-caption text-on-surface text-right font-bold text-primary" id="summary-wilayah">Pangkalpinang</span>
                             </li>
                             <li class="flex justify-between items-start">
+                                <span class="font-body-md text-caption text-on-surface-variant">Admin Konfirmasi</span>
+                                <span class="font-label-md text-caption text-right font-bold text-emerald-700" id="summary-wa-admin">Admin Pangkalpinang (+62 823-8083-0808)</span>
+                            </li>
+                            <li class="flex justify-between items-start">
                                 <span class="font-body-md text-caption text-on-surface-variant">Jenis Donasi</span>
                                 <span class="font-label-md text-caption text-on-surface text-right font-bold" id="summary-type">Infak Umum</span>
                             </li>
@@ -585,8 +601,8 @@
                 <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 text-xs flex items-start gap-2.5 text-left shadow-xs">
                     <span class="material-symbols-outlined text-amber-700 text-lg shrink-0 mt-0.5">hourglass_top</span>
                     <div>
-                        <span class="font-bold text-amber-900 block">Status: Menunggu Verifikasi Admin</span>
-                        <span class="text-amber-800 text-[11px] leading-relaxed block mt-0.5">Transaksi Anda otomatis masuk ke antrean verifikasi Admin WIZ Babel. Silakan lakukan pembayaran dan konfirmasi melalui tombol WhatsApp di bawah.</span>
+                        <span class="font-bold text-amber-900 block" id="qris-admin-target-title">Status: Menunggu Verifikasi Admin</span>
+                        <span class="text-amber-800 text-[11px] leading-relaxed block mt-0.5" id="qris-admin-target-desc">Transaksi Anda otomatis masuk ke antrean verifikasi Admin WIZ Babel. Silakan lakukan pembayaran dan konfirmasi melalui tombol WhatsApp di bawah.</span>
                     </div>
                 </div>
 
@@ -603,7 +619,7 @@
                     <div class="flex items-center justify-between w-full border-b border-slate-100 pb-2 mb-1">
                         <span class="font-bold text-xs text-slate-700">WAHDAH INSPIRASI ZAKAT BABEL</span>
                         <span class="text-[10px] text-red-600 font-bold uppercase bg-red-50 px-2 py-0.5 rounded">All
-                            e-Wallet & Banking</span>
+                             e-Wallet & Banking</span>
                     </div>
 
                     <img id="qris-modal-img" src="assets/images/qris-code-wiz-babel.png"
@@ -634,15 +650,15 @@
                     </ol>
                 </div>
 
-                <button type="button" onclick="confirmQRISToWhatsApp()"
-                    class="w-full bg-[#25D366] text-white py-3 rounded-lg font-label-md text-label-md font-bold shadow-md hover:opacity-95 transition-opacity flex items-center justify-center gap-2">
+                <a id="qris-wa-btn" href="https://wa.me/6282380830808" target="_blank" onclick="confirmQRISToWhatsApp(event)"
+                    class="w-full bg-[#25D366] text-white py-3 rounded-lg font-label-md text-label-md font-bold shadow-md hover:opacity-95 transition-opacity flex items-center justify-center gap-2 cursor-pointer no-underline">
                     <!-- Official WhatsApp rounded-square brand logo -->
                     <svg class="w-5 h-5" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect width="48" height="48" rx="10" fill="#25D366"/>
                         <path fill-rule="evenodd" clip-rule="evenodd" d="M24 8C15.163 8 8 15.163 8 24c0 2.967.809 5.741 2.216 8.124L8 40l8.113-2.172A15.93 15.93 0 0 0 24 40c8.837 0 16-7.163 16-16S32.837 8 24 8Zm-4.063 9.219c-.395-.988-1.395-1.053-1.79-1.053-.49 0-1.053.016-1.614.593-.561.578-2.14 2.09-2.14 5.097 0 3.008 2.189 5.918 2.49 6.33.302.412 4.228 6.73 10.41 9.153 1.27.49 2.263.783 3.036 1.002 1.278.363 2.441.313 3.36.19 1.026-.138 3.155-1.29 3.6-2.535.447-1.245.447-2.313.313-2.535-.134-.222-.49-.356-1.026-.623-.535-.268-3.156-1.558-3.647-1.735-.49-.178-.847-.267-1.203.268-.356.534-1.38 1.735-1.69 2.091-.312.356-.624.4-1.16.134-.535-.267-2.258-.832-4.303-2.657-1.59-1.42-2.664-3.174-2.977-3.709-.312-.534-.033-.823.235-1.09.241-.24.535-.624.802-.934.268-.312.356-.534.534-.89.178-.356.09-.668-.044-.935-.134-.268-1.203-2.9-1.65-3.963Z" fill="white"/>
                     </svg>
-                    <span>Konfirmasi Pembayaran via WhatsApp</span>
-                </button>
+                    <span id="qris-wa-btn-text">Konfirmasi Pembayaran via WhatsApp</span>
+                </a>
             </div>
         </div>
     </div>
@@ -662,8 +678,8 @@
                 <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 text-xs flex items-start gap-2.5 text-left shadow-xs">
                     <span class="material-symbols-outlined text-amber-700 text-lg shrink-0 mt-0.5">hourglass_top</span>
                     <div>
-                        <span class="font-bold text-amber-900 block">Status: Menunggu Verifikasi Admin</span>
-                        <span class="text-amber-800 text-[11px] leading-relaxed block mt-0.5">Transaksi Anda otomatis masuk ke antrean verifikasi Admin WIZ Babel. Silakan transfer dan konfirmasi bukti transfer via WhatsApp agar admin segera menyetujui.</span>
+                        <span class="font-bold text-amber-900 block" id="bank-admin-target-title">Status: Menunggu Verifikasi Admin</span>
+                        <span class="text-amber-800 text-[11px] leading-relaxed block mt-0.5" id="bank-admin-target-desc">Transaksi Anda otomatis masuk ke antrean verifikasi Admin WIZ Babel. Silakan transfer dan konfirmasi bukti transfer via WhatsApp agar admin segera menyetujui.</span>
                     </div>
                 </div>
 
@@ -698,22 +714,22 @@
                     </div>
                 </div>
 
-                <button type="button" onclick="confirmBankToWhatsApp()"
-                    class="w-full bg-[#25D366] text-white py-3 rounded-lg font-label-md text-label-md font-bold shadow-md hover:opacity-95 transition-opacity flex items-center justify-center gap-2">
+                <a id="bank-wa-btn" href="https://wa.me/6282380830808" target="_blank" onclick="confirmBankToWhatsApp(event)"
+                    class="w-full bg-[#25D366] text-white py-3 rounded-lg font-label-md text-label-md font-bold shadow-md hover:opacity-95 transition-opacity flex items-center justify-center gap-2 cursor-pointer no-underline">
                     <!-- Official WhatsApp rounded-square brand logo -->
                     <svg class="w-5 h-5" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect width="48" height="48" rx="10" fill="#25D366"/>
                         <path fill-rule="evenodd" clip-rule="evenodd" d="M24 8C15.163 8 8 15.163 8 24c0 2.967.809 5.741 2.216 8.124L8 40l8.113-2.172A15.93 15.93 0 0 0 24 40c8.837 0 16-7.163 16-16S32.837 8 24 8Zm-4.063 9.219c-.395-.988-1.395-1.053-1.79-1.053-.49 0-1.053.016-1.614.593-.561.578-2.14 2.09-2.14 5.097 0 3.008 2.189 5.918 2.49 6.33.302.412 4.228 6.73 10.41 9.153 1.27.49 2.263.783 3.036 1.002 1.278.363 2.441.313 3.36.19 1.026-.138 3.155-1.29 3.6-2.535.447-1.245.447-2.313.313-2.535-.134-.222-.49-.356-1.026-.623-.535-.268-3.156-1.558-3.647-1.735-.49-.178-.847-.267-1.203.268-.356.534-1.38 1.735-1.69 2.091-.312.356-.624.4-1.16.134-.535-.267-2.258-.832-4.303-2.657-1.59-1.42-2.664-3.174-2.977-3.709-.312-.534-.033-.823.235-1.09.241-.24.535-.624.802-.934.268-.312.356-.534.534-.89.178-.356.09-.668-.044-.935-.134-.268-1.203-2.9-1.65-3.963Z" fill="white"/>
                     </svg>
-                    <span>Konfirmasi Bukti Transfer via WhatsApp</span>
-                </button>
+                    <span id="bank-wa-btn-text">Konfirmasi Bukti Transfer via WhatsApp</span>
+                </a>
             </div>
         </div>
     </div>
 
-    <script src="assets/js/supabase-client.js?v=20260820_24"></script>
-    <script src="assets/js/admin-store.js?v=20260820_24"></script>
-    <script src="assets/js/main.js?v=20260820_24"></script>
+    <script src="assets/js/supabase-client.js?v=20260823_30"></script>
+    <script src="assets/js/admin-store.js?v=20260823_30"></script>
+    <script src="assets/js/main.js?v=20260823_30"></script>
     <script>
         const SPECIFIC_PROGRAMS = {
             'Berkah Hidayah': [
@@ -933,6 +949,13 @@
 
         function updateSummary() {
             document.getElementById('summary-wilayah').textContent = state.wilayah;
+            if (typeof getTargetWhatsAppConfig === 'function') {
+                const branch = getTargetWhatsAppConfig(state.wilayah);
+                const sumWA = document.getElementById('summary-wa-admin');
+                if (sumWA && branch) {
+                    sumWA.textContent = `${branch.name} (${branch.phone})`;
+                }
+            }
             document.getElementById('summary-type').textContent = state.type;
 
             const catRow = document.getElementById('summary-cat-row');
@@ -979,6 +1002,9 @@
 
             renderInfakUmumNotice();
             renderProgramDetailCard();
+            if (typeof updateWhatsAppButtons === 'function') {
+                updateWhatsAppButtons();
+            }
         }
 
         function renderProgramDetailCard() {
@@ -1053,6 +1079,9 @@
         function handleWilayahChange(radio) {
             state.wilayah = radio.value;
             updateSummary();
+            if (typeof updateWhatsAppButtons === 'function') {
+                updateWhatsAppButtons();
+            }
         }
 
         function setProgramUtama(cat, btn) {
@@ -1133,14 +1162,21 @@
             state.donorName = nameInput.value;
         }
 
-
-
         function handleCheckoutSubmit(e) {
             if (e) e.preventDefault();
+            const checkedWilayah = document.querySelector('input[name="wilayah"]:checked');
+            if (checkedWilayah) {
+                state.wilayah = checkedWilayah.value;
+            }
             const isAnon = document.getElementById('is-anonymous-donor')?.checked;
             state.donorName = isAnon ? 'Hamba Allah' : (document.getElementById('donor-name').value || 'Hamba Allah');
             state.donorPhone = document.getElementById('donor-phone').value;
             state.donorMessage = document.getElementById('donor-message').value;
+
+            updateSummary();
+            if (typeof updateWhatsAppButtons === 'function') {
+                updateWhatsAppButtons();
+            }
 
             if (state.type === 'Infak Terikat') {
                 if (state.category === '-' || !state.category) {
@@ -1258,6 +1294,107 @@
             }
         }
 
+        // =========================================================================
+        // 1. Mapping Object (Dictionary) Nomor WA Admin Berdasarkan Cabang / Kota
+        // =========================================================================
+        const WA_ADMIN_BRANCH_MAP = {
+            'pangkalpinang': {
+                name: 'Admin Pangkalpinang',
+                city: 'Kota Pangkal Pinang',
+                phone: '+62 823-8083-0808',
+                waNumber: '6282380830808',
+                link: 'https://wa.me/6282380830808'
+            },
+            'sungailiat': {
+                name: 'Admin Sungailiat',
+                city: 'Kota Sungai Liat',
+                phone: '+62 822-8224-4899',
+                waNumber: '6282282244899',
+                link: 'https://wa.me/6282282244899'
+            }
+        };
+
+        // Helper untuk mencocokkan input/radio wilayah ke dictionary key
+        function getBranchKey(wilayah) {
+            const clean = String(wilayah || state.wilayah || '').toLowerCase().replace(/[\s\-_]/g, '');
+            if (clean.includes('sungailiat') || clean.includes('liat')) {
+                return 'sungailiat';
+            }
+            return 'pangkalpinang'; // Default ke Kota Pangkalpinang (+62 823-8083-0808)
+        }
+
+        function getTargetWhatsAppConfig(wilayah) {
+            const key = getBranchKey(wilayah);
+            return WA_ADMIN_BRANCH_MAP[key] || WA_ADMIN_BRANCH_MAP['pangkalpinang'];
+        }
+
+        function getTargetWhatsAppNumber(wilayah) {
+            return getTargetWhatsAppConfig(wilayah).waNumber;
+        }
+
+        function getTargetWhatsAppDisplay(wilayah) {
+            return getTargetWhatsAppConfig(wilayah);
+        }
+
+        // Helper Template Pesan Konfirmasi Donasi ke WhatsApp
+        function generateWhatsAppDonationMessage(methodName = 'QRIS') {
+            let progText = `Jenis: ${state.type}%0A• Wilayah: ${state.wilayah}`;
+            if (state.type === 'Infak Terikat') {
+                progText = `Jenis: Infak Terikat%0A• Wilayah: ${state.wilayah}%0A• Program Utama: ${state.category}%0A• Program Spesifik: ${state.program}`;
+            }
+
+            let refText = '';
+            if (state.activeRefObj) {
+                refText = `%0A• *Ref ID*: ${state.activeRefObj.code || state.activeRefObj.id}`;
+            }
+
+            const headerMethod = methodName === 'QRIS' ? 'PEMBAYARAN VIA QRIS' : 'TRANSFER BANK';
+            const methodLabel = methodName === 'QRIS' ? 'QRIS (Otomatis & Instan)' : 'Transfer Bank Manual';
+
+            return `Bismillah, saya *${state.donorName || 'Hamba Allah'}* (${state.donorPhone || '-'}) ingin mengonfirmasi *${headerMethod}*:%0A%0A• *Lembaga*: WIZ Bangka Belitung%0A• *${progText}%0A• *Nominal*: ${formatRupiah(state.nominal)}${refText}%0A• *Metode*: ${methodLabel}%0A• *Doa/Pesan*: ${state.donorMessage || '-'}`;
+        }
+
+        // Sinkronkan Tombol WhatsApp & Teks Dinamis Berdasarkan Lokasi / Cabang
+        function updateWhatsAppButtons() {
+            const branch = getTargetWhatsAppConfig(state.wilayah);
+
+            // 1. QRIS Button & Info Notice
+            const qrisMsg = generateWhatsAppDonationMessage('QRIS');
+            const qrisUrl = `https://wa.me/${branch.waNumber}?text=${qrisMsg}`;
+            const qrisBtn = document.getElementById('qris-wa-btn');
+            const qrisBtnText = document.getElementById('qris-wa-btn-text');
+            const qrisNotice = document.getElementById('qris-admin-target-desc');
+
+            if (qrisBtn) {
+                qrisBtn.href = qrisUrl;
+                qrisBtn.setAttribute('data-target-phone', branch.waNumber);
+            }
+            if (qrisBtnText) {
+                qrisBtnText.textContent = `Konfirmasi Pembayaran via WhatsApp (${branch.name})`;
+            }
+            if (qrisNotice) {
+                qrisNotice.innerHTML = `Donasi Anda untuk wilayah <strong>${branch.city}</strong> otomatis diarahkan konfirmasi ke <strong>${branch.name} (${branch.phone})</strong>.`;
+            }
+
+            // 2. Bank Transfer Button & Info Notice
+            const bankMsg = generateWhatsAppDonationMessage('Bank');
+            const bankUrl = `https://wa.me/${branch.waNumber}?text=${bankMsg}`;
+            const bankBtn = document.getElementById('bank-wa-btn');
+            const bankBtnText = document.getElementById('bank-wa-btn-text');
+            const bankNotice = document.getElementById('bank-admin-target-desc');
+
+            if (bankBtn) {
+                bankBtn.href = bankUrl;
+                bankBtn.setAttribute('data-target-phone', branch.waNumber);
+            }
+            if (bankBtnText) {
+                bankBtnText.textContent = `Konfirmasi Bukti Transfer via WhatsApp (${branch.name})`;
+            }
+            if (bankNotice) {
+                bankNotice.innerHTML = `Donasi Anda untuk wilayah <strong>${branch.city}</strong> otomatis diarahkan konfirmasi ke <strong>${branch.name} (${branch.phone})</strong>.`;
+            }
+        }
+
         // QRIS Modal Logic
         function openQRISModal() {
             let progText = `${state.type} (${state.wilayah})`;
@@ -1268,6 +1405,8 @@
             document.getElementById('qris-modal-total').textContent = formatRupiah(state.nominal);
             document.getElementById('qris-modal-donor').textContent = `Donatur: ${state.donorName} (${progText})`;
             document.getElementById('qris-modal-img').src = 'assets/images/qris-code-wiz-babel.png';
+
+            updateWhatsAppButtons();
 
             const qrisModal = document.getElementById('qris-modal');
             if (qrisModal) {
@@ -1284,20 +1423,22 @@
             }
         }
 
-        function confirmQRISToWhatsApp() {
-            let progText = `Jenis: ${state.type}%0A• Wilayah: ${state.wilayah}`;
-            if (state.type === 'Infak Terikat') {
-                progText = `Jenis: Infak Terikat%0A• Wilayah: ${state.wilayah}%0A• Program Utama: ${state.category}%0A• Program Spesifik: ${state.program}`;
+        function confirmQRISToWhatsApp(event) {
+            const checkedWilayah = document.querySelector('input[name="wilayah"]:checked');
+            if (checkedWilayah) {
+                state.wilayah = checkedWilayah.value;
+            }
+            const branch = getTargetWhatsAppConfig(state.wilayah);
+            const text = generateWhatsAppDonationMessage('QRIS');
+            const targetUrl = `https://wa.me/${branch.waNumber}?text=${text}`;
+
+            const qrisBtn = document.getElementById('qris-wa-btn');
+            if (qrisBtn) {
+                qrisBtn.href = targetUrl;
             }
 
-            let refText = '';
-            if (state.activeRefObj) {
-                refText = `%0A• *Ref ID*: ${state.activeRefObj.code || state.activeRefObj.id}`;
-            }
-
-            const text = `Bismillah, saya *${state.donorName}* (${state.donorPhone}) telah melakukan *PEMBAYARAN VIA QRIS*:%0A%0A• *Lembaga*: WIZ Bangka Belitung%0A• *${progText}%0A• *Nominal*: ${formatRupiah(state.nominal)}${refText}%0A• *Metode*: QRIS (Otomatis & Instan)%0A• *Doa/Pesan*: ${state.donorMessage || '-'}`;
-
-            window.open(`https://wa.me/6282380830808?text=${text}`, '_blank');
+            if (event) event.preventDefault();
+            window.open(targetUrl, '_blank');
             closeQRISModal();
         }
 
@@ -1325,6 +1466,8 @@
 
             document.getElementById('bank-modal-total').textContent = formatRupiah(state.nominal);
             document.getElementById('bank-modal-donor').textContent = `Donatur: ${state.donorName} (${progText})`;
+
+            updateWhatsAppButtons();
 
             const bankModal = document.getElementById('bank-modal');
             if (bankModal) {
@@ -1370,20 +1513,22 @@
             document.body.removeChild(ta);
         }
 
-        function confirmBankToWhatsApp() {
-            let progText = `Jenis: ${state.type}%0A• Wilayah: ${state.wilayah}`;
-            if (state.type === 'Infak Terikat') {
-                progText = `Jenis: Infak Terikat%0A• Wilayah: ${state.wilayah}%0A• Program Utama: ${state.category}%0A• Program Spesifik: ${state.program}`;
+        function confirmBankToWhatsApp(event) {
+            const checkedWilayah = document.querySelector('input[name="wilayah"]:checked');
+            if (checkedWilayah) {
+                state.wilayah = checkedWilayah.value;
+            }
+            const branch = getTargetWhatsAppConfig(state.wilayah);
+            const text = generateWhatsAppDonationMessage('Bank');
+            const targetUrl = `https://wa.me/${branch.waNumber}?text=${text}`;
+
+            const bankBtn = document.getElementById('bank-wa-btn');
+            if (bankBtn) {
+                bankBtn.href = targetUrl;
             }
 
-            let refText = '';
-            if (state.activeRefObj) {
-                refText = `%0A• *Ref ID*: ${state.activeRefObj.code || state.activeRefObj.id}`;
-            }
-
-            const text = `Bismillah, saya *${state.donorName}* (${state.donorPhone}) ingin mengonfirmasi *TRANSFER BANK*:%0A%0A• *Lembaga*: WIZ Bangka Belitung%0A• *${progText}%0A• *Nominal*: ${formatRupiah(state.nominal)}${refText}%0A• *Metode*: Transfer Bank%0A• *Doa/Pesan*: ${state.donorMessage || '-'}`;
-
-            window.open(`https://wa.me/6282380830808?text=${text}`, '_blank');
+            if (event) event.preventDefault();
+            window.open(targetUrl, '_blank');
             closeBankModal();
         }
 
@@ -1391,6 +1536,15 @@
             if (!progParam) return;
             const match = matchProgramToPillarAndProgram(progParam);
             if (!match) return;
+
+            // Check if program title implies Sungailiat
+            if (progParam.toLowerCase().includes('sungailiat') || progParam.toLowerCase().includes('sungai liat')) {
+                const wRadio = document.querySelector('input[name="wilayah"][value="Sungailiat"]');
+                if (wRadio) {
+                    wRadio.checked = true;
+                    handleWilayahChange(wRadio);
+                }
+            }
 
             // 1. Select Infak Terikat radio
             const infakRadio = document.querySelector('input[name="donation_type"][value="Infak Terikat"]');
@@ -1439,16 +1593,18 @@
             updateSummary();
         }
 
-        // Read URL query parameters for pre-filling program (Runs once on initial load)
+        // Read URL query parameters for pre-filling program & attach live sync (Runs once on initial load)
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const progParam = urlParams.get('program');
             const typeParam = urlParams.get('type');
-            const wilayahParam = urlParams.get('wilayah');
+            const wilayahParam = urlParams.get('wilayah') || urlParams.get('cabang') || urlParams.get('lokasi') || urlParams.get('kota');
             const nominalParam = urlParams.get('nominal') || urlParams.get('amount');
 
             if (wilayahParam) {
-                const wRadio = document.querySelector(`input[name="wilayah"][value="${wilayahParam}"]`);
+                const cleanW = wilayahParam.toLowerCase().replace(/[\s\-_]/g, '');
+                const targetVal = (cleanW.includes('sungailiat') || cleanW.includes('liat')) ? 'Sungailiat' : 'Pangkalpinang';
+                const wRadio = document.querySelector(`input[name="wilayah"][value="${targetVal}"]`);
                 if (wRadio) {
                     wRadio.checked = true;
                     handleWilayahChange(wRadio);
@@ -1472,6 +1628,33 @@
                 }
             }
 
+            // Live event listeners on donor fields to ensure WhatsApp link is always pre-computed
+            const donorNameEl = document.getElementById('donor-name');
+            const donorPhoneEl = document.getElementById('donor-phone');
+            const donorMsgEl = document.getElementById('donor-message');
+
+            if (donorNameEl) {
+                donorNameEl.addEventListener('input', (e) => {
+                    const isAnon = document.getElementById('is-anonymous-donor')?.checked;
+                    state.donorName = isAnon ? 'Hamba Allah' : (e.target.value.trim() || 'Hamba Allah');
+                    if (typeof updateWhatsAppButtons === 'function') updateWhatsAppButtons();
+                });
+            }
+
+            if (donorPhoneEl) {
+                donorPhoneEl.addEventListener('input', (e) => {
+                    state.donorPhone = e.target.value.trim() || '-';
+                    if (typeof updateWhatsAppButtons === 'function') updateWhatsAppButtons();
+                });
+            }
+
+            if (donorMsgEl) {
+                donorMsgEl.addEventListener('input', (e) => {
+                    state.donorMessage = e.target.value.trim() || '-';
+                    if (typeof updateWhatsAppButtons === 'function') updateWhatsAppButtons();
+                });
+            }
+
             updateSummary();
             if (window.applySiteSettings) window.applySiteSettings();
         });
@@ -1479,8 +1662,13 @@
         // Cloud sync listener: only refresh global store settings/summaries without modifying active user form state
         window.addEventListener('wiz-sync-complete', () => {
             updateSummary();
+            if (typeof updateProgramDetailCard === 'function') updateProgramDetailCard();
             initAffiliateBanner();
             if (window.applySiteSettings) window.applySiteSettings();
+        });
+
+        window.addEventListener('wiz-program-images-changed', () => {
+            if (typeof updateProgramDetailCard === 'function') updateProgramDetailCard();
         });
 
         /**

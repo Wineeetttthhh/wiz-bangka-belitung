@@ -25,11 +25,16 @@ const supabaseHeaders = {
 // In-memory cache for fast warm lambda hits
 let memCache = null;
 let memCacheTime = 0;
-const MEM_CACHE_TTL_MS = 10000; // 10s
+const MEM_CACHE_TTL_MS = 1000; // 1s
+
+function invalidateCache() {
+    memCache = null;
+    memCacheTime = 0;
+}
 
 async function supabaseGetMaster() {
     try {
-        const res = await fetch(`${SUPABASE_URL}/site_settings?key=eq.master_bundle&select=*`, {
+        const res = await fetch(`${SUPABASE_URL}/site_settings?select=*`, {
             headers: {
                 'apikey': SUPABASE_KEY,
                 'Authorization': 'Bearer ' + SUPABASE_KEY,
@@ -38,8 +43,26 @@ async function supabaseGetMaster() {
         });
         if (!res.ok) return null;
         const list = await res.json();
-        if (Array.isArray(list) && list.length > 0 && list[0].value) {
-            return list[0].value;
+        if (Array.isArray(list) && list.length > 0) {
+            const masterDoc = list.find(d => d.key === 'master_bundle');
+            const siteImagesDoc = list.find(d => d.key === 'site_images');
+            const specificProgDoc = list.find(d => d.key === 'specific_prog_imgs');
+            const siteSettingsDoc = list.find(d => d.key === 'site_settings');
+
+            let master = (masterDoc && masterDoc.value) ? masterDoc.value : null;
+            if (!master) master = loadCanonicalSeed();
+
+            if (siteImagesDoc && siteImagesDoc.value && typeof siteImagesDoc.value === 'object') {
+                master.site_images = { ...(master.site_images || {}), ...siteImagesDoc.value };
+            }
+            if (specificProgDoc && specificProgDoc.value && typeof specificProgDoc.value === 'object') {
+                master.specific_prog_imgs = { ...(master.specific_prog_imgs || {}), ...specificProgDoc.value };
+            }
+            if (siteSettingsDoc && siteSettingsDoc.value && typeof siteSettingsDoc.value === 'object') {
+                master.site_settings = { ...(master.site_settings || {}), ...siteSettingsDoc.value };
+            }
+
+            return master;
         }
         return null;
     } catch(e) {
@@ -182,7 +205,9 @@ module.exports = async function handler(req, res) {
             if (body && body.action === 'register_admin_user' && body.user) {
                 const incomingUser = body.user;
                 if (!master.admin_users) master.admin_users = [];
+                if (!master.deleted_admin_ids) master.deleted_admin_ids = [];
                 const cleanUser = (incomingUser.username || '').toLowerCase().trim();
+                master.deleted_admin_ids = master.deleted_admin_ids.filter(id => String(id) !== String(incomingUser.id) && String(id).toLowerCase() !== cleanUser);
                 const existingIdx = master.admin_users.findIndex(u => (u.username && u.username.toLowerCase() === cleanUser) || String(u.id) === String(incomingUser.id));
                 if (existingIdx !== -1) {
                     master.admin_users[existingIdx] = {
@@ -191,7 +216,7 @@ module.exports = async function handler(req, res) {
                         updatedAt: new Date().toISOString()
                     };
                 } else {
-                    master.admin_users.push(incomingUser);
+                    master.admin_users.push({ ...incomingUser, updatedAt: new Date().toISOString() });
                 }
                 master.updatedAt = new Date().toISOString();
                 memCache = master;
@@ -203,7 +228,7 @@ module.exports = async function handler(req, res) {
             if (body && body.action === 'approve_admin_user' && body.id) {
                 const targetId = String(body.id);
                 if (!master.admin_users) master.admin_users = [];
-                const idx = master.admin_users.findIndex(u => String(u.id) === targetId);
+                const idx = master.admin_users.findIndex(u => String(u.id) === targetId || (u.username && u.username.toLowerCase() === targetId.toLowerCase()));
                 if (idx !== -1) {
                     master.admin_users[idx].status = 'approved';
                     master.admin_users[idx].verifiedAt = new Date().toISOString();
@@ -214,7 +239,7 @@ module.exports = async function handler(req, res) {
                 memCache = master;
                 memCacheTime = Date.now();
                 await supabaseSaveMaster(master);
-                return res.status(200).json({ status: 'success', action: 'approve_admin_user', user: master.admin_users[idx] });
+                return res.status(200).json({ status: 'success', action: 'approve_admin_user', user: idx !== -1 ? master.admin_users[idx] : null });
             }
 
             if (body && body.action === 'update_admin_user' && body.user) {
@@ -229,7 +254,7 @@ module.exports = async function handler(req, res) {
                         updatedAt: new Date().toISOString()
                     };
                 } else {
-                    master.admin_users.push(incomingUser);
+                    master.admin_users.push({ ...incomingUser, updatedAt: new Date().toISOString() });
                 }
                 master.updatedAt = new Date().toISOString();
                 memCache = master;
@@ -242,8 +267,12 @@ module.exports = async function handler(req, res) {
                 const targetId = String(body.id);
                 if (!master.admin_users) master.admin_users = [];
                 if (!master.deleted_admin_ids) master.deleted_admin_ids = [];
-                master.admin_users = master.admin_users.filter(u => String(u.id) !== targetId && u.username !== 'admin');
+                const targetUser = master.admin_users.find(u => String(u.id) === targetId || (u.username && u.username.toLowerCase() === targetId.toLowerCase()));
+                master.admin_users = master.admin_users.filter(u => String(u.id) !== targetId && (u.username || '').toLowerCase() !== targetId.toLowerCase() && u.username !== 'admin');
                 master.deleted_admin_ids = Array.from(new Set([...master.deleted_admin_ids, targetId]));
+                if (targetUser && targetUser.username) {
+                    master.deleted_admin_ids = Array.from(new Set([...master.deleted_admin_ids, targetUser.username.toLowerCase()]));
+                }
                 master.updatedAt = new Date().toISOString();
                 memCache = master;
                 memCacheTime = Date.now();
@@ -303,8 +332,18 @@ module.exports = async function handler(req, res) {
                 master.admin_users = mergeArrays(master.admin_users, incoming.admin_users, deletedAdminIds);
             }
 
-            if (incoming.site_images && typeof incoming.site_images === 'object')
+            if (incoming.site_images && typeof incoming.site_images === 'object') {
                 master.site_images = { ...(master.site_images || {}), ...incoming.site_images };
+                fetch(`${SUPABASE_URL}/site_settings`, {
+                    method: 'POST',
+                    headers: supabaseHeaders,
+                    body: JSON.stringify({
+                        key: 'site_images',
+                        value: master.site_images,
+                        updated_at: new Date().toISOString()
+                    })
+                }).catch(() => {});
+            }
 
             if (incoming.site_settings && typeof incoming.site_settings === 'object') {
                 master.site_settings = incoming.site_settings;
@@ -325,8 +364,18 @@ module.exports = async function handler(req, res) {
                 master.baselines = { ...(master.baselines || {}), ...incoming.baselines };
             if (incoming.custom_specific_programs && typeof incoming.custom_specific_programs === 'object')
                 master.custom_specific_programs = { ...(master.custom_specific_programs || {}), ...incoming.custom_specific_programs };
-            if (incoming.specific_prog_imgs && typeof incoming.specific_prog_imgs === 'object')
+            if (incoming.specific_prog_imgs && typeof incoming.specific_prog_imgs === 'object') {
                 master.specific_prog_imgs = { ...(master.specific_prog_imgs || {}), ...incoming.specific_prog_imgs };
+                fetch(`${SUPABASE_URL}/site_settings`, {
+                    method: 'POST',
+                    headers: supabaseHeaders,
+                    body: JSON.stringify({
+                        key: 'specific_prog_imgs',
+                        value: master.specific_prog_imgs,
+                        updated_at: new Date().toISOString()
+                    })
+                }).catch(() => {});
+            }
 
             master.deleted_ids         = Array.from(new Set([...(master.deleted_ids || []),         ...deletedIds]));
             master.deleted_news_ids    = Array.from(new Set([...(master.deleted_news_ids || []),     ...deletedNewsIds]));
@@ -472,3 +521,5 @@ module.exports = async function handler(req, res) {
 
     return res.status(405).json({ status: 'error', message: 'Method not allowed' });
 };
+
+module.exports.invalidateCache = invalidateCache;

@@ -217,7 +217,7 @@
             </div>
         </div>
         <div class="relative h-[400px] md:h-[500px] rounded-xl overflow-hidden shadow-level-2 border border-surface-variant">
-            <img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" data-site-img="hero_card" data-alt="Relawan WIZ Bangka Belitung" src="assets/images/foto-utama-wiz.jpg" onerror="this.src='assets/images/sedekah-beras-dhuafa.jpg';" alt="Relawan WIZ Bangka Belitung Menyerahkan Sedekah Beras"/>
+            <img id="main-hero-img" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" data-site-img="hero_card" data-alt="Relawan WIZ Bangka Belitung" src="assets/images/foto-utama-wiz.jpg" onerror="this.src='assets/images/sedekah-beras-dhuafa.jpg';" alt="Relawan WIZ Bangka Belitung Menyerahkan Sedekah Beras"/>
         </div>
     </div>
 </section>
@@ -1540,6 +1540,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
+        if (typeof initDynamicSiteImages === 'function') initDynamicSiteImages();
         renderPublicNews();
         renderHomeFeaturedPrograms();
         updateDynamicProgramCards();
@@ -1556,6 +1557,7 @@
             try {
                 await wizStore.syncFromCloud(true);
             } catch(e) {}
+            if (typeof initDynamicSiteImages === 'function') initDynamicSiteImages();
             renderPublicNews();
             renderHomeFeaturedPrograms();
             updateDynamicProgramCards();
@@ -1569,6 +1571,7 @@
     });
 
     window.addEventListener('wiz-sync-complete', () => {
+        if (typeof initDynamicSiteImages === 'function') initDynamicSiteImages();
         renderPublicNews();
         renderHomeFeaturedPrograms();
         if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
@@ -1578,17 +1581,25 @@
     });
 
     window.addEventListener('wiz-programs-changed', () => {
+        if (typeof initDynamicSiteImages === 'function') initDynamicSiteImages();
         renderHomeFeaturedPrograms();
         if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
         if (typeof renderInfakUmumDistributionWidget === 'function') renderInfakUmumDistributionWidget();
     });
 
     window.addEventListener('wiz-program-images-changed', () => {
+        if (typeof initDynamicSiteImages === 'function') initDynamicSiteImages();
         renderHomeFeaturedPrograms();
         if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
     });
 
+    window.addEventListener('wiz-site-images-changed', () => {
+        if (typeof initDynamicSiteImages === 'function') initDynamicSiteImages();
+        renderHomeFeaturedPrograms();
+    });
+
     window.addEventListener('wiz-data-changed', () => {
+        if (typeof initDynamicSiteImages === 'function') initDynamicSiteImages();
         renderHomeFeaturedPrograms();
         if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
         if (typeof renderVerifiedDonors === 'function') renderVerifiedDonors();
@@ -1597,6 +1608,7 @@
 
     window.addEventListener('storage', (e) => {
         if (!e.key || e.key.startsWith('wiz_')) {
+            if (typeof initDynamicSiteImages === 'function') initDynamicSiteImages();
             renderHomeFeaturedPrograms();
             if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
             if (typeof renderInfakUmumDistributionWidget === 'function') renderInfakUmumDistributionWidget();

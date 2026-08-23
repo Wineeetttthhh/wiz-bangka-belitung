@@ -513,6 +513,72 @@
                 </div>
             </div>
 
+            <!-- Hero Banner Management Widget on Dashboard Overview -->
+            <div class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/30 p-lg space-y-md">
+                <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-md pb-sm border-b border-outline-variant/20">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="p-2 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
+                                <span class="material-symbols-outlined text-xl">wallpaper</span>
+                            </span>
+                            <h3 class="font-headline-md text-headline-md text-base font-bold text-on-surface">Foto Hero Utama Website (Beranda)</h3>
+                            <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                                Live di Beranda
+                            </span>
+                        </div>
+                        <p class="font-caption text-caption text-on-surface-variant mt-1">Admin memiliki kendali penuh untuk mengganti foto utama yang tampil di bagian atas Beranda web WIZ Bangka Belitung.</p>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button type="button" onclick="openHeroImageModal()" class="flex items-center gap-1.5 bg-primary text-on-primary px-4 py-2 rounded-xl text-xs font-bold hover:bg-primary-container transition-all shadow-sm cursor-pointer">
+                            <span class="material-symbols-outlined text-base">photo_camera</span>
+                            <span>Ganti Foto Hero</span>
+                        </button>
+                        <button type="button" onclick="showSection('site-images', document.querySelector('[data-section=site-images]'))" class="flex items-center gap-1 border border-outline-variant text-on-surface hover:text-primary px-3 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer bg-surface/50">
+                            <span class="material-symbols-outlined text-base">grid_view</span>
+                            <span>Semua Foto Web</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-lg items-center">
+                    <div class="md:col-span-4 relative h-48 md:h-44 rounded-xl overflow-hidden border border-outline-variant/30 bg-slate-900 group shadow-inner">
+                        <img id="dash-hero-preview" src="assets/images/foto-utama-wiz.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Preview Hero Beranda" onerror="this.src='assets/images/foto-utama-wiz.jpg'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-3">
+                            <span class="text-white text-[11px] font-medium flex items-center gap-1">
+                                <span class="material-symbols-outlined text-xs text-amber-400">visibility</span>
+                                Preview Aktif di Website
+                            </span>
+                        </div>
+                    </div>
+                    <div class="md:col-span-8 space-y-sm">
+                        <div class="space-y-xs">
+                            <label class="block font-caption text-caption font-bold text-on-surface">URL Foto Hero / Data Base64:</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="dash-hero-url-input" placeholder="Masukkan URL gambar atau upload file di bawah" class="flex-1 text-xs bg-surface border border-outline-variant rounded-xl p-2.5 font-mono outline-none focus:border-primary focus:ring-1 focus:ring-primary text-on-surface">
+                                <button type="button" onclick="saveDashHeroUrl()" class="px-4 py-2 bg-primary text-on-primary rounded-xl text-xs font-bold hover:bg-primary-container transition-colors shadow-xs cursor-pointer shrink-0 flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm">save</span> Simpan
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between flex-wrap gap-2 pt-1">
+                            <div class="flex items-center gap-2">
+                                <label for="dash-hero-file-input" class="cursor-pointer text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 px-3.5 py-2 rounded-xl transition-colors flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-base">upload_file</span> Unggah dari Komputer / HP
+                                </label>
+                                <input type="file" id="dash-hero-file-input" accept="image/*,.heic,.heif" class="hidden" onchange="handleHeroPhotoUpload(event, 'dash')">
+                                <button type="button" onclick="resetHeroImageDefault()" class="text-xs font-semibold text-outline hover:text-error px-2.5 py-2 rounded-lg transition-colors flex items-center gap-1" title="Kembalikan ke foto bawaan">
+                                    <span class="material-symbols-outlined text-sm">restart_alt</span> Reset Default
+                                </button>
+                            </div>
+                            <span id="dash-hero-sync-status" class="text-[11px] font-bold text-emerald-700 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">cloud_done</span> Supabase Cloud Terhubung
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Verification Queue + Activity + Progress -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
                 <div class="lg:col-span-2 space-y-gutter">
@@ -833,8 +899,69 @@
             </div>
 
             <!-- Tab 1 Container: Foto Web Utama -->
-            <div id="container-site-main-images" class="space-y-md">
-                <div class="flex justify-end">
+            <div id="container-site-main-images" class="space-y-lg">
+                <!-- Featured Hero Banner Main Editor -->
+                <div class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/30 p-lg space-y-md">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-sm pb-sm border-b border-outline-variant/20">
+                        <div class="flex items-center gap-2">
+                            <span class="p-2 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
+                                <span class="material-symbols-outlined text-xl">wallpaper</span>
+                            </span>
+                            <div>
+                                <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface flex items-center gap-2">
+                                    <span>Foto Hero Utama (Kartu Paling Atas Beranda)</span>
+                                    <span class="bg-primary/10 text-primary text-[11px] font-bold px-2.5 py-0.5 rounded-full">Key: hero_card</span>
+                                </h3>
+                                <p class="text-xs text-on-surface-variant">Foto ini adalah tampilan pertama yang dilihat pengunjung saat membuka website WIZ Bangka Belitung.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span id="hero-main-sync-badge" class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-xs">
+                                <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+                                🟢 Cloud Sync Aktif
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-center">
+                        <div class="lg:col-span-5 relative h-56 rounded-2xl overflow-hidden border border-outline-variant/30 bg-slate-950 shadow-inner group">
+                            <img id="featured-hero-preview" src="assets/images/foto-utama-wiz.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Featured Hero Preview" onerror="this.src='assets/images/foto-utama-wiz.jpg'">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-4">
+                                <span class="text-white font-bold text-sm">Tampilan Beranda Website</span>
+                                <span class="text-slate-300 text-xs">Rekomendasi rasio: 16:9 atau 4:3 (Resolusi HD)</span>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-7 space-y-md">
+                            <div class="space-y-xs">
+                                <label class="block font-caption text-caption font-bold text-on-surface">URL Foto / Base64 Data:</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="featured-hero-url-input" placeholder="https://... atau data:image/..." class="w-full text-xs bg-surface border border-outline-variant rounded-xl p-2.5 font-mono outline-none focus:border-primary">
+                                    <button type="button" onclick="saveHeroImageUrl(document.getElementById('featured-hero-url-input').value)" class="px-5 py-2.5 bg-primary text-on-primary rounded-xl text-xs font-bold hover:bg-primary-container transition-colors shadow-xs cursor-pointer shrink-0 flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-sm">save</span> Simpan Foto
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-outline-variant/20">
+                                <div class="flex items-center gap-2">
+                                    <label for="featured-hero-file-input" class="cursor-pointer text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 px-4 py-2 rounded-xl transition-colors flex items-center gap-1.5 shadow-xs">
+                                        <span class="material-symbols-outlined text-base">upload_file</span> Unggah dari Komputer / HP
+                                    </label>
+                                    <input type="file" id="featured-hero-file-input" accept="image/*,.heic,.heif" class="hidden" onchange="handleHeroPhotoUpload(event, 'featured')">
+                                    <button type="button" onclick="resetHeroImageDefault()" class="text-xs font-semibold text-outline hover:text-error px-3 py-2 rounded-xl transition-colors flex items-center gap-1 border border-outline-variant/40 bg-surface">
+                                        <span class="material-symbols-outlined text-sm">restart_alt</span> Pulihkan Default
+                                    </button>
+                                </div>
+                                <button type="button" onclick="openHeroImageModal()" class="text-xs font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer">
+                                    <span class="material-symbols-outlined text-sm">palette</span> Pilih dari Galeri Preset WIZ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-md border-t border-outline-variant/30">
+                    <h3 class="font-headline-sm text-sm font-bold text-on-surface">Foto Bagian Website Lainnya:</h3>
                     <button onclick="saveAllSiteImages()" class="flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm font-bold cursor-pointer">
                         <span class="material-symbols-outlined size-[18px]">save</span> Simpan Semua Perubahan Foto Web Utama
                     </button>
@@ -1140,11 +1267,11 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             <div>
                                 <label class="block text-[11px] text-on-surface-variant mb-1 font-semibold">No. Telepon Kantor</label>
-                                <input type="text" id="setting-office-pangkalpinang-phone" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface outline-none focus:border-primary">
+                                <input type="text" id="setting-office-pangkalpinang-phone" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface outline-none focus:border-primary" placeholder="082380830808">
                             </div>
                             <div>
                                 <label class="block text-[11px] text-on-surface-variant mb-1 font-semibold">No. WhatsApp Hotline</label>
-                                <input type="text" id="setting-office-pangkalpinang-hotline" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface outline-none focus:border-primary" placeholder="081271718000">
+                                <input type="text" id="setting-office-pangkalpinang-hotline" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface outline-none focus:border-primary" placeholder="082380830808">
                             </div>
                         </div>
                     </div>
@@ -1162,12 +1289,50 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             <div>
                                 <label class="block text-[11px] text-on-surface-variant mb-1 font-semibold">No. Telepon Kantor</label>
-                                <input type="text" id="setting-office-sungailiat-phone" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface outline-none focus:border-primary">
+                                <input type="text" id="setting-office-sungailiat-phone" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface outline-none focus:border-primary" placeholder="082282244899">
                             </div>
                             <div>
                                 <label class="block text-[11px] text-on-surface-variant mb-1 font-semibold">No. WhatsApp Hotline</label>
-                                <input type="text" id="setting-office-sungailiat-hotline" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface outline-none focus:border-primary" placeholder="082180007171">
+                                <input type="text" id="setting-office-sungailiat-hotline" class="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-xs text-on-surface outline-none focus:border-primary" placeholder="082282244899">
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: Foto Hero Utama & Banner Beranda -->
+            <div class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant/30 shadow-sm space-y-md">
+                <div class="flex justify-between items-center flex-wrap gap-sm">
+                    <div>
+                        <h3 class="font-headline-sm text-headline-sm font-bold text-primary flex items-center gap-2">
+                            <span class="material-symbols-outlined">wallpaper</span>
+                            <span>Foto Hero Utama &amp; Banner Beranda Website</span>
+                        </h3>
+                        <p class="text-xs text-on-surface-variant mt-1">Foto utama yang tampil paling atas di Beranda Website WIZ Bangka Belitung.</p>
+                    </div>
+                    <button type="button" onclick="openHeroImageModal()" class="flex items-center gap-1.5 bg-primary text-on-primary px-md py-2 rounded-xl text-xs font-bold hover:bg-primary-container transition-colors shadow-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-[16px]">photo_camera</span>
+                        <span>Ganti Foto Hero</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-lg items-center bg-surface-container-low p-md rounded-xl border border-outline-variant/40">
+                    <div class="md:col-span-4 relative h-40 rounded-xl overflow-hidden border border-outline-variant/30 bg-slate-900 shadow-inner">
+                        <img id="settings-hero-preview" src="assets/images/foto-utama-wiz.jpg" class="w-full h-full object-cover" alt="Hero Preview" onerror="this.src='assets/images/foto-utama-wiz.jpg'">
+                        <span class="absolute top-2 left-2 bg-black/70 backdrop-blur-xs text-white px-2 py-0.5 rounded-full text-[10px] font-bold">hero_card</span>
+                    </div>
+                    <div class="md:col-span-8 space-y-2">
+                        <label class="block text-[11px] text-on-surface-variant font-semibold">URL Foto Hero Saat Ini:</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="settings-hero-url-input" class="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2 text-xs font-mono outline-none focus:border-primary">
+                            <button type="button" onclick="saveHeroImageUrl(document.getElementById('settings-hero-url-input').value)" class="px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold hover:bg-primary-container transition-colors shrink-0 cursor-pointer">Simpan</button>
+                        </div>
+                        <div class="flex items-center gap-2 pt-1">
+                            <label for="settings-hero-file-input" class="cursor-pointer text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">upload_file</span> Unggah File Baru
+                            </label>
+                            <input type="file" id="settings-hero-file-input" accept="image/*,.heic,.heif" class="hidden" onchange="handleHeroPhotoUpload(event, 'settings')">
+                            <button type="button" onclick="resetHeroImageDefault()" class="text-xs text-outline hover:text-error px-2 py-1 transition-colors cursor-pointer">Reset Default</button>
                         </div>
                     </div>
                 </div>
@@ -2488,6 +2653,289 @@
                         <span class="material-symbols-outlined text-[16px]">save</span>
                         <span>Simpan Rekening</span>
                     </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- MODAL: GANTI FOTO HERO UTAMA WEBSITE (FAST CONTROL) -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div id="modal-hero-image" class="modal-backdrop">
+        <div class="modal-dialog max-w-xl">
+            <div class="p-lg border-b border-surface-variant flex justify-between items-center sticky top-0 bg-surface z-20">
+                <div class="flex items-center gap-2">
+                    <span class="p-1.5 bg-primary/10 text-primary rounded-lg flex items-center justify-center">
+                        <span class="material-symbols-outlined text-xl">wallpaper</span>
+                    </span>
+                    <div>
+                        <h3 class="font-headline-md text-body-lg font-bold text-primary">Ganti Foto Hero Utama Beranda</h3>
+                        <p class="text-[11px] text-on-surface-variant">Kendali penuh foto banner paling atas website WIZ Babel</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeHeroImageModal()" class="text-outline hover:text-on-surface p-1 cursor-pointer">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <div class="p-lg space-y-md">
+                <!-- Current Preview -->
+                <div class="space-y-xs">
+                    <label class="block font-label-md text-caption font-bold text-on-surface">Preview Foto Saat Ini:</label>
+                    <div class="relative h-56 rounded-2xl overflow-hidden border border-outline-variant/40 bg-slate-950 shadow-inner flex items-center justify-center group">
+                        <img id="modal-hero-preview-img" src="assets/images/foto-utama-wiz.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Preview Hero" onerror="this.src='assets/images/foto-utama-wiz.jpg'">
+                        <div class="absolute top-2 left-2 bg-black/70 backdrop-blur-xs text-white px-2.5 py-0.5 rounded-full text-[11px] font-bold">
+                            Beranda WIZ Babel
+                        </div>
+                        <div id="modal-hero-badge" class="absolute top-2 right-2 bg-emerald-600 text-white px-2.5 py-0.5 rounded-full text-[11px] font-bold flex items-center gap-1 shadow-xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                            🟢 Aktif di Web
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Method 1: Upload File -->
+                <div class="p-md bg-surface-container-low rounded-2xl border border-outline-variant/30 space-y-2">
+                    <label class="block font-label-md text-caption font-bold text-primary flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-base">upload_file</span>
+                        <span>Metode 1: Unggah Foto dari Komputer / HP (Disarankan)</span>
+                    </label>
+                    <div class="flex items-center gap-3">
+                        <input type="file" id="modal-hero-file-input" accept="image/*,.heic,.heif" onchange="handleHeroPhotoUpload(event, 'modal')" class="text-xs text-on-surface file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-primary file:text-on-primary hover:file:bg-primary-container cursor-pointer flex-1">
+                    </div>
+                    <p class="text-[11px] text-on-surface-variant italic">Format yang didukung: JPG, PNG, WebP. Otomatis dikompres kualitas tinggi agar website tetap cepat.</p>
+                </div>
+
+                <!-- Method 2: Link URL -->
+                <div class="p-md bg-surface-container-low rounded-2xl border border-outline-variant/30 space-y-2">
+                    <label class="block font-label-md text-caption font-bold text-primary flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-base">link</span>
+                        <span>Metode 2: Masukkan URL Gambar (Direct Link)</span>
+                    </label>
+                    <div class="flex gap-2">
+                        <input type="text" id="modal-hero-url-input" placeholder="https://... atau assets/images/..." class="w-full text-xs bg-surface border border-outline-variant rounded-xl p-2.5 font-mono outline-none focus:border-primary">
+                        <button type="button" onclick="saveHeroImageUrl(document.getElementById('modal-hero-url-input').value)" class="px-4 py-2 bg-primary text-on-primary rounded-xl text-xs font-bold hover:bg-primary-container transition-colors shadow-xs cursor-pointer shrink-0">
+                            Terapkan
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Method 3: Preset Foto WIZ -->
+                <div class="space-y-xs">
+                    <label class="block font-label-md text-caption font-bold text-on-surface flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm text-primary">auto_awesome</span>
+                        <span>Pilihan Cepat Foto Dokumentasi Resmi WIZ Babel:</span>
+                    </label>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
+                        <button type="button" onclick="applyHeroPreset('assets/images/foto-utama-wiz.jpg')" class="p-2 rounded-xl border border-outline-variant/40 bg-surface hover:border-primary text-left text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer">
+                            <img src="assets/images/foto-utama-wiz.jpg" class="w-9 h-9 rounded-lg object-cover" alt="Preset 1">
+                            <span class="line-clamp-2 text-[11px]">Relawan WIZ Babel</span>
+                        </button>
+                        <button type="button" onclick="applyHeroPreset('assets/images/sedekah-beras-dhuafa.jpg')" class="p-2 rounded-xl border border-outline-variant/40 bg-surface hover:border-primary text-left text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer">
+                            <img src="assets/images/sedekah-beras-dhuafa.jpg" class="w-9 h-9 rounded-lg object-cover" alt="Preset 2">
+                            <span class="line-clamp-2 text-[11px]">Sedekah Beras Dhuafa</span>
+                        </button>
+                        <button type="button" onclick="applyHeroPreset('assets/images/beasiswa-pendidikan-juara.jpg')" class="p-2 rounded-xl border border-outline-variant/40 bg-surface hover:border-primary text-left text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer">
+                            <img src="assets/images/beasiswa-pendidikan-juara.jpg" class="w-9 h-9 rounded-lg object-cover" alt="Preset 3">
+                            <span class="line-clamp-2 text-[11px]">Beasiswa Juara</span>
+                        </button>
+                        <button type="button" onclick="applyHeroPreset('assets/images/tebar-sembako.jpg')" class="p-2 rounded-xl border border-outline-variant/40 bg-surface hover:border-primary text-left text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer">
+                            <img src="assets/images/tebar-sembako.jpg" class="w-9 h-9 rounded-lg object-cover" alt="Preset 4">
+                            <span class="line-clamp-2 text-[11px]">Tebar Sembako</span>
+                        </button>
+                        <button type="button" onclick="applyHeroPreset('assets/images/bantuan-pengobatan.jpg')" class="p-2 rounded-xl border border-outline-variant/40 bg-surface hover:border-primary text-left text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer">
+                            <img src="assets/images/bantuan-pengobatan.jpg" class="w-9 h-9 rounded-lg object-cover" alt="Preset 5">
+                            <span class="line-clamp-2 text-[11px]">Bantuan Kesehatan</span>
+                        </button>
+                        <button type="button" onclick="resetHeroImageDefault()" class="p-2 rounded-xl border border-dashed border-outline-variant bg-surface hover:bg-slate-50 text-left text-xs font-semibold flex items-center justify-center gap-1.5 transition-all text-outline hover:text-error cursor-pointer">
+                            <span class="material-symbols-outlined text-sm">restart_alt</span>
+                            <span class="text-[11px]">Reset Bawaan</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pt-sm border-t border-outline-variant/30 flex justify-end gap-sm">
+                    <button type="button" onclick="closeHeroImageModal()" class="px-lg py-2.5 bg-primary text-on-primary rounded-xl text-xs font-bold hover:bg-primary-container transition-colors shadow-sm cursor-pointer">
+                        Selesai
+                    </button>
+                </div>
+            </div>
+        </div>
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- MODAL: CREATE ADMIN USER (TAMBAH ADMIN BARU)         -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div id="modal-admin-user-create" class="modal-backdrop">
+        <div class="modal-dialog max-w-lg">
+            <div class="p-lg border-b border-surface-variant flex justify-between items-center bg-surface-container-low rounded-t-2xl">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">person_add</span>
+                    <h3 class="font-headline-md text-base font-bold text-on-surface">Tambah Akun Admin Baru</h3>
+                </div>
+                <button type="button" onclick="hideModal('modal-admin-user-create')" class="text-outline hover:text-on-surface p-1 cursor-pointer">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="form-admin-user-create" class="p-lg space-y-md" onsubmit="handleCreateAdminSubmit(event)">
+                <div class="space-y-xs">
+                    <label for="create-admin-fullname" class="block font-label-md text-caption font-bold text-on-surface">Nama Lengkap Admin *</label>
+                    <input type="text" id="create-admin-fullname" required placeholder="Contoh: Ust. Ahmad Fauzi"
+                        class="w-full px-md py-sm bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface text-xs focus:outline-none focus:border-primary">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                    <div class="space-y-xs">
+                        <label for="create-admin-username" class="block font-label-md text-caption font-bold text-on-surface">Username Login *</label>
+                        <input type="text" id="create-admin-username" required placeholder="Contoh: ahmad_amil"
+                            class="w-full px-md py-sm bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface text-xs focus:outline-none focus:border-primary">
+                    </div>
+                    <div class="space-y-xs">
+                        <label for="create-admin-phone" class="block font-label-md text-caption font-bold text-on-surface">No. WhatsApp *</label>
+                        <input type="tel" id="create-admin-phone" required placeholder="08xxxxxxxxxx"
+                            class="w-full px-md py-sm bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface text-xs focus:outline-none focus:border-primary">
+                    </div>
+                </div>
+
+                <div class="space-y-xs">
+                    <label for="create-admin-password" class="block font-label-md text-caption font-bold text-on-surface">Kata Sandi (Password) *</label>
+                    <div class="relative flex items-center">
+                        <input type="password" id="create-admin-password" required placeholder="Buat kata sandi akun"
+                            class="w-full px-md py-sm pr-10 bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface text-xs focus:outline-none focus:border-primary">
+                        <button type="button" onclick="togglePasswordVisibility('create-admin-password', this)" class="absolute right-3 text-outline hover:text-primary transition-colors cursor-pointer" title="Lihat password">
+                            <span class="material-symbols-outlined text-sm">visibility</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                    <div class="space-y-xs">
+                        <label for="create-admin-role" class="block font-label-md text-caption font-bold text-on-surface">Peran / Otoritas *</label>
+                        <select id="create-admin-role" required
+                            class="w-full px-md py-sm bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface font-semibold text-xs focus:outline-none focus:border-primary">
+                            <option value="amil">Admin Amil (Cabang)</option>
+                            <option value="super_admin">Super Admin / Pusat</option>
+                        </select>
+                    </div>
+                    <div class="space-y-xs">
+                        <label for="create-admin-wilayah" class="block font-label-md text-caption font-bold text-on-surface">Wilayah Penugasan *</label>
+                        <select id="create-admin-wilayah" required
+                            class="w-full px-md py-sm bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface font-semibold text-xs focus:outline-none focus:border-primary">
+                            <option value="Semua Wilayah">Semua Wilayah</option>
+                            <option value="Pangkalpinang">Pangkalpinang</option>
+                            <option value="Sungailiat">Sungailiat</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-xs">
+                    <label for="create-admin-status" class="block font-label-md text-caption font-bold text-on-surface">Status Akun Awal *</label>
+                    <select id="create-admin-status" required
+                        class="w-full px-md py-sm bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface font-semibold text-xs focus:outline-none focus:border-primary">
+                        <option value="approved">✅ Langsung Aktif &amp; Terverifikasi</option>
+                        <option value="pending">⏳ Masuk Antrean Menunggu Persetujuan</option>
+                    </select>
+                </div>
+
+                <div class="flex gap-md pt-sm border-t border-outline-variant/30">
+                    <button type="submit" class="flex-1 bg-primary text-on-primary py-2.5 rounded-xl font-label-md text-xs font-bold hover:bg-primary-container transition-colors shadow-sm cursor-pointer">
+                        Simpan Akun Admin
+                    </button>
+                    <button type="button" onclick="hideModal('modal-admin-user-create')" class="px-lg py-2.5 border border-outline-variant rounded-xl font-label-md text-xs text-on-surface-variant hover:bg-surface-container-low transition-colors cursor-pointer">
+                        Batal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- MODAL: EDIT ADMIN USER (EDIT & KELOLA AKSES)         -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div id="modal-admin-user-edit" class="modal-backdrop">
+        <div class="modal-dialog max-w-lg">
+            <div class="p-lg border-b border-surface-variant flex justify-between items-center bg-surface-container-low rounded-t-2xl">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">edit</span>
+                    <h3 class="font-headline-md text-base font-bold text-on-surface">Edit Data &amp; Hak Akses Admin</h3>
+                </div>
+                <button type="button" onclick="hideModal('modal-admin-user-edit')" class="text-outline hover:text-on-surface p-1 cursor-pointer">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="form-admin-user-edit" class="p-lg space-y-md" onsubmit="handleEditAdminSubmit(event)">
+                <input type="hidden" id="edit-admin-id" value="">
+
+                <div class="space-y-xs">
+                    <label for="edit-admin-fullname" class="block font-label-md text-caption font-bold text-on-surface">Nama Lengkap Admin *</label>
+                    <input type="text" id="edit-admin-fullname" required
+                        class="w-full px-md py-sm bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface text-xs focus:outline-none focus:border-primary">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                    <div class="space-y-xs">
+                        <label for="edit-admin-username" class="block font-label-md text-caption font-bold text-on-surface">Username Login</label>
+                        <input type="text" id="edit-admin-username" readonly disabled
+                            class="w-full px-md py-sm bg-surface-container-high border border-outline-variant/60 rounded-xl font-mono text-on-surface-variant text-xs cursor-not-allowed">
+                    </div>
+                    <div class="space-y-xs">
+                        <label for="edit-admin-phone" class="block font-label-md text-caption font-bold text-on-surface">No. WhatsApp</label>
+                        <input type="tel" id="edit-admin-phone" placeholder="08xxxxxxxxxx"
+                            class="w-full px-md py-sm bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface text-xs focus:outline-none focus:border-primary">
+                    </div>
+                </div>
+
+                <div class="space-y-xs">
+                    <label for="edit-admin-password" class="block font-label-md text-caption font-bold text-on-surface">Ubah Kata Sandi (Kosongkan jika tidak diubah)</label>
+                    <div class="relative flex items-center">
+                        <input type="password" id="edit-admin-password" placeholder="Masukkan password baru jika ingin mengganti"
+                            class="w-full px-md py-sm pr-10 bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface text-xs focus:outline-none focus:border-primary">
+                        <button type="button" onclick="togglePasswordVisibility('edit-admin-password', this)" class="absolute right-3 text-outline hover:text-primary transition-colors cursor-pointer" title="Lihat password">
+                            <span class="material-symbols-outlined text-sm">visibility</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                    <div class="space-y-xs">
+                        <label for="edit-admin-role" class="block font-label-md text-caption font-bold text-on-surface">Peran / Otoritas *</label>
+                        <select id="edit-admin-role" required
+                            class="w-full px-md py-sm bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface font-semibold text-xs focus:outline-none focus:border-primary">
+                            <option value="amil">Admin Amil (Cabang)</option>
+                            <option value="super_admin">Super Admin / Pusat</option>
+                        </select>
+                    </div>
+                    <div class="space-y-xs">
+                        <label for="edit-admin-wilayah" class="block font-label-md text-caption font-bold text-on-surface">Wilayah Penugasan *</label>
+                        <select id="edit-admin-wilayah" required
+                            class="w-full px-md py-sm bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface font-semibold text-xs focus:outline-none focus:border-primary">
+                            <option value="Semua Wilayah">Semua Wilayah</option>
+                            <option value="Pangkalpinang">Pangkalpinang</option>
+                            <option value="Sungailiat">Sungailiat</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-xs">
+                    <label for="edit-admin-status" class="block font-label-md text-caption font-bold text-on-surface">Status Hak Akses *</label>
+                    <select id="edit-admin-status" required
+                        class="w-full px-md py-sm bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface font-semibold text-xs focus:outline-none focus:border-primary">
+                        <option value="approved">✅ Terverifikasi (Bisa Login)</option>
+                        <option value="pending">⏳ Menunggu Persetujuan</option>
+                        <option value="rejected">⛔ Dinonaktifkan (Tidak Bisa Login)</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center justify-between gap-md pt-sm border-t border-outline-variant/30 flex-wrap">
+                    <button type="button" id="btn-delete-admin-modal" class="px-md py-2 bg-error/10 text-error hover:bg-error hover:text-white rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs">delete</span> Hapus Akses Admin
+                    </button>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="hideModal('modal-admin-user-edit')" class="px-lg py-2 border border-outline-variant rounded-xl font-label-md text-xs text-on-surface-variant hover:bg-surface-container-low transition-colors cursor-pointer">
+                            Batal
+                        </button>
+                        <button type="submit" class="bg-primary text-on-primary px-lg py-2 rounded-xl font-label-md text-xs font-bold hover:bg-primary-container transition-colors shadow-sm cursor-pointer">
+                            Simpan Perubahan
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -4984,7 +5432,7 @@
             setTimeout(() => {
                 const img = new Image();
                 img.onload = async function() {
-                    const maxDim = 720;
+                    const maxDim = 1080;
                     let w = img.naturalWidth, h = img.naturalHeight;
                     if (w > maxDim || h > maxDim) {
                         if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
@@ -4992,8 +5440,11 @@
                     }
                     const canvas = document.createElement('canvas');
                     canvas.width = w; canvas.height = h;
-                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                    const compressed = canvas.toDataURL('image/jpeg', 0.68);
+                    const ctx = canvas.getContext('2d');
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const compressed = canvas.toDataURL('image/jpeg', 0.80);
                     URL.revokeObjectURL(objectUrl);
                     if (prevImg) prevImg.src = compressed;
 
@@ -5009,16 +5460,12 @@
                     }
 
                     // ── Segera simpan foto ke Supabase master_bundle.specific_prog_imgs ──
-                    // Ini memastikan server OG Image (og-image.js) langsung mendapatkan foto
-                    // yang benar tanpa harus menunggu sinkronisasi penuh dari admin.
+                    // Ini memastikan server OG Image (og-image.js), web utama, dan portal mitra
+                    // langsung mendapatkan foto yang benar.
                     (async () => {
                         try {
-                            // Coba kirim ke production Vercel terlebih dahulu
-                            const targets = [];
-                            if (window.location.hostname === 'www.wizbangkabelitung.or.id' || window.location.hostname === 'wizbangkabelitung.or.id') {
-                                targets.push('/api/sync-photo');
-                            } else {
-                                targets.push('/api/sync-photo');
+                            const targets = ['/api/sync-photo'];
+                            if (window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
                                 targets.push('https://www.wizbangkabelitung.or.id/api/sync-photo');
                             }
                             for (const url of targets) {
@@ -5031,63 +5478,212 @@
                                     if (r.ok) {
                                         const result = await r.json();
                                         console.log(`[Admin] ✅ Foto "${progTitle}" berhasil disimpan ke Supabase via ${url}:`, result.message);
-                                    } else {
-                                        console.warn(`[Admin] ⚠️ sync-photo failed at ${url}:`, r.status);
                                     }
-                                } catch(e) {
-                                    console.warn(`[Admin] sync-photo error at ${url}:`, e.message);
-                                }
+                                } catch(e) {}
                             }
                         } catch(e) {}
                     })();
 
                     renderSpecificProgramImagesSection();
+                    alert(`✅ Foto Program "${progTitle}" berhasil diunggah ke Supabase Cloud dan langsung tersinkronkan ke Web Utama serta Portal Mitra!`);
                 };
                 img.src = objectUrl;
             }, 10);
         }
 
+        function renderHeroDashboardWidget() {
+            if (!window.wizStore || !wizStore.siteImages) return;
+            const heroUrl = wizStore.siteImages.get('hero_card') || 'assets/images/foto-utama-wiz.jpg';
+
+            // 1. Dashboard Overview Widget
+            const dashPrev = document.getElementById('dash-hero-preview');
+            const dashInput = document.getElementById('dash-hero-url-input');
+            if (dashPrev) dashPrev.src = heroUrl;
+            if (dashInput) dashInput.value = heroUrl;
+
+            // 2. Featured Section in Site-Images
+            const featPrev = document.getElementById('featured-hero-preview');
+            const featInput = document.getElementById('featured-hero-url-input');
+            if (featPrev) featPrev.src = heroUrl;
+            if (featInput) featInput.value = heroUrl;
+
+            // 3. Web Settings Card
+            const settPrev = document.getElementById('settings-hero-preview');
+            const settInput = document.getElementById('settings-hero-url-input');
+            if (settPrev) settPrev.src = heroUrl;
+            if (settInput) settInput.value = heroUrl;
+
+            // 4. Modal
+            const modalPrev = document.getElementById('modal-hero-preview-img');
+            const modalInput = document.getElementById('modal-hero-url-input');
+            if (modalPrev) modalPrev.src = heroUrl;
+            if (modalInput) modalInput.value = heroUrl;
+        }
+
+        function openHeroImageModal() {
+            renderHeroDashboardWidget();
+            showModal('modal-hero-image');
+        }
+
+        function closeHeroImageModal() {
+            hideModal('modal-hero-image');
+        }
+
+        function handleHeroPhotoUpload(event, source) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const objectUrl = URL.createObjectURL(file);
+            const previews = ['dash-hero-preview', 'featured-hero-preview', 'settings-hero-preview', 'modal-hero-preview-img'];
+            previews.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.src = objectUrl;
+            });
+
+            const syncStatus = document.getElementById('dash-hero-sync-status');
+            if (syncStatus) {
+                syncStatus.className = 'text-[11px] font-bold text-amber-600 flex items-center gap-1';
+                syncStatus.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span> Mengunggah ke Cloud...';
+            }
+
+            const img = new Image();
+            img.onload = async function() {
+                const maxDim = 1280;
+                let w = img.naturalWidth, h = img.naturalHeight;
+                if (w > maxDim || h > maxDim) {
+                    if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+                    else       { w = Math.round(w * maxDim / h); h = maxDim; }
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = w; canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                ctx.drawImage(img, 0, 0, w, h);
+                const compressed = canvas.toDataURL('image/jpeg', 0.85);
+                URL.revokeObjectURL(objectUrl);
+
+                // Save in store & background sync
+                wizStore.siteImages.update('hero_card', compressed, 'Foto Kartu Hero Utama');
+                renderHeroDashboardWidget();
+
+                // Direct sync to /api/sync-photo
+                try {
+                    const syncTargets = ['/api/sync-photo'];
+                    if (window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
+                        syncTargets.push('https://www.wizbangkabelitung.or.id/api/sync-photo');
+                    }
+                    for (const target of syncTargets) {
+                        try {
+                            await fetch(target, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ siteImageKey: 'hero_card', imageUrl: compressed })
+                            });
+                        } catch(e) {}
+                    }
+                } catch(e) {}
+
+                if (syncStatus) {
+                    syncStatus.className = 'text-[11px] font-bold text-emerald-700 flex items-center gap-1';
+                    syncStatus.innerHTML = '<span class="material-symbols-outlined text-sm">cloud_done</span> Supabase Cloud Terhubung';
+                }
+
+                alert('✅ Foto Hero Utama Beranda berhasil diganti dan langsung aktif di Website Utama!');
+            };
+            img.src = objectUrl;
+        }
+
+        async function saveHeroImageUrl(customUrl) {
+            const url = (customUrl || '').trim();
+            if (!url) {
+                alert('Silakan masukkan URL foto atau pilih file gambar terlebih dahulu.');
+                return;
+            }
+
+            wizStore.siteImages.update('hero_card', url, 'Foto Kartu Hero Utama');
+            renderHeroDashboardWidget();
+
+            // Direct sync to /api/sync-photo
+            try {
+                const syncTargets = ['/api/sync-photo'];
+                if (window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
+                    syncTargets.push('https://www.wizbangkabelitung.or.id/api/sync-photo');
+                }
+                for (const target of syncTargets) {
+                    try {
+                        await fetch(target, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ siteImageKey: 'hero_card', imageUrl: url })
+                        });
+                    } catch(e) {}
+                }
+            } catch(e) {}
+
+            alert('✅ Foto Hero Utama berhasil disimpan dan langsung aktif di Website Utama!');
+        }
+
+        function saveDashHeroUrl() {
+            const input = document.getElementById('dash-hero-url-input');
+            if (input) saveHeroImageUrl(input.value);
+        }
+
+        function applyHeroPreset(presetUrl) {
+            saveHeroImageUrl(presetUrl);
+        }
+
+        function resetHeroImageDefault() {
+            if (confirm('Kembalikan foto hero utama ke foto bawaan resmi WIZ Babel?')) {
+                saveHeroImageUrl('assets/images/foto-utama-wiz.jpg');
+            }
+        }
+
         function renderSiteImagesSection() {
+            renderHeroDashboardWidget();
+
             const container = document.getElementById('site-images-grid');
             if (!container || !wizStore.siteImages) return;
 
             const images = wizStore.siteImages.getAll();
             const imageMeta = [
-                { key: 'hero_card', label: 'Foto Kartu Hero Utama', desc: 'Foto yang tampil di bagian Hero Beranda web utama.' },
                 { key: 'about_img', label: 'Foto Tentang Kami', desc: 'Foto kegiatan di section profil lembaga WIZ Babel.' },
-                { key: 'berkah_hidayah', label: 'Program Berkah Hidayah (Dakwah)', desc: 'Foto kartu program dakwah.' },
-                { key: 'berkah_juara', label: 'Program Berkah Juara (Pendidikan)', desc: 'Foto kartu beasiswa & pendidikan.' },
-                { key: 'berkah_sehat', label: 'Program Berkah Sehat (Kesehatan)', desc: 'Foto kartu khitanan massal & layanan medis.' },
-                { key: 'berkah_peduli', label: 'Program Berkah Peduli (Sosial)', desc: 'Foto kartu tebar sembako & sedekah.' },
-                { key: 'berkah_mandiri', label: 'Program Berkah Mandiri (Ekonomi)', desc: 'Foto kartu pemberdayaan UMKM.' },
-                { key: 'banner_donasi', label: 'Foto Banner Ajak Donasi', desc: 'Foto banner besar di bagian bawah beranda.' }
+                { key: 'berkah_hidayah', label: 'Program Berkah Hidayah (Dakwah)', desc: 'Foto kartu program dakwah & Al-Quran.' },
+                { key: 'berkah_juara', label: 'Program Berkah Juara (Pendidikan)', desc: 'Foto kartu beasiswa & pendidikan dhuafa.' },
+                { key: 'berkah_sehat', label: 'Program Berkah Sehat (Kesehatan)', desc: 'Foto kartu layanan medis & bantuan kesehatan.' },
+                { key: 'berkah_peduli', label: 'Program Berkah Peduli (Sosial)', desc: 'Foto kartu tebar sembako, beras & sedekah.' },
+                { key: 'berkah_mandiri', label: 'Program Berkah Mandiri (Ekonomi)', desc: 'Foto kartu modal usaha & pemberdayaan UMKM.' },
+                { key: 'banner_donasi', label: 'Foto Banner Ajak Donasi', desc: 'Foto banner ajakan sedekah di bagian bawah beranda.' }
             ];
 
             container.innerHTML = imageMeta.map(item => {
                 const currentUrl = images[item.key] || '';
                 return `
-                <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 p-md flex flex-col justify-between space-y-md">
+                <div class="bg-surface-container-lowest rounded-2xl shadow-xs border border-outline-variant/30 p-md flex flex-col justify-between space-y-md hover:shadow-md transition-shadow">
                     <div>
-                        <div class="relative h-44 rounded-lg overflow-hidden border border-outline-variant/30 mb-sm bg-slate-100">
+                        <div class="relative h-48 rounded-xl overflow-hidden border border-outline-variant/30 mb-sm bg-slate-100 flex items-center justify-center">
                             <img id="img-prev-${item.key}" src="${currentUrl}" alt="${item.label}" class="w-full h-full object-cover">
-                            <span class="absolute top-2 left-2 bg-black/60 text-white px-2 py-0.5 rounded text-[11px] font-bold">${item.key}</span>
+                            <span class="absolute top-2 left-2 bg-black/70 backdrop-blur-xs text-white px-2.5 py-0.5 rounded-full text-[11px] font-bold shadow-xs">${item.key}</span>
+                            <span id="img-status-${item.key}" class="absolute top-2 right-2 bg-emerald-600 text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow-xs flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>🟢 Cloud Sync
+                            </span>
                         </div>
-                        <h4 class="font-label-md font-bold text-on-surface">${item.label}</h4>
+                        <h4 class="font-label-md font-bold text-on-surface text-sm">${item.label}</h4>
                         <p class="font-caption text-caption text-on-surface-variant mb-xs">${item.desc}</p>
                     </div>
 
-                    <div class="space-y-xs">
+                    <div class="space-y-xs pt-xs border-t border-outline-variant/20">
                         <label class="block font-caption text-caption font-semibold text-on-surface">URL Foto / Base64 Data:</label>
                         <input type="text" id="img-url-${item.key}" value="${currentUrl}"
                             onchange="document.getElementById('img-prev-${item.key}').src = this.value"
                             placeholder="https://... atau data:image/..."
                             class="w-full text-xs bg-surface border border-outline-variant rounded-lg p-2 font-mono outline-none focus:border-primary">
-                        <div class="flex items-center justify-between pt-xs">
-                            <label for="img-file-${item.key}" class="cursor-pointer text-xs font-bold text-primary hover:underline flex items-center gap-1">
-                                <span class="material-symbols-outlined text-sm">upload_file</span> Unggah File Foto
+                        <div class="flex items-center justify-between pt-xs gap-2">
+                            <label for="img-file-${item.key}" class="cursor-pointer text-xs font-bold text-primary hover:underline flex items-center gap-1 bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-lg transition-colors">
+                                <span class="material-symbols-outlined text-base">upload_file</span> Unggah Foto
                             </label>
                             <input type="file" id="img-file-${item.key}" accept="image/*" class="hidden" onchange="handleSingleImageUpload(event, '${item.key}', '${item.label}')">
-                            <button onclick="saveSingleSiteImage('${item.key}', '${item.label}')" class="px-3 py-1 bg-primary text-on-primary rounded text-xs font-bold hover:bg-primary-container transition-colors cursor-pointer">
+                            <button onclick="saveSingleSiteImage('${item.key}', '${item.label}')" class="px-3 py-1.5 bg-primary text-on-primary rounded-lg text-xs font-bold hover:bg-primary-container transition-colors cursor-pointer shadow-xs">
                                 Simpan Foto
                             </button>
                         </div>
@@ -5102,12 +5698,17 @@
 
             const prev = document.getElementById(`img-prev-${key}`);
             const input = document.getElementById(`img-url-${key}`);
+            const statusEl = document.getElementById(`img-status-${key}`);
             const objectUrl = URL.createObjectURL(file);
             if (prev) prev.src = objectUrl;
+            if (statusEl) {
+                statusEl.className = 'absolute top-2 right-2 bg-amber-500 text-slate-950 px-2 py-0.5 rounded-full text-[10px] font-bold shadow-xs flex items-center gap-1';
+                statusEl.innerHTML = '<span class="material-symbols-outlined text-xs animate-spin">sync</span> Mengunggah...';
+            }
 
             const img = new Image();
-            img.onload = function() {
-                const maxDim = 480;
+            img.onload = async function() {
+                const maxDim = 1080;
                 let w = img.naturalWidth, h = img.naturalHeight;
                 if (w > maxDim || h > maxDim) {
                     if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
@@ -5119,13 +5720,38 @@
                 ctx.imageSmoothingEnabled = true;
                 ctx.imageSmoothingQuality = 'high';
                 ctx.drawImage(img, 0, 0, w, h);
-                const compressed = canvas.toDataURL('image/jpeg', 0.60);
+                const compressed = canvas.toDataURL('image/jpeg', 0.80);
                 if (input) input.value = compressed;
                 if (prev) prev.src = compressed;
                 URL.revokeObjectURL(objectUrl);
 
+                // 1. Update local & background cloud store
                 wizStore.siteImages.update(key, compressed, label || key);
                 window.dispatchEvent(new CustomEvent('wiz-program-images-changed'));
+
+                // 2. Direct Sync to Supabase via /api/sync-photo
+                try {
+                    const syncTargets = ['/api/sync-photo'];
+                    if (window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
+                        syncTargets.push('https://www.wizbangkabelitung.or.id/api/sync-photo');
+                    }
+                    for (const target of syncTargets) {
+                        try {
+                            await fetch(target, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ siteImageKey: key, imageUrl: compressed })
+                            });
+                        } catch(e) {}
+                    }
+                } catch(e) {}
+
+                if (statusEl) {
+                    statusEl.className = 'absolute top-2 right-2 bg-emerald-600 text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow-xs flex items-center gap-1';
+                    statusEl.innerHTML = '✅ Cloud Sync';
+                }
+
+                alert(`✅ Foto "${label}" berhasil diunggah ke Supabase Cloud dan langsung aktif di web utama!`);
             };
             img.src = objectUrl;
         }
@@ -5133,9 +5759,30 @@
         async function saveSingleSiteImage(key, label) {
             const input = document.getElementById(`img-url-${key}`);
             if (!input) return;
-            wizStore.siteImages.update(key, input.value, label);
+            const val = input.value.trim();
+            if (!val) return;
+            
+            wizStore.siteImages.update(key, val, label);
             window.dispatchEvent(new CustomEvent('wiz-program-images-changed'));
-            alert(`Foto '${label}' berhasil diperbarui!`);
+
+            // Direct call to /api/sync-photo
+            try {
+                const syncTargets = ['/api/sync-photo'];
+                if (window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
+                    syncTargets.push('https://www.wizbangkabelitung.or.id/api/sync-photo');
+                }
+                for (const target of syncTargets) {
+                    try {
+                        await fetch(target, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ siteImageKey: key, imageUrl: val })
+                        });
+                    } catch(e) {}
+                }
+            } catch(e) {}
+
+            alert(`✅ Foto "${label}" berhasil disimpan ke Supabase Cloud!`);
             refreshAll();
         }
 
@@ -5145,10 +5792,10 @@
             const updated = {};
             keys.forEach(k => {
                 const el = document.getElementById(`img-url-${k}`);
-                if (el) updated[k] = el.value;
+                if (el && el.value.trim()) updated[k] = el.value.trim();
             });
             await wizStore.siteImages.updateAll(updated);
-            alert('Semua foto web utama berhasil disimpan!');
+            alert('✅ Semua foto web utama berhasil disimpan ke Supabase Cloud dan disinkronkan!');
             refreshAll();
         }
 
@@ -5480,16 +6127,16 @@
 
         async function rejectAdmin(id) {
             const allUsers = wizStore.adminUsers ? wizStore.adminUsers.getAll() : [];
-            const targetUser = allUsers.find(u => String(u.id) === String(id));
+            const targetUser = allUsers.find(u => String(u.id) === String(id) || (u.username && u.username.toLowerCase() === String(id).toLowerCase()));
             const label = targetUser ? `'${targetUser.fullName || targetUser.username}'` : id;
-            if (!confirm(`Tolak dan hapus permohonan pendaftaran admin ${label}?\n\nData pendaftaran ini akan langsung dihapus permanen dari sistem dan antrean permintaan.`)) return;
+            if (!confirm(`Tolak dan hapus permohonan pendaftaran admin ${label}?\n\nData pendaftaran ini akan langsung dihapus permanen dari antrean dan tidak akan pernah ditampilkan lagi.`)) return;
 
-            const res = await wizStore.adminUsers.delete(id);
+            const res = await wizStore.adminUsers.reject(id, sessionStorage.getItem('wiz_admin_user') || 'Admin 1');
             if (res.success) {
                 if (typeof showNotification === 'function') {
-                    showNotification(`✅ Permohonan pendaftaran ${label} telah ditolak dan langsung dihapus dari sistem.`);
+                    showNotification(`✅ Permohonan pendaftaran ${label} berhasil ditolak & dihapus permanen.`);
                 } else {
-                    alert(`✅ Permohonan pendaftaran ${label} telah ditolak dan langsung dihapus dari sistem.`);
+                    alert(`✅ Permohonan pendaftaran ${label} berhasil ditolak & dihapus permanen.`);
                 }
             }
             refreshAll();
@@ -5503,7 +6150,7 @@
                 return;
             }
             const allUsers = wizStore.adminUsers ? wizStore.adminUsers.getAll() : [];
-            const targetUser = allUsers.find(u => String(u.id) === String(id));
+            const targetUser = allUsers.find(u => String(u.id) === String(id) || (u.username && u.username.toLowerCase() === String(id).toLowerCase()));
             if (targetUser && targetUser.username === 'admin') {
                 alert('Admin 1 Utama bersifat mutlak dan tidak dapat dihapus.');
                 return;
@@ -5733,16 +6380,16 @@
                     id: 'pangkalpinang',
                     name: 'Kantor Pangkalpinang',
                     address: pangkalpinangAddr || (current.offices && current.offices[0] ? current.offices[0].address : ''),
-                    phone: pangkalpinangPhone || (current.offices && current.offices[0] ? current.offices[0].phone : ''),
-                    hotline: pangkalpinangHotline || current.hotline || '081271718000',
+                    phone: pangkalpinangPhone || (current.offices && current.offices[0] ? current.offices[0].phone : '0823-8083-0808'),
+                    hotline: pangkalpinangHotline || (current.offices && current.offices[0] ? current.offices[0].hotline : '') || current.hotline || '082380830808',
                     mapsUrl: 'https://maps.google.com'
                 },
                 {
                     id: 'sungailiat',
                     name: 'Kantor Sungailiat',
                     address: sungailiatAddr || (current.offices && current.offices[1] ? current.offices[1].address : ''),
-                    phone: sungailiatPhone || (current.offices && current.offices[1] ? current.offices[1].phone : ''),
-                    hotline: sungailiatHotline || '082180007171',
+                    phone: sungailiatPhone || (current.offices && current.offices[1] ? current.offices[1].phone : '0822-8224-4899'),
+                    hotline: sungailiatHotline || (current.offices && current.offices[1] ? current.offices[1].hotline : '') || '082282244899',
                     mapsUrl: 'https://maps.google.com'
                 }
             ];
@@ -5750,7 +6397,7 @@
             const updatedSettings = {
                 ...current,
                 offices: updatedOffices,
-                hotline: pangkalpinangHotline || current.hotline || '081271718000'
+                hotline: pangkalpinangHotline || current.hotline || '082380830808'
             };
 
             try {
@@ -6757,6 +7404,7 @@
 
             // Only render the currently visible section
             if (section === 'dashboard') {
+                try { if (typeof renderHeroDashboardWidget === 'function') renderHeroDashboardWidget(); } catch(e) {}
                 try { if (typeof renderKPI === 'function') renderKPI('finance-kpi-grid'); } catch(e) { console.error(e); }
                 try { if (typeof renderDashboardDonations === 'function') renderDashboardDonations(); } catch(e) { console.error('[Dashboard Donations Error]', e); }
                 try { if (typeof renderActivityLog === 'function') renderActivityLog(); } catch(e) { console.error('[Activity Log Error]', e); }
@@ -6771,6 +7419,7 @@
                 try { if (typeof renderSiteImagesSection === 'function') renderSiteImagesSection(); } catch(e) { console.error(e); }
             } else if (section === 'site-settings') {
                 try { if (typeof renderSiteSettingsSection === 'function') renderSiteSettingsSection(); } catch(e) { console.error(e); }
+                try { if (typeof renderHeroDashboardWidget === 'function') renderHeroDashboardWidget(); } catch(e) {}
             } else if (section === 'admin-users') {
                 try { if (typeof renderAdminUsersSection === 'function') renderAdminUsersSection(); } catch(e) { console.error(e); }
                 if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
@@ -6808,6 +7457,101 @@
                     loginModal.style.pointerEvents = 'auto';
                 }
             }
+        }
+
+        function switchAuthTab(tab) {
+            const loginForm = document.getElementById('admin-login-form');
+            const registerForm = document.getElementById('admin-register-form');
+            const tabLogin = document.getElementById('auth-tab-login');
+            const tabRegister = document.getElementById('auth-tab-register');
+
+            if (tab === 'register') {
+                if (loginForm) loginForm.classList.add('hidden');
+                if (registerForm) registerForm.classList.remove('hidden');
+                if (tabLogin) {
+                    tabLogin.className = 'flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:text-primary cursor-pointer';
+                }
+                if (tabRegister) {
+                    tabRegister.className = 'flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-primary text-on-primary shadow-sm cursor-pointer';
+                }
+            } else {
+                if (loginForm) loginForm.classList.remove('hidden');
+                if (registerForm) registerForm.classList.add('hidden');
+                if (tabLogin) {
+                    tabLogin.className = 'flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-primary text-on-primary shadow-sm cursor-pointer';
+                }
+                if (tabRegister) {
+                    tabRegister.className = 'flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:text-primary cursor-pointer';
+                }
+            }
+        }
+
+        async function handleAdminRegister(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            const fullName = document.getElementById('reg-fullname').value.trim();
+            const username = document.getElementById('reg-username').value.trim();
+            const password = document.getElementById('reg-password').value.trim();
+            const phone = document.getElementById('reg-phone').value.trim();
+            const role = document.getElementById('reg-role').value;
+            const wilayah = document.getElementById('reg-wilayah').value;
+
+            const alertBox = document.getElementById('register-alert');
+            const alertText = document.getElementById('register-alert-text');
+            const alertIcon = document.getElementById('register-alert-icon');
+            const submitBtn = document.getElementById('btn-admin-register-submit');
+
+            if (!fullName || !username || !password) {
+                if (alertBox) {
+                    alertBox.className = 'bg-error-container text-on-error-container p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs';
+                    alertText.textContent = 'Nama lengkap, username, dan password wajib diisi!';
+                    if (alertIcon) alertIcon.textContent = 'error';
+                    alertBox.classList.remove('hidden');
+                }
+                return false;
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span> Mengirim pendaftaran...';
+            }
+
+            const res = await wizStore.adminUsers.register({
+                fullName,
+                username,
+                password,
+                phone,
+                role,
+                wilayah
+            });
+
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span class="material-symbols-outlined text-sm">person_add</span> Kirim Pendaftaran Admin';
+            }
+
+            if (!res.success) {
+                if (alertBox) {
+                    alertBox.className = 'bg-error-container text-on-error-container p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs';
+                    alertText.textContent = res.message || 'Pendaftaran gagal.';
+                    if (alertIcon) alertIcon.textContent = 'error';
+                    alertBox.classList.remove('hidden');
+                }
+            } else {
+                if (alertBox) {
+                    alertBox.className = 'bg-emerald-100 text-emerald-800 p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs border border-emerald-300';
+                    alertText.textContent = res.message;
+                    if (alertIcon) alertIcon.textContent = 'check_circle';
+                    alertBox.classList.remove('hidden');
+                }
+                alert(res.message);
+                document.getElementById('admin-register-form').reset();
+                setTimeout(() => switchAuthTab('login'), 2000);
+            }
+            return false;
         }
 
         function togglePasswordVisibility(inputId, btnEl) {

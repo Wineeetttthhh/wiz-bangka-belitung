@@ -3,10 +3,13 @@
  * WAHDAH INSPIRASI ZAKAT (WIZ) BANGKA BELITUNG
  * Photo Sync Endpoint — /api/sync-photo
  * ============================================================
- * Instantly saves a single program photo to specific_prog_imgs
- * inside master_bundle in Supabase. Called by admin on upload.
- * This avoids the race condition where a full bundle sync
- * hasn't happened yet but the OG image server needs the photo.
+ * Menyimpan foto ke dedicated site_images key di Supabase.
+ * Tidak lagi membaca/menulis master_bundle untuk menghindari
+ * race condition dan masalah payload terlalu besar.
+ * 
+ * ARSITEKTUR BARU:
+ *  - site_images key: khusus menyimpan foto (URL atau base64)
+ *  - master_bundle: hanya data transaksional (donasi, berita, dll)
  * ============================================================
  */
 
@@ -24,6 +27,7 @@ module.exports = async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
 
     if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -37,13 +41,13 @@ module.exports = async function handler(req, res) {
             try { body = JSON.parse(body); } catch(e) { body = {}; }
         }
 
-        const { programTitle, imageUrl } = body || {};
-        if (!programTitle || !imageUrl) {
-            return res.status(400).json({ error: 'programTitle and imageUrl are required' });
+        const { programTitle, imageUrl, siteImageKey, siteImages } = body || {};
+        if (!programTitle && !siteImageKey && !siteImages) {
+            return res.status(400).json({ error: 'programTitle, siteImageKey, or siteImages is required' });
         }
 
-        // 1. Fetch current master_bundle from Supabase
-        const getRes = await fetch(`${SUPABASE_URL}/site_settings?key=eq.master_bundle&select=*`, {
+        // 1. Baca standalone site_images key dari Supabase (kecil, cepat)
+        const getRes = await fetch(`${SUPABASE_URL}/site_settings?key=eq.site_images&select=*`, {
             headers: {
                 'apikey': SUPABASE_KEY,
                 'Authorization': 'Bearer ' + SUPABASE_KEY,
@@ -51,42 +55,46 @@ module.exports = async function handler(req, res) {
             }
         });
 
-        let master = null;
+        let currentSiteImages = {};
         if (getRes.ok) {
             const list = await getRes.json();
             if (Array.isArray(list) && list.length > 0 && list[0].value) {
-                master = list[0].value;
+                currentSiteImages = list[0].value;
             }
         }
 
-        if (!master) {
-            return res.status(500).json({ error: 'Could not fetch master_bundle from Supabase' });
+        let updatedMsg = '';
+
+        // 2. Update site image keys
+        if (siteImageKey && imageUrl) {
+            currentSiteImages[siteImageKey] = imageUrl;
+            updatedMsg += `Site image "${siteImageKey}" updated. `;
         }
 
-        // 2. Merge the new photo into specific_prog_imgs
-        if (!master.specific_prog_imgs) master.specific_prog_imgs = {};
-        master.specific_prog_imgs[programTitle] = imageUrl;
-
-        // 3. Also update in programs array if exists
-        if (Array.isArray(master.programs)) {
-            for (const p of master.programs) {
-                if (p && p.title && p.title.toLowerCase() === programTitle.toLowerCase()) {
-                    p.imageUrl = imageUrl;
-                    break;
-                }
-            }
+        // 3. Batch site images
+        if (siteImages && typeof siteImages === 'object') {
+            Object.assign(currentSiteImages, siteImages);
+            updatedMsg += `Batch site images (${Object.keys(siteImages).length}) updated. `;
         }
 
-        master.updatedAt = new Date().toISOString();
+        // 4. Specific program images (stored in site_images with prog_ prefix)
+        if (programTitle && imageUrl) {
+            const progKey = 'prog_' + programTitle.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+            currentSiteImages[progKey] = imageUrl;
+            currentSiteImages['__prog__' + programTitle] = imageUrl; // raw key for lookup
+            updatedMsg += `Program "${programTitle}" photo updated. `;
+        }
 
-        // 4. Save back to Supabase
+        const updatedAt = new Date().toISOString();
+
+        // 5. Simpan ke standalone site_images key
         const saveRes = await fetch(`${SUPABASE_URL}/site_settings`, {
             method: 'POST',
             headers: supabaseHeaders,
             body: JSON.stringify({
-                key: 'master_bundle',
-                value: master,
-                updated_at: master.updatedAt
+                key: 'site_images',
+                value: currentSiteImages,
+                updated_at: updatedAt
             })
         });
 
@@ -96,12 +104,63 @@ module.exports = async function handler(req, res) {
             return res.status(500).json({ error: 'Failed to save to Supabase', detail: errText });
         }
 
-        console.log(`[sync-photo] ✅ Photo saved for "${programTitle}" (${imageUrl.length > 100 ? imageUrl.substring(0, 30) + '... [base64]' : imageUrl})`);
+        // 6. Update specific_prog_imgs key jika ada program photo
+        let specificProgMap = {};
+        if (programTitle && imageUrl) {
+            try {
+                const spGet = await fetch(`${SUPABASE_URL}/site_settings?key=eq.specific_prog_imgs&select=*`, {
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Accept': 'application/json' }
+                });
+                if (spGet.ok) {
+                    const list = await spGet.json();
+                    if (Array.isArray(list) && list.length > 0 && list[0].value) {
+                        specificProgMap = list[0].value;
+                    }
+                }
+                specificProgMap[programTitle] = imageUrl;
+                await fetch(`${SUPABASE_URL}/site_settings`, {
+                    method: 'POST',
+                    headers: supabaseHeaders,
+                    body: JSON.stringify({ key: 'specific_prog_imgs', value: specificProgMap, updated_at: updatedAt })
+                });
+            } catch(e) {}
+        }
+
+        // 7. Update master_bundle.site_images & master_bundle.specific_prog_imgs untuk konsistensi 100%
+        try {
+            const mbRes = await fetch(`${SUPABASE_URL}/site_settings?key=eq.master_bundle&select=*`, {
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Accept': 'application/json' }
+            });
+            if (mbRes.ok) {
+                const mbList = await mbRes.json();
+                if (Array.isArray(mbList) && mbList.length > 0 && mbList[0].value) {
+                    const master = mbList[0].value;
+                    master.site_images = { ...(master.site_images || {}), ...currentSiteImages };
+                    if (programTitle && imageUrl) {
+                        master.specific_prog_imgs = { ...(master.specific_prog_imgs || {}), ...specificProgMap, [programTitle]: imageUrl };
+                    }
+                    await fetch(`${SUPABASE_URL}/site_settings`, {
+                        method: 'POST',
+                        headers: supabaseHeaders,
+                        body: JSON.stringify({ key: 'master_bundle', value: master, updated_at: updatedAt })
+                    });
+                }
+            }
+        } catch(e) {}
+
+        try {
+            const syncApi = require('./sync.js');
+            if (syncApi && typeof syncApi.invalidateCache === 'function') {
+                syncApi.invalidateCache();
+            }
+        } catch(e) {}
+
+        console.log(`[sync-photo] ✅ ${updatedMsg}`);
 
         return res.status(200).json({
             success: true,
-            message: `Photo for "${programTitle}" saved to Supabase master_bundle.specific_prog_imgs`,
-            updatedAt: master.updatedAt
+            message: updatedMsg.trim(),
+            updatedAt
         });
 
     } catch(e) {
