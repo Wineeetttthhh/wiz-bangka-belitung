@@ -308,10 +308,115 @@
         } catch(e) {}
     }
 
+    function sanitizeLegacyImages() {
+        try {
+            if (typeof localStorage === 'undefined') return;
+
+            // 1. Sanitize wiz_programs
+            const rawProgs = localStorage.getItem(STORAGE_KEYS.PROGRAMS);
+            if (rawProgs) {
+                let progs = JSON.parse(rawProgs);
+                if (Array.isArray(progs)) {
+                    let changed = false;
+                    progs.forEach(p => {
+                        if (p && p.imageUrl && (p.imageUrl.includes('unsplash.com') || p.imageUrl.includes('placeholder'))) {
+                            p.imageUrl = DEFAULT_SPECIFIC_PROGRAM_IMAGES[p.title] || 'assets/images/default-program-wiz.jpg';
+                            changed = true;
+                        }
+                    });
+                    if (changed) {
+                        localStorage.setItem(STORAGE_KEYS.PROGRAMS, JSON.stringify(progs));
+                        memoryStoreFallback.set(STORAGE_KEYS.PROGRAMS, progs);
+                    }
+                }
+            }
+
+            // 2. Sanitize wiz_specific_prog_imgs
+            const rawSpec = localStorage.getItem('wiz_specific_prog_imgs');
+            if (rawSpec) {
+                let spec = JSON.parse(rawSpec);
+                if (spec && typeof spec === 'object') {
+                    let changed = false;
+                    for (const [k, v] of Object.entries(spec)) {
+                        if (v && (v.includes('unsplash.com') || v.includes('placeholder'))) {
+                            spec[k] = DEFAULT_SPECIFIC_PROGRAM_IMAGES[k] || 'assets/images/default-program-wiz.jpg';
+                            changed = true;
+                        }
+                    }
+                    if (changed) localStorage.setItem('wiz_specific_prog_imgs', JSON.stringify(spec));
+                }
+            }
+
+            // 3. Sanitize wiz_allocation_rules
+            const rawRules = localStorage.getItem(STORAGE_KEYS.ALLOCATION_RULES);
+            if (rawRules) {
+                let rules = JSON.parse(rawRules);
+                if (rules && typeof rules === 'object') {
+                    let changed = false;
+                    for (const wData of Object.values(rules)) {
+                        if (wData && wData.subAllocation) {
+                            for (const sub of Object.values(wData.subAllocation)) {
+                                if (sub && Array.isArray(sub.items)) {
+                                    sub.items.forEach(item => {
+                                        if (item && item.image && (item.image.includes('unsplash.com') || item.image.includes('placeholder'))) {
+                                            item.image = DEFAULT_SPECIFIC_PROGRAM_IMAGES[item.key] || 'assets/images/default-program-wiz.jpg';
+                                            changed = true;
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    if (changed) {
+                        localStorage.setItem(STORAGE_KEYS.ALLOCATION_RULES, JSON.stringify(rules));
+                        memoryStoreFallback.set(STORAGE_KEYS.ALLOCATION_RULES, rules);
+                    }
+                }
+            }
+
+            // 4. Sanitize wiz_site_images
+            const rawSiteImgs = localStorage.getItem(STORAGE_KEYS.SITE_IMAGES);
+            if (rawSiteImgs) {
+                let siteImgs = JSON.parse(rawSiteImgs);
+                if (siteImgs && typeof siteImgs === 'object') {
+                    let changed = false;
+                    for (const [k, v] of Object.entries(siteImgs)) {
+                        if (v && (v.includes('unsplash.com') || v.includes('placeholder'))) {
+                            siteImgs[k] = DEFAULT_SITE_IMAGES[k] || 'assets/images/default-program-wiz.jpg';
+                            changed = true;
+                        }
+                    }
+                    if (changed) {
+                        localStorage.setItem(STORAGE_KEYS.SITE_IMAGES, JSON.stringify(siteImgs));
+                        memoryStoreFallback.set(STORAGE_KEYS.SITE_IMAGES, siteImgs);
+                    }
+                }
+            }
+        } catch(e) {}
+    }
+
+    // Run immediate purge upon loading
+    sanitizeLegacyImages();
+
     function getStore(key) {
         try {
             const item = localStorage.getItem(key);
-            if (item) return JSON.parse(item);
+            if (item) {
+                let parsed = JSON.parse(item);
+                if (key === STORAGE_KEYS.PROGRAMS && Array.isArray(parsed)) {
+                    let cleaned = false;
+                    parsed.forEach(p => {
+                        if (p && p.imageUrl && (p.imageUrl.includes('unsplash.com') || p.imageUrl.includes('placeholder'))) {
+                            p.imageUrl = DEFAULT_SPECIFIC_PROGRAM_IMAGES[p.title] || 'assets/images/default-program-wiz.jpg';
+                            cleaned = true;
+                        }
+                    });
+                    if (cleaned) {
+                        localStorage.setItem(key, JSON.stringify(parsed));
+                    }
+                }
+                return parsed;
+            }
         } catch (e) {
             console.warn("[WIZ Store] Gagal baca localStorage, fallback memory:", key);
         }
@@ -1357,18 +1462,20 @@
             return true;
         },
         getSpecificProgramImage(title, pillar = '') {
-            if (!title) return 'assets/images/foto-utama-wiz.jpg';
+            if (!title) return 'assets/images/default-program-wiz.jpg';
             const cleanTitle = String(title).trim();
             const cleanQuery = cleanTitle.toLowerCase().replace(/[^a-z0-9]/g, '');
 
             // 1. Check custom uploaded images store (prioritize admin uploads from Supabase / localStorage)
             try {
                 const imgMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
-                if (imgMap[cleanTitle]) return imgMap[cleanTitle];
+                if (imgMap[cleanTitle] && !imgMap[cleanTitle].includes('unsplash.com') && !imgMap[cleanTitle].includes('placeholder')) {
+                    return imgMap[cleanTitle];
+                }
                 for (const [k, v] of Object.entries(imgMap)) {
                     const cleanK = String(k).trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-                    if (cleanK === cleanQuery || cleanQuery.includes(cleanK) || cleanK.includes(cleanQuery)) {
-                        if (v) return v;
+                    if ((cleanK === cleanQuery || cleanQuery.includes(cleanK) || cleanK.includes(cleanQuery)) && v && !v.includes('unsplash.com') && !v.includes('placeholder')) {
+                        return v;
                     }
                 }
             } catch(e) {}
@@ -1381,7 +1488,9 @@
                         p.title.toLowerCase() === cleanTitle.toLowerCase() ||
                         p.title.toLowerCase().replace(/[^a-z0-9]/g, '') === cleanQuery
                     ));
-                    if (found && found.imageUrl) return found.imageUrl;
+                    if (found && found.imageUrl && !found.imageUrl.includes('unsplash.com') && !found.imageUrl.includes('placeholder')) {
+                        return found.imageUrl;
+                    }
                 }
             } catch(e) {}
 
@@ -1394,7 +1503,7 @@
                             if (subObj && subObj.items) {
                                 for (const item of subObj.items) {
                                     const kNorm = String(item.key || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-                                    if ((kNorm === cleanQuery || cleanQuery.includes(kNorm) || kNorm.includes(cleanQuery)) && item.image) {
+                                    if ((kNorm === cleanQuery || cleanQuery.includes(kNorm) || cleanK.includes(cleanQuery)) && item.image && !item.image.includes('unsplash.com') && !item.image.includes('placeholder')) {
                                         return item.image;
                                     }
                                 }
@@ -1409,7 +1518,18 @@
                 return 'assets/images/pray-for-ntt.jpg';
             }
 
-            // 5. Default pillar fallback
+            // 5. Default specific program images dictionary
+            if (DEFAULT_SPECIFIC_PROGRAM_IMAGES[cleanTitle]) {
+                return DEFAULT_SPECIFIC_PROGRAM_IMAGES[cleanTitle];
+            }
+            for (const [k, v] of Object.entries(DEFAULT_SPECIFIC_PROGRAM_IMAGES)) {
+                const cleanK = String(k).trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+                if (cleanK === cleanQuery || cleanQuery.includes(cleanK) || cleanK.includes(cleanQuery)) {
+                    return v;
+                }
+            }
+
+            // 6. Default pillar fallback
             const pillarPhotos = {
                 'Berkah Hidayah': 'assets/images/default-program-wiz.jpg',
                 'Berkah Peduli': 'assets/images/sedekah-beras-dhuafa.jpg',

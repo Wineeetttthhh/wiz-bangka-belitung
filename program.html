@@ -1182,7 +1182,7 @@
                         return;
                     } else {
                         card.style.display = '';
-                        if (progObj.imageUrl) {
+                        if (progObj.imageUrl && !progObj.imageUrl.includes('unsplash.com') && !progObj.imageUrl.includes('placeholder')) {
                             const imgEl = card.querySelector('img');
                             if (imgEl) imgEl.src = progObj.imageUrl;
                         }
@@ -1202,11 +1202,18 @@
         function getCustomImg(progTitle) {
             try {
                 if (window.wizStore && window.wizStore.allocationRulesManager) {
-                    return window.wizStore.allocationRulesManager.getSpecificProgramImage(progTitle) || '';
+                    const img = window.wizStore.allocationRulesManager.getSpecificProgramImage(progTitle);
+                    if (img && !img.includes('unsplash.com') && !img.includes('placeholder')) {
+                        return img;
+                    }
                 }
                 const flatMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
-                return flatMap[progTitle] || '';
-            } catch(e) { return ''; }
+                const raw = flatMap[progTitle] || '';
+                if (raw && !raw.includes('unsplash.com') && !raw.includes('placeholder')) {
+                    return raw;
+                }
+                return 'assets/images/default-program-wiz.jpg';
+            } catch(e) { return 'assets/images/default-program-wiz.jpg'; }
         }
 
         document.querySelectorAll('.program-card').forEach(card => {
@@ -1218,9 +1225,11 @@
             if (!progTitle) return;
 
             const customImg = getCustomImg(progTitle);
-            if (customImg) {
+            if (customImg && !customImg.includes('unsplash.com') && !customImg.includes('placeholder')) {
                 const imgEl = card.querySelector('img');
-                if (imgEl) imgEl.src = customImg;
+                if (imgEl && (!imgEl.src || imgEl.src.includes('unsplash.com') || imgEl.src.includes('placeholder'))) {
+                    imgEl.src = customImg;
+                }
             }
 
             if (!card.dataset.target) {
