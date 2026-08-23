@@ -131,31 +131,22 @@ async function processToOgJpeg(rawInput) {
 
         let finalImg;
 
-        if (ratio >= 1.5 && ratio <= 2.1) {
-            // Standard Landscape photo
+        if (ratio >= 1.4) {
+            // Standard Landscape photo (1200x630)
             finalImg = srcImg.clone();
             finalImg.cover({ w: 1200, h: 630 });
         } else {
-            // Flyer / Poster (Vertical 4:5, 9:16 or Square 1:1)
-            // Background: blurred & darkened cover
-            const bg = srcImg.clone();
-            bg.cover({ w: 1200, h: 630 });
-            bg.blur(12);
-            bg.color([{ apply: 'darken', params: [25] }]);
-
-            // Foreground: sharp uncropped flyer contained within 1200x630
-            const fg = srcImg.clone();
-            fg.contain({ w: 1200, h: 630 });
-
-            const posX = Math.round((1200 - fg.bitmap.width) / 2);
-            const posY = Math.round((630 - fg.bitmap.height) / 2);
-            bg.composite(fg, posX, posY);
-
-            finalImg = bg;
+            // Flyer / Poster (Square 1:1, 4:5, 3:4, etc.)
+            // Output clean, uncropped flyer image with max dimension 1080px
+            // WhatsApp Status & Chat will render the full large card preview!
+            finalImg = srcImg.clone();
+            if (w > 1080 || h > 1080) {
+                finalImg.scaleToFit({ w: 1080, h: 1080 });
+            }
         }
 
-        // Compress to JPEG with quality 80 (typical output 70-130 KB, always < 300 KB)
-        let outputBuf = await finalImg.getBuffer('image/jpeg', { quality: 80 });
+        // Compress to JPEG with quality 82 (typical output 60-140 KB, always < 300 KB)
+        let outputBuf = await finalImg.getBuffer('image/jpeg', { quality: 82 });
 
         if (outputBuf.length > 280000) {
             // Extra compression guarantee if still large
@@ -264,7 +255,7 @@ const PROGRAM_IMAGE_MAP = {
     'sedekah-beras-dhuafa':                 'assets/images/sedekah-beras-dhuafa.jpg',
     'tebar-sembako':                        'assets/images/sedekah-beras-dhuafa.jpg',
     // Social & Kemanusiaan – foto kegiatan lapangan
-    'pray-for-ntt':                         'assets/images/sedekah-beras-dhuafa.jpg',
+    'pray-for-ntt':                         'assets/images/pray-for-ntt.jpg',
     'tebar-sembako-dhuafa':                 'assets/images/sedekah-beras-dhuafa.jpg',
     'santunan-mualaf':                      'assets/images/sedekah-beras-dhuafa.jpg',
     'khitanan-massal-dhuafa':               'assets/images/sedekah-beras-dhuafa.jpg',

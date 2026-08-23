@@ -124,8 +124,10 @@ const SPECIFIC_PROGRAMS_METADATA = {
         title: 'Pray For NTT',
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 50.000.000',
+        location: 'Nusa Tenggara Timur (NTT)',
+        beneficiaries: 'Warga & Penyintas Bencana NTT',
         description: 'Salurkan kepedulian dan bantuan darurat bencana untuk saudara-saudara kita terdampak bencana di Nusa Tenggara Timur (NTT).',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/sedekah-beras-dhuafa.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/pray-for-ntt.jpg'
     },
     'tebar-sembako': {
         title: 'Tebar Sembako Dhuafa',

@@ -1151,6 +1151,10 @@
                 }
             } catch(e) {}
 
+            if (cleanTitle.toLowerCase().includes('pray for ntt')) {
+                return 'assets/images/pray-for-ntt.jpg';
+            }
+
             // 3. Check allocation rules subAllocation
             try {
                 const rules = this.getAll();
@@ -2873,8 +2877,10 @@
             category: 'Sosial & Kemanusiaan',
             target: 'Rp 50.000.000',
             targetAmount: 50000000,
+            location: 'Nusa Tenggara Timur (NTT)',
+            beneficiaries: 'Warga & Penyintas Terdampak Bencana di NTT',
             description: 'Salurkan kepedulian dan bantuan darurat bencana untuk saudara-saudara kita terdampak bencana di Nusa Tenggara Timur (NTT).',
-            imageUrl: 'assets/images/sedekah-beras-dhuafa.jpg',
+            imageUrl: 'assets/images/pray-for-ntt.jpg',
             status: 'published',
             createdAt: '2026-08-22T17:00:00.000Z',
             updatedAt: '2026-08-22T17:00:00.000Z',
