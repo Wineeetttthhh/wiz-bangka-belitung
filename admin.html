@@ -2593,20 +2593,30 @@
             if (btn) btn.disabled = true;
             if (icon) icon.classList.add('animate-spin');
 
-            if (window.wizStore && window.wizStore.fullBidirectionalSync) {
-                const result = await window.wizStore.fullBidirectionalSync();
-                if (result.success) {
-                    alert(`✅ ${result.message}\n\nPerubahan Lokal -> Cloud: ${result.pushDetails?.donationsPushed || 0} donasi, ${result.pushDetails?.newsPushed || 0} berita, ${result.pushDetails?.disbursementsPushed || 0} penyaluran.`);
-                } else {
-                    alert(`⚠️ ${result.message}`);
+            try {
+                if (window.wizStore && typeof window.wizStore.fullBidirectionalSync === 'function') {
+                    const res = await window.wizStore.fullBidirectionalSync();
+                    refreshAll();
+                    if (typeof showNotification === 'function') {
+                        showNotification(res.message || '✅ Sinkronisasi Cloud selesai! Data berhasil diperbarui.');
+                    } else {
+                        alert(res.message || '✅ Sinkronisasi Cloud selesai! Data berhasil diperbarui.');
+                    }
+                } else if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
+                    await window.wizStore.syncFromCloud(true);
+                    refreshAll();
+                    if (typeof showNotification === 'function') {
+                        showNotification('✅ Sinkronisasi Cloud selesai!');
+                    } else {
+                        alert('✅ Sinkronisasi Cloud selesai!');
+                    }
                 }
-                refreshAll();
-            } else {
-                alert('Modul wizStore belum siap.');
+            } catch (e) {
+                alert('⚠️ Status sinkronisasi: ' + e.message);
+            } finally {
+                if (btn) btn.disabled = false;
+                if (icon) icon.classList.remove('animate-spin');
             }
-
-            if (btn) btn.disabled = false;
-            if (icon) icon.classList.remove('animate-spin');
         }
 
         function toggleSidebar() {
@@ -3667,27 +3677,6 @@
 
         function closeDonationDetail() {
             hideModal('donation-detail-modal');
-        }
-
-        async function handleManualSync() {
-            const icon = document.getElementById('sync-data-icon');
-            if (icon) icon.classList.add('animate-spin');
-
-            try {
-                if (wizStore && wizStore.fullBidirectionalSync) {
-                    const res = await wizStore.fullBidirectionalSync();
-                    refreshAll();
-                    alert(res.message || '✅ Sinkronisasi cloud berhasil! Seluruh data di HP dan Laptop sudah 100% konsisten.');
-                } else if (wizStore && wizStore.syncFromCloud) {
-                    await wizStore.syncFromCloud(true);
-                    refreshAll();
-                    alert('✅ Sinkronisasi cloud berhasil!');
-                }
-            } catch(e) {
-                alert('⚠️ Status sinkronisasi: ' + e.message);
-            } finally {
-                if (icon) icon.classList.remove('animate-spin');
-            }
         }
 
         // ─── News & Dokumentasi Handlers ───────────────────
@@ -7108,19 +7097,18 @@
             refreshAll();
             handleInitialUrlRouting();
             
-            // Auto-broadcast all laptop admin data & images to cloud & production API
-            if (wizStore && wizStore.pushToCloud) {
-                try {
-                    await wizStore.pushToCloud();
-                    console.log('✅ Laptop admin data auto-pushed to Cloud!');
-                } catch(e) {}
-            }
+            // Auto sync from cloud first to ensure latest registrations and cloud updates are loaded
             if (wizStore && wizStore.syncFromCloud) {
                 try {
                     await wizStore.syncFromCloud(true);
                 } catch(e) {}
                 refreshAll();
                 handleInitialUrlRouting();
+            }
+            if (wizStore && wizStore.pushToCloud) {
+                try {
+                    await wizStore.pushToCloud();
+                } catch(e) {}
             }
         });
 

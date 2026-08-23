@@ -2202,7 +2202,14 @@
                 setStore(STORAGE_KEYS.BASELINES, masterData.baselines);
             }
             if (masterData.admin_users && Array.isArray(masterData.admin_users) && masterData.admin_users.length > 0) {
-                smartMerge(STORAGE_KEYS.ADMIN_USERS, masterData.admin_users, (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0), getDeletedAdminIds());
+                const deletedAdminSet = getDeletedAdminIds();
+                const cloudAdmins = masterData.admin_users.filter(u => u && (u.id || u.username) && u.status !== 'deleted' && !u.isDeleted);
+                cloudAdmins.forEach(u => {
+                    if (deletedAdminSet.has(String(u.id))) deletedAdminSet.delete(String(u.id));
+                    if (u.username && deletedAdminSet.has(u.username.toLowerCase())) deletedAdminSet.delete(u.username.toLowerCase());
+                });
+                localStorage.setItem(STORAGE_KEYS.DELETED_ADMIN_IDS, JSON.stringify(Array.from(deletedAdminSet)));
+                smartMerge(STORAGE_KEYS.ADMIN_USERS, cloudAdmins, (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0), deletedAdminSet);
                 window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
             }
             if (masterData.programs && Array.isArray(masterData.programs) && masterData.programs.length > 0) {
@@ -2210,7 +2217,7 @@
                 window.dispatchEvent(new CustomEvent('wiz-programs-changed'));
             }
 
-            console.log('[WIZ Sync] Cross-device parity sync complete. News:', (getStore(STORAGE_KEYS.NEWS) || []).length, 'Programs:', (getStore(STORAGE_KEYS.PROGRAMS) || []).length, 'Donations:', (getStore(STORAGE_KEYS.DONATIONS) || []).length);
+            console.log('[WIZ Sync] Cross-device parity sync complete. News:', (getStore(STORAGE_KEYS.NEWS) || []).length, 'Programs:', (getStore(STORAGE_KEYS.PROGRAMS) || []).length, 'Donations:', (getStore(STORAGE_KEYS.DONATIONS) || []).length, 'Admins:', (getStore(STORAGE_KEYS.ADMIN_USERS) || []).length);
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
         } catch (e) {
             console.warn('[WIZ Sync] Sync error, staying on local storage:', e);
@@ -2221,8 +2228,8 @@
 
     async function fullBidirectionalSync() {
         try {
-            await pushToCloud();
             await syncFromCloud(true);
+            await pushToCloud();
             return {
                 success: true,
                 message: 'Sinkronisasi dua arah selesai! Seluruh data (HP & Laptop) sudah 100% konsisten dan identik.'
