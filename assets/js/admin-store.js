@@ -1353,44 +1353,57 @@
         getSpecificProgramImage(title, pillar = '') {
             if (!title) return 'assets/images/foto-utama-wiz.jpg';
             const cleanTitle = String(title).trim();
-            
-            // 1. Check custom uploaded images store
+            const cleanQuery = cleanTitle.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+            // 1. Check custom uploaded images store (prioritize admin uploads from Supabase / localStorage)
             try {
                 const imgMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
                 if (imgMap[cleanTitle]) return imgMap[cleanTitle];
                 for (const [k, v] of Object.entries(imgMap)) {
-                    if (k.toLowerCase() === cleanTitle.toLowerCase()) return v;
+                    const cleanK = String(k).trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+                    if (cleanK === cleanQuery || cleanQuery.includes(cleanK) || cleanK.includes(cleanQuery)) {
+                        if (v) return v;
+                    }
                 }
             } catch(e) {}
 
-            // 2. Check programs store
+            // 2. Check programs store (from admin program database)
             try {
                 if (typeof programs !== 'undefined' && programs.getAll) {
-                    const found = programs.getAll().find(p => p && p.title && p.title.toLowerCase() === cleanTitle.toLowerCase());
+                    const allProgs = programs.getAll();
+                    const found = allProgs.find(p => p && p.title && (
+                        p.title.toLowerCase() === cleanTitle.toLowerCase() ||
+                        p.title.toLowerCase().replace(/[^a-z0-9]/g, '') === cleanQuery
+                    ));
                     if (found && found.imageUrl) return found.imageUrl;
                 }
             } catch(e) {}
-
-            if (cleanTitle.toLowerCase().includes('pray for ntt')) {
-                return 'assets/images/pray-for-ntt.jpg';
-            }
 
             // 3. Check allocation rules subAllocation
             try {
                 const rules = this.getAll();
                 for (const wData of Object.values(rules)) {
                     if (wData && wData.subAllocation) {
-                        for (const sub of Object.values(wData.subAllocation)) {
-                            if (sub && sub.items) {
-                                const item = sub.items.find(i => (i.key || '').toLowerCase() === cleanTitle.toLowerCase());
-                                if (item && item.image) return item.image;
+                        for (const [pillarKey, subObj] of Object.entries(wData.subAllocation)) {
+                            if (subObj && subObj.items) {
+                                for (const item of subObj.items) {
+                                    const kNorm = String(item.key || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+                                    if ((kNorm === cleanQuery || cleanQuery.includes(kNorm) || kNorm.includes(cleanQuery)) && item.image) {
+                                        return item.image;
+                                    }
+                                }
                             }
                         }
                     }
                 }
             } catch(e) {}
 
-            // 4. Default pillar fallback
+            // 4. Check known specific program poster paths
+            if (cleanQuery.includes('prayforntt') || cleanQuery.includes('ntt')) {
+                return 'assets/images/pray-for-ntt.jpg';
+            }
+
+            // 5. Default pillar fallback
             const pillarPhotos = {
                 'Berkah Hidayah': 'assets/images/foto-utama-wiz.jpg',
                 'Berkah Peduli': 'assets/images/sedekah-beras-dhuafa.jpg',
@@ -2194,7 +2207,7 @@
             }
             if (masterData.specific_prog_imgs && typeof masterData.specific_prog_imgs === 'object') {
                 const existingImgs = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
-                const mergedImgs = { ...masterData.specific_prog_imgs, ...existingImgs };
+                const mergedImgs = { ...existingImgs, ...masterData.specific_prog_imgs };
                 localStorage.setItem('wiz_specific_prog_imgs', JSON.stringify(mergedImgs));
                 window.dispatchEvent(new CustomEvent('wiz-program-images-changed'));
             }
