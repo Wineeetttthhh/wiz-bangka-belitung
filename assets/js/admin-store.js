@@ -703,7 +703,10 @@
         getPending() {
             return this.getAll().filter(u => u.status === 'pending');
         },
-        async register({ username, password, fullName, phone, role }) {
+        getById(id) {
+            return this.getAll().find(u => String(u.id) === String(id) || u.username.toLowerCase() === String(id).toLowerCase()) || null;
+        },
+        async add({ username, password, fullName, phone, role, wilayah, status = 'approved' }) {
             const list = this.getAll();
             const cleanUser = (username || '').trim().toLowerCase();
             if (!cleanUser || !password) {
@@ -723,6 +726,65 @@
                 fullName: (fullName || cleanUser).trim(),
                 phone: (phone || '').trim(),
                 role: role === 'super_admin' ? 'super_admin' : 'amil',
+                wilayah: wilayah || 'Semua Wilayah',
+                status: status || 'approved',
+                createdAt: new Date().toISOString(),
+                verifiedAt: status === 'approved' ? new Date().toISOString() : null,
+                verifiedBy: status === 'approved' ? (sessionStorage.getItem('wiz_admin_user') || 'Admin 1') : null
+            };
+
+            list.push(newUser);
+            setStore(STORAGE_KEYS.ADMIN_USERS, list);
+            if (typeof activityLog !== 'undefined' && activityLog.add) {
+                activityLog.add('auth', `Penambahan akun admin baru: '${cleanUser}' (${newUser.role})`, sessionStorage.getItem('wiz_admin_user') || 'Admin 1');
+            }
+
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.insert('admin_users', newUser);
+            }
+            return { success: true, user: newUser, message: 'Akun admin berhasil ditambahkan!' };
+        },
+        async update(id, data) {
+            const list = this.getAll();
+            const idx = list.findIndex(u => String(u.id) === String(id));
+            if (idx === -1) return { success: false, message: 'Admin tidak ditemukan' };
+
+            const user = list[idx];
+            if (data.fullName !== undefined) user.fullName = data.fullName.trim();
+            if (data.phone !== undefined) user.phone = data.phone.trim();
+            if (data.role !== undefined && user.username !== 'admin') user.role = data.role;
+            if (data.wilayah !== undefined) user.wilayah = data.wilayah;
+            if (data.status !== undefined && user.username !== 'admin') user.status = data.status;
+            if (data.password && data.password.trim()) user.password = data.password.trim();
+            user.updatedAt = new Date().toISOString();
+
+            setStore(STORAGE_KEYS.ADMIN_USERS, list);
+            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                await window.wizFirebase.update('admin_users', id, user);
+            }
+            return { success: true, user, message: 'Data admin berhasil diperbarui!' };
+        },
+        async register({ username, password, fullName, phone, role, wilayah }) {
+            const list = this.getAll();
+            const cleanUser = (username || '').trim().toLowerCase();
+            if (!cleanUser || !password) {
+                return { success: false, message: 'Username dan kata sandi wajib diisi.' };
+            }
+            if (cleanUser === 'admin') {
+                return { success: false, message: 'Username "admin" adalah akun Admin 1 Utama dan tidak dapat didaftarkan ulang.' };
+            }
+            if (list.some(u => u.username.toLowerCase() === cleanUser)) {
+                return { success: false, message: 'Username sudah digunakan, silakan pilih username lain.' };
+            }
+
+            const newUser = {
+                id: generateId(),
+                username: cleanUser,
+                password: password.trim(),
+                fullName: (fullName || cleanUser).trim(),
+                phone: (phone || '').trim(),
+                role: role === 'super_admin' ? 'super_admin' : 'amil',
+                wilayah: wilayah || 'Semua Wilayah',
                 status: 'pending',
                 createdAt: new Date().toISOString()
             };
