@@ -3381,6 +3381,25 @@
             return this.getAll().find(p => p.slug === cleanSlug || (p.title && p.title.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-') === cleanSlug)) || null;
         },
 
+        getProgramDetails(query) {
+            if (!query) return null;
+            let cleanQuery = String(query).trim().toLowerCase();
+            const parenMatch = cleanQuery.match(/\(([^)]+)\)/);
+            if (parenMatch && parenMatch[1]) {
+                cleanQuery = parenMatch[1].trim().toLowerCase();
+            }
+            const cleanSlug = cleanQuery.replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-');
+            
+            const all = this.getAll();
+            return all.find(p => {
+                if (!p) return false;
+                const pTitle = (p.title || '').toLowerCase();
+                const pSlug = (p.slug || '').toLowerCase();
+                const pId = (p.id || '').toLowerCase();
+                return pTitle === cleanQuery || pSlug === cleanSlug || pId === cleanQuery || pTitle.includes(cleanQuery) || cleanQuery.includes(pTitle);
+            }) || null;
+        },
+
         async add(progData) {
             const list = getStore(STORAGE_KEYS.PROGRAMS) || [];
             const cleanTitle = String(progData.title || '').trim();
@@ -3398,6 +3417,8 @@
                 category: progData.category || mapProgramToPillar(cleanTitle, pillar) || 'Sosial & Kemanusiaan',
                 target: progData.target || 'Rp 15.000.000',
                 targetAmount: Number(String(progData.target || '').replace(/[^0-9]/g, '')) || 15000000,
+                location: (progData.location || 'Kepulauan Bangka Belitung').trim(),
+                beneficiaries: (progData.beneficiaries || '').trim(),
                 description: (progData.description || '').trim(),
                 imageUrl: progData.imageUrl || progData.image || (allocationRulesManager ? allocationRulesManager.getSpecificProgramImage(cleanTitle, pillar) : '') || 'assets/images/foto-utama-wiz.jpg',
                 status: progData.status === 'draft' ? 'draft' : 'published',

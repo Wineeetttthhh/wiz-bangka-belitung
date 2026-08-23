@@ -351,10 +351,45 @@
                         <!-- Step 4: Program Spesifik -->
                         <section class="bg-surface-container-lowest rounded-xl p-md sm:p-lg shadow-sm border border-outline-variant/20">
                             <h2 class="font-headline-md text-headline-md font-bold text-on-surface mb-sm">4. Program Spesifik</h2>
-                            <select id="program-spesifik-select" class="w-full bg-surface border border-outline-variant rounded-lg px-3.5 py-2.5 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none" onchange="setProgramSpesifik(this.value)">
+                            <select id="program-spesifik-select" class="w-full bg-surface border border-outline-variant rounded-lg px-3.5 py-2.5 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none font-semibold" onchange="setProgramSpesifik(this.value)">
                                 <option value="">-- Pilih Program Utama Terlebih Dahulu --</option>
                             </select>
                         </section>
+
+                        <!-- Program Detail & Lokasi Penyaluran Card (Tampil saat Program Spesifik dipilih) -->
+                        <div id="program-detail-card" class="hidden bg-surface-container-lowest rounded-2xl p-4 sm:p-6 border-2 border-emerald-500/30 shadow-md space-y-4 transition-all duration-300">
+                            <div class="flex items-center justify-between border-b border-outline-variant/20 pb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary text-xl">info</span>
+                                    <span class="font-label-md text-xs sm:text-sm font-bold text-slate-900">Detail &amp; Lokasi Penyaluran Program</span>
+                                </div>
+                                <span id="detail-card-pillar" class="bg-primary text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">BERKAH PEDULI</span>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row gap-4 items-start">
+                                <div class="relative w-full sm:w-44 h-36 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-outline-variant/30 shadow-xs">
+                                    <img id="detail-card-img" src="assets/images/foto-utama-wiz.jpg" onerror="this.onerror=null; this.src='assets/images/foto-utama-wiz.jpg';" alt="Foto Program" class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex-1 space-y-2.5 min-w-0 w-full">
+                                    <h3 id="detail-card-title" class="font-headline-md text-base sm:text-lg font-extrabold text-slate-900 leading-snug">Nama Program Kebaikan</h3>
+                                    
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <div class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-lg text-xs font-semibold">
+                                            <span class="material-symbols-outlined text-sm text-emerald-700">pin_drop</span>
+                                            <span id="detail-card-location">Lokasi: Kepulauan Bangka Belitung</span>
+                                        </div>
+                                        <div id="detail-card-beneficiary-wrap" class="hidden inline-flex items-center gap-1.5 bg-blue-50 text-blue-800 border border-blue-200 px-2.5 py-1 rounded-lg text-xs font-semibold">
+                                            <span class="material-symbols-outlined text-sm text-blue-700">group</span>
+                                            <span id="detail-card-beneficiary">Mustahik &amp; Santri</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-surface-container-low/80 rounded-xl p-3 sm:p-3.5 border border-outline-variant/30 text-xs text-slate-700 leading-relaxed">
+                                        <p id="detail-card-desc" class="whitespace-pre-line font-medium text-slate-800">Deskripsi lengkap program...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- Transparency Notice 12.5% for Infak Terikat -->
                         <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-md text-emerald-900">
@@ -943,6 +978,60 @@
             }
 
             renderInfakUmumNotice();
+            renderProgramDetailCard();
+        }
+
+        function renderProgramDetailCard() {
+            const card = document.getElementById('program-detail-card');
+            if (!card) return;
+
+            if (state.type !== 'Infak Terikat' || !state.program || state.program === '-') {
+                card.classList.add('hidden');
+                return;
+            }
+
+            const progName = state.program;
+            const catName = state.category;
+
+            let progObj = null;
+            if (window.wizStore && window.wizStore.programs && typeof window.wizStore.programs.getProgramDetails === 'function') {
+                progObj = window.wizStore.programs.getProgramDetails(progName);
+            }
+
+            const defaultImg = (window.wizStore && window.wizStore.allocationRulesManager) ? window.wizStore.allocationRulesManager.getSpecificProgramImage(progName, catName) : 'assets/images/foto-utama-wiz.jpg';
+            const imgUrl = (progObj && progObj.imageUrl) ? progObj.imageUrl : defaultImg;
+            const title = (progObj && progObj.title) ? progObj.title : progName;
+            const pillar = (progObj && progObj.pillar) ? progObj.pillar : (catName || 'Berkah Peduli');
+            const location = (progObj && progObj.location) ? progObj.location : `Wilayah ${state.wilayah || 'Bangka Belitung'}`;
+            const beneficiaries = (progObj && progObj.beneficiaries) ? progObj.beneficiaries : '';
+            const desc = (progObj && progObj.description) ? progObj.description : `Salurkan donasi dan sedekah terbaik Anda untuk mendukung program ${progName} bersama Laznas WIZ Bangka Belitung. Amanah, transparan, dan tersalurkan tepat sasaran.`;
+
+            const elImg = document.getElementById('detail-card-img');
+            const elPillar = document.getElementById('detail-card-pillar');
+            const elTitle = document.getElementById('detail-card-title');
+            const elLoc = document.getElementById('detail-card-location');
+            const elBenWrap = document.getElementById('detail-card-beneficiary-wrap');
+            const elBen = document.getElementById('detail-card-beneficiary');
+            const elDesc = document.getElementById('detail-card-desc');
+
+            if (elImg) {
+                elImg.src = imgUrl;
+                elImg.alt = title;
+            }
+            if (elPillar) elPillar.textContent = pillar.toUpperCase();
+            if (elTitle) elTitle.textContent = title;
+            if (elLoc) elLoc.textContent = `Lokasi: ${location}`;
+            if (elBenWrap && elBen) {
+                if (beneficiaries) {
+                    elBen.textContent = `Target: ${beneficiaries}`;
+                    elBenWrap.classList.remove('hidden');
+                } else {
+                    elBenWrap.classList.add('hidden');
+                }
+            }
+            if (elDesc) elDesc.textContent = desc;
+
+            card.classList.remove('hidden');
         }
 
         function handleTypeChange(radio) {

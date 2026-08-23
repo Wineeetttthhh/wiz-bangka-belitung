@@ -404,6 +404,8 @@ module.exports = async function handler(req, res) {
                     title: foundProg.title,
                     pillar: foundProg.pillar,
                     target: foundProg.target || 'Rp 50.000.000',
+                    location: foundProg.location || 'Kepulauan Bangka Belitung',
+                    beneficiaries: foundProg.beneficiaries || '',
                     description: foundProg.description || `Salurkan kepedulian dan donasi terbaik Anda untuk program ${foundProg.title} bersama WIZ Babel.`,
                     imageUrl: specificImgsMap[foundProg.title] || foundProg.imageUrl || DEFAULT_FALLBACK_IMAGE
                 };
@@ -757,7 +759,20 @@ module.exports = async function handler(req, res) {
                     <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight mb-2">
                         ${escapeHtml(title)}
                     </h1>
-                    <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+                    
+                    <div class="flex flex-wrap items-center gap-2 mb-3">
+                        <div class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1 rounded-xl text-xs font-semibold">
+                            <span class="material-symbols-outlined text-sm text-emerald-700">pin_drop</span>
+                            <span>Lokasi: ${escapeHtml(selectedProgram.location || 'Kepulauan Bangka Belitung')}</span>
+                        </div>
+                        ${selectedProgram.beneficiaries ? `
+                        <div class="inline-flex items-center gap-1.5 bg-blue-50 text-blue-800 border border-blue-200 px-3 py-1 rounded-xl text-xs font-semibold">
+                            <span class="material-symbols-outlined text-sm text-blue-700">group</span>
+                            <span>Target: ${escapeHtml(selectedProgram.beneficiaries)}</span>
+                        </div>` : ''}
+                    </div>
+
+                    <p class="text-slate-600 text-sm sm:text-base leading-relaxed whitespace-pre-line">
                         ${escapeHtml(description)}
                     </p>
                 </div>

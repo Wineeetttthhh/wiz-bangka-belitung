@@ -1691,9 +1691,29 @@
                     <input type="text" id="spec-prog-title" required class="w-full bg-surface border border-outline-variant rounded-xl px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none shadow-xs font-bold text-sm" placeholder="Contoh: Pray For NTT atau Sedekah Beras Dhuafa">
                 </div>
 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-bold mb-xs">Lokasi Penyaluran / Target Wilayah <span class="text-error">*</span></label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary text-base">pin_drop</span>
+                            <input type="text" id="spec-prog-location" required class="w-full bg-surface border border-outline-variant rounded-xl pl-9 pr-3 py-2.5 font-body-md text-on-surface focus:border-primary outline-none shadow-xs text-xs font-semibold" placeholder="Contoh: Pangkalpinang & Sungailiat, Bangka Belitung" value="Kepulauan Bangka Belitung">
+                        </div>
+                        <p class="font-caption text-[11px] text-on-surface-variant mt-1">Wilayah di mana manfaat program ini akan disalurkan.</p>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-bold mb-xs">Target Penerima Manfaat / Urgensi</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary text-base">group</span>
+                            <input type="text" id="spec-prog-beneficiaries" class="w-full bg-surface border border-outline-variant rounded-xl pl-9 pr-3 py-2.5 font-body-md text-on-surface focus:border-primary outline-none shadow-xs text-xs font-semibold" placeholder="Contoh: 500 Santri Yatim & 100 Keluarga Dhuafa">
+                        </div>
+                        <p class="font-caption text-[11px] text-on-surface-variant mt-1">Estimasi jumlah / profil penerima manfaat.</p>
+                    </div>
+                </div>
+
                 <div>
-                    <label class="block font-label-md text-label-md text-on-surface font-bold mb-xs">Deskripsi &amp; Cerita Singkat</label>
-                    <textarea id="spec-prog-desc" rows="3" class="w-full bg-surface border border-outline-variant rounded-xl p-3 font-body-md text-on-surface focus:border-primary outline-none shadow-xs resize-none" placeholder="Tuliskan tujuan dan ajakan donasi program ini..."></textarea>
+                    <label class="block font-label-md text-label-md text-on-surface font-bold mb-xs">Deskripsi &amp; Cerita Lengkap Program <span class="text-error">*</span></label>
+                    <textarea id="spec-prog-desc" rows="4" required class="w-full bg-surface border border-outline-variant rounded-xl p-3 font-body-md text-on-surface focus:border-primary outline-none shadow-xs text-xs leading-relaxed" placeholder="Tuliskan latar belakang, urgensi, rincian penyaluran, dan ajakan berdonasi secara lengkap. Teks ini akan langsung dibaca oleh calon donatur di halaman donasi dan link yang dibagikan oleh mitra..."></textarea>
+                    <p class="font-caption text-[11px] text-on-surface-variant mt-1">Deskripsi ini akan muncul di kartu detail program pada Form Donasi, Katalog, dan Preview WhatsApp.</p>
                 </div>
 
                 <!-- Cover Foto Program -->
@@ -4500,6 +4520,8 @@
                 if (progObj) {
                     document.getElementById('spec-prog-id').value = progObj.id || '';
                     document.getElementById('spec-prog-target').value = progObj.target || 'Rp 50.000.000';
+                    document.getElementById('spec-prog-location').value = progObj.location || 'Kepulauan Bangka Belitung';
+                    document.getElementById('spec-prog-beneficiaries').value = progObj.beneficiaries || '';
                     document.getElementById('spec-prog-desc').value = progObj.description || '';
                     setSpecificProgramPresetPhoto(progObj.imageUrl || 'assets/images/sedekah-beras-dhuafa.jpg');
                     const statusRadios = document.getElementsByName('spec-prog-status');
@@ -4510,12 +4532,16 @@
                     const currentImg = (window.wizStore && window.wizStore.allocationRulesManager) ? window.wizStore.allocationRulesManager.getSpecificProgramImage(editTitle, editPillar) : 'assets/images/sedekah-beras-dhuafa.jpg';
                     setSpecificProgramPresetPhoto(currentImg);
                     document.getElementById('spec-prog-target').value = 'Rp 50.000.000';
+                    document.getElementById('spec-prog-location').value = 'Kepulauan Bangka Belitung';
+                    document.getElementById('spec-prog-beneficiaries').value = '';
                     document.getElementById('spec-prog-desc').value = `Salurkan donasi dan sedekah terbaik Anda untuk mendukung program ${editTitle}.`;
                 }
             } else {
                 modalTitle.innerHTML = '<span class="material-symbols-outlined text-primary text-2xl">grid_view</span><span>Tambah Program Kebaikan Baru</span>';
                 form.reset();
                 if (editPillar) document.getElementById('spec-prog-pillar').value = editPillar;
+                document.getElementById('spec-prog-location').value = 'Kepulauan Bangka Belitung';
+                document.getElementById('spec-prog-beneficiaries').value = '';
                 setSpecificProgramPresetPhoto('assets/images/sedekah-beras-dhuafa.jpg');
                 const statusRadios = document.getElementsByName('spec-prog-status');
                 for (const r of statusRadios) {
@@ -4538,6 +4564,8 @@
             const pillar = document.getElementById('spec-prog-pillar').value;
             const newTitle = document.getElementById('spec-prog-title').value.trim();
             const target = document.getElementById('spec-prog-target').value.trim() || 'Rp 15.000.000';
+            const location = document.getElementById('spec-prog-location').value.trim() || 'Kepulauan Bangka Belitung';
+            const beneficiaries = document.getElementById('spec-prog-beneficiaries').value.trim();
             const desc = document.getElementById('spec-prog-desc').value.trim();
             const imgEl = document.getElementById('spec-prog-main-preview');
             const imgUrl = (imgEl && imgEl.src) ? imgEl.src : (document.getElementById('spec-prog-img-url').value || 'assets/images/sedekah-beras-dhuafa.jpg');
@@ -4566,6 +4594,8 @@
                         title: newTitle,
                         pillar: pillar,
                         target: target,
+                        location: location,
+                        beneficiaries: beneficiaries,
                         description: desc,
                         imageUrl: imgUrl,
                         status: status
@@ -4575,6 +4605,8 @@
                         title: newTitle,
                         pillar: pillar,
                         target: target,
+                        location: location,
+                        beneficiaries: beneficiaries,
                         description: desc,
                         imageUrl: imgUrl,
                         status: status
@@ -4647,6 +4679,8 @@
                     title: p.title,
                     pillar: p.pillar,
                     target: p.target || 'Rp 50.000.000',
+                    location: p.location || 'Kepulauan Bangka Belitung',
+                    beneficiaries: p.beneficiaries || '',
                     desc: p.description || '',
                     imageUrl: p.imageUrl || (window.wizStore.allocationRulesManager ? window.wizStore.allocationRulesManager.getSpecificProgramImage(p.title, p.pillar) : 'assets/images/foto-utama-wiz.jpg'),
                     status: p.status || 'published'
@@ -4661,6 +4695,8 @@
                                 title: pTitle,
                                 pillar: pillar,
                                 target: 'Rp 50.000.000',
+                                location: 'Kepulauan Bangka Belitung',
+                                beneficiaries: '',
                                 desc: '',
                                 imageUrl: (window.wizStore && window.wizStore.allocationRulesManager) ? window.wizStore.allocationRulesManager.getSpecificProgramImage(pTitle, pillar) : 'assets/images/foto-utama-wiz.jpg',
                                 status: 'published'
@@ -4671,7 +4707,7 @@
             }
 
             let filtered = allPrograms.filter(item => {
-                const matchQuery = !query || item.title.toLowerCase().includes(query) || item.pillar.toLowerCase().includes(query);
+                const matchQuery = !query || item.title.toLowerCase().includes(query) || item.pillar.toLowerCase().includes(query) || (item.location && item.location.toLowerCase().includes(query));
                 const matchStatus = (currentProgramFilterStatus === 'all') || (item.status === currentProgramFilterStatus);
                 return matchQuery && matchStatus;
             });
@@ -4712,9 +4748,17 @@
                             <span class="material-symbols-outlined text-sm text-amber-700">info</span>
                             <span>Status: <strong>Draft</strong> (Belum tayang di web). Klik tombol hijau di bawah untuk menayangkan.</span>
                         </div>` : ''}
-                        <h4 class="font-label-md font-bold text-on-surface text-sm mb-0.5 line-clamp-2">${item.title}</h4>
+                        <h4 class="font-label-md font-bold text-on-surface text-sm mb-1 line-clamp-1">${item.title}</h4>
+                        
+                        <div class="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-1 rounded-lg mb-2 border border-emerald-200">
+                            <span class="material-symbols-outlined text-xs">pin_drop</span>
+                            <span class="truncate">${item.location || 'Kepulauan Bangka Belitung'}</span>
+                        </div>
+
+                        ${item.desc ? `<p class="text-[11px] text-on-surface-variant line-clamp-2 mb-2 italic">"${item.desc}"</p>` : ''}
+
                         <div class="flex items-center justify-between text-xs text-on-surface-variant mb-1">
-                            <span>Program Spesifik ${item.pillar}</span>
+                            <span>Target Donasi</span>
                             <span class="font-bold text-primary">${item.target}</span>
                         </div>
                     </div>

@@ -1146,6 +1146,7 @@
                         return {
                             displayLabel: p.title,
                             pillarKey: p.pillar,
+                            location: p.location || 'Bangka Belitung',
                             masuk: stats.saldo || 0,
                             image: dynamicImg,
                             desc: p.description || ''
@@ -1162,6 +1163,7 @@
                 list = rawPrograms.map(p => ({
                     displayLabel: p.displayLabel,
                     pillarKey: p.pillarKey,
+                    location: 'Bangka Belitung',
                     masuk: p.masuk || 0,
                     image: p.image || (wizStore.allocationRulesManager ? wizStore.allocationRulesManager.getSpecificProgramImage(p.itemKey, p.pillarKey) : '') || defaultImg,
                     desc: ''
@@ -1180,6 +1182,11 @@
                     </div>
                     <div class="p-4 flex flex-col flex-grow space-y-2">
                         <h4 class="font-bold text-slate-900 text-sm line-clamp-1">${escapeHtml(p.displayLabel)}</h4>
+                        <div class="flex items-center gap-1 text-[11px] text-emerald-800 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md w-fit">
+                            <span class="material-symbols-outlined text-xs">pin_drop</span>
+                            <span class="truncate">${escapeHtml(p.location || 'Bangka Belitung')}</span>
+                        </div>
+                        ${p.desc ? `<p class="text-[11px] text-slate-500 line-clamp-2 italic">"${escapeHtml(p.desc)}"</p>` : ''}
                         <p class="text-xs text-slate-500">Terkumpul: <strong class="text-primary">Rp ${(p.masuk || 0).toLocaleString('id-ID')}</strong></p>
                         
                         <div class="pt-2 mt-auto">
