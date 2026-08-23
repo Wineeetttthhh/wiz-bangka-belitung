@@ -705,6 +705,58 @@
     };
 
     // ─── Admin Authentication & Accounts Manager ──────────
+    // ─── Admin Authentication & Accounts Manager (Optimized Supabase Engine) ───
+    async function microSyncAdmin(action, payload = {}) {
+        try {
+            fetch('/api/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action, ...payload })
+            }).catch(() => {});
+        } catch(e) {}
+
+        if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+            try {
+                window.wizSupabase.select('site_settings', { filter: 'key=eq.master_bundle' }).then(res => {
+                    if (res && res.data && res.data[0] && res.data[0].value) {
+                        const mb = res.data[0].value;
+                        if (!mb.admin_users) mb.admin_users = [];
+                        if (!mb.deleted_admin_ids) mb.deleted_admin_ids = [];
+
+                        if (action === 'register_admin_user' || action === 'update_admin_user') {
+                            const u = payload.user;
+                            if (u) {
+                                const idx = mb.admin_users.findIndex(x => String(x.id) === String(u.id) || (x.username && u.username && x.username.toLowerCase() === u.username.toLowerCase()));
+                                if (idx !== -1) mb.admin_users[idx] = { ...mb.admin_users[idx], ...u };
+                                else mb.admin_users.push(u);
+                            }
+                        } else if (action === 'approve_admin_user') {
+                            const targetId = String(payload.id);
+                            const idx = mb.admin_users.findIndex(x => String(x.id) === targetId);
+                            if (idx !== -1) {
+                                mb.admin_users[idx].status = 'approved';
+                                mb.admin_users[idx].verifiedAt = new Date().toISOString();
+                                mb.admin_users[idx].verifiedBy = payload.verifiedBy || 'Admin 1';
+                                mb.admin_users[idx].updatedAt = new Date().toISOString();
+                            }
+                        } else if (action === 'delete_admin_user') {
+                            const targetId = String(payload.id);
+                            mb.admin_users = mb.admin_users.filter(x => String(x.id) !== targetId && x.username !== 'admin');
+                            if (!mb.deleted_admin_ids.includes(targetId)) mb.deleted_admin_ids.push(targetId);
+                        }
+
+                        mb.updatedAt = new Date().toISOString();
+                        window.wizSupabase.upsert('site_settings', {
+                            key: 'master_bundle',
+                            value: mb,
+                            updated_at: new Date().toISOString()
+                        }).catch(() => {});
+                    }
+                }).catch(() => {});
+            } catch(e) {}
+        }
+    }
+
     const adminUsers = {
         getAll() {
             const deletedSet = getDeletedAdminIds();
@@ -761,6 +813,7 @@
                     wilayah: wilayah || 'Semua Wilayah',
                     status: status || 'approved',
                     createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
                     verifiedAt: status === 'approved' ? new Date().toISOString() : null,
                     verifiedBy: status === 'approved' ? (sessionStorage.getItem('wiz_admin_user') || 'Admin 1') : null
                 };
@@ -775,8 +828,9 @@
             window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
             broadcastSync('UPDATE_ADMIN_USERS', list);
 
+            microSyncAdmin('register_admin_user', { user: targetUser });
             if (typeof pushToCloud === 'function') {
-                try { await pushToCloud(); } catch(e) {}
+                setTimeout(() => pushToCloud().catch(() => {}), 100);
             }
             return { success: true, user: targetUser, message: 'Akun admin berhasil disimpan & terhubung ke Cloud!' };
         },
@@ -804,8 +858,9 @@
             window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
             broadcastSync('UPDATE_ADMIN_USERS', list);
 
+            microSyncAdmin('update_admin_user', { user });
             if (typeof pushToCloud === 'function') {
-                try { await pushToCloud(); } catch(e) {}
+                setTimeout(() => pushToCloud().catch(() => {}), 100);
             }
             return { success: true, user, message: 'Data admin berhasil diperbarui!' };
         },
@@ -822,11 +877,6 @@
             }
             if (cleanUser === 'admin') {
                 return { success: false, message: 'Username "admin" adalah akun Admin 1 Utama dan tidak dapat didaftarkan ulang.' };
-            }
-
-            // Always sync fresh state from cloud first
-            if (typeof syncFromCloud === 'function') {
-                try { await syncFromCloud(true); } catch(e) {}
             }
 
             let list = this.getAll();
@@ -853,8 +903,9 @@
                 window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
                 broadcastSync('UPDATE_ADMIN_USERS', list);
 
+                microSyncAdmin('register_admin_user', { user: existing });
                 if (typeof pushToCloud === 'function') {
-                    try { await pushToCloud(); } catch(e) {}
+                    setTimeout(() => pushToCloud().catch(() => {}), 100);
                 }
                 return { success: true, user: existing, message: 'Pendaftaran Anda berhasil diperbarui! Akun Anda sedang menunggu persetujuan dari Admin 1 Utama.' };
             }
@@ -881,8 +932,9 @@
             window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
             broadcastSync('NEW_ADMIN_USER', newUser);
 
+            microSyncAdmin('register_admin_user', { user: newUser });
             if (typeof pushToCloud === 'function') {
-                try { await pushToCloud(); } catch(e) {}
+                setTimeout(() => pushToCloud().catch(() => {}), 100);
             }
 
             return { success: true, user: newUser, message: 'Pendaftaran berhasil! Akun Anda otomatis masuk antrean dan menunggu persetujuan dari Admin 1 Utama.' };
@@ -929,8 +981,9 @@
             window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
             broadcastSync('UPDATE_ADMIN_USERS', list);
 
+            microSyncAdmin('approve_admin_user', { id, verifiedBy: adminActor || 'Admin 1' });
             if (typeof pushToCloud === 'function') {
-                try { await pushToCloud(); } catch(e) {}
+                setTimeout(() => pushToCloud().catch(() => {}), 100);
             }
             return { success: true, user: list[idx] };
         },
@@ -950,8 +1003,9 @@
             window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
             broadcastSync('UPDATE_ADMIN_USERS', list);
 
+            microSyncAdmin('update_admin_user', { user: list[idx] });
             if (typeof pushToCloud === 'function') {
-                try { await pushToCloud(); } catch(e) {}
+                setTimeout(() => pushToCloud().catch(() => {}), 100);
             }
             return { success: true };
         },
@@ -973,8 +1027,9 @@
             window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
             broadcastSync('UPDATE_ADMIN_USERS', list);
 
+            microSyncAdmin('delete_admin_user', { id });
             if (typeof pushToCloud === 'function') {
-                try { await pushToCloud(); } catch(e) {}
+                setTimeout(() => pushToCloud().catch(() => {}), 100);
             }
             return { success: true };
         }

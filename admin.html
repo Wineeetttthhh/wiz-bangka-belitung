@@ -267,28 +267,44 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-sm">
                     <div class="space-y-xs">
                         <label for="reg-password" class="block font-label-md text-caption font-bold text-on-surface">Password *</label>
-                        <input type="password" id="reg-password" required placeholder="Buat password"
-                            class="w-full px-md py-sm bg-surface-container-low border border-outline-variant/60 rounded-xl font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+                        <div class="relative flex items-center">
+                            <input type="password" id="reg-password" required placeholder="Buat password"
+                                class="w-full px-md py-sm pr-10 bg-surface-container-low border border-outline-variant/60 rounded-xl font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-xs">
+                            <button type="button" onclick="togglePasswordVisibility('reg-password', this)" class="absolute right-3 text-outline hover:text-primary transition-colors cursor-pointer" title="Lihat password">
+                                <span class="material-symbols-outlined text-sm">visibility</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="space-y-xs">
                         <label for="reg-phone" class="block font-label-md text-caption font-bold text-on-surface">No. WhatsApp *</label>
                         <input type="tel" id="reg-phone" required placeholder="08xxxxxxxxxx"
-                            class="w-full px-md py-sm bg-surface-container-low border border-outline-variant/60 rounded-xl font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+                            class="w-full px-md py-sm bg-surface-container-low border border-outline-variant/60 rounded-xl font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-xs">
                     </div>
                 </div>
 
-                <div class="space-y-xs">
-                    <label for="reg-role" class="block font-label-md text-caption font-bold text-on-surface">Peran / Jabatan *</label>
-                    <select id="reg-role" required
-                        class="w-full px-md py-sm bg-surface-container-low border border-outline-variant/60 rounded-xl font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all font-semibold">
-                        <option value="amil">Admin Amil (Pangkalpinang / Sungailiat)</option>
-                        <option value="super_admin">Super Admin / Pengurus Pusat</option>
-                    </select>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-sm">
+                    <div class="space-y-xs">
+                        <label for="reg-role" class="block font-label-md text-caption font-bold text-on-surface">Peran / Otoritas *</label>
+                        <select id="reg-role" required
+                            class="w-full px-md py-sm bg-surface-container-low border border-outline-variant/60 rounded-xl font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all font-semibold text-xs">
+                            <option value="amil">Admin Amil (Cabang)</option>
+                            <option value="super_admin">Super Admin / Pusat</option>
+                        </select>
+                    </div>
+                    <div class="space-y-xs">
+                        <label for="reg-wilayah" class="block font-label-md text-caption font-bold text-on-surface">Wilayah Penugasan *</label>
+                        <select id="reg-wilayah" required
+                            class="w-full px-md py-sm bg-surface-container-low border border-outline-variant/60 rounded-xl font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all font-semibold text-xs">
+                            <option value="Semua Wilayah">Semua Wilayah</option>
+                            <option value="Pangkalpinang">Pangkalpinang</option>
+                            <option value="Sungailiat">Sungailiat</option>
+                        </select>
+                    </div>
                 </div>
 
                 <p class="font-caption text-[11px] text-outline italic">Catatan: Pendaftaran akun baru memerlukan verifikasi dan persetujuan dari <strong>Admin 1 (Super Admin)</strong> sebelum dapat login.</p>
 
-                <button type="submit" class="w-full bg-primary text-on-primary font-label-md text-label-md py-md rounded-xl hover:bg-primary-container transition-colors shadow-md font-bold flex items-center justify-center gap-xs cursor-pointer">
+                <button type="submit" id="btn-admin-register-submit" class="w-full bg-primary text-on-primary font-label-md text-label-md py-md rounded-xl hover:bg-primary-container transition-all shadow-md font-bold flex items-center justify-center gap-xs cursor-pointer">
                     <span class="material-symbols-outlined text-sm">person_add</span>
                     <span>Kirim Pendaftaran Admin</span>
                 </button>
@@ -5895,11 +5911,19 @@
 
         async function handleAdminRegister(e) {
             e.preventDefault();
+            const btn = document.getElementById('btn-admin-register-submit') || e.target.querySelector('button[type="submit"]');
+            const originalHtml = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">progress_activity</span> <span>Memproses pendaftaran...</span>';
+            }
+
             const fullName = document.getElementById('reg-fullname').value.trim();
             const username = document.getElementById('reg-username').value.trim();
             const password = document.getElementById('reg-password').value.trim();
             const phone = document.getElementById('reg-phone').value.trim();
             const role = document.getElementById('reg-role').value;
+            const wilayah = document.getElementById('reg-wilayah') ? document.getElementById('reg-wilayah').value : 'Semua Wilayah';
 
             const alertBox = document.getElementById('register-alert');
             const alertText = document.getElementById('register-alert-text');
@@ -5908,18 +5932,29 @@
             alertBox.classList.remove('hidden');
             alertBox.className = 'p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs bg-primary/10 text-primary border border-primary/30';
             alertIcon.textContent = 'hourglass_top';
-            alertText.textContent = 'Sedang memproses & mengirim pendaftaran akun ke sistem...';
+            alertText.textContent = 'Sedang memproses & menghubungkan pendaftaran ke sistem...';
 
-            const res = await wizStore.adminUsers.register({ username, password, fullName, phone, role });
-            if (res.success) {
-                alertBox.className = 'p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs bg-emerald-100 text-emerald-900 border border-emerald-300';
-                alertIcon.textContent = 'check_circle';
-                alertText.textContent = res.message;
-                document.getElementById('admin-register-form').reset();
-            } else {
+            try {
+                const res = await wizStore.adminUsers.register({ username, password, fullName, phone, role, wilayah });
+                if (res.success) {
+                    alertBox.className = 'p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs bg-emerald-100 text-emerald-900 border border-emerald-300';
+                    alertIcon.textContent = 'check_circle';
+                    alertText.textContent = res.message;
+                    document.getElementById('admin-register-form').reset();
+                } else {
+                    alertBox.className = 'p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs bg-error-container text-on-error-container';
+                    alertIcon.textContent = 'error';
+                    alertText.textContent = res.message;
+                }
+            } catch(err) {
                 alertBox.className = 'p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs bg-error-container text-on-error-container';
                 alertIcon.textContent = 'error';
-                alertText.textContent = res.message;
+                alertText.textContent = 'Terjadi kendala koneksi: ' + (err.message || 'Silakan coba lagi.');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
             }
         }
 

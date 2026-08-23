@@ -178,6 +178,79 @@ module.exports = async function handler(req, res) {
             let master = await supabaseGetMaster();
             if (!master) master = loadCanonicalSeed();
 
+            // ─── HIGH-SPEED TARGETED MICRO-ACTIONS (<100ms) ─────────
+            if (body && body.action === 'register_admin_user' && body.user) {
+                const incomingUser = body.user;
+                if (!master.admin_users) master.admin_users = [];
+                const cleanUser = (incomingUser.username || '').toLowerCase().trim();
+                const existingIdx = master.admin_users.findIndex(u => (u.username && u.username.toLowerCase() === cleanUser) || String(u.id) === String(incomingUser.id));
+                if (existingIdx !== -1) {
+                    master.admin_users[existingIdx] = {
+                        ...master.admin_users[existingIdx],
+                        ...incomingUser,
+                        updatedAt: new Date().toISOString()
+                    };
+                } else {
+                    master.admin_users.push(incomingUser);
+                }
+                master.updatedAt = new Date().toISOString();
+                memCache = master;
+                memCacheTime = Date.now();
+                await supabaseSaveMaster(master);
+                return res.status(200).json({ status: 'success', action: 'register_admin_user', user: incomingUser });
+            }
+
+            if (body && body.action === 'approve_admin_user' && body.id) {
+                const targetId = String(body.id);
+                if (!master.admin_users) master.admin_users = [];
+                const idx = master.admin_users.findIndex(u => String(u.id) === targetId);
+                if (idx !== -1) {
+                    master.admin_users[idx].status = 'approved';
+                    master.admin_users[idx].verifiedAt = new Date().toISOString();
+                    master.admin_users[idx].verifiedBy = body.verifiedBy || 'Admin 1';
+                    master.admin_users[idx].updatedAt = new Date().toISOString();
+                }
+                master.updatedAt = new Date().toISOString();
+                memCache = master;
+                memCacheTime = Date.now();
+                await supabaseSaveMaster(master);
+                return res.status(200).json({ status: 'success', action: 'approve_admin_user', user: master.admin_users[idx] });
+            }
+
+            if (body && body.action === 'update_admin_user' && body.user) {
+                const incomingUser = body.user;
+                if (!master.admin_users) master.admin_users = [];
+                const cleanUser = (incomingUser.username || '').toLowerCase().trim();
+                const idx = master.admin_users.findIndex(u => String(u.id) === String(incomingUser.id) || (u.username && u.username.toLowerCase() === cleanUser));
+                if (idx !== -1) {
+                    master.admin_users[idx] = {
+                        ...master.admin_users[idx],
+                        ...incomingUser,
+                        updatedAt: new Date().toISOString()
+                    };
+                } else {
+                    master.admin_users.push(incomingUser);
+                }
+                master.updatedAt = new Date().toISOString();
+                memCache = master;
+                memCacheTime = Date.now();
+                await supabaseSaveMaster(master);
+                return res.status(200).json({ status: 'success', action: 'update_admin_user', user: incomingUser });
+            }
+
+            if (body && body.action === 'delete_admin_user' && body.id) {
+                const targetId = String(body.id);
+                if (!master.admin_users) master.admin_users = [];
+                if (!master.deleted_admin_ids) master.deleted_admin_ids = [];
+                master.admin_users = master.admin_users.filter(u => String(u.id) !== targetId && u.username !== 'admin');
+                master.deleted_admin_ids = Array.from(new Set([...master.deleted_admin_ids, targetId]));
+                master.updatedAt = new Date().toISOString();
+                memCache = master;
+                memCacheTime = Date.now();
+                await supabaseSaveMaster(master);
+                return res.status(200).json({ status: 'success', action: 'delete_admin_user', id: targetId });
+            }
+
             const deletedDonationIds = [
                 ...(Array.isArray(incoming.deleted_ids) ? incoming.deleted_ids : []),
                 ...(Array.isArray(incoming.deleted_donation_ids) ? incoming.deleted_donation_ids : [])
