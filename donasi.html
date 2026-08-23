@@ -273,40 +273,28 @@
                         <div class="grid grid-cols-2 gap-2 sm:gap-3">
                             <label class="option-card cursor-pointer relative">
                                 <input class="peer sr-only" name="wilayah" onchange="handleWilayahChange(this)" type="radio" value="Pangkalpinang" checked />
-                                <div class="border border-outline-variant rounded-lg p-3 transition-all duration-200 hover:border-primary/50 group h-full flex flex-col justify-between">
-                                    <div>
-                                        <div class="flex justify-between items-start mb-xs">
-                                            <div class="flex items-center gap-1.5">
-                                                <span class="material-symbols-outlined text-primary text-lg">location_city</span>
-                                                <span class="font-label-md text-label-md text-on-surface font-bold">Pangkalpinang</span>
-                                            </div>
-                                            <span class="material-symbols-outlined text-primary opacity-0 icon-check transition-opacity text-lg">check_circle</span>
+                                <div class="border border-outline-variant rounded-lg p-3 transition-all duration-200 hover:border-primary/50 group h-full">
+                                    <div class="flex justify-between items-start mb-xs">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="material-symbols-outlined text-primary text-lg">location_city</span>
+                                            <span class="font-label-md text-label-md text-on-surface font-bold">Pangkalpinang</span>
                                         </div>
-                                        <p class="font-caption text-caption text-on-surface-variant text-[11px]">Wilayah Pangkalpinang</p>
+                                        <span class="material-symbols-outlined text-primary opacity-0 icon-check transition-opacity text-lg">check_circle</span>
                                     </div>
-                                    <div class="mt-2 pt-1.5 border-t border-outline-variant/30 flex items-center gap-1 text-[10.5px] font-bold text-emerald-700">
-                                        <span class="material-symbols-outlined text-[13px]">chat</span>
-                                        <span>WA: 0823-8083-0808</span>
-                                    </div>
+                                    <p class="font-caption text-caption text-on-surface-variant text-[11px]">Wilayah Pangkalpinang</p>
                                 </div>
                             </label>
                             <label class="option-card cursor-pointer relative">
                                 <input class="peer sr-only" name="wilayah" onchange="handleWilayahChange(this)" type="radio" value="Sungailiat" />
-                                <div class="border border-outline-variant rounded-lg p-3 transition-all duration-200 hover:border-primary/50 group h-full flex flex-col justify-between">
-                                    <div>
-                                        <div class="flex justify-between items-start mb-xs">
-                                            <div class="flex items-center gap-1.5">
-                                                <span class="material-symbols-outlined text-primary text-lg">location_city</span>
-                                                <span class="font-label-md text-label-md text-on-surface font-bold">Sungailiat</span>
-                                            </div>
-                                            <span class="material-symbols-outlined text-primary opacity-0 icon-check transition-opacity text-lg">check_circle</span>
+                                <div class="border border-outline-variant rounded-lg p-3 transition-all duration-200 hover:border-primary/50 group h-full">
+                                    <div class="flex justify-between items-start mb-xs">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="material-symbols-outlined text-primary text-lg">location_city</span>
+                                            <span class="font-label-md text-label-md text-on-surface font-bold">Sungailiat</span>
                                         </div>
-                                        <p class="font-caption text-caption text-on-surface-variant text-[11px]">Wilayah Sungailiat</p>
+                                        <span class="material-symbols-outlined text-primary opacity-0 icon-check transition-opacity text-lg">check_circle</span>
                                     </div>
-                                    <div class="mt-2 pt-1.5 border-t border-outline-variant/30 flex items-center gap-1 text-[10.5px] font-bold text-emerald-700">
-                                        <span class="material-symbols-outlined text-[13px]">chat</span>
-                                        <span>WA: 0822-8224-4899</span>
-                                    </div>
+                                    <p class="font-caption text-caption text-on-surface-variant text-[11px]">Wilayah Sungailiat</p>
                                 </div>
                             </label>
                         </div>
@@ -522,10 +510,6 @@
                                 <span class="font-label-md text-caption text-on-surface text-right font-bold text-primary" id="summary-wilayah">Pangkalpinang</span>
                             </li>
                             <li class="flex justify-between items-start">
-                                <span class="font-body-md text-caption text-on-surface-variant">Admin Konfirmasi</span>
-                                <span class="font-label-md text-caption text-right font-bold text-emerald-700" id="summary-wa-admin">Admin Pangkalpinang (+62 823-8083-0808)</span>
-                            </li>
-                            <li class="flex justify-between items-start">
                                 <span class="font-body-md text-caption text-on-surface-variant">Jenis Donasi</span>
                                 <span class="font-label-md text-caption text-on-surface text-right font-bold" id="summary-type">Infak Umum</span>
                             </li>
@@ -727,9 +711,9 @@
         </div>
     </div>
 
-    <script src="assets/js/supabase-client.js?v=20260823_30"></script>
-    <script src="assets/js/admin-store.js?v=20260823_30"></script>
-    <script src="assets/js/main.js?v=20260823_30"></script>
+    <script src="assets/js/supabase-client.js?v=20260823_31"></script>
+    <script src="assets/js/admin-store.js?v=20260823_31"></script>
+    <script src="assets/js/main.js?v=20260823_31"></script>
     <script>
         const SPECIFIC_PROGRAMS = {
             'Berkah Hidayah': [
@@ -949,13 +933,6 @@
 
         function updateSummary() {
             document.getElementById('summary-wilayah').textContent = state.wilayah;
-            if (typeof getTargetWhatsAppConfig === 'function') {
-                const branch = getTargetWhatsAppConfig(state.wilayah);
-                const sumWA = document.getElementById('summary-wa-admin');
-                if (sumWA && branch) {
-                    sumWA.textContent = `${branch.name} (${branch.phone})`;
-                }
-            }
             document.getElementById('summary-type').textContent = state.type;
 
             const catRow = document.getElementById('summary-cat-row');
