@@ -6890,6 +6890,11 @@
                 try { if (typeof renderSiteSettingsSection === 'function') renderSiteSettingsSection(); } catch(e) { console.error(e); }
             } else if (section === 'admin-users') {
                 try { if (typeof renderAdminUsersSection === 'function') renderAdminUsersSection(); } catch(e) { console.error(e); }
+                if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
+                    window.wizStore.syncFromCloud().then(() => {
+                        if (typeof renderAdminUsersSection === 'function') renderAdminUsersSection();
+                    }).catch(() => {});
+                }
             } else if (section === 'news') {
                 try { if (typeof renderNewsList === 'function') renderNewsList(); } catch(e) { console.error(e); }
             } else if (section === 'quotes') {
