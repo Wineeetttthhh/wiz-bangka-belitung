@@ -3040,27 +3040,8 @@
             if (clearBtn) clearBtn.classList.remove('hidden');
             if (uploadLabel) uploadLabel.textContent = 'Ganti Foto';
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const rawBase64 = e.target.result;
-                if (hiddenInput && !hiddenInput.value) hiddenInput.value = rawBase64;
-
-                const img = new Image();
-                img.onload = function() {
-                    const maxDim = 480;
-                    let w = img.naturalWidth, h = img.naturalHeight;
-                    if (w > maxDim || h > maxDim) {
-                        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
-                        else       { w = Math.round(w * maxDim / h); h = maxDim; }
-                    }
-                    const canvas = document.createElement('canvas');
-                    canvas.width = w; canvas.height = h;
-                    const ctx = canvas.getContext('2d');
-                    ctx.imageSmoothingEnabled = true;
-                    ctx.imageSmoothingQuality = 'high';
-                    ctx.drawImage(img, 0, 0, w, h);
-                    const compressed = canvas.toDataURL('image/jpeg', 0.60);
-
+            compressImageFile(file, 1280, 0.85).then(compressed => {
+                if (compressed) {
                     if (hiddenInput) hiddenInput.value = compressed;
                     if (imgPrev) imgPrev.src = compressed;
                     URL.revokeObjectURL(objectUrl);
@@ -3069,10 +3050,11 @@
                     if (progName && wizStore.allocationRulesManager) {
                         wizStore.allocationRulesManager.updateSpecificProgramImageByName(progName, compressed);
                     }
-                };
-                img.src = rawBase64;
-            };
-            reader.readAsDataURL(file);
+                }
+            }).catch(err => {
+                console.error('[Sub-program Photo Error]', err);
+            });
+            event.target.value = '';
         }
 
         function clearSubProgramPhoto(btn) {
@@ -3813,7 +3795,7 @@
             }
         }
 
-        async function compressImageFile(file, targetWidth = 1200, targetHeight = 630, quality = 0.82) {
+        async function compressImageFile(file, maxDimension = 1280, quality = 0.85) {
             const isHeic = file.name && (file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif') || (file.type && file.type.includes('heic')));
             let processFile = file;
 
@@ -3822,7 +3804,7 @@
                     const convertedBlob = await heic2any({
                         blob: file,
                         toType: 'image/jpeg',
-                        quality: 0.8
+                        quality: 0.88
                     });
                     processFile = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
                 } catch(e) {
@@ -3841,50 +3823,44 @@
                         try {
                             const srcW = img.naturalWidth || img.width;
                             const srcH = img.naturalHeight || img.height;
-                            const W = Math.max(10, Math.round(targetWidth));
-                            const H = Math.max(10, Math.round(targetHeight));
+
+                            // Handle flexible arguments: if 2nd arg was large width and 3rd arg was quality decimal
+                            let maxDim = 1280;
+                            let qual = 0.85;
+
+                            if (typeof maxDimension === 'number' && maxDimension > 50) {
+                                maxDim = maxDimension;
+                            }
+                            if (typeof quality === 'number' && quality > 0 && quality <= 1) {
+                                qual = quality;
+                            }
+
+                            let targetW = srcW;
+                            let targetH = srcH;
+                            if (srcW > maxDim || srcH > maxDim) {
+                                if (srcW >= srcH) {
+                                    targetW = maxDim;
+                                    targetH = Math.round((srcH * maxDim) / srcW);
+                                } else {
+                                    targetH = maxDim;
+                                    targetW = Math.round((srcW * maxDim) / srcH);
+                                }
+                            }
 
                             const canvas = document.createElement('canvas');
-                            canvas.width = W;
-                            canvas.height = H;
+                            canvas.width = targetW;
+                            canvas.height = targetH;
                             const ctx = canvas.getContext('2d');
 
-                            // 1. Fill backdrop (dark slate gradient)
-                            const grad = ctx.createLinearGradient(0, 0, W, H);
-                            grad.addColorStop(0, '#0f172a');
-                            grad.addColorStop(1, '#1e293b');
-                            ctx.fillStyle = grad;
-                            ctx.fillRect(0, 0, W, H);
+                            // High-quality rendering
+                            ctx.imageSmoothingEnabled = true;
+                            ctx.imageSmoothingQuality = 'high';
+                            ctx.drawImage(img, 0, 0, targetW, targetH);
 
-                            // 2. Draw blurred studio background for complete filled look
-                            ctx.save();
-                            ctx.filter = 'blur(16px) brightness(0.55)';
-                            let bgW = W;
-                            let bgH = H;
-                            if (srcW / srcH > W / H) {
-                                bgW = H * (srcW / srcH);
-                            } else {
-                                bgH = W / (srcW / srcH);
-                            }
-                            ctx.drawImage(img, (W - bgW) / 2, (H - bgH) / 2, bgW, bgH);
-                            ctx.restore();
-
-                            // 3. Draw main image centered (fit contain)
-                            const scale = Math.min(W / srcW, H / srcH);
-                            const drawW = srcW * scale;
-                            const drawH = srcH * scale;
-                            const drawX = (W - drawW) / 2;
-                            const drawY = (H - drawH) / 2;
-
-                            ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
-                            ctx.shadowBlur = 12;
-                            ctx.shadowOffsetY = 3;
-
-                            ctx.drawImage(img, drawX, drawY, drawW, drawH);
-
-                            const result = canvas.toDataURL('image/jpeg', quality);
+                            const result = canvas.toDataURL('image/jpeg', qual);
                             resolve(result || dataUrl);
                         } catch(err) {
+                            console.warn('[Image Compress Error]', err);
                             resolve(dataUrl);
                         }
                     };
@@ -3896,66 +3872,8 @@
             });
         }
 
-        async function compressFlyerImageFile(file, maxDimension = 960, quality = 0.75) {
-            const isHeic = file.name && (file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif') || (file.type && file.type.includes('heic')));
-            let processFile = file;
-
-            if (isHeic && typeof heic2any !== 'undefined') {
-                try {
-                    const convertedBlob = await heic2any({
-                        blob: file,
-                        toType: 'image/jpeg',
-                        quality: 0.85
-                    });
-                    processFile = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
-                } catch(e) {
-                    console.warn('[HEIC] Conversion error:', e);
-                }
-            }
-
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const dataUrl = e.target.result;
-                    if (!dataUrl) return resolve(null);
-
-                    const img = new Image();
-                    img.onload = function() {
-                        try {
-                            const srcW = img.naturalWidth || img.width;
-                            const srcH = img.naturalHeight || img.height;
-
-                            let targetW = srcW;
-                            let targetH = srcH;
-                            if (srcW > maxDimension || srcH > maxDimension) {
-                                if (srcW >= srcH) {
-                                    targetW = maxDimension;
-                                    targetH = Math.round((srcH * maxDimension) / srcW);
-                                } else {
-                                    targetH = maxDimension;
-                                    targetW = Math.round((srcW * maxDimension) / srcH);
-                                }
-                            }
-
-                            const canvas = document.createElement('canvas');
-                            canvas.width = targetW;
-                            canvas.height = targetH;
-                            const ctx = canvas.getContext('2d');
-                            ctx.drawImage(img, 0, 0, targetW, targetH);
-
-                            const result = canvas.toDataURL('image/jpeg', quality);
-                            resolve(result || dataUrl);
-                        } catch(err) {
-                            console.warn('[Flyer Compress Error]', err);
-                            resolve(dataUrl);
-                        }
-                    };
-                    img.onerror = function() { resolve(dataUrl); };
-                    img.src = dataUrl;
-                };
-                reader.onerror = function() { resolve(null); };
-                reader.readAsDataURL(processFile);
-            });
+        async function compressFlyerImageFile(file, maxDimension = 1280, quality = 0.85) {
+            return compressImageFile(file, maxDimension, quality);
         }
 
         async function handleLocalPhotoSelect(event, previewId, inputId) {
@@ -3972,30 +3890,31 @@
             const isHeic = file.name && (file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif'));
             if (!isHeic && prevImg) {
                 const instantUrl = URL.createObjectURL(file);
-                prevImg.onerror = function() { this.src = 'assets/images/sedekah-beras-dhuafa.jpg'; };
+                prevImg.onerror = function() { this.src = 'assets/images/default-program-wiz.jpg'; };
                 prevImg.src = instantUrl;
                 if (prevContainer) prevContainer.classList.remove('hidden');
             }
 
             if (filenameEl) {
-                filenameEl.textContent = isHeic ? '⏳ Mengonversi format iPhone...' : '⏳ Memproses foto...';
+                filenameEl.textContent = isHeic ? '⏳ Mengonversi format iPhone...' : '⏳ Memproses & mengoptimalkan foto HD...';
                 filenameEl.style.color = '#0284c7';
             }
             if (uploadZone) uploadZone.style.opacity = '0.6';
 
             try {
-                const finalDataUrl = await compressImageFile(file, 720, 0.72);
+                // High-resolution crisp image compression (1280px max dimension, quality 0.85)
+                const finalDataUrl = await compressImageFile(file, 1280, 0.85);
                 if (finalDataUrl) {
                     if (inputEl) inputEl.value = finalDataUrl;
                     if (prevImg) {
-                        prevImg.onerror = function() { this.src = 'assets/images/sedekah-beras-dhuafa.jpg'; };
+                        prevImg.onerror = function() { this.src = 'assets/images/default-program-wiz.jpg'; };
                         prevImg.src = finalDataUrl;
                     }
                     if (prevContainer) prevContainer.classList.remove('hidden');
 
-                    const sizeKb = Math.round(finalDataUrl.length / 1024);
+                    const sizeKb = Math.round(finalDataUrl.length * 0.75 / 1024);
                     if (filenameEl) {
-                        filenameEl.textContent = `✅ Foto siap (${file.name} — ${sizeKb} KB)`;
+                        filenameEl.textContent = `✅ Foto HD siap (${file.name} — ${sizeKb} KB)`;
                         filenameEl.style.color = '#16a34a';
                     }
                 } else {
@@ -4111,38 +4030,14 @@
             const file = event.target.files && event.target.files[0];
             if (!file) return;
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const raw = e.target.result;
-                const img = new Image();
-                img.onerror = function() {
-                    activeNewsGallery[index] = raw;
+            compressImageFile(file, 1280, 0.85).then(compressed => {
+                if (compressed) {
+                    activeNewsGallery[index] = compressed;
                     renderNewsGallerySlots();
-                };
-                img.onload = function() {
-                    try {
-                        const maxDim = 800;
-                        let w = img.naturalWidth || img.width;
-                        let h = img.naturalHeight || img.height;
-                        if (w > maxDim || h > maxDim) {
-                            if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
-                            else       { w = Math.round(w * maxDim / h); h = maxDim; }
-                        }
-                        const canvas = document.createElement('canvas');
-                        canvas.width = w;
-                        canvas.height = h;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, w, h);
-                        const comp = canvas.toDataURL('image/jpeg', 0.75);
-                        activeNewsGallery[index] = comp;
-                    } catch (err) {
-                        activeNewsGallery[index] = raw;
-                    }
-                    renderNewsGallerySlots();
-                };
-                img.src = raw;
-            };
-            reader.readAsDataURL(file);
+                }
+            }).catch(err => {
+                console.error('[Gallery Upload Error]', err);
+            });
             event.target.value = '';
         }
 
@@ -4743,32 +4638,20 @@
         }
 
         function clearModalProgramPhoto() {
-            setSpecificProgramPresetPhoto('assets/images/sedekah-beras-dhuafa.jpg');
+            setSpecificProgramPresetPhoto('assets/images/default-program-wiz.jpg');
         }
 
         function handleModalProgramPhotoSelect(event) {
             const file = event.target.files && event.target.files[0];
             if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const dataUrl = e.target.result;
-                const img = new Image();
-                img.onload = function() {
-                    const maxDim = 720;
-                    let w = img.naturalWidth, h = img.naturalHeight;
-                    if (w > maxDim || h > maxDim) {
-                        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
-                        else       { w = Math.round(w * maxDim / h); h = maxDim; }
-                    }
-                    const canvas = document.createElement('canvas');
-                    canvas.width = w; canvas.height = h;
-                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                    const compressed = canvas.toDataURL('image/jpeg', 0.68);
+            compressImageFile(file, 1280, 0.85).then(compressed => {
+                if (compressed) {
                     setSpecificProgramPresetPhoto(compressed);
-                };
-                img.src = dataUrl;
-            };
-            reader.readAsDataURL(file);
+                }
+            }).catch(err => {
+                console.error('[Program Photo Upload Error]', err);
+            });
+            event.target.value = '';
         }
 
         function openSpecificProgramModal(editPillar = '', editTitle = '') {
