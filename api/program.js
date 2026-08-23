@@ -48,12 +48,19 @@ const SPECIFIC_PROGRAMS_METADATA = {
         description: 'Fasilitasi mobilitas para dai dalam menyebarkan dakwah ke pelosok Bangka Belitung dengan armada kendaraan operasional yang layak dan memadai.',
         imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
+    'keberangkatan-dan-kepulangan-dai': {
+        title: 'Keberangkatan & Kepulangan Dai',
+        pillar: 'Dakwah & Pembinaan',
+        target: 'Rp 20.000.000',
+        description: 'Bantu mobilitas dan tugas dakwah para da\'i ke pelosok pulau dan pelosok desa di Bangka Belitung.',
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
+    },
     'keberangkatan-kepulangan-dai': {
         title: 'Keberangkatan & Kepulangan Dai',
         pillar: 'Dakwah & Pembinaan',
-        target: 'Rp 10.000.000',
+        target: 'Rp 20.000.000',
         description: 'Bantu mobilitas dan tugas dakwah para da\'i ke pelosok pulau dan pelosok desa di Bangka Belitung.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/keberangkatan-kepulangan-dai.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'santunan-mualaf': {
         title: 'Santunan Mualaf',
@@ -157,12 +164,19 @@ const SPECIFIC_PROGRAMS_METADATA = {
         description: 'Bantuan beras premium secara berkala untuk mencukupi kebutuhan pokok para mustahik dan santri pondok pesantren.',
         imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/sedekah-beras-dhuafa.jpg'
     },
+    'sedekah-jumat': {
+        title: 'Sedekah Jumat (Sedulang Berkah)',
+        pillar: 'Sosial & Kemanusiaan',
+        target: 'Rp 10.000.000',
+        description: 'Berbagi paket makanan siap santap dan sedekah jumat berkah untuk jamaah masjid, musafir, dan pekerja harian.',
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
+    },
     'sedekah-jumat-sedulang-berkah': {
         title: 'Sedekah Jumat (Sedulang Berkah)',
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 10.000.000',
         description: 'Berbagi paket makanan siap santap dan sedekah jumat berkah untuk jamaah masjid, musafir, dan pekerja harian.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/sedekah-beras-dhuafa.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'santunan-yatim': {
         title: 'Santunan Anak Yatim',
@@ -234,14 +248,14 @@ const SPECIFIC_PROGRAMS_METADATA = {
         pillar: 'Pendidikan & Beasiswa',
         target: 'Rp 35.000.000',
         description: 'Bantuan biaya studi dan living cost santri penghafal Qur\'an di pesantren dan perguruan tinggi.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/beasiswa-tahfidz.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'beasiswa-tahfidz-dhuafa': {
         title: 'Beasiswa Tahfidz & Dhuafa',
         pillar: 'Pendidikan & Beasiswa',
         target: 'Rp 35.000.000',
         description: 'Bantuan biaya studi dan living cost santri penghafal Qur\'an di pesantren dan perguruan tinggi.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/beasiswa-tahfidz.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'perlengkapan-belajar-yatim': {
         title: 'Perlengkapan Belajar Yatim',
@@ -259,19 +273,26 @@ const SPECIFIC_PROGRAMS_METADATA = {
         description: 'Layanan berobat gratis dan bantuan pengobatan bagi pasien dhuafa dan lansia kritis di Bangka Belitung.',
         imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/bantuan-pengobatan.jpg'
     },
+    'layanan-pengobatan-gratis': {
+        title: 'Layanan Pengobatan Gratis',
+        pillar: 'Kesehatan Masyarakat',
+        target: 'Rp 20.000.000',
+        description: 'Layanan berobat gratis dan bantuan pengobatan bagi pasien dhuafa dan lansia kritis di Bangka Belitung.',
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
+    },
     'bantuan-kesehatan-dhuafa': {
         title: 'Bantuan Kesehatan Dhuafa',
         pillar: 'Kesehatan Masyarakat',
         target: 'Rp 20.000.000',
         description: 'Layanan berobat gratis dan bantuan pengobatan bagi pasien dhuafa dan lansia kritis di Bangka Belitung.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/bantuan-pengobatan.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'bantuan-pasien-kritis-dhuafa': {
         title: 'Bantuan Pasien Kritis Dhuafa',
         pillar: 'Kesehatan Masyarakat',
         target: 'Rp 20.000.000',
         description: 'Bantuan biaya tebus obat dan rawat inap bagi pasien dhuafa kurang mampu yang tidak tercover penuh oleh asuransi.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/bantuan-pengobatan.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'ambulance-gratis-ummat': {
         title: 'Ambulance Gratis Ummat',
