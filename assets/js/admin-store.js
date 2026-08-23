@@ -47,6 +47,7 @@
         DELETED_REF_IDS: 'wiz_deleted_ref_ids',
         DELETED_QUOTE_IDS: 'wiz_deleted_quote_ids',
         DELETED_PROGRAM_IDS: 'wiz_deleted_program_ids',
+        DELETED_ADMIN_IDS: 'wiz_deleted_admin_ids',
         INITIALIZED: 'wiz_store_initialized'
     };
 
@@ -250,6 +251,19 @@
         const set = getDeletedProgramIds();
         set.add(String(id));
         localStorage.setItem(STORAGE_KEYS.DELETED_PROGRAM_IDS, JSON.stringify(Array.from(set)));
+    }
+
+    function getDeletedAdminIds() {
+        try {
+            return new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.DELETED_ADMIN_IDS) || '[]'));
+        } catch { return new Set(); }
+    }
+
+    function addDeletedAdminId(id) {
+        if (!id) return;
+        const set = getDeletedAdminIds();
+        set.add(String(id));
+        localStorage.setItem(STORAGE_KEYS.DELETED_ADMIN_IDS, JSON.stringify(Array.from(set)));
     }
 
     function generateUUID() {
@@ -693,7 +707,9 @@
     // ─── Admin Authentication & Accounts Manager ──────────
     const adminUsers = {
         getAll() {
-            const users = getStore(STORAGE_KEYS.ADMIN_USERS) || DEFAULT_ADMIN_USERS;
+            const deletedSet = getDeletedAdminIds();
+            let users = (getStore(STORAGE_KEYS.ADMIN_USERS) || DEFAULT_ADMIN_USERS)
+                .filter(u => u && (u.id || u.username) && !deletedSet.has(String(u.id)) && u.status !== 'deleted' && !u.isDeleted);
             if (!users.some(u => u.username === 'admin')) {
                 users.unshift(DEFAULT_ADMIN_USERS[0]);
                 setStore(STORAGE_KEYS.ADMIN_USERS, users);
@@ -704,10 +720,11 @@
             return this.getAll().filter(u => u.status === 'pending');
         },
         getById(id) {
-            return this.getAll().find(u => String(u.id) === String(id) || u.username.toLowerCase() === String(id).toLowerCase()) || null;
+            if (!id) return null;
+            const clean = String(id).trim().toLowerCase();
+            return this.getAll().find(u => String(u.id).toLowerCase() === clean || (u.username && u.username.toLowerCase() === clean)) || null;
         },
         async add({ username, password, fullName, phone, role, wilayah, status = 'approved' }) {
-            const list = this.getAll();
             const cleanUser = (username || '').trim().toLowerCase();
             if (!cleanUser || !password) {
                 return { success: false, message: 'Username dan kata sandi wajib diisi.' };
@@ -715,37 +732,56 @@
             if (cleanUser === 'admin') {
                 return { success: false, message: 'Username "admin" adalah akun Admin 1 Utama dan tidak dapat didaftarkan ulang.' };
             }
-            if (list.some(u => u.username.toLowerCase() === cleanUser)) {
-                return { success: false, message: 'Username sudah digunakan, silakan pilih username lain.' };
+
+            let list = this.getAll();
+            const existingIdx = list.findIndex(u => u.username.toLowerCase() === cleanUser);
+            let targetUser;
+
+            if (existingIdx !== -1) {
+                targetUser = list[existingIdx];
+                targetUser.fullName = (fullName || targetUser.fullName || cleanUser).trim();
+                targetUser.phone = (phone || targetUser.phone || '').trim();
+                targetUser.role = role === 'super_admin' ? 'super_admin' : 'amil';
+                targetUser.wilayah = wilayah || targetUser.wilayah || 'Semua Wilayah';
+                targetUser.status = status || 'approved';
+                if (password && password.trim()) targetUser.password = password.trim();
+                targetUser.updatedAt = new Date().toISOString();
+                if (status === 'approved') {
+                    targetUser.verifiedAt = new Date().toISOString();
+                    targetUser.verifiedBy = sessionStorage.getItem('wiz_admin_user') || 'Admin 1';
+                }
+            } else {
+                targetUser = {
+                    id: generateId(),
+                    username: cleanUser,
+                    password: password.trim(),
+                    fullName: (fullName || cleanUser).trim(),
+                    phone: (phone || '').trim(),
+                    role: role === 'super_admin' ? 'super_admin' : 'amil',
+                    wilayah: wilayah || 'Semua Wilayah',
+                    status: status || 'approved',
+                    createdAt: new Date().toISOString(),
+                    verifiedAt: status === 'approved' ? new Date().toISOString() : null,
+                    verifiedBy: status === 'approved' ? (sessionStorage.getItem('wiz_admin_user') || 'Admin 1') : null
+                };
+                list.push(targetUser);
             }
 
-            const newUser = {
-                id: generateId(),
-                username: cleanUser,
-                password: password.trim(),
-                fullName: (fullName || cleanUser).trim(),
-                phone: (phone || '').trim(),
-                role: role === 'super_admin' ? 'super_admin' : 'amil',
-                wilayah: wilayah || 'Semua Wilayah',
-                status: status || 'approved',
-                createdAt: new Date().toISOString(),
-                verifiedAt: status === 'approved' ? new Date().toISOString() : null,
-                verifiedBy: status === 'approved' ? (sessionStorage.getItem('wiz_admin_user') || 'Admin 1') : null
-            };
-
-            list.push(newUser);
             setStore(STORAGE_KEYS.ADMIN_USERS, list);
             if (typeof activityLog !== 'undefined' && activityLog.add) {
-                activityLog.add('auth', `Penambahan akun admin baru: '${cleanUser}' (${newUser.role})`, sessionStorage.getItem('wiz_admin_user') || 'Admin 1');
+                activityLog.add('auth', `Akun admin '${cleanUser}' disimpan (Status: ${targetUser.status}, Peran: ${targetUser.role})`, sessionStorage.getItem('wiz_admin_user') || 'Admin 1');
             }
 
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.insert('admin_users', newUser);
+            window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
+            broadcastSync('UPDATE_ADMIN_USERS', list);
+
+            if (typeof syncToCloud === 'function') {
+                try { await syncToCloud(true); } catch(e) {}
             }
-            return { success: true, user: newUser, message: 'Akun admin berhasil ditambahkan!' };
+            return { success: true, user: targetUser, message: 'Akun admin berhasil disimpan & terhubung ke Cloud!' };
         },
         async update(id, data) {
-            const list = this.getAll();
+            let list = this.getAll();
             const idx = list.findIndex(u => String(u.id) === String(id));
             if (idx === -1) return { success: false, message: 'Admin tidak ditemukan' };
 
@@ -754,37 +790,83 @@
             if (data.phone !== undefined) user.phone = data.phone.trim();
             if (data.role !== undefined && user.username !== 'admin') user.role = data.role;
             if (data.wilayah !== undefined) user.wilayah = data.wilayah;
-            if (data.status !== undefined && user.username !== 'admin') user.status = data.status;
+            if (data.status !== undefined && user.username !== 'admin') {
+                user.status = data.status;
+                if (data.status === 'approved' && !user.verifiedAt) {
+                    user.verifiedAt = new Date().toISOString();
+                    user.verifiedBy = sessionStorage.getItem('wiz_admin_user') || 'Admin 1';
+                }
+            }
             if (data.password && data.password.trim()) user.password = data.password.trim();
             user.updatedAt = new Date().toISOString();
 
             setStore(STORAGE_KEYS.ADMIN_USERS, list);
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.update('admin_users', id, user);
+            window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
+            broadcastSync('UPDATE_ADMIN_USERS', list);
+
+            if (typeof syncToCloud === 'function') {
+                try { await syncToCloud(true); } catch(e) {}
             }
             return { success: true, user, message: 'Data admin berhasil diperbarui!' };
         },
         async register({ username, password, fullName, phone, role, wilayah }) {
-            const list = this.getAll();
             const cleanUser = (username || '').trim().toLowerCase();
-            if (!cleanUser || !password) {
+            const cleanPass = (password || '').trim();
+            const cleanName = (fullName || cleanUser).trim();
+            const cleanPhone = (phone || '').trim();
+            const cleanRole = role === 'super_admin' ? 'super_admin' : 'amil';
+            const cleanWil = wilayah || 'Semua Wilayah';
+
+            if (!cleanUser || !cleanPass) {
                 return { success: false, message: 'Username dan kata sandi wajib diisi.' };
             }
             if (cleanUser === 'admin') {
                 return { success: false, message: 'Username "admin" adalah akun Admin 1 Utama dan tidak dapat didaftarkan ulang.' };
             }
-            if (list.some(u => u.username.toLowerCase() === cleanUser)) {
-                return { success: false, message: 'Username sudah digunakan, silakan pilih username lain.' };
+
+            // Always sync fresh state from cloud first
+            if (typeof syncFromCloud === 'function') {
+                try { await syncFromCloud(true); } catch(e) {}
+            }
+
+            let list = this.getAll();
+            const existing = list.find(u => u.username.toLowerCase() === cleanUser);
+
+            if (existing) {
+                if (existing.status === 'approved') {
+                    return { success: false, message: 'Username ini sudah terdaftar dan aktif. Silakan masuk melalui tab Masuk ke Dashboard.' };
+                }
+                // Update pending application with latest submitted data
+                existing.fullName = cleanName;
+                existing.phone = cleanPhone;
+                existing.password = cleanPass;
+                existing.role = cleanRole;
+                existing.wilayah = cleanWil;
+                existing.status = 'pending';
+                existing.updatedAt = new Date().toISOString();
+
+                setStore(STORAGE_KEYS.ADMIN_USERS, list);
+                if (typeof activityLog !== 'undefined' && activityLog.add) {
+                    activityLog.add('auth', `Pembaruan pendaftaran akun admin: '${cleanUser}' (Menunggu verifikasi Admin 1)`, cleanUser);
+                }
+
+                window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
+                broadcastSync('UPDATE_ADMIN_USERS', list);
+
+                if (typeof syncToCloud === 'function') {
+                    try { await syncToCloud(true); } catch(e) {}
+                }
+                return { success: true, user: existing, message: 'Pendaftaran Anda berhasil diperbarui! Akun Anda sedang menunggu persetujuan dari Admin 1 Utama.' };
             }
 
             const newUser = {
                 id: generateId(),
                 username: cleanUser,
-                password: password.trim(),
-                fullName: (fullName || cleanUser).trim(),
-                phone: (phone || '').trim(),
-                role: role === 'super_admin' ? 'super_admin' : 'amil',
-                wilayah: wilayah || 'Semua Wilayah',
+                password: cleanPass,
+                fullName: cleanName,
+                phone: cleanPhone,
+                role: cleanRole,
+                wilayah: cleanWil,
                 status: 'pending',
                 createdAt: new Date().toISOString()
             };
@@ -795,11 +877,14 @@
                 activityLog.add('auth', `Pendaftaran akun admin baru: '${cleanUser}' (Menunggu verifikasi Admin 1)`, cleanUser);
             }
 
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.insert('admin_users', newUser);
+            window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
+            broadcastSync('NEW_ADMIN_USER', newUser);
+
+            if (typeof syncToCloud === 'function') {
+                try { await syncToCloud(true); } catch(e) {}
             }
 
-            return { success: true, user: newUser, message: 'Pendaftaran berhasil! Akun Anda sedang menunggu verifikasi dari Admin 1.' };
+            return { success: true, user: newUser, message: 'Pendaftaran berhasil! Akun Anda otomatis masuk antrean dan menunggu persetujuan dari Admin 1 Utama.' };
         },
         login(username, password) {
             const cleanUser = (username || '').trim().toLowerCase();
@@ -816,48 +901,56 @@
             }
 
             if (found.status === 'pending') {
-                return { success: false, message: 'Akun Anda belum diverifikasi oleh Admin 1. Silakan hubungi Super Admin.' };
+                return { success: false, message: 'Akun Anda belum disetujui oleh Admin 1 Utama. Silakan hubungi Super Admin untuk verifikasi.' };
             }
 
             if (found.status === 'rejected') {
-                return { success: false, message: 'Pendaftaran akun Anda ditolak oleh Admin 1.' };
+                return { success: false, message: 'Pendaftaran akun Anda ditolak oleh Admin 1 Utama.' };
             }
 
             return { success: true, user: found };
         },
         async approve(id, adminActor) {
-            const list = this.getAll();
+            let list = this.getAll();
             const idx = list.findIndex(u => String(u.id) === String(id));
             if (idx === -1) return { success: false, message: 'Pengguna tidak ditemukan' };
 
             list[idx].status = 'approved';
             list[idx].verifiedAt = new Date().toISOString();
             list[idx].verifiedBy = adminActor || 'Admin 1';
+            list[idx].updatedAt = new Date().toISOString();
             setStore(STORAGE_KEYS.ADMIN_USERS, list);
 
             if (typeof activityLog !== 'undefined' && activityLog.add) {
                 activityLog.add('auth', `Akun admin '${list[idx].username}' telah diverifikasi & disetujui`, adminActor || 'Admin 1');
             }
 
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.update('admin_users', id, { status: 'approved', verifiedAt: new Date().toISOString(), verifiedBy: adminActor || 'Admin 1' });
+            window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
+            broadcastSync('UPDATE_ADMIN_USERS', list);
+
+            if (typeof syncToCloud === 'function') {
+                try { await syncToCloud(true); } catch(e) {}
             }
             return { success: true, user: list[idx] };
         },
         async reject(id, adminActor) {
-            const list = this.getAll();
+            let list = this.getAll();
             const idx = list.findIndex(u => String(u.id) === String(id));
             if (idx === -1) return { success: false, message: 'Pengguna tidak ditemukan' };
 
             list[idx].status = 'rejected';
+            list[idx].updatedAt = new Date().toISOString();
             setStore(STORAGE_KEYS.ADMIN_USERS, list);
 
             if (typeof activityLog !== 'undefined' && activityLog.add) {
                 activityLog.add('auth', `Pendaftaran akun admin '${list[idx].username}' ditolak`, adminActor || 'Admin 1');
             }
 
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.update('admin_users', id, { status: 'rejected' });
+            window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
+            broadcastSync('UPDATE_ADMIN_USERS', list);
+
+            if (typeof syncToCloud === 'function') {
+                try { await syncToCloud(true); } catch(e) {}
             }
             return { success: true };
         },
@@ -867,11 +960,20 @@
             if (target && target.username === 'admin') {
                 return { success: false, message: 'Akun Super Admin 1 utama tidak dapat dihapus.' };
             }
+
+            addDeletedAdminId(id);
             list = list.filter(u => String(u.id) !== String(id));
             setStore(STORAGE_KEYS.ADMIN_USERS, list);
 
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                await window.wizFirebase.remove('admin_users', id);
+            if (typeof activityLog !== 'undefined' && activityLog.add) {
+                activityLog.add('auth', `Akses admin '${target ? target.username : id}' dicabut/dihapus`, sessionStorage.getItem('wiz_admin_user') || 'Admin 1');
+            }
+
+            window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
+            broadcastSync('UPDATE_ADMIN_USERS', list);
+
+            if (typeof syncToCloud === 'function') {
+                try { await syncToCloud(true); } catch(e) {}
             }
             return { success: true };
         }
@@ -1543,7 +1645,8 @@
                 deleted_disb_ids: Array.from(getDeletedDisbIds()),
                 deleted_ref_ids: Array.from(getDeletedRefIds()),
                 deleted_quote_ids: Array.from(getDeletedQuoteIds()),
-                deleted_program_ids: Array.from(getDeletedProgramIds())
+                deleted_program_ids: Array.from(getDeletedProgramIds()),
+                deleted_admin_ids: Array.from(getDeletedAdminIds())
             };
 
             const payload = {
@@ -1554,7 +1657,8 @@
                 deletedDisbIds: bundle.deleted_disb_ids,
                 deletedRefIds: bundle.deleted_ref_ids,
                 deletedQuoteIds: bundle.deleted_quote_ids,
-                deletedProgramIds: bundle.deleted_program_ids
+                deletedProgramIds: bundle.deleted_program_ids,
+                deletedAdminIds: bundle.deleted_admin_ids
             };
 
             // 1. Primary: Push to Vercel Serverless Sync API (/api/sync)
@@ -2040,7 +2144,8 @@
                 setStore(STORAGE_KEYS.BASELINES, masterData.baselines);
             }
             if (masterData.admin_users && Array.isArray(masterData.admin_users) && masterData.admin_users.length > 0) {
-                smartMerge(STORAGE_KEYS.ADMIN_USERS, masterData.admin_users, null);
+                smartMerge(STORAGE_KEYS.ADMIN_USERS, masterData.admin_users, (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0), getDeletedAdminIds());
+                window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
             }
             if (masterData.programs && Array.isArray(masterData.programs) && masterData.programs.length > 0) {
                 smartMerge(STORAGE_KEYS.PROGRAMS, masterData.programs, (a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0), getDeletedProgramIds());

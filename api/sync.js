@@ -184,6 +184,7 @@ module.exports = async function handler(req, res) {
             const deletedRefIds = Array.isArray(incoming.deleted_ref_ids) ? incoming.deleted_ref_ids : [];
             const deletedQuoteIds = Array.isArray(incoming.deleted_quote_ids) ? incoming.deleted_quote_ids : [];
             const deletedProgramIds = Array.isArray(incoming.deleted_program_ids) ? incoming.deleted_program_ids : [];
+            const deletedAdminIds = Array.isArray(incoming.deleted_admin_ids) ? incoming.deleted_admin_ids : [];
 
             if (deletedIds.length > 0 && Array.isArray(master.donations)) {
                 master.donations = master.donations.filter(d => d && d.id && !deletedIds.includes(String(d.id)));
@@ -214,8 +215,9 @@ module.exports = async function handler(req, res) {
                 master.quotes = incoming.quotes.length > 0 ? incoming.quotes : mergeArrays(master.quotes, incoming.quotes, deletedQuoteIds);
             if (Array.isArray(incoming.activity))
                 master.activity = mergeArrays(master.activity, incoming.activity, []);
-            if (Array.isArray(incoming.admin_users) && incoming.admin_users.length > 0)
-                master.admin_users = mergeArrays(master.admin_users, incoming.admin_users, []);
+            if (Array.isArray(incoming.admin_users) && incoming.admin_users.length > 0) {
+                master.admin_users = mergeArrays(master.admin_users, incoming.admin_users, deletedAdminIds);
+            }
 
             if (incoming.site_images && typeof incoming.site_images === 'object')
                 master.site_images = { ...(master.site_images || {}), ...incoming.site_images };
@@ -248,6 +250,7 @@ module.exports = async function handler(req, res) {
             master.deleted_ref_ids     = Array.from(new Set([...(master.deleted_ref_ids || []),      ...deletedRefIds]));
             master.deleted_quote_ids   = Array.from(new Set([...(master.deleted_quote_ids || []),    ...deletedQuoteIds]));
             master.deleted_program_ids = Array.from(new Set([...(master.deleted_program_ids || []),  ...deletedProgramIds]));
+            master.deleted_admin_ids   = Array.from(new Set([...(master.deleted_admin_ids || []),    ...deletedAdminIds]));
             master.updatedAt = new Date().toISOString();
 
             // Persist to Supabase Database
