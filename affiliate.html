@@ -70,6 +70,13 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/styles.css">
     <style>
+        html, body {
+            overflow-x: hidden !important;
+            width: 100% !important;
+            max-width: 100vw !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
         .auth-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(16px);
@@ -81,25 +88,32 @@
             border-bottom: 3px solid #008444;
             background-color: rgba(0, 132, 68, 0.05);
         }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
 
-<body class="bg-slate-50 text-on-surface antialiased min-h-screen flex flex-col font-sans">
+<body class="bg-slate-50 text-on-surface antialiased min-h-screen flex flex-col font-sans w-full overflow-x-hidden">
 
     <!-- Dedicated Isolated Portal Fundraising Header -->
-    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs w-full">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-2 sm:gap-4">
             <!-- Left: Brand Logo + Sub-label MITRA PENGHIMPUNAN -->
-            <a href="affiliate.html" class="flex items-center gap-3 group shrink-0">
-                <img src="assets/images/logo-wiz-official.png" onerror="this.onerror=null; this.src='assets/images/logo-wiz-babel.png';" alt="WIZ Babel" class="h-10 w-auto object-contain">
-                <div class="border-l border-slate-300 pl-3">
-                    <span class="block font-extrabold text-sm text-slate-900 tracking-tight leading-none">WIZ Babel</span>
-                    <span class="text-[10px] text-emerald-700 font-bold uppercase tracking-wider">Mitra Penghimpunan</span>
+            <a href="affiliate.html" class="flex items-center gap-2 sm:gap-3 group shrink-0">
+                <img src="assets/images/logo-wiz-official.png" onerror="this.onerror=null; this.src='assets/images/logo-wiz-babel.png';" alt="WIZ Babel" class="h-8 sm:h-10 w-auto object-contain">
+                <div class="border-l border-slate-300 pl-2 sm:pl-3">
+                    <span class="block font-extrabold text-xs sm:text-sm text-slate-900 tracking-tight leading-none">WIZ Babel</span>
+                    <span class="text-[9px] sm:text-[10px] text-emerald-700 font-bold uppercase tracking-wider block">Mitra</span>
                 </div>
             </a>
 
             <!-- Right: Dynamic User Profile & Header Actions -->
-            <div class="flex items-center gap-2 sm:gap-3">
+            <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
                 <!-- State: Logged Out Header Action -->
                 <div id="header-guest-actions" class="flex items-center gap-2">
                     <a href="index.html" class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 hover:text-slate-900 transition-colors">
@@ -110,26 +124,26 @@
                 </div>
 
                 <!-- State: Logged In Header User Card & Actions -->
-                <div id="header-member-profile" class="hidden flex items-center gap-2 sm:gap-3">
+                <div id="header-member-profile" class="hidden items-center gap-1.5 sm:gap-2.5">
                     <!-- User Info Pill -->
-                    <div class="flex items-center gap-2 bg-slate-100/90 border border-slate-200/80 px-2.5 sm:px-3 py-1.5 rounded-xl text-left">
-                        <div class="w-7 h-7 rounded-lg bg-primary text-white font-bold text-xs flex items-center justify-center shrink-0" id="header-avatar">
+                    <div class="flex items-center gap-1.5 sm:gap-2 bg-slate-100/90 border border-slate-200/80 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-left max-w-[130px] sm:max-w-none">
+                        <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-primary text-white font-bold text-xs flex items-center justify-center shrink-0" id="header-avatar">
                             A
                         </div>
-                        <div class="min-w-0 pr-1">
-                            <span id="header-member-name" class="block font-bold text-xs text-slate-900 truncate max-w-[100px] sm:max-w-[140px] leading-tight">-</span>
-                            <span id="header-member-code" class="block font-mono text-[10px] text-emerald-700 font-bold leading-tight truncate">WIZ-XXX</span>
+                        <div class="min-w-0 pr-0.5">
+                            <span id="header-member-name" class="block font-bold text-xs text-slate-900 truncate max-w-[70px] sm:max-w-[120px] leading-tight">-</span>
+                            <span id="header-member-code" class="hidden sm:block font-mono text-[10px] text-emerald-700 font-bold leading-tight truncate">WIZ-XXX</span>
                         </div>
                     </div>
 
                     <!-- Shortcut to Public Web -->
-                    <a href="index.html" target="_blank" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 hover:text-slate-900 transition-colors" title="Lihat Website Publik">
+                    <a href="index.html" target="_blank" class="inline-flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-3 sm:py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 hover:text-slate-900 transition-colors" title="Lihat Website Publik">
                         <span class="material-symbols-outlined text-sm">open_in_new</span>
                         <span class="hidden md:inline">Lihat Web</span>
                     </a>
 
                     <!-- Logout Button -->
-                    <button onclick="handleAffiliateLogout()" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-2 rounded-xl text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 border border-red-200 transition-colors cursor-pointer" title="Keluar dari Akun">
+                    <button onclick="handleAffiliateLogout()" class="inline-flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-3 sm:py-2 rounded-xl text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 border border-red-200 transition-colors cursor-pointer" title="Keluar dari Akun">
                         <span class="material-symbols-outlined text-sm">logout</span>
                         <span class="hidden sm:inline">Keluar</span>
                     </button>
@@ -139,37 +153,37 @@
     </header>
 
     <!-- Hero Banner (Professional Dark Emerald Glassmorphic Theme) -->
-    <section class="relative bg-gradient-to-br from-emerald-950 via-emerald-900 to-slate-950 text-white py-12 md:py-16 overflow-hidden">
+    <section class="relative bg-gradient-to-br from-emerald-950 via-emerald-900 to-slate-950 text-white py-8 sm:py-12 md:py-16 overflow-hidden w-full">
         <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-500/20 via-transparent to-transparent pointer-events-none"></div>
         <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-primary/20 rounded-full filter blur-3xl pointer-events-none"></div>
         
-        <div class="max-w-5xl mx-auto px-4 text-center space-y-4 relative z-10">
-            <span class="inline-flex items-center gap-2 bg-emerald-500/20 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold text-emerald-300 border border-emerald-400/30 shadow-xs">
+        <div class="max-w-5xl mx-auto px-4 text-center space-y-3 sm:space-y-4 relative z-10 w-full">
+            <span class="inline-flex items-center gap-2 bg-emerald-500/20 backdrop-blur-md px-3.5 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-bold text-emerald-300 border border-emerald-400/30 shadow-xs">
                 <span class="material-symbols-outlined text-sm">check_circle</span>
                 ✓ Portal Resmi Fundraising WIZ Bangka Belitung
             </span>
-            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight text-white">
+            <h1 class="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight text-white px-2">
                 Sebarkan Kebaikan, Tingkatkan Penghimpunan
             </h1>
-            <p class="text-emerald-100/90 text-sm md:text-base max-w-2xl mx-auto font-medium leading-relaxed">
+            <p class="text-emerald-100/90 text-xs sm:text-base max-w-2xl mx-auto font-medium leading-relaxed px-2">
                 Kelola akun fundraising Anda, bagikan tautan program, dan pantau donasi yang berhasil dihimpun secara transparan.
             </p>
         </div>
     </section>
 
     <!-- Main Content Container -->
-    <main class="max-w-6xl mx-auto px-4 py-8 space-y-8 flex-grow w-full">
+    <main class="max-w-6xl mx-auto px-3 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8 flex-grow w-full">
 
         <!-- ============================================================ -->
         <!-- STATE 1: AUTH CONTAINER (VISIBLE ONLY WHEN LOGGED OUT)       -->
         <!-- ============================================================ -->
-        <div id="auth-state-container" class="max-w-xl mx-auto space-y-6 py-4">
+        <div id="auth-state-container" class="max-w-xl mx-auto space-y-6 py-2 sm:py-4 w-full">
             
             <!-- Auth Screen Card -->
-            <div class="auth-card rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200">
+            <div class="auth-card rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-xl border border-slate-200 w-full">
                 
                 <!-- Auth Toggle Tabs: Sign In vs Sign Up -->
-                <div class="bg-slate-100 p-1.5 rounded-2xl flex items-center mb-6">
+                <div class="bg-slate-100 p-1.5 rounded-2xl flex items-center mb-6 w-full">
                     <button onclick="toggleAuthTab('signin')" id="btn-auth-signin" class="flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 bg-white text-primary shadow-sm">
                         <span class="material-symbols-outlined text-base">login</span>
                         <span>Sign In (Masuk)</span>
@@ -269,13 +283,13 @@
 
         <!-- FORGOT PIN MODAL -->
         <div id="forgot-pin-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 transition-all duration-300 opacity-0 pointer-events-none">
-            <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div class="bg-white rounded-2xl sm:rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-4">
                 <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                    <h3 class="font-bold text-lg text-slate-900 flex items-center gap-2">
+                    <h3 class="font-bold text-base sm:text-lg text-slate-900 flex items-center gap-2">
                         <span class="material-symbols-outlined text-primary">key</span>
                         <span>Pemulihan PIN via WhatsApp</span>
                     </h3>
-                    <button onclick="closeForgotPinModal()" class="text-slate-400 hover:text-slate-600">
+                    <button onclick="closeForgotPinModal()" class="text-slate-400 hover:text-slate-600 p-1">
                         <span class="material-symbols-outlined">close</span>
                     </button>
                 </div>
@@ -308,64 +322,64 @@
         <!-- ============================================================ -->
         <!-- STATE 2: MEMBER PORTAL DASHBOARD (VISIBLE ONLY WHEN LOGGED IN)-->
         <!-- ============================================================ -->
-        <div id="member-state-container" class="space-y-8 hidden">
+        <div id="member-state-container" class="space-y-6 sm:space-y-8 hidden w-full">
             
             <!-- Member Top Header Banner -->
-            <div class="bg-gradient-to-r from-emerald-950 via-primary to-emerald-800 text-white p-6 sm:p-8 rounded-3xl shadow-lg relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div class="space-y-1 relative z-10 flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-2xl bg-white/20 text-white font-extrabold text-xl flex items-center justify-center border border-white/30 shrink-0" id="member-avatar">
+            <div class="w-full bg-gradient-to-r from-emerald-950 via-primary to-emerald-800 text-white p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl shadow-lg relative overflow-hidden flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
+                <div class="space-y-1 relative z-10 flex items-center gap-3 sm:gap-4">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/20 text-white font-extrabold text-lg sm:text-xl flex items-center justify-center border border-white/30 shrink-0" id="member-avatar">
                         A
                     </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="bg-emerald-400/20 text-emerald-200 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border border-emerald-400/30">FUNDRAISER AKTIF</span>
-                            <span id="member-code-badge" class="font-mono bg-white/20 px-2 py-0.5 rounded text-[11px] font-bold text-white">WIZ-YYYYMMDD-XXX</span>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="bg-emerald-400/20 text-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border border-emerald-400/30">FUNDRAISER AKTIF</span>
+                            <span id="member-code-badge" class="font-mono bg-white/20 px-2 py-0.5 rounded text-[10px] sm:text-[11px] font-bold text-white truncate max-w-[180px]">WIZ-YYYYMMDD-XXX</span>
                         </div>
-                        <h2 id="member-welcome-title" class="text-xl sm:text-2xl font-extrabold text-white mt-0.5">Selamat Datang, -</h2>
+                        <h2 id="member-welcome-title" class="text-lg sm:text-2xl font-extrabold text-white mt-1 truncate">Selamat Datang, -</h2>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-3 relative z-10 flex-wrap">
-                    <button onclick="copyMemberMainLink()" class="bg-white text-emerald-950 font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-emerald-50 transition-colors flex items-center gap-1.5 cursor-pointer">
-                        <span class="material-symbols-outlined text-base">content_copy</span> Salin Link Fundraising
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 relative z-10 w-full md:w-auto">
+                    <button onclick="copyMemberMainLink()" class="flex-1 sm:flex-initial bg-white text-emerald-950 font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-emerald-50 transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
+                        <span class="material-symbols-outlined text-base">content_copy</span> <span>Salin Link Fundraising</span>
                     </button>
-                    <button onclick="handleAffiliateLogout()" class="bg-red-500/20 hover:bg-red-500/30 text-white font-bold px-4 py-2.5 rounded-xl text-xs border border-red-300/30 transition-colors flex items-center gap-1 cursor-pointer">
-                        <span class="material-symbols-outlined text-base">logout</span> Keluar (Logout)
+                    <button onclick="handleAffiliateLogout()" class="sm:flex-initial bg-red-500/20 hover:bg-red-500/30 text-white font-bold px-4 py-2.5 rounded-xl text-xs border border-red-300/30 transition-colors flex items-center justify-center gap-1 cursor-pointer">
+                        <span class="material-symbols-outlined text-base">logout</span> <span>Keluar (Logout)</span>
                     </button>
                 </div>
             </div>
 
             <!-- Member Sub-Navigation Tabs (3 Menu Utama Sederhana + Profil) -->
-            <div class="bg-white border-b border-slate-200 rounded-2xl shadow-xs overflow-hidden">
-                <div class="flex justify-start gap-2 overflow-x-auto no-scrollbar p-1">
-                    <button onclick="switchMemberSubTab('subtab-kpi')" id="btn-subtab-kpi" class="member-nav-btn active px-5 py-3 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all rounded-xl border-b-2 border-transparent">
-                        <span class="material-symbols-outlined text-lg">analytics</span>
+            <div class="w-full bg-white border-b border-slate-200 rounded-2xl shadow-xs overflow-hidden">
+                <div class="flex justify-start gap-1 sm:gap-2 overflow-x-auto no-scrollbar p-1.5">
+                    <button onclick="switchMemberSubTab('subtab-kpi')" id="btn-subtab-kpi" class="member-nav-btn active shrink-0 whitespace-nowrap px-3.5 sm:px-5 py-2.5 sm:py-3 font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all rounded-xl border-b-2 border-transparent">
+                        <span class="material-symbols-outlined text-base sm:text-lg">analytics</span>
                         <span>Penghimpunan</span>
                     </button>
-                    <button onclick="switchMemberSubTab('subtab-news')" id="btn-subtab-news" class="member-nav-btn px-5 py-3 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all rounded-xl border-b-2 border-transparent">
-                        <span class="material-symbols-outlined text-lg">newspaper</span>
+                    <button onclick="switchMemberSubTab('subtab-news')" id="btn-subtab-news" class="member-nav-btn shrink-0 whitespace-nowrap px-3.5 sm:px-5 py-2.5 sm:py-3 font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all rounded-xl border-b-2 border-transparent">
+                        <span class="material-symbols-outlined text-base sm:text-lg">newspaper</span>
                         <span>Berita &amp; Materi</span>
                     </button>
-                    <button onclick="switchMemberSubTab('subtab-catalog')" id="btn-subtab-catalog" class="member-nav-btn px-5 py-3 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all rounded-xl border-b-2 border-transparent">
-                        <span class="material-symbols-outlined text-lg">grid_view</span>
+                    <button onclick="switchMemberSubTab('subtab-catalog')" id="btn-subtab-catalog" class="member-nav-btn shrink-0 whitespace-nowrap px-3.5 sm:px-5 py-2.5 sm:py-3 font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all rounded-xl border-b-2 border-transparent">
+                        <span class="material-symbols-outlined text-base sm:text-lg">grid_view</span>
                         <span>Program &amp; Link</span>
                     </button>
-                    <button onclick="switchMemberSubTab('subtab-quotes')" id="btn-subtab-quotes" class="member-nav-btn px-5 py-3 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all rounded-xl border-b-2 border-transparent">
-                        <span class="material-symbols-outlined text-lg">format_quote</span>
+                    <button onclick="switchMemberSubTab('subtab-quotes')" id="btn-subtab-quotes" class="member-nav-btn shrink-0 whitespace-nowrap px-3.5 sm:px-5 py-2.5 sm:py-3 font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all rounded-xl border-b-2 border-transparent">
+                        <span class="material-symbols-outlined text-base sm:text-lg">format_quote</span>
                         <span>Quote &amp; Flyer</span>
                     </button>
-                    <button onclick="switchMemberSubTab('subtab-profile')" id="btn-subtab-profile" class="member-nav-btn px-5 py-3 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all rounded-xl border-b-2 border-transparent">
-                        <span class="material-symbols-outlined text-lg">settings</span>
+                    <button onclick="switchMemberSubTab('subtab-profile')" id="btn-subtab-profile" class="member-nav-btn shrink-0 whitespace-nowrap px-3.5 sm:px-5 py-2.5 sm:py-3 font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all rounded-xl border-b-2 border-transparent">
+                        <span class="material-symbols-outlined text-base sm:text-lg">settings</span>
                         <span>Pengaturan Rekening &amp; PIN</span>
                     </button>
                 </div>
             </div>
 
             <!-- SUBTAB 1: Performance Dashboard & KPI -->
-            <div id="subtab-kpi" class="member-subtab space-y-8">
+            <div id="subtab-kpi" class="member-subtab space-y-6 sm:space-y-8 w-full">
                 <!-- 4 KPI Counter Cards -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full">
+                    <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1">
                         <span class="text-[11px] text-slate-500 font-semibold block uppercase tracking-wider">Total Donasi Dihimpun</span>
                         <div class="flex items-baseline justify-between">
                             <span id="kpi-total-count" class="text-2xl font-extrabold text-slate-900">0</span>
@@ -373,35 +387,35 @@
                         </div>
                     </div>
 
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1">
+                    <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1">
                         <span class="text-[11px] text-slate-500 font-semibold block uppercase tracking-wider">Nominal Terkumpul</span>
                         <span id="kpi-total-amount" class="text-2xl font-extrabold text-primary">Rp 0</span>
                     </div>
 
-                    <div class="bg-emerald-50 p-5 rounded-2xl border border-emerald-200 shadow-xs space-y-1">
+                    <div class="bg-emerald-50 p-4 sm:p-5 rounded-2xl border border-emerald-200 shadow-xs space-y-1">
                         <span class="text-[11px] text-emerald-800 font-semibold block uppercase tracking-wider">Total Insentif Diperoleh (6%)</span>
                         <span id="kpi-total-earned" class="text-2xl font-extrabold text-emerald-900">Rp 0</span>
                     </div>
 
-                    <div class="bg-amber-50 p-5 rounded-2xl border border-amber-200 shadow-xs space-y-1">
+                    <div class="bg-amber-50 p-4 sm:p-5 rounded-2xl border border-amber-200 shadow-xs space-y-1">
                         <span class="text-[11px] text-amber-800 font-semibold block uppercase tracking-wider">Saldo Belum Dicairkan</span>
                         <span id="kpi-pending-balance" class="text-2xl font-extrabold text-amber-900">Rp 0</span>
                     </div>
                 </div>
 
                 <!-- Monthly Performance & Evaluation Card -->
-                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+                <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200 shadow-sm space-y-4 w-full">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-4 gap-2">
                         <div>
-                            <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                            <h3 class="font-bold text-slate-900 text-base sm:text-lg flex items-center gap-2">
                                 <span class="material-symbols-outlined text-primary">analytics</span>
                                 <span>Evaluasi Kinerja Bulanan</span>
                             </h3>
                             <p class="text-xs text-slate-500">Hasil capaian dan statistik performa penghimpunan Anda bulan ini.</p>
                         </div>
 
-                        <div class="flex items-center gap-2">
-                            <select id="monthly-eval-select" onchange="renderMemberDashboard()" class="bg-slate-50 border border-slate-200 text-xs font-bold rounded-xl px-3 py-2 text-slate-800 outline-none">
+                        <div class="flex items-center gap-2 w-full sm:w-auto">
+                            <select id="monthly-eval-select" onchange="renderMemberDashboard()" class="w-full sm:w-auto bg-slate-50 border border-slate-200 text-xs font-bold rounded-xl px-3 py-2 text-slate-800 outline-none">
                                 <option value="2026-08">Agustus 2026</option>
                                 <option value="2026-07">Juli 2026</option>
                                 <option value="Semua">Semua Periode</option>
@@ -409,7 +423,7 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
                         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4">
                             <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
                                 <span class="material-symbols-outlined text-2xl">star</span>
@@ -443,14 +457,14 @@
                 </div>
 
                 <!-- Detailed Transactions Table Brought by Mitra -->
-                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-                    <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200 shadow-sm space-y-4 w-full">
+                    <h3 class="font-bold text-slate-900 text-base sm:text-lg flex items-center gap-2">
                         <span class="material-symbols-outlined text-primary">format_list_bulleted</span>
                         <span>Riwayat Donasi dari Link Penghimpunan Anda</span>
                     </h3>
 
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs border-collapse">
+                    <div class="w-full overflow-x-auto rounded-xl border border-slate-100">
+                        <table class="w-full min-w-[540px] text-left text-xs border-collapse">
                             <thead>
                                 <tr class="bg-slate-50 text-slate-600 border-b border-slate-200">
                                     <th class="p-3 font-bold">Tanggal</th>
@@ -470,51 +484,51 @@
             </div>
 
             <!-- SUBTAB: Berita & Artikel Kegiatan Siap Share -->
-            <div id="subtab-news" class="member-subtab space-y-6 hidden">
+            <div id="subtab-news" class="member-subtab space-y-6 hidden w-full">
                 <div class="border-b border-slate-200 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div>
-                        <h2 class="text-xl font-extrabold text-slate-900">Kabar Kegiatan &amp; Berita Siap Bagikan</h2>
+                        <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">Kabar Kegiatan &amp; Berita Siap Bagikan</h2>
                         <p class="text-xs text-slate-500 mt-1">Bagikan dokumentasi penyaluran dan kabar kegiatan resmi WIZ Babel ke WhatsApp atau media sosial. Setiap donatur yang masuk lewat link berita Anda otomatis terhubung dengan alokasi <strong>Hak Insentif 6%</strong> Anda selama 30 hari!</p>
                     </div>
                 </div>
 
                 <!-- Empty Notice -->
-                <div id="affiliate-news-empty-notice" class="hidden bg-slate-50 p-8 rounded-3xl text-center space-y-2 border border-slate-200">
+                <div id="affiliate-news-empty-notice" class="hidden bg-slate-50 p-6 sm:p-8 rounded-2xl sm:rounded-3xl text-center space-y-2 border border-slate-200 w-full">
                     <span class="material-symbols-outlined text-4xl text-slate-400">feed</span>
                     <h3 class="font-bold text-slate-800 text-base">Belum Ada Berita yang Dipublikasikan</h3>
                     <p class="text-xs text-slate-500 max-w-md mx-auto">Admin belum mempublikasikan artikel berita. Silakan cek kembali nanti atau bagikan katalog program donasi langsung.</p>
                 </div>
 
                 <!-- Featured News Card (Latest News Item) -->
-                <div id="affiliate-featured-news" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm flex flex-col md:flex-row items-center gap-6">
-                    <div class="w-full md:w-64 max-w-[280px] aspect-video rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shrink-0 shadow-xs relative">
+                <div id="affiliate-featured-news" class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-slate-200 shadow-sm flex flex-col md:flex-row items-center gap-4 sm:gap-6 w-full">
+                    <div class="w-full md:w-64 max-w-full aspect-video rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shrink-0 shadow-xs relative">
                         <img id="aff-featured-news-img" src="assets/images/sedekah-beras-dhuafa.jpg" class="w-full h-full object-cover" onerror="this.src='assets/images/foto-utama-wiz.jpg'" alt="Berita Terbaru">
                         <span id="aff-featured-news-category" class="absolute top-2 left-2 bg-primary text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-xs">Kegiatan</span>
                     </div>
                     <div class="flex-1 space-y-3 w-full">
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
                             <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
                                 <span class="material-symbols-outlined text-sm">stars</span> Berita Terbaru (Rekomendasi Share)
                             </span>
                             <span id="aff-featured-news-date" class="text-xs text-slate-400 font-mono"></span>
                         </div>
-                        <h3 id="aff-featured-news-title" class="text-lg font-bold text-slate-900 leading-snug"></h3>
+                        <h3 id="aff-featured-news-title" class="text-base sm:text-lg font-bold text-slate-900 leading-snug"></h3>
                         <p id="aff-featured-news-excerpt" class="text-slate-600 text-xs leading-relaxed line-clamp-2"></p>
                         
                         <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
-                            <button type="button" id="aff-featured-share-wa-btn" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-transform hover:scale-105 cursor-pointer">
+                            <button type="button" id="aff-featured-share-wa-btn" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white px-3.5 sm:px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-transform hover:scale-105 cursor-pointer">
                                 <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
                                 <span>Bagikan ke WhatsApp</span>
                             </button>
-                            <button type="button" id="aff-featured-download-btn" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer" title="Unduh Foto Utama Kegiatan">
+                            <button type="button" id="aff-featured-download-btn" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 px-3 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer" title="Unduh Foto Utama Kegiatan">
                                 <span class="material-symbols-outlined text-base">download</span>
                                 <span>Unduh Foto</span>
                             </button>
-                            <button type="button" id="aff-featured-copy-btn" class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer" title="Salin Link Penghimpunan Berita">
+                            <button type="button" id="aff-featured-copy-btn" class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-3 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer" title="Salin Link Penghimpunan Berita">
                                 <span class="material-symbols-outlined text-base">content_copy</span>
                                 <span>Salin Link</span>
                             </button>
-                            <a id="aff-featured-view-btn" href="#" target="_blank" class="bg-primary/10 hover:bg-primary/20 text-primary px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors">
+                            <a id="aff-featured-view-btn" href="#" target="_blank" class="bg-primary/10 hover:bg-primary/20 text-primary px-3 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors">
                                 <span class="material-symbols-outlined text-base">open_in_new</span>
                                 <span>Buka Halaman</span>
                             </a>
@@ -523,36 +537,36 @@
                 </div>
 
                 <!-- Grid of All Available Published News -->
-                <div class="space-y-4 pt-2">
+                <div class="space-y-4 pt-2 w-full">
                     <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
                         <span class="material-symbols-outlined text-primary">feed</span>
                         <span>Daftar Seluruh Berita &amp; Kegiatan Siap Share</span>
                     </h3>
-                    <div id="affiliate-news-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div id="affiliate-news-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                         <!-- Dynamically populated news -->
                     </div>
                 </div>
             </div>
 
             <!-- SUBTAB 2: Catalog & Program Share Link Generator -->
-            <div id="subtab-catalog" class="member-subtab space-y-6 hidden">
+            <div id="subtab-catalog" class="member-subtab space-y-6 hidden w-full">
                 <div class="border-b border-slate-200 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div>
-                        <h2 class="text-xl font-extrabold text-slate-900">Katalog Program Siap Bagikan</h2>
+                        <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">Katalog Program Siap Bagikan</h2>
                         <p class="text-xs text-slate-500 mt-1">Pilih program di bawah untuk langsung membagikan link donasi publik dengan Kode Mitra Anda!</p>
                     </div>
                 </div>
 
-                <div id="affiliate-programs-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div id="affiliate-programs-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full">
                     <!-- Dynamic Loaded Programs -->
                 </div>
             </div>
 
             <!-- SUBTAB: Quote & Inspirasi Harian (Flyer Media) -->
-            <div id="subtab-quotes" class="member-subtab space-y-6 hidden">
+            <div id="subtab-quotes" class="member-subtab space-y-6 hidden w-full">
                 <div class="border-b border-slate-200 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div>
-                        <h2 class="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+                        <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
                             <span class="material-symbols-outlined text-primary text-2xl">format_quote</span>
                             <span>Quote &amp; Inspirasi Harian (Flyer Media)</span>
                         </h2>
@@ -561,28 +575,28 @@
                 </div>
 
                 <!-- Featured / Today Quote Card -->
-                <div id="affiliate-featured-quote" class="bg-gradient-to-br from-emerald-950 via-emerald-900 to-primary text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden flex flex-col md:flex-row gap-6 items-center">
+                <div id="affiliate-featured-quote" class="bg-gradient-to-br from-emerald-950 via-emerald-900 to-primary text-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-xl relative overflow-hidden flex flex-col md:flex-row gap-6 items-center w-full">
                     <!-- Dynamically populated today quote -->
                 </div>
 
                 <!-- Grid of All Available Quotes -->
-                <div class="space-y-4 pt-2">
+                <div class="space-y-4 pt-2 w-full">
                     <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
                         <span class="material-symbols-outlined text-primary">collections</span>
                         <span>Koleksi Flyer &amp; Kutipan Hadits Siap Share</span>
                     </h3>
-                    <div id="affiliate-quotes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div id="affiliate-quotes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full">
                         <!-- Dynamically rendered quotes -->
                     </div>
-                    <div id="affiliate-quotes-empty" class="hidden p-8 bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-center text-slate-500 text-xs">
+                    <div id="affiliate-quotes-empty" class="hidden p-6 sm:p-8 bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-center text-slate-500 text-xs w-full">
                         Belum ada flyer quote yang aktif saat ini.
                     </div>
                 </div>
             </div>
 
             <!-- SUBTAB: Member Profile & Bank Account Settings -->
-            <div id="subtab-profile" class="member-subtab max-w-2xl space-y-6 hidden">
-                <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+            <div id="subtab-profile" class="member-subtab max-w-2xl mx-auto space-y-6 hidden w-full">
+                <div class="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-sm space-y-6 w-full">
                     <div class="border-b border-slate-100 pb-4">
                         <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
                             <span class="material-symbols-outlined text-primary">account_balance</span>
@@ -623,7 +637,7 @@
                             <input type="password" id="prof-pin" placeholder="Biarkan kosong jika tidak ingin mengubah PIN" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary">
                         </div>
 
-                        <button type="submit" class="bg-primary hover:bg-emerald-700 text-white font-bold text-xs px-6 py-3 rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer">
+                        <button type="submit" class="w-full sm:w-auto bg-primary hover:bg-emerald-700 text-white font-bold text-xs px-6 py-3 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
                             <span class="material-symbols-outlined text-base">save</span>
                             <span>Simpan Perubahan Profile</span>
                         </button>
@@ -636,7 +650,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-slate-950 text-slate-400 py-12 mt-auto border-t border-slate-800">
+    <footer class="bg-slate-950 text-slate-400 py-10 sm:py-12 mt-auto border-t border-slate-800 w-full overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
             <div class="space-y-3">
                 <img src="assets/images/logo-wiz-official.png" onerror="this.onerror=null; this.src='assets/images/logo-wiz-babel.png';" alt="WIZ Babel" class="h-10 w-auto brightness-200">
