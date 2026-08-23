@@ -775,8 +775,8 @@
             window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
             broadcastSync('UPDATE_ADMIN_USERS', list);
 
-            if (typeof syncToCloud === 'function') {
-                try { await syncToCloud(true); } catch(e) {}
+            if (typeof pushToCloud === 'function') {
+                try { await pushToCloud(); } catch(e) {}
             }
             return { success: true, user: targetUser, message: 'Akun admin berhasil disimpan & terhubung ke Cloud!' };
         },
@@ -804,8 +804,8 @@
             window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
             broadcastSync('UPDATE_ADMIN_USERS', list);
 
-            if (typeof syncToCloud === 'function') {
-                try { await syncToCloud(true); } catch(e) {}
+            if (typeof pushToCloud === 'function') {
+                try { await pushToCloud(); } catch(e) {}
             }
             return { success: true, user, message: 'Data admin berhasil diperbarui!' };
         },
@@ -853,8 +853,8 @@
                 window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
                 broadcastSync('UPDATE_ADMIN_USERS', list);
 
-                if (typeof syncToCloud === 'function') {
-                    try { await syncToCloud(true); } catch(e) {}
+                if (typeof pushToCloud === 'function') {
+                    try { await pushToCloud(); } catch(e) {}
                 }
                 return { success: true, user: existing, message: 'Pendaftaran Anda berhasil diperbarui! Akun Anda sedang menunggu persetujuan dari Admin 1 Utama.' };
             }
@@ -868,7 +868,8 @@
                 role: cleanRole,
                 wilayah: cleanWil,
                 status: 'pending',
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
             };
 
             list.push(newUser);
@@ -880,8 +881,8 @@
             window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
             broadcastSync('NEW_ADMIN_USER', newUser);
 
-            if (typeof syncToCloud === 'function') {
-                try { await syncToCloud(true); } catch(e) {}
+            if (typeof pushToCloud === 'function') {
+                try { await pushToCloud(); } catch(e) {}
             }
 
             return { success: true, user: newUser, message: 'Pendaftaran berhasil! Akun Anda otomatis masuk antrean dan menunggu persetujuan dari Admin 1 Utama.' };
@@ -928,8 +929,8 @@
             window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
             broadcastSync('UPDATE_ADMIN_USERS', list);
 
-            if (typeof syncToCloud === 'function') {
-                try { await syncToCloud(true); } catch(e) {}
+            if (typeof pushToCloud === 'function') {
+                try { await pushToCloud(); } catch(e) {}
             }
             return { success: true, user: list[idx] };
         },
@@ -949,8 +950,8 @@
             window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
             broadcastSync('UPDATE_ADMIN_USERS', list);
 
-            if (typeof syncToCloud === 'function') {
-                try { await syncToCloud(true); } catch(e) {}
+            if (typeof pushToCloud === 'function') {
+                try { await pushToCloud(); } catch(e) {}
             }
             return { success: true };
         },
@@ -972,8 +973,8 @@
             window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
             broadcastSync('UPDATE_ADMIN_USERS', list);
 
-            if (typeof syncToCloud === 'function') {
-                try { await syncToCloud(true); } catch(e) {}
+            if (typeof pushToCloud === 'function') {
+                try { await pushToCloud(); } catch(e) {}
             }
             return { success: true };
         }
@@ -1984,13 +1985,15 @@
 
                     const localItem = map.get(strId);
                     if (localItem) {
+                        const tLocal = new Date(localItem.updatedAt || localItem.verifiedAt || localItem.createdAt || 0).getTime();
+                        const tCloud = new Date(cloudItem.updatedAt || cloudItem.verifiedAt || cloudItem.createdAt || 0).getTime();
                         let mergedItem;
-                        if (localItem.updatedAt && cloudItem.updatedAt && new Date(localItem.updatedAt) > new Date(cloudItem.updatedAt)) {
+                        if (tLocal >= tCloud) {
                             mergedItem = { ...cloudItem, ...localItem };
                         } else {
                             mergedItem = { ...localItem, ...cloudItem };
                         }
-                        if (localItem.imageUrl && (!cloudItem.imageUrl || localItem.imageUrl.startsWith('data:image') || (localItem.updatedAt && new Date(localItem.updatedAt) > new Date(cloudItem.updatedAt || 0)))) {
+                        if (localItem.imageUrl && (!cloudItem.imageUrl || localItem.imageUrl.startsWith('data:image') || tLocal >= tCloud)) {
                             mergedItem.imageUrl = localItem.imageUrl;
                         }
                         map.set(strId, mergedItem);

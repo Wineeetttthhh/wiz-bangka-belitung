@@ -107,9 +107,13 @@ function mergeArrays(existingArr = [], incomingArr = [], deletedIds = []) {
             map.set(itemId, item);
         } else {
             const existing = map.get(itemId);
-            const tExisting = new Date(existing.updatedAt || existing.createdAt || 0).getTime();
-            const tIncoming = new Date(item.updatedAt || item.createdAt || 0).getTime();
-            if (tIncoming >= tExisting) map.set(itemId, { ...existing, ...item });
+            const tExisting = new Date(existing.updatedAt || existing.verifiedAt || existing.createdAt || 0).getTime();
+            const tIncoming = new Date(item.updatedAt || item.verifiedAt || item.createdAt || 0).getTime();
+            if (tIncoming >= tExisting) {
+                map.set(itemId, { ...existing, ...item });
+            } else {
+                map.set(itemId, { ...item, ...existing });
+            }
         }
     });
     return Array.from(map.values());
@@ -184,7 +188,10 @@ module.exports = async function handler(req, res) {
             const deletedRefIds = Array.isArray(incoming.deleted_ref_ids) ? incoming.deleted_ref_ids : [];
             const deletedQuoteIds = Array.isArray(incoming.deleted_quote_ids) ? incoming.deleted_quote_ids : [];
             const deletedProgramIds = Array.isArray(incoming.deleted_program_ids) ? incoming.deleted_program_ids : [];
-            const deletedAdminIds = Array.isArray(incoming.deleted_admin_ids) ? incoming.deleted_admin_ids : [];
+            const deletedAdminIds = Array.from(new Set([
+                ...(Array.isArray(incoming.deleted_admin_ids) ? incoming.deleted_admin_ids : []),
+                ...(Array.isArray(incoming.deletedAdminIds) ? incoming.deletedAdminIds : [])
+            ]));
 
             if (deletedIds.length > 0 && Array.isArray(master.donations)) {
                 master.donations = master.donations.filter(d => d && d.id && !deletedIds.includes(String(d.id)));
@@ -215,6 +222,10 @@ module.exports = async function handler(req, res) {
                 master.quotes = incoming.quotes.length > 0 ? incoming.quotes : mergeArrays(master.quotes, incoming.quotes, deletedQuoteIds);
             if (Array.isArray(incoming.activity))
                 master.activity = mergeArrays(master.activity, incoming.activity, []);
+
+            if (deletedAdminIds.length > 0 && Array.isArray(master.admin_users)) {
+                master.admin_users = master.admin_users.filter(u => u && u.id && !deletedAdminIds.includes(String(u.id)));
+            }
             if (Array.isArray(incoming.admin_users) && incoming.admin_users.length > 0) {
                 master.admin_users = mergeArrays(master.admin_users, incoming.admin_users, deletedAdminIds);
             }

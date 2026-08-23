@@ -5591,14 +5591,18 @@
         }
 
         async function rejectAdmin(id) {
-            if (!confirm('Tolak pendaftaran akun admin ini? Akses tidak akan dapat digunakan untuk login.')) return;
-            const adminActor = sessionStorage.getItem('wiz_admin_user') || 'Admin 1';
-            await wizStore.adminUsers.reject(id, adminActor);
-            if (typeof showNotification === 'function') {
-                showNotification('Pendaftaran akun admin telah ditolak.');
-            }
-            if (wizStore && wizStore.syncToCloud) {
-                try { await wizStore.syncToCloud(true); } catch(e) {}
+            const allUsers = wizStore.adminUsers ? wizStore.adminUsers.getAll() : [];
+            const targetUser = allUsers.find(u => String(u.id) === String(id));
+            const label = targetUser ? `'${targetUser.fullName || targetUser.username}'` : id;
+            if (!confirm(`Tolak dan hapus permohonan pendaftaran admin ${label}?\n\nData pendaftaran ini akan langsung dihapus permanen dari sistem dan antrean permintaan.`)) return;
+
+            const res = await wizStore.adminUsers.delete(id);
+            if (res.success) {
+                if (typeof showNotification === 'function') {
+                    showNotification(`✅ Permohonan pendaftaran ${label} telah ditolak dan langsung dihapus dari sistem.`);
+                } else {
+                    alert(`✅ Permohonan pendaftaran ${label} telah ditolak dan langsung dihapus dari sistem.`);
+                }
             }
             refreshAll();
         }
@@ -5616,19 +5620,16 @@
                 alert('Admin 1 Utama bersifat mutlak dan tidak dapat dihapus.');
                 return;
             }
-            const label = targetUser ? `'${targetUser.fullName}' (${targetUser.username})` : id;
-            if (!confirm(`Apakah Anda yakin ingin mencabut hak akses admin ${label}?\n\nTindakan ini akan menghapus akun tersebut dari sistem.`)) return;
+            const label = targetUser ? `'${targetUser.fullName || targetUser.username}'` : id;
+            if (!confirm(`Apakah Anda yakin ingin menghapus hak akses admin ${label}?\n\nTindakan ini akan menghapus akun tersebut secara permanen dari sistem.`)) return;
             const res = await wizStore.adminUsers.delete(id);
             if (!res.success) {
                 alert(res.message);
             } else {
                 if (typeof showNotification === 'function') {
-                    showNotification(`✅ Hak akses admin ${label} berhasil dicabut.`);
+                    showNotification(`✅ Hak akses admin ${label} berhasil dihapus permanen.`);
                 } else {
-                    alert(`✅ Hak akses admin ${label} berhasil dicabut.`);
-                }
-                if (wizStore && wizStore.syncToCloud) {
-                    try { await wizStore.syncToCloud(true); } catch(e) {}
+                    alert(`✅ Hak akses admin ${label} berhasil dihapus permanen.`);
                 }
             }
             refreshAll();
