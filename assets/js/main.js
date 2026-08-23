@@ -2250,7 +2250,54 @@ window.enhanceProgramCardsWithShareButtons = function () {
     });
 };
 
+/**
+ * Auto update copyright year on all footer elements across the entire website
+ */
+window.autoUpdateCopyrightYears = function() {
+    const currentYear = new Date().getFullYear();
+    document.querySelectorAll('#footer-year, #footer-year-prog, #footer-year-berita, #footer-year-aff, [data-footer-year], .footer-year').forEach(el => {
+        el.textContent = currentYear;
+    });
+};
+
+/**
+ * Dynamically populate month/year filter options based on current live date
+ */
+window.populateMonthFilterOptions = function(selectElementId, includeAll = true, totalMonths = 18) {
+    const el = document.getElementById(selectElementId);
+    if (!el) return;
+    const now = new Date();
+    const monthNames = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    
+    let html = '';
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+    
+    for (let i = 0; i < totalMonths; i++) {
+        const d = new Date(currentYear, currentMonth - i, 1);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const val = `${yyyy}-${mm}`;
+        const label = `${monthNames[d.getMonth()]} ${yyyy}`;
+        html += `<option value="${val}">${label}</option>`;
+    }
+    
+    if (includeAll) {
+        html += `<option value="Semua">Semua Periode</option>`;
+    }
+    
+    const prevVal = el.value;
+    el.innerHTML = html;
+    if (prevVal && el.querySelector(`option[value="${prevVal}"]`)) {
+        el.value = prevVal;
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
+    window.autoUpdateCopyrightYears();
     window.applySiteSettings();
     window.enhanceProgramCardsWithShareButtons();
 });
@@ -2258,6 +2305,7 @@ window.addEventListener('wiz-site-settings-changed', () => {
     window.applySiteSettings();
 });
 window.addEventListener('wiz-sync-complete', () => {
+    window.autoUpdateCopyrightYears();
     window.applySiteSettings();
     window.enhanceProgramCardsWithShareButtons();
 });

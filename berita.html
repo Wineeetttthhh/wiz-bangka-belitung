@@ -247,7 +247,7 @@
                 <span>•</span>
                 <a href="laporan.html" class="hover:text-emerald-400 transition-colors">Laporan Transparansi</a>
             </div>
-            <p class="pt-4 text-slate-500">© 2026 WIZ Bangka Belitung. Seluruh Hak Cipta Dilindungi.</p>
+            <p class="pt-4 text-slate-500">© <span id="footer-year-berita"></span> WIZ Bangka Belitung. Seluruh Hak Cipta Dilindungi.</p>
         </div>
     </footer>
 
@@ -511,6 +511,8 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
+            const fyb = document.getElementById('footer-year-berita');
+            if (fyb) fyb.textContent = new Date().getFullYear();
             renderArchive();
         });
         window.addEventListener('wiz-news-changed', renderArchive);

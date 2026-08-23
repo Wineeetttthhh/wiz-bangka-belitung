@@ -5431,7 +5431,12 @@
                 if (kpiPending) kpiPending.textContent = fmt(totalPending);
 
                 const monthSelect = document.getElementById('referral-month-filter');
-                const selectedMonth = monthSelect ? monthSelect.value : '2026-08';
+                if (monthSelect && monthSelect.options.length <= 3 && typeof window.populateMonthFilterOptions === 'function') {
+                    window.populateMonthFilterOptions('referral-month-filter');
+                }
+                const now = new Date();
+                const defaultCurMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+                const selectedMonth = monthSelect ? (monthSelect.value || defaultCurMonth) : defaultCurMonth;
 
                 const filteredRefs = allRefs.filter(r => r && (!searchVal || (r.name && r.name.toLowerCase().includes(searchVal)) || (r.phone && r.phone.includes(searchVal)) || (r.code && r.code.toLowerCase().includes(searchVal)) || (r.bankName && r.bankName.toLowerCase().includes(searchVal))));
 
@@ -6470,6 +6475,9 @@
         });
 
         document.addEventListener('DOMContentLoaded', async () => {
+            if (typeof window.populateMonthFilterOptions === 'function') {
+                window.populateMonthFilterOptions('referral-month-filter');
+            }
             checkAdminAuth();
             refreshAll();
             handleInitialUrlRouting();

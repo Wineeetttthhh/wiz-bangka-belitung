@@ -294,7 +294,7 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-xl w-full px-margin-mobile md:px-gutter py-xxl max-w-container-max mx-auto">
         <div class="col-span-1 md:col-span-1 space-y-sm">
             <div class="font-headline-lg text-headline-lg font-bold text-surface-bright">WIZ Babel</div>
-            <p class="font-body-md text-body-md text-surface-variant/80">© 2024 Wahdah Inspirasi Zakat Bangka Belitung. Amanah &amp; Profesional.</p>
+            <p class="font-body-md text-body-md text-surface-variant/80">© <span id="footer-year"></span> Wahdah Inspirasi Zakat Bangka Belitung. Amanah &amp; Profesional.</p>
         </div>
         <div class="col-span-1 md:col-span-3 flex flex-wrap gap-lg md:justify-end items-center">
             <a class="font-label-md text-label-md text-surface-variant/80 hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 focus:ring-2 focus:ring-primary-fixed rounded" href="program.html">Program Pemberdayaan</a>
@@ -635,6 +635,8 @@
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
+        const fy = document.getElementById('footer-year');
+        if (fy) fy.textContent = new Date().getFullYear();
         renderPublicReport();
 
         // Listen for background sync completion to auto-refresh data

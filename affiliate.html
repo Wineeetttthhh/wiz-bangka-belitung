@@ -675,7 +675,7 @@
             </div>
         </div>
         <div class="max-w-7xl mx-auto px-4 mt-8 pt-6 border-t border-slate-900 text-center text-xs text-slate-600">
-            &copy; 2026 Wahdah Inspirasi Zakat (WIZ) Bangka Belitung. All rights reserved.
+            &copy; <span id="footer-year-aff"></span> Wahdah Inspirasi Zakat (WIZ) Bangka Belitung. All rights reserved.
         </div>
     </footer>
 
@@ -723,6 +723,11 @@
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
+            const fya = document.getElementById('footer-year-aff');
+            if (fya) fya.textContent = new Date().getFullYear();
+            if (typeof window.populateMonthFilterOptions === 'function') {
+                window.populateMonthFilterOptions('monthly-eval-select');
+            }
             renderAffiliateProgramsGrid();
 
             // Initial cloud sync
