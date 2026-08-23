@@ -3723,7 +3723,7 @@
                 <div class="bg-surface-container-lowest rounded-2xl shadow-xs hover:shadow-md transition-all border border-outline-variant/30 p-lg flex flex-col md:flex-row gap-lg items-start">
                     <!-- Thumbnail -->
                     <div class="relative w-full md:w-48 h-32 shrink-0 overflow-hidden rounded-xl bg-surface-container border border-outline-variant/30 group">
-                        <img src="${n.imageUrl || defaultImg}" onerror="this.src='${defaultImg}'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="${n.title}">
+                        <img src="${n.imageUrl || n.image_url || defaultImg}" onerror="this.src='${defaultImg}'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="${n.title}">
                         ${galleryCount > 0 ? `<span class="absolute bottom-1.5 right-1.5 bg-black/70 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">photo_library</span>+${galleryCount} foto</span>` : ''}
                     </div>
 

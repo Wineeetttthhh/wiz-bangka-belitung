@@ -396,6 +396,36 @@
                     }
                 }
             }
+
+            // 5. Sanitize wiz_news: normalize imageUrl / image_url and purge tiny corrupted base64
+            const rawNews = localStorage.getItem(STORAGE_KEYS.NEWS);
+            if (rawNews) {
+                let newsList = JSON.parse(rawNews);
+                if (Array.isArray(newsList)) {
+                    let changed = false;
+                    newsList.forEach(n => {
+                        if (n) {
+                            if (!n.imageUrl && n.image_url) {
+                                n.imageUrl = n.image_url;
+                                changed = true;
+                            }
+                            if (!n.image_url && n.imageUrl) {
+                                n.image_url = n.imageUrl;
+                                changed = true;
+                            }
+                            if (n.imageUrl && typeof n.imageUrl === 'string' && n.imageUrl.includes('AARCAAKAtAD')) {
+                                n.imageUrl = 'assets/images/bantuan-pengobatan.jpg';
+                                n.image_url = 'assets/images/bantuan-pengobatan.jpg';
+                                changed = true;
+                            }
+                        }
+                    });
+                    if (changed) {
+                        localStorage.setItem(STORAGE_KEYS.NEWS, JSON.stringify(newsList));
+                        memoryStoreFallback.set(STORAGE_KEYS.NEWS, newsList);
+                    }
+                }
+            }
         } catch(e) {}
     }
 
@@ -2218,20 +2248,34 @@
 
             if (authoritativeNews.length > 0) {
                 const cloudNewsMap = new Map();
-                // 1. Load authoritative cloud news
-                authoritativeNews.forEach(n => {
-                    if (n && n.id && !deletedNewsSet.has(String(n.id)) && n.status !== 'deleted' && !n.isDeleted) {
-                        cloudNewsMap.set(String(n.id), { ...n });
+                // 1. Load authoritative cloud news with full property normalization
+                authoritativeNews.forEach(rawN => {
+                    if (rawN && rawN.id && !deletedNewsSet.has(String(rawN.id)) && rawN.status !== 'deleted' && !rawN.isDeleted) {
+                        const img = rawN.imageUrl || rawN.image_url || '';
+                        const n = {
+                            ...rawN,
+                            imageUrl: img,
+                            image_url: img,
+                            eventDate: rawN.eventDate || rawN.event_date || rawN.createdAt || rawN.created_at || new Date().toISOString(),
+                            createdAt: rawN.createdAt || rawN.created_at || new Date().toISOString(),
+                            updatedAt: rawN.updatedAt || rawN.updated_at || new Date().toISOString()
+                        };
+                        cloudNewsMap.set(String(n.id), n);
                     }
                 });
 
-                // 2. Only retain local items if they are new local drafts not yet present in cloud
+                // 2. Retain local items only if they are new local items not yet in cloud
                 const local = getStore(STORAGE_KEYS.NEWS) || [];
                 local.forEach(loc => {
                     if (loc && loc.id && !deletedNewsSet.has(String(loc.id)) && loc.status !== 'deleted') {
                         const strId = String(loc.id);
                         if (!cloudNewsMap.has(strId)) {
-                            cloudNewsMap.set(strId, loc);
+                            const img = loc.imageUrl || loc.image_url || '';
+                            cloudNewsMap.set(strId, {
+                                ...loc,
+                                imageUrl: img,
+                                image_url: img
+                            });
                         }
                     }
                 });
