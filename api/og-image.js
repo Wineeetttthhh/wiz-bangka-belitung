@@ -20,7 +20,7 @@ const SUPABASE_KEY = 'sb_publishable_GiA1BOjbW2psTU36149xuA_E26wGBI3';
 
 // ─── In-Memory Cache for Sub-10ms Serverless Response ────────
 const imageCache = new Map(); // key → { buf, ts }
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes cache
+const CACHE_TTL_MS = 10 * 1000; // 10s fresh cache
 
 function getCached(key) {
     const entry = imageCache.get(key);
@@ -53,7 +53,7 @@ function sendJpegImage(res, buf) {
     res.setHeader('Content-Type', 'image/jpeg');
     res.setHeader('Content-Length', String(buf.length));
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('X-Content-Type-Options', 'nosniff');
     if (typeof res.status === 'function') {
         res.status(200).end(buf);
@@ -62,7 +62,7 @@ function sendJpegImage(res, buf) {
             'Content-Type': 'image/jpeg',
             'Content-Length': String(buf.length),
             'Access-Control-Allow-Origin': '*',
-            'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
             'X-Content-Type-Options': 'nosniff'
         });
         res.end(buf);

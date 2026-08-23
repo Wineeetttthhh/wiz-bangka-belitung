@@ -672,7 +672,7 @@ module.exports = async function handler(req, res) {
 
     // Return Rich SSR HTML with OpenGraph tags for WhatsApp, Facebook, Twitter, Telegram
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
 
     const html = `<!DOCTYPE html>
 <html lang="id">

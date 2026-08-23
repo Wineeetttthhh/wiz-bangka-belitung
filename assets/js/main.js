@@ -1914,12 +1914,16 @@ window.shareProgram = async function (programTitle, description, customUrl, cust
         if (params.length > 0) fullUrl += `?${params.join('&')}`;
     }
 
+    const baseDomain = 'https://www.wizbangkabelitung.or.id';
     let programImg = customImg || '';
     if (!programImg && window.wizStore && window.wizStore.allocationRulesManager && window.wizStore.allocationRulesManager.getSpecificProgramImage) {
         programImg = window.wizStore.allocationRulesManager.getSpecificProgramImage(cleanTitle) || '';
     }
-    const defaultImg = 'https://www.wizbangkabelitung.or.id/assets/images/foto-utama-wiz.jpg';
+    const defaultImg = `${baseDomain}/assets/images/foto-utama-wiz.jpg`;
     if (!programImg) programImg = defaultImg;
+    if (programImg && !programImg.startsWith('http') && !programImg.startsWith('data:image')) {
+        programImg = `${baseDomain}/${programImg.replace(/^\//, '')}`;
+    }
 
     const waText = `*${cleanTitle}*\n\n${cleanDesc}\n\n${fullUrl}`;
 
@@ -1942,8 +1946,17 @@ window.shareProgram = async function (programTitle, description, customUrl, cust
 
 window.openShareModal = function (title, desc, url, programImg) {
     let modal = document.getElementById('program-share-modal');
-    const defaultImg = 'https://wizbangkabelitung.or.id/assets/images/sedekah-beras-dhuafa.jpg';
-    const activeImg = (programImg && (programImg.startsWith('http') || programImg.startsWith('data:image'))) ? programImg : defaultImg;
+    const baseDomain = 'https://www.wizbangkabelitung.or.id';
+    const defaultImg = `${baseDomain}/assets/images/foto-utama-wiz.jpg`;
+
+    let activeImg = programImg;
+    if (!activeImg && window.wizStore && window.wizStore.allocationRulesManager && window.wizStore.allocationRulesManager.getSpecificProgramImage) {
+        activeImg = window.wizStore.allocationRulesManager.getSpecificProgramImage(title);
+    }
+    if (!activeImg) activeImg = defaultImg;
+    if (activeImg && !activeImg.startsWith('http') && !activeImg.startsWith('data:image')) {
+        activeImg = `${baseDomain}/${activeImg.replace(/^\//, '')}`;
+    }
 
     if (!modal) {
         modal = document.createElement('div');

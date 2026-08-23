@@ -52,7 +52,7 @@
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, max-age=3600, s-maxage=3600"
+          "value": "no-cache, no-store, must-revalidate"
         },
         {
           "key": "Access-Control-Allow-Origin",
@@ -65,7 +65,7 @@
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, max-age=3600, s-maxage=3600"
+          "value": "no-cache, no-store, must-revalidate"
         },
         {
           "key": "Access-Control-Allow-Origin",
@@ -78,7 +78,7 @@
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, max-age=60, s-maxage=120"
+          "value": "no-cache, no-store, must-revalidate"
         }
       ]
     },
