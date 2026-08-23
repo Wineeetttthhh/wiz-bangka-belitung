@@ -523,7 +523,8 @@
                 'Berkah Juara': {
                     items: [
                         { key: 'Beasiswa Pendidikan Juara', percent: 80 },
-                        { key: 'Perlengkapan Belajar Yatim', percent: 20 }
+                        { key: 'Perlengkapan Belajar Yatim', percent: 15 },
+                        { key: 'Beasiswa Tahfidz & Dhuafa', percent: 5 }
                     ]
                     // Total = 100% → VALID
                 },
@@ -573,7 +574,8 @@
                 'Berkah Juara': {
                     items: [
                         { key: 'Beasiswa Pendidikan Juara', percent: 80 },
-                        { key: 'Perlengkapan Belajar Yatim', percent: 20 }
+                        { key: 'Perlengkapan Belajar Yatim', percent: 15 },
+                        { key: 'Beasiswa Tahfidz & Dhuafa', percent: 5 }
                     ]
                 },
                 'Berkah Peduli': {
@@ -1223,8 +1225,48 @@
     // ─── Allocation Rules Manager ─────────────────────────
     const allocationRulesManager = {
         getAll() {
-            const saved = getStore(STORAGE_KEYS.ALLOCATION_RULES);
-            return saved || ALLOCATION_RULES;
+            let saved = getStore(STORAGE_KEYS.ALLOCATION_RULES);
+            if (!saved) {
+                saved = JSON.parse(JSON.stringify(ALLOCATION_RULES));
+            }
+            // Normalize Berkah Juara subAllocation across all branches
+            let modified = false;
+            for (const [w, wData] of Object.entries(saved)) {
+                if (wData && wData.subAllocation && wData.subAllocation['Berkah Juara']) {
+                    const subJuara = wData.subAllocation['Berkah Juara'];
+                    if (subJuara.items && Array.isArray(subJuara.items)) {
+                        // Rename any legacy 'Beasiswa Yatim & Dhuafa' to 'Beasiswa Tahfidz & Dhuafa'
+                        subJuara.items.forEach(item => {
+                            if (item.key === 'Beasiswa Yatim & Dhuafa' || item.key === 'Beasiswa Yatim dan Dhuafa') {
+                                item.key = 'Beasiswa Tahfidz & Dhuafa';
+                                modified = true;
+                            }
+                        });
+
+                        const itemJuara = subJuara.items.find(i => (i.key || '').toLowerCase().includes('pendidikan juara'));
+                        const itemYatim = subJuara.items.find(i => (i.key || '').toLowerCase().includes('perlengkapan'));
+                        const itemTahfidz = subJuara.items.find(i => (i.key || '').toLowerCase().includes('tahfidz') || (i.key || '').toLowerCase().includes('dhuafa') || (i.key || '').toLowerCase().includes('yatim & dhuafa'));
+
+                        if (itemJuara && itemJuara.percent !== 80) { itemJuara.percent = 80; modified = true; }
+                        if (itemYatim && itemYatim.percent !== 15) { itemYatim.percent = 15; modified = true; }
+                        if (itemTahfidz) {
+                            if (itemTahfidz.key !== 'Beasiswa Tahfidz & Dhuafa') { itemTahfidz.key = 'Beasiswa Tahfidz & Dhuafa'; modified = true; }
+                            if (itemTahfidz.percent !== 5) { itemTahfidz.percent = 5; modified = true; }
+                        } else {
+                            subJuara.items.push({
+                                key: 'Beasiswa Tahfidz & Dhuafa',
+                                percent: 5,
+                                image: 'assets/images/default-program-wiz.jpg'
+                            });
+                            modified = true;
+                        }
+                    }
+                }
+            }
+            if (modified) {
+                setStore(STORAGE_KEYS.ALLOCATION_RULES, saved);
+            }
+            return saved;
         },
         get(wilayah) {
             const all = this.getAll();
@@ -2506,8 +2548,10 @@
                             const items = wData.subAllocation[pillarKey].items || [];
                             if (Array.isArray(titles)) {
                                 titles.forEach(t => {
-                                    if (!items.find(i => (i.key || '').toLowerCase() === t.toLowerCase())) {
-                                        items.push({ key: t, percent: 0, image: allocationRulesManager.getSpecificProgramImage(t, pillarKey) || '' });
+                                    const cleanT = (t === 'Beasiswa Yatim & Dhuafa' || t === 'Beasiswa Yatim dan Dhuafa') ? 'Beasiswa Tahfidz & Dhuafa' : t;
+                                    if (!items.find(i => (i.key || '').toLowerCase() === cleanT.toLowerCase())) {
+                                        const defaultPct = (pillarKey === 'Berkah Juara' && cleanT === 'Beasiswa Tahfidz & Dhuafa') ? 5 : 0;
+                                        items.push({ key: cleanT, percent: defaultPct, image: allocationRulesManager.getSpecificProgramImage(cleanT, pillarKey) || '' });
                                         rulesModified = true;
                                     }
                                 });
