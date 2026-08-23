@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="light scroll-smooth" lang="id">
+<html class="light" lang="id">
 
 <head>
     <meta charset="utf-8" />
@@ -1348,17 +1348,9 @@
             }
 
             updateSummary();
-
-            // 5. Smooth scroll into the form section
-            setTimeout(() => {
-                const targetEl = document.getElementById('infak-terikat-flow');
-                if (targetEl) {
-                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            }, 200);
         }
 
-        // Read URL query parameters for pre-filling program
+        // Read URL query parameters for pre-filling program (Runs once on initial load)
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const progParam = urlParams.get('program');
@@ -1395,12 +1387,8 @@
             if (window.applySiteSettings) window.applySiteSettings();
         });
 
+        // Cloud sync listener: only refresh global store settings/summaries without modifying active user form state
         window.addEventListener('wiz-sync-complete', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const progParam = urlParams.get('program');
-            if (progParam) {
-                applyProgramFromQuery(progParam);
-            }
             updateSummary();
             initAffiliateBanner();
             if (window.applySiteSettings) window.applySiteSettings();
@@ -1423,7 +1411,6 @@
             document.addEventListener('DOMContentLoaded', initAffiliateBanner);
         } else {
             initAffiliateBanner();
-            setTimeout(initAffiliateBanner, 1500); // Re-run once store is loaded
         }
     </script>
 </body>

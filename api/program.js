@@ -745,8 +745,8 @@ module.exports = async function handler(req, res) {
     <main class="max-w-3xl mx-auto px-4 py-8 flex-grow space-y-8 w-full">
         <!-- Main Hero Program Card -->
         <div class="bg-white rounded-3xl overflow-hidden shadow-xl border border-slate-200">
-            <div class="relative aspect-video w-full bg-slate-900 overflow-hidden">
-                <img src="${escapeHtml(pageImgSrc)}" alt="${escapeHtml(title)}" class="w-full h-full object-cover">
+            <div class="relative w-full bg-slate-900 overflow-hidden" style="max-height:420px; min-height:220px;">
+                <img src="${escapeHtml(pageImgSrc)}" alt="${escapeHtml(title)}" class="w-full h-auto block" style="max-height:420px; object-fit:contain; background:#0f172a;">
                 <span class="absolute top-4 left-4 bg-emerald-600 text-white text-xs font-bold px-3.5 py-1 rounded-full shadow backdrop-blur-xs">
                     ${escapeHtml(pillar)}
                 </span>
