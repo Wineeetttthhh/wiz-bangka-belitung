@@ -17,7 +17,7 @@ const path = require('path');
 const SUPABASE_URL = 'https://ffiltrlzdbwhhhxzmzuo.supabase.co/rest/v1';
 const SUPABASE_KEY = 'sb_publishable_GiA1BOjbW2psTU36149xuA_E26wGBI3';
 
-const DEFAULT_FALLBACK_IMAGE = 'https://www.wizbangkabelitung.or.id/assets/images/foto-utama-wiz.jpg';
+const DEFAULT_FALLBACK_IMAGE = 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg';
 
 // In-memory cache for ultra-fast serverless execution
 let cachedCloudBundle = null;
@@ -32,91 +32,98 @@ const SPECIFIC_PROGRAMS_METADATA = {
         pillar: 'Dakwah & Pembinaan',
         target: 'Rp 2.004.000.000',
         description: 'Dukung pembangunan pusat kegiatan dakwah, kaderisasi da\'i, dan pembinaan umat di pelosok Bangka Belitung untuk mencetak generasi Rabbani yang kokoh dan berakhlak mulia.',
-        imageUrl: 'https://images.unsplash.com/photo-1542665952-14513db15293?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'pengadaan-perbaikan-kendaraan': {
         title: 'Pengadaan & Perbaikan Kendaraan',
         pillar: 'Dakwah & Pembinaan',
         target: 'Rp 5.000.000',
         description: 'Fasilitasi mobilitas para dai dalam menyebarkan dakwah ke pelosok Bangka Belitung dengan armada kendaraan operasional yang layak dan memadai.',
-        imageUrl: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'pengadaan-dan-perbaikan-kendaraan': {
         title: 'Pengadaan & Perbaikan Kendaraan',
         pillar: 'Dakwah & Pembinaan',
         target: 'Rp 5.000.000',
         description: 'Fasilitasi mobilitas para dai dalam menyebarkan dakwah ke pelosok Bangka Belitung dengan armada kendaraan operasional yang layak dan memadai.',
-        imageUrl: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
+    },
+    'keberangkatan-kepulangan-dai': {
+        title: 'Keberangkatan & Kepulangan Dai',
+        pillar: 'Dakwah & Pembinaan',
+        target: 'Rp 10.000.000',
+        description: 'Bantu mobilitas dan tugas dakwah para da\'i ke pelosok pulau dan pelosok desa di Bangka Belitung.',
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/keberangkatan-kepulangan-dai.jpg'
     },
     'santunan-mualaf': {
         title: 'Santunan Mualaf',
         pillar: 'Dakwah & Pembinaan',
         target: 'Rp 12.000.000',
         description: 'Berikan dukungan moral dan materil bagi para mualaf agar semakin teguh dalam memeluk dan mengamalkan ajaran Islam di Bangka Belitung.',
-        imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'tahfidz': {
         title: 'Tahfidz Al-Qur\'an',
         pillar: 'Dakwah & Pembinaan',
         target: 'Rp 15.000.000',
         description: 'Bantu pembinaan dan fasilitas para santri penghafal Al-Qur\'an untuk mencetak generasi penjaga wahyu di Bangka Belitung.',
-        imageUrl: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'pelatihan-public-speaking': {
         title: 'Pelatihan Public Speaking',
         pillar: 'Dakwah & Pembinaan',
         target: 'Rp 4.000.000',
         description: 'Tingkatkan kapasitas komunikasi, retorika, dan dakwah para da\'i muda serta relawan dakwah di Bangka Belitung.',
-        imageUrl: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'tabligh-akbar-dzulhijjah': {
         title: 'Tabligh Akbar Dzulhijjah',
         pillar: 'Dakwah & Pembinaan',
         target: 'Rp 10.000.000',
         description: 'Syiar dakwah akbar menyambut bulan haji dan qurban untuk mempererat ukhuwah Islamiyah masyarakat Bangka Belitung.',
-        imageUrl: 'https://images.unsplash.com/photo-1542665952-14513db15293?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'pelatihan-guru-dirosa': {
         title: 'Pelatihan Guru Dirosa',
         pillar: 'Dakwah & Pembinaan',
         target: 'Rp 6.000.000',
         description: 'Pelatihan metode Dirosa (Pendidikan Al-Qur\'an Orang Dewasa) untuk mencetak guru-guru ngaji yang kompeten.',
-        imageUrl: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'pelatihan-penyelenggaraan-jenazah': {
         title: 'Pelatihan Penyelenggaraan Jenazah',
         pillar: 'Dakwah & Pembinaan',
         target: 'Rp 5.000.000',
         description: 'Edukasi fardhu kifayah tata cara memandikan, mengafani, menyalatkan, dan menguburkan jenazah sesuai sunnah.',
-        imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'pelatihan-relawan-media-dakwah': {
         title: 'Pelatihan Relawan Media Dakwah',
         pillar: 'Dakwah & Pembinaan',
         target: 'Rp 5.000.000',
         description: 'Pelatihan konten kreatif, fotografi, videografi, dan jurnalistik dakwah digital bagi generasi muda.',
-        imageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'lomba-desain-poster-dakwah': {
         title: 'Lomba Desain Poster Dakwah',
         pillar: 'Dakwah & Pembinaan',
         target: 'Rp 3.000.000',
         description: 'Wadah kreativitas visual pemuda muslim dalam menyebarkan pesan kebaikan dan nilai-nilai Islam.',
-        imageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'kantor-dpw-wi-babel-dan-wiz': {
         title: 'Kantor DPW WI Babel & WIZ',
         pillar: 'Dakwah & Pembinaan',
         target: 'Rp 150.000.000',
         description: 'Pengadaan dan renovasi pusat pelayanan administrasi ummat, dakwah terpadu, dan kantor Laznas WIZ Bangka Belitung.',
-        imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'pengadaan-celengan-besar': {
         title: 'Pengadaan Celengan Sedekah Subuh',
         pillar: 'Dakwah & Pembinaan',
         target: 'Rp 5.000.000',
         description: 'Penyediaan sarana infak harian di masjid, perkantoran, dan pertokoan untuk menggalakkan gerakan gemar sedekah.',
-        imageUrl: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
 
     // ── 2. Sosial & Kemanusiaan (Berkah Peduli) ──
@@ -134,7 +141,14 @@ const SPECIFIC_PROGRAMS_METADATA = {
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 25.000.000',
         description: 'Penyaluran paket bahan pangan pokok untuk keluarga dhuafa, janda lansia, dan yatim di pelosok Bangka Belitung.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/sedekah-beras-dhuafa.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/tebar-sembako.jpg'
+    },
+    'tebar-sembako-dhuafa': {
+        title: 'Tebar Sembako Dhuafa',
+        pillar: 'Sosial & Kemanusiaan',
+        target: 'Rp 25.000.000',
+        description: 'Penyaluran paket bahan pangan pokok untuk keluarga dhuafa, janda lansia, dan yatim di pelosok Bangka Belitung.',
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/tebar-sembako.jpg'
     },
     'sedekah-beras-dhuafa': {
         title: 'Sedekah Beras Dhuafa',
@@ -148,21 +162,21 @@ const SPECIFIC_PROGRAMS_METADATA = {
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 10.000.000',
         description: 'Berbagi paket makanan siap santap dan sedekah jumat berkah untuk jamaah masjid, musafir, dan pekerja harian.',
-        imageUrl: 'https://images.unsplash.com/photo-1547592180-85f173990554?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/sedekah-beras-dhuafa.jpg'
     },
     'santunan-yatim': {
         title: 'Santunan Anak Yatim',
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 30.000.000',
         description: 'Hadirkan senyum dan masa depan cerah untuk anak-anak yatim binaan di Bangka Belitung dengan santunan rutin dan perlengkapan sekolah.',
-        imageUrl: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/santunan-yatim.jpg'
     },
     'santunan-anak-yatim': {
         title: 'Santunan Anak Yatim',
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 30.000.000',
         description: 'Hadirkan senyum dan masa depan cerah untuk anak-anak yatim binaan di Bangka Belitung dengan santunan rutin dan perlengkapan sekolah.',
-        imageUrl: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/santunan-yatim.jpg'
     },
     'tebar-iftar': {
         title: 'Tebar Iftar Ramadan',
@@ -183,28 +197,28 @@ const SPECIFIC_PROGRAMS_METADATA = {
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 20.000.000',
         description: 'Distribusi mushaf Al-Qur\'an standar Madinah untuk TPQ, rumah tahfidz, dan masjid di pelosok desa binaan.',
-        imageUrl: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'bahagiakan-guru-ngaji': {
         title: 'Bahagiakan Guru Ngaji',
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 15.000.000',
         description: 'Apresiasi dan kafalah bulanan bagi para ustadz dan guru ngaji sukarela yang ikhlas mengajarkan Al-Qur\'an.',
-        imageUrl: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'sedekah-air': {
         title: 'Sedekah Air Bersih',
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 18.000.000',
         description: 'Penyediaan sumur bor, instalasi tandon, dan pipanisasi air bersih untuk daerah krisis kekeringan.',
-        imageUrl: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'sedekah-air-bersih': {
         title: 'Sedekah Air Bersih',
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 18.000.000',
         description: 'Penyediaan sumur bor, instalasi tandon, dan pipanisasi air bersih untuk daerah krisis kekeringan.',
-        imageUrl: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
 
     // ── 3. Pendidikan & Beasiswa (Berkah Juara) ──
@@ -213,7 +227,7 @@ const SPECIFIC_PROGRAMS_METADATA = {
         pillar: 'Pendidikan & Beasiswa',
         target: 'Rp 40.000.000',
         description: 'Dukung biaya SPP dan perlengkapan sekolah bagi siswa berprestasi dari keluarga kurang mampu.',
-        imageUrl: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/beasiswa-pendidikan-juara.jpg'
     },
     'beasiswa-tahfidz': {
         title: 'Beasiswa Tahfidz & Dhuafa',
@@ -234,37 +248,51 @@ const SPECIFIC_PROGRAMS_METADATA = {
         pillar: 'Pendidikan & Beasiswa',
         target: 'Rp 12.000.000',
         description: 'Bantuan tas, seragam, sepatu, dan buku pelajaran untuk anak-anak yatim dhuafa menyambut tahun ajaran baru.',
-        imageUrl: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/perlengkapan-belajar-yatim.jpg'
     },
 
     // ── 4. Kesehatan Masyarakat (Berkah Sehat) ──
+    'bantuan-pengobatan': {
+        title: 'Bantuan Pengobatan & Kesehatan',
+        pillar: 'Kesehatan Masyarakat',
+        target: 'Rp 20.000.000',
+        description: 'Layanan berobat gratis dan bantuan pengobatan bagi pasien dhuafa dan lansia kritis di Bangka Belitung.',
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/bantuan-pengobatan.jpg'
+    },
     'bantuan-kesehatan-dhuafa': {
         title: 'Bantuan Kesehatan Dhuafa',
         pillar: 'Kesehatan Masyarakat',
         target: 'Rp 20.000.000',
         description: 'Layanan berobat gratis dan bantuan pengobatan bagi pasien dhuafa dan lansia kritis di Bangka Belitung.',
-        imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/bantuan-pengobatan.jpg'
     },
     'bantuan-pasien-kritis-dhuafa': {
         title: 'Bantuan Pasien Kritis Dhuafa',
         pillar: 'Kesehatan Masyarakat',
         target: 'Rp 20.000.000',
         description: 'Bantuan biaya tebus obat dan rawat inap bagi pasien dhuafa kurang mampu yang tidak tercover penuh oleh asuransi.',
-        imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/bantuan-pengobatan.jpg'
+    },
+    'ambulance-gratis-ummat': {
+        title: 'Ambulance Gratis Ummat',
+        pillar: 'Kesehatan Masyarakat',
+        target: 'Rp 30.000.000',
+        description: 'Operasional layanan antar jemput pasien dhuafa dan jenazah gratis 24 jam di wilayah Bangka Belitung.',
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/ambulance-gratis-ummat.jpg'
     },
     'ambulans-gratis-peduli': {
         title: 'Ambulans Gratis Peduli',
         pillar: 'Kesehatan Masyarakat',
         target: 'Rp 30.000.000',
         description: 'Operasional layanan antar jemput pasien dhuafa dan jenazah gratis 24 jam di wilayah Bangka Belitung.',
-        imageUrl: 'https://images.unsplash.com/photo-1587745416684-47b883828d6b?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/ambulance-gratis-ummat.jpg'
     },
     'khitanan-massal-dhuafa': {
         title: 'Khitanan Massal Dhuafa',
         pillar: 'Kesehatan Masyarakat',
         target: 'Rp 15.000.000',
         description: 'Program khitanan massal gratis medis profesional dan santunan bingkisan untuk anak-anak dhuafa.',
-        imageUrl: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/khitanan-massal-dhuafa.jpg'
     },
 
     // ── 5. Ekonomi & Pemberdayaan (Berkah Mandiri) ──
@@ -273,28 +301,28 @@ const SPECIFIC_PROGRAMS_METADATA = {
         pillar: 'Ekonomi & Pemberdayaan',
         target: 'Rp 30.000.000',
         description: 'Bantuan modal usaha tanpa riba dan pendampingan bisnis untuk mengangkat mustahik menjadi muzakki.',
-        imageUrl: 'https://images.unsplash.com/photo-1556742049-0a670fc80782?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/modal-usaha-dhuafa.jpg'
     },
     'modal-usaha-dhuafa': {
         title: 'Modal Usaha Dhuafa',
         pillar: 'Ekonomi & Pemberdayaan',
         target: 'Rp 25.000.000',
         description: 'Bantuan permodalan produktif dan alat kerja bagi pelaku usaha mikro pra-sejahtera agar mandiri.',
-        imageUrl: 'https://images.unsplash.com/photo-1556742049-0a670fc80782?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/modal-usaha-dhuafa.jpg'
     },
     'gerobak-berkah-umkm': {
         title: 'Gerobak Berkah UMKM',
         pillar: 'Ekonomi & Pemberdayaan',
         target: 'Rp 15.000.000',
         description: 'Pengadaan gerobak usaha dan peralatan jualan bagi para kepala keluarga dhuafa untuk mandiri berpenghasilan.',
-        imageUrl: 'https://images.unsplash.com/photo-1556742049-0a670fc80782?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/modal-usaha-dhuafa.jpg'
     },
     'pelatihan-keterampilan-wirausaha': {
         title: 'Pelatihan Keterampilan Wirausaha',
         pillar: 'Ekonomi & Pemberdayaan',
         target: 'Rp 10.000.000',
         description: 'Bimbingan teknis kewirausahaan, manajemen keuangan usaha kecil, dan pemasaran digital untuk UMKM dhuafa.',
-        imageUrl: 'https://images.unsplash.com/photo-1556742049-0a670fc80782?q=80&w=1200&auto=format&fit=crop'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/pelatihan-keterampilan-wirausaha.jpg'
     }
 };
 
@@ -455,18 +483,22 @@ module.exports = async function handler(req, res) {
         selectedProgram.imageUrl = imgQuery.trim();
     } else {
         const checkSlug = slugify(selectedProgram.title);
-        // A. specificImgsMap
-        for (const [title, imgUrl] of Object.entries(specificImgsMap)) {
-            if (imgUrl && (slugify(title) === checkSlug || title.toLowerCase() === selectedProgram.title.toLowerCase())) {
-                selectedProgram.imageUrl = imgUrl;
-                break;
-            }
+        // A. Curated metadata specific images
+        if (SPECIFIC_PROGRAMS_METADATA[checkSlug] && SPECIFIC_PROGRAMS_METADATA[checkSlug].imageUrl) {
+            selectedProgram.imageUrl = SPECIFIC_PROGRAMS_METADATA[checkSlug].imageUrl;
         }
         // B. programs in cloudBundle
         if (cloudBundle && Array.isArray(cloudBundle.programs)) {
             const foundInPrograms = cloudBundle.programs.find(p => p && p.imageUrl && (slugify(p.title) === checkSlug || p.slug === checkSlug || p.id === checkSlug));
-            if (foundInPrograms && foundInPrograms.imageUrl) {
+            if (foundInPrograms && foundInPrograms.imageUrl && !foundInPrograms.imageUrl.includes('default-program-wiz')) {
                 selectedProgram.imageUrl = foundInPrograms.imageUrl;
+            }
+        }
+        // C. specificImgsMap (Highest priority: live admin custom upload from Supabase)
+        for (const [title, imgUrl] of Object.entries(specificImgsMap)) {
+            if (imgUrl && (slugify(title) === checkSlug || title.toLowerCase() === selectedProgram.title.toLowerCase())) {
+                selectedProgram.imageUrl = imgUrl;
+                break;
             }
         }
     }
@@ -565,6 +597,13 @@ module.exports = async function handler(req, res) {
     // ─── Related Programs List (Pilihan Program Kebaikan Lainnya) ───
     const RELATED_PROGRAM_CANDIDATES = [
         { 
+            slug: 'pray-for-ntt', 
+            title: 'Pray For NTT', 
+            pillar: 'Sosial & Kemanusiaan', 
+            target: 'Rp 50.000.000', 
+            img: specificImgsMap['Pray For NTT'] || 'assets/images/pray-for-ntt.jpg' 
+        },
+        { 
             slug: 'sedekah-beras-dhuafa', 
             title: 'Sedekah Beras Dhuafa', 
             pillar: 'Sosial & Kemanusiaan', 
@@ -576,21 +615,7 @@ module.exports = async function handler(req, res) {
             title: 'Beasiswa Pendidikan Juara', 
             pillar: 'Pendidikan & Beasiswa', 
             target: 'Rp 25.000.000', 
-            img: specificImgsMap['Beasiswa Pendidikan Juara'] || 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=800&auto=format&fit=crop' 
-        },
-        { 
-            slug: 'pembangunan-markaz', 
-            title: 'Pembangunan Markaz Dakwah', 
-            pillar: 'Dakwah & Pembinaan', 
-            target: 'Rp 2.004.000.000', 
-            img: specificImgsMap['Pembangunan Markaz'] || 'https://images.unsplash.com/photo-1542665952-14513db15293?q=80&w=800&auto=format&fit=crop' 
-        },
-        { 
-            slug: 'bantuan-kesehatan-dhuafa', 
-            title: 'Bantuan Kesehatan Dhuafa', 
-            pillar: 'Kesehatan Masyarakat', 
-            target: 'Rp 20.000.000', 
-            img: specificImgsMap['Bantuan Kesehatan Dhuafa'] || 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop' 
+            img: specificImgsMap['Beasiswa Pendidikan Juara'] || 'assets/images/beasiswa-pendidikan-juara.jpg' 
         },
         { 
             slug: 'tebar-iftar', 
@@ -600,25 +625,46 @@ module.exports = async function handler(req, res) {
             img: specificImgsMap['Tebar Iftar'] || 'assets/images/tebar-iftar.jpg' 
         },
         { 
-            slug: 'sedekah-air', 
-            title: 'Sedekah Air Bersih', 
-            pillar: 'Sosial & Kemanusiaan', 
-            target: 'Rp 15.000.000', 
-            img: specificImgsMap['Sedekah Air'] || 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?q=80&w=800&auto=format&fit=crop' 
-        },
-        { 
             slug: 'santunan-yatim', 
             title: 'Santunan Anak Yatim', 
             pillar: 'Sosial & Kemanusiaan', 
             target: 'Rp 10.000.000', 
-            img: specificImgsMap['Santunan Yatim'] || 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800&auto=format&fit=crop' 
+            img: specificImgsMap['Santunan Yatim'] || 'assets/images/santunan-yatim.jpg' 
         },
         { 
-            slug: 'ambulans-gratis-peduli', 
-            title: 'Layanan Ambulans Gratis', 
-            pillar: 'Kesehatan Masyarakat', 
+            slug: 'tebar-sembako', 
+            title: 'Tebar Sembako Dhuafa', 
+            pillar: 'Sosial & Kemanusiaan', 
             target: 'Rp 25.000.000', 
-            img: specificImgsMap['Ambulans Gratis Peduli'] || 'https://images.unsplash.com/photo-1587745416684-47b883828d6b?q=80&w=800&auto=format&fit=crop' 
+            img: specificImgsMap['Tebar Sembako'] || 'assets/images/tebar-sembako.jpg' 
+        },
+        { 
+            slug: 'bantuan-pengobatan', 
+            title: 'Bantuan Pengobatan & Kesehatan', 
+            pillar: 'Kesehatan Masyarakat', 
+            target: 'Rp 20.000.000', 
+            img: specificImgsMap['Bantuan Pengobatan'] || 'assets/images/bantuan-pengobatan.jpg' 
+        },
+        { 
+            slug: 'modal-usaha-dhuafa', 
+            title: 'Modal Usaha Dhuafa', 
+            pillar: 'Ekonomi & Pemberdayaan', 
+            target: 'Rp 25.000.000', 
+            img: specificImgsMap['Modal Usaha Dhuafa'] || 'assets/images/modal-usaha-dhuafa.jpg' 
+        },
+        { 
+            slug: 'pelatihan-keterampilan-wirausaha', 
+            title: 'Pelatihan Keterampilan Wirausaha', 
+            pillar: 'Ekonomi & Pemberdayaan', 
+            target: 'Rp 10.000.000', 
+            img: specificImgsMap['Pelatihan Keterampilan Wirausaha'] || 'assets/images/pelatihan-keterampilan-wirausaha.jpg' 
+        },
+        { 
+            slug: 'ambulance-gratis-ummat', 
+            title: 'Ambulance Gratis Ummat', 
+            pillar: 'Kesehatan Masyarakat', 
+            target: 'Rp 30.000.000', 
+            img: specificImgsMap['Ambulance Gratis Ummat'] || 'assets/images/ambulance-gratis-ummat.jpg' 
         }
     ];
 
