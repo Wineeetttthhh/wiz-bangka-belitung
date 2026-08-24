@@ -4471,9 +4471,17 @@
         async add(data) {
             const list = this.getAll();
             const sType = data.sourceType || (data.program && (data.program.toLowerCase().includes('global') || data.program.toLowerCase().includes('alih fungsi')) ? 'infak_umum' : 'program_spesifik');
-            const tType = data.targetType || (data.program && (data.program.toLowerCase().includes('global') || data.program.toLowerCase().includes('alih fungsi')) ? 'global' : 'specific');
+            const tType = data.targetType || (sType === 'auto_split' ? 'auto_split' : (data.program && (data.program.toLowerCase().includes('global') || data.program.toLowerCase().includes('alih fungsi')) ? 'global' : 'specific'));
             const pillar = data.pillar || mapProgramToPillar(data.program) || 'Berkah Hidayah';
             const kategoriPilar = data.kategori_pilar || mapPillarToKategori(pillar);
+            const totalAmount = Number(data.amount) || 0;
+
+            const fromProgram = (data.amountFromProgram !== undefined) 
+                ? Number(data.amountFromProgram) 
+                : (sType === 'auto_split' ? totalAmount : (sType === 'program_spesifik' ? totalAmount : 0));
+            const fromSubsidi = (data.amountFromSubsidi !== undefined) 
+                ? Number(data.amountFromSubsidi) 
+                : (sType === 'infak_umum' ? totalAmount : 0);
 
             const newDisb = {
                 id: data.id || generateId(),
@@ -4483,7 +4491,9 @@
                 pillar: pillar,
                 kategori_pilar: kategoriPilar,
                 program: data.program || 'Infak Umum (Alih Fungsi Dana)',
-                amount: Number(data.amount) || 0,
+                amount: totalAmount,
+                amountFromProgram: fromProgram,
+                amountFromSubsidi: fromSubsidi,
                 description: data.description || '',
                 disbursedAt: data.disbursedAt || new Date().toISOString(),
                 recordedBy: data.recordedBy || 'Admin',
@@ -4492,7 +4502,11 @@
             list.unshift(newDisb);
             setStore(STORAGE_KEYS.DISBURSEMENTS, list);
 
-            const sourceLabel = (sType === 'infak_umum') ? (tType === 'global' ? `Infak Umum [Alih Fungsi ${kategoriPilar}]` : `Infak Umum [Spesifik ${kategoriPilar}]`) : 'Dana Spesifik';
+            const sourceLabel = (sType === 'auto_split') 
+                ? `Auto-Split [Kas: ${formatRupiahCompact(fromProgram)} + Subsidi ${kategoriPilar}: ${formatRupiahCompact(fromSubsidi)}]`
+                : (sType === 'infak_umum') 
+                    ? (tType === 'global' ? `Infak Umum [Alih Fungsi ${kategoriPilar}]` : `Infak Umum [Spesifik ${kategoriPilar}]`) 
+                    : 'Dana Spesifik';
             activityLog.add('disbursement', `Penyaluran dana ${formatRupiahCompact(newDisb.amount)} (${newDisb.wilayah}) [${sourceLabel}] untuk "${newDisb.program}" dicatat.`, newDisb.recordedBy);
 
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
@@ -4504,6 +4518,8 @@
                         target_type: newDisb.targetType,
                         program: newDisb.program,
                         amount: newDisb.amount,
+                        amount_from_program: newDisb.amountFromProgram,
+                        amount_from_subsidi: newDisb.amountFromSubsidi,
                         description: newDisb.description,
                         disbursed_at: newDisb.disbursedAt,
                         recorded_by: newDisb.recordedBy,
@@ -4524,10 +4540,18 @@
             if (idx === -1) return null;
 
             const sType = updates.sourceType || list[idx].sourceType || (updates.program && (updates.program.toLowerCase().includes('global') || updates.program.toLowerCase().includes('alih fungsi')) ? 'infak_umum' : 'program_spesifik');
-            const tType = updates.targetType || list[idx].targetType || (updates.program && (updates.program.toLowerCase().includes('global') || updates.program.toLowerCase().includes('alih fungsi')) ? 'global' : 'specific');
+            const tType = updates.targetType || list[idx].targetType || (sType === 'auto_split' ? 'auto_split' : (updates.program && (updates.program.toLowerCase().includes('global') || updates.program.toLowerCase().includes('alih fungsi')) ? 'global' : 'specific'));
             const prog = updates.program || list[idx].program;
             const pillar = updates.pillar || list[idx].pillar || mapProgramToPillar(prog) || 'Berkah Hidayah';
             const kategoriPilar = updates.kategori_pilar || list[idx].kategori_pilar || mapPillarToKategori(pillar);
+            const totalAmount = (updates.amount !== undefined) ? Number(updates.amount) : list[idx].amount;
+
+            const fromProgram = (updates.amountFromProgram !== undefined) 
+                ? Number(updates.amountFromProgram) 
+                : (list[idx].amountFromProgram !== undefined ? list[idx].amountFromProgram : (sType === 'program_spesifik' ? totalAmount : 0));
+            const fromSubsidi = (updates.amountFromSubsidi !== undefined) 
+                ? Number(updates.amountFromSubsidi) 
+                : (list[idx].amountFromSubsidi !== undefined ? list[idx].amountFromSubsidi : (sType === 'infak_umum' ? totalAmount : 0));
 
             list[idx] = { 
                 ...list[idx], 
@@ -4536,7 +4560,9 @@
                 targetType: tType,
                 pillar: pillar,
                 kategori_pilar: kategoriPilar,
-                amount: Number(updates.amount) || list[idx].amount, 
+                amount: totalAmount, 
+                amountFromProgram: fromProgram,
+                amountFromSubsidi: fromSubsidi,
                 updatedAt: new Date().toISOString() 
             };
             setStore(STORAGE_KEYS.DISBURSEMENTS, list);
@@ -4551,6 +4577,8 @@
                         target_type: list[idx].targetType,
                         program: list[idx].program,
                         amount: list[idx].amount,
+                        amount_from_program: list[idx].amountFromProgram,
+                        amount_from_subsidi: list[idx].amountFromSubsidi,
                         description: list[idx].description,
                         disbursed_at: list[idx].disbursedAt,
                         recorded_by: list[idx].recordedBy
@@ -4782,8 +4810,53 @@
                             return;
                         }
                     }
-                    if (isProgramMatching(progPillar, pName)) {
-                        infakUmumAlihFungsiSalur += dbAmount;
+                } else if (sType === 'auto_split' || tType === 'auto_split') {
+                    // 3. Skenario Auto-Split (Pemotongan Pintar):
+                    const fromProg = (db.amountFromProgram !== undefined) ? Number(db.amountFromProgram) : dbAmount;
+                    const fromSub = (db.amountFromSubsidi !== undefined) ? Number(db.amountFromSubsidi) : 0;
+                    const dbProg = db.program || db.programSpesifik || '';
+
+                    // Potong langsung kas program yang bersangkutan (Tahap 1)
+                    if (dbProg && isProgramMatching(dbProg, pName)) {
+                        spesifikSalur += fromProg;
+                    }
+
+                    // Potong porsi Infak Umum intra-pilar (Tahap 2 & 3: HANYA jika ada sisa kekurangan / fromSub > 0)
+                    if (fromSub > 0) {
+                        const dbPillar = db.pillar || mapProgramToPillar(db.program, db.category);
+                        
+                        // JIKA PILAR BERBEDA: 100% Ring-Fenced (Zero Leakage) - TIDAK BOLEH memotong pilar ini!
+                        if (dbPillar !== progPillar) {
+                            return;
+                        }
+
+                        // PENGECUALIAN MUTLAK: Pembangunan Markaz TERKUNCI & TIDAK BOLEH berkurang sepeser pun!
+                        if (isLockedPriorityProgram(pName)) {
+                            return;
+                        }
+
+                        const dbWilayah = db.wilayah || 'Pangkalpinang';
+                        const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get)
+                            ? (allocationRulesManager.get(dbWilayah) || ALLOCATION_RULES[dbWilayah])
+                            : ALLOCATION_RULES[dbWilayah];
+
+                        const subRule = wRules && wRules.subAllocation && wRules.subAllocation[progPillar];
+                        if (subRule && subRule.items && subRule.items.length > 0) {
+                            const subItem = subRule.items.find(si => isProgramMatching(si.key, pName));
+                            if (subItem) {
+                                let subWeight = (Number(subItem.percent) || 0) / 100;
+                                if (progPillar === 'Berkah Hidayah') {
+                                    const markazSub = subRule.items.find(si => isLockedPriorityProgram(si.key));
+                                    const markazPct = markazSub ? ((Number(markazSub.percent) || 0) / 100) : 0.05;
+                                    subWeight = subWeight / (1 - markazPct || 0.95);
+                                }
+                                infakUmumAlihFungsiSalur += (fromSub * subWeight);
+                                return;
+                            }
+                        }
+                        if (isProgramMatching(progPillar, pName)) {
+                            infakUmumAlihFungsiSalur += fromSub;
+                        }
                     }
                 }
             });
@@ -4816,6 +4889,94 @@
                 pillar: progPillar,
                 kategori_pilar: kategoriPilar,
                 isPriorityLocked: isLockedPriorityProgram(pName)
+            };
+        },
+
+        getPillarAvailableSubsidiPool(pillarName, wilayah, excludeDisbId) {
+            const verified = donations.getVerified();
+            const pName = pillarName || 'Berkah Hidayah';
+            let totalInfakUmumPillarNonMarkaz = 0;
+
+            verified.forEach(d => {
+                if (wilayah && wilayah !== 'Semua' && d.wilayah !== wilayah) return;
+                if (d.type === 'Infak Umum') {
+                    const dWilayah = d.wilayah || 'Pangkalpinang';
+                    const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get) 
+                        ? (allocationRulesManager.get(dWilayah) || ALLOCATION_RULES[dWilayah])
+                        : ALLOCATION_RULES[dWilayah];
+
+                    if (wRules && wRules.mainAllocation) {
+                        const mainItem = wRules.mainAllocation.find(i => i.key === pName);
+                        if (mainItem) {
+                            const pillarAmount = (Number(d.amount) || 0) * (mainItem.percent / 100);
+                            const subRule = wRules.subAllocation && wRules.subAllocation[pName];
+                            if (subRule && subRule.items && subRule.items.length > 0) {
+                                // Sum percentage of non-Markaz programs only
+                                let nonMarkazPercent = 0;
+                                subRule.items.forEach(si => {
+                                    if (!isLockedPriorityProgram(si.key)) {
+                                        nonMarkazPercent += (Number(si.percent) || 0);
+                                    }
+                                });
+                                totalInfakUmumPillarNonMarkaz += (pillarAmount * (nonMarkazPercent / 100));
+                            } else {
+                                totalInfakUmumPillarNonMarkaz += pillarAmount;
+                            }
+                        }
+                    }
+                }
+            });
+
+            let totalDisbursedSubsidiPillar = 0;
+            const disbList = disbursements.getAll();
+            disbList.forEach(db => {
+                if (excludeDisbId && String(db.id) === String(excludeDisbId)) return;
+                if (wilayah && wilayah !== 'Semua' && (db.wilayah || 'Pangkalpinang') !== wilayah) return;
+                const dbPillar = db.pillar || mapProgramToPillar(db.program, db.category);
+                if (dbPillar !== pName) return;
+
+                const sType = db.sourceType;
+                if (sType === 'infak_umum' || sType === 'infak_umum_subsidi') {
+                    totalDisbursedSubsidiPillar += Number(db.amount) || 0;
+                } else if (sType === 'auto_split') {
+                    totalDisbursedSubsidiPillar += Number(db.amountFromSubsidi) || 0;
+                }
+            });
+
+            return Math.max(0, totalInfakUmumPillarNonMarkaz - totalDisbursedSubsidiPillar);
+        },
+
+        calculateAutoSplit(programName, requestedAmount, wilayah, excludeDisbId) {
+            const reqAmount = Math.max(0, Number(requestedAmount) || 0);
+            const pName = String(programName || '').trim();
+            const progStats = this.getSpecificProgramStats(pName);
+            const currentProgSaldo = progStats ? progStats.saldo : 0;
+            const progPillar = (progStats && progStats.pillar) ? progStats.pillar : mapProgramToPillar(pName);
+            const kategoriPilar = (progStats && progStats.kategori_pilar) ? progStats.kategori_pilar : mapPillarToKategori(progPillar);
+
+            const fromProgram = Math.min(reqAmount, currentProgSaldo);
+            const shortfall = Math.max(0, reqAmount - fromProgram);
+            const pillarSubsidiPool = this.getPillarAvailableSubsidiPool(progPillar, wilayah, excludeDisbId);
+
+            const canSpend = (shortfall <= pillarSubsidiPool);
+            const totalAvailableInPillar = currentProgSaldo + pillarSubsidiPool;
+            const errorMessage = canSpend 
+                ? null 
+                : 'Total dana di pilar ini (di luar dana Markaz) tidak mencukupi.';
+
+            return {
+                canSpend,
+                requestedAmount: reqAmount,
+                programBalance: currentProgSaldo,
+                fromProgram,
+                shortfall,
+                fromSubsidi: shortfall,
+                pillarAvailableSubsidi: pillarSubsidiPool,
+                totalAvailableInPillar,
+                pillarName: progPillar,
+                kategoriPilar: kategoriPilar,
+                isMarkazLocked: true,
+                errorMessage
             };
         },
 
