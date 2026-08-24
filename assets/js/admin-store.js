@@ -500,9 +500,9 @@
                 'Berkah Hidayah': {
                     items: [
                         { key: 'Pembangunan Markaz', percent: 5 },
-                        { key: 'Pengadaan dan perbaikan kendaraan', percent: 10 },
+                        { key: 'Pengadaan & Perbaikan Kendaraan', percent: 10 },
                         { key: 'Santunan Mualaf', percent: 5 },
-                        { key: 'Pengadaan celengan Besar', percent: 10 },
+                        { key: 'Pengadaan Celengan Sedekah Subuh', percent: 10 },
                         { key: 'Tahfidz', percent: 5 },
                         { key: 'Pelatihan Public Speaking', percent: 5 },
                         { key: 'Tabligh Akbar Dzhulhijjah', percent: 5 },
@@ -512,7 +512,7 @@
                         { key: 'Lomba Desain Poster Dakwah', percent: 5 },
                         { key: 'Kantor DPW WI Babel dan WIZ', percent: 15 },
                         { key: 'Mukerwil/Mukernas/Muktamar', percent: 10 },
-                        { key: 'Keberangkatan dan Kepulangan Dai', percent: 10 }
+                        { key: 'Keberangkatan Kepulangan Dai', percent: 10 }
                     ]
                     // Total = 100% → VALID (Khusus Pangkalpinang)
                 },
@@ -560,8 +560,8 @@
                 'Berkah Hidayah': {
                     items: [
                         { key: 'Pembangunan Markaz', percent: 10 },
-                        { key: 'Pengadaan dan Perbaikan Kendaraan', percent: 25 },
-                        { key: 'Pengadaan Celengan Besar', percent: 30 },
+                        { key: 'Pengadaan & Perbaikan Kendaraan', percent: 25 },
+                        { key: 'Pengadaan Celengan Sedekah Subuh', percent: 30 },
                         { key: 'Kantor', percent: 20 },
                         { key: 'Mukerwil/Mukernas/Muktamar', percent: 15 }
                     ]
@@ -1230,9 +1230,9 @@
             // 1. Normalisasi Sub-Alokasi Berkah Hidayah KHUSUS Pangkalpinang (14 item tepat 100%, hapus duplikat 0%)
             const targetPangkalpinangHidayah = [
                 { key: 'Pembangunan Markaz', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
-                { key: 'Pengadaan dan perbaikan kendaraan', percent: 10, image: 'assets/images/default-program-wiz.jpg' },
+                { key: 'Pengadaan & Perbaikan Kendaraan', percent: 10, image: 'assets/images/default-program-wiz.jpg' },
                 { key: 'Santunan Mualaf', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
-                { key: 'Pengadaan celengan Besar', percent: 10, image: 'assets/images/default-program-wiz.jpg' },
+                { key: 'Pengadaan Celengan Sedekah Subuh', percent: 10, image: 'assets/images/default-program-wiz.jpg' },
                 { key: 'Tahfidz', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
                 { key: 'Pelatihan Public Speaking', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
                 { key: 'Tabligh Akbar Dzhulhijjah', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
@@ -1242,7 +1242,7 @@
                 { key: 'Lomba Desain Poster Dakwah', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
                 { key: 'Kantor DPW WI Babel dan WIZ', percent: 15, image: 'assets/images/default-program-wiz.jpg' },
                 { key: 'Mukerwil/Mukernas/Muktamar', percent: 10, image: 'assets/images/default-program-wiz.jpg' },
-                { key: 'Keberangkatan dan Kepulangan Dai', percent: 10, image: 'assets/images/default-program-wiz.jpg' }
+                { key: 'Keberangkatan Kepulangan Dai', percent: 10, image: 'assets/images/default-program-wiz.jpg' }
             ];
 
             if (saved['Pangkalpinang']) {
@@ -4331,15 +4331,65 @@
         }
     };
 
+    // Helper normalisasi string / slug / ID untuk pencocokan program yang kebal typo & variasi simbol
+    function normalizeProgramKey(str) {
+        if (!str) return '';
+        return String(str)
+            .toLowerCase()
+            .replace(/&amp;/g, 'dan')
+            .replace(/&/g, 'dan')
+            .replace(/[^a-z0-9]/g, '')
+            .trim();
+    }
+
+    function isProgramMatching(queryA, queryB) {
+        if (!queryA || !queryB) return false;
+        const a = String(queryA).trim().toLowerCase();
+        const b = String(queryB).trim().toLowerCase();
+        if (a === b) return true;
+
+        const normA = normalizeProgramKey(a);
+        const normB = normalizeProgramKey(b);
+        if (!normA || !normB) return false;
+        if (normA === normB) return true;
+        if (normA.includes(normB) || normB.includes(normA)) return true;
+
+        // Alias groups to guarantee exact match across variations
+        const aliasGroups = [
+            ['celengan', 'sedekahsubuh', 'celenganbesar', 'pengadaancelengan', 'pengadaancelengansedekahsubuh', 'progcelengansubuh', 'pengadaancelenganbesar'],
+            ['kendaraan', 'perbaikankendaraan', 'pengadaankendaraan', 'pengadaandanperbaikankendaraan', 'pengadaanperbaikankendaraan', 'progkendaraandakwah'],
+            ['dai', 'keberangkatandai', 'kepulangandai', 'keberangkatankepulangandai', 'keberangkatandankepulangandai', 'progdaipelosok'],
+            ['markaz', 'pembangunanmarkaz', 'progpembangunanmarkaz', 'markazdakwah'],
+            ['kantor', 'kantordpw', 'kantordpwwibabeldanwiz', 'kantordpwwibabelwiz', 'progkantordpw'],
+            ['mukerwil', 'mukernas', 'muktamar', 'mukerwilmukernasmuktamar', 'progmukerwil'],
+            ['tahfidz', 'beasiswatahfidz', 'progtahfidz'],
+            ['mualaf', 'santunanmualaf', 'progsantunanmualaf'],
+            ['publicspeaking', 'pelatihanpublicspeaking', 'progpublicspeaking'],
+            ['dzulhijjah', 'dzhulhijjah', 'tablighakbar', 'tablighakbardzulhijjah', 'tablighakbardzhulhijjah', 'progtablighakbar'],
+            ['dirosa', 'pelatihangurudirosa', 'gurudirosa', 'proggurudirosa'],
+            ['jenazah', 'penyelenggaraanjenazah', 'pelatihanpenyelenggaraanjenazah', 'progpenyelenggaraanjenazah'],
+            ['volunteermedia', 'mediadakwah', 'pelatihanvolunteermediadakwah', 'progvolunteermedia'],
+            ['posterdakwah', 'lombadesainposterdakwah', 'proglombaposter'],
+            ['pendidikanjuara', 'beasiswapendidikanjuara', 'progbeasiswapendidikanjuara'],
+            ['perlengkapanbelajar', 'perlengkapanbelajaryatim', 'progperlengkapanbelajaryatim'],
+            ['beasiswatahfidzdhuafa', 'beasiswayatimmualaf', 'beasiswayatimdhuafa', 'progbeasiswatahfidz']
+        ];
+
+        for (const group of aliasGroups) {
+            const inA = group.some(alias => normA.includes(alias) || alias.includes(normA));
+            const inB = group.some(alias => normB.includes(alias) || alias.includes(normB));
+            if (inA && inB) return true;
+        }
+
+        return false;
+    }
+
     // Helper pengecekan program prioritas yang terkunci dari pemotongan Alih Fungsi Dana
     function isLockedPriorityProgram(programQuery) {
         if (!programQuery) return false;
-        const q = String(programQuery).toLowerCase().trim();
-        return q.includes('pembangunan markaz') || 
-               q === 'markaz' || 
-               q.includes('markaz dakwah') || 
-               q.includes('pembangunan-markaz') || 
-               q.includes('prog-pembangunan-markaz');
+        return isProgramMatching(programQuery, 'Pembangunan Markaz') || 
+               isProgramMatching(programQuery, 'prog-pembangunan-markaz') || 
+               isProgramMatching(programQuery, 'pembangunan-markaz');
     }
 
     // ─── Finance Module (Real calculations) ──────────────
@@ -4375,7 +4425,7 @@
         getSpecificProgramStats(programName, defaultBase, defaultTarget) {
             const verified = donations.getVerified();
             const disbList = disbursements.getAll();
-            const pLower = (programName || '').toLowerCase().trim();
+            const pName = String(programName || '').trim();
 
             let infakTerikatMasuk = 0;
             let infakUmumMasuk = 0;
@@ -4388,33 +4438,30 @@
 
                 if (d.type === 'Infak Umum') {
                     if (wRules && wRules.mainAllocation) {
-                        const pillar = mapProgramToPillar(programName);
+                        const pillar = mapProgramToPillar(pName);
                         const mainItem = wRules.mainAllocation.find(i => i.key === pillar);
                         if (mainItem) {
                             const pillarAmount = (Number(d.amount) || 0) * (mainItem.percent / 100);
                             const subRule = wRules.subAllocation && wRules.subAllocation[pillar];
                             if (subRule && subRule.items && subRule.items.length > 0) {
-                                const subItem = subRule.items.find(si => {
-                                    const siLower = si.key.toLowerCase().trim();
-                                    return pLower.includes(siLower) || siLower.includes(pLower);
-                                });
+                                const subItem = subRule.items.find(si => isProgramMatching(si.key, pName));
                                 if (subItem) {
                                     infakUmumMasuk += (pillarAmount * (subItem.percent / 100));
                                     return;
                                 }
                             }
-                            if (pLower.includes(pillar.toLowerCase()) || pillar.toLowerCase().includes(pLower)) {
+                            if (isProgramMatching(pillar, pName)) {
                                 infakUmumMasuk += pillarAmount;
                             }
                         }
                     }
                 } else {
                     // Infak Terikat / Specific Program: 100% of the verified amount counts toward the program
-                    const dProg = (d.programSpesifik || d.program || '').toLowerCase().trim();
-                    const dCat = (d.programUtama || d.category || '').toLowerCase().trim();
-                    if (dProg && (dProg.includes(pLower) || pLower.includes(dProg))) {
+                    const dProg = d.programSpesifik || d.program || '';
+                    const dCat = d.programUtama || d.category || '';
+                    if (dProg && isProgramMatching(dProg, pName)) {
                         infakTerikatMasuk += (Number(d.amount) || 0);
-                    } else if (dCat && (dCat.includes(pLower) || dCat.includes(pLower))) {
+                    } else if (dCat && isProgramMatching(dCat, pName)) {
                         infakTerikatMasuk += (Number(d.amount) || 0);
                     }
                 }
@@ -4430,15 +4477,15 @@
 
                 // 1. Skenario Langsung / Spesifik
                 if (sType === 'program_spesifik' || tType === 'specific') {
-                    const dbProg = (db.program || '').toLowerCase().trim();
-                    if (dbProg && (dbProg.includes(pLower) || pLower.includes(dbProg))) {
+                    const dbProg = db.program || db.programSpesifik || '';
+                    if (dbProg && isProgramMatching(dbProg, pName)) {
                         spesifikSalur += dbAmount;
                     }
                 } else if (sType === 'infak_umum' && tType === 'global') {
                     // 2. Skenario Infak Umum (Alih Fungsi Dana): Reduksi Proporsional HANYA pada porsi Infak Umum
                     // PERINGATAN 2 (Pengecualian Program Prioritas): "Pembangunan Markaz" TERKUNCI (LOCKED).
                     // Porsi Infak Umum yang dialokasikan ke Pembangunan Markaz TIDAK BOLEH dikurangi atau diganggu gugat!
-                    if (isLockedPriorityProgram(programName)) {
+                    if (isLockedPriorityProgram(pName)) {
                         return; // Pembangunan Markaz dilindungi 100%, skip pemotongan alih fungsi!
                     }
 
@@ -4448,22 +4495,19 @@
                         : ALLOCATION_RULES[dbWilayah];
 
                     if (wRules && wRules.mainAllocation) {
-                        const pillar = mapProgramToPillar(programName);
+                        const pillar = mapProgramToPillar(pName);
                         const mainItem = wRules.mainAllocation.find(i => i.key === pillar);
                         if (mainItem) {
                             const pillarDisb = dbAmount * (mainItem.percent / 100);
                             const subRule = wRules.subAllocation && wRules.subAllocation[pillar];
                             if (subRule && subRule.items && subRule.items.length > 0) {
-                                const subItem = subRule.items.find(si => {
-                                    const siLower = si.key.toLowerCase().trim();
-                                    return pLower.includes(siLower) || siLower.includes(pLower);
-                                });
+                                const subItem = subRule.items.find(si => isProgramMatching(si.key, pName));
                                 if (subItem) {
                                     infakUmumAlihFungsiSalur += (pillarDisb * (subItem.percent / 100));
                                     return;
                                 }
                             }
-                            if (pLower.includes(pillar.toLowerCase()) || pillar.toLowerCase().includes(pLower)) {
+                            if (isProgramMatching(pillar, pName)) {
                                 infakUmumAlihFungsiSalur += pillarDisb;
                             }
                         }
@@ -4477,11 +4521,11 @@
             const totalSalur = infakUmumAlihFungsiSalur + spesifikSalur;
 
             // Proteksi Mutlak: Alih Fungsi Infak Umum HANYA mengurangi porsi Infak Umum, TIDAK BOLEH memotong Infak Terikat
+            // Rumus Total Terkumpul = (Total Donasi Spesifik Program) + (Total Porsi Infak Umum Bersih) - (Pengeluaran Spesifik Program)
             const infakUmumBersih = Math.max(0, infakUmumMasuk - infakUmumAlihFungsiSalur);
             const saldoAktual = Math.max(0, base + infakTerikatMasuk + infakUmumBersih - spesifikSalur);
             
-            // Reaktif terhadap pengeluaran: Progress bar (%) dan nominal di kartu program 
-            // merujuk pada Saldo Aktual Tersedia (Total Masuk Bersih Tersedia)
+            // Progress Bar (%) dihitung dari Saldo Terkumpul Bersih dibagi Target Dana
             const percent = target > 0 ? Math.min(100, Math.max(0, Math.round((saldoAktual / target) * 100))) : 0;
 
             return {
@@ -4493,8 +4537,9 @@
                 target: target,
                 percent: isNaN(percent) ? 0 : percent,
                 infakTerikat: infakTerikatMasuk,
+                infakUmumMasuk: infakUmumMasuk,
                 infakUmumBersih: infakUmumBersih,
-                isPriorityLocked: isLockedPriorityProgram(programName)
+                isPriorityLocked: isLockedPriorityProgram(pName)
             };
         },
 
@@ -5643,7 +5688,7 @@
         pushToCloud,
         fullBidirectionalSync,
         broadcastSync,
-        utils: { formatRupiahCompact, formatDate, formatDateTime, timeAgo, generateId, mapProgramToPillar, escapeHtml, isLockedPriorityProgram }
+        utils: { formatRupiahCompact, formatDate, formatDateTime, timeAgo, generateId, mapProgramToPillar, escapeHtml, isLockedPriorityProgram, normalizeProgramKey, isProgramMatching }
     };
 
     console.log('[WIZ Store] Initialized with real-time cloud sync & 10s auto-polling. Collections ready.');
