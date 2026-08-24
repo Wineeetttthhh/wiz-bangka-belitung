@@ -1673,22 +1673,22 @@
                     </select>
                 </div>
 
-                <!-- 2. Tujuan Pengeluaran (Jika Infak Umum: Global vs Spesifik) -->
+                <!-- 2. Tujuan Pengeluaran (Jika Infak Umum: Alih Fungsi vs Spesifik) -->
                 <div id="disb-target-type-container">
                     <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Tujuan Alokasi Pengeluaran *</label>
                     <select id="disb-target-type" onchange="handleDisbTargetChange(this.value)"
                         class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none text-sm font-semibold">
-                        <option value="global">🌐 Global (Pengurang Seluruh Program / Beban Bersama)</option>
+                        <option value="global">🌐 Infak Umum (Alih Fungsi Dana)</option>
                         <option value="specific">📌 Program Spesifik Tertentu (Pilih Program)</option>
                     </select>
                 </div>
 
-                <!-- Banner Keterangan Alokasi Global -->
+                <!-- Banner Keterangan Alokasi Infak Umum (Alih Fungsi Dana) -->
                 <div id="disb-global-info-banner" class="bg-primary/5 border border-primary/20 rounded-xl p-3.5 flex items-start gap-2.5 text-xs text-on-surface">
-                    <span class="material-symbols-outlined text-primary text-base shrink-0 mt-0.5">info</span>
+                    <span class="material-symbols-outlined text-primary text-base shrink-0 mt-0.5">swap_horiz</span>
                     <div>
-                        <p class="font-bold text-primary mb-0.5">Pengurangan Saldo Global (Proporsional)</p>
-                        <p class="text-on-surface-variant leading-relaxed">Pengeluaran ini akan mengurangi saldo kas Infak Umum dan memotong alokasi seluruh program/pilar secara proporsional sesuai aturan persentase wilayah.</p>
+                        <p class="font-bold text-primary mb-0.5">Pengurangan Saldo Infak Umum (Alih Fungsi Dana)</p>
+                        <p class="text-on-surface-variant leading-relaxed">Pengeluaran ini berfungsi sebagai alih fungsi / subsidi silang dana umum untuk menutupi kebutuhan program. Pengeluaran ini mengurangi saldo kas Infak Umum dan menyusutkan alokasi Infak Umum pada seluruh pilar & program secara proporsional. <strong>Dana Infak Terikat (Donasi Program Tertentu) tidak akan terpotong sedikit pun.</strong></p>
                     </div>
                 </div>
 
@@ -1712,7 +1712,7 @@
                         Penggunaan Dana *</label>
                     <textarea id="disb-description" required rows="3"
                         class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none"
-                        placeholder="Rincian penyaluran, lokasi penerima manfaat, dll..."></textarea>
+                        placeholder="Contoh: Alih fungsi dana umum untuk menutupi kekurangan biaya operasional Program A..."></textarea>
                 </div>
                 <div>
                     <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Tanggal
@@ -4758,18 +4758,18 @@
             }
 
             const rows = list.map(d => {
-                const sType = d.sourceType || (d.program && d.program.toLowerCase().includes('global') ? 'infak_umum' : 'program_spesifik');
-                const tType = d.targetType || (d.program && d.program.toLowerCase().includes('global') ? 'global' : 'specific');
+                const sType = d.sourceType || (d.program && (d.program.toLowerCase().includes('global') || d.program.toLowerCase().includes('alih fungsi')) ? 'infak_umum' : 'program_spesifik');
+                const tType = d.targetType || (d.program && (d.program.toLowerCase().includes('global') || d.program.toLowerCase().includes('alih fungsi')) ? 'global' : 'specific');
                 
                 let sourceBadge = '';
                 if (sType === 'infak_umum') {
                     if (tType === 'global') {
-                        sourceBadge = '<span class="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300/60"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Infak Umum (Global)</span>';
+                        sourceBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300/60"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Infak Umum (Alih Fungsi)</span>';
                     } else {
-                        sourceBadge = '<span class="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold rounded-full bg-teal-100 text-teal-800 border border-teal-300/60"><span class="w-1.5 h-1.5 rounded-full bg-teal-600"></span> Infak Umum (Spesifik)</span>';
+                        sourceBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-teal-100 text-teal-800 border border-teal-300/60"><span class="w-1.5 h-1.5 rounded-full bg-teal-600"></span> Infak Umum (Spesifik)</span>';
                     }
                 } else {
-                    sourceBadge = '<span class="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold rounded-full bg-blue-100 text-blue-800 border border-blue-300/60"><span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span> Dana Spesifik Program</span>';
+                    sourceBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-blue-100 text-blue-800 border border-blue-300/60"><span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span> Dana Spesifik Program</span>';
                 }
 
                 return `
@@ -4777,7 +4777,7 @@
                     <td class="p-md text-on-surface-variant whitespace-nowrap">${wizStore.utils.formatDate(d.disbursedAt)}</td>
                     <td class="p-md text-center"><span class="px-2 py-0.5 text-xs font-bold rounded bg-emerald-100 text-emerald-800">${d.wilayah || 'Pangkalpinang'}</span></td>
                     <td class="p-md">
-                        <div class="font-semibold text-on-surface text-xs">${d.program || 'Global (Seluruh Program)'}</div>
+                        <div class="font-semibold text-on-surface text-xs">${d.program || 'Infak Umum (Alih Fungsi Dana)'}</div>
                         <div class="mt-1">${sourceBadge}</div>
                     </td>
                     <td class="p-md font-bold text-tertiary-container whitespace-nowrap">${fmt(d.amount)}</td>
@@ -4809,6 +4809,7 @@
             const programContainer = document.getElementById('disb-program-container');
             const programSelect = document.getElementById('disb-program');
             const globalBanner = document.getElementById('disb-global-info-banner');
+            const descField = document.getElementById('disb-description');
 
             if (sourceType === 'infak_umum') {
                 if (targetContainer) targetContainer.classList.remove('hidden');
@@ -4820,6 +4821,10 @@
                 if (globalBanner) globalBanner.classList.add('hidden');
                 if (programContainer) programContainer.classList.remove('hidden');
                 if (programSelect) programSelect.required = true;
+                if (descField) {
+                    descField.placeholder = "Rincian penyaluran, lokasi penerima manfaat, dll...";
+                    descField.required = true;
+                }
             }
         }
 
@@ -4828,6 +4833,7 @@
             const programSelect = document.getElementById('disb-program');
             const globalBanner = document.getElementById('disb-global-info-banner');
             const sourceSelect = document.getElementById('disb-source-type');
+            const descField = document.getElementById('disb-description');
 
             const isInfakUmum = !sourceSelect || sourceSelect.value === 'infak_umum';
 
@@ -4835,10 +4841,18 @@
                 if (globalBanner) globalBanner.classList.remove('hidden');
                 if (programContainer) programContainer.classList.add('hidden');
                 if (programSelect) programSelect.required = false;
+                if (descField) {
+                    descField.placeholder = "Contoh: Alih fungsi dana umum untuk menutupi kekurangan biaya operasional Program A...";
+                    descField.required = true;
+                }
             } else {
                 if (globalBanner) globalBanner.classList.add('hidden');
                 if (programContainer) programContainer.classList.remove('hidden');
                 if (programSelect) programSelect.required = true;
+                if (descField) {
+                    descField.placeholder = "Rincian penyaluran, lokasi penerima manfaat, dll...";
+                    descField.required = true;
+                }
             }
         }
 
@@ -4917,10 +4931,17 @@
             const editId = document.getElementById('disb-edit-id').value;
             const sourceType = document.getElementById('disb-source-type') ? document.getElementById('disb-source-type').value : 'infak_umum';
             const targetType = document.getElementById('disb-target-type') ? document.getElementById('disb-target-type').value : 'global';
+            const description = (document.getElementById('disb-description')?.value || '').trim();
+
+            if (!description) {
+                alert('Kolom "Keterangan / Penggunaan Dana" wajib diisi!');
+                document.getElementById('disb-description')?.focus();
+                return;
+            }
             
-            let finalProgram = 'Global (Pengurang Seluruh Program)';
+            let finalProgram = 'Infak Umum (Alih Fungsi Dana)';
             if (sourceType === 'program_spesifik' || targetType === 'specific') {
-                finalProgram = (document.getElementById('disb-program')?.value || '').trim() || 'Global (Pengurang Seluruh Program)';
+                finalProgram = (document.getElementById('disb-program')?.value || '').trim() || 'Infak Umum (Alih Fungsi Dana)';
             }
 
             const data = {
@@ -4929,7 +4950,7 @@
                 targetType: (sourceType === 'program_spesifik') ? 'specific' : targetType,
                 program: finalProgram,
                 amount: Number(document.getElementById('disb-amount').value),
-                description: document.getElementById('disb-description').value,
+                description: description,
                 disbursedAt: document.getElementById('disb-date').value ? new Date(document.getElementById('disb-date').value).toISOString() : new Date().toISOString(),
                 recordedBy: sessionStorage.getItem('wiz_admin_name') || ADMIN_NAME || 'Admin'
             };
@@ -4946,8 +4967,8 @@
             const item = wizStore.disbursements.getById(id);
             if (!item) return;
             
-            const sType = item.sourceType || (item.program && item.program.toLowerCase().includes('global') ? 'infak_umum' : 'program_spesifik');
-            const tType = item.targetType || (item.program && item.program.toLowerCase().includes('global') ? 'global' : 'specific');
+            const sType = item.sourceType || (item.program && (item.program.toLowerCase().includes('global') || item.program.toLowerCase().includes('alih fungsi')) ? 'infak_umum' : 'program_spesifik');
+            const tType = item.targetType || (item.program && (item.program.toLowerCase().includes('global') || item.program.toLowerCase().includes('alih fungsi')) ? 'global' : 'specific');
 
             if (document.getElementById('disb-wilayah')) document.getElementById('disb-wilayah').value = item.wilayah || 'Pangkalpinang';
             if (document.getElementById('disb-source-type')) document.getElementById('disb-source-type').value = sType;

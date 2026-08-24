@@ -4182,15 +4182,15 @@
 
         async add(data) {
             const list = this.getAll();
-            const sType = data.sourceType || (data.program && data.program.toLowerCase().includes('global') ? 'infak_umum' : 'program_spesifik');
-            const tType = data.targetType || (data.program && data.program.toLowerCase().includes('global') ? 'global' : 'specific');
+            const sType = data.sourceType || (data.program && (data.program.toLowerCase().includes('global') || data.program.toLowerCase().includes('alih fungsi')) ? 'infak_umum' : 'program_spesifik');
+            const tType = data.targetType || (data.program && (data.program.toLowerCase().includes('global') || data.program.toLowerCase().includes('alih fungsi')) ? 'global' : 'specific');
 
             const newDisb = {
                 id: data.id || generateId(),
                 wilayah: data.wilayah || 'Pangkalpinang',
                 sourceType: sType,
                 targetType: tType,
-                program: data.program || 'Global (Pengurang Seluruh Program)',
+                program: data.program || 'Infak Umum (Alih Fungsi Dana)',
                 amount: Number(data.amount) || 0,
                 description: data.description || '',
                 disbursedAt: data.disbursedAt || new Date().toISOString(),
@@ -4200,7 +4200,7 @@
             list.unshift(newDisb);
             setStore(STORAGE_KEYS.DISBURSEMENTS, list);
 
-            const sourceLabel = (sType === 'infak_umum') ? (tType === 'global' ? 'Infak Umum [Global]' : 'Infak Umum [Spesifik]') : 'Dana Spesifik';
+            const sourceLabel = (sType === 'infak_umum') ? (tType === 'global' ? 'Infak Umum (Alih Fungsi)' : 'Infak Umum [Spesifik]') : 'Dana Spesifik';
             activityLog.add('disbursement', `Penyaluran dana ${formatRupiahCompact(newDisb.amount)} (${newDisb.wilayah}) [${sourceLabel}] untuk "${newDisb.program}" dicatat.`, newDisb.recordedBy);
 
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
@@ -4231,8 +4231,8 @@
             const idx = list.findIndex(d => String(d.id) === String(id));
             if (idx === -1) return null;
 
-            const sType = updates.sourceType || list[idx].sourceType || (updates.program && updates.program.toLowerCase().includes('global') ? 'infak_umum' : 'program_spesifik');
-            const tType = updates.targetType || list[idx].targetType || (updates.program && updates.program.toLowerCase().includes('global') ? 'global' : 'specific');
+            const sType = updates.sourceType || list[idx].sourceType || (updates.program && (updates.program.toLowerCase().includes('global') || updates.program.toLowerCase().includes('alih fungsi')) ? 'infak_umum' : 'program_spesifik');
+            const tType = updates.targetType || list[idx].targetType || (updates.program && (updates.program.toLowerCase().includes('global') || updates.program.toLowerCase().includes('alih fungsi')) ? 'global' : 'specific');
 
             list[idx] = { 
                 ...list[idx], 
@@ -4328,7 +4328,10 @@
             const disbList = disbursements.getAll();
             const pLower = (programName || '').toLowerCase().trim();
 
-            const addedMasuk = verified.reduce((sum, d) => {
+            let infakTerikatMasuk = 0;
+            let infakUmumMasuk = 0;
+
+            verified.forEach(d => {
                 const dWilayah = d.wilayah || 'Pangkalpinang';
                 const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get) 
                     ? (allocationRulesManager.get(dWilayah) || ALLOCATION_RULES[dWilayah])
@@ -4347,11 +4350,12 @@
                                     return pLower.includes(siLower) || siLower.includes(pLower);
                                 });
                                 if (subItem) {
-                                    return sum + (pillarAmount * (subItem.percent / 100));
+                                    infakUmumMasuk += (pillarAmount * (subItem.percent / 100));
+                                    return;
                                 }
                             }
                             if (pLower.includes(pillar.toLowerCase()) || pillar.toLowerCase().includes(pLower)) {
-                                return sum + pillarAmount;
+                                infakUmumMasuk += pillarAmount;
                             }
                         }
                     }
@@ -4360,31 +4364,29 @@
                     const dProg = (d.programSpesifik || d.program || '').toLowerCase().trim();
                     const dCat = (d.programUtama || d.category || '').toLowerCase().trim();
                     if (dProg && (dProg.includes(pLower) || pLower.includes(dProg))) {
-                        return sum + (Number(d.amount) || 0);
-                    }
-                    if (dCat && (dCat.includes(pLower) || pLower.includes(dCat))) {
-                        return sum + (Number(d.amount) || 0);
+                        infakTerikatMasuk += (Number(d.amount) || 0);
+                    } else if (dCat && (dCat.includes(pLower) || dCat.includes(pLower))) {
+                        infakTerikatMasuk += (Number(d.amount) || 0);
                     }
                 }
-                return sum;
-            }, 0);
+            });
 
-            const addedSalur = disbList.reduce((sum, db) => {
-                const sType = db.sourceType || (db.program && db.program.toLowerCase().includes('global') ? 'infak_umum' : 'program_spesifik');
-                const tType = db.targetType || (db.program && db.program.toLowerCase().includes('global') ? 'global' : 'specific');
+            let infakUmumAlihFungsiSalur = 0;
+            let spesifikSalur = 0;
+
+            disbList.forEach(db => {
+                const sType = db.sourceType || (db.program && (db.program.toLowerCase().includes('global') || db.program.toLowerCase().includes('alih fungsi')) ? 'infak_umum' : 'program_spesifik');
+                const tType = db.targetType || (db.program && (db.program.toLowerCase().includes('global') || db.program.toLowerCase().includes('alih fungsi')) ? 'global' : 'specific');
                 const dbAmount = Number(db.amount) || 0;
 
                 // 1. Skenario Langsung / Spesifik
                 if (sType === 'program_spesifik' || tType === 'specific') {
                     const dbProg = (db.program || '').toLowerCase().trim();
                     if (dbProg && (dbProg.includes(pLower) || pLower.includes(dbProg))) {
-                        return sum + dbAmount;
+                        spesifikSalur += dbAmount;
                     }
-                    return sum;
-                }
-
-                // 2. Skenario Global (Infak Umum): Reduksi Proporsional ke Seluruh Program
-                if (sType === 'infak_umum' && tType === 'global') {
+                } else if (sType === 'infak_umum' && tType === 'global') {
+                    // 2. Skenario Infak Umum (Alih Fungsi Dana): Reduksi Proporsional HANYA pada porsi Infak Umum
                     const dbWilayah = db.wilayah || 'Pangkalpinang';
                     const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get)
                         ? (allocationRulesManager.get(dbWilayah) || ALLOCATION_RULES[dbWilayah])
@@ -4402,35 +4404,41 @@
                                     return pLower.includes(siLower) || siLower.includes(pLower);
                                 });
                                 if (subItem) {
-                                    return sum + (pillarDisb * (subItem.percent / 100));
+                                    infakUmumAlihFungsiSalur += (pillarDisb * (subItem.percent / 100));
+                                    return;
                                 }
                             }
                             if (pLower.includes(pillar.toLowerCase()) || pillar.toLowerCase().includes(pLower)) {
-                                return sum + pillarDisb;
+                                infakUmumAlihFungsiSalur += pillarDisb;
                             }
                         }
                     }
                 }
-                return sum;
-            }, 0);
+            });
 
             const base = Number(defaultBase) || 0;
             const target = Number(defaultTarget) || 50000000;
-            const totalMasuk = base + addedMasuk;
-            const saldoAktual = Math.max(0, totalMasuk - addedSalur);
+            const totalMasuk = base + infakTerikatMasuk + infakUmumMasuk;
+            const totalSalur = infakUmumAlihFungsiSalur + spesifikSalur;
+
+            // Proteksi Mutlak: Alih Fungsi Infak Umum HANYA mengurangi porsi Infak Umum, TIDAK BOLEH memotong Infak Terikat
+            const infakUmumBersih = Math.max(0, infakUmumMasuk - infakUmumAlihFungsiSalur);
+            const saldoAktual = Math.max(0, base + infakTerikatMasuk + infakUmumBersih - spesifikSalur);
             
             // Reaktif terhadap pengeluaran: Progress bar (%) dan nominal di kartu program 
-            // merujuk pada Saldo Aktual Tersedia (Total Masuk - Total Pengeluaran)
+            // merujuk pada Saldo Aktual Tersedia (Total Masuk Bersih Tersedia)
             const percent = target > 0 ? Math.min(100, Math.max(0, Math.round((saldoAktual / target) * 100))) : 0;
 
             return {
                 terkumpul: saldoAktual, // Saldo Aktual Tersedia yang tampil di UI kartu
-                totalMasuk: totalMasuk, // Akumulasi kotor dana masuk
+                totalMasuk: totalMasuk, // Akumulasi kotor dana masuk (Terikat + Umum)
                 masuk: totalMasuk,
-                tersalurkan: addedSalur, // Dana terpakai / disalurkan
+                tersalurkan: totalSalur, // Dana terpakai / disalurkan (Alih Fungsi + Spesifik)
                 saldo: saldoAktual,     // Saldo sisa
                 target: target,
-                percent: isNaN(percent) ? 0 : percent
+                percent: isNaN(percent) ? 0 : percent,
+                infakTerikat: infakTerikatMasuk,
+                infakUmumBersih: infakUmumBersih
             };
         },
 
@@ -4450,12 +4458,16 @@
                 'Berkah Mandiri': { label: 'WIZ Berkah Mandiri (Ekonomi & Pemberdayaan)', target: 100500000, baseMasuk: 0, baseSalur: 0 },
             };
 
-            const dynamicMasuk = {};
-            const dynamicSalur = {};
+            const dynamicMasukTerikat = {};
+            const dynamicMasukUmum = {};
+            const dynamicSalurAlihFungsi = {};
+            const dynamicSalurSpesifik = {};
 
             Object.keys(programConfigs).forEach(key => {
-                dynamicMasuk[key] = 0;
-                dynamicSalur[key] = 0;
+                dynamicMasukTerikat[key] = 0;
+                dynamicMasukUmum[key] = 0;
+                dynamicSalurAlihFungsi[key] = 0;
+                dynamicSalurSpesifik[key] = 0;
             });
 
             verified.forEach(d => {
@@ -4467,23 +4479,23 @@
                 if (d.type === 'Infak Umum') {
                     if (wRules && wRules.mainAllocation) {
                         wRules.mainAllocation.forEach(item => {
-                            if (dynamicMasuk[item.key] !== undefined) {
-                                dynamicMasuk[item.key] += (Number(d.amount) || 0) * (item.percent / 100);
+                            if (dynamicMasukUmum[item.key] !== undefined) {
+                                dynamicMasukUmum[item.key] += (Number(d.amount) || 0) * (item.percent / 100);
                             }
                         });
                     }
                 } else {
                     const pillar = mapProgramToPillar(d.programSpesifik || d.program, d.programUtama || d.category);
-                    if (dynamicMasuk[pillar] !== undefined) {
-                        dynamicMasuk[pillar] += Number(d.amount) || 0;
+                    if (dynamicMasukTerikat[pillar] !== undefined) {
+                        dynamicMasukTerikat[pillar] += Number(d.amount) || 0;
                     }
                 }
             });
 
             disbList.forEach(db => {
                 if (wilayah && wilayah !== 'Semua' && (db.wilayah || 'Pangkalpinang') !== wilayah) return;
-                const sType = db.sourceType || (db.program && db.program.toLowerCase().includes('global') ? 'infak_umum' : 'program_spesifik');
-                const tType = db.targetType || (db.program && db.program.toLowerCase().includes('global') ? 'global' : 'specific');
+                const sType = db.sourceType || (db.program && (db.program.toLowerCase().includes('global') || db.program.toLowerCase().includes('alih fungsi')) ? 'infak_umum' : 'program_spesifik');
+                const tType = db.targetType || (db.program && (db.program.toLowerCase().includes('global') || db.program.toLowerCase().includes('alih fungsi')) ? 'global' : 'specific');
                 const dbAmount = Number(db.amount) || 0;
 
                 if (sType === 'infak_umum' && tType === 'global') {
@@ -4494,24 +4506,32 @@
 
                     if (wRules && wRules.mainAllocation) {
                         wRules.mainAllocation.forEach(item => {
-                            if (dynamicSalur[item.key] !== undefined) {
-                                dynamicSalur[item.key] += dbAmount * (item.percent / 100);
+                            if (dynamicSalurAlihFungsi[item.key] !== undefined) {
+                                dynamicSalurAlihFungsi[item.key] += dbAmount * (item.percent / 100);
                             }
                         });
                     }
                 } else {
                     const pillar = mapProgramToPillar(db.program);
-                    if (dynamicSalur[pillar] !== undefined) {
-                        dynamicSalur[pillar] += dbAmount;
+                    if (dynamicSalurSpesifik[pillar] !== undefined) {
+                        dynamicSalurSpesifik[pillar] += dbAmount;
                     }
                 }
             });
 
             return Object.entries(programConfigs).map(([key, cfg]) => {
-                const totalMasuk = cfg.baseMasuk + dynamicMasuk[key];
-                const totalSalur = cfg.baseSalur + dynamicSalur[key];
-                const saldo = totalMasuk - totalSalur;
-                const percent = cfg.target > 0 ? Math.min(100, Math.round((totalMasuk / cfg.target) * 100)) : 0;
+                const masukTerikat = dynamicMasukTerikat[key] || 0;
+                const masukUmum = dynamicMasukUmum[key] || 0;
+                const salurAlihFungsi = dynamicSalurAlihFungsi[key] || 0;
+                const salurSpesifik = dynamicSalurSpesifik[key] || 0;
+
+                const totalMasuk = cfg.baseMasuk + masukTerikat + masukUmum;
+                const totalSalur = cfg.baseSalur + salurAlihFungsi + salurSpesifik;
+
+                // Proteksi: Alih Fungsi Infak Umum HANYA menyusutkan porsi Infak Umum
+                const infakUmumBersih = Math.max(0, masukUmum - salurAlihFungsi);
+                const saldo = Math.max(0, cfg.baseMasuk + masukTerikat + infakUmumBersih - salurSpesifik);
+                const percent = cfg.target > 0 ? Math.min(100, Math.max(0, Math.round((saldo / cfg.target) * 100))) : 0;
 
                 let status = 'Aktif Disalurkan';
                 let statusClass = 'bg-emerald-100 text-emerald-800';
