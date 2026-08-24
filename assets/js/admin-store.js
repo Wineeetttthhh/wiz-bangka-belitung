@@ -144,7 +144,41 @@
 
     const DEFAULT_REFERRALS = [];
 
-    const DEFAULT_QUOTES = [];
+    const DEFAULT_QUOTES = [
+        {
+            id: 'quote-1',
+            text: 'Sedekah itu tidak akan mengurangi harta. Tidak ada orang yang memberi maaf kepada orang lain melainkan Allah akan menambah kemuliaannya.',
+            source: 'HR. Muslim no. 2588',
+            category: 'Sedekah & Keberkahan',
+            imageUrl: 'assets/images/foto-utama-wiz.jpg',
+            date: '2026-08-20',
+            status: 'active',
+            author: 'Admin WIZ Babel',
+            createdAt: '2026-08-20T00:00:00.000Z'
+        },
+        {
+            id: 'quote-2',
+            text: 'Tidak ada suatu hari pun ketika seorang hamba memasuki waktu pagi melainkan turun dua malaikat. Salah satunya berdoa: Ya Allah, berikanlah ganti bagi orang yang berinfak.',
+            source: 'HR. Bukhari no. 1442 & Muslim no. 1010',
+            category: 'Infak Subuh',
+            imageUrl: 'assets/images/sedekah-beras-dhuafa.jpg',
+            date: '2026-08-19',
+            status: 'active',
+            author: 'Admin WIZ Babel',
+            createdAt: '2026-08-19T00:00:00.000Z'
+        },
+        {
+            id: 'quote-3',
+            text: 'Bentengilah hartamu dengan zakat, obatilah orang-orang sakit di antaramu dengan sedekah, dan hadapilah berbagai cobaan dengan doa.',
+            source: 'HR. Abu Dawud & At-Thabrani',
+            category: 'Zakat & Penyucian Jiwa',
+            imageUrl: 'assets/images/sedekah-beras-dai.jpg',
+            date: '2026-08-18',
+            status: 'active',
+            author: 'Admin WIZ Babel',
+            createdAt: '2026-08-18T00:00:00.000Z'
+        }
+    ];
 
     // ─── Helpers ───────────────────────────────────────────
     function generateId() {
@@ -2085,6 +2119,8 @@
         setStore(STORAGE_KEYS.ALLOCATION_RULES, ALLOCATION_RULES);
         setStore(STORAGE_KEYS.REFERRALS, getStore(STORAGE_KEYS.REFERRALS) || []);
         setStore(STORAGE_KEYS.REFERRAL_PAYOUTS, getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || []);
+        setStore(STORAGE_KEYS.QUOTES, getStore(STORAGE_KEYS.QUOTES) || DEFAULT_QUOTES);
+        setStore(STORAGE_KEYS.PROGRAMS, getStore(STORAGE_KEYS.PROGRAMS) || DEFAULT_PROGRAMS);
         localStorage.setItem(STORAGE_KEYS.INITIALIZED, 'true');
     }
 
@@ -2093,6 +2129,12 @@
     }
     if (!getStore(STORAGE_KEYS.REFERRAL_PAYOUTS)) {
         setStore(STORAGE_KEYS.REFERRAL_PAYOUTS, []);
+    }
+    if (!getStore(STORAGE_KEYS.QUOTES) || !Array.isArray(getStore(STORAGE_KEYS.QUOTES)) || getStore(STORAGE_KEYS.QUOTES).length === 0) {
+        setStore(STORAGE_KEYS.QUOTES, DEFAULT_QUOTES);
+    }
+    if (!getStore(STORAGE_KEYS.PROGRAMS) || !Array.isArray(getStore(STORAGE_KEYS.PROGRAMS)) || getStore(STORAGE_KEYS.PROGRAMS).length === 0) {
+        setStore(STORAGE_KEYS.PROGRAMS, DEFAULT_PROGRAMS);
     }
 
     // ─── High-Speed Unified Cloud Sync Engine (/api/sync) ────────
@@ -5856,7 +5898,7 @@
         getAll() {
             const deletedQuoteSet = getDeletedQuoteIds();
             const stored = getStore(STORAGE_KEYS.QUOTES);
-            let list = Array.isArray(stored) ? stored : DEFAULT_QUOTES;
+            let list = (Array.isArray(stored) && stored.length > 0) ? stored : DEFAULT_QUOTES;
             return list.filter(q => q && q.id && !deletedQuoteSet.has(String(q.id)) && q.status !== 'deleted' && !q.isDeleted)
                 .sort((a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0));
         },

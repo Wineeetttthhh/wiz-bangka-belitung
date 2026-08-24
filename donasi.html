@@ -711,9 +711,10 @@
         </div>
     </div>
 
-    <script src="assets/js/supabase-client.js?v=20260823_31"></script>
-    <script src="assets/js/admin-store.js?v=20260823_31"></script>
-    <script src="assets/js/main.js?v=20260823_31"></script>
+    <script src="assets/js/supabase-client.js?v=20260825_parity1"></script>
+    <script src="assets/js/admin-store.js?v=20260825_parity1"></script>
+    <script src="assets/js/main.js?v=20260825_parity1"></script>
+    <script src="assets/js/nav-active.js?v=20260825_parity1"></script>
     <script>
         const SPECIFIC_PROGRAMS = {
             'Berkah Hidayah': [
@@ -1633,6 +1634,15 @@
 
             updateSummary();
             if (window.applySiteSettings) window.applySiteSettings();
+
+            if (window.wizStore && window.wizStore.syncFromCloud) {
+                try {
+                    await window.wizStore.syncFromCloud(true);
+                } catch(e) {}
+                updateSummary();
+                if (typeof updateProgramDetailCard === 'function') updateProgramDetailCard();
+                if (window.applySiteSettings) window.applySiteSettings();
+            }
         });
 
         // Cloud sync listener: only refresh global store settings/summaries without modifying active user form state
