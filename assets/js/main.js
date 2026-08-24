@@ -1999,7 +1999,6 @@ window.shareProgram = async function (programTitle, description, customUrl, cust
         if (params.length > 0) fullUrl += `?${params.join('&')}`;
     }
 
-    const baseDomain = 'https://www.wizbangkabelitung.or.id';
     let programImg = customImg || '';
     if (!programImg && window.wizStore && window.wizStore.allocationRulesManager && window.wizStore.allocationRulesManager.getSpecificProgramImage) {
         programImg = window.wizStore.allocationRulesManager.getSpecificProgramImage(cleanTitle) || '';

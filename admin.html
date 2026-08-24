@@ -4679,15 +4679,6 @@
             <tbody class="font-body-md text-body-md divide-y divide-outline-variant/20">${rows}</tbody></table>`;
         }
 
-        function handleDisbSourceChange(sourceType) {
-            const targetContainer = document.getElementById('disb-target-type-container');
-            const targetSelect = document.getElementById('disb-target-type');
-            const pillarContainer = document.getElementById('disb-pillar-container');
-            const programContainer = document.getElementById('disb-program-container');
-            const programSelect = document.getElementById('disb-program');
-            const globalBanner = document.getElementById('disb-global-info-banner');
-            const descField = document.getElementById('disb-description');
-
         function populateDisbursementPrograms(selectedVal) {
             const select = document.getElementById('disb-program');
             if (!select || !window.wizStore) return;
