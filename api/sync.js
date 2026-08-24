@@ -136,11 +136,18 @@ function mergeArrays(existingArr = [], incomingArr = [], deletedIds = []) {
             const existing = map.get(itemId);
             const tExisting = new Date(existing.updatedAt || existing.verifiedAt || existing.createdAt || 0).getTime();
             const tIncoming = new Date(item.updatedAt || item.verifiedAt || item.createdAt || 0).getTime();
+            let merged;
             if (tIncoming >= tExisting) {
-                map.set(itemId, { ...existing, ...item });
+                merged = { ...existing, ...item };
             } else {
-                map.set(itemId, { ...item, ...existing });
+                merged = { ...item, ...existing };
             }
+            if (existing.status === 'approved' || item.status === 'approved') {
+                merged.status = 'approved';
+                merged.verifiedAt = existing.verifiedAt || item.verifiedAt || new Date().toISOString();
+                merged.verifiedBy = existing.verifiedBy || item.verifiedBy || 'Admin 1';
+            }
+            map.set(itemId, merged);
         }
     });
     return Array.from(map.values());

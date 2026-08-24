@@ -903,7 +903,7 @@
                             }
                         } else if (action === 'approve_admin_user') {
                             const targetId = String(payload.id);
-                            const idx = mb.admin_users.findIndex(x => String(x.id) === targetId);
+                            const idx = mb.admin_users.findIndex(x => String(x.id) === targetId || (x.username && x.username.toLowerCase() === targetId.toLowerCase()));
                             if (idx !== -1) {
                                 mb.admin_users[idx].status = 'approved';
                                 mb.admin_users[idx].verifiedAt = new Date().toISOString();
@@ -912,8 +912,8 @@
                             }
                         } else if (action === 'delete_admin_user') {
                             const targetId = String(payload.id);
-                            const target = mb.admin_users.find(x => String(x.id) === targetId);
-                            mb.admin_users = mb.admin_users.filter(x => String(x.id) !== targetId && x.username !== 'admin');
+                            const target = mb.admin_users.find(x => String(x.id) === targetId || (x.username && x.username.toLowerCase() === targetId.toLowerCase()));
+                            mb.admin_users = mb.admin_users.filter(x => String(x.id) !== targetId && (!target || x.username.toLowerCase() !== target.username.toLowerCase()) && x.username !== 'admin');
                             if (!mb.deleted_admin_ids.includes(targetId)) mb.deleted_admin_ids.push(targetId);
                             if (target && target.username && !mb.deleted_admin_ids.includes(target.username.toLowerCase())) {
                                 mb.deleted_admin_ids.push(target.username.toLowerCase());
@@ -1127,12 +1127,59 @@
 
             return { success: true, user: newUser, message: 'Pendaftaran berhasil! Akun Anda otomatis masuk antrean dan menunggu persetujuan Admin 1 Utama untuk dapat login.' };
         },
-        login(username, password) {
+        async login(username, password) {
             const cleanUser = (username || '').trim().toLowerCase();
             const cleanPass = (password || '').trim();
-            const list = this.getAll();
+            let list = this.getAll();
 
-            const found = list.find(u => u.username.toLowerCase() === cleanUser);
+            let found = list.find(u => u.username && u.username.toLowerCase() === cleanUser);
+
+            // Fast path: if already approved and credentials match locally, allow instant login
+            if (found && found.password === cleanPass && found.status === 'approved') {
+                return { success: true, user: found };
+            }
+
+            // Real-time Cloud Verification: If not found, wrong password, or pending status,
+            // query authoritative cloud state directly so approvals on other devices take effect immediately!
+            try {
+                let cloudUsers = null;
+                if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                    const sbRes = await window.wizSupabase.select('site_settings', { filter: 'key=eq.master_bundle' });
+                    if (sbRes && sbRes.data && sbRes.data[0] && sbRes.data[0].value && Array.isArray(sbRes.data[0].value.admin_users)) {
+                        cloudUsers = sbRes.data[0].value.admin_users;
+                    }
+                }
+                if (!cloudUsers) {
+                    const res = await fetch('/api/sync', { cache: 'no-cache' });
+                    if (res.ok) {
+                        const json = await res.json();
+                        if (json && json.data && Array.isArray(json.data.admin_users)) {
+                            cloudUsers = json.data.admin_users;
+                        }
+                    }
+                }
+
+                if (cloudUsers && Array.isArray(cloudUsers)) {
+                    const cloudFound = cloudUsers.find(u => u && u.username && u.username.toLowerCase() === cleanUser);
+                    if (cloudFound) {
+                        const deletedSet = getDeletedAdminIds();
+                        if (!deletedSet.has(String(cloudFound.id)) && !deletedSet.has(cleanUser)) {
+                            const idx = list.findIndex(u => (u.username && u.username.toLowerCase() === cleanUser) || String(u.id) === String(cloudFound.id));
+                            if (idx !== -1) {
+                                list[idx] = { ...list[idx], ...cloudFound };
+                            } else {
+                                list.push(cloudFound);
+                            }
+                            setStore(STORAGE_KEYS.ADMIN_USERS, list);
+                            window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
+                            found = list.find(u => u.username && u.username.toLowerCase() === cleanUser);
+                        }
+                    }
+                }
+            } catch(err) {
+                console.warn('[Admin Login] Online cloud verify error:', err);
+            }
+
             if (!found) {
                 return { success: false, message: 'Username tidak ditemukan!' };
             }
@@ -2066,6 +2113,44 @@
                             const mergedQ = Array.from(qMap.values()).sort((a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0));
                             setStore(STORAGE_KEYS.QUOTES, mergedQ);
                         }
+                        if (mbDoc && mbDoc.value && Array.isArray(mbDoc.value.admin_users) && mbDoc.value.admin_users.length > 0) {
+                            const cloudAdmins = mbDoc.value.admin_users;
+                            const delAdminSet = getDeletedAdminIds();
+                            const localAdmins = getStore(STORAGE_KEYS.ADMIN_USERS) || DEFAULT_ADMIN_USERS;
+                            const adminMap = new Map();
+                            cloudAdmins.forEach(u => {
+                                if (u && (u.id || u.username) && !delAdminSet.has(String(u.id)) && (!u.username || !delAdminSet.has(u.username.toLowerCase())) && u.status !== 'deleted') {
+                                    const key = (u.username || u.id).toLowerCase();
+                                    adminMap.set(key, u);
+                                }
+                            });
+                            localAdmins.forEach(u => {
+                                if (u && (u.id || u.username) && !delAdminSet.has(String(u.id)) && (!u.username || !delAdminSet.has(u.username.toLowerCase())) && u.status !== 'deleted') {
+                                    const key = (u.username || u.id).toLowerCase();
+                                    if (!adminMap.has(key)) {
+                                        adminMap.set(key, u);
+                                    } else {
+                                        const existing = adminMap.get(key);
+                                        const tEx = new Date(existing.updatedAt || existing.verifiedAt || existing.createdAt || 0).getTime();
+                                        const tLoc = new Date(u.updatedAt || u.verifiedAt || u.createdAt || 0).getTime();
+                                        let merged;
+                                        if (tLoc >= tEx) merged = { ...existing, ...u };
+                                        else merged = { ...u, ...existing };
+                                        if (existing.status === 'approved' || u.status === 'approved') {
+                                            merged.status = 'approved';
+                                            merged.verifiedAt = existing.verifiedAt || u.verifiedAt || new Date().toISOString();
+                                            merged.verifiedBy = existing.verifiedBy || u.verifiedBy || 'Admin 1';
+                                        }
+                                        adminMap.set(key, merged);
+                                    }
+                                }
+                            });
+                            const mergedAdmins = Array.from(adminMap.values());
+                            if (!mergedAdmins.some(u => u.username === 'admin')) {
+                                mergedAdmins.unshift(DEFAULT_ADMIN_USERS[0]);
+                            }
+                            setStore(STORAGE_KEYS.ADMIN_USERS, mergedAdmins);
+                        }
                     }
                 } catch(e) {
                     console.warn('[pushToCloud] Pre-sync notice:', e);
@@ -2451,7 +2536,18 @@
                     if (!strId || activeDeletedSet.has(strId) || (cleanCloudUser && activeDeletedSet.has(cleanCloudUser)) || cloudItem.status === 'deleted' || cloudItem.status === 'rejected' || cloudItem.isDeleted) return;
                     cloudItem.id = cloudItem.id || strId;
 
-                    const localItem = map.get(strId);
+                    let localItemKey = strId;
+                    let localItem = map.get(strId);
+                    if (!localItem && cleanCloudUser && storeKey === STORAGE_KEYS.ADMIN_USERS) {
+                        for (const [k, v] of map.entries()) {
+                            if (v.username && v.username.toLowerCase() === cleanCloudUser) {
+                                localItem = v;
+                                localItemKey = k;
+                                break;
+                            }
+                        }
+                    }
+
                     if (localItem) {
                         const tLocal = new Date(localItem.updatedAt || localItem.verifiedAt || localItem.createdAt || 0).getTime();
                         const tCloud = new Date(cloudItem.updatedAt || cloudItem.verifiedAt || cloudItem.createdAt || 0).getTime();
@@ -2461,10 +2557,17 @@
                         } else {
                             mergedItem = { ...localItem, ...cloudItem };
                         }
+                        if (storeKey === STORAGE_KEYS.ADMIN_USERS) {
+                            if (cloudItem.status === 'approved' || localItem.status === 'approved') {
+                                mergedItem.status = 'approved';
+                                mergedItem.verifiedAt = cloudItem.verifiedAt || localItem.verifiedAt || new Date().toISOString();
+                                mergedItem.verifiedBy = cloudItem.verifiedBy || localItem.verifiedBy || 'Admin 1';
+                            }
+                        }
                         if (localItem.imageUrl && (!cloudItem.imageUrl || localItem.imageUrl.startsWith('data:image') || tLocal >= tCloud)) {
                             mergedItem.imageUrl = localItem.imageUrl;
                         }
-                        map.set(strId, mergedItem);
+                        map.set(localItemKey, mergedItem);
                     } else {
                         map.set(strId, cloudItem);
                     }

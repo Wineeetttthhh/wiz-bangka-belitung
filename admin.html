@@ -233,7 +233,7 @@
                     </div>
                 </div>
 
-                <button type="submit" onclick="handleAdminLogin(event)" class="w-full bg-primary text-on-primary font-label-md text-label-md py-md rounded-xl hover:bg-primary-container transition-colors shadow-md font-bold flex items-center justify-center gap-xs cursor-pointer">
+                <button type="submit" id="btn-admin-login-submit" onclick="handleAdminLogin(event)" class="w-full bg-primary text-on-primary font-label-md text-label-md py-md rounded-xl hover:bg-primary-container transition-colors shadow-md font-bold flex items-center justify-center gap-xs cursor-pointer">
                     <span class="material-symbols-outlined text-sm">login</span>
                     <span>Masuk ke Dashboard</span>
                 </button>
@@ -7938,7 +7938,7 @@
             }
         }
 
-        function handleAdminLogin(event) {
+        async function handleAdminLogin(event) {
             if (event) {
                 event.preventDefault();
                 event.stopPropagation();
@@ -7965,23 +7965,40 @@
 
             let authResult = null;
 
-            // SECURITY: Exact match required for built-in super admin — no partial/empty match
-            if (user === 'admin' && pass === 'wizbabel2026') {
-                authResult = {
-                    success: true,
-                    user: {
-                        id: 'admin-1',
-                        username: 'admin',
-                        fullName: 'Super Admin 1 (WIZ Babel)',
-                        role: 'super_admin',
-                        status: 'approved'
-                    }
-                };
-            } else if (window.wizStore && window.wizStore.adminUsers) {
-                // Try registered admin users (requires exact credentials)
-                authResult = window.wizStore.adminUsers.login(rawUser, rawPass);
-            } else {
-                authResult = { success: false, message: 'Username atau Password salah!' };
+            // Submit button loading indicator during online verification
+            const submitBtn = document.getElementById('btn-admin-login-submit') || (event && event.target && event.target.tagName === 'BUTTON' ? event.target : document.querySelector('#admin-login-form button[type="submit"]'));
+            const origBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span> Memverifikasi akun...';
+            }
+
+            try {
+                // SECURITY: Exact match required for built-in super admin — no partial/empty match
+                if (user === 'admin' && pass === 'wizbabel2026') {
+                    authResult = {
+                        success: true,
+                        user: {
+                            id: 'admin-1',
+                            username: 'admin',
+                            fullName: 'Super Admin 1 (WIZ Babel)',
+                            role: 'super_admin',
+                            status: 'approved'
+                        }
+                    };
+                } else if (window.wizStore && window.wizStore.adminUsers) {
+                    // Try registered admin users (requires exact credentials) with real-time cloud verification
+                    authResult = await window.wizStore.adminUsers.login(rawUser, rawPass);
+                } else {
+                    authResult = { success: false, message: 'Username atau Password salah!' };
+                }
+            } catch(e) {
+                authResult = { success: false, message: 'Terjadi kesalahan saat verifikasi login: ' + (e.message || e) };
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = origBtnHtml;
+                }
             }
 
             if (authResult && authResult.success) {
