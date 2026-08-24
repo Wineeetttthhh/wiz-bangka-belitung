@@ -102,8 +102,8 @@
         'Layanan Pengobatan Gratis': 'assets/images/default-program-wiz.jpg',
         'Ambulance Gratis Ummat': 'assets/images/ambulance-gratis-ummat.jpg',
         'Ambulans Gratis Peduli': 'assets/images/ambulance-gratis-ummat.jpg',
-        'Khitanan Massal Dhuafa': 'assets/images/khitanan-massal-dhuafa.jpg',
-        'Khitanan Massal': 'assets/images/khitanan-massal-dhuafa.jpg',
+        'Khitanan Massal Dhuafa': 'assets/images/khitanan-massal-dhuafa.jpg?v=20260824_khitan2',
+        'Khitanan Massal': 'assets/images/khitanan-massal-dhuafa.jpg?v=20260824_khitan2',
         'Keberangkatan Kepulangan Dai': 'assets/images/default-program-wiz.jpg',
         'Keberangkatan & Kepulangan Dai': 'assets/images/default-program-wiz.jpg',
         'Pengadaan Celengan Sedekah Subuh': 'assets/images/default-program-wiz.jpg',
@@ -3948,7 +3948,7 @@
             target: 'Rp 20.000.000',
             targetAmount: 20000000,
             description: 'Layanan khitanan massal gratis dengan metode modern, pemberian bingkisan pakaian muslim, dan uang santunan.',
-            imageUrl: 'assets/images/khitanan-massal-dhuafa.jpg',
+            imageUrl: 'assets/images/khitanan-massal-dhuafa.jpg?v=20260824_khitan2',
             status: 'published',
             createdAt: '2026-01-26T00:00:00.000Z',
             updatedAt: '2026-01-26T00:00:00.000Z',
@@ -4043,8 +4043,8 @@
 
                 // Auto-sync Khitanan Massal cover image
                 const khitanProg = raw.find(r => r && (r.id === 'prog-khitanan-massal' || (r.title && isProgramMatching(r.title, 'Khitanan Massal'))));
-                if (khitanProg && (!khitanProg.imageUrl || khitanProg.imageUrl.includes('default-program-wiz') || khitanProg.imageUrl.includes('foto-utama-wiz'))) {
-                    khitanProg.imageUrl = 'assets/images/khitanan-massal-dhuafa.jpg';
+                if (khitanProg) {
+                    khitanProg.imageUrl = 'assets/images/khitanan-massal-dhuafa.jpg?v=20260824_khitan2';
                     modified = true;
                 }
 
