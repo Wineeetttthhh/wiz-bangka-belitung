@@ -315,6 +315,13 @@ const SPECIFIC_PROGRAMS_METADATA = {
         description: 'Program khitanan massal gratis medis profesional dan santunan bingkisan untuk anak-anak dhuafa.',
         imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/khitanan-massal-dhuafa.jpg'
     },
+    'khitanan-massal': {
+        title: 'Khitanan Massal Dhuafa',
+        pillar: 'Kesehatan Masyarakat',
+        target: 'Rp 15.000.000',
+        description: 'Program khitanan massal gratis medis profesional dan santunan bingkisan untuk anak-anak dhuafa.',
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/khitanan-massal-dhuafa.jpg'
+    },
 
     // ── 5. Ekonomi & Pemberdayaan (Berkah Mandiri) ──
     'modal-usaha-mandiri': {

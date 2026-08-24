@@ -4041,6 +4041,13 @@
                     modified = true;
                 }
 
+                // Auto-sync Khitanan Massal cover image
+                const khitanProg = raw.find(r => r && (r.id === 'prog-khitanan-massal' || (r.title && isProgramMatching(r.title, 'Khitanan Massal'))));
+                if (khitanProg && (!khitanProg.imageUrl || khitanProg.imageUrl.includes('default-program-wiz') || khitanProg.imageUrl.includes('foto-utama-wiz'))) {
+                    khitanProg.imageUrl = 'assets/images/khitanan-massal-dhuafa.jpg';
+                    modified = true;
+                }
+
                 if (modified) {
                     setStore(STORAGE_KEYS.PROGRAMS, raw);
                 }
