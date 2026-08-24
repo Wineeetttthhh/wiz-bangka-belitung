@@ -4293,6 +4293,17 @@
         }
     };
 
+    // Helper pengecekan program prioritas yang terkunci dari pemotongan Alih Fungsi Dana
+    function isLockedPriorityProgram(programQuery) {
+        if (!programQuery) return false;
+        const q = String(programQuery).toLowerCase().trim();
+        return q.includes('pembangunan markaz') || 
+               q === 'markaz' || 
+               q.includes('markaz dakwah') || 
+               q.includes('pembangunan-markaz') || 
+               q.includes('prog-pembangunan-markaz');
+    }
+
     // ─── Finance Module (Real calculations) ──────────────
     const finance = {
         getTotalDanaMasuk(wilayah) {
@@ -4387,6 +4398,12 @@
                     }
                 } else if (sType === 'infak_umum' && tType === 'global') {
                     // 2. Skenario Infak Umum (Alih Fungsi Dana): Reduksi Proporsional HANYA pada porsi Infak Umum
+                    // PERINGATAN 2 (Pengecualian Program Prioritas): "Pembangunan Markaz" TERKUNCI (LOCKED).
+                    // Porsi Infak Umum yang dialokasikan ke Pembangunan Markaz TIDAK BOLEH dikurangi atau diganggu gugat!
+                    if (isLockedPriorityProgram(programName)) {
+                        return; // Pembangunan Markaz dilindungi 100%, skip pemotongan alih fungsi!
+                    }
+
                     const dbWilayah = db.wilayah || 'Pangkalpinang';
                     const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get)
                         ? (allocationRulesManager.get(dbWilayah) || ALLOCATION_RULES[dbWilayah])
@@ -4438,7 +4455,8 @@
                 target: target,
                 percent: isNaN(percent) ? 0 : percent,
                 infakTerikat: infakTerikatMasuk,
-                infakUmumBersih: infakUmumBersih
+                infakUmumBersih: infakUmumBersih,
+                isPriorityLocked: isLockedPriorityProgram(programName)
             };
         },
 
@@ -4507,7 +4525,14 @@
                     if (wRules && wRules.mainAllocation) {
                         wRules.mainAllocation.forEach(item => {
                             if (dynamicSalurAlihFungsi[item.key] !== undefined) {
-                                dynamicSalurAlihFungsi[item.key] += dbAmount * (item.percent / 100);
+                                let share = item.percent / 100;
+                                // Khusus Berkah Hidayah: Lindungi porsi Pembangunan Markaz dari Alih Fungsi
+                                if (item.key === 'Berkah Hidayah' && wRules.subAllocation && wRules.subAllocation['Berkah Hidayah']) {
+                                    const markazSub = (wRules.subAllocation['Berkah Hidayah'].items || []).find(si => isLockedPriorityProgram(si.key));
+                                    const markazPercent = markazSub ? (markazSub.percent / 100) : 0.05;
+                                    share = share * (1 - markazPercent);
+                                }
+                                dynamicSalurAlihFungsi[item.key] += dbAmount * share;
                             }
                         });
                     }
@@ -5580,7 +5605,7 @@
         pushToCloud,
         fullBidirectionalSync,
         broadcastSync,
-        utils: { formatRupiahCompact, formatDate, formatDateTime, timeAgo, generateId, mapProgramToPillar, escapeHtml }
+        utils: { formatRupiahCompact, formatDate, formatDateTime, timeAgo, generateId, mapProgramToPillar, escapeHtml, isLockedPriorityProgram }
     };
 
     console.log('[WIZ Store] Initialized with real-time cloud sync & 10s auto-polling. Collections ready.');
