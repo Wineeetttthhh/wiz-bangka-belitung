@@ -1178,7 +1178,7 @@
                     </h2>
                     <p class="font-caption text-caption text-on-surface-variant">Kelola seluruh akun admin, verifikasi pendaftar amil baru, atur level hak akses cabang, atau cabut hak akses akun admin.</p>
                 </div>
-                <button type="button" onclick="openCreateAdminModal()" class="bg-primary hover:bg-primary-container text-on-primary font-label-md text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer">
+                <button type="button" id="btn-create-admin-top" onclick="openCreateAdminModal()" class="bg-primary hover:bg-primary-container text-on-primary font-label-md text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer">
                     <span class="material-symbols-outlined text-sm">person_add</span>
                     <span>Tambah Admin Baru</span>
                 </button>
@@ -1704,6 +1704,8 @@
             </div>
             <form id="disbursement-form" class="p-lg space-y-md" onsubmit="handleDisbursementSave(event)">
                 <input type="hidden" id="disb-edit-id" value="">
+
+                <!-- 1. Wilayah Operasional -->
                 <div>
                     <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Wilayah Operasional *</label>
                     <select id="disb-wilayah" required
@@ -1713,60 +1715,60 @@
                     </select>
                 </div>
 
-                <!-- 1. Sumber Dana Keluar (Infak Umum / Dana Spesifik) -->
+                <!-- 2. Pilih Program Spesifik (Target Penyaluran) - INPUT PERTAMA -->
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Pilih Program Spesifik (Target Penyaluran) *</label>
+                    <select id="disb-program" required onchange="handleDisbProgramSelect(this.value)"
+                        class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none text-sm font-semibold">
+                        <option value="">-- Pilih Program Spesifik (Target Penyaluran) --</option>
+                    </select>
+                    <!-- Badge Pilar Terdeteksi -->
+                    <div id="disb-detected-pillar-badge" class="hidden mt-1.5 flex items-center gap-1.5 text-xs text-on-surface-variant font-medium">
+                        <span class="material-symbols-outlined text-sm text-primary">verified</span>
+                        <span>Pilar Terdeteksi: <strong id="disb-detected-pillar-text" class="text-primary font-bold">Pilar Dakwah (Berkah Hidayah)</strong></span>
+                    </div>
+                </div>
+
+                <!-- 3. Sumber Dana Keluar (Dinamis berdasarkan Pilar Program Terpilih) -->
                 <div>
                     <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Sumber Dana Keluar *</label>
                     <select id="disb-source-type" required onchange="handleDisbSourceChange(this.value)"
                         class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none text-sm font-bold text-primary">
-                        <option value="infak_umum">🟢 Infak Umum (Dana Bersama / Operasional)</option>
-                        <option value="program_spesifik">🔵 Dana Spesifik Program (Infak Terikat)</option>
+                        <option value="program_spesifik">🔵 Dana Terikat Program Ini (Hanya memotong kas program)</option>
+                        <option value="infak_umum_subsidi">🟢 Subsidi Silang Infak Umum - Pilar Terkait</option>
                     </select>
                 </div>
 
-                <!-- 2. Tujuan Pengeluaran (Jika Infak Umum: Alih Fungsi vs Spesifik) -->
-                <div id="disb-target-type-container">
-                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Tujuan Alokasi Pengeluaran *</label>
-                    <select id="disb-target-type" onchange="handleDisbTargetChange(this.value)"
-                        class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none text-sm font-semibold">
-                        <option value="global">🌐 Infak Umum (Alih Fungsi Dana)</option>
-                        <option value="specific">📌 Program Spesifik Tertentu (Pilih Program)</option>
-                    </select>
-                </div>
-
-                <!-- Banner Keterangan Alokasi Infak Umum (Alih Fungsi Dana) -->
-                <div id="disb-global-info-banner" class="bg-primary/5 border border-primary/20 rounded-xl p-3.5 flex items-start gap-2.5 text-xs text-on-surface">
-                    <span class="material-symbols-outlined text-primary text-base shrink-0 mt-0.5">swap_horiz</span>
+                <!-- Banner Keterangan Subsidi Silang Infak Umum (Ring-Fencing Intra-Pilar) -->
+                <div id="disb-subsidi-info-banner" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 flex items-start gap-2.5 text-xs text-on-surface">
+                    <span class="material-symbols-outlined text-emerald-700 text-base shrink-0 mt-0.5">lock</span>
                     <div>
-                        <p class="font-bold text-primary mb-0.5">Pengurangan Saldo Infak Umum (Alih Fungsi Dana)</p>
-                        <p class="text-on-surface-variant leading-relaxed">Pengeluaran ini berfungsi sebagai alih fungsi / subsidi silang dana umum untuk menutupi kebutuhan program. Pengeluaran ini mengurangi saldo kas Infak Umum dan menyusutkan alokasi Infak Umum pada seluruh pilar & program secara proporsional. <strong>Dana Infak Terikat (Donasi Program Tertentu) tidak akan terpotong sedikit pun.</strong></p>
+                        <p class="font-bold text-emerald-900 mb-0.5">🔒 Aturan Ring-Fencing Manajemen WIZ: Intra-Pilar</p>
+                        <p class="text-emerald-800 leading-relaxed">
+                            Pengeluaran ini akan memotong alokasi Infak Umum secara proporsional HANYA pada program-program di dalam <strong id="disb-subsidi-pillar-name" class="font-bold underline text-emerald-950">Berkah Hidayah (Pilar Dakwah)</strong>. Saldo pilar lain tetap utuh dan aman.
+                        </p>
                     </div>
                 </div>
 
-                <!-- 3. Pilih Program Spesifik (Muncul jika Specific atau Dana Spesifik) -->
-                <div id="disb-program-container" class="hidden">
-                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Pilih Program Spesifik *</label>
-                    <select id="disb-program"
-                        class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none text-sm">
-                        <option value="">-- Pilih Program Spesifik Penyaluran --</option>
-                    </select>
-                </div>
+                <!-- 4. Jumlah Pengeluaran -->
                 <div>
-                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Jumlah
-                        Pengeluaran (Rp) *</label>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Jumlah Pengeluaran (Rp) *</label>
                     <input type="number" id="disb-amount" required min="1000"
                         class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none"
                         placeholder="Contoh: 15000000">
                 </div>
+
+                <!-- 5. Keterangan / Penggunaan Dana -->
                 <div>
-                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Keterangan /
-                        Penggunaan Dana *</label>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Keterangan / Penggunaan Dana *</label>
                     <textarea id="disb-description" required rows="3"
                         class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none"
-                        placeholder="Contoh: Alih fungsi dana umum untuk menutupi kekurangan biaya operasional Program A..."></textarea>
+                        placeholder="Rincian penyaluran, lokasi penerima manfaat, dll..."></textarea>
                 </div>
+
+                <!-- 6. Tanggal Penyaluran -->
                 <div>
-                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Tanggal
-                        Penyaluran</label>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Tanggal Penyaluran</label>
                     <input type="date" id="disb-date"
                         class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
                 </div>
@@ -2800,189 +2802,11 @@
                 </div>
             </div>
         </div>
-    <!-- ═══════════════════════════════════════════════════ -->
-    <!-- MODAL: CREATE ADMIN USER (TAMBAH ADMIN BARU)         -->
-    <!-- ═══════════════════════════════════════════════════ -->
-    <div id="modal-admin-user-create" class="modal-backdrop">
-        <div class="modal-dialog max-w-lg">
-            <div class="p-lg border-b border-surface-variant flex justify-between items-center bg-surface-container-low rounded-t-2xl">
-                <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">person_add</span>
-                    <h3 class="font-headline-md text-base font-bold text-on-surface">Tambah Akun Admin Baru</h3>
-                </div>
-                <button type="button" onclick="hideModal('modal-admin-user-create')" class="text-outline hover:text-on-surface p-1 cursor-pointer">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
-            </div>
-            <form id="form-admin-user-create" class="p-lg space-y-md" onsubmit="handleCreateAdminSubmit(event)">
-                <div class="space-y-xs">
-                    <label for="create-admin-fullname" class="block font-label-md text-caption font-bold text-on-surface">Nama Lengkap Admin *</label>
-                    <input type="text" id="create-admin-fullname" required placeholder="Contoh: Ust. Ahmad Fauzi"
-                        class="w-full px-md py-sm bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface text-xs focus:outline-none focus:border-primary">
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
-                    <div class="space-y-xs">
-                        <label for="create-admin-username" class="block font-label-md text-caption font-bold text-on-surface">Username Login *</label>
-                        <input type="text" id="create-admin-username" required placeholder="Contoh: ahmad_amil"
-                            class="w-full px-md py-sm bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface text-xs focus:outline-none focus:border-primary">
-                    </div>
-                    <div class="space-y-xs">
-                        <label for="create-admin-phone" class="block font-label-md text-caption font-bold text-on-surface">No. WhatsApp *</label>
-                        <input type="tel" id="create-admin-phone" required placeholder="08xxxxxxxxxx"
-                            class="w-full px-md py-sm bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface text-xs focus:outline-none focus:border-primary">
-                    </div>
-                </div>
-
-                <div class="space-y-xs">
-                    <label for="create-admin-password" class="block font-label-md text-caption font-bold text-on-surface">Kata Sandi (Password) *</label>
-                    <div class="relative flex items-center">
-                        <input type="password" id="create-admin-password" required placeholder="Buat kata sandi akun"
-                            class="w-full px-md py-sm pr-10 bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface text-xs focus:outline-none focus:border-primary">
-                        <button type="button" onclick="togglePasswordVisibility('create-admin-password', this)" class="absolute right-3 text-outline hover:text-primary transition-colors cursor-pointer" title="Lihat password">
-                            <span class="material-symbols-outlined text-sm">visibility</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
-                    <div class="space-y-xs">
-                        <label for="create-admin-role" class="block font-label-md text-caption font-bold text-on-surface">Peran / Otoritas *</label>
-                        <select id="create-admin-role" required
-                            class="w-full px-md py-sm bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface font-semibold text-xs focus:outline-none focus:border-primary">
-                            <option value="amil">Admin Amil (Cabang)</option>
-                            <option value="super_admin">Super Admin / Pusat</option>
-                        </select>
-                    </div>
-                    <div class="space-y-xs">
-                        <label for="create-admin-wilayah" class="block font-label-md text-caption font-bold text-on-surface">Wilayah Penugasan *</label>
-                        <select id="create-admin-wilayah" required
-                            class="w-full px-md py-sm bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface font-semibold text-xs focus:outline-none focus:border-primary">
-                            <option value="Semua Wilayah">Semua Wilayah</option>
-                            <option value="Pangkalpinang">Pangkalpinang</option>
-                            <option value="Sungailiat">Sungailiat</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="space-y-xs">
-                    <label for="create-admin-status" class="block font-label-md text-caption font-bold text-on-surface">Status Akun Awal *</label>
-                    <select id="create-admin-status" required
-                        class="w-full px-md py-sm bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface font-semibold text-xs focus:outline-none focus:border-primary">
-                        <option value="approved">✅ Langsung Aktif &amp; Terverifikasi</option>
-                        <option value="pending">⏳ Masuk Antrean Menunggu Persetujuan</option>
-                    </select>
-                </div>
-
-                <div class="flex gap-md pt-sm border-t border-outline-variant/30">
-                    <button type="submit" class="flex-1 bg-primary text-on-primary py-2.5 rounded-xl font-label-md text-xs font-bold hover:bg-primary-container transition-colors shadow-sm cursor-pointer">
-                        Simpan Akun Admin
-                    </button>
-                    <button type="button" onclick="hideModal('modal-admin-user-create')" class="px-lg py-2.5 border border-outline-variant rounded-xl font-label-md text-xs text-on-surface-variant hover:bg-surface-container-low transition-colors cursor-pointer">
-                        Batal
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- ═══════════════════════════════════════════════════ -->
-    <!-- MODAL: EDIT ADMIN USER (EDIT & KELOLA AKSES)         -->
-    <!-- ═══════════════════════════════════════════════════ -->
-    <div id="modal-admin-user-edit" class="modal-backdrop">
-        <div class="modal-dialog max-w-lg">
-            <div class="p-lg border-b border-surface-variant flex justify-between items-center bg-surface-container-low rounded-t-2xl">
-                <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">edit</span>
-                    <h3 class="font-headline-md text-base font-bold text-on-surface">Edit Data &amp; Hak Akses Admin</h3>
-                </div>
-                <button type="button" onclick="hideModal('modal-admin-user-edit')" class="text-outline hover:text-on-surface p-1 cursor-pointer">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
-            </div>
-            <form id="form-admin-user-edit" class="p-lg space-y-md" onsubmit="handleEditAdminSubmit(event)">
-                <input type="hidden" id="edit-admin-id" value="">
-
-                <div class="space-y-xs">
-                    <label for="edit-admin-fullname" class="block font-label-md text-caption font-bold text-on-surface">Nama Lengkap Admin *</label>
-                    <input type="text" id="edit-admin-fullname" required
-                        class="w-full px-md py-sm bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface text-xs focus:outline-none focus:border-primary">
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
-                    <div class="space-y-xs">
-                        <label for="edit-admin-username" class="block font-label-md text-caption font-bold text-on-surface">Username Login</label>
-                        <input type="text" id="edit-admin-username" readonly disabled
-                            class="w-full px-md py-sm bg-surface-container-high border border-outline-variant/60 rounded-xl font-mono text-on-surface-variant text-xs cursor-not-allowed">
-                    </div>
-                    <div class="space-y-xs">
-                        <label for="edit-admin-phone" class="block font-label-md text-caption font-bold text-on-surface">No. WhatsApp</label>
-                        <input type="tel" id="edit-admin-phone" placeholder="08xxxxxxxxxx"
-                            class="w-full px-md py-sm bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface text-xs focus:outline-none focus:border-primary">
-                    </div>
-                </div>
-
-                <div class="space-y-xs">
-                    <label for="edit-admin-password" class="block font-label-md text-caption font-bold text-on-surface">Ubah Kata Sandi (Kosongkan jika tidak diubah)</label>
-                    <div class="relative flex items-center">
-                        <input type="password" id="edit-admin-password" placeholder="Masukkan password baru jika ingin mengganti"
-                            class="w-full px-md py-sm pr-10 bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface text-xs focus:outline-none focus:border-primary">
-                        <button type="button" onclick="togglePasswordVisibility('edit-admin-password', this)" class="absolute right-3 text-outline hover:text-primary transition-colors cursor-pointer" title="Lihat password">
-                            <span class="material-symbols-outlined text-sm">visibility</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
-                    <div class="space-y-xs">
-                        <label for="edit-admin-role" class="block font-label-md text-caption font-bold text-on-surface">Peran / Otoritas *</label>
-                        <select id="edit-admin-role" required
-                            class="w-full px-md py-sm bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface font-semibold text-xs focus:outline-none focus:border-primary">
-                            <option value="amil">Admin Amil (Cabang)</option>
-                            <option value="super_admin">Super Admin / Pusat</option>
-                        </select>
-                    </div>
-                    <div class="space-y-xs">
-                        <label for="edit-admin-wilayah" class="block font-label-md text-caption font-bold text-on-surface">Wilayah Penugasan *</label>
-                        <select id="edit-admin-wilayah" required
-                            class="w-full px-md py-sm bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface font-semibold text-xs focus:outline-none focus:border-primary">
-                            <option value="Semua Wilayah">Semua Wilayah</option>
-                            <option value="Pangkalpinang">Pangkalpinang</option>
-                            <option value="Sungailiat">Sungailiat</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="space-y-xs">
-                    <label for="edit-admin-status" class="block font-label-md text-caption font-bold text-on-surface">Status Hak Akses *</label>
-                    <select id="edit-admin-status" required
-                        class="w-full px-md py-sm bg-surface border border-outline-variant/60 rounded-xl font-body-md text-on-surface font-semibold text-xs focus:outline-none focus:border-primary">
-                        <option value="approved">✅ Terverifikasi (Bisa Login)</option>
-                        <option value="pending">⏳ Menunggu Persetujuan</option>
-                        <option value="rejected">⛔ Dinonaktifkan (Tidak Bisa Login)</option>
-                    </select>
-                </div>
-
-                <div class="flex items-center justify-between gap-md pt-sm border-t border-outline-variant/30 flex-wrap">
-                    <button type="button" id="btn-delete-admin-modal" class="px-md py-2 bg-error/10 text-error hover:bg-error hover:text-white rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1">
-                        <span class="material-symbols-outlined text-xs">delete</span> Hapus Akses Admin
-                    </button>
-                    <div class="flex gap-2">
-                        <button type="button" onclick="hideModal('modal-admin-user-edit')" class="px-lg py-2 border border-outline-variant rounded-xl font-label-md text-xs text-on-surface-variant hover:bg-surface-container-low transition-colors cursor-pointer">
-                            Batal
-                        </button>
-                        <button type="submit" class="bg-primary text-on-primary px-lg py-2 rounded-xl font-label-md text-xs font-bold hover:bg-primary-container transition-colors shadow-sm cursor-pointer">
-                            Simpan Perubahan
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
     </div>
 
     <!-- Supabase Client & Admin Store -->
-    <script src="assets/js/supabase-client.js?v=20260820_24"></script>
-    <script src="assets/js/admin-store.js?v=20260820_24"></script>
+    <script src="assets/js/supabase-client.js?v=20260824_fastreg"></script>
+    <script src="assets/js/admin-store.js?v=20260824_fastreg"></script>
 
     <script>
         const SPECIFIC_PROGRAMS_MAP = {
@@ -4858,57 +4682,13 @@
         function handleDisbSourceChange(sourceType) {
             const targetContainer = document.getElementById('disb-target-type-container');
             const targetSelect = document.getElementById('disb-target-type');
+            const pillarContainer = document.getElementById('disb-pillar-container');
             const programContainer = document.getElementById('disb-program-container');
             const programSelect = document.getElementById('disb-program');
             const globalBanner = document.getElementById('disb-global-info-banner');
             const descField = document.getElementById('disb-description');
 
-            if (sourceType === 'infak_umum') {
-                if (targetContainer) targetContainer.classList.remove('hidden');
-                const tVal = targetSelect ? targetSelect.value : 'global';
-                handleDisbTargetChange(tVal);
-            } else {
-                // Dana Spesifik Program
-                if (targetContainer) targetContainer.classList.add('hidden');
-                if (globalBanner) globalBanner.classList.add('hidden');
-                if (programContainer) programContainer.classList.remove('hidden');
-                if (programSelect) programSelect.required = true;
-                if (descField) {
-                    descField.placeholder = "Rincian penyaluran, lokasi penerima manfaat, dll...";
-                    descField.required = true;
-                }
-            }
-        }
-
-        function handleDisbTargetChange(targetType) {
-            const programContainer = document.getElementById('disb-program-container');
-            const programSelect = document.getElementById('disb-program');
-            const globalBanner = document.getElementById('disb-global-info-banner');
-            const sourceSelect = document.getElementById('disb-source-type');
-            const descField = document.getElementById('disb-description');
-
-            const isInfakUmum = !sourceSelect || sourceSelect.value === 'infak_umum';
-
-            if (isInfakUmum && targetType === 'global') {
-                if (globalBanner) globalBanner.classList.remove('hidden');
-                if (programContainer) programContainer.classList.add('hidden');
-                if (programSelect) programSelect.required = false;
-                if (descField) {
-                    descField.placeholder = "Contoh: Alih fungsi dana umum untuk menutupi kekurangan biaya operasional Program A...";
-                    descField.required = true;
-                }
-            } else {
-                if (globalBanner) globalBanner.classList.add('hidden');
-                if (programContainer) programContainer.classList.remove('hidden');
-                if (programSelect) programSelect.required = true;
-                if (descField) {
-                    descField.placeholder = "Rincian penyaluran, lokasi penerima manfaat, dll...";
-                    descField.required = true;
-                }
-            }
-        }
-
-        function populateDisbursementPrograms() {
+        function populateDisbursementPrograms(selectedVal) {
             const select = document.getElementById('disb-program');
             if (!select || !window.wizStore) return;
 
@@ -4918,6 +4698,7 @@
 
             const pillarMap = new Map();
 
+            // Load sub-allocation programs from rules
             targetWilayahs.forEach(w => {
                 const wObj = rules[w];
                 if (!wObj || !wObj.subAllocation) return;
@@ -4928,7 +4709,7 @@
                 });
             });
 
-            // Also load custom specific programs
+            // Load custom specific programs from store
             const customPrograms = wizStore.programs ? wizStore.programs.getAll() : [];
             customPrograms.forEach(cp => {
                 if (cp && cp.title) {
@@ -4938,37 +4719,111 @@
                 }
             });
 
-            let html = '<option value="">-- Pilih Program Spesifik --</option>';
+            const pillarIcons = {
+                'Berkah Hidayah': '🕌',
+                'Berkah Juara': '🎓',
+                'Berkah Peduli': '🤝',
+                'Berkah Sehat': '🚑',
+                'Berkah Mandiri': '💼'
+            };
+
+            let html = '<option value="">-- Pilih Program Spesifik (Target Penyaluran) --</option>';
             for (const [pillar, itemSet] of pillarMap.entries()) {
-                html += `<optgroup label="📌 ${pillar}">`;
+                const icon = pillarIcons[pillar] || '📌';
+                const kat = (wizStore.utils && wizStore.utils.mapPillarToKategori) ? wizStore.utils.mapPillarToKategori(pillar) : '';
+                html += `<optgroup label="${icon} ${pillar} (Pilar ${kat})">`;
                 for (const itemKey of itemSet) {
                     const val = `${itemKey}`;
-                    html += `<option value="${val}">${pillar} — ${itemKey}</option>`;
+                    html += `<option value="${val}">${itemKey} — [${pillar}]</option>`;
                 }
                 html += `</optgroup>`;
             }
             select.innerHTML = html;
+            if (selectedVal) {
+                select.value = selectedVal;
+                handleDisbProgramSelect(selectedVal);
+            }
+        }
+
+        function handleDisbProgramSelect(progTitle) {
+            const detectedBadge = document.getElementById('disb-detected-pillar-badge');
+            const detectedText = document.getElementById('disb-detected-pillar-text');
+            const sourceSelect = document.getElementById('disb-source-type');
+            const bannerPillarName = document.getElementById('disb-subsidi-pillar-name');
+
+            if (!progTitle || !window.wizStore) {
+                if (detectedBadge) detectedBadge.classList.add('hidden');
+                if (sourceSelect) {
+                    sourceSelect.innerHTML = `
+                        <option value="program_spesifik">🔵 Dana Terikat Program Ini</option>
+                        <option value="infak_umum_subsidi">🟢 Subsidi Silang Infak Umum</option>
+                    `;
+                }
+                handleDisbSourceChange(sourceSelect ? sourceSelect.value : 'program_spesifik');
+                return;
+            }
+
+            const pillar = wizStore.utils.mapProgramToPillar(progTitle);
+            const kat = wizStore.utils.mapPillarToKategori(pillar);
+
+            if (detectedBadge && detectedText) {
+                detectedText.textContent = `${pillar} (Pilar ${kat})`;
+                detectedBadge.classList.remove('hidden');
+            }
+
+            if (bannerPillarName) {
+                bannerPillarName.textContent = `${pillar} (Pilar ${kat})`;
+            }
+
+            if (sourceSelect) {
+                const currentSourceVal = sourceSelect.value || 'program_spesifik';
+                sourceSelect.innerHTML = `
+                    <option value="program_spesifik">🔵 Dana Terikat Program Ini (Hanya memotong kas "${progTitle}")</option>
+                    <option value="infak_umum_subsidi">🟢 Subsidi Silang Infak Umum - ${pillar} (Pilar ${kat})</option>
+                `;
+                if (currentSourceVal === 'infak_umum_subsidi' || currentSourceVal === 'infak_umum') {
+                    sourceSelect.value = 'infak_umum_subsidi';
+                } else {
+                    sourceSelect.value = 'program_spesifik';
+                }
+            }
+
+            handleDisbSourceChange(sourceSelect ? sourceSelect.value : 'program_spesifik');
+        }
+
+        function handleDisbSourceChange(sourceType) {
+            const banner = document.getElementById('disb-subsidi-info-banner');
+            const descField = document.getElementById('disb-description');
+            const progTitle = document.getElementById('disb-program')?.value || '';
+
+            const isSubsidi = (sourceType === 'infak_umum_subsidi' || sourceType === 'infak_umum');
+
+            if (isSubsidi) {
+                if (banner) banner.classList.remove('hidden');
+                if (descField && !descField.value) {
+                    descField.placeholder = progTitle ? `Contoh: Subsidi silang dana Infak Umum untuk menutupi kebutuhan program "${progTitle}"...` : "Contoh: Subsidi silang dana Infak Umum...";
+                }
+            } else {
+                if (banner) banner.classList.add('hidden');
+                if (descField && !descField.value) {
+                    descField.placeholder = progTitle ? `Contoh: Penyaluran operasional langsung dari kas terikat program "${progTitle}"...` : "Rincian penyaluran, lokasi penerima manfaat, dll...";
+                }
+            }
         }
 
         function openDisbursementModal(editId) {
-            populateDisbursementPrograms();
             document.getElementById('disb-edit-id').value = editId || '';
             document.getElementById('disbursement-modal-title').textContent = editId ? 'Edit Catatan Pengeluaran' : 'Catat Pengeluaran Dana Baru';
             
             if (!editId) {
                 document.getElementById('disbursement-form').reset();
+                populateDisbursementPrograms('');
                 document.getElementById('disb-date').value = new Date().toISOString().split('T')[0];
                 const activeW = document.getElementById('disb-filter-wilayah') ? document.getElementById('disb-filter-wilayah').value : 'Pangkalpinang';
                 if (document.getElementById('disb-wilayah')) {
                     document.getElementById('disb-wilayah').value = activeW !== 'Semua' ? activeW : 'Pangkalpinang';
                 }
-                if (document.getElementById('disb-source-type')) {
-                    document.getElementById('disb-source-type').value = 'infak_umum';
-                }
-                if (document.getElementById('disb-target-type')) {
-                    document.getElementById('disb-target-type').value = 'global';
-                }
-                handleDisbSourceChange('infak_umum');
+                handleDisbProgramSelect('');
             }
             showModal('disbursement-modal');
         }
@@ -4976,31 +4831,43 @@
         function closeDisbursementModal() {
             hideModal('disbursement-modal');
             document.getElementById('disbursement-form').reset();
+            const detectedBadge = document.getElementById('disb-detected-pillar-badge');
+            if (detectedBadge) detectedBadge.classList.add('hidden');
+            const banner = document.getElementById('disb-subsidi-info-banner');
+            if (banner) banner.classList.add('hidden');
         }
 
         async function handleDisbursementSave(e) {
             e.preventDefault();
             const editId = document.getElementById('disb-edit-id').value;
-            const sourceType = document.getElementById('disb-source-type') ? document.getElementById('disb-source-type').value : 'infak_umum';
-            const targetType = document.getElementById('disb-target-type') ? document.getElementById('disb-target-type').value : 'global';
-            const description = (document.getElementById('disb-description')?.value || '').trim();
+            const progTitle = (document.getElementById('disb-program')?.value || '').trim();
 
+            if (!progTitle) {
+                alert('Silakan pilih "Program Spesifik (Target Penyaluran)" terlebih dahulu!');
+                document.getElementById('disb-program')?.focus();
+                return;
+            }
+
+            const sourceVal = document.getElementById('disb-source-type') ? document.getElementById('disb-source-type').value : 'program_spesifik';
+            const isSubsidi = (sourceVal === 'infak_umum_subsidi' || sourceVal === 'infak_umum');
+
+            const description = (document.getElementById('disb-description')?.value || '').trim();
             if (!description) {
                 alert('Kolom "Keterangan / Penggunaan Dana" wajib diisi!');
                 document.getElementById('disb-description')?.focus();
                 return;
             }
-            
-            let finalProgram = 'Infak Umum (Alih Fungsi Dana)';
-            if (sourceType === 'program_spesifik' || targetType === 'specific') {
-                finalProgram = (document.getElementById('disb-program')?.value || '').trim() || 'Infak Umum (Alih Fungsi Dana)';
-            }
+
+            const pillar = (window.wizStore && window.wizStore.utils) ? window.wizStore.utils.mapProgramToPillar(progTitle) : 'Berkah Peduli';
+            const kategoriPilar = (window.wizStore && window.wizStore.utils) ? window.wizStore.utils.mapPillarToKategori(pillar) : 'Sosial';
 
             const data = {
                 wilayah: document.getElementById('disb-wilayah') ? document.getElementById('disb-wilayah').value : 'Pangkalpinang',
-                sourceType: sourceType,
-                targetType: (sourceType === 'program_spesifik') ? 'specific' : targetType,
-                program: finalProgram,
+                sourceType: isSubsidi ? 'infak_umum' : 'program_spesifik',
+                targetType: isSubsidi ? 'global' : 'specific',
+                pillar: pillar,
+                kategori_pilar: kategoriPilar,
+                program: progTitle,
                 amount: Number(document.getElementById('disb-amount').value),
                 description: description,
                 disbursedAt: document.getElementById('disb-date').value ? new Date(document.getElementById('disb-date').value).toISOString() : new Date().toISOString(),
@@ -5015,21 +4882,21 @@
         }
 
         function editDisbursement(id) {
-            populateDisbursementPrograms();
             const item = wizStore.disbursements.getById(id);
             if (!item) return;
             
-            const sType = item.sourceType || (item.program && (item.program.toLowerCase().includes('global') || item.program.toLowerCase().includes('alih fungsi')) ? 'infak_umum' : 'program_spesifik');
-            const tType = item.targetType || (item.program && (item.program.toLowerCase().includes('global') || item.program.toLowerCase().includes('alih fungsi')) ? 'global' : 'specific');
+            populateDisbursementPrograms(item.program);
 
             if (document.getElementById('disb-wilayah')) document.getElementById('disb-wilayah').value = item.wilayah || 'Pangkalpinang';
-            if (document.getElementById('disb-source-type')) document.getElementById('disb-source-type').value = sType;
-            if (document.getElementById('disb-target-type')) document.getElementById('disb-target-type').value = tType;
-            
-            handleDisbSourceChange(sType);
-            if (sType === 'infak_umum') handleDisbTargetChange(tType);
-
             if (document.getElementById('disb-program')) document.getElementById('disb-program').value = item.program;
+            handleDisbProgramSelect(item.program);
+
+            const isSubsidi = (item.sourceType === 'infak_umum' || (item.program && item.program.toLowerCase().includes('alih fungsi')));
+            if (document.getElementById('disb-source-type')) {
+                document.getElementById('disb-source-type').value = isSubsidi ? 'infak_umum_subsidi' : 'program_spesifik';
+            }
+            handleDisbSourceChange(isSubsidi ? 'infak_umum_subsidi' : 'program_spesifik');
+
             document.getElementById('disb-amount').value = item.amount;
             document.getElementById('disb-description').value = item.description;
             if (item.disbursedAt) document.getElementById('disb-date').value = new Date(item.disbursedAt).toISOString().split('T')[0];
@@ -6135,6 +6002,16 @@
 
             if (!pendingContainer || !allContainer || !window.wizStore || !wizStore.adminUsers) return;
 
+            const currentUser = sessionStorage.getItem('wiz_admin_user') || '';
+            const currentRole = sessionStorage.getItem('wiz_admin_role') || '';
+            const isSuperAdmin = currentUser === 'admin' || currentRole === 'super_admin';
+
+            // Toggle top create button visibility
+            const btnCreateTop = document.getElementById('btn-create-admin-top');
+            if (btnCreateTop) {
+                btnCreateTop.style.display = isSuperAdmin ? '' : 'none';
+            }
+
             const allUsers = wizStore.adminUsers.getAll() || [];
             const pendingUsers = wizStore.adminUsers.getPending() || [];
 
@@ -6200,15 +6077,21 @@
                             <td class="p-3"><span class="px-2 py-0.5 rounded bg-surface-container-high text-[11px] font-semibold">${escapeHtml(u.wilayah || 'Semua Wilayah')}</span></td>
                             <td class="p-3 font-semibold">${u.role === 'super_admin' ? '<span class="text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200">Super Admin</span>' : '<span class="text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Admin Amil</span>'}</td>
                             <td class="p-3 text-right space-x-1.5 whitespace-nowrap">
-                                <button onclick="approveAdmin('${u.id}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer inline-flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">check</span> Setujui &amp; Aktifkan
-                                </button>
-                                <button onclick="openEditAdminModal('${u.id}')" class="px-2.5 py-1.5 border border-primary/40 text-primary hover:bg-primary hover:text-white rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">edit</span> Edit
-                                </button>
-                                <button onclick="rejectAdmin('${u.id}')" class="px-2.5 py-1.5 bg-error hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer inline-flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">close</span> Tolak
-                                </button>
+                                ${isSuperAdmin ? `
+                                    <button onclick="approveAdmin('${u.id}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer inline-flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-xs">check</span> Setujui &amp; Aktifkan
+                                    </button>
+                                    <button onclick="openEditAdminModal('${u.id}')" class="px-2.5 py-1.5 border border-primary/40 text-primary hover:bg-primary hover:text-white rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-xs">edit</span> Edit
+                                    </button>
+                                    <button onclick="rejectAdmin('${u.id}')" class="px-2.5 py-1.5 bg-error hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer inline-flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-xs">close</span> Tolak
+                                    </button>
+                                ` : `
+                                    <span class="px-2.5 py-1 rounded-lg bg-surface-container-high text-on-surface-variant text-[11px] font-semibold inline-flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[13px] text-slate-400">lock</span> Khusus Super Admin
+                                    </span>
+                                `}
                             </td>
                         </tr>`).join('')}
                     </tbody>
@@ -6284,14 +6167,20 @@
                                 </span>
                             </td>
                             <td class="p-3 text-right space-x-1 whitespace-nowrap">
-                                <button onclick="openEditAdminModal('${u.id}')" class="px-2.5 py-1 text-xs border border-primary/40 text-primary hover:bg-primary hover:text-white rounded-lg font-bold transition-all cursor-pointer inline-flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-xs">edit</span> Edit
-                                </button>
-                                ${u.username !== 'admin' ? `
-                                    <button onclick="deleteAdmin('${u.id}')" class="px-2.5 py-1 text-xs border border-error/40 text-error hover:bg-error hover:text-white rounded-lg font-bold transition-all cursor-pointer inline-flex items-center gap-1">
-                                        <span class="material-symbols-outlined text-xs">delete</span> Hapus
+                                ${isSuperAdmin ? `
+                                    <button onclick="openEditAdminModal('${u.id}')" class="px-2.5 py-1 text-xs border border-primary/40 text-primary hover:bg-primary hover:text-white rounded-lg font-bold transition-all cursor-pointer inline-flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-xs">edit</span> Edit
                                     </button>
-                                ` : ''}
+                                    ${u.username !== 'admin' ? `
+                                        <button onclick="deleteAdmin('${u.id}')" class="px-2.5 py-1 text-xs border border-error/40 text-error hover:bg-error hover:text-white rounded-lg font-bold transition-all cursor-pointer inline-flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-xs">delete</span> Hapus
+                                        </button>
+                                    ` : ''}
+                                ` : `
+                                    <span class="px-2.5 py-1 rounded-lg bg-surface-container-high text-on-surface-variant text-[11px] font-semibold inline-flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[13px] text-slate-400">lock</span> Hanya Lihat
+                                    </span>
+                                `}
                             </td>
                         </tr>`).join('')}
                     </tbody>
@@ -6315,6 +6204,12 @@
         }
 
         function openCreateAdminModal() {
+            const currentUser = sessionStorage.getItem('wiz_admin_user') || '';
+            const currentRole = sessionStorage.getItem('wiz_admin_role') || '';
+            if (currentUser !== 'admin' && currentRole !== 'super_admin') {
+                alert('Akses Ditolak: Hanya Admin 1 Utama atau Super Admin yang berhak menambahkan akun admin baru.');
+                return;
+            }
             const form = document.getElementById('form-admin-user-create');
             if (form) form.reset();
             const statusEl = document.getElementById('create-admin-status');
@@ -6324,6 +6219,13 @@
 
         async function handleCreateAdminSubmit(e) {
             e.preventDefault();
+            const currentUser = sessionStorage.getItem('wiz_admin_user') || '';
+            const currentRole = sessionStorage.getItem('wiz_admin_role') || '';
+            if (currentUser !== 'admin' && currentRole !== 'super_admin') {
+                alert('Akses Ditolak: Hanya Admin 1 Utama atau Super Admin yang berhak menambahkan akun admin baru.');
+                return;
+            }
+
             const fullName = document.getElementById('create-admin-fullname').value.trim();
             const username = document.getElementById('create-admin-username').value.trim();
             const password = document.getElementById('create-admin-password').value.trim();
@@ -6367,6 +6269,13 @@
         }
 
         function openEditAdminModal(id) {
+            const currentUser = sessionStorage.getItem('wiz_admin_user') || '';
+            const currentRole = sessionStorage.getItem('wiz_admin_role') || '';
+            if (currentUser !== 'admin' && currentRole !== 'super_admin') {
+                alert('Akses Ditolak: Anda berstatus Admin Amil. Hanya Admin 1 Utama atau Super Admin yang berhak mengedit data atau kata sandi akun admin.');
+                return;
+            }
+
             if (!wizStore.adminUsers) return;
             const user = wizStore.adminUsers.getById(id);
             if (!user) {
@@ -6408,6 +6317,13 @@
 
         async function handleEditAdminSubmit(e) {
             e.preventDefault();
+            const currentUser = sessionStorage.getItem('wiz_admin_user') || '';
+            const currentRole = sessionStorage.getItem('wiz_admin_role') || '';
+            if (currentUser !== 'admin' && currentRole !== 'super_admin') {
+                alert('Akses Ditolak: Anda berstatus Admin Amil. Hanya Admin 1 Utama atau Super Admin yang berhak mengedit data atau kata sandi akun admin.');
+                return;
+            }
+
             const id = document.getElementById('edit-admin-id').value;
             const fullName = document.getElementById('edit-admin-fullname').value.trim();
             const phone = document.getElementById('edit-admin-phone').value.trim();
@@ -6440,7 +6356,14 @@
         }
 
         async function approveAdmin(id) {
-            const adminActor = sessionStorage.getItem('wiz_admin_user') || 'Admin 1';
+            const currentUser = sessionStorage.getItem('wiz_admin_user') || '';
+            const currentRole = sessionStorage.getItem('wiz_admin_role') || '';
+            if (currentUser !== 'admin' && currentRole !== 'super_admin') {
+                alert('Akses Ditolak: Hanya Admin 1 Utama atau Super Admin yang berhak menyetujui akun admin.');
+                return;
+            }
+
+            const adminActor = currentUser || 'Admin 1';
             const res = await wizStore.adminUsers.approve(id, adminActor);
             if (res.success) {
                 if (typeof showNotification === 'function') {
@@ -6456,12 +6379,19 @@
         }
 
         async function rejectAdmin(id) {
+            const currentUser = sessionStorage.getItem('wiz_admin_user') || '';
+            const currentRole = sessionStorage.getItem('wiz_admin_role') || '';
+            if (currentUser !== 'admin' && currentRole !== 'super_admin') {
+                alert('Akses Ditolak: Hanya Admin 1 Utama atau Super Admin yang berhak menolak akun admin.');
+                return;
+            }
+
             const allUsers = wizStore.adminUsers ? wizStore.adminUsers.getAll() : [];
             const targetUser = allUsers.find(u => String(u.id) === String(id) || (u.username && u.username.toLowerCase() === String(id).toLowerCase()));
             const label = targetUser ? `'${targetUser.fullName || targetUser.username}'` : id;
             if (!confirm(`Tolak dan hapus permohonan pendaftaran admin ${label}?\n\nData pendaftaran ini akan langsung dihapus permanen dari antrean dan tidak akan pernah ditampilkan lagi.`)) return;
 
-            const res = await wizStore.adminUsers.reject(id, sessionStorage.getItem('wiz_admin_user') || 'Admin 1');
+            const res = await wizStore.adminUsers.reject(id, currentUser || 'Admin 1');
             if (res.success) {
                 if (typeof showNotification === 'function') {
                     showNotification(`✅ Permohonan pendaftaran ${label} berhasil ditolak & dihapus permanen.`);
@@ -6476,7 +6406,7 @@
             const currentUser = sessionStorage.getItem('wiz_admin_user') || '';
             const currentRole = sessionStorage.getItem('wiz_admin_role') || '';
             if (currentUser !== 'admin' && currentRole !== 'super_admin') {
-                alert('Akses Ditolak: Hanya Admin 1 Utama yang dapat menghapus akses admin lain.');
+                alert('Akses Ditolak: Hanya Admin 1 Utama atau Super Admin yang dapat menghapus akses admin lain.');
                 return;
             }
             const allUsers = wizStore.adminUsers ? wizStore.adminUsers.getAll() : [];
@@ -6736,74 +6666,6 @@
                 alert('✅ Informasi alamat kantor & hotline operasional berhasil disimpan ke Supabase & diperbarui di seluruh website!');
             } catch(err) {
                 alert('⚠️ Gagal menyimpan info kantor: ' + err.message);
-            }
-        }
-
-        function switchAuthTab(tab) {
-            const loginForm = document.getElementById('admin-login-form');
-            const regForm = document.getElementById('admin-register-form');
-            const tabLogin = document.getElementById('auth-tab-login');
-            const tabReg = document.getElementById('auth-tab-register');
-
-            if (tab === 'register') {
-                loginForm.classList.add('hidden');
-                regForm.classList.remove('hidden');
-                tabReg.className = 'flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-primary text-on-primary shadow-sm cursor-pointer';
-                tabLogin.className = 'flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:text-primary cursor-pointer';
-            } else {
-                regForm.classList.add('hidden');
-                loginForm.classList.remove('hidden');
-                tabLogin.className = 'flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-primary text-on-primary shadow-sm cursor-pointer';
-                tabReg.className = 'flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:text-primary cursor-pointer';
-            }
-        }
-
-        async function handleAdminRegister(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btn-admin-register-submit') || e.target.querySelector('button[type="submit"]');
-            const originalHtml = btn ? btn.innerHTML : '';
-            if (btn) {
-                btn.disabled = true;
-                btn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">progress_activity</span> <span>Memproses pendaftaran...</span>';
-            }
-
-            const fullName = document.getElementById('reg-fullname').value.trim();
-            const username = document.getElementById('reg-username').value.trim();
-            const password = document.getElementById('reg-password').value.trim();
-            const phone = document.getElementById('reg-phone').value.trim();
-            const role = document.getElementById('reg-role').value;
-            const wilayah = document.getElementById('reg-wilayah') ? document.getElementById('reg-wilayah').value : 'Semua Wilayah';
-
-            const alertBox = document.getElementById('register-alert');
-            const alertText = document.getElementById('register-alert-text');
-            const alertIcon = document.getElementById('register-alert-icon');
-
-            alertBox.classList.remove('hidden');
-            alertBox.className = 'p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs bg-primary/10 text-primary border border-primary/30';
-            alertIcon.textContent = 'hourglass_top';
-            alertText.textContent = 'Sedang memproses & menghubungkan pendaftaran ke sistem...';
-
-            try {
-                const res = await wizStore.adminUsers.register({ username, password, fullName, phone, role, wilayah });
-                if (res.success) {
-                    alertBox.className = 'p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs bg-emerald-100 text-emerald-900 border border-emerald-300';
-                    alertIcon.textContent = 'check_circle';
-                    alertText.textContent = res.message;
-                    document.getElementById('admin-register-form').reset();
-                } else {
-                    alertBox.className = 'p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs bg-error-container text-on-error-container';
-                    alertIcon.textContent = 'error';
-                    alertText.textContent = res.message;
-                }
-            } catch(err) {
-                alertBox.className = 'p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs bg-error-container text-on-error-container';
-                alertIcon.textContent = 'error';
-                alertText.textContent = 'Terjadi kendala koneksi: ' + (err.message || 'Silakan coba lagi.');
-            } finally {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerHTML = originalHtml;
-                }
             }
         }
 
@@ -7835,6 +7697,7 @@
             const registerForm = document.getElementById('admin-register-form');
             const tabLogin = document.getElementById('auth-tab-login');
             const tabRegister = document.getElementById('auth-tab-register');
+            const regAlert = document.getElementById('register-alert');
 
             if (tab === 'register') {
                 if (loginForm) loginForm.classList.add('hidden');
@@ -7845,6 +7708,7 @@
                 if (tabRegister) {
                     tabRegister.className = 'flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-primary text-on-primary shadow-sm cursor-pointer';
                 }
+                if (regAlert) regAlert.classList.add('hidden');
             } else {
                 if (loginForm) loginForm.classList.remove('hidden');
                 if (registerForm) registerForm.classList.add('hidden');
@@ -7867,8 +7731,8 @@
             const username = document.getElementById('reg-username').value.trim();
             const password = document.getElementById('reg-password').value.trim();
             const phone = document.getElementById('reg-phone').value.trim();
-            const role = document.getElementById('reg-role').value;
-            const wilayah = document.getElementById('reg-wilayah').value;
+            const role = document.getElementById('reg-role') ? document.getElementById('reg-role').value : 'amil';
+            const wilayah = document.getElementById('reg-wilayah') ? document.getElementById('reg-wilayah').value : 'Semua Wilayah';
 
             const alertBox = document.getElementById('register-alert');
             const alertText = document.getElementById('register-alert-text');
@@ -7887,40 +7751,66 @@
 
             if (submitBtn) {
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span> Mengirim pendaftaran...';
+                submitBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span> Memproses pendaftaran...';
             }
 
-            const res = await wizStore.adminUsers.register({
-                fullName,
-                username,
-                password,
-                phone,
-                role,
-                wilayah
-            });
+            try {
+                const res = await wizStore.adminUsers.register({
+                    fullName,
+                    username,
+                    password,
+                    phone,
+                    role,
+                    wilayah
+                });
 
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<span class="material-symbols-outlined text-sm">person_add</span> Kirim Pendaftaran Admin';
-            }
+                if (!res.success) {
+                    if (alertBox) {
+                        alertBox.className = 'bg-error-container text-on-error-container p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs';
+                        alertText.textContent = res.message || 'Pendaftaran gagal.';
+                        if (alertIcon) alertIcon.textContent = 'error';
+                        alertBox.classList.remove('hidden');
+                    }
+                } else {
+                    if (alertBox) {
+                        alertBox.className = 'bg-emerald-100 text-emerald-900 p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs border border-emerald-300 shadow-xs';
+                        alertText.innerHTML = `<div><strong class="text-emerald-950 font-bold block mb-0.5">Pendaftaran Berhasil!</strong> Akun <b>${escapeHtml(username)}</b> telah terdaftar dan masuk antrean verifikasi Admin 1 Utama. Mengalihkan ke halaman login...</div>`;
+                        if (alertIcon) alertIcon.textContent = 'check_circle';
+                        alertBox.classList.remove('hidden');
+                    }
 
-            if (!res.success) {
+                    // Pre-fill username on login tab
+                    const loginUserInput = document.getElementById('login-username');
+                    if (loginUserInput) loginUserInput.value = username;
+
+                    const regForm = document.getElementById('admin-register-form');
+                    if (regForm) regForm.reset();
+
+                    // Smooth transition to login tab without freezing popup alert
+                    setTimeout(() => {
+                        switchAuthTab('login');
+
+                        const loginErrAlert = document.getElementById('login-error-alert');
+                        const loginErrText = document.getElementById('login-error-text');
+                        if (loginErrAlert && loginErrText) {
+                            loginErrAlert.className = 'p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs bg-emerald-50 text-emerald-900 border border-emerald-300';
+                            loginErrText.innerHTML = `Pendaftaran akun <strong>${escapeHtml(username)}</strong> berhasil! Menunggu verifikasi Super Admin/Admin 1 sebelum dapat login.`;
+                            loginErrAlert.classList.remove('hidden');
+                        }
+                    }, 800);
+                }
+            } catch (err) {
                 if (alertBox) {
                     alertBox.className = 'bg-error-container text-on-error-container p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs';
-                    alertText.textContent = res.message || 'Pendaftaran gagal.';
+                    alertText.textContent = 'Terjadi kesalahan: ' + (err.message || 'Silakan coba lagi');
                     if (alertIcon) alertIcon.textContent = 'error';
                     alertBox.classList.remove('hidden');
                 }
-            } else {
-                if (alertBox) {
-                    alertBox.className = 'bg-emerald-100 text-emerald-800 p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs border border-emerald-300';
-                    alertText.textContent = res.message;
-                    if (alertIcon) alertIcon.textContent = 'check_circle';
-                    alertBox.classList.remove('hidden');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span class="material-symbols-outlined text-sm">person_add</span> Kirim Pendaftaran Admin';
                 }
-                alert(res.message);
-                document.getElementById('admin-register-form').reset();
-                setTimeout(() => switchAuthTab('login'), 2000);
             }
             return false;
         }

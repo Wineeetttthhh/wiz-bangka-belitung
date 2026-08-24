@@ -952,6 +952,13 @@
             return this.getAll().find(u => String(u.id).toLowerCase() === clean || (u.username && u.username.toLowerCase() === clean)) || null;
         },
         async add({ username, password, fullName, phone, role, wilayah, status = 'approved' }) {
+            const currentActor = sessionStorage.getItem('wiz_admin_user') || '';
+            const currentRole = sessionStorage.getItem('wiz_admin_role') || '';
+            const isActorSuper = currentActor === 'admin' || currentRole === 'super_admin';
+            if (!isActorSuper) {
+                return { success: false, message: 'Akses Ditolak: Hanya Admin 1 Utama atau Super Admin yang berhak menambahkan akun admin baru.' };
+            }
+
             const cleanUser = (username || '').trim().toLowerCase();
             if (!cleanUser || !password) {
                 return { success: false, message: 'Username dan kata sandi wajib diisi.' };
@@ -982,7 +989,7 @@
                 targetUser.updatedAt = new Date().toISOString();
                 if (status === 'approved') {
                     targetUser.verifiedAt = new Date().toISOString();
-                    targetUser.verifiedBy = sessionStorage.getItem('wiz_admin_user') || 'Admin 1';
+                    targetUser.verifiedBy = currentActor || 'Admin 1';
                 }
             } else {
                 targetUser = {
@@ -997,14 +1004,14 @@
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString(),
                     verifiedAt: status === 'approved' ? new Date().toISOString() : null,
-                    verifiedBy: status === 'approved' ? (sessionStorage.getItem('wiz_admin_user') || 'Admin 1') : null
+                    verifiedBy: status === 'approved' ? (currentActor || 'Admin 1') : null
                 };
                 list.push(targetUser);
             }
 
             setStore(STORAGE_KEYS.ADMIN_USERS, list);
             if (typeof activityLog !== 'undefined' && activityLog.add) {
-                activityLog.add('auth', `Akun admin '${cleanUser}' disimpan (Status: ${targetUser.status}, Peran: ${targetUser.role})`, sessionStorage.getItem('wiz_admin_user') || 'Admin 1');
+                activityLog.add('auth', `Akun admin '${cleanUser}' disimpan (Status: ${targetUser.status}, Peran: ${targetUser.role})`, currentActor || 'Admin 1');
             }
 
             window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
@@ -1017,6 +1024,13 @@
             return { success: true, user: targetUser, message: 'Akun admin berhasil disimpan & terhubung ke Cloud!' };
         },
         async update(id, data) {
+            const currentActor = sessionStorage.getItem('wiz_admin_user') || '';
+            const currentRole = sessionStorage.getItem('wiz_admin_role') || '';
+            const isActorSuper = currentActor === 'admin' || currentRole === 'super_admin';
+            if (!isActorSuper) {
+                return { success: false, message: 'Akses Ditolak: Hanya Admin 1 Utama atau Super Admin yang berhak mengedit data atau kata sandi admin.' };
+            }
+
             let list = this.getAll();
             const idx = list.findIndex(u => String(u.id) === String(id));
             if (idx === -1) return { success: false, message: 'Admin tidak ditemukan' };
@@ -1030,7 +1044,7 @@
                 user.status = data.status;
                 if (data.status === 'approved' && !user.verifiedAt) {
                     user.verifiedAt = new Date().toISOString();
-                    user.verifiedBy = sessionStorage.getItem('wiz_admin_user') || 'Admin 1';
+                    user.verifiedBy = currentActor || 'Admin 1';
                 }
             }
             if (data.password && data.password.trim()) user.password = data.password.trim();
@@ -1199,42 +1213,63 @@
             return { success: true, user: found };
         },
         async approve(id, adminActor) {
+            const currentActor = adminActor || sessionStorage.getItem('wiz_admin_user') || 'Admin 1';
+            const currentRole = sessionStorage.getItem('wiz_admin_role') || '';
+            const isActorSuper = currentActor === 'admin' || currentRole === 'super_admin';
+            if (!isActorSuper) {
+                return { success: false, message: 'Akses Ditolak: Hanya Admin 1 Utama atau Super Admin yang berhak menyetujui pendaftaran admin.' };
+            }
+
             let list = this.getAll();
             const idx = list.findIndex(u => String(u.id) === String(id) || (u.username && u.username.toLowerCase() === String(id).toLowerCase()));
             if (idx === -1) return { success: false, message: 'Pengguna tidak ditemukan' };
 
             list[idx].status = 'approved';
             list[idx].verifiedAt = new Date().toISOString();
-            list[idx].verifiedBy = adminActor || 'Admin 1';
+            list[idx].verifiedBy = currentActor;
             list[idx].updatedAt = new Date().toISOString();
             setStore(STORAGE_KEYS.ADMIN_USERS, list);
 
             if (typeof activityLog !== 'undefined' && activityLog.add) {
-                activityLog.add('auth', `Akun admin '${list[idx].username}' telah disetujui & diaktifkan`, adminActor || 'Admin 1');
+                activityLog.add('auth', `Akun admin '${list[idx].username}' telah disetujui & diaktifkan`, currentActor);
             }
 
             window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
             broadcastSync('UPDATE_ADMIN_USERS', list);
 
-            microSyncAdmin('approve_admin_user', { id: list[idx].id, verifiedBy: adminActor || 'Admin 1' });
+            microSyncAdmin('approve_admin_user', { id: list[idx].id, verifiedBy: currentActor });
             if (typeof pushToCloud === 'function') {
                 setTimeout(() => pushToCloud().catch(() => {}), 100);
             }
             return { success: true, user: list[idx] };
         },
         async reject(id, adminActor) {
+            const currentActor = adminActor || sessionStorage.getItem('wiz_admin_user') || 'Admin 1';
+            const currentRole = sessionStorage.getItem('wiz_admin_role') || '';
+            const isActorSuper = currentActor === 'admin' || currentRole === 'super_admin';
+            if (!isActorSuper) {
+                return { success: false, message: 'Akses Ditolak: Hanya Admin 1 Utama atau Super Admin yang berhak menolak pendaftaran admin.' };
+            }
+
             let list = this.getAll();
             const target = list.find(u => String(u.id) === String(id) || (u.username && u.username.toLowerCase() === String(id).toLowerCase()));
             if (!target) return { success: true };
             if (target.username === 'admin') return { success: false, message: 'Akun Admin 1 tidak dapat ditolak/dihapus.' };
 
             if (typeof activityLog !== 'undefined' && activityLog.add) {
-                activityLog.add('auth', `Pendaftaran akun admin '${target.username}' tidak disetujui / ditolak permanen`, adminActor || 'Admin 1');
+                activityLog.add('auth', `Pendaftaran akun admin '${target.username}' tidak disetujui / ditolak permanen`, currentActor);
             }
 
             return this.delete(target.id || id);
         },
         async delete(id) {
+            const currentActor = sessionStorage.getItem('wiz_admin_user') || 'Admin 1';
+            const currentRole = sessionStorage.getItem('wiz_admin_role') || '';
+            const isActorSuper = currentActor === 'admin' || currentRole === 'super_admin';
+            if (!isActorSuper) {
+                return { success: false, message: 'Akses Ditolak: Hanya Admin 1 Utama atau Super Admin yang berhak menghapus akun admin.' };
+            }
+
             let list = this.getAll();
             const target = list.find(u => String(u.id) === String(id) || (u.username && u.username.toLowerCase() === String(id).toLowerCase()));
             if (target && target.username === 'admin') {
@@ -1251,7 +1286,7 @@
             setStore(STORAGE_KEYS.ADMIN_USERS, list);
 
             if (typeof activityLog !== 'undefined' && activityLog.add) {
-                activityLog.add('auth', `Akses admin '${target ? target.username : id}' dihapus permanen`, sessionStorage.getItem('wiz_admin_user') || 'Admin 1');
+                activityLog.add('auth', `Akses admin '${target ? target.username : id}' dihapus permanen`, currentActor);
             }
 
             window.dispatchEvent(new CustomEvent('wiz-admin-users-changed'));
@@ -2820,6 +2855,45 @@
         return 'Berkah Hidayah';
     }
 
+    // Helper: Map pillar to kategori_pilar ('Dakwah', 'Pendidikan', 'Sosial', 'Kesehatan', 'Ekonomi') and vice-versa
+    function mapPillarToKategori(pillar) {
+        if (!pillar) return 'Sosial';
+        const str = String(pillar).toLowerCase();
+        if (str.includes('hidayah') || str.includes('dakwah')) return 'Dakwah';
+        if (str.includes('juara') || str.includes('pendidikan') || str.includes('beasiswa')) return 'Pendidikan';
+        if (str.includes('peduli') || str.includes('sosial') || str.includes('kemanusiaan')) return 'Sosial';
+        if (str.includes('sehat') || str.includes('kesehatan') || str.includes('medis')) return 'Kesehatan';
+        if (str.includes('mandiri') || str.includes('ekonomi') || str.includes('usaha')) return 'Ekonomi';
+        return 'Sosial';
+    }
+
+    function mapKategoriToPillar(kategori) {
+        if (!kategori) return 'Berkah Peduli';
+        const str = String(kategori).toLowerCase();
+        if (str.includes('dakwah') || str.includes('hidayah')) return 'Berkah Hidayah';
+        if (str.includes('pendidikan') || str.includes('beasiswa') || str.includes('juara')) return 'Berkah Juara';
+        if (str.includes('sosial') || str.includes('kemanusiaan') || str.includes('peduli')) return 'Berkah Peduli';
+        if (str.includes('kesehatan') || str.includes('sehat') || str.includes('medis')) return 'Berkah Sehat';
+        if (str.includes('ekonomi') || str.includes('mandiri') || str.includes('usaha')) return 'Berkah Mandiri';
+        return 'Berkah Peduli';
+    }
+
+    function getProgramPillarKey(progOrTitle) {
+        if (!progOrTitle) return 'Berkah Peduli';
+        if (typeof progOrTitle === 'object') {
+            if (progOrTitle.pillar) return progOrTitle.pillar;
+            if (progOrTitle.kategori_pilar) return mapKategoriToPillar(progOrTitle.kategori_pilar);
+            if (progOrTitle.category) return mapProgramToPillar(progOrTitle.title, progOrTitle.category);
+            return mapProgramToPillar(progOrTitle.title);
+        }
+        return mapProgramToPillar(String(progOrTitle));
+    }
+
+    function getProgramKategoriPilar(progOrTitle) {
+        const pillar = getProgramPillarKey(progOrTitle);
+        return mapPillarToKategori(pillar);
+    }
+
     function escapeHtml(str) {
         if (str === null || str === undefined) return '';
         return String(str)
@@ -3649,6 +3723,7 @@
             title: 'Pray For NTT',
             slug: 'pray-for-ntt',
             pillar: 'Berkah Peduli',
+            kategori_pilar: 'Sosial',
             category: 'Sosial & Kemanusiaan',
             target: 'Rp 50.000.000',
             targetAmount: 50000000,
@@ -3666,6 +3741,7 @@
             title: 'Tebar Sembako',
             slug: 'tebar-sembako',
             pillar: 'Berkah Peduli',
+            kategori_pilar: 'Sosial',
             category: 'Sosial & Kemanusiaan',
             target: 'Rp 25.000.000',
             targetAmount: 25000000,
@@ -3681,6 +3757,7 @@
             title: 'Sedekah Beras Dhuafa',
             slug: 'sedekah-beras-dhuafa',
             pillar: 'Berkah Peduli',
+            kategori_pilar: 'Sosial',
             category: 'Sosial & Kemanusiaan',
             target: 'Rp 20.000.000',
             targetAmount: 20000000,
@@ -3696,6 +3773,7 @@
             title: 'Sedekah Jumat',
             slug: 'sedekah-jumat',
             pillar: 'Berkah Peduli',
+            kategori_pilar: 'Sosial',
             category: 'Sosial & Kemanusiaan',
             target: 'Rp 15.000.000',
             targetAmount: 15000000,
@@ -3711,6 +3789,7 @@
             title: 'Santunan Yatim',
             slug: 'santunan-yatim',
             pillar: 'Berkah Peduli',
+            kategori_pilar: 'Sosial',
             category: 'Sosial & Kemanusiaan',
             target: 'Rp 30.000.000',
             targetAmount: 30000000,
@@ -3726,6 +3805,7 @@
             title: "Tebar Qur'an Nusantara",
             slug: 'tebar-quran-nusantara',
             pillar: 'Berkah Peduli',
+            kategori_pilar: 'Sosial',
             category: 'Sosial & Kemanusiaan',
             target: 'Rp 20.000.000',
             targetAmount: 20000000,
@@ -3741,6 +3821,7 @@
             title: 'Tebar Iftar Nusantara',
             slug: 'tebar-iftar-nusantara',
             pillar: 'Berkah Peduli',
+            kategori_pilar: 'Sosial',
             category: 'Sosial & Kemanusiaan',
             target: 'Rp 30.000.000',
             targetAmount: 30000000,
@@ -3756,6 +3837,7 @@
             title: 'Bahagiakan Guru Ngaji',
             slug: 'bahagiakan-guru-ngaji',
             pillar: 'Berkah Peduli',
+            kategori_pilar: 'Sosial',
             category: 'Sosial & Kemanusiaan',
             target: 'Rp 25.000.000',
             targetAmount: 25000000,
@@ -3771,6 +3853,7 @@
             title: 'Sedekah Air',
             slug: 'sedekah-air',
             pillar: 'Berkah Peduli',
+            kategori_pilar: 'Sosial',
             category: 'Sosial & Kemanusiaan',
             target: 'Rp 35.000.000',
             targetAmount: 35000000,
@@ -3788,6 +3871,7 @@
             title: 'Pembangunan Markaz',
             slug: 'pembangunan-markaz',
             pillar: 'Berkah Hidayah',
+            kategori_pilar: 'Dakwah',
             category: 'Dakwah & Pembinaan',
             target: 'Rp 2.004.000.000',
             targetAmount: 2004000000,
@@ -3803,6 +3887,7 @@
             title: 'Pengadaan & Perbaikan Kendaraan',
             slug: 'pengadaan-perbaikan-kendaraan',
             pillar: 'Berkah Hidayah',
+            kategori_pilar: 'Dakwah',
             category: 'Dakwah & Pembinaan',
             target: 'Rp 35.000.000',
             targetAmount: 35000000,
@@ -3818,6 +3903,7 @@
             title: 'Santunan Mualaf',
             slug: 'santunan-mualaf',
             pillar: 'Berkah Hidayah',
+            kategori_pilar: 'Dakwah',
             category: 'Dakwah & Pembinaan',
             target: 'Rp 20.000.000',
             targetAmount: 20000000,
@@ -3833,6 +3919,7 @@
             title: 'Tahfidz',
             slug: 'tahfidz',
             pillar: 'Berkah Hidayah',
+            kategori_pilar: 'Dakwah',
             category: 'Dakwah & Pembinaan',
             target: 'Rp 30.000.000',
             targetAmount: 30000000,
@@ -3848,6 +3935,7 @@
             title: 'Pelatihan Public Speaking',
             slug: 'pelatihan-public-speaking',
             pillar: 'Berkah Hidayah',
+            kategori_pilar: 'Dakwah',
             category: 'Dakwah & Pembinaan',
             target: 'Rp 10.000.000',
             targetAmount: 10000000,
@@ -3863,6 +3951,7 @@
             title: 'Tabligh Akbar Dzulhijjah',
             slug: 'tabligh-akbar-dzulhijjah',
             pillar: 'Berkah Hidayah',
+            kategori_pilar: 'Dakwah',
             category: 'Dakwah & Pembinaan',
             target: 'Rp 15.000.000',
             targetAmount: 15000000,
@@ -3878,6 +3967,7 @@
             title: 'Pelatihan Guru Dirosa',
             slug: 'pelatihan-guru-dirosa',
             pillar: 'Berkah Hidayah',
+            kategori_pilar: 'Dakwah',
             category: 'Dakwah & Pembinaan',
             target: 'Rp 12.000.000',
             targetAmount: 12000000,
@@ -3893,6 +3983,7 @@
             title: 'Pelatihan Penyelenggaraan Jenazah',
             slug: 'pelatihan-penyelenggaraan-jenazah',
             pillar: 'Berkah Hidayah',
+            kategori_pilar: 'Dakwah',
             category: 'Dakwah & Pembinaan',
             target: 'Rp 8.000.000',
             targetAmount: 8000000,
@@ -3908,6 +3999,7 @@
             title: 'Pelatihan Volunteer Media Dakwah',
             slug: 'pelatihan-volunteer-media-dakwah',
             pillar: 'Berkah Hidayah',
+            kategori_pilar: 'Dakwah',
             category: 'Dakwah & Pembinaan',
             target: 'Rp 10.000.000',
             targetAmount: 10000000,
@@ -3923,6 +4015,7 @@
             title: 'Lomba Desain Poster Dakwah',
             slug: 'lomba-desain-poster-dakwah',
             pillar: 'Berkah Hidayah',
+            kategori_pilar: 'Dakwah',
             category: 'Dakwah & Pembinaan',
             target: 'Rp 5.000.000',
             targetAmount: 5000000,
@@ -3938,6 +4031,7 @@
             title: 'Kantor DPW WI Babel & WIZ',
             slug: 'kantor-dpw-wi-babel-dan-wiz',
             pillar: 'Berkah Hidayah',
+            kategori_pilar: 'Dakwah',
             category: 'Dakwah & Pembinaan',
             target: 'Rp 150.000.000',
             targetAmount: 150000000,
@@ -3953,6 +4047,7 @@
             title: 'Mukerwil Mukernas Muktamar',
             slug: 'mukerwil-mukernas-muktamar',
             pillar: 'Berkah Hidayah',
+            kategori_pilar: 'Dakwah',
             category: 'Dakwah & Pembinaan',
             target: 'Rp 25.000.000',
             targetAmount: 25000000,
@@ -3968,6 +4063,7 @@
             title: 'Keberangkatan Kepulangan Dai',
             slug: 'keberangkatan-kepulangan-dai',
             pillar: 'Berkah Hidayah',
+            kategori_pilar: 'Dakwah',
             category: 'Dakwah & Pembinaan',
             target: 'Rp 30.000.000',
             targetAmount: 30000000,
@@ -3983,6 +4079,7 @@
             title: 'Pengadaan Celengan Sedekah Subuh',
             slug: 'pengadaan-celengan-sedekah-subuh',
             pillar: 'Berkah Hidayah',
+            kategori_pilar: 'Dakwah',
             category: 'Dakwah & Pembinaan',
             target: 'Rp 15.000.000',
             targetAmount: 15000000,
@@ -4000,6 +4097,7 @@
             title: 'Beasiswa Pendidikan Juara',
             slug: 'beasiswa-pendidikan-juara',
             pillar: 'Berkah Juara',
+            kategori_pilar: 'Pendidikan',
             category: 'Pendidikan & Beasiswa',
             target: 'Rp 25.000.000',
             targetAmount: 25000000,
@@ -4015,6 +4113,7 @@
             title: 'Beasiswa Tahfidz & Dhuafa',
             slug: 'beasiswa-tahfidz-dan-dhuafa',
             pillar: 'Berkah Juara',
+            kategori_pilar: 'Pendidikan',
             category: 'Pendidikan & Beasiswa',
             target: 'Rp 35.000.000',
             targetAmount: 35000000,
@@ -4030,6 +4129,7 @@
             title: 'Perlengkapan Belajar Yatim',
             slug: 'perlengkapan-belajar-yatim',
             pillar: 'Berkah Juara',
+            kategori_pilar: 'Pendidikan',
             category: 'Pendidikan & Beasiswa',
             target: 'Rp 15.000.000',
             targetAmount: 15000000,
@@ -4047,6 +4147,7 @@
             title: 'Khitanan Massal Dhuafa',
             slug: 'khitanan-massal-dhuafa',
             pillar: 'Berkah Sehat',
+            kategori_pilar: 'Kesehatan',
             category: 'Kesehatan Masyarakat',
             target: 'Rp 20.000.000',
             targetAmount: 20000000,
@@ -4062,6 +4163,7 @@
             title: 'Layanan Pengobatan Gratis',
             slug: 'layanan-pengobatan-gratis',
             pillar: 'Berkah Sehat',
+            kategori_pilar: 'Kesehatan',
             category: 'Kesehatan Masyarakat',
             target: 'Rp 25.000.000',
             targetAmount: 25000000,
@@ -4077,6 +4179,7 @@
             title: 'Ambulance Gratis Ummat',
             slug: 'ambulance-gratis-ummat',
             pillar: 'Berkah Sehat',
+            kategori_pilar: 'Kesehatan',
             category: 'Kesehatan Masyarakat',
             target: 'Rp 150.000.000',
             targetAmount: 150000000,
@@ -4094,6 +4197,7 @@
             title: 'Modal Usaha Dhuafa',
             slug: 'modal-usaha-dhuafa',
             pillar: 'Berkah Mandiri',
+            kategori_pilar: 'Ekonomi',
             category: 'Ekonomi & Pemberdayaan',
             target: 'Rp 25.000.000',
             targetAmount: 25000000,
@@ -4109,6 +4213,7 @@
             title: 'Pelatihan Keterampilan Wirausaha',
             slug: 'pelatihan-keterampilan-wirausaha',
             pillar: 'Berkah Mandiri',
+            kategori_pilar: 'Ekonomi',
             category: 'Ekonomi & Pemberdayaan',
             target: 'Rp 15.000.000',
             targetAmount: 15000000,
@@ -4137,6 +4242,14 @@
                     }
                 });
 
+                // Auto-sync kategori_pilar on all program objects
+                raw.forEach(p => {
+                    if (p && (!p.kategori_pilar || p.kategori_pilar === '-')) {
+                        p.kategori_pilar = mapPillarToKategori(p.pillar || p.category);
+                        modified = true;
+                    }
+                });
+
                 // Auto-sync Keberangkatan Kepulangan Dai description
                 const daiProg = raw.find(r => r && (r.id === 'prog-dai-pelosok' || (r.title && isProgramMatching(r.title, 'Keberangkatan Kepulangan Dai'))));
                 if (daiProg && daiProg.description && daiProg.description.includes('pulau-pulau terpencil')) {
@@ -4157,6 +4270,10 @@
             }
             return raw
                 .filter(p => p && p.id && !deletedSet.has(String(p.id)) && p.status !== 'deleted' && !p.isDeleted)
+                .map(p => ({
+                    ...p,
+                    kategori_pilar: p.kategori_pilar || mapPillarToKategori(p.pillar || p.category)
+                }))
                 .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
         },
 
@@ -4202,6 +4319,7 @@
             if (!cleanTitle) throw new Error('Judul program wajib diisi!');
 
             const pillar = progData.pillar || 'Berkah Peduli';
+            const kategoriPilar = progData.kategori_pilar || mapPillarToKategori(pillar);
             const cleanSlug = cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-');
             const authorName = (progData.author || sessionStorage.getItem('wiz_admin_name') || 'Admin WIZ Babel').trim();
 
@@ -4210,6 +4328,7 @@
                 title: cleanTitle,
                 slug: cleanSlug,
                 pillar: pillar,
+                kategori_pilar: kategoriPilar,
                 category: progData.category || mapProgramToPillar(cleanTitle, pillar) || 'Sosial & Kemanusiaan',
                 target: progData.target || 'Rp 15.000.000',
                 targetAmount: Number(String(progData.target || '').replace(/[^0-9]/g, '')) || 15000000,
@@ -4231,7 +4350,7 @@
                 await allocationRulesManager.addOrUpdateSpecificProgram(pillar, cleanTitle, newProgram.imageUrl);
             }
 
-            activityLog.add('system_config', `Program "${cleanTitle}" (${pillar}) disimpan dengan status: ${newProgram.status === 'published' ? 'Dipublikasikan' : 'Draft'}.`, authorName);
+            activityLog.add('system_config', `Program "${cleanTitle}" (${pillar} / ${kategoriPilar}) disimpan dengan status: ${newProgram.status === 'published' ? 'Dipublikasikan' : 'Draft'}.`, authorName);
 
             window.dispatchEvent(new CustomEvent('wiz-programs-changed', { detail: newProgram }));
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
@@ -4256,6 +4375,10 @@
                 ...updates,
                 updatedAt: new Date().toISOString()
             };
+
+            if (updates.pillar && !updates.kategori_pilar) {
+                updated.kategori_pilar = mapPillarToKategori(updates.pillar);
+            }
 
             if (updates.title) {
                 updated.slug = updates.title.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-');
@@ -4329,6 +4452,15 @@
             const raw = getStore(STORAGE_KEYS.DISBURSEMENTS) || [];
             return raw
                 .filter(d => d && d.id && !deletedSet.has(String(d.id)) && d.status !== 'deleted' && !d.isDeleted)
+                .map(d => {
+                    const pillar = d.pillar || mapProgramToPillar(d.program) || 'Berkah Hidayah';
+                    const kategoriPilar = d.kategori_pilar || mapPillarToKategori(pillar);
+                    return {
+                        ...d,
+                        pillar: pillar,
+                        kategori_pilar: kategoriPilar
+                    };
+                })
                 .sort((a, b) => new Date(b.disbursedAt) - new Date(a.disbursedAt));
         },
 
@@ -4340,12 +4472,16 @@
             const list = this.getAll();
             const sType = data.sourceType || (data.program && (data.program.toLowerCase().includes('global') || data.program.toLowerCase().includes('alih fungsi')) ? 'infak_umum' : 'program_spesifik');
             const tType = data.targetType || (data.program && (data.program.toLowerCase().includes('global') || data.program.toLowerCase().includes('alih fungsi')) ? 'global' : 'specific');
+            const pillar = data.pillar || mapProgramToPillar(data.program) || 'Berkah Hidayah';
+            const kategoriPilar = data.kategori_pilar || mapPillarToKategori(pillar);
 
             const newDisb = {
                 id: data.id || generateId(),
                 wilayah: data.wilayah || 'Pangkalpinang',
                 sourceType: sType,
                 targetType: tType,
+                pillar: pillar,
+                kategori_pilar: kategoriPilar,
                 program: data.program || 'Infak Umum (Alih Fungsi Dana)',
                 amount: Number(data.amount) || 0,
                 description: data.description || '',
@@ -4356,7 +4492,7 @@
             list.unshift(newDisb);
             setStore(STORAGE_KEYS.DISBURSEMENTS, list);
 
-            const sourceLabel = (sType === 'infak_umum') ? (tType === 'global' ? 'Infak Umum (Alih Fungsi)' : 'Infak Umum [Spesifik]') : 'Dana Spesifik';
+            const sourceLabel = (sType === 'infak_umum') ? (tType === 'global' ? `Infak Umum [Alih Fungsi ${kategoriPilar}]` : `Infak Umum [Spesifik ${kategoriPilar}]`) : 'Dana Spesifik';
             activityLog.add('disbursement', `Penyaluran dana ${formatRupiahCompact(newDisb.amount)} (${newDisb.wilayah}) [${sourceLabel}] untuk "${newDisb.program}" dicatat.`, newDisb.recordedBy);
 
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
@@ -4389,12 +4525,17 @@
 
             const sType = updates.sourceType || list[idx].sourceType || (updates.program && (updates.program.toLowerCase().includes('global') || updates.program.toLowerCase().includes('alih fungsi')) ? 'infak_umum' : 'program_spesifik');
             const tType = updates.targetType || list[idx].targetType || (updates.program && (updates.program.toLowerCase().includes('global') || updates.program.toLowerCase().includes('alih fungsi')) ? 'global' : 'specific');
+            const prog = updates.program || list[idx].program;
+            const pillar = updates.pillar || list[idx].pillar || mapProgramToPillar(prog) || 'Berkah Hidayah';
+            const kategoriPilar = updates.kategori_pilar || list[idx].kategori_pilar || mapPillarToKategori(pillar);
 
             list[idx] = { 
                 ...list[idx], 
                 ...updates, 
                 sourceType: sType,
                 targetType: tType,
+                pillar: pillar,
+                kategori_pilar: kategoriPilar,
                 amount: Number(updates.amount) || list[idx].amount, 
                 updatedAt: new Date().toISOString() 
             };
@@ -4545,6 +4686,12 @@
             const disbList = disbursements.getAll();
             const pName = String(programName || '').trim();
 
+            const progObj = (typeof programs !== 'undefined' && programs.getProgramDetails) 
+                ? programs.getProgramDetails(pName) 
+                : null;
+            const progPillar = (progObj && progObj.pillar) ? progObj.pillar : mapProgramToPillar(pName);
+            const kategoriPilar = (progObj && progObj.kategori_pilar) ? progObj.kategori_pilar : mapPillarToKategori(progPillar);
+
             let infakTerikatMasuk = 0;
             let infakUmumMasuk = 0;
 
@@ -4556,11 +4703,10 @@
 
                 if (d.type === 'Infak Umum') {
                     if (wRules && wRules.mainAllocation) {
-                        const pillar = mapProgramToPillar(pName);
-                        const mainItem = wRules.mainAllocation.find(i => i.key === pillar);
+                        const mainItem = wRules.mainAllocation.find(i => i.key === progPillar);
                         if (mainItem) {
                             const pillarAmount = (Number(d.amount) || 0) * (mainItem.percent / 100);
-                            const subRule = wRules.subAllocation && wRules.subAllocation[pillar];
+                            const subRule = wRules.subAllocation && wRules.subAllocation[progPillar];
                             if (subRule && subRule.items && subRule.items.length > 0) {
                                 const subItem = subRule.items.find(si => isProgramMatching(si.key, pName));
                                 if (subItem) {
@@ -4568,7 +4714,7 @@
                                     return;
                                 }
                             }
-                            if (isProgramMatching(pillar, pName)) {
+                            if (isProgramMatching(progPillar, pName)) {
                                 infakUmumMasuk += pillarAmount;
                             }
                         }
@@ -4593,18 +4739,26 @@
                 const tType = db.targetType || (db.program && (db.program.toLowerCase().includes('global') || db.program.toLowerCase().includes('alih fungsi')) ? 'global' : 'specific');
                 const dbAmount = Number(db.amount) || 0;
 
-                // 1. Skenario Langsung / Spesifik
+                // 1. Skenario Penyaluran Langsung / Spesifik Program
                 if (sType === 'program_spesifik' || tType === 'specific') {
                     const dbProg = db.program || db.programSpesifik || '';
                     if (dbProg && isProgramMatching(dbProg, pName)) {
                         spesifikSalur += dbAmount;
                     }
                 } else if (sType === 'infak_umum' && tType === 'global') {
-                    // 2. Skenario Infak Umum (Alih Fungsi Dana): Reduksi Proporsional HANYA pada porsi Infak Umum
-                    // PERINGATAN 2 (Pengecualian Program Prioritas): "Pembangunan Markaz" TERKUNCI (LOCKED).
+                    // 2. Skenario Infak Umum (Alih Fungsi Dana): RING-FENCING INTRA-PILAR
+                    // Dana Infak Umum HANYA bisa disubsidi-silangkan (Alih Fungsi) antar-program di dalam PILAR YANG SAMA!
+                    const dbPillar = db.pillar || mapProgramToPillar(db.program, db.category);
+                    
+                    // JIKA PILAR BERBEDA: 100% Ring-Fenced (Zero Leakage) - TIDAK BOLEH memotong pilar ini!
+                    if (dbPillar !== progPillar) {
+                        return;
+                    }
+
+                    // Pengecualian Program Prioritas: "Pembangunan Markaz" TERKUNCI (LOCKED).
                     // Porsi Infak Umum yang dialokasikan ke Pembangunan Markaz TIDAK BOLEH dikurangi atau diganggu gugat!
                     if (isLockedPriorityProgram(pName)) {
-                        return; // Pembangunan Markaz dilindungi 100%, skip pemotongan alih fungsi!
+                        return;
                     }
 
                     const dbWilayah = db.wilayah || 'Pangkalpinang';
@@ -4612,51 +4766,55 @@
                         ? (allocationRulesManager.get(dbWilayah) || ALLOCATION_RULES[dbWilayah])
                         : ALLOCATION_RULES[dbWilayah];
 
-                    if (wRules && wRules.mainAllocation) {
-                        const pillar = mapProgramToPillar(pName);
-                        const mainItem = wRules.mainAllocation.find(i => i.key === pillar);
-                        if (mainItem) {
-                            const pillarDisb = dbAmount * (mainItem.percent / 100);
-                            const subRule = wRules.subAllocation && wRules.subAllocation[pillar];
-                            if (subRule && subRule.items && subRule.items.length > 0) {
-                                const subItem = subRule.items.find(si => isProgramMatching(si.key, pName));
-                                if (subItem) {
-                                    infakUmumAlihFungsiSalur += (pillarDisb * (subItem.percent / 100));
-                                    return;
-                                }
+                    const subRule = wRules && wRules.subAllocation && wRules.subAllocation[progPillar];
+                    if (subRule && subRule.items && subRule.items.length > 0) {
+                        const subItem = subRule.items.find(si => isProgramMatching(si.key, pName));
+                        if (subItem) {
+                            // Hitung bobot proporsional di dalam pilar yang sama
+                            let subWeight = (Number(subItem.percent) || 0) / 100;
+                            // Jika di Berkah Hidayah, kecualikan porsi Markaz yang terkunci
+                            if (progPillar === 'Berkah Hidayah') {
+                                const markazSub = subRule.items.find(si => isLockedPriorityProgram(si.key));
+                                const markazPct = markazSub ? ((Number(markazSub.percent) || 0) / 100) : 0.05;
+                                subWeight = subWeight / (1 - markazPct || 0.95);
                             }
-                            if (isProgramMatching(pillar, pName)) {
-                                infakUmumAlihFungsiSalur += pillarDisb;
-                            }
+                            infakUmumAlihFungsiSalur += (dbAmount * subWeight);
+                            return;
                         }
+                    }
+                    if (isProgramMatching(progPillar, pName)) {
+                        infakUmumAlihFungsiSalur += dbAmount;
                     }
                 }
             });
 
             const base = Number(defaultBase) || 0;
-            const target = Number(defaultTarget) || 50000000;
+            const target = Number(defaultTarget) || (progObj ? progObj.targetAmount : 50000000) || 50000000;
             const totalMasuk = base + infakTerikatMasuk + infakUmumMasuk;
             const totalSalur = infakUmumAlihFungsiSalur + spesifikSalur;
 
             // Proteksi Mutlak: Alih Fungsi Infak Umum HANYA mengurangi porsi Infak Umum, TIDAK BOLEH memotong Infak Terikat
-            // Rumus Total Terkumpul = (Total Donasi Spesifik Program) + (Total Porsi Infak Umum Bersih) - (Pengeluaran Spesifik Program)
+            // Rumus Total Terkumpul = (Total Donasi Spesifik Program) + (Alokasi Infak Umum untuk Program) - (Pengeluaran Spesifik Program)
             const infakUmumBersih = Math.max(0, infakUmumMasuk - infakUmumAlihFungsiSalur);
             const saldoAktual = Math.max(0, base + infakTerikatMasuk + infakUmumBersih - spesifikSalur);
             
-            // Progress Bar (%) dihitung dari Saldo Terkumpul Bersih dibagi Target Dana
+            // Progress Bar (%) dihitung dari Total Terkumpul Bersih dibagi Target Dana
             const percent = target > 0 ? Math.min(100, Math.max(0, Math.round((saldoAktual / target) * 100))) : 0;
 
             return {
-                terkumpul: saldoAktual, // Saldo Aktual Tersedia yang tampil di UI kartu
+                terkumpul: saldoAktual, // Total Terkumpul Bersih yang tampil di UI kartu
                 totalMasuk: totalMasuk, // Akumulasi kotor dana masuk (Terikat + Umum)
                 masuk: totalMasuk,
-                tersalurkan: totalSalur, // Dana terpakai / disalurkan (Alih Fungsi + Spesifik)
-                saldo: saldoAktual,     // Saldo sisa
+                tersalurkan: totalSalur, // Dana terpakai / disalurkan
+                saldo: saldoAktual,     // Saldo aktual
                 target: target,
                 percent: isNaN(percent) ? 0 : percent,
                 infakTerikat: infakTerikatMasuk,
                 infakUmumMasuk: infakUmumMasuk,
                 infakUmumBersih: infakUmumBersih,
+                spesifikSalur: spesifikSalur,
+                pillar: progPillar,
+                kategori_pilar: kategoriPilar,
                 isPriorityLocked: isLockedPriorityProgram(pName)
             };
         },
@@ -4718,27 +4876,13 @@
                 const dbAmount = Number(db.amount) || 0;
 
                 if (sType === 'infak_umum' && tType === 'global') {
-                    const dbWilayah = db.wilayah || 'Pangkalpinang';
-                    const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get)
-                        ? (allocationRulesManager.get(dbWilayah) || ALLOCATION_RULES[dbWilayah])
-                        : ALLOCATION_RULES[dbWilayah];
-
-                    if (wRules && wRules.mainAllocation) {
-                        wRules.mainAllocation.forEach(item => {
-                            if (dynamicSalurAlihFungsi[item.key] !== undefined) {
-                                let share = item.percent / 100;
-                                // Khusus Berkah Hidayah: Lindungi porsi Pembangunan Markaz dari Alih Fungsi
-                                if (item.key === 'Berkah Hidayah' && wRules.subAllocation && wRules.subAllocation['Berkah Hidayah']) {
-                                    const markazSub = (wRules.subAllocation['Berkah Hidayah'].items || []).find(si => isLockedPriorityProgram(si.key));
-                                    const markazPercent = markazSub ? (markazSub.percent / 100) : 0.05;
-                                    share = share * (1 - markazPercent);
-                                }
-                                dynamicSalurAlihFungsi[item.key] += dbAmount * share;
-                            }
-                        });
+                    // Ring-Fencing Intra-Pilar: HANYA mengurangi pilar sasaran alih fungsi!
+                    const targetPillar = db.pillar || mapProgramToPillar(db.program, db.category);
+                    if (dynamicSalurAlihFungsi[targetPillar] !== undefined) {
+                        dynamicSalurAlihFungsi[targetPillar] += dbAmount;
                     }
                 } else {
-                    const pillar = mapProgramToPillar(db.program);
+                    const pillar = db.pillar || mapProgramToPillar(db.program, db.category);
                     if (dynamicSalurSpesifik[pillar] !== undefined) {
                         dynamicSalurSpesifik[pillar] += dbAmount;
                     }
@@ -5806,7 +5950,7 @@
         pushToCloud,
         fullBidirectionalSync,
         broadcastSync,
-        utils: { formatRupiahCompact, formatDate, formatDateTime, timeAgo, generateId, mapProgramToPillar, escapeHtml, isLockedPriorityProgram, normalizeProgramKey, isProgramMatching }
+        utils: { formatRupiahCompact, formatDate, formatDateTime, timeAgo, generateId, mapProgramToPillar, mapPillarToKategori, mapKategoriToPillar, getProgramPillarKey, getProgramKategoriPilar, escapeHtml, isLockedPriorityProgram, normalizeProgramKey, isProgramMatching }
     };
 
     console.log('[WIZ Store] Initialized with real-time cloud sync & 10s auto-polling. Collections ready.');
