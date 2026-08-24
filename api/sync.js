@@ -351,42 +351,50 @@ module.exports = async function handler(req, res) {
                 master.admin_users = mergeArrays(master.admin_users, incoming.admin_users, deletedAdminIds);
             }
 
+            const syncTasks = [];
+
             if (Array.isArray(master.quotes)) {
-                fetch(`${SUPABASE_URL}/site_settings`, {
-                    method: 'POST',
-                    headers: supabaseHeaders,
-                    body: JSON.stringify({
-                        key: 'quotes',
-                        value: master.quotes,
-                        updated_at: new Date().toISOString()
-                    })
-                }).catch(() => {});
+                syncTasks.push(
+                    fetch(`${SUPABASE_URL}/site_settings`, {
+                        method: 'POST',
+                        headers: supabaseHeaders,
+                        body: JSON.stringify({
+                            key: 'quotes',
+                            value: master.quotes,
+                            updated_at: new Date().toISOString()
+                        })
+                    }).catch(e => console.error('[Supabase Sync quotes error]', e))
+                );
             }
 
             if (incoming.site_images && typeof incoming.site_images === 'object') {
                 master.site_images = { ...(master.site_images || {}), ...incoming.site_images };
-                fetch(`${SUPABASE_URL}/site_settings`, {
-                    method: 'POST',
-                    headers: supabaseHeaders,
-                    body: JSON.stringify({
-                        key: 'site_images',
-                        value: master.site_images,
-                        updated_at: new Date().toISOString()
-                    })
-                }).catch(() => {});
+                syncTasks.push(
+                    fetch(`${SUPABASE_URL}/site_settings`, {
+                        method: 'POST',
+                        headers: supabaseHeaders,
+                        body: JSON.stringify({
+                            key: 'site_images',
+                            value: master.site_images,
+                            updated_at: new Date().toISOString()
+                        })
+                    }).catch(e => console.error('[Supabase Sync site_images error]', e))
+                );
             }
 
             if (incoming.site_settings && typeof incoming.site_settings === 'object') {
                 master.site_settings = { ...(master.site_settings || {}), ...incoming.site_settings };
-                fetch(`${SUPABASE_URL}/site_settings`, {
-                    method: 'POST',
-                    headers: supabaseHeaders,
-                    body: JSON.stringify({
-                        key: 'site_settings',
-                        value: master.site_settings,
-                        updated_at: new Date().toISOString()
-                    })
-                }).catch(() => {});
+                syncTasks.push(
+                    fetch(`${SUPABASE_URL}/site_settings`, {
+                        method: 'POST',
+                        headers: supabaseHeaders,
+                        body: JSON.stringify({
+                            key: 'site_settings',
+                            value: master.site_settings,
+                            updated_at: new Date().toISOString()
+                        })
+                    }).catch(e => console.error('[Supabase Sync site_settings error]', e))
+                );
             }
 
             if (incoming.allocation_rules && typeof incoming.allocation_rules === 'object')
@@ -397,15 +405,21 @@ module.exports = async function handler(req, res) {
                 master.custom_specific_programs = { ...(master.custom_specific_programs || {}), ...incoming.custom_specific_programs };
             if (incoming.specific_prog_imgs && typeof incoming.specific_prog_imgs === 'object') {
                 master.specific_prog_imgs = { ...(master.specific_prog_imgs || {}), ...incoming.specific_prog_imgs };
-                fetch(`${SUPABASE_URL}/site_settings`, {
-                    method: 'POST',
-                    headers: supabaseHeaders,
-                    body: JSON.stringify({
-                        key: 'specific_prog_imgs',
-                        value: master.specific_prog_imgs,
-                        updated_at: new Date().toISOString()
-                    })
-                }).catch(() => {});
+                syncTasks.push(
+                    fetch(`${SUPABASE_URL}/site_settings`, {
+                        method: 'POST',
+                        headers: supabaseHeaders,
+                        body: JSON.stringify({
+                            key: 'specific_prog_imgs',
+                            value: master.specific_prog_imgs,
+                            updated_at: new Date().toISOString()
+                        })
+                    }).catch(e => console.error('[Supabase Sync specific_prog_imgs error]', e))
+                );
+            }
+
+            if (syncTasks.length > 0) {
+                await Promise.allSettled(syncTasks);
             }
 
             master.deleted_ids         = Array.from(new Set([...(master.deleted_ids || []),         ...deletedIds]));

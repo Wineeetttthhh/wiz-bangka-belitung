@@ -7197,8 +7197,8 @@
                         <div class="flex items-start gap-3 max-w-xl">
                             ${q.imageUrl ? `<img src="${q.imageUrl}" class="w-12 h-12 rounded-lg object-cover border border-outline-variant/40 shrink-0" onerror="this.style.display='none'">` : ''}
                             <div>
-                                <p class="font-body-md text-on-surface text-xs italic font-serif leading-relaxed line-clamp-2">"${q.text}"</p>
-                                <p class="font-bold text-primary text-[11px] mt-1">— ${q.source}</p>
+                                <p class="font-body-md text-on-surface text-xs italic font-serif leading-relaxed line-clamp-2">${q.text && q.text.trim() ? `"${q.text}"` : '<span class="text-on-surface-variant/70 italic font-sans">(Flyer poster dakwah)</span>'}</p>
+                                <p class="font-bold text-primary text-[11px] mt-1">— ${q.source || 'Wahdah Inspirasi Zakat'}</p>
                             </div>
                         </div>
                     </td>
@@ -7346,11 +7346,24 @@
 
                 const chosenImg = (imgEl?.value || '').trim() || 'assets/images/foto-utama-wiz.jpg';
                 const todayStr = new Date().toISOString().split('T')[0];
+                const rawDate = (dateEl?.value || '').trim() || todayStr;
+
+                let cleanDate = todayStr;
+                if (/^\d{4}-\d{2}-\d{2}$/.test(rawDate)) {
+                    cleanDate = rawDate;
+                } else if (/^\d{2}\/\d{2}\/\d{4}$/.test(rawDate)) {
+                    const parts = rawDate.split('/');
+                    cleanDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                } else if (/^\d{2}-\d{2}-\d{4}$/.test(rawDate)) {
+                    const parts = rawDate.split('-');
+                    cleanDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                }
+
                 const data = {
                     text: (textEl?.value || '').trim(),
-                    source: (sourceEl?.value || '').trim() || 'Inspirasi WIZ',
+                    source: (sourceEl?.value || '').trim() || 'Wahdah Inspirasi Zakat',
                     category: categoryEl?.value || 'Motivasi & Doa',
-                    date: (dateEl?.value || '').trim() || todayStr,
+                    date: cleanDate,
                     status: statusEl?.value || 'active',
                     imageUrl: chosenImg,
                     author: (typeof ADMIN_NAME !== 'undefined' && ADMIN_NAME) ? ADMIN_NAME : (sessionStorage.getItem('wiz_admin_name') || 'Admin WIZ Babel')
@@ -7375,7 +7388,9 @@
                 if (typeof renderQuotesSection === 'function') {
                     renderQuotesSection();
                 }
-                refreshAll();
+                if (typeof refreshAll === 'function') {
+                    refreshAll();
+                }
             } catch(err) {
                 console.error('[handleQuoteSave Error]', err);
                 showNotification('❌ Terjadi kesalahan saat menyimpan: ' + err.message, 'error');
