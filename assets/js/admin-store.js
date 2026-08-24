@@ -498,15 +498,14 @@
             // Sub-alokasi per program utama
             subAllocation: {
                 'Berkah Hidayah': {
-                    // PERINGATAN: Total = 105% — INVALID
                     items: [
                         { key: 'Pembangunan Markaz', percent: 5 },
-                        { key: 'Pengadaan dan Perbaikan Kendaraan', percent: 10 },
+                        { key: 'Pengadaan dan perbaikan kendaraan', percent: 10 },
                         { key: 'Santunan Mualaf', percent: 5 },
-                        { key: 'Pengadaan Celengan Besar', percent: 10 },
+                        { key: 'Pengadaan celengan Besar', percent: 10 },
                         { key: 'Tahfidz', percent: 5 },
                         { key: 'Pelatihan Public Speaking', percent: 5 },
-                        { key: 'Tabligh Akbar Dzulhijjah', percent: 5 },
+                        { key: 'Tabligh Akbar Dzhulhijjah', percent: 5 },
                         { key: 'Pelatihan Guru Dirosa', percent: 5 },
                         { key: 'Pelatihan Penyelenggaraan Jenazah', percent: 5 },
                         { key: 'Pelatihan Volunteer Media Dakwah', percent: 5 },
@@ -515,7 +514,7 @@
                         { key: 'Mukerwil/Mukernas/Muktamar', percent: 10 },
                         { key: 'Keberangkatan dan Kepulangan Dai', percent: 10 }
                     ]
-                    // Total = 105% → INVALID (jangan normalisasi, tampilkan apa adanya)
+                    // Total = 100% → VALID (Khusus Pangkalpinang)
                 },
                 'Berkah Juara': {
                     items: [
@@ -1226,8 +1225,47 @@
             if (!saved) {
                 saved = JSON.parse(JSON.stringify(ALLOCATION_RULES));
             }
-            // Normalize Berkah Juara subAllocation across all branches
             let modified = false;
+
+            // 1. Normalisasi Sub-Alokasi Berkah Hidayah KHUSUS Pangkalpinang (14 item tepat 100%, hapus duplikat 0%)
+            const targetPangkalpinangHidayah = [
+                { key: 'Pembangunan Markaz', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
+                { key: 'Pengadaan dan perbaikan kendaraan', percent: 10, image: 'assets/images/default-program-wiz.jpg' },
+                { key: 'Santunan Mualaf', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
+                { key: 'Pengadaan celengan Besar', percent: 10, image: 'assets/images/default-program-wiz.jpg' },
+                { key: 'Tahfidz', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
+                { key: 'Pelatihan Public Speaking', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
+                { key: 'Tabligh Akbar Dzhulhijjah', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
+                { key: 'Pelatihan Guru Dirosa', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
+                { key: 'Pelatihan Penyelenggaraan Jenazah', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
+                { key: 'Pelatihan Volunteer Media Dakwah', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
+                { key: 'Lomba Desain Poster Dakwah', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
+                { key: 'Kantor DPW WI Babel dan WIZ', percent: 15, image: 'assets/images/default-program-wiz.jpg' },
+                { key: 'Mukerwil/Mukernas/Muktamar', percent: 10, image: 'assets/images/default-program-wiz.jpg' },
+                { key: 'Keberangkatan dan Kepulangan Dai', percent: 10, image: 'assets/images/default-program-wiz.jpg' }
+            ];
+
+            if (saved['Pangkalpinang']) {
+                if (!saved['Pangkalpinang'].subAllocation) saved['Pangkalpinang'].subAllocation = {};
+                const currentH = saved['Pangkalpinang'].subAllocation['Berkah Hidayah'];
+                let needsUpdate = false;
+                if (!currentH || !Array.isArray(currentH.items) || currentH.items.length !== targetPangkalpinangHidayah.length) {
+                    needsUpdate = true;
+                } else {
+                    for (let i = 0; i < targetPangkalpinangHidayah.length; i++) {
+                        if (currentH.items[i].key !== targetPangkalpinangHidayah[i].key || currentH.items[i].percent !== targetPangkalpinangHidayah[i].percent) {
+                            needsUpdate = true;
+                            break;
+                        }
+                    }
+                }
+                if (needsUpdate) {
+                    saved['Pangkalpinang'].subAllocation['Berkah Hidayah'] = { items: targetPangkalpinangHidayah };
+                    modified = true;
+                }
+            }
+
+            // 2. Normalize Berkah Juara subAllocation across all branches
             for (const [w, wData] of Object.entries(saved)) {
                 if (wData && wData.subAllocation && wData.subAllocation['Berkah Juara']) {
                     const subJuara = wData.subAllocation['Berkah Juara'];
