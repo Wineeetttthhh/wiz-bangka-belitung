@@ -1662,54 +1662,42 @@
                         <option value="Sungailiat">Sungailiat</option>
                     </select>
                 </div>
+
+                <!-- 1. Sumber Dana Keluar (Infak Umum / Dana Spesifik) -->
                 <div>
-                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Pilih Program
-                        Spesifik *</label>
-                    <select id="disb-program" required
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Sumber Dana Keluar *</label>
+                    <select id="disb-source-type" required onchange="handleDisbSourceChange(this.value)"
+                        class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none text-sm font-bold text-primary">
+                        <option value="infak_umum">🟢 Infak Umum (Dana Bersama / Operasional)</option>
+                        <option value="program_spesifik">🔵 Dana Spesifik Program (Infak Terikat)</option>
+                    </select>
+                </div>
+
+                <!-- 2. Tujuan Pengeluaran (Jika Infak Umum: Global vs Spesifik) -->
+                <div id="disb-target-type-container">
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Tujuan Alokasi Pengeluaran *</label>
+                    <select id="disb-target-type" onchange="handleDisbTargetChange(this.value)"
+                        class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none text-sm font-semibold">
+                        <option value="global">🌐 Global (Pengurang Seluruh Program / Beban Bersama)</option>
+                        <option value="specific">📌 Program Spesifik Tertentu (Pilih Program)</option>
+                    </select>
+                </div>
+
+                <!-- Banner Keterangan Alokasi Global -->
+                <div id="disb-global-info-banner" class="bg-primary/5 border border-primary/20 rounded-xl p-3.5 flex items-start gap-2.5 text-xs text-on-surface">
+                    <span class="material-symbols-outlined text-primary text-base shrink-0 mt-0.5">info</span>
+                    <div>
+                        <p class="font-bold text-primary mb-0.5">Pengurangan Saldo Global (Proporsional)</p>
+                        <p class="text-on-surface-variant leading-relaxed">Pengeluaran ini akan mengurangi saldo kas Infak Umum dan memotong alokasi seluruh program/pilar secara proporsional sesuai aturan persentase wilayah.</p>
+                    </div>
+                </div>
+
+                <!-- 3. Pilih Program Spesifik (Muncul jika Specific atau Dana Spesifik) -->
+                <div id="disb-program-container" class="hidden">
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Pilih Program Spesifik *</label>
+                    <select id="disb-program"
                         class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none text-sm">
                         <option value="">-- Pilih Program Spesifik Penyaluran --</option>
-
-                        <optgroup label="🕌 BERKAH HIDAYAH (Dakwah &amp; Pembinaan)">
-                            <option value="Pembangunan Markaz">Pembangunan Markaz</option>
-                            <option value="Pengadaan dan Perbaikan Kendaraan">Pengadaan dan Perbaikan Kendaraan</option>
-                            <option value="Santunan Mualaf">Santunan Mualaf</option>
-                            <option value="Pengadaan Celengan Besar">Pengadaan Celengan Besar</option>
-                            <option value="Tahfidz">Tahfidz</option>
-                            <option value="Pelatihan Public Speaking">Pelatihan Public Speaking</option>
-                            <option value="Tabligh Akbar Dzulhijjah">Tabligh Akbar Dzulhijjah</option>
-                            <option value="Pelatihan Guru Dirosa">Pelatihan Guru Dirosa</option>
-                            <option value="Pelatihan Penyelenggaraan Jenazah">Pelatihan Penyelenggaraan Jenazah</option>
-                            <option value="Pelatihan Volunteer Media Dakwah">Pelatihan Volunteer Media Dakwah</option>
-                            <option value="Lomba Desain Poster Dakwah">Lomba Desain Poster Dakwah</option>
-                            <option value="Kantor DPW WI Babel dan WIZ">Kantor DPW WI Babel dan WIZ</option>
-                            <option value="Mukerwil/Mukernas/Muktamar">Mukerwil/Mukernas/Muktamar</option>
-                            <option value="Keberangkatan dan Kepulangan Dai">Keberangkatan dan Kepulangan Dai</option>
-                        </optgroup>
-
-                        <optgroup label="🤝 BERKAH PEDULI (Sosial &amp; Kemanusiaan)">
-                            <option value="Tebar Sembako">Tebar Sembako</option>
-                            <option value="Sedekah Beras Dhuafa">Sedekah Beras Dhuafa</option>
-                            <option value="Sedekah Jumat">Sedekah Jumat</option>
-                            <option value="Santunan Yatim">Santunan Yatim</option>
-                            <option value="Tebar Qur'an Nusantara">Tebar Qur'an Nusantara</option>
-                            <option value="Bahagiakan Guru Ngaji">Bahagiakan Guru Ngaji</option>
-                            <option value="Sedekah Air">Sedekah Air</option>
-                        </optgroup>
-
-                        <optgroup label="🎓 BERKAH JUARA (Pendidikan)">
-                            <option value="Beasiswa Pendidikan Juara">Beasiswa Pendidikan Juara</option>
-                            <option value="Perlengkapan Belajar Yatim">Perlengkapan Belajar Yatim</option>
-                        </optgroup>
-
-                        <optgroup label="🏥 BERKAH SEHAT (Kesehatan)">
-                            <option value="Khitanan Massal">Khitanan Massal</option>
-                            <option value="Layanan Pengobatan Gratis">Layanan Pengobatan Gratis</option>
-                            <option value="Layanan Ambulance Ummat">Layanan Ambulance Ummat</option>
-                        </optgroup>
-
-                        <optgroup label="🏬 BERKAH MANDIRI (Ekonomi &amp; Pemberdayaan)">
-                            <option value="Bantuan Usaha Mikro">Bantuan Usaha Mikro</option>
-                        </optgroup>
                     </select>
                 </div>
                 <div>
@@ -4769,31 +4757,89 @@
                 return;
             }
 
-            const rows = list.map(d => `
-            <tr class="hover:bg-surface-container-low transition-colors">
-                <td class="p-md text-on-surface-variant whitespace-nowrap">${wizStore.utils.formatDate(d.disbursedAt)}</td>
-                <td class="p-md text-center"><span class="px-2 py-0.5 text-xs font-bold rounded bg-emerald-100 text-emerald-800">${d.wilayah || 'Pangkalpinang'}</span></td>
-                <td class="p-md font-semibold text-on-surface">${d.program}</td>
-                <td class="p-md font-bold text-tertiary-container whitespace-nowrap">${fmt(d.amount)}</td>
-                <td class="p-md text-on-surface-variant">${d.description}</td>
-                <td class="p-md text-on-surface-variant text-caption">${d.recordedBy || 'Admin'}</td>
-                <td class="p-md text-right whitespace-nowrap">
-                    <button onclick="editDisbursement('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded border border-outline-variant text-caption font-semibold cursor-pointer">Edit</button>
-                    <button onclick="deleteDisbursement('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded border border-error/30 text-error text-caption font-semibold cursor-pointer">Hapus</button>
-                </td>
-            </tr>`).join('');
+            const rows = list.map(d => {
+                const sType = d.sourceType || (d.program && d.program.toLowerCase().includes('global') ? 'infak_umum' : 'program_spesifik');
+                const tType = d.targetType || (d.program && d.program.toLowerCase().includes('global') ? 'global' : 'specific');
+                
+                let sourceBadge = '';
+                if (sType === 'infak_umum') {
+                    if (tType === 'global') {
+                        sourceBadge = '<span class="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300/60"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Infak Umum (Global)</span>';
+                    } else {
+                        sourceBadge = '<span class="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold rounded-full bg-teal-100 text-teal-800 border border-teal-300/60"><span class="w-1.5 h-1.5 rounded-full bg-teal-600"></span> Infak Umum (Spesifik)</span>';
+                    }
+                } else {
+                    sourceBadge = '<span class="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold rounded-full bg-blue-100 text-blue-800 border border-blue-300/60"><span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span> Dana Spesifik Program</span>';
+                }
+
+                return `
+                <tr class="hover:bg-surface-container-low transition-colors">
+                    <td class="p-md text-on-surface-variant whitespace-nowrap">${wizStore.utils.formatDate(d.disbursedAt)}</td>
+                    <td class="p-md text-center"><span class="px-2 py-0.5 text-xs font-bold rounded bg-emerald-100 text-emerald-800">${d.wilayah || 'Pangkalpinang'}</span></td>
+                    <td class="p-md">
+                        <div class="font-semibold text-on-surface text-xs">${d.program || 'Global (Seluruh Program)'}</div>
+                        <div class="mt-1">${sourceBadge}</div>
+                    </td>
+                    <td class="p-md font-bold text-tertiary-container whitespace-nowrap">${fmt(d.amount)}</td>
+                    <td class="p-md text-on-surface-variant text-xs">${d.description}</td>
+                    <td class="p-md text-on-surface-variant text-caption">${d.recordedBy || 'Admin'}</td>
+                    <td class="p-md text-right whitespace-nowrap">
+                        <button onclick="editDisbursement('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded border border-outline-variant text-caption font-semibold cursor-pointer">Edit</button>
+                        <button onclick="deleteDisbursement('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded border border-error/30 text-error text-caption font-semibold cursor-pointer">Hapus</button>
+                    </td>
+                </tr>`;
+            }).join('');
 
             container.innerHTML = `<table class="w-full text-left border-collapse">
             <thead><tr class="bg-surface-container-low border-b border-outline-variant/30 font-label-md text-label-md text-on-surface-variant">
                 <th class="p-md">Tanggal</th>
                 <th class="p-md text-center">Wilayah</th>
-                <th class="p-md">Program</th>
+                <th class="p-md">Sumber &amp; Program</th>
                 <th class="p-md">Jumlah</th>
                 <th class="p-md">Keterangan</th>
                 <th class="p-md">Pencatat</th>
                 <th class="p-md text-right">Aksi</th>
             </tr></thead>
             <tbody class="font-body-md text-body-md divide-y divide-outline-variant/20">${rows}</tbody></table>`;
+        }
+
+        function handleDisbSourceChange(sourceType) {
+            const targetContainer = document.getElementById('disb-target-type-container');
+            const targetSelect = document.getElementById('disb-target-type');
+            const programContainer = document.getElementById('disb-program-container');
+            const programSelect = document.getElementById('disb-program');
+            const globalBanner = document.getElementById('disb-global-info-banner');
+
+            if (sourceType === 'infak_umum') {
+                if (targetContainer) targetContainer.classList.remove('hidden');
+                const tVal = targetSelect ? targetSelect.value : 'global';
+                handleDisbTargetChange(tVal);
+            } else {
+                // Dana Spesifik Program
+                if (targetContainer) targetContainer.classList.add('hidden');
+                if (globalBanner) globalBanner.classList.add('hidden');
+                if (programContainer) programContainer.classList.remove('hidden');
+                if (programSelect) programSelect.required = true;
+            }
+        }
+
+        function handleDisbTargetChange(targetType) {
+            const programContainer = document.getElementById('disb-program-container');
+            const programSelect = document.getElementById('disb-program');
+            const globalBanner = document.getElementById('disb-global-info-banner');
+            const sourceSelect = document.getElementById('disb-source-type');
+
+            const isInfakUmum = !sourceSelect || sourceSelect.value === 'infak_umum';
+
+            if (isInfakUmum && targetType === 'global') {
+                if (globalBanner) globalBanner.classList.remove('hidden');
+                if (programContainer) programContainer.classList.add('hidden');
+                if (programSelect) programSelect.required = false;
+            } else {
+                if (globalBanner) globalBanner.classList.add('hidden');
+                if (programContainer) programContainer.classList.remove('hidden');
+                if (programSelect) programSelect.required = true;
+            }
         }
 
         function populateDisbursementPrograms() {
@@ -4816,11 +4862,21 @@
                 });
             });
 
+            // Also load custom specific programs
+            const customPrograms = wizStore.programs ? wizStore.programs.getAll() : [];
+            customPrograms.forEach(cp => {
+                if (cp && cp.title) {
+                    const pillar = cp.pillar || wizStore.utils.mapProgramToPillar(cp.title) || 'Berkah Peduli';
+                    if (!pillarMap.has(pillar)) pillarMap.set(pillar, new Set());
+                    pillarMap.get(pillar).add(cp.title);
+                }
+            });
+
             let html = '<option value="">-- Pilih Program Spesifik --</option>';
             for (const [pillar, itemSet] of pillarMap.entries()) {
                 html += `<optgroup label="📌 ${pillar}">`;
                 for (const itemKey of itemSet) {
-                    const val = `${pillar} - ${itemKey}`;
+                    const val = `${itemKey}`;
                     html += `<option value="${val}">${pillar} — ${itemKey}</option>`;
                 }
                 html += `</optgroup>`;
@@ -4832,6 +4888,7 @@
             populateDisbursementPrograms();
             document.getElementById('disb-edit-id').value = editId || '';
             document.getElementById('disbursement-modal-title').textContent = editId ? 'Edit Catatan Pengeluaran' : 'Catat Pengeluaran Dana Baru';
+            
             if (!editId) {
                 document.getElementById('disbursement-form').reset();
                 document.getElementById('disb-date').value = new Date().toISOString().split('T')[0];
@@ -4839,6 +4896,13 @@
                 if (document.getElementById('disb-wilayah')) {
                     document.getElementById('disb-wilayah').value = activeW !== 'Semua' ? activeW : 'Pangkalpinang';
                 }
+                if (document.getElementById('disb-source-type')) {
+                    document.getElementById('disb-source-type').value = 'infak_umum';
+                }
+                if (document.getElementById('disb-target-type')) {
+                    document.getElementById('disb-target-type').value = 'global';
+                }
+                handleDisbSourceChange('infak_umum');
             }
             showModal('disbursement-modal');
         }
@@ -4851,9 +4915,19 @@
         async function handleDisbursementSave(e) {
             e.preventDefault();
             const editId = document.getElementById('disb-edit-id').value;
+            const sourceType = document.getElementById('disb-source-type') ? document.getElementById('disb-source-type').value : 'infak_umum';
+            const targetType = document.getElementById('disb-target-type') ? document.getElementById('disb-target-type').value : 'global';
+            
+            let finalProgram = 'Global (Pengurang Seluruh Program)';
+            if (sourceType === 'program_spesifik' || targetType === 'specific') {
+                finalProgram = (document.getElementById('disb-program')?.value || '').trim() || 'Global (Pengurang Seluruh Program)';
+            }
+
             const data = {
                 wilayah: document.getElementById('disb-wilayah') ? document.getElementById('disb-wilayah').value : 'Pangkalpinang',
-                program: document.getElementById('disb-program').value,
+                sourceType: sourceType,
+                targetType: (sourceType === 'program_spesifik') ? 'specific' : targetType,
+                program: finalProgram,
                 amount: Number(document.getElementById('disb-amount').value),
                 description: document.getElementById('disb-description').value,
                 disbursedAt: document.getElementById('disb-date').value ? new Date(document.getElementById('disb-date').value).toISOString() : new Date().toISOString(),
@@ -4863,6 +4937,7 @@
             if (editId) await wizStore.disbursements.update(editId, data);
             else await wizStore.disbursements.add(data);
             closeDisbursementModal();
+            showNotification('✅ Catatan pengeluaran dana berhasil disimpan!');
             refreshAll();
         }
 
@@ -4870,8 +4945,18 @@
             populateDisbursementPrograms();
             const item = wizStore.disbursements.getById(id);
             if (!item) return;
+            
+            const sType = item.sourceType || (item.program && item.program.toLowerCase().includes('global') ? 'infak_umum' : 'program_spesifik');
+            const tType = item.targetType || (item.program && item.program.toLowerCase().includes('global') ? 'global' : 'specific');
+
             if (document.getElementById('disb-wilayah')) document.getElementById('disb-wilayah').value = item.wilayah || 'Pangkalpinang';
-            document.getElementById('disb-program').value = item.program;
+            if (document.getElementById('disb-source-type')) document.getElementById('disb-source-type').value = sType;
+            if (document.getElementById('disb-target-type')) document.getElementById('disb-target-type').value = tType;
+            
+            handleDisbSourceChange(sType);
+            if (sType === 'infak_umum') handleDisbTargetChange(tType);
+
+            if (document.getElementById('disb-program')) document.getElementById('disb-program').value = item.program;
             document.getElementById('disb-amount').value = item.amount;
             document.getElementById('disb-description').value = item.description;
             if (item.disbursedAt) document.getElementById('disb-date').value = new Date(item.disbursedAt).toISOString().split('T')[0];
@@ -4881,6 +4966,7 @@
         async function deleteDisbursement(id) {
             if (!confirm('Hapus catatan pengeluaran ini?')) return;
             await wizStore.disbursements.delete(id);
+            showNotification('ℹ️ Catatan pengeluaran berhasil dihapus.');
             refreshAll();
         }
 

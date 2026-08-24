@@ -4182,10 +4182,15 @@
 
         async add(data) {
             const list = this.getAll();
+            const sType = data.sourceType || (data.program && data.program.toLowerCase().includes('global') ? 'infak_umum' : 'program_spesifik');
+            const tType = data.targetType || (data.program && data.program.toLowerCase().includes('global') ? 'global' : 'specific');
+
             const newDisb = {
                 id: data.id || generateId(),
                 wilayah: data.wilayah || 'Pangkalpinang',
-                program: data.program,
+                sourceType: sType,
+                targetType: tType,
+                program: data.program || 'Global (Pengurang Seluruh Program)',
                 amount: Number(data.amount) || 0,
                 description: data.description || '',
                 disbursedAt: data.disbursedAt || new Date().toISOString(),
@@ -4195,13 +4200,16 @@
             list.unshift(newDisb);
             setStore(STORAGE_KEYS.DISBURSEMENTS, list);
 
-            activityLog.add('disbursement', `Penyaluran dana ${formatRupiahCompact(newDisb.amount)} (${newDisb.wilayah}) untuk "${newDisb.program}" dicatat.`, newDisb.recordedBy);
+            const sourceLabel = (sType === 'infak_umum') ? (tType === 'global' ? 'Infak Umum [Global]' : 'Infak Umum [Spesifik]') : 'Dana Spesifik';
+            activityLog.add('disbursement', `Penyaluran dana ${formatRupiahCompact(newDisb.amount)} (${newDisb.wilayah}) [${sourceLabel}] untuk "${newDisb.program}" dicatat.`, newDisb.recordedBy);
 
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                 try {
                     await window.wizSupabase.saveDisbursement({
                         id: String(newDisb.id),
                         wilayah: newDisb.wilayah,
+                        source_type: newDisb.sourceType,
+                        target_type: newDisb.targetType,
                         program: newDisb.program,
                         amount: newDisb.amount,
                         description: newDisb.description,
@@ -4223,7 +4231,17 @@
             const idx = list.findIndex(d => String(d.id) === String(id));
             if (idx === -1) return null;
 
-            list[idx] = { ...list[idx], ...updates, amount: Number(updates.amount) || list[idx].amount, updatedAt: new Date().toISOString() };
+            const sType = updates.sourceType || list[idx].sourceType || (updates.program && updates.program.toLowerCase().includes('global') ? 'infak_umum' : 'program_spesifik');
+            const tType = updates.targetType || list[idx].targetType || (updates.program && updates.program.toLowerCase().includes('global') ? 'global' : 'specific');
+
+            list[idx] = { 
+                ...list[idx], 
+                ...updates, 
+                sourceType: sType,
+                targetType: tType,
+                amount: Number(updates.amount) || list[idx].amount, 
+                updatedAt: new Date().toISOString() 
+            };
             setStore(STORAGE_KEYS.DISBURSEMENTS, list);
 
             activityLog.add('disbursement', `Penyaluran dana untuk "${list[idx].program}" diperbarui.`, updates.recordedBy || 'Admin');
@@ -4232,6 +4250,8 @@
                 try {
                     await window.wizSupabase.update('disbursements', id, {
                         wilayah: list[idx].wilayah,
+                        source_type: list[idx].sourceType,
+                        target_type: list[idx].targetType,
                         program: list[idx].program,
                         amount: list[idx].amount,
                         description: list[idx].description,
@@ -4258,12 +4278,12 @@
             setStore(STORAGE_KEYS.DISBURSEMENTS, filtered);
 
             if (item) {
-                activityLog.add('disbursement', `Catatan penyaluran dana "${item.program}" (${formatRupiahCompact(item.amount)}) dihapus.`, 'Admin');
+                activityLog.add('disbursement', `Pencatatan pengeluaran ${formatRupiahCompact(item.amount)} untuk "${item.program}" dihapus.`, sessionStorage.getItem('wiz_admin_name') || 'Admin');
             }
 
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                 try {
-                    await window.wizSupabase.remove('disbursements', strId);
+                    await window.wizSupabase.delete('disbursements', strId);
                 } catch(e) {}
             }
 
@@ -4350,9 +4370,46 @@
             }, 0);
 
             const addedSalur = disbList.reduce((sum, db) => {
-                const dbProg = (db.program || '').toLowerCase().trim();
-                if (dbProg && (dbProg.includes(pLower) || pLower.includes(dbProg))) {
-                    return sum + (Number(db.amount) || 0);
+                const sType = db.sourceType || (db.program && db.program.toLowerCase().includes('global') ? 'infak_umum' : 'program_spesifik');
+                const tType = db.targetType || (db.program && db.program.toLowerCase().includes('global') ? 'global' : 'specific');
+                const dbAmount = Number(db.amount) || 0;
+
+                // 1. Skenario Langsung / Spesifik
+                if (sType === 'program_spesifik' || tType === 'specific') {
+                    const dbProg = (db.program || '').toLowerCase().trim();
+                    if (dbProg && (dbProg.includes(pLower) || pLower.includes(dbProg))) {
+                        return sum + dbAmount;
+                    }
+                    return sum;
+                }
+
+                // 2. Skenario Global (Infak Umum): Reduksi Proporsional ke Seluruh Program
+                if (sType === 'infak_umum' && tType === 'global') {
+                    const dbWilayah = db.wilayah || 'Pangkalpinang';
+                    const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get)
+                        ? (allocationRulesManager.get(dbWilayah) || ALLOCATION_RULES[dbWilayah])
+                        : ALLOCATION_RULES[dbWilayah];
+
+                    if (wRules && wRules.mainAllocation) {
+                        const pillar = mapProgramToPillar(programName);
+                        const mainItem = wRules.mainAllocation.find(i => i.key === pillar);
+                        if (mainItem) {
+                            const pillarDisb = dbAmount * (mainItem.percent / 100);
+                            const subRule = wRules.subAllocation && wRules.subAllocation[pillar];
+                            if (subRule && subRule.items && subRule.items.length > 0) {
+                                const subItem = subRule.items.find(si => {
+                                    const siLower = si.key.toLowerCase().trim();
+                                    return pLower.includes(siLower) || siLower.includes(pLower);
+                                });
+                                if (subItem) {
+                                    return sum + (pillarDisb * (subItem.percent / 100));
+                                }
+                            }
+                            if (pLower.includes(pillar.toLowerCase()) || pillar.toLowerCase().includes(pLower)) {
+                                return sum + pillarDisb;
+                            }
+                        }
+                    }
                 }
                 return sum;
             }, 0);
@@ -4425,9 +4482,28 @@
 
             disbList.forEach(db => {
                 if (wilayah && wilayah !== 'Semua' && (db.wilayah || 'Pangkalpinang') !== wilayah) return;
-                const pillar = mapProgramToPillar(db.program);
-                if (dynamicSalur[pillar] !== undefined) {
-                    dynamicSalur[pillar] += Number(db.amount) || 0;
+                const sType = db.sourceType || (db.program && db.program.toLowerCase().includes('global') ? 'infak_umum' : 'program_spesifik');
+                const tType = db.targetType || (db.program && db.program.toLowerCase().includes('global') ? 'global' : 'specific');
+                const dbAmount = Number(db.amount) || 0;
+
+                if (sType === 'infak_umum' && tType === 'global') {
+                    const dbWilayah = db.wilayah || 'Pangkalpinang';
+                    const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get)
+                        ? (allocationRulesManager.get(dbWilayah) || ALLOCATION_RULES[dbWilayah])
+                        : ALLOCATION_RULES[dbWilayah];
+
+                    if (wRules && wRules.mainAllocation) {
+                        wRules.mainAllocation.forEach(item => {
+                            if (dynamicSalur[item.key] !== undefined) {
+                                dynamicSalur[item.key] += dbAmount * (item.percent / 100);
+                            }
+                        });
+                    }
+                } else {
+                    const pillar = mapProgramToPillar(db.program);
+                    if (dynamicSalur[pillar] !== undefined) {
+                        dynamicSalur[pillar] += dbAmount;
+                    }
                 }
             });
 

@@ -334,6 +334,41 @@ const SUPABASE_CONFIG = {
             }));
             return { data: mapped, error: null };
         },
+        saveDisbursement: async (disb) => {
+            if (!disb) return { data: null, error: 'No data' };
+            const payload = {
+                id: String(disb.id),
+                wilayah: String(disb.wilayah || 'Pangkalpinang'),
+                source_type: String(disb.source_type || disb.sourceType || 'infak_umum'),
+                target_type: String(disb.target_type || disb.targetType || 'global'),
+                program: String(disb.program || 'Global (Pengurang Seluruh Program)'),
+                amount: Number(disb.amount) || 0,
+                description: String(disb.description || ''),
+                disbursed_at: disb.disbursed_at || disb.disbursedAt || new Date().toISOString(),
+                recorded_by: String(disb.recorded_by || disb.recordedBy || 'Admin'),
+                created_at: disb.created_at || disb.createdAt || new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+            return await upsert('disbursements', payload);
+        },
+        getDisbursements: async () => {
+            const res = await select('disbursements', { order: 'disbursed_at.desc' });
+            if (res.error || !Array.isArray(res.data)) return res;
+            const mapped = res.data.map(d => ({
+                id: d.id,
+                wilayah: d.wilayah || 'Pangkalpinang',
+                sourceType: d.source_type || (d.program && d.program.toLowerCase().includes('global') ? 'infak_umum' : 'program_spesifik'),
+                targetType: d.target_type || (d.program && d.program.toLowerCase().includes('global') ? 'global' : 'specific'),
+                program: d.program,
+                amount: Number(d.amount) || 0,
+                description: d.description,
+                disbursedAt: d.disbursed_at,
+                recordedBy: d.recorded_by,
+                createdAt: d.created_at,
+                updatedAt: d.updated_at
+            }));
+            return { data: mapped, error: null };
+        },
         saveReferralPayout: (data) => upsert('referral_payouts', data),
         saveContactMessage: (data) => insert('contact_messages', data),
         saveZakatRecord: (data) => insert('zakat_records', data),

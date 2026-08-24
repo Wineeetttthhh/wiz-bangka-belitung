@@ -1069,9 +1069,21 @@ function initProgramCatalog() {
             if (emptyState) emptyState.style.display = 'none';
 
             gridContainer.innerHTML = filtered.map(program => {
-                const percent = Math.min(Math.round((program.currentAmount / program.targetAmount) * 100), 100);
-                const formattedCurrent = program.currentAmount.toLocaleString('id-ID');
-                const formattedTarget = program.targetAmount.toLocaleString('id-ID');
+                let currentAmount = program.currentAmount || 0;
+                let targetAmount = program.targetAmount || 15000000;
+                let percent = Math.min(Math.round((currentAmount / targetAmount) * 100), 100);
+
+                if (window.wizStore && window.wizStore.finance && typeof window.wizStore.finance.getSpecificProgramStats === 'function') {
+                    const stats = window.wizStore.finance.getSpecificProgramStats(program.title, 0, targetAmount);
+                    if (stats) {
+                        currentAmount = stats.terkumpul !== undefined ? stats.terkumpul : (stats.saldo || 0);
+                        targetAmount = stats.target || targetAmount;
+                        percent = stats.percent !== undefined ? stats.percent : percent;
+                    }
+                }
+
+                const formattedCurrent = currentAmount.toLocaleString('id-ID');
+                const formattedTarget = targetAmount.toLocaleString('id-ID');
 
                 const imageContent = program.imageUrl 
                     ? `<img src="${program.imageUrl}" alt="${program.title}" class="card-img">`
@@ -1092,7 +1104,7 @@ function initProgramCatalog() {
                                     <div class="progress-bar-fill" style="width: ${percent}%;"></div>
                                 </div>
                                 <div class="progress-info">
-                                    <span>Terkumpul: <strong>Rp ${formattedCurrent}</strong></span>
+                                    <span>Saldo Tersedia: <strong>Rp ${formattedCurrent}</strong></span>
                                     <span>${percent}%</span>
                                 </div>
                             </div>
