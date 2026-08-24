@@ -3868,7 +3868,7 @@
             category: 'Dakwah & Pembinaan',
             target: 'Rp 30.000.000',
             targetAmount: 30000000,
-            description: 'Dukungan akomodasi, transportasi, dan kafalah bagi para da\'i yang bertugas di pulau-pulau terpencil Bangka Belitung.',
+            description: 'Dukungan akomodasi, transportasi, dan kafalah bagi para da\'i yang bertugas di provinsi Bangka Belitung.',
             imageUrl: 'assets/images/default-program-wiz.jpg',
             status: 'published',
             createdAt: '2026-01-21T00:00:00.000Z',
@@ -4033,6 +4033,14 @@
                         modified = true;
                     }
                 });
+
+                // Auto-sync Keberangkatan Kepulangan Dai description
+                const daiProg = raw.find(r => r && (r.id === 'prog-dai-pelosok' || (r.title && isProgramMatching(r.title, 'Keberangkatan Kepulangan Dai'))));
+                if (daiProg && daiProg.description && daiProg.description.includes('pulau-pulau terpencil')) {
+                    daiProg.description = 'Dukungan akomodasi, transportasi, dan kafalah bagi para da\'i yang bertugas di provinsi Bangka Belitung.';
+                    modified = true;
+                }
+
                 if (modified) {
                     setStore(STORAGE_KEYS.PROGRAMS, raw);
                 }

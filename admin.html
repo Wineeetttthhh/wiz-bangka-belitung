@@ -344,6 +344,10 @@
                 <span class="material-symbols-outlined">outbound</span> Pengeluaran / Penyaluran
             </a>
             <a class="sidebar-link flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors"
+                href="#" data-section="programs" onclick="showSection('programs', this)">
+                <span class="material-symbols-outlined">campaign</span> Manajemen Program Donasi
+            </a>
+            <a class="sidebar-link flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors"
                 href="#" data-section="referrals" onclick="showSection('referrals', this)">
                 <span class="material-symbols-outlined">badge</span> Database Mitra Penghimpunan
             </a>
@@ -736,6 +740,52 @@
             <div
                 class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden">
                 <div class="overflow-x-auto" id="disbursement-table"></div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- SECTION: MANAJEMEN PROGRAM DONASI (CMS DINAMIS)    -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <div id="section-programs" class="flex-1 p-margin-mobile md:p-gutter overflow-y-auto space-y-xl hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+                <div>
+                    <h2 class="font-headline-md text-headline-md font-bold text-on-surface flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">campaign</span>
+                        <span>Manajemen Program Donasi (CMS Dinamis)</span>
+                    </h2>
+                    <p class="font-caption text-caption text-on-surface-variant">Kelola seluruh narasi judul, pilar, target dana, deskripsi program, dan foto cover yang tampil di website publik secara dinamis.</p>
+                </div>
+                <div class="flex items-center gap-sm flex-wrap">
+                    <button onclick="openSpecificProgramModal()" class="flex items-center gap-1.5 bg-primary hover:bg-primary-dark text-white px-lg py-2.5 rounded-xl font-bold text-sm transition-all shadow-md cursor-pointer border border-primary/40">
+                        <span class="material-symbols-outlined text-base">add_circle</span>
+                        <span>+ Tambah Program Baru</span>
+                    </button>
+                    <button onclick="resetDefaultSpecificPrograms()" class="flex items-center gap-1.5 bg-surface-container hover:bg-surface-variant text-on-surface px-md py-2.5 rounded-xl font-semibold text-xs transition-colors border border-outline-variant/30 cursor-pointer">
+                        <span class="material-symbols-outlined text-base">restart_alt</span>
+                        <span>Pulihkan Bawaan Lembaga</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters & Search -->
+            <div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant/20 shadow-xs flex flex-col md:flex-row justify-between items-stretch md:items-center gap-md">
+                <div class="flex items-center gap-2 flex-wrap" id="prog-cms-filter-buttons">
+                    <button onclick="filterProgramsCMS('Semua', this)" class="prog-filter-btn active px-3 py-1.5 rounded-lg text-xs font-bold bg-primary text-white transition-all shadow-xs cursor-pointer">Semua Pilar</button>
+                    <button onclick="filterProgramsCMS('Berkah Hidayah', this)" class="prog-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-surface-container text-on-surface hover:bg-emerald-50 hover:text-emerald-800 transition-all border border-outline-variant/20 cursor-pointer">🕌 Berkah Hidayah</button>
+                    <button onclick="filterProgramsCMS('Berkah Juara', this)" class="prog-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-surface-container text-on-surface hover:bg-blue-50 hover:text-blue-800 transition-all border border-outline-variant/20 cursor-pointer">🎓 Berkah Juara</button>
+                    <button onclick="filterProgramsCMS('Berkah Peduli', this)" class="prog-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-surface-container text-on-surface hover:bg-amber-50 hover:text-amber-800 transition-all border border-outline-variant/20 cursor-pointer">🤝 Berkah Peduli</button>
+                    <button onclick="filterProgramsCMS('Berkah Sehat', this)" class="prog-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-surface-container text-on-surface hover:bg-red-50 hover:text-red-800 transition-all border border-outline-variant/20 cursor-pointer">🚑 Berkah Sehat</button>
+                    <button onclick="filterProgramsCMS('Berkah Mandiri', this)" class="prog-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-surface-container text-on-surface hover:bg-purple-50 hover:text-purple-800 transition-all border border-outline-variant/20 cursor-pointer">💼 Berkah Mandiri</button>
+                </div>
+                <div class="relative w-full md:w-64">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+                    <input type="text" id="prog-cms-search" oninput="renderProgramsCMSSection()" placeholder="Cari program / kata kunci..." class="w-full pl-9 pr-3 py-2 text-xs bg-surface border border-outline-variant rounded-lg font-caption outline-none focus:border-primary">
+                </div>
+            </div>
+
+            <!-- Program Cards Grid -->
+            <div id="programs-cms-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+                <!-- Rendered dynamically by renderProgramsCMSSection() -->
             </div>
         </div>
 
@@ -3116,6 +3166,7 @@
                 dashboard: 'Dashboard Overview',
                 donations: 'Manajemen Pemasukan / Donasi',
                 disbursements: 'Manajemen Pengeluaran / Penyaluran',
+                programs: 'Manajemen Program Donasi (CMS Dinamis)',
                 referrals: 'Database Mitra Penghimpunan',
                 'allocation-rules': 'Aturan Alokasi Dana (Allocation Rules)',
                 'site-images': 'Foto Web Utama & Program Spesifik',
@@ -5634,10 +5685,140 @@
                     })();
 
                     renderSpecificProgramImagesSection();
+                    if (typeof renderProgramsCMSSection === 'function') renderProgramsCMSSection();
                     alert(`✅ Foto Program "${progTitle}" berhasil diunggah ke Supabase Cloud dan langsung tersinkronkan ke Web Utama serta Portal Mitra!`);
                 };
                 img.src = objectUrl;
             }, 10);
+        }
+
+        let currentCMSPillarFilter = 'Semua';
+
+        function filterProgramsCMS(pillar, btnEl) {
+            currentCMSPillarFilter = pillar;
+            if (btnEl) {
+                document.querySelectorAll('.prog-filter-btn').forEach(b => {
+                    b.classList.remove('active', 'bg-primary', 'text-white', 'shadow-xs');
+                    b.classList.add('bg-surface-container', 'text-on-surface');
+                });
+                btnEl.classList.add('active', 'bg-primary', 'text-white', 'shadow-xs');
+                btnEl.classList.remove('bg-surface-container', 'text-on-surface');
+            }
+            renderProgramsCMSSection();
+        }
+
+        function renderProgramsCMSSection() {
+            const grid = document.getElementById('programs-cms-grid');
+            if (!grid) return;
+
+            const searchInput = document.getElementById('prog-cms-search');
+            const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+            let all = [];
+            if (window.wizStore && window.wizStore.programs) {
+                all = window.wizStore.programs.getAll();
+            }
+
+            if (currentCMSPillarFilter !== 'Semua') {
+                all = all.filter(p => p.pillar === currentCMSPillarFilter || (p.category && p.category.includes(currentCMSPillarFilter)));
+            }
+
+            if (query) {
+                all = all.filter(p => {
+                    const t = (p.title || '').toLowerCase();
+                    const d = (p.description || '').toLowerCase();
+                    const s = (p.slug || '').toLowerCase();
+                    const pil = (p.pillar || '').toLowerCase();
+                    return t.includes(query) || d.includes(query) || s.includes(query) || pil.includes(query);
+                });
+            }
+
+            if (all.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 text-center bg-surface-container-lowest rounded-2xl border border-outline-variant/20">
+                        <span class="material-symbols-outlined text-5xl text-outline mb-2">campaign</span>
+                        <p class="text-sm font-bold text-on-surface">Tidak ada program yang sesuai dengan filter.</p>
+                        <p class="text-xs text-on-surface-variant mt-1">Coba gunakan kata kunci lain atau klik "+ Tambah Program Baru".</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const pillarBadgeColors = {
+                'Berkah Hidayah': 'bg-emerald-100 text-emerald-800 border-emerald-300',
+                'Berkah Juara': 'bg-blue-100 text-blue-800 border-blue-300',
+                'Berkah Peduli': 'bg-amber-100 text-amber-800 border-amber-300',
+                'Berkah Sehat': 'bg-red-100 text-red-800 border-red-300',
+                'Berkah Mandiri': 'bg-purple-100 text-purple-800 border-purple-300'
+            };
+
+            grid.innerHTML = all.map(p => {
+                const badgeColor = pillarBadgeColors[p.pillar] || 'bg-surface-variant text-on-surface border-outline-variant';
+                const isPublished = p.status !== 'draft';
+                const targetNum = Number(p.targetAmount) || Number(String(p.target || '').replace(/[^0-9]/g, '')) || 15000000;
+                
+                const stats = (window.wizStore && window.wizStore.finance)
+                    ? window.wizStore.finance.getSpecificProgramStats(p.title, 0, targetNum)
+                    : { percent: 0, terkumpul: 0, saldo: 0 };
+
+                const formattedTerkumpul = (stats.terkumpul || stats.saldo || 0).toLocaleString('id-ID');
+                const formattedTarget = targetNum.toLocaleString('id-ID');
+                const img = p.imageUrl || 'assets/images/foto-utama-wiz.jpg';
+
+                return `
+                    <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 shadow-xs overflow-hidden flex flex-col hover:shadow-md transition-all">
+                        <div class="relative aspect-video bg-surface-container overflow-hidden group">
+                            <img src="${escapeHtml(img)}" alt="${escapeHtml(p.title)}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" onerror="this.src='assets/images/foto-utama-wiz.jpg';">
+                            <span class="absolute top-2 left-2 px-2.5 py-1 rounded-lg text-xs font-bold border shadow-xs ${badgeColor}">
+                                ${escapeHtml(p.pillar || 'Program Kebaikan')}
+                            </span>
+                            <span class="absolute top-2 right-2 px-2.5 py-1 rounded-lg text-xs font-bold ${isPublished ? 'bg-emerald-600 text-white shadow-xs' : 'bg-amber-600 text-white shadow-xs'}">
+                                ${isPublished ? 'Dipublikasikan' : 'Draft'}
+                            </span>
+                        </div>
+
+                        <div class="p-md flex flex-col flex-grow space-y-3">
+                            <div>
+                                <h3 class="font-headline-md text-headline-md font-bold text-on-surface text-base line-clamp-1">${escapeHtml(p.title)}</h3>
+                                <p class="font-caption text-[11px] text-outline mt-0.5">Slug: <code class="bg-surface-container px-1 py-0.5 rounded text-primary">${escapeHtml(p.slug || '-')}</code></p>
+                            </div>
+
+                            <p class="font-body-md text-xs text-on-surface-variant line-clamp-3 leading-relaxed flex-grow">
+                                ${escapeHtml(p.description || 'Belum ada deskripsi narasi program.')}
+                            </p>
+
+                            <!-- Progress & Saldo Realtime -->
+                            <div class="bg-surface-container p-2.5 rounded-xl space-y-1.5 border border-outline-variant/10">
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="text-on-surface-variant font-semibold">Terkumpul:</span>
+                                    <span class="font-bold text-primary">Rp ${formattedTerkumpul} <span class="text-outline font-normal">/ Rp ${formattedTarget}</span></span>
+                                </div>
+                                <div class="w-full bg-surface-container-highest rounded-full h-2 overflow-hidden">
+                                    <div class="bg-primary h-2 rounded-full transition-all duration-500" style="width: ${stats.percent || 0}%"></div>
+                                </div>
+                                <div class="flex justify-between items-center text-[11px] text-outline">
+                                    <span>Progress: <strong>${stats.percent || 0}%</strong></span>
+                                    <span>${p.location || 'Bangka Belitung'}</span>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="pt-2 border-t border-outline-variant/20 flex items-center justify-between gap-2">
+                                <button onclick="openSpecificProgramModal('${escapeHtml(p.pillar || '')}', '${escapeHtml(p.title || '')}')" class="flex-1 flex items-center justify-center gap-1 bg-primary/10 hover:bg-primary text-primary hover:text-white px-3 py-2 rounded-xl text-xs font-bold transition-all border border-primary/30 cursor-pointer">
+                                    <span class="material-symbols-outlined text-sm">edit</span>
+                                    <span>Edit Narasi &amp; Data</span>
+                                </button>
+                                <button onclick="toggleSpecificProgramStatus('${escapeHtml(p.id)}')" title="${isPublished ? 'Jadikan Draft' : 'Publikasikan'}" class="p-2 rounded-xl text-xs font-semibold ${isPublished ? 'bg-amber-100 text-amber-800 hover:bg-amber-200' : 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'} transition-colors cursor-pointer">
+                                    <span class="material-symbols-outlined text-base">${isPublished ? 'visibility_off' : 'visibility'}</span>
+                                </button>
+                                <button onclick="deleteSpecificProgramItem('${escapeHtml(p.pillar || '')}', '${escapeHtml(p.title || '')}', '${escapeHtml(p.id)}')" title="Hapus Program" class="p-2 rounded-xl text-xs font-semibold bg-red-100 text-red-700 hover:bg-red-200 transition-colors cursor-pointer">
+                                    <span class="material-symbols-outlined text-base">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function renderHeroDashboardWidget() {
@@ -7617,6 +7798,8 @@
                 }
             } else if (section === 'news') {
                 try { if (typeof renderNewsList === 'function') renderNewsList(); } catch(e) { console.error(e); }
+            } else if (section === 'programs' || section === 'programs-cms') {
+                try { if (typeof renderProgramsCMSSection === 'function') renderProgramsCMSSection(); } catch(e) { console.error(e); }
             } else if (section === 'quotes') {
                 try { if (typeof renderQuotesSection === 'function') renderQuotesSection(); } catch(e) { console.error(e); }
             } else if (section === 'finance') {

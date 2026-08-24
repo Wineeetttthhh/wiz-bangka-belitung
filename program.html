@@ -1216,7 +1216,7 @@
             } catch(e) { return 'assets/images/default-program-wiz.jpg'; }
         }
 
-        document.querySelectorAll('.program-card').forEach(card => {
+        document.querySelectorAll('.program-card, article[data-title]').forEach(card => {
             if (card.style.display === 'none') return;
             const titleEl = card.querySelector('h3, h4');
             if (!titleEl) return;
@@ -1224,10 +1224,33 @@
             const progTitle = (card.getAttribute('data-title') || titleEl.textContent).trim();
             if (!progTitle) return;
 
-            const customImg = getCustomImg(progTitle);
+            // 1. Fetch dynamic program details from CMS store
+            let progObj = null;
+            if (window.wizStore && window.wizStore.programs && typeof window.wizStore.programs.getAll === 'function') {
+                const allProgs = window.wizStore.programs.getAll();
+                progObj = allProgs.find(p => (window.wizStore.utils && window.wizStore.utils.isProgramMatching) 
+                    ? (window.wizStore.utils.isProgramMatching(p.title, progTitle) || window.wizStore.utils.isProgramMatching(p.slug, progTitle) || window.wizStore.utils.isProgramMatching(p.id, progTitle))
+                    : (p.title && p.title.toLowerCase() === progTitle.toLowerCase()));
+            }
+
+            // 2. Dynamically bind title, description, target, and photo
+            if (progObj) {
+                if (titleEl && progObj.title) titleEl.textContent = progObj.title;
+                const descEl = card.querySelector('p.font-body-md, p.card-desc, p.line-clamp-2, p.line-clamp-3, p.line-clamp-4');
+                if (descEl && progObj.description) {
+                    descEl.textContent = progObj.description;
+                }
+                if (progObj.targetAmount) {
+                    card.dataset.target = progObj.targetAmount;
+                    const targetTextEl = card.querySelector('.text-outline');
+                    if (targetTextEl) targetTextEl.textContent = `Target: Rp ${progObj.targetAmount.toLocaleString('id-ID')}`;
+                }
+            }
+
+            const customImg = (progObj && progObj.imageUrl) ? progObj.imageUrl : getCustomImg(progTitle);
             if (customImg && !customImg.includes('unsplash.com') && !customImg.includes('placeholder')) {
                 const imgEl = card.querySelector('img');
-                if (imgEl && (!imgEl.src || imgEl.src.includes('unsplash.com') || imgEl.src.includes('placeholder'))) {
+                if (imgEl) {
                     imgEl.src = customImg;
                 }
             }
@@ -1238,7 +1261,7 @@
                 card.dataset.target = targetVal;
             }
 
-            const targetVal = Number(card.dataset.target) || 50000000;
+            const targetVal = Number(card.dataset.target) || (progObj ? progObj.targetAmount : 50000000) || 50000000;
             const stats = wizStore.finance.getSpecificProgramStats(progTitle, 0, targetVal);
 
             const terkumpulStrong = card.querySelector('.space-y-xs strong, .mb-lg strong');

@@ -1163,20 +1163,42 @@
         const fmt = wizStore.utils.formatRupiahCompact;
 
         document.querySelectorAll('article.program-card, article[data-title]').forEach(card => {
-            const titleEl = card.querySelector('h3');
+            const titleEl = card.querySelector('h3, h4');
             if (!titleEl) return;
 
-            const progTitle = titleEl.textContent.trim();
-            const terkumpulStrong = card.querySelector('.space-y-xs strong');
-            if (!terkumpulStrong) return;
+            const progTitle = (card.getAttribute('data-title') || titleEl.textContent).trim();
+            if (!progTitle) return;
 
-            const targetVal = 50000000;
-            // Base is 0 so nominal terkumpul strictly integrates realtime verified donations from Pangkalpinang & Sungailiat
+            // 1. Fetch dynamic program details from CMS store
+            let progObj = null;
+            if (window.wizStore && window.wizStore.programs && typeof window.wizStore.programs.getAll === 'function') {
+                const allProgs = window.wizStore.programs.getAll();
+                progObj = allProgs.find(p => (window.wizStore.utils && window.wizStore.utils.isProgramMatching) 
+                    ? (window.wizStore.utils.isProgramMatching(p.title, progTitle) || window.wizStore.utils.isProgramMatching(p.slug, progTitle) || window.wizStore.utils.isProgramMatching(p.id, progTitle))
+                    : (p.title && p.title.toLowerCase() === progTitle.toLowerCase()));
+            }
+
+            // 2. Dynamically bind title, description, target, and photo
+            if (progObj) {
+                if (titleEl && progObj.title) titleEl.textContent = progObj.title;
+                const descEl = card.querySelector('p.font-body-md, p.card-desc, p.line-clamp-2, p.line-clamp-3, p.line-clamp-4');
+                if (descEl && progObj.description) {
+                    descEl.textContent = progObj.description;
+                }
+                if (progObj.targetAmount) {
+                    card.dataset.target = progObj.targetAmount;
+                }
+            }
+
+            const targetVal = Number(card.dataset.target) || (progObj ? progObj.targetAmount : 50000000) || 50000000;
             const stats = wizStore.finance.getSpecificProgramStats(progTitle, 0, targetVal);
 
-            terkumpulStrong.textContent = fmt(stats.terkumpul);
+            const terkumpulStrong = card.querySelector('.space-y-xs strong, .mb-lg strong');
+            if (terkumpulStrong) {
+                terkumpulStrong.textContent = fmt(stats.terkumpul);
+            }
 
-            const percentSpan = card.querySelector('.space-y-xs span.text-primary, .space-y-xs span.font-semibold');
+            const percentSpan = card.querySelector('.space-y-xs span.text-primary, .space-y-xs span.font-semibold, .mb-lg .font-semibold');
             if (percentSpan && !percentSpan.textContent.includes('Terkumpul')) {
                 percentSpan.textContent = `${stats.percent}%`;
             }
@@ -1187,14 +1209,12 @@
             }
 
             // Bind photo uploaded/chosen by Admin for this specific program
-            if (wizStore.allocationRulesManager) {
-                const customImg = wizStore.allocationRulesManager.getSpecificProgramImage(progTitle);
-                if (customImg) {
-                    const imgEl = card.querySelector('img');
-                    if (imgEl) {
-                        imgEl.src = customImg;
-                        imgEl.onerror = () => { imgEl.src = 'assets/images/foto-utama-wiz.jpg'; };
-                    }
+            const customImg = (progObj && progObj.imageUrl) ? progObj.imageUrl : ((wizStore.allocationRulesManager) ? wizStore.allocationRulesManager.getSpecificProgramImage(progTitle) : '');
+            if (customImg && !customImg.includes('placeholder')) {
+                const imgEl = card.querySelector('img');
+                if (imgEl) {
+                    imgEl.src = customImg;
+                    imgEl.onerror = () => { imgEl.src = 'assets/images/foto-utama-wiz.jpg'; };
                 }
             }
         });

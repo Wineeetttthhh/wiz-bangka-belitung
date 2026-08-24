@@ -51,15 +51,15 @@ const SPECIFIC_PROGRAMS_METADATA = {
     'keberangkatan-dan-kepulangan-dai': {
         title: 'Keberangkatan & Kepulangan Dai',
         pillar: 'Dakwah & Pembinaan',
-        target: 'Rp 20.000.000',
-        description: 'Bantu mobilitas dan tugas dakwah para da\'i ke pelosok pulau dan pelosok desa di Bangka Belitung.',
+        target: 'Rp 30.000.000',
+        description: 'Dukungan akomodasi, transportasi, dan kafalah bagi para da\'i yang bertugas di provinsi Bangka Belitung.',
         imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'keberangkatan-kepulangan-dai': {
         title: 'Keberangkatan & Kepulangan Dai',
         pillar: 'Dakwah & Pembinaan',
-        target: 'Rp 20.000.000',
-        description: 'Bantu mobilitas dan tugas dakwah para da\'i ke pelosok pulau dan pelosok desa di Bangka Belitung.',
+        target: 'Rp 30.000.000',
+        description: 'Dukungan akomodasi, transportasi, dan kafalah bagi para da\'i yang bertugas di provinsi Bangka Belitung.',
         imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'santunan-mualaf': {
