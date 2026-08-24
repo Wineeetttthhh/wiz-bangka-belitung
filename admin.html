@@ -2416,8 +2416,9 @@
                 </div>
 
                 <div class="flex gap-md pt-sm border-t border-outline-variant/30">
-                    <button type="submit" class="flex-1 bg-primary text-on-primary py-2.5 rounded-lg font-label-md text-label-md font-bold hover:bg-primary-container transition-colors shadow-sm cursor-pointer">
-                        Simpan Flyer Harian
+                    <button type="submit" id="btn-save-quote" onclick="handleQuoteSave(event)" class="flex-1 bg-primary text-on-primary py-2.5 rounded-lg font-label-md text-label-md font-bold hover:bg-primary-container transition-colors shadow-sm cursor-pointer flex items-center justify-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm">save</span>
+                        <span>Simpan Flyer Harian</span>
                     </button>
                     <button type="button" onclick="closeQuoteModal()" class="px-lg py-2.5 border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors cursor-pointer">
                         Batal
@@ -3034,6 +3035,46 @@
             }
             refreshAll();
         }
+
+        function showNotification(message, type = 'success') {
+            try {
+                let container = document.getElementById('wiz-toast-container');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'wiz-toast-container';
+                    container.className = 'fixed bottom-6 right-6 z-[9999] flex flex-col gap-2 pointer-events-none max-w-sm w-full px-4 sm:px-0';
+                    document.body.appendChild(container);
+                }
+
+                const toast = document.createElement('div');
+                const isError = type === 'error' || (typeof message === 'string' && (message.includes('❌') || message.includes('Gagal') || message.includes('Error')));
+                const bgColor = isError ? 'bg-rose-900/95 text-white border-rose-700' : 'bg-slate-900/95 text-white border-emerald-500/40';
+                
+                toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border backdrop-blur-md transition-all duration-300 transform translate-y-4 opacity-0 text-xs font-semibold ${bgColor}`;
+                toast.innerHTML = `
+                    <span class="material-symbols-outlined text-sm ${isError ? 'text-rose-400' : 'text-emerald-400'} shrink-0">${isError ? 'error' : 'check_circle'}</span>
+                    <span class="flex-1 leading-snug">${message}</span>
+                `;
+
+                container.appendChild(toast);
+
+                requestAnimationFrame(() => {
+                    toast.classList.remove('translate-y-4', 'opacity-0');
+                    toast.classList.add('translate-y-0', 'opacity-100');
+                });
+
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-0', 'opacity-100');
+                    toast.classList.add('translate-y-4', 'opacity-0');
+                    setTimeout(() => {
+                        if (toast.parentNode) toast.parentNode.removeChild(toast);
+                    }, 300);
+                }, 3500);
+            } catch(e) {
+                console.log('[Toast]', message);
+            }
+        }
+        window.showNotification = showNotification;
 
         async function handleManualSync() {
             const btn = document.getElementById('sync-data-btn');
@@ -4320,7 +4361,7 @@
             });
         }
 
-        async function compressFlyerImageFile(file, maxDimension = 1280, quality = 0.85) {
+        async function compressFlyerImageFile(file, maxDimension = 960, quality = 0.78) {
             return compressImageFile(file, maxDimension, quality);
         }
 
@@ -7268,7 +7309,7 @@
 
             try {
                 // Compress flyer maintaining exact natural aspect ratio (portrait/square/landscape)
-                const base64 = await compressFlyerImageFile(file, 1200, 0.84);
+                const base64 = await compressFlyerImageFile(file, 960, 0.78);
                 if (base64) {
                     if (inputEl) inputEl.value = base64;
                     if (previewImg) previewImg.src = base64;
@@ -7293,28 +7334,52 @@
         }
 
         async function handleQuoteSave(e) {
-            e.preventDefault();
-            const editId = document.getElementById('quote-edit-id').value;
-            const chosenImg = (document.getElementById('quote-input-image').value || '').trim() || 'assets/images/foto-utama-wiz.jpg';
-            const data = {
-                text: document.getElementById('quote-input-text').value.trim(),
-                source: document.getElementById('quote-input-source').value.trim(),
-                category: document.getElementById('quote-input-category').value,
-                date: document.getElementById('quote-input-date').value,
-                status: document.getElementById('quote-input-status').value,
-                imageUrl: chosenImg,
-                author: (typeof ADMIN_NAME !== 'undefined' && ADMIN_NAME) ? ADMIN_NAME : (sessionStorage.getItem('wiz_admin_name') || 'Admin WIZ Babel')
-            };
+            if (e && typeof e.preventDefault === 'function') e.preventDefault();
+            try {
+                const editId = (document.getElementById('quote-edit-id')?.value || '').trim();
+                const textEl = document.getElementById('quote-input-text');
+                const sourceEl = document.getElementById('quote-input-source');
+                const categoryEl = document.getElementById('quote-input-category');
+                const dateEl = document.getElementById('quote-input-date');
+                const statusEl = document.getElementById('quote-input-status');
+                const imgEl = document.getElementById('quote-input-image');
 
-            if (editId) {
-                await wizStore.quotes.update(editId, data);
-                showNotification('✅ Flyer Quote harian berhasil diperbarui!');
-            } else {
-                await wizStore.quotes.add(data);
-                showNotification('✅ Flyer Quote harian baru berhasil ditambahkan!');
+                const chosenImg = (imgEl?.value || '').trim() || 'assets/images/foto-utama-wiz.jpg';
+                const todayStr = new Date().toISOString().split('T')[0];
+                const data = {
+                    text: (textEl?.value || '').trim(),
+                    source: (sourceEl?.value || '').trim() || 'Inspirasi WIZ',
+                    category: categoryEl?.value || 'Motivasi & Doa',
+                    date: (dateEl?.value || '').trim() || todayStr,
+                    status: statusEl?.value || 'active',
+                    imageUrl: chosenImg,
+                    author: (typeof ADMIN_NAME !== 'undefined' && ADMIN_NAME) ? ADMIN_NAME : (sessionStorage.getItem('wiz_admin_name') || 'Admin WIZ Babel')
+                };
+
+                // Instant modal close & UI update (0ms latency for admin)
+                closeQuoteModal();
+
+                if (window.wizStore && window.wizStore.quotes) {
+                    if (editId) {
+                        await window.wizStore.quotes.update(editId, data);
+                        showNotification('✅ Flyer Quote harian berhasil diperbarui!');
+                    } else {
+                        await window.wizStore.quotes.add(data);
+                        showNotification('✅ Flyer Quote harian baru berhasil ditambahkan!');
+                    }
+                } else {
+                    showNotification('✅ Flyer Quote harian berhasil disimpan!');
+                }
+
+                // Render quotes section directly & refresh all views
+                if (typeof renderQuotesSection === 'function') {
+                    renderQuotesSection();
+                }
+                refreshAll();
+            } catch(err) {
+                console.error('[handleQuoteSave Error]', err);
+                showNotification('❌ Terjadi kesalahan saat menyimpan: ' + err.message, 'error');
             }
-            closeQuoteModal();
-            refreshAll();
         }
 
         function editQuote(id) {
@@ -7729,18 +7794,13 @@
             refreshAll();
             handleInitialUrlRouting();
             
-            // Auto sync from cloud first to ensure latest registrations and cloud updates are loaded
-            if (wizStore && wizStore.syncFromCloud) {
+            // Authoritative Cloud Fetch on startup (pull latest and update UI)
+            if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
                 try {
-                    await wizStore.syncFromCloud(true);
+                    await window.wizStore.syncFromCloud(true);
                 } catch(e) {}
                 refreshAll();
                 handleInitialUrlRouting();
-            }
-            if (wizStore && wizStore.pushToCloud) {
-                try {
-                    await wizStore.pushToCloud();
-                } catch(e) {}
             }
         });
 
@@ -7749,6 +7809,7 @@
             handleInitialUrlRouting();
         });
         window.addEventListener('wiz-sync-complete', () => refreshAll());
+        window.addEventListener('wiz-quotes-changed', () => refreshAll());
         window.addEventListener('wiz-donations-changed', () => refreshAll());
         window.addEventListener('wiz-referrals-changed', () => refreshAll());
         window.addEventListener('wiz-admin-users-changed', () => refreshAll());

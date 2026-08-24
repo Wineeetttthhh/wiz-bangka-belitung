@@ -434,10 +434,7 @@
                 try {
                     localStorage.setItem(key, JSON.stringify(data));
                 } catch (retryErr) {
-                    console.warn('[WIZ Store] Data disimpan di memory & langsung disinkronkan ke Cloud Supabase.');
-                    if (typeof pushToCloud === 'function') {
-                        setTimeout(() => pushToCloud().catch(() => {}), 150);
-                    }
+                    console.warn('[WIZ Store] Data tersimpan di memory buffer fallback.');
                 }
             } else {
                 console.error('[WIZ Store] Gagal simpan data:', key, e);
@@ -1995,6 +1992,50 @@
 
         const report = { success: true, timestamp: new Date().toISOString() };
         try {
+            // Safety: Pre-fetch latest remote quotes / settings to avoid overwriting items from other devices
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    const sbRes = await window.wizSupabase.select('site_settings', { filter: 'key=in.(quotes,master_bundle)' });
+                    if (sbRes && Array.isArray(sbRes.data) && sbRes.data.length > 0) {
+                        const cloudQuotesDoc = sbRes.data.find(d => d.key === 'quotes');
+                        const mbDoc = sbRes.data.find(d => d.key === 'master_bundle');
+                        const cloudQuotes = (cloudQuotesDoc && Array.isArray(cloudQuotesDoc.value)) 
+                            ? cloudQuotesDoc.value 
+                            : (mbDoc && mbDoc.value && Array.isArray(mbDoc.value.quotes) ? mbDoc.value.quotes : []);
+                        
+                        if (cloudQuotes.length > 0) {
+                            const deletedQSet = getDeletedQuoteIds();
+                            const localQ = getStore(STORAGE_KEYS.QUOTES) || [];
+                            const qMap = new Map();
+                            cloudQuotes.forEach(q => {
+                                if (q && q.id && !deletedQSet.has(String(q.id)) && q.status !== 'deleted' && !q.isDeleted) {
+                                    qMap.set(String(q.id), q);
+                                }
+                            });
+                            localQ.forEach(q => {
+                                if (q && q.id && !deletedQSet.has(String(q.id)) && q.status !== 'deleted' && !q.isDeleted) {
+                                    const strId = String(q.id);
+                                    if (!qMap.has(strId)) {
+                                        qMap.set(strId, q);
+                                    } else {
+                                        const existing = qMap.get(strId);
+                                        const tExisting = new Date(existing.updatedAt || existing.createdAt || 0).getTime();
+                                        const tLocal = new Date(q.updatedAt || q.createdAt || 0).getTime();
+                                        if (tLocal >= tExisting) qMap.set(strId, { ...existing, ...q });
+                                    }
+                                }
+                            });
+                            const mergedQ = Array.from(qMap.values()).sort((a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0));
+                            setStore(STORAGE_KEYS.QUOTES, mergedQ);
+                        }
+                    }
+                } catch(e) {
+                    console.warn('[pushToCloud] Pre-sync notice:', e);
+                }
+            }
+
+            const currentQuotes = getStore(STORAGE_KEYS.QUOTES) || DEFAULT_QUOTES;
+
             const bundle = {
                 donations: getStore(STORAGE_KEYS.DONATIONS) || [],
                 news: getStore(STORAGE_KEYS.NEWS) || [],
@@ -2009,7 +2050,7 @@
                 admin_users: getStore(STORAGE_KEYS.ADMIN_USERS) || DEFAULT_ADMIN_USERS,
                 custom_specific_programs: JSON.parse(localStorage.getItem('wiz_custom_specific_programs') || '{}'),
                 specific_prog_imgs: JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}'),
-                quotes: getStore(STORAGE_KEYS.QUOTES) || DEFAULT_QUOTES,
+                quotes: currentQuotes,
                 programs: getStore(STORAGE_KEYS.PROGRAMS) || DEFAULT_PROGRAMS,
                 deleted_ids: Array.from(getDeletedIds()),
                 deleted_news_ids: Array.from(getDeletedNewsIds()),
@@ -2046,9 +2087,15 @@
                 }
             } catch (e) {}
 
-            // 2. Direct Supabase Master Bundle Push
+            // 2. Direct Supabase Dedicated Entities & Master Bundle Push
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                 try {
+                    if (Array.isArray(bundle.quotes)) {
+                        await window.wizSupabase.saveQuotes(bundle.quotes);
+                    }
+                    if (bundle.site_settings) {
+                        await window.wizSupabase.saveSiteSettings(bundle.site_settings);
+                    }
                     await window.wizSupabase.upsert('site_settings', {
                         key: 'master_bundle',
                         value: bundle,
@@ -2175,8 +2222,15 @@
             let directSbDisbursements = null;
             let directSbReferrals = null;
             let directSbSettings = null;
+            let directSbQuotes = null;
 
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    const sbQRes = await window.wizSupabase.getQuotes();
+                    if (sbQRes && Array.isArray(sbQRes.data) && sbQRes.data.length > 0) {
+                        directSbQuotes = sbQRes.data;
+                    }
+                } catch(e) {}
                 try {
                     const sbNewsRes = await window.wizSupabase.select('news');
                     if (sbNewsRes && Array.isArray(sbNewsRes.data) && sbNewsRes.data.length > 0) {
@@ -2450,35 +2504,12 @@
             if (masterData.referral_payouts) {
                 smartMerge(STORAGE_KEYS.REFERRAL_PAYOUTS, masterData.referral_payouts, (a, b) => new Date(b.paidAt || 0) - new Date(a.paidAt || 0));
             }
-            if (masterData.quotes && Array.isArray(masterData.quotes)) {
-                // Authoritative cloud quotes: Single Source of Truth
-                const cloudQuotesMap = new Map();
-                masterData.quotes.forEach(q => {
-                    if (q && q.id && !deletedQuoteSet.has(String(q.id)) && q.status !== 'deleted' && !q.isDeleted) {
-                        cloudQuotesMap.set(String(q.id), { ...q });
-                    }
-                });
+            const authoritativeQuotes = (directSbQuotes !== null && directSbQuotes.length > 0)
+                ? directSbQuotes
+                : (masterData && Array.isArray(masterData.quotes) ? masterData.quotes : directSbQuotes);
 
-                const isAdmin = typeof window !== 'undefined' && (
-                    window.location.pathname.includes('admin') || 
-                    window.location.href.includes('admin.html')
-                );
-
-                if (isAdmin) {
-                    const localQuotes = getStore(STORAGE_KEYS.QUOTES) || [];
-                    localQuotes.forEach(loc => {
-                        if (loc && loc.id && !deletedQuoteSet.has(String(loc.id)) && loc.status !== 'deleted' && !loc.isDeleted) {
-                            const strId = String(loc.id);
-                            if (!cloudQuotesMap.has(strId)) {
-                                cloudQuotesMap.set(strId, loc);
-                            }
-                        }
-                    });
-                }
-
-                const mergedQuotes = Array.from(cloudQuotesMap.values());
-                mergedQuotes.sort((a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0));
-                setStore(STORAGE_KEYS.QUOTES, mergedQuotes);
+            if (authoritativeQuotes && Array.isArray(authoritativeQuotes)) {
+                smartMerge(STORAGE_KEYS.QUOTES, authoritativeQuotes, (a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0), deletedQuoteSet);
                 window.dispatchEvent(new CustomEvent('wiz-quotes-changed'));
             }
 
@@ -5175,16 +5206,23 @@
             settings.quotes_enabled = Boolean(enabled);
             setStore(STORAGE_KEYS.SITE_SETTINGS, settings);
             
-            try {
-                if (typeof pushToCloud === 'function') {
-                    await pushToCloud();
-                }
-            } catch(e) {}
-
             window.dispatchEvent(new CustomEvent('wiz-quotes-changed'));
             window.dispatchEvent(new CustomEvent('wiz-site-settings-changed', { detail: settings }));
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             broadcastSync('QUOTES_VISIBILITY_CHANGED', { enabled: Boolean(enabled) });
+
+            // Non-blocking background sync
+            (async () => {
+                try {
+                    if (window.wizSupabase && window.wizSupabase.isConfigured() && typeof window.wizSupabase.saveSiteSettings === 'function') {
+                        await window.wizSupabase.saveSiteSettings(settings);
+                    }
+                    if (typeof pushToCloud === 'function') {
+                        await pushToCloud();
+                    }
+                } catch(e) {}
+            })();
+
             return settings.quotes_enabled;
         },
 
@@ -5192,7 +5230,7 @@
             const deletedQuoteSet = getDeletedQuoteIds();
             const stored = getStore(STORAGE_KEYS.QUOTES);
             let list = Array.isArray(stored) ? stored : DEFAULT_QUOTES;
-            return list.filter(q => q && q.id && q.id !== 'quote-1' && q.id !== 'quote-2' && q.id !== 'quote-3' && !deletedQuoteSet.has(String(q.id)) && q.status !== 'deleted' && !q.isDeleted)
+            return list.filter(q => q && q.id && !deletedQuoteSet.has(String(q.id)) && q.status !== 'deleted' && !q.isDeleted)
                 .sort((a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0));
         },
 
@@ -5233,27 +5271,30 @@
 
             activityLog.add('quote', `Quote harian baru "${newQuote.source}" ditambahkan.`, newQuote.author);
 
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                try {
-                    await window.wizSupabase.upsert('quotes', newQuote);
-                } catch(e) {}
-            }
-
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                try {
-                    await window.wizFirebase.insert('quotes', newQuote);
-                } catch(e) {}
-            }
-
-            try {
-                if (typeof pushToCloud === 'function') {
-                    await pushToCloud();
-                }
-            } catch(e) {}
-
+            // Instant UI events
             window.dispatchEvent(new CustomEvent('wiz-quotes-changed', { detail: newQuote }));
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             broadcastSync('NEW_QUOTE', newQuote);
+
+            // Non-blocking concurrent cloud sync in background
+            (async () => {
+                try {
+                    const tasks = [];
+                    if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                        if (typeof window.wizSupabase.saveQuotes === 'function') {
+                            tasks.push(window.wizSupabase.saveQuotes(list));
+                        }
+                    }
+                    if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                        tasks.push(window.wizFirebase.insert('quotes', newQuote));
+                    }
+                    if (typeof pushToCloud === 'function') {
+                        tasks.push(pushToCloud());
+                    }
+                    await Promise.allSettled(tasks);
+                } catch(e) {}
+            })();
+
             return newQuote;
         },
 
@@ -5267,26 +5308,29 @@
 
             activityLog.add('quote', `Quote harian "${list[idx].source}" diperbarui.`, updates.author || 'Admin');
 
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                try {
-                    await window.wizSupabase.upsert('quotes', list[idx]);
-                } catch(e) {}
-            }
-
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                try {
-                    await window.wizFirebase.set('quotes', String(id), list[idx]);
-                } catch(e) {}
-            }
-
-            try {
-                if (typeof pushToCloud === 'function') {
-                    await pushToCloud();
-                }
-            } catch(e) {}
-
+            // Instant UI events
             window.dispatchEvent(new CustomEvent('wiz-quotes-changed', { detail: list[idx] }));
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+
+            // Non-blocking concurrent cloud sync in background
+            (async () => {
+                try {
+                    const tasks = [];
+                    if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                        if (typeof window.wizSupabase.saveQuotes === 'function') {
+                            tasks.push(window.wizSupabase.saveQuotes(list));
+                        }
+                    }
+                    if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                        tasks.push(window.wizFirebase.set('quotes', String(id), list[idx]));
+                    }
+                    if (typeof pushToCloud === 'function') {
+                        tasks.push(pushToCloud());
+                    }
+                    await Promise.allSettled(tasks);
+                } catch(e) {}
+            })();
+
             return list[idx];
         },
 
@@ -5304,26 +5348,29 @@
                 activityLog.add('quote', `Quote "${quote.source}" dihapus.`, 'Admin');
             }
 
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                try {
-                    await window.wizSupabase.remove('quotes', strId);
-                } catch(e) {}
-            }
-
-            if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                try {
-                    await window.wizFirebase.remove('quotes', strId);
-                } catch(e) {}
-            }
-
-            try {
-                if (typeof pushToCloud === 'function') {
-                    await pushToCloud();
-                }
-            } catch(e) {}
-
+            // Instant UI events
             window.dispatchEvent(new CustomEvent('wiz-quotes-changed'));
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+
+            // Non-blocking concurrent cloud sync in background
+            (async () => {
+                try {
+                    const tasks = [];
+                    if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                        if (typeof window.wizSupabase.saveQuotes === 'function') {
+                            tasks.push(window.wizSupabase.saveQuotes(filtered));
+                        }
+                        tasks.push(window.wizSupabase.remove('quotes', strId));
+                    }
+                    if (window.wizFirebase && window.wizFirebase.isConfigured()) {
+                        tasks.push(window.wizFirebase.remove('quotes', strId));
+                    }
+                    if (typeof pushToCloud === 'function') {
+                        tasks.push(pushToCloud());
+                    }
+                    await Promise.allSettled(tasks);
+                } catch(e) {}
+            })();
         },
 
         async toggleStatus(id) {
@@ -5392,16 +5439,7 @@
     // Full sync on startup:
     async function initSync() {
         try {
-            await syncFromCloud(true);   // Step 1: Pull fresh authoritative data from Cloud
-            const isAdmin = window.location.pathname.includes('admin') || 
-                            window.location.href.includes('admin.html') ||
-                            sessionStorage.getItem('wiz_admin_authenticated') === 'true' ||
-                            localStorage.getItem('wiz_admin_logged_in') === 'true';
-            
-            if (isAdmin) {
-                await pushToCloud();     // Step 2: Push local admin changes to Cloud
-                await syncFromCloud(true); // Step 3: Re-verify
-            }
+            await syncFromCloud(true);   // Pull fresh authoritative data from Cloud and replace local state
             console.log('[WIZ Sync Engine] Init sync complete.');
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
         } catch(e) {

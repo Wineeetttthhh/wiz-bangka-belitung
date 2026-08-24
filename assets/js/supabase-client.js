@@ -336,7 +336,26 @@ const SUPABASE_CONFIG = {
         },
         saveReferralPayout: (data) => upsert('referral_payouts', data),
         saveContactMessage: (data) => insert('contact_messages', data),
-        saveZakatRecord: (data) => insert('zakat_records', data)
+        saveZakatRecord: (data) => insert('zakat_records', data),
+        saveQuotes: async (quotesList) => {
+            if (!Array.isArray(quotesList)) return { data: null, error: 'Invalid quotes array' };
+            return await upsert('site_settings', {
+                key: 'quotes',
+                value: quotesList,
+                updated_at: new Date().toISOString()
+            });
+        },
+        getQuotes: async () => {
+            const res = await select('site_settings', { filter: 'key=eq.quotes' });
+            if (res.data && res.data.length > 0 && Array.isArray(res.data[0].value)) {
+                return { data: res.data[0].value, error: null };
+            }
+            const resMaster = await select('site_settings', { filter: 'key=eq.master_bundle' });
+            if (resMaster.data && resMaster.data.length > 0 && resMaster.data[0].value && Array.isArray(resMaster.data[0].value.quotes)) {
+                return { data: resMaster.data[0].value.quotes, error: null };
+            }
+            return { data: [], error: null };
+        }
     };
 
 })();

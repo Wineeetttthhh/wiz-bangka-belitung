@@ -466,8 +466,24 @@ function initHomeQuoteSection() {
         imgEl.onerror = () => { imgEl.src = defaultImg; };
     }
     if (catEl) catEl.textContent = today.category || 'Quote & Inspirasi';
-    if (textEl) textEl.textContent = `"${today.text}"`;
-    if (srcEl) srcEl.innerHTML = `<span class="material-symbols-outlined text-base">menu_book</span><span>${today.source || 'Wahdah Inspirasi Zakat'}</span>`;
+    if (textEl) {
+        if (today.text && today.text.trim()) {
+            textEl.textContent = `"${today.text}"`;
+            textEl.style.display = '';
+        } else {
+            textEl.textContent = '';
+            textEl.style.display = 'none';
+        }
+    }
+    if (srcEl) {
+        if (today.source && today.source.trim()) {
+            srcEl.innerHTML = `<span class="material-symbols-outlined text-base">menu_book</span><span>${today.source}</span>`;
+            srcEl.style.display = '';
+        } else {
+            srcEl.innerHTML = `<span class="material-symbols-outlined text-base">menu_book</span><span>Wahdah Inspirasi Zakat</span>`;
+            srcEl.style.display = '';
+        }
+    }
     
     if (pageLink) {
         pageLink.href = `${origin}/flyer/${encodeURIComponent(today.id)}${activeRef ? '?ref=' + encodeURIComponent(activeRef) : ''}`;

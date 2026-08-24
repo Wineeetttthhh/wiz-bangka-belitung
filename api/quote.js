@@ -76,7 +76,7 @@ async function getLiveQuotes() {
     }
 
     try {
-        const res = await fetch(`${SUPABASE_URL}/site_settings?key=eq.master_bundle&select=*`, {
+        const res = await fetch(`${SUPABASE_URL}/site_settings?key=in.(quotes,master_bundle)&select=*`, {
             headers: {
                 'apikey': SUPABASE_KEY,
                 'Authorization': `Bearer ${SUPABASE_KEY}`,
@@ -85,10 +85,19 @@ async function getLiveQuotes() {
         });
         if (res.ok) {
             const list = await res.json();
-            if (Array.isArray(list) && list.length > 0 && list[0].value && Array.isArray(list[0].value.quotes) && list[0].value.quotes.length > 0) {
-                cachedQuotes = list[0].value.quotes;
-                cachedQuotesTime = Date.now();
-                return cachedQuotes;
+            if (Array.isArray(list) && list.length > 0) {
+                const quotesDoc = list.find(d => d.key === 'quotes');
+                if (quotesDoc && quotesDoc.value && Array.isArray(quotesDoc.value) && quotesDoc.value.length > 0) {
+                    cachedQuotes = quotesDoc.value;
+                    cachedQuotesTime = Date.now();
+                    return cachedQuotes;
+                }
+                const mbDoc = list.find(d => d.key === 'master_bundle');
+                if (mbDoc && mbDoc.value && Array.isArray(mbDoc.value.quotes) && mbDoc.value.quotes.length > 0) {
+                    cachedQuotes = mbDoc.value.quotes;
+                    cachedQuotesTime = Date.now();
+                    return cachedQuotes;
+                }
             }
         }
     } catch(e) {

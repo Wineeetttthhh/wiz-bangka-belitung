@@ -48,6 +48,7 @@ async function supabaseGetMaster() {
             const siteImagesDoc = list.find(d => d.key === 'site_images');
             const specificProgDoc = list.find(d => d.key === 'specific_prog_imgs');
             const siteSettingsDoc = list.find(d => d.key === 'site_settings');
+            const quotesDoc = list.find(d => d.key === 'quotes');
 
             let master = (masterDoc && masterDoc.value) ? masterDoc.value : null;
             if (!master) master = loadCanonicalSeed();
@@ -60,6 +61,9 @@ async function supabaseGetMaster() {
             }
             if (siteSettingsDoc && siteSettingsDoc.value && typeof siteSettingsDoc.value === 'object') {
                 master.site_settings = { ...(master.site_settings || {}), ...siteSettingsDoc.value };
+            }
+            if (quotesDoc && quotesDoc.value && Array.isArray(quotesDoc.value)) {
+                master.quotes = quotesDoc.value;
             }
 
             return master;
@@ -166,11 +170,9 @@ module.exports = async function handler(req, res) {
             // 1. Fetch from Supabase
             let masterData = await supabaseGetMaster();
 
-            // 2. Fallback to canonical-store.json
-            if (!masterData || !Array.isArray(masterData.news) || masterData.news.length === 0) {
+            // 2. Fallback to canonical-store.json only if completely uninitialized
+            if (!masterData) {
                 masterData = loadCanonicalSeed();
-                // Push canonical to Supabase
-                supabaseSaveMaster(masterData).catch(() => {});
             }
 
             memCache = masterData;
@@ -298,38 +300,67 @@ module.exports = async function handler(req, res) {
             if (deletedIds.length > 0 && Array.isArray(master.donations)) {
                 master.donations = master.donations.filter(d => d && d.id && !deletedIds.includes(String(d.id)));
             }
+            if (deletedQuoteIds.length > 0 && Array.isArray(master.quotes)) {
+                master.quotes = master.quotes.filter(q => q && q.id && !deletedQuoteIds.includes(String(q.id)));
+            }
+            if (deletedNewsIds.length > 0 && Array.isArray(master.news)) {
+                master.news = master.news.filter(n => n && n.id && !deletedNewsIds.includes(String(n.id)));
+            }
+            if (deletedProgramIds.length > 0 && Array.isArray(master.programs)) {
+                master.programs = master.programs.filter(p => p && p.id && !deletedProgramIds.includes(String(p.id)));
+            }
+            if (deletedDisbIds.length > 0 && Array.isArray(master.disbursements)) {
+                master.disbursements = master.disbursements.filter(d => d && d.id && !deletedDisbIds.includes(String(d.id)));
+            }
+            if (deletedRefIds.length > 0 && Array.isArray(master.referrals)) {
+                master.referrals = master.referrals.filter(r => r && (r.id || r.code) && !deletedRefIds.includes(String(r.id || r.code)));
+            }
 
-            if (Array.isArray(incoming.donations))
+            if (Array.isArray(incoming.donations)) {
                 master.donations = mergeArrays(master.donations, incoming.donations, deletedIds);
+            }
 
-            if (Array.isArray(incoming.news) && incoming.news.length > 0) {
-                master.news = incoming.news.filter(n => n && n.id && !deletedNewsIds.includes(String(n.id)) && n.status !== 'deleted');
-            } else if (Array.isArray(incoming.news)) {
+            if (Array.isArray(incoming.news)) {
                 master.news = mergeArrays(master.news, incoming.news, deletedNewsIds);
             }
 
-            if (Array.isArray(incoming.programs) && incoming.programs.length > 0) {
-                master.programs = incoming.programs.filter(p => p && p.id && !deletedProgramIds.includes(String(p.id)) && p.status !== 'deleted');
-            } else if (Array.isArray(incoming.programs)) {
+            if (Array.isArray(incoming.programs)) {
                 master.programs = mergeArrays(master.programs, incoming.programs, deletedProgramIds);
             }
 
-            if (Array.isArray(incoming.disbursements))
+            if (Array.isArray(incoming.disbursements)) {
                 master.disbursements = mergeArrays(master.disbursements, incoming.disbursements, deletedDisbIds);
-            if (Array.isArray(incoming.referrals))
+            }
+            if (Array.isArray(incoming.referrals)) {
                 master.referrals = mergeArrays(master.referrals, incoming.referrals, deletedRefIds);
-            if (Array.isArray(incoming.referral_payouts))
+            }
+            if (Array.isArray(incoming.referral_payouts)) {
                 master.referral_payouts = mergeArrays(master.referral_payouts, incoming.referral_payouts, []);
-            if (Array.isArray(incoming.quotes))
-                master.quotes = incoming.quotes.length > 0 ? incoming.quotes : mergeArrays(master.quotes, incoming.quotes, deletedQuoteIds);
-            if (Array.isArray(incoming.activity))
+            }
+            if (Array.isArray(incoming.quotes)) {
+                master.quotes = mergeArrays(master.quotes, incoming.quotes, deletedQuoteIds);
+            }
+            if (Array.isArray(incoming.activity)) {
                 master.activity = mergeArrays(master.activity, incoming.activity, []);
+            }
 
             if (deletedAdminIds.length > 0 && Array.isArray(master.admin_users)) {
                 master.admin_users = master.admin_users.filter(u => u && u.id && !deletedAdminIds.includes(String(u.id)));
             }
             if (Array.isArray(incoming.admin_users) && incoming.admin_users.length > 0) {
                 master.admin_users = mergeArrays(master.admin_users, incoming.admin_users, deletedAdminIds);
+            }
+
+            if (Array.isArray(master.quotes)) {
+                fetch(`${SUPABASE_URL}/site_settings`, {
+                    method: 'POST',
+                    headers: supabaseHeaders,
+                    body: JSON.stringify({
+                        key: 'quotes',
+                        value: master.quotes,
+                        updated_at: new Date().toISOString()
+                    })
+                }).catch(() => {});
             }
 
             if (incoming.site_images && typeof incoming.site_images === 'object') {
@@ -346,13 +377,13 @@ module.exports = async function handler(req, res) {
             }
 
             if (incoming.site_settings && typeof incoming.site_settings === 'object') {
-                master.site_settings = incoming.site_settings;
+                master.site_settings = { ...(master.site_settings || {}), ...incoming.site_settings };
                 fetch(`${SUPABASE_URL}/site_settings`, {
                     method: 'POST',
                     headers: supabaseHeaders,
                     body: JSON.stringify({
                         key: 'site_settings',
-                        value: incoming.site_settings,
+                        value: master.site_settings,
                         updated_at: new Date().toISOString()
                     })
                 }).catch(() => {});
