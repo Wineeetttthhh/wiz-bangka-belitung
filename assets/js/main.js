@@ -1402,7 +1402,7 @@ Mohon dapat diverifikasi dan dikirimkan konfirmasi/bukti resi donasinya. Terima 
 
             const wilayahInput = document.getElementById('donation-wilayah-select') || document.querySelector('input[name="donation_wilayah"]:checked');
             const targetWilayah = (wilayahInput ? wilayahInput.value : '').toLowerCase();
-            const targetPhone = (targetWilayah.includes('sungailiat') || targetWilayah.includes('sungai liat')) ? '6282282244899' : '6282380830808';
+            const targetPhone = (targetWilayah.includes('sungailiat') || targetWilayah.includes('sungai liat')) ? '628871528889' : '6282380830808';
 
             const encodedMessage = encodeURIComponent(message);
             const waUrl = `https://wa.me/${targetPhone}?text=${encodedMessage}`;

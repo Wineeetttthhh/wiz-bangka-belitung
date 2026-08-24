@@ -57,7 +57,7 @@
         ],
         offices: [
             { id: 'pangkalpinang', name: 'Kantor Pangkalpinang', address: 'Jl. Mentok No. 45, Pangkalpinang, Bangka Belitung', phone: '0823-8083-0808', hotline: '082380830808', mapsUrl: 'https://maps.google.com' },
-            { id: 'sungailiat', name: 'Kantor Sungailiat', address: 'Jl. Jenderal Sudirman No. 12, Sungailiat, Bangka', phone: '0822-8224-4899', hotline: '082282244899', mapsUrl: 'https://maps.google.com' }
+            { id: 'sungailiat', name: 'Kantor Sungailiat', address: 'Jl. Jenderal Sudirman No. 12, Sungailiat, Bangka', phone: '+62 887-1528-889', hotline: '08871528889', mapsUrl: 'https://maps.google.com' }
         ],
         hotline: '082380830808'
     };
