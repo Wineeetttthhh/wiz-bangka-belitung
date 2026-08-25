@@ -11,8 +11,8 @@
  */
 
 const SUPABASE_CONFIG = {
-    url: 'https://ffiltrlzdbwhhhxzmzuo.supabase.co',
-    anonKey: 'sb_publishable_GiA1BOjbW2psTU36149xuA_E26wGBI3'
+    url: 'https://ccmulazswlmjyfjdtlti.supabase.co',
+    anonKey: 'sb_publishable_hEmZHHQyc0EeHXQI2caacQ_InnfPXa5'
 };
 
 (function () {
