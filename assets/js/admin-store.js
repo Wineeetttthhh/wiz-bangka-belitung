@@ -4655,8 +4655,19 @@
 
         getTotalDonatur(wilayah) {
             let verified = donations.getVerified();
-            if (wilayah && wilayah !== 'Semua') verified = verified.filter(d => d.wilayah === wilayah);
-            const uniqueDonors = new Set(verified.map(d => (d.donorName + (d.donorPhone || '')).toLowerCase()));
+            if (wilayah && wilayah !== 'Semua') verified = verified.filter(d => (d.wilayah || 'Pangkalpinang') === wilayah);
+
+            // Each "Hamba Allah" donation represents a distinct individual donor unless sharing a verified phone number
+            const donorKeys = verified.map(d => {
+                const name = (d.donorName || d.donor_name || 'Hamba Allah').trim();
+                const phone = (d.donorPhone || d.donor_phone || '').replace(/[^0-9]/g, '');
+                if (name.toLowerCase() === 'hamba allah') {
+                    return phone ? `hamba_allah_${phone}` : `hamba_allah_${d.id}`;
+                }
+                return (name + '_' + (phone || d.id)).toLowerCase();
+            });
+
+            const uniqueDonors = new Set(donorKeys);
             const base = wilayah && wilayah !== 'Semua' ? 0 : baselines.get().baseDonatur;
             return base + uniqueDonors.size;
         },
