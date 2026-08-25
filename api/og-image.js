@@ -15,8 +15,9 @@ const fs = require('fs');
 const path = require('path');
 const { Jimp } = require('jimp');
 
-const SUPABASE_URL = 'https://ffiltrlzdbwhhhxzmzuo.supabase.co/rest/v1';
-const SUPABASE_KEY = 'sb_publishable_GiA1BOjbW2psTU36149xuA_E26wGBI3';
+const SUPABASE_RAW_URL = process.env.SUPABASE_URL || 'https://ffiltrlzdbwhhhxzmzuo.supabase.co';
+const SUPABASE_URL = SUPABASE_RAW_URL.endsWith('/rest/v1') ? SUPABASE_RAW_URL : `${SUPABASE_RAW_URL.replace(/\/$/, '')}/rest/v1`;
+const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || 'sb_publishable_GiA1BOjbW2psTU36149xuA_E26wGBI3';
 
 // ─── In-Memory Cache for Sub-10ms Serverless Response ────────
 const imageCache = new Map(); // key → { buf, ts }
