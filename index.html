@@ -839,16 +839,16 @@
             <div>
                 <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Pilih Nominal Donasi</label>
                 <div class="grid grid-cols-3 gap-xs mb-sm">
-                    <button type="button" onclick="setNominal(50000)" class="p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary transition-all text-center">Rp 50.000</button>
-                    <button type="button" onclick="setNominal(100000)" class="p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary transition-all text-center">Rp 100.000</button>
-                    <button type="button" onclick="setNominal(250000)" class="p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary transition-all text-center">Rp 250.000</button>
-                    <button type="button" onclick="setNominal(500000)" class="p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary transition-all text-center">Rp 500.000</button>
-                    <button type="button" onclick="setNominal(1000000)" class="p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary transition-all text-center">Rp 1.000.000</button>
-                    <button type="button" onclick="setNominal('')" class="p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary transition-all text-center">Lainnya</button>
+                    <button type="button" data-nominal="50000" onclick="setNominal(50000)" class="chip-nominal p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary focus:border-primary transition-all text-center cursor-pointer">Rp 50.000</button>
+                    <button type="button" data-nominal="100000" onclick="setNominal(100000)" class="chip-nominal p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary focus:border-primary transition-all text-center cursor-pointer">Rp 100.000</button>
+                    <button type="button" data-nominal="250000" onclick="setNominal(250000)" class="chip-nominal p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary focus:border-primary transition-all text-center cursor-pointer">Rp 250.000</button>
+                    <button type="button" data-nominal="500000" onclick="setNominal(500000)" class="chip-nominal p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary focus:border-primary transition-all text-center cursor-pointer">Rp 500.000</button>
+                    <button type="button" data-nominal="1000000" onclick="setNominal(1000000)" class="chip-nominal p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary focus:border-primary transition-all text-center cursor-pointer">Rp 1.000.000</button>
+                    <button type="button" data-nominal="" onclick="setNominal('')" class="chip-nominal p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary focus:border-primary transition-all text-center cursor-pointer">Lainnya</button>
                 </div>
                 <div class="relative">
                     <span class="absolute left-md top-1/2 -translate-y-1/2 font-bold text-primary">Rp</span>
-                    <input type="number" id="nominal-input" required min="10000" class="w-full pl-xl pr-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary" placeholder="Masukkan nominal (Minimal Rp 10.000)"/>
+                    <input type="number" id="nominal-input" required min="1" class="w-full pl-xl pr-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary" placeholder="Masukkan nominal donasi (Bebas / Tanpa Minimal)"/>
                 </div>
             </div>
 
@@ -882,10 +882,10 @@
 </a>
 
 <!-- Store & Supabase Scripts -->
-<script src="assets/js/supabase-client.js?v=20260825_parity1"></script>
-<script src="assets/js/admin-store.js?v=20260825_parity1"></script>
-<script src="assets/js/main.js?v=20260825_parity1"></script>
-<script src="assets/js/nav-active.js?v=20260825_parity1"></script>
+<script src="assets/js/supabase-client.js?v=20260823_31"></script>
+<script src="assets/js/admin-store.js?v=20260823_31"></script>
+<script src="assets/js/main.js?v=20260823_31"></script>
+<script src="assets/js/nav-active.js?v=20260820_7"></script>
 
 <!-- Interactive Scripts -->
 <script>
@@ -921,31 +921,41 @@
         if (!currentShareArticle) return;
         const activeRef = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || '');
         const baseOrigin = 'https://www.wizbangkabelitung.or.id';
-        const shareUrl = `${baseOrigin}/berita/${encodeURIComponent(currentShareArticle.id)}${activeRef ? '?ref=' + encodeURIComponent(activeRef) : ''}`;
         const title = currentShareArticle.title || 'Berita WIZ Bangka Belitung';
 
+        const articleUrl = new URL(`${baseOrigin}/berita/${encodeURIComponent(currentShareArticle.id)}`);
+        if (activeRef) {
+            articleUrl.searchParams.set('ref', activeRef);
+        }
+
         if (platform === 'wa') {
+            articleUrl.searchParams.set('v', Date.now());
+            const finalShareUrl = articleUrl.toString();
+
             if (typeof window.showWhatsAppShareToast === 'function') {
                 window.showWhatsAppShareToast('Tunggu 1–2 detik di WhatsApp hingga kartu preview gambar muncul sebelum kirim Status ✨');
             }
-            // Send pure URL only to WhatsApp so Open Graph thumbnail card renders reliably on WhatsApp Status
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareUrl)}`, '_blank');
-        } else if (platform === 'fb') {
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank');
-        } else if (platform === 'tw') {
-            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(shareUrl)}`, '_blank');
-        } else if (platform === 'tg') {
-            window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(title)}`, '_blank');
-        } else if (platform === 'copy') {
-            navigator.clipboard.writeText(shareUrl).then(() => {
-                const toast = document.getElementById('share-toast');
-                if (toast) {
-                    toast.classList.remove('hidden');
-                    setTimeout(() => toast.classList.add('hidden'), 3000);
-                } else {
-                    alert('Tautan berita berhasil disalin ke clipboard!');
-                }
-            });
+            // Send URL with dynamic cache buster so WhatsApp re-crawls fresh Open Graph card
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(finalShareUrl)}`, '_blank');
+        } else {
+            const finalShareUrl = articleUrl.toString();
+            if (platform === 'fb') {
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(finalShareUrl)}`, '_blank');
+            } else if (platform === 'tw') {
+                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(finalShareUrl)}`, '_blank');
+            } else if (platform === 'tg') {
+                window.open(`https://t.me/share/url?url=${encodeURIComponent(finalShareUrl)}&text=${encodeURIComponent(title)}`, '_blank');
+            } else if (platform === 'copy') {
+                navigator.clipboard.writeText(finalShareUrl).then(() => {
+                    const toast = document.getElementById('share-toast');
+                    if (toast) {
+                        toast.classList.remove('hidden');
+                        setTimeout(() => toast.classList.add('hidden'), 3000);
+                    } else {
+                        alert('Tautan berita berhasil disalin ke clipboard!');
+                    }
+                });
+            }
         }
     }
 
@@ -972,11 +982,14 @@
 
         grid.innerHTML = publishedNews.map(n => {
             const galCount = Array.isArray(n.gallery) ? n.gallery.filter(Boolean).length : 0;
+            const rawImg = (n.imageUrl || n.image_url || '').trim();
+            const firstGal = (Array.isArray(n.gallery) && n.gallery.length > 0 && typeof n.gallery[0] === 'string') ? n.gallery[0].trim() : '';
+            const cardImg = rawImg || firstGal || defaultImg;
 
             return `
             <article class="bg-surface rounded-2xl overflow-hidden shadow-level-1 hover:shadow-level-2 hover:-translate-y-1 transition-all border border-surface-variant flex flex-col group">
-                <div onclick="openPublicNewsModal('${n.id}')" class="relative aspect-video overflow-hidden bg-surface-container cursor-pointer">
-                    <img src="${n.imageUrl || defaultImg}" onerror="this.src='${defaultImg}'" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="${n.title}">
+                <div onclick="openPublicNewsModal('${n.id}')" class="relative aspect-video overflow-hidden bg-surface-container cursor-pointer w-full">
+                    <img src="${cardImg}" onerror="this.src='${defaultImg}'" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 block" style="object-fit: cover; width: 100%; height: 100%; display: block;" alt="${n.title}" loading="lazy">
                     <span class="absolute top-sm left-sm bg-primary text-on-primary font-caption text-[11px] px-2.5 py-1 rounded-full font-bold shadow-sm">${n.category || 'Kegiatan'}</span>
                     ${galCount > 0 ? `
                     <span class="absolute bottom-sm right-sm bg-black/75 backdrop-blur-xs text-white font-caption text-[11px] px-2 py-0.5 rounded-full font-bold shadow-sm flex items-center gap-1">
@@ -1014,8 +1027,16 @@
         currentShareArticle = article;
 
         const defaultImg = 'assets/images/sedekah-beras-dhuafa.jpg';
+        const rawImg = (article.imageUrl || article.image_url || '').trim();
+        const firstGal = (Array.isArray(article.gallery) && article.gallery.length > 0 && typeof article.gallery[0] === 'string') ? article.gallery[0].trim() : '';
+        const modalImg = rawImg || firstGal || defaultImg;
+
         const imgEl = document.getElementById('pub-modal-image');
-        imgEl.src = article.imageUrl || defaultImg;
+        imgEl.src = modalImg;
+        imgEl.style.objectFit = 'cover';
+        imgEl.style.width = '100%';
+        imgEl.style.height = '100%';
+        imgEl.style.display = 'block';
         imgEl.onerror = () => { imgEl.src = defaultImg; };
 
         document.getElementById('pub-news-category').textContent = article.category || 'Kegiatan & Event';
@@ -1038,13 +1059,9 @@
             galWrapper.classList.remove('hidden');
             galGrid.innerHTML = gal.map(imgUrl => `
                 <div class="overflow-hidden rounded-xl border border-outline-variant/30 shadow-sm aspect-video bg-surface-container">
-                    <img src="${imgUrl}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" alt="Dokumentasi Tambahan">
+                    <img src="${imgUrl}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300 block" style="object-fit: cover; width: 100%; height: 100%; display: block;" alt="Dokumentasi Tambahan">
                 </div>
             `).join('');
-        } else if (galWrapper) {
-            galWrapper.classList.add('hidden');
-        }
-
         document.getElementById('public-news-modal').classList.add('show');
         document.body.style.overflow = 'hidden';
     }
@@ -1078,10 +1095,33 @@
         }
     }
 
+    function updateChipActiveStyles(val) {
+        const numVal = parseInt(val) || 0;
+        const chips = document.querySelectorAll('#donation-modal .chip-nominal');
+        chips.forEach(chip => {
+            const chipVal = parseInt(chip.dataset.nominal || chip.getAttribute('onclick')?.match(/\d+/)?.[0]) || 0;
+            if (numVal > 0 && chipVal === numVal) {
+                chip.classList.add('border-primary', 'bg-primary/10', 'text-primary', 'font-bold', 'ring-1', 'ring-primary');
+                chip.classList.remove('text-on-surface', 'border-outline-variant');
+            } else {
+                chip.classList.remove('border-primary', 'bg-primary/10', 'text-primary', 'font-bold', 'ring-1', 'ring-primary');
+                chip.classList.add('text-on-surface', 'border-outline-variant');
+            }
+        });
+    }
+
     function setNominal(value) {
+        const numVal = parseInt(value) || 0;
         if (nominalInput) {
-            nominalInput.value = value;
+            nominalInput.value = numVal > 0 ? numVal : '';
         }
+        updateChipActiveStyles(numVal);
+    }
+
+    if (nominalInput) {
+        nominalInput.addEventListener('input', (e) => {
+            updateChipActiveStyles(e.target.value);
+        });
     }
 
     if (donationModal) {
@@ -1499,7 +1539,7 @@
                         </div>
                         <div class="mt-auto space-y-2">
                             <button onclick="openDonationModal('${escapeHtml(item.title)}')" class="w-full bg-[#F7941D] text-white font-label-md text-label-md py-sm rounded-lg hover:opacity-90 transition-opacity font-bold cursor-pointer">Donasi Sekarang</button>
-                            <button onclick="event.stopPropagation(); (function(t){ const o='https://www.wizbangkabelitung.or.id'; const s=t.toLowerCase().replace(/[^\w\s-]/g,'').trim().replace(/[-\s]+/g,'-'); const u=o+'/program/'+s; window.open('https://api.whatsapp.com/send?text='+encodeURIComponent('\ud83c\udf1f *'+t+'*\n\nSalurkan kepedulian terbaik Anda bersama WIZ Bangka Belitung.\n\n\ud83d\udd17 '+u),'_blank'); })('${escapeHtml(item.title)}')" class="w-full bg-[#25D366] hover:bg-[#1ebe57] text-white font-bold text-xs py-2 rounded-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-sm">
+                            <button onclick="event.stopPropagation(); (function(t){ const o='https://www.wizbangkabelitung.or.id'; const s=t.toLowerCase().replace(/[^\w\s-]/g,'').trim().replace(/[-\s]+/g,'-'); const ref=(typeof getActiveAffiliateRef==='function'?getActiveAffiliateRef():'')||(new URLSearchParams(window.location.search).get('ref')||''); const u=new URL(o+'/program/'+s); if(ref) u.searchParams.set('ref', ref); u.searchParams.set('v', Date.now()); window.open('https://api.whatsapp.com/send?text='+encodeURIComponent('🌟 *'+t+'*\n\nSalurkan kepedulian terbaik Anda bersama WIZ Bangka Belitung.\n\n🔗 '+u.toString()),'_blank'); })('${escapeHtml(item.title)}')" class="w-full bg-[#25D366] hover:bg-[#1ebe57] text-white font-bold text-xs py-2 rounded-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-sm">
                                 <svg xmlns='http://www.w3.org/2000/svg' class='w-3.5 h-3.5' viewBox='0 0 24 24' fill='currentColor'><path d='M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z'/></svg>
                                 <span>Bagikan ke WhatsApp</span>
                             </button>

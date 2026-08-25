@@ -144,41 +144,7 @@
 
     const DEFAULT_REFERRALS = [];
 
-    const DEFAULT_QUOTES = [
-        {
-            id: 'quote-1',
-            text: 'Sedekah itu tidak akan mengurangi harta. Tidak ada orang yang memberi maaf kepada orang lain melainkan Allah akan menambah kemuliaannya.',
-            source: 'HR. Muslim no. 2588',
-            category: 'Sedekah & Keberkahan',
-            imageUrl: 'assets/images/foto-utama-wiz.jpg',
-            date: '2026-08-20',
-            status: 'active',
-            author: 'Admin WIZ Babel',
-            createdAt: '2026-08-20T00:00:00.000Z'
-        },
-        {
-            id: 'quote-2',
-            text: 'Tidak ada suatu hari pun ketika seorang hamba memasuki waktu pagi melainkan turun dua malaikat. Salah satunya berdoa: Ya Allah, berikanlah ganti bagi orang yang berinfak.',
-            source: 'HR. Bukhari no. 1442 & Muslim no. 1010',
-            category: 'Infak Subuh',
-            imageUrl: 'assets/images/sedekah-beras-dhuafa.jpg',
-            date: '2026-08-19',
-            status: 'active',
-            author: 'Admin WIZ Babel',
-            createdAt: '2026-08-19T00:00:00.000Z'
-        },
-        {
-            id: 'quote-3',
-            text: 'Bentengilah hartamu dengan zakat, obatilah orang-orang sakit di antaramu dengan sedekah, dan hadapilah berbagai cobaan dengan doa.',
-            source: 'HR. Abu Dawud & At-Thabrani',
-            category: 'Zakat & Penyucian Jiwa',
-            imageUrl: 'assets/images/sedekah-beras-dai.jpg',
-            date: '2026-08-18',
-            status: 'active',
-            author: 'Admin WIZ Babel',
-            createdAt: '2026-08-18T00:00:00.000Z'
-        }
-    ];
+    const DEFAULT_QUOTES = [];
 
     // ─── Helpers ───────────────────────────────────────────
     function generateId() {
@@ -2119,8 +2085,6 @@
         setStore(STORAGE_KEYS.ALLOCATION_RULES, ALLOCATION_RULES);
         setStore(STORAGE_KEYS.REFERRALS, getStore(STORAGE_KEYS.REFERRALS) || []);
         setStore(STORAGE_KEYS.REFERRAL_PAYOUTS, getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || []);
-        setStore(STORAGE_KEYS.QUOTES, getStore(STORAGE_KEYS.QUOTES) || DEFAULT_QUOTES);
-        setStore(STORAGE_KEYS.PROGRAMS, getStore(STORAGE_KEYS.PROGRAMS) || DEFAULT_PROGRAMS);
         localStorage.setItem(STORAGE_KEYS.INITIALIZED, 'true');
     }
 
@@ -2129,12 +2093,6 @@
     }
     if (!getStore(STORAGE_KEYS.REFERRAL_PAYOUTS)) {
         setStore(STORAGE_KEYS.REFERRAL_PAYOUTS, []);
-    }
-    if (!getStore(STORAGE_KEYS.QUOTES) || !Array.isArray(getStore(STORAGE_KEYS.QUOTES)) || getStore(STORAGE_KEYS.QUOTES).length === 0) {
-        setStore(STORAGE_KEYS.QUOTES, DEFAULT_QUOTES);
-    }
-    if (!getStore(STORAGE_KEYS.PROGRAMS) || !Array.isArray(getStore(STORAGE_KEYS.PROGRAMS)) || getStore(STORAGE_KEYS.PROGRAMS).length === 0) {
-        setStore(STORAGE_KEYS.PROGRAMS, DEFAULT_PROGRAMS);
     }
 
     // ─── High-Speed Unified Cloud Sync Engine (/api/sync) ────────
@@ -2350,6 +2308,49 @@
         }
     }
 
+    // ─── Smart Merge Helper ──────────────────────────────────────────
+    function smartMerge(storageKey, cloudItems, sortFn, deletedIdsSet) {
+        if (!Array.isArray(cloudItems)) return;
+        const localItems = getStore(storageKey) || [];
+        const itemMap = new Map();
+
+        localItems.forEach(item => {
+            if (!item) return;
+            const key = item.id || item.username || item.title;
+            if (key && deletedIdsSet && (deletedIdsSet.has(String(key)) || deletedIdsSet.has(String(key).toLowerCase()))) {
+                return;
+            }
+            if (key) itemMap.set(String(key), item);
+        });
+
+        cloudItems.forEach(item => {
+            if (!item) return;
+            const key = item.id || item.username || item.title;
+            if (key && deletedIdsSet && (deletedIdsSet.has(String(key)) || deletedIdsSet.has(String(key).toLowerCase()))) {
+                return;
+            }
+            if (key) {
+                const existing = itemMap.get(String(key));
+                if (!existing) {
+                    itemMap.set(String(key), item);
+                } else {
+                    const localTime = new Date(existing.updatedAt || existing.createdAt || 0).getTime();
+                    const cloudTime = new Date(item.updatedAt || item.createdAt || 0).getTime();
+                    if (cloudTime >= localTime) {
+                        itemMap.set(String(key), { ...existing, ...item });
+                    }
+                }
+            }
+        });
+
+        const merged = Array.from(itemMap.values());
+        if (typeof sortFn === 'function') {
+            merged.sort(sortFn);
+        }
+        setStore(storageKey, merged);
+        return merged;
+    }
+
     // ─── Sync From Cloud (Supabase Primary & Vercel API) ─────────────
     async function syncFromCloud(force = false) {
         const now = Date.now();
@@ -2434,19 +2435,23 @@
                 try {
                     const sbNewsRes = await window.wizSupabase.select('news');
                     if (sbNewsRes && Array.isArray(sbNewsRes.data) && sbNewsRes.data.length > 0) {
-                        directSbNews = sbNewsRes.data.map(n => ({
-                            id: n.id,
-                            title: n.title,
-                            category: n.category,
-                            content: n.content,
-                            imageUrl: n.image_url,
-                            gallery: Array.isArray(n.gallery) ? n.gallery : [],
-                            eventDate: n.event_date,
-                            status: n.status,
-                            author: n.author,
-                            createdAt: n.created_at,
-                            updatedAt: n.updated_at
-                        }));
+                        directSbNews = sbNewsRes.data.map(n => {
+                            const mainImg = (n.image_url || (Array.isArray(n.gallery) && n.gallery.length > 0 ? n.gallery[0] : '') || n.imageUrl || '').trim();
+                            return {
+                                id: n.id,
+                                title: n.title,
+                                category: n.category,
+                                content: n.content,
+                                imageUrl: mainImg,
+                                image_url: mainImg,
+                                gallery: Array.isArray(n.gallery) ? n.gallery : [],
+                                eventDate: n.event_date || n.eventDate,
+                                status: n.status || 'published',
+                                author: n.author || 'Admin WIZ Babel',
+                                createdAt: n.created_at || n.createdAt,
+                                updatedAt: n.updated_at || n.updatedAt
+                            };
+                        });
                     }
                 } catch(e) {}
 
@@ -2589,150 +2594,82 @@
             const deletedQuoteSet = getDeletedQuoteIds();
             const deletedAdminSet = getDeletedAdminIds();
 
-            function smartMerge(storeKey, cloudData, sortFn, activeDeletedSet = deletedSet) {
-                if (!cloudData || !Array.isArray(cloudData)) return;
-                const local = getStore(storeKey) || [];
-                const map = new Map();
-
-                // Load local first, skipping deleted
-                local.forEach(item => {
-                    if (!item) return;
-                    const itemId = String(item.id || item.code || (item.name ? `${item.name}-${item.phone || ''}` : ''));
-                    const cleanUsername = (item.username || '').toLowerCase();
-                    if (itemId && !activeDeletedSet.has(itemId) && (!cleanUsername || !activeDeletedSet.has(cleanUsername)) && item.status !== 'deleted' && item.status !== 'rejected' && !item.isDeleted) {
-                        item.id = item.id || itemId;
-                        map.set(itemId, item);
-                    }
+            // ─── Authoritative Supabase Cloud SSOT Sync ────────────────
+            // Sync Donations: Supabase is Single Source of Truth
+            if (directSbDonations !== null && Array.isArray(directSbDonations)) {
+                // Retain only very recent (last 2 mins) pending local donations that haven't synced to cloud yet
+                const local = getStore(STORAGE_KEYS.DONATIONS) || [];
+                const recentLocalPending = local.filter(d => {
+                    if (!d || d.status !== 'pending') return false;
+                    const age = Date.now() - new Date(d.createdAt || 0).getTime();
+                    return age < 120000 && !directSbDonations.some(sd => String(sd.id) === String(d.id));
                 });
-
-                // Merge cloud data, checking timestamps
-                cloudData.forEach(cloudItem => {
-                    if (!cloudItem) return;
-                    const strId = String(cloudItem.id || cloudItem.code || (cloudItem.name ? `${cloudItem.name}-${cloudItem.phone || ''}` : ''));
-                    const cleanCloudUser = (cloudItem.username || '').toLowerCase();
-                    if (!strId || activeDeletedSet.has(strId) || (cleanCloudUser && activeDeletedSet.has(cleanCloudUser)) || cloudItem.status === 'deleted' || cloudItem.status === 'rejected' || cloudItem.isDeleted) return;
-                    cloudItem.id = cloudItem.id || strId;
-
-                    let localItemKey = strId;
-                    let localItem = map.get(strId);
-                    if (!localItem && cleanCloudUser && storeKey === STORAGE_KEYS.ADMIN_USERS) {
-                        for (const [k, v] of map.entries()) {
-                            if (v.username && v.username.toLowerCase() === cleanCloudUser) {
-                                localItem = v;
-                                localItemKey = k;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (localItem) {
-                        const tLocal = new Date(localItem.updatedAt || localItem.verifiedAt || localItem.createdAt || 0).getTime();
-                        const tCloud = new Date(cloudItem.updatedAt || cloudItem.verifiedAt || cloudItem.createdAt || 0).getTime();
-                        let mergedItem;
-                        if (tLocal >= tCloud) {
-                            mergedItem = { ...cloudItem, ...localItem };
-                        } else {
-                            mergedItem = { ...localItem, ...cloudItem };
-                        }
-                        if (storeKey === STORAGE_KEYS.ADMIN_USERS) {
-                            if (cloudItem.status === 'approved' || localItem.status === 'approved') {
-                                mergedItem.status = 'approved';
-                                mergedItem.verifiedAt = cloudItem.verifiedAt || localItem.verifiedAt || new Date().toISOString();
-                                mergedItem.verifiedBy = cloudItem.verifiedBy || localItem.verifiedBy || 'Admin 1';
-                            }
-                        }
-                        if (localItem.imageUrl && (!cloudItem.imageUrl || localItem.imageUrl.startsWith('data:image') || tLocal >= tCloud)) {
-                            mergedItem.imageUrl = localItem.imageUrl;
-                        }
-                        map.set(localItemKey, mergedItem);
-                    } else {
-                        map.set(strId, cloudItem);
-                    }
-                });
-
-                const merged = Array.from(map.values());
-                if (sortFn) merged.sort(sortFn);
-                setStore(storeKey, merged);
+                const finalDonations = [...recentLocalPending, ...directSbDonations];
+                finalDonations.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                setStore(STORAGE_KEYS.DONATIONS, finalDonations);
+                window.dispatchEvent(new CustomEvent('wiz-donations-changed'));
+            } else if (masterData && Array.isArray(masterData.donations)) {
+                setStore(STORAGE_KEYS.DONATIONS, masterData.donations);
+                window.dispatchEvent(new CustomEvent('wiz-donations-changed'));
             }
 
-            // Sync Donations: Use direct Supabase table as primary source
-            const authoritativeDonations = (directSbDonations !== null)
-                ? directSbDonations
-                : (masterData && Array.isArray(masterData.donations) ? masterData.donations : []);
-            smartMerge(STORAGE_KEYS.DONATIONS, authoritativeDonations, (a, b) => new Date(b.createdAt) - new Date(a.createdAt), deletedSet);
-
-            // News Sync: Use direct Supabase news table as authoritative source
-            const authoritativeNews = (directSbNews && Array.isArray(directSbNews) && directSbNews.length > 0)
-                ? directSbNews
-                : (masterData && Array.isArray(masterData.news) ? masterData.news : []);
-
-            if (authoritativeNews.length > 0) {
-                const cloudNewsMap = new Map();
-                // 1. Load authoritative cloud news with full property normalization
-                authoritativeNews.forEach(rawN => {
-                    if (rawN && rawN.id && !deletedNewsSet.has(String(rawN.id)) && rawN.status !== 'deleted' && !rawN.isDeleted) {
-                        const img = rawN.imageUrl || rawN.image_url || '';
-                        const n = {
-                            ...rawN,
-                            imageUrl: img,
-                            image_url: img,
-                            eventDate: rawN.eventDate || rawN.event_date || rawN.createdAt || rawN.created_at || new Date().toISOString(),
-                            createdAt: rawN.createdAt || rawN.created_at || new Date().toISOString(),
-                            updatedAt: rawN.updatedAt || rawN.updated_at || new Date().toISOString()
-                        };
-                        cloudNewsMap.set(String(n.id), n);
-                    }
+            // Sync News: Supabase news table is authoritative
+            if (directSbNews !== null && Array.isArray(directSbNews)) {
+                const mappedNews = directSbNews.map(rawN => {
+                    const img = (rawN.imageUrl || rawN.image_url || (Array.isArray(rawN.gallery) && rawN.gallery.length > 0 ? rawN.gallery[0] : '') || '').trim();
+                    return {
+                        ...rawN,
+                        imageUrl: img,
+                        image_url: img,
+                        eventDate: rawN.eventDate || rawN.event_date || rawN.createdAt || rawN.created_at || new Date().toISOString(),
+                        createdAt: rawN.createdAt || rawN.created_at || new Date().toISOString(),
+                        updatedAt: rawN.updatedAt || rawN.updated_at || new Date().toISOString()
+                    };
                 });
-
-                // 2. Retain local items only if they are new local items not yet in cloud
-                const local = getStore(STORAGE_KEYS.NEWS) || [];
-                local.forEach(loc => {
-                    if (loc && loc.id && !deletedNewsSet.has(String(loc.id)) && loc.status !== 'deleted') {
-                        const strId = String(loc.id);
-                        if (!cloudNewsMap.has(strId)) {
-                            const img = loc.imageUrl || loc.image_url || '';
-                            cloudNewsMap.set(strId, {
-                                ...loc,
-                                imageUrl: img,
-                                image_url: img
-                            });
-                        }
-                    }
-                });
-
-                const mergedNews = Array.from(cloudNewsMap.values());
-                mergedNews.sort((a, b) => new Date(b.eventDate || b.event_date || b.createdAt || 0) - new Date(a.eventDate || a.event_date || a.createdAt || 0));
-                setStore(STORAGE_KEYS.NEWS, mergedNews);
+                mappedNews.sort((a, b) => new Date(b.eventDate || b.createdAt || 0) - new Date(a.eventDate || a.createdAt || 0));
+                setStore(STORAGE_KEYS.NEWS, mappedNews);
+                window.dispatchEvent(new CustomEvent('wiz-news-changed'));
+            } else if (masterData && Array.isArray(masterData.news)) {
+                setStore(STORAGE_KEYS.NEWS, masterData.news);
+                window.dispatchEvent(new CustomEvent('wiz-news-changed'));
             }
 
-            // Sync Disbursements: Use direct Supabase table as primary source
-            const authoritativeDisbursements = (directSbDisbursements !== null)
-                ? directSbDisbursements
-                : (masterData && Array.isArray(masterData.disbursements) ? masterData.disbursements : []);
-            smartMerge(STORAGE_KEYS.DISBURSEMENTS, authoritativeDisbursements, (a, b) => new Date(b.disbursedAt || b.createdAt) - new Date(a.disbursedAt || a.createdAt), deletedDisbSet);
-
-            // Sync Referrals / Affiliators: Use direct Supabase table as primary source
-            const authoritativeReferrals = (directSbReferrals !== null)
-                ? directSbReferrals
-                : (masterData && Array.isArray(masterData.referrals) ? masterData.referrals : []);
-            if (authoritativeReferrals && authoritativeReferrals.length > 0) {
-                smartMerge(STORAGE_KEYS.REFERRALS, authoritativeReferrals, (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0), deletedRefSet);
+            // Sync Disbursements: Supabase disbursements table is authoritative
+            if (directSbDisbursements !== null && Array.isArray(directSbDisbursements)) {
+                directSbDisbursements.sort((a, b) => new Date(b.disbursedAt || b.createdAt || 0) - new Date(a.disbursedAt || a.createdAt || 0));
+                setStore(STORAGE_KEYS.DISBURSEMENTS, directSbDisbursements);
+                window.dispatchEvent(new CustomEvent('wiz-disbursements-changed'));
+            } else if (masterData && Array.isArray(masterData.disbursements)) {
+                setStore(STORAGE_KEYS.DISBURSEMENTS, masterData.disbursements);
+                window.dispatchEvent(new CustomEvent('wiz-disbursements-changed'));
             }
 
-            if (masterData.referral_payouts) {
-                smartMerge(STORAGE_KEYS.REFERRAL_PAYOUTS, masterData.referral_payouts, (a, b) => new Date(b.paidAt || 0) - new Date(a.paidAt || 0));
+            // Sync Referrals / Affiliators: Supabase referrals table is authoritative
+            if (directSbReferrals !== null && Array.isArray(directSbReferrals)) {
+                directSbReferrals.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                setStore(STORAGE_KEYS.REFERRALS, directSbReferrals);
+                window.dispatchEvent(new CustomEvent('wiz-referrals-changed'));
+            } else if (masterData && Array.isArray(masterData.referrals)) {
+                setStore(STORAGE_KEYS.REFERRALS, masterData.referrals);
+                window.dispatchEvent(new CustomEvent('wiz-referrals-changed'));
             }
-            const authoritativeQuotes = (directSbQuotes !== null && directSbQuotes.length > 0)
-                ? directSbQuotes
-                : (masterData && Array.isArray(masterData.quotes) ? masterData.quotes : directSbQuotes);
 
-            if (authoritativeQuotes && Array.isArray(authoritativeQuotes)) {
-                smartMerge(STORAGE_KEYS.QUOTES, authoritativeQuotes, (a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0), deletedQuoteSet);
+            if (masterData && Array.isArray(masterData.referral_payouts)) {
+                setStore(STORAGE_KEYS.REFERRAL_PAYOUTS, masterData.referral_payouts);
+            }
+
+            // Sync Quotes: Supabase site_settings (key='quotes') is authoritative
+            if (directSbQuotes !== null && Array.isArray(directSbQuotes)) {
+                directSbQuotes.sort((a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0));
+                setStore(STORAGE_KEYS.QUOTES, directSbQuotes);
+                window.dispatchEvent(new CustomEvent('wiz-quotes-changed'));
+            } else if (masterData && Array.isArray(masterData.quotes)) {
+                setStore(STORAGE_KEYS.QUOTES, masterData.quotes);
                 window.dispatchEvent(new CustomEvent('wiz-quotes-changed'));
             }
 
-            // Sync Site Settings: Direct Supabase or masterData
-            const authoritativeSettings = directSbSettings || (masterData.site_settings ? (masterData.site_settings.value || masterData.site_settings) : null);
+            // Sync Site Settings (Rekening Banks, Offices, Hotline): Supabase is authoritative
+            const authoritativeSettings = directSbSettings || (masterData && masterData.site_settings ? (masterData.site_settings.value || masterData.site_settings) : null);
             if (authoritativeSettings && typeof authoritativeSettings === 'object') {
                 const mergedSettings = { ...DEFAULT_SITE_SETTINGS, ...authoritativeSettings };
                 setStore(STORAGE_KEYS.SITE_SETTINGS, mergedSettings);
@@ -2741,7 +2678,8 @@
                     try { window.applySiteSettings(); } catch(e) {}
                 }
             }
-            // Baca standalone site_images & specific_prog_imgs key dari Supabase (prioritas utama untuk gambar)
+
+            // Standalone site_images & specific_prog_imgs from Supabase
             let cloudSiteImgsDirect = null;
             let cloudSpecificProgImgsDirect = null;
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
@@ -2758,32 +2696,19 @@
                     }
                 } catch(e) {}
             }
-            // Gabungkan: DEFAULT_SITE_IMAGES + masterData.site_images + cloudSiteImgsDirect + local
-            const _localSiteImgs = getStore(STORAGE_KEYS.SITE_IMAGES) || {};
-            const _cloudSiteImgs = Object.assign({}, DEFAULT_SITE_IMAGES, masterData.site_images || {}, cloudSiteImgsDirect || {});
-            
-            // Pertahankan nilai lokal yang valid jika cloud masih default
-            for (const [k, v] of Object.entries(_localSiteImgs)) {
-                if (v && v !== DEFAULT_SITE_IMAGES[k] && (!_cloudSiteImgs[k] || _cloudSiteImgs[k] === DEFAULT_SITE_IMAGES[k])) {
-                    _cloudSiteImgs[k] = v;
-                }
-            }
-            if (cloudSiteImgsDirect && typeof cloudSiteImgsDirect === 'object') {
-                Object.assign(_cloudSiteImgs, cloudSiteImgsDirect);
-            }
 
+            // Authoritative Site Images: DEFAULT_SITE_IMAGES + masterData.site_images + cloudSiteImgsDirect
+            const _cloudSiteImgs = Object.assign({}, DEFAULT_SITE_IMAGES, (masterData && masterData.site_images) || {}, cloudSiteImgsDirect || {});
             setStore(STORAGE_KEYS.SITE_IMAGES, _cloudSiteImgs);
             window.dispatchEvent(new CustomEvent('wiz-program-images-changed'));
             window.dispatchEvent(new CustomEvent('wiz-site-images-changed', { detail: _cloudSiteImgs }));
 
-            // Gabungkan specific_prog_imgs
-            const existingProgImgs = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
-            const mergedProgImgs = { ...existingProgImgs, ...(masterData.specific_prog_imgs || {}), ...(cloudSpecificProgImgsDirect || {}) };
+            // Authoritative specific_prog_imgs:
+            const mergedProgImgs = Object.assign({}, DEFAULT_SPECIFIC_PROGRAM_IMAGES, (masterData && masterData.specific_prog_imgs) || {}, cloudSpecificProgImgsDirect || {});
             localStorage.setItem('wiz_specific_prog_imgs', JSON.stringify(mergedProgImgs));
 
-            if (masterData.custom_specific_programs && typeof masterData.custom_specific_programs === 'object' && Object.keys(masterData.custom_specific_programs).length > 0) {
-                const existingMap = JSON.parse(localStorage.getItem('wiz_custom_specific_programs') || '{}');
-                const mergedMap = { ...existingMap, ...masterData.custom_specific_programs };
+            if (masterData && masterData.custom_specific_programs && typeof masterData.custom_specific_programs === 'object' && Object.keys(masterData.custom_specific_programs).length > 0) {
+                const mergedMap = masterData.custom_specific_programs;
                 localStorage.setItem('wiz_custom_specific_programs', JSON.stringify(mergedMap));
                 
                 // Synchronize into allocationRulesManager subAllocation
@@ -2814,10 +2739,10 @@
                 } catch(e) {}
                 window.dispatchEvent(new CustomEvent('wiz-programs-changed', { detail: mergedMap }));
             }
-            if (masterData.baselines && typeof masterData.baselines === 'object') {
+            if (masterData && masterData.baselines && typeof masterData.baselines === 'object') {
                 setStore(STORAGE_KEYS.BASELINES, masterData.baselines);
             }
-            if (masterData.admin_users && Array.isArray(masterData.admin_users)) {
+            if (masterData && masterData.admin_users && Array.isArray(masterData.admin_users)) {
                 const currentDeletedAdminSet = getDeletedAdminIds();
                 const cloudAdmins = masterData.admin_users.filter(u => u && (u.id || u.username) && !currentDeletedAdminSet.has(String(u.id)) && (!u.username || !currentDeletedAdminSet.has(u.username.toLowerCase())) && u.status !== 'deleted' && u.status !== 'rejected' && !u.isDeleted);
                 
@@ -5898,7 +5823,7 @@
         getAll() {
             const deletedQuoteSet = getDeletedQuoteIds();
             const stored = getStore(STORAGE_KEYS.QUOTES);
-            let list = (Array.isArray(stored) && stored.length > 0) ? stored : DEFAULT_QUOTES;
+            let list = Array.isArray(stored) ? stored : DEFAULT_QUOTES;
             return list.filter(q => q && q.id && !deletedQuoteSet.has(String(q.id)) && q.status !== 'deleted' && !q.isDeleted)
                 .sort((a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0));
         },
@@ -6105,21 +6030,26 @@
     // ─── Initialize Data & Sync ───────────────────────────
     seedDefaultData();
 
-    // Full sync on startup:
+    // Full authoritative sync on startup:
     async function initSync() {
         try {
-            await syncFromCloud(true);   // Pull fresh authoritative data from Cloud and replace local state
-            console.log('[WIZ Sync Engine] Init sync complete.');
+            await syncFromCloud(true);   // Pull fresh authoritative data from Supabase Cloud and replace local state
+            console.log('[WIZ Sync Engine] Initial real-time cloud sync complete (Supabase SSOT active).');
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
         } catch(e) {
-            console.warn('[WIZ Sync Engine] Init sync error:', e.message);
+            console.warn('[WIZ Sync Engine] Init sync warning:', e.message);
         }
     }
 
-    // Slight delay so Firebase client script finishes loading
-    setTimeout(initSync, 200);
+    // Execute immediately on startup
+    initSync();
+    if (typeof document !== 'undefined') {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => initSync());
+        }
+    }
 
-    // Automatic recurring background cloud sync every 12 seconds (when tab is active)
+    // Automatic recurring background cloud sync every 10 seconds (when tab is active)
     setInterval(async () => {
         if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
             try {
@@ -6127,7 +6057,7 @@
                 window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             } catch(e) {}
         }
-    }, 12000);
+    }, 10000);
 
     // ─── Public API ───────────────────────────────────────
     window.wizStore = {

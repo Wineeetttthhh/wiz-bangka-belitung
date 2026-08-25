@@ -252,10 +252,8 @@
     </footer>
 
     <!-- Scripts: Store & Supabase Sync -->
-    <script src="assets/js/supabase-client.js?v=20260825_parity1"></script>
-    <script src="assets/js/admin-store.js?v=20260825_parity1"></script>
-    <script src="assets/js/main.js?v=20260825_parity1"></script>
-    <script src="assets/js/nav-active.js?v=20260825_parity1"></script>
+    <script src="assets/js/supabase-client.js"></script>
+    <script src="assets/js/admin-store.js"></script>
 
     <script>
         let currentCategory = 'Semua';
@@ -325,11 +323,14 @@
             grid.innerHTML = pageItems.map(n => {
                 const galCount = Array.isArray(n.gallery) ? n.gallery.filter(Boolean).length : 0;
                 const formattedDate = (window.wizStore && wizStore.utils) ? wizStore.utils.formatDate(n.eventDate || n.createdAt) : (n.eventDate || n.createdAt || '');
+                const rawImg = (n.imageUrl || n.image_url || '').trim();
+                const firstGal = (Array.isArray(n.gallery) && n.gallery.length > 0 && typeof n.gallery[0] === 'string') ? n.gallery[0].trim() : '';
+                const cardImg = rawImg || firstGal || defaultImg;
 
                 return `
                 <article class="bg-white rounded-3xl overflow-hidden shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-200 flex flex-col group">
-                    <div onclick="openModal('${n.id}')" class="relative aspect-video overflow-hidden bg-slate-900 cursor-pointer">
-                        <img src="${n.imageUrl || n.image_url || defaultImg}" onerror="this.src='${defaultImg}'" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="${n.title}">
+                    <div onclick="openModal('${n.id}')" class="relative aspect-video overflow-hidden bg-slate-900 cursor-pointer w-full">
+                        <img src="${cardImg}" onerror="this.src='${defaultImg}'" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 block" style="object-fit: cover; width: 100%; height: 100%; display: block;" alt="${n.title}">
                         <span class="absolute top-3 left-3 bg-emerald-600 text-white text-[11px] px-3 py-1 rounded-full font-bold shadow backdrop-blur-xs">${n.category || 'Kegiatan'}</span>
                         ${galCount > 0 ? `
                         <span class="absolute bottom-3 right-3 bg-black/75 backdrop-blur-xs text-white text-[11px] px-2.5 py-0.5 rounded-full font-bold shadow flex items-center gap-1">
@@ -418,8 +419,16 @@
             currentModalArticle = article;
 
             const defaultImg = 'assets/images/sedekah-beras-dhuafa.jpg';
+            const rawImg = (article.imageUrl || article.image_url || '').trim();
+            const firstGal = (Array.isArray(article.gallery) && article.gallery.length > 0 && typeof article.gallery[0] === 'string') ? article.gallery[0].trim() : '';
+            const modalImg = rawImg || firstGal || defaultImg;
+
             const imgEl = document.getElementById('pub-modal-image');
-            imgEl.src = article.imageUrl || article.image_url || defaultImg;
+            imgEl.src = modalImg;
+            imgEl.style.objectFit = 'cover';
+            imgEl.style.width = '100%';
+            imgEl.style.height = '100%';
+            imgEl.style.display = 'block';
             imgEl.onerror = () => { imgEl.src = defaultImg; };
 
             const formattedEventDate = (window.wizStore && wizStore.utils) ? wizStore.utils.formatDate(article.eventDate || article.createdAt) : (article.eventDate || article.createdAt || '');
@@ -440,7 +449,7 @@
                 galWrapper.classList.remove('hidden');
                 galGrid.innerHTML = gal.map(imgUrl => `
                     <div class="overflow-hidden rounded-2xl border border-slate-200 shadow-xs aspect-video bg-slate-900">
-                        <img src="${imgUrl}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" alt="Dokumentasi Tambahan">
+                        <img src="${imgUrl}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300 block" style="object-fit: cover; width: 100%; height: 100%; display: block;" alt="Dokumentasi Tambahan">
                     </div>
                 `).join('');
             } else if (galWrapper) {
@@ -466,30 +475,38 @@
             if (!n) return;
             const refCode = getPageRefCode();
             const baseOrigin = 'https://www.wizbangkabelitung.or.id';
-            const shareUrl = `${baseOrigin}/berita/${encodeURIComponent(n.id)}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
+            const shareUrlObj = new URL(`${baseOrigin}/berita/${encodeURIComponent(n.id)}`);
+            if (refCode) shareUrlObj.searchParams.set('ref', refCode);
+            shareUrlObj.searchParams.set('v', Date.now());
+            const finalShareUrl = shareUrlObj.toString();
             
             if (typeof window.showWhatsAppShareToast === 'function') {
                 window.showWhatsAppShareToast('Tunggu 1–2 detik di WhatsApp hingga kartu preview gambar muncul sebelum kirim Status ✨');
             }
 
-            // Send pure URL only to WhatsApp so Open Graph thumbnail card renders reliably on WhatsApp Status
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareUrl)}`, '_blank');
+            // Send URL with cache buster to WhatsApp so Open Graph thumbnail card renders fresh
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(finalShareUrl)}`, '_blank');
         }
 
         function shareArticleModal(platform) {
             if (!currentModalArticle) return;
             const refCode = getPageRefCode();
             const baseOrigin = 'https://www.wizbangkabelitung.or.id';
-            const shareUrl = `${baseOrigin}/berita/${encodeURIComponent(currentModalArticle.id)}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
+            const shareUrlObj = new URL(`${baseOrigin}/berita/${encodeURIComponent(currentModalArticle.id)}`);
+            if (refCode) shareUrlObj.searchParams.set('ref', refCode);
 
             if (platform === 'wa') {
+                shareUrlObj.searchParams.set('v', Date.now());
+                const finalShareUrl = shareUrlObj.toString();
+
                 if (typeof window.showWhatsAppShareToast === 'function') {
                     window.showWhatsAppShareToast('Tunggu 1–2 detik di WhatsApp hingga kartu preview gambar muncul sebelum kirim Status ✨');
                 }
-                // Send pure URL only to WhatsApp so Open Graph thumbnail card renders reliably on WhatsApp Status
-                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareUrl)}`, '_blank');
+                // Send URL with dynamic cache buster to WhatsApp
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(finalShareUrl)}`, '_blank');
             } else if (platform === 'copy') {
-                navigator.clipboard.writeText(shareUrl).then(() => {
+                const cleanCopyUrl = shareUrlObj.toString();
+                navigator.clipboard.writeText(cleanCopyUrl).then(() => {
                     const toast = document.getElementById('share-toast');
                     if (toast) {
                         toast.classList.remove('hidden');
@@ -512,16 +529,10 @@
             }
         }
 
-        window.addEventListener('DOMContentLoaded', async () => {
+        window.addEventListener('DOMContentLoaded', () => {
             const fyb = document.getElementById('footer-year-berita');
             if (fyb) fyb.textContent = new Date().getFullYear();
             renderArchive();
-            if (window.wizStore && window.wizStore.syncFromCloud) {
-                try {
-                    await window.wizStore.syncFromCloud(true);
-                } catch(e) {}
-                renderArchive();
-            }
         });
         window.addEventListener('wiz-news-changed', renderArchive);
         window.addEventListener('wiz-sync-complete', renderArchive);

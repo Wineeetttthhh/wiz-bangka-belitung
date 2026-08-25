@@ -204,6 +204,12 @@ const SUPABASE_CONFIG = {
             }
             return await upsert('donations', payload);
         },
+        getAllDonations: async () => {
+            const res = await select('donations', {
+                order: 'created_at.desc'
+            });
+            return res;
+        },
         getRecentVerifiedDonations: async (limit = 10) => {
             const res = await select('donations', {
                 filter: 'status=eq.verified',
@@ -297,6 +303,36 @@ const SUPABASE_CONFIG = {
                 return { data: resMaster.data[0].value.site_settings, error: null };
             }
             return res;
+        },
+        saveSpecificProgImages: async (imgMap) => {
+            if (!imgMap) return { data: null, error: 'No data' };
+            return await upsert('site_settings', {
+                key: 'specific_prog_imgs',
+                value: imgMap,
+                updated_at: new Date().toISOString()
+            });
+        },
+        getSpecificProgImages: async () => {
+            const res = await select('site_settings', { filter: 'key=eq.specific_prog_imgs' });
+            if (res.data && res.data.length > 0 && res.data[0].value) {
+                return { data: res.data[0].value, error: null };
+            }
+            return { data: {}, error: null };
+        },
+        saveSiteImages: async (imgMap) => {
+            if (!imgMap) return { data: null, error: 'No data' };
+            return await upsert('site_settings', {
+                key: 'site_images',
+                value: imgMap,
+                updated_at: new Date().toISOString()
+            });
+        },
+        getSiteImages: async () => {
+            const res = await select('site_settings', { filter: 'key=eq.site_images' });
+            if (res.data && res.data.length > 0 && res.data[0].value) {
+                return { data: res.data[0].value, error: null };
+            }
+            return { data: {}, error: null };
         },
         saveNews: async (article) => {
             if (!article) return { data: null, error: 'No data' };

@@ -53,14 +53,14 @@ const SPECIFIC_PROGRAMS_METADATA = {
         pillar: 'Dakwah & Pembinaan',
         target: 'Rp 30.000.000',
         description: 'Dukungan akomodasi, transportasi, dan kafalah bagi para da\'i yang bertugas di provinsi Bangka Belitung.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/keberangkatan-kepulangan-dai.jpg'
     },
     'keberangkatan-kepulangan-dai': {
         title: 'Keberangkatan & Kepulangan Dai',
         pillar: 'Dakwah & Pembinaan',
         target: 'Rp 30.000.000',
         description: 'Dukungan akomodasi, transportasi, dan kafalah bagi para da\'i yang bertugas di provinsi Bangka Belitung.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/keberangkatan-kepulangan-dai.jpg'
     },
     'santunan-mualaf': {
         title: 'Santunan Mualaf',
@@ -164,6 +164,20 @@ const SPECIFIC_PROGRAMS_METADATA = {
         description: 'Bantuan beras premium secara berkala untuk mencukupi kebutuhan pokok para mustahik dan santri pondok pesantren.',
         imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/sedekah-beras-dhuafa.jpg'
     },
+    'sedekah-beras-dai': {
+        title: 'Sedekah Beras Dai',
+        pillar: 'Sosial & Kemanusiaan',
+        target: 'Rp 20.000.000',
+        description: 'Bantuan paket beras untuk para dai dan guru ngaji yang berjuang membina ummat di pelosok desa.',
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/sedekah-beras-dai.jpg'
+    },
+    'sedekah-beras-dai-koba': {
+        title: 'Sedekah Beras Dai Koba',
+        pillar: 'Sosial & Kemanusiaan',
+        target: 'Rp 20.000.000',
+        description: 'Bantuan paket beras untuk para dai dan asatidz di wilayah Koba dan sekitarnya.',
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/sedekah-beras-dai-koba.jpg'
+    },
     'sedekah-jumat': {
         title: 'Sedekah Jumat (Sedulang Berkah)',
         pillar: 'Sosial & Kemanusiaan',
@@ -204,7 +218,7 @@ const SPECIFIC_PROGRAMS_METADATA = {
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 50.000.000',
         description: 'Berbagi paket buka puasa berkah untuk ribuan santri, dhuafa, dan pejuang nafkah di bulan suci Ramadan.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/tebar-iftar.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/tebar-iftar-nusantara.jpg'
     },
     'tebar-quran-nusantara': {
         title: 'Tebar Qur\'an Nusantara',
@@ -248,14 +262,14 @@ const SPECIFIC_PROGRAMS_METADATA = {
         pillar: 'Pendidikan & Beasiswa',
         target: 'Rp 35.000.000',
         description: 'Bantuan biaya studi dan living cost santri penghafal Qur\'an di pesantren dan perguruan tinggi.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/beasiswa-tahfidz.jpg'
     },
     'beasiswa-tahfidz-dhuafa': {
         title: 'Beasiswa Tahfidz & Dhuafa',
         pillar: 'Pendidikan & Beasiswa',
         target: 'Rp 35.000.000',
         description: 'Bantuan biaya studi dan living cost santri penghafal Qur\'an di pesantren dan perguruan tinggi.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/beasiswa-tahfidz.jpg'
     },
     'perlengkapan-belajar-yatim': {
         title: 'Perlengkapan Belajar Yatim',
@@ -278,21 +292,21 @@ const SPECIFIC_PROGRAMS_METADATA = {
         pillar: 'Kesehatan Masyarakat',
         target: 'Rp 20.000.000',
         description: 'Layanan berobat gratis dan bantuan pengobatan bagi pasien dhuafa dan lansia kritis di Bangka Belitung.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/bantuan-pengobatan.jpg'
     },
     'bantuan-kesehatan-dhuafa': {
         title: 'Bantuan Kesehatan Dhuafa',
         pillar: 'Kesehatan Masyarakat',
         target: 'Rp 20.000.000',
         description: 'Layanan berobat gratis dan bantuan pengobatan bagi pasien dhuafa dan lansia kritis di Bangka Belitung.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/bantuan-pengobatan.jpg'
     },
     'bantuan-pasien-kritis-dhuafa': {
         title: 'Bantuan Pasien Kritis Dhuafa',
         pillar: 'Kesehatan Masyarakat',
         target: 'Rp 20.000.000',
         description: 'Bantuan biaya tebus obat dan rawat inap bagi pasien dhuafa kurang mampu yang tidak tercover penuh oleh asuransi.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/bantuan-pengobatan.jpg'
     },
     'ambulance-gratis-ummat': {
         title: 'Ambulance Gratis Ummat',
@@ -472,6 +486,7 @@ module.exports = async function handler(req, res) {
         if (cloudBundle && Array.isArray(cloudBundle.programs)) {
             const foundProg = cloudBundle.programs.find(p => p && (slugify(p.title) === querySlug || p.slug === querySlug || p.id === querySlug || p.title.toLowerCase() === cleanProgQuery.toLowerCase()));
             if (foundProg && foundProg.status !== 'deleted') {
+                const curatedImg = (SPECIFIC_PROGRAMS_METADATA[slugify(foundProg.title)] && SPECIFIC_PROGRAMS_METADATA[slugify(foundProg.title)].imageUrl) || (SPECIFIC_PROGRAMS_METADATA[querySlug] && SPECIFIC_PROGRAMS_METADATA[querySlug].imageUrl);
                 selectedProgram = {
                     title: foundProg.title,
                     pillar: foundProg.pillar,
@@ -479,7 +494,7 @@ module.exports = async function handler(req, res) {
                     location: foundProg.location || 'Kepulauan Bangka Belitung',
                     beneficiaries: foundProg.beneficiaries || '',
                     description: foundProg.description || `Salurkan kepedulian dan donasi terbaik Anda untuk program ${foundProg.title} bersama WIZ Babel.`,
-                    imageUrl: specificImgsMap[foundProg.title] || foundProg.imageUrl || DEFAULT_FALLBACK_IMAGE
+                    imageUrl: specificImgsMap[foundProg.title] || curatedImg || (foundProg.imageUrl && !foundProg.imageUrl.includes('default-program-wiz') ? foundProg.imageUrl : null) || DEFAULT_FALLBACK_IMAGE
                 };
             }
         }
@@ -491,12 +506,13 @@ module.exports = async function handler(req, res) {
                 if (Array.isArray(pArr)) {
                     for (const itemTitle of pArr) {
                         if (slugify(itemTitle) === querySlug || itemTitle.toLowerCase() === cleanProgQuery.toLowerCase()) {
+                            const curatedImg = (SPECIFIC_PROGRAMS_METADATA[slugify(itemTitle)] && SPECIFIC_PROGRAMS_METADATA[slugify(itemTitle)].imageUrl) || (SPECIFIC_PROGRAMS_METADATA[querySlug] && SPECIFIC_PROGRAMS_METADATA[querySlug].imageUrl);
                             selectedProgram = {
                                 title: itemTitle,
                                 pillar: pKey,
                                 target: 'Rp 15.000.000',
                                 description: `Salurkan infak dan sedekah terbaik Anda untuk program ${itemTitle} Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.`,
-                                imageUrl: specificImgsMap[itemTitle] || DEFAULT_FALLBACK_IMAGE
+                                imageUrl: specificImgsMap[itemTitle] || curatedImg || DEFAULT_FALLBACK_IMAGE
                             };
                             break;
                         }
@@ -519,26 +535,58 @@ module.exports = async function handler(req, res) {
         };
     }
 
+const PROGRAM_IMAGE_MAP = {
+    'pray-for-ntt':                                 'assets/images/pray-for-ntt.jpg',
+    'sedekah-beras-dhuafa':                         'assets/images/sedekah-beras-dhuafa.jpg',
+    'sedekah-beras-dai':                            'assets/images/sedekah-beras-dai.jpg',
+    'sedekah-beras-dai-koba':                       'assets/images/sedekah-beras-dai-koba.jpg',
+    'beasiswa-pendidikan-juara':                    'assets/images/beasiswa-pendidikan-juara.jpg',
+    'beasiswa-tahfidz':                             'assets/images/beasiswa-tahfidz.jpg',
+    'beasiswa-tahfidz-dhuafa':                      'assets/images/beasiswa-tahfidz.jpg',
+    'tebar-iftar':                                  'assets/images/tebar-iftar.jpg',
+    'tebar-iftar-nusantara':                        'assets/images/tebar-iftar-nusantara.jpg',
+    'santunan-yatim':                               'assets/images/santunan-yatim.jpg',
+    'santunan-anak-yatim':                          'assets/images/santunan-yatim.jpg',
+    'tebar-sembako':                                'assets/images/tebar-sembako.jpg',
+    'tebar-sembako-dhuafa':                         'assets/images/tebar-sembako.jpg',
+    'perlengkapan-belajar-yatim':                   'assets/images/perlengkapan-belajar-yatim.jpg',
+    'wiz-berkah-juara-perlengkapan-belajar-yatim':  'assets/images/perlengkapan-belajar-yatim.jpg',
+    'modal-usaha-dhuafa':                           'assets/images/modal-usaha-dhuafa.jpg',
+    'modal-usaha-mandiri':                          'assets/images/modal-usaha-dhuafa.jpg',
+    'gerobak-berkah-umkm':                          'assets/images/modal-usaha-dhuafa.jpg',
+    'pelatihan-keterampilan-wirausaha':             'assets/images/pelatihan-keterampilan-wirausaha.jpg',
+    'bantuan-pengobatan':                           'assets/images/bantuan-pengobatan.jpg',
+    'bantuan-kesehatan-dhuafa':                     'assets/images/bantuan-pengobatan.jpg',
+    'bantuan-pasien-kritis-dhuafa':                 'assets/images/bantuan-pengobatan.jpg',
+    'layanan-pengobatan-gratis':                    'assets/images/bantuan-pengobatan.jpg',
+    'ambulance-gratis-ummat':                       'assets/images/ambulance-gratis-ummat.jpg',
+    'ambulans-gratis-peduli':                       'assets/images/ambulance-gratis-ummat.jpg',
+    'khitanan-massal-dhuafa':                       'assets/images/khitanan-massal-dhuafa.jpg',
+    'khitanan-massal':                              'assets/images/khitanan-massal.jpg',
+    'keberangkatan-kepulangan-dai':                 'assets/images/keberangkatan-kepulangan-dai.jpg',
+    'keberangkatan-dan-kepulangan-dai':             'assets/images/keberangkatan-kepulangan-dai.jpg',
+};
+
     // 4. Dynamic Image Override (from Supabase admin upload, query param, or metadata)
     const imgQuery = urlObj.searchParams.get('img');
     if (imgQuery && (imgQuery.startsWith('http://') || imgQuery.startsWith('https://') || imgQuery.startsWith('assets/'))) {
         selectedProgram.imageUrl = imgQuery.trim();
     } else {
         const checkSlug = slugify(selectedProgram.title);
-        // A. Curated metadata specific images
-        if (SPECIFIC_PROGRAMS_METADATA[checkSlug] && SPECIFIC_PROGRAMS_METADATA[checkSlug].imageUrl) {
+        const querySlug = slugify(cleanProgQuery);
+        // A. Curated metadata specific images & PROGRAM_IMAGE_MAP
+        if (PROGRAM_IMAGE_MAP[checkSlug]) {
+            selectedProgram.imageUrl = PROGRAM_IMAGE_MAP[checkSlug];
+        } else if (PROGRAM_IMAGE_MAP[querySlug]) {
+            selectedProgram.imageUrl = PROGRAM_IMAGE_MAP[querySlug];
+        } else if (SPECIFIC_PROGRAMS_METADATA[checkSlug] && SPECIFIC_PROGRAMS_METADATA[checkSlug].imageUrl && !SPECIFIC_PROGRAMS_METADATA[checkSlug].imageUrl.includes('default-program-wiz')) {
             selectedProgram.imageUrl = SPECIFIC_PROGRAMS_METADATA[checkSlug].imageUrl;
+        } else if (SPECIFIC_PROGRAMS_METADATA[querySlug] && SPECIFIC_PROGRAMS_METADATA[querySlug].imageUrl && !SPECIFIC_PROGRAMS_METADATA[querySlug].imageUrl.includes('default-program-wiz')) {
+            selectedProgram.imageUrl = SPECIFIC_PROGRAMS_METADATA[querySlug].imageUrl;
         }
-        // B. programs in cloudBundle
-        if (cloudBundle && Array.isArray(cloudBundle.programs)) {
-            const foundInPrograms = cloudBundle.programs.find(p => p && p.imageUrl && (slugify(p.title) === checkSlug || p.slug === checkSlug || p.id === checkSlug));
-            if (foundInPrograms && foundInPrograms.imageUrl && !foundInPrograms.imageUrl.includes('default-program-wiz')) {
-                selectedProgram.imageUrl = foundInPrograms.imageUrl;
-            }
-        }
-        // C. specificImgsMap (Highest priority: live admin custom upload from Supabase)
+        // B. specificImgsMap (Highest priority: live admin custom upload from Supabase)
         for (const [title, imgUrl] of Object.entries(specificImgsMap)) {
-            if (imgUrl && (slugify(title) === checkSlug || title.toLowerCase() === selectedProgram.title.toLowerCase())) {
+            if (imgUrl && !imgUrl.includes('default-program-wiz') && (slugify(title) === checkSlug || slugify(title) === querySlug || title.toLowerCase() === selectedProgram.title.toLowerCase())) {
                 selectedProgram.imageUrl = imgUrl;
                 break;
             }
@@ -606,20 +654,17 @@ module.exports = async function handler(req, res) {
         return res.status(404).send('Image not found');
     }
 
-    // ─── 2. OG IMAGE URL ──────────────────────────────────────────────────────────
-    // Strategy:
-    //   a) base64 image → serve via /api/program?slug=...&img=1 (direct binary, no proxy)
-    //   b) https:// URL  → route via /api/og-image with ?src= param (cropped 1200x630)
-    //   c) local file    → route via /api/og-image (Jimp crop fallback)
+    // ─── 2. OG IMAGE URL (Direct, Instant & Highly Compatible) ────────────────────
     let ogImageUrl;
     if (rawImg && rawImg.startsWith('data:image/')) {
-        // Direct binary serve — most reliable for base64 blobs stored in Supabase
+        // Direct binary stream — decoded directly from Supabase base64
         ogImageUrl = `${origin}/api/program?slug=${encodeURIComponent(canonicalSlug)}&img=1`;
-    } else if (rawImg && rawImg.startsWith('https://')) {
-        // Forward the exact URL so og-image uses it without a second Supabase lookup
-        ogImageUrl = `${origin}/api/og-image?type=program&id=${encodeURIComponent(canonicalSlug)}&src=${encodeURIComponent(rawImg)}`;
+    } else if (rawImg && (rawImg.startsWith('https://') || rawImg.startsWith('http://'))) {
+        ogImageUrl = rawImg;
+    } else if (rawImg) {
+        ogImageUrl = `${origin}/${rawImg.replace(/^\//, '')}`;
     } else {
-        ogImageUrl = `${origin}/api/og-image?type=program&id=${encodeURIComponent(canonicalSlug)}`;
+        ogImageUrl = DEFAULT_FALLBACK_IMAGE;
     }
     const ogImageSecureUrl = ogImageUrl;
 
@@ -629,12 +674,14 @@ module.exports = async function handler(req, res) {
         pageImgSrc = `${origin}/${pageImgSrc.replace(/^\//, '')}`;
     }
 
-    let canonicalUrl = `${origin}/program/${canonicalSlug}`;
-    const params = [];
-    if (refCode) params.push(`ref=${encodeURIComponent(refCode)}`);
-    if (params.length > 0) canonicalUrl += `?${params.join('&')}`;
+    const canonicalUrlObj = new URL(`${origin}/program/${canonicalSlug}`);
+    if (refCode) canonicalUrlObj.searchParams.set('ref', refCode);
+    const canonicalUrl = canonicalUrlObj.toString();
 
-    const donateUrl = `${origin}/donasi.html?program=${encodeURIComponent(title)}${refCode ? '&ref=' + encodeURIComponent(refCode) : ''}`;
+    const donateUrlObj = new URL(`${origin}/donasi.html`);
+    donateUrlObj.searchParams.set('program', title);
+    if (refCode) donateUrlObj.searchParams.set('ref', refCode);
+    const donateUrl = donateUrlObj.toString();
 
     // ─── Related Programs List (Pilihan Program Kebaikan Lainnya) ───
     const RELATED_PROGRAM_CANDIDATES = [
@@ -948,7 +995,9 @@ module.exports = async function handler(req, res) {
                     toast.classList.add('translate-y-12', 'opacity-0', 'pointer-events-none');
                 }, 4000);
             }
-            const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent('${canonicalUrl}');
+            const shareUrlObj = new URL('${canonicalUrl}');
+            shareUrlObj.searchParams.set('v', Date.now());
+            const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(shareUrlObj.toString());
             setTimeout(() => {
                 window.open(waUrl, '_blank');
             }, 300);

@@ -246,25 +246,49 @@ module.exports = async function handler(req, res) {
         return res.status(404).send('Image not found');
     }
 
-    // ─── 2. DEDICATED OG IMAGE URL (always via /api/og-image for WhatsApp crawler) ─
-    // The /api/og-image endpoint always returns a valid binary JPEG < 300KB
-    const ogImageUrl = `${origin}/api/og-image?type=news&id=${encodeURIComponent(article.id)}`;
-    const secureImgUrl = ogImageUrl; // same URL, always https
+    // ─── 2. DEDICATED OG IMAGE URL (Direct, Instant & Highest Accuracy) ──────────
+    const firstGalleryImg = (Array.isArray(gallery) && gallery.length > 0 && typeof gallery[0] === 'string') ? gallery[0].trim() : '';
+    const primaryImg = rawImg || firstGalleryImg || 'assets/images/sedekah-beras-dhuafa.jpg';
+
+    let ogImageUrl;
+    if (primaryImg.startsWith('data:image/')) {
+        // Direct binary serve from /berita-image/:id.jpg or /api/berita?id=:id&img=1
+        ogImageUrl = `${origin}/berita-image/${encodeURIComponent(article.id)}.jpg`;
+    } else if (primaryImg.startsWith('http://') || primaryImg.startsWith('https://')) {
+        ogImageUrl = primaryImg;
+    } else if (primaryImg) {
+        ogImageUrl = `${origin}/${primaryImg.replace(/^\//, '')}`;
+    } else {
+        ogImageUrl = `${origin}/assets/images/sedekah-beras-dhuafa.jpg`;
+    }
+    const secureImgUrl = ogImageUrl;
 
     // Determine actual page body image (can still use base64/direct for display quality)
-    let absoluteImgUrl = ogImageUrl; // fallback
-    if (rawImg.startsWith('data:image/')) {
+    let absoluteImgUrl = ogImageUrl;
+    if (primaryImg.startsWith('data:image/')) {
         absoluteImgUrl = `${origin}/berita-image/${encodeURIComponent(article.id)}.jpg`;
-    } else if (rawImg.startsWith('http://') || rawImg.startsWith('https://')) {
-        absoluteImgUrl = rawImg;
-    } else if (rawImg) {
-        absoluteImgUrl = `${origin}/${rawImg.replace(/^\//, '')}`;
+    } else if (primaryImg.startsWith('http://') || primaryImg.startsWith('https://')) {
+        absoluteImgUrl = primaryImg;
+    } else if (primaryImg) {
+        absoluteImgUrl = `${origin}/${primaryImg.replace(/^\//, '')}`;
     }
 
     const refCode = (urlObj.searchParams.get('ref') || urlObj.searchParams.get('affiliate') || urlObj.searchParams.get('perantara') || '').trim();
     const excerpt = rawContent.slice(0, 180).replace(/\r?\n|\r/g, ' ') + (rawContent.length > 180 ? '...' : '');
-    const canonicalUrl = `${origin}/berita/${encodeURIComponent(article.id)}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
-    const donateUrl = `${origin}/donasi.html${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
+
+    const canonicalUrlObj = new URL(`${origin}/berita/${encodeURIComponent(article.id)}`);
+    if (refCode) canonicalUrlObj.searchParams.set('ref', refCode);
+    const canonicalUrl = canonicalUrlObj.toString();
+
+    const shareUrlObj = new URL(`${origin}/berita/${encodeURIComponent(article.id)}`);
+    if (refCode) shareUrlObj.searchParams.set('ref', refCode);
+    shareUrlObj.searchParams.set('v', Date.now());
+    const shareUrlWithBuster = shareUrlObj.toString();
+
+    const donateUrlObj = new URL(`${origin}/donasi.html`);
+    if (refCode) donateUrlObj.searchParams.set('ref', refCode);
+    const donateUrl = donateUrlObj.toString();
+
     const portalUrl = `${origin}/berita`;
     const formattedDate = formatDateIndo(eventDate);
 
@@ -313,67 +337,68 @@ module.exports = async function handler(req, res) {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#0369a1',
-                        'primary-dark': '#075985',
-                        secondary: '#10b981',
-                        accent: '#f59e0b',
-                        surface: '#ffffff',
-                        background: '#f8fafc'
+                        primary: '#105B48',
+                        'primary-dark': '#0B4234',
+                        secondary: '#F7941D',
+                        accent: '#F37023'
                     },
                     fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
                         headline: ['Outfit', 'sans-serif']
                     }
                 }
             }
-        }
-    </script>
-</head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-primary selection:text-white">
+        };
 
-    <!-- Referral / Mitra Attribution Handler -->
-    <script>
+        // 30-Day Referral Cookie Engine
         (function() {
             const urlParams = new URLSearchParams(window.location.search);
             const ref = urlParams.get('ref') || urlParams.get('affiliate') || urlParams.get('perantara');
             if (ref) {
+                const cleanRef = ref.trim().toUpperCase();
+                const d = new Date();
+                d.setTime(d.getTime() + (30 * 24 * 60 * 60 * 1000));
+                document.cookie = "wiz_ref=" + encodeURIComponent(cleanRef) + ";expires=" + d.toUTCString() + ";path=/;SameSite=Lax";
                 try {
-                    sessionStorage.setItem('wiz_active_ref_id', ref);
-                    localStorage.setItem('wiz_affiliate_ref', ref);
-                    localStorage.setItem('wiz_affiliate_exp', Date.now() + (30 * 24 * 60 * 60 * 1000));
+                    localStorage.setItem('wiz_referral_code', cleanRef);
+                    localStorage.setItem('wiz_referral_expiry', d.toISOString());
+                    sessionStorage.setItem('wiz_active_ref_id', cleanRef);
                 } catch(e) {}
             }
         })();
     </script>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans min-h-screen flex flex-col antialiased selection:bg-emerald-100 selection:text-emerald-900">
 
-    <!-- Header Navigation -->
-    <header class="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-slate-100 shadow-xs">
+    <!-- Top Sticky Navigation -->
+    <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50 shadow-xs">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
-            <a href="${origin}/index.html" class="flex items-center group py-1.5 shrink-0 max-w-[160px]">
-                <img src="${origin}/assets/images/logo-wiz-babel.png" alt="WIZ Bangka Belitung" class="h-10 sm:h-12 w-auto object-contain transition-transform group-hover:scale-105 block"/>
+            <a href="${origin}/index.html" class="flex items-center gap-3 group">
+                <img src="${origin}/assets/images/logo-wiz-babel.png" alt="WIZ Bangka Belitung" class="h-10 sm:h-12 w-auto object-contain transition-transform group-hover:scale-105"/>
             </a>
-            <div class="flex items-center gap-2 sm:gap-3">
-                <a href="${portalUrl}" class="hidden sm:inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-primary transition-colors px-3 py-2 rounded-xl hover:bg-slate-50">
-                    <span class="material-symbols-outlined text-lg">newspaper</span> Semua Berita
+            <div class="flex items-center gap-3">
+                <a href="${portalUrl}" class="hidden sm:inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-slate-600 hover:text-primary px-3 py-2 rounded-xl hover:bg-slate-100 transition-colors">
+                    <span class="material-symbols-outlined text-base">arrow_back</span>
+                    <span>Arsip Berita</span>
                 </a>
-                <a href="${donateUrl}" class="inline-flex items-center gap-1.5 bg-primary hover:bg-primary-dark text-white font-bold text-xs sm:text-sm px-4 py-2 sm:px-5 sm:py-2.5 rounded-full shadow-md hover:shadow-lg transition-all active:scale-95">
-                    <span class="material-symbols-outlined text-sm sm:text-base">favorite</span>
-                    <span>Donasi Sekarang</span>
+                <a href="${donateUrl}" class="inline-flex items-center gap-1.5 bg-primary hover:bg-primary-dark text-white font-bold text-xs sm:text-sm px-4 sm:px-5 py-2.5 rounded-full shadow-md hover:shadow-primary/30 transition-all active:scale-95">
+                    <span class="material-symbols-outlined text-sm">favorite</span>
+                    <span>Donasi</span>
                 </a>
             </div>
         </div>
     </header>
 
-    <!-- Main Container -->
+    <!-- Main Content Reader -->
     <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 flex-grow w-full">
 
-        <!-- Breadcrumbs -->
-        <nav class="flex items-center gap-2 text-xs text-slate-500 mb-6 flex-wrap">
+        <!-- Breadcrumb -->
+        <nav class="flex items-center gap-2 text-xs text-slate-500 font-medium mb-6">
             <a href="${origin}/index.html" class="hover:text-primary transition-colors">Beranda</a>
             <span class="text-slate-300">/</span>
             <a href="${portalUrl}" class="hover:text-primary transition-colors">Berita &amp; Kegiatan</a>
             <span class="text-slate-300">/</span>
-            <span class="text-slate-900 font-semibold truncate max-w-xs">${escapeHtml(title)}</span>
+            <span class="text-slate-900 font-semibold truncate max-w-[200px] sm:max-w-xs">${escapeHtml(title)}</span>
         </nav>
 
         <!-- Article Card -->
@@ -441,7 +466,7 @@ module.exports = async function handler(req, res) {
                     <p class="text-sm text-slate-600 mt-0.5">Ajak keluarga dan kerabat untuk bersama mendukung program keummatan.</p>
                 </div>
                 <div class="flex items-center gap-3 flex-wrap w-full md:w-auto">
-                    <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(canonicalUrl)}" target="_blank" class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold px-5 py-3 rounded-2xl text-sm shadow-md hover:shadow-lg transition-all active:scale-95">
+                    <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(shareUrlWithBuster)}" target="_blank" class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold px-5 py-3 rounded-2xl text-sm shadow-md hover:shadow-lg transition-all active:scale-95">
                         <span class="material-symbols-outlined text-lg">share</span> Share ke WhatsApp
                     </a>
                     <a href="${donateUrl}" class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold px-5 py-3 rounded-2xl text-sm shadow-md hover:shadow-lg transition-all active:scale-95">

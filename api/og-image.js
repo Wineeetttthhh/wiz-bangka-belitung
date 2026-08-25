@@ -113,7 +113,17 @@ async function processToOgJpeg(rawInput) {
                 const b64 = str.split(',')[1] || '';
                 inputBuffer = Buffer.from(b64, 'base64');
             } else if (str.startsWith('http://') || str.startsWith('https://')) {
-                inputBuffer = await fetchExternalBuffer(str);
+                // Check if it is a local asset path on the domain first to avoid HTTP loop
+                try {
+                    const parsedUrl = new URL(str);
+                    const localPath = path.join(process.cwd(), parsedUrl.pathname.replace(/^\//, ''));
+                    if (fs.existsSync(localPath)) {
+                        inputBuffer = fs.readFileSync(localPath);
+                    }
+                } catch(e) {}
+                if (!inputBuffer) {
+                    inputBuffer = await fetchExternalBuffer(str);
+                }
             } else if (str) {
                 const fp = path.join(process.cwd(), str.replace(/^\//, ''));
                 if (fs.existsSync(fp)) {
@@ -164,14 +174,17 @@ async function processToOgJpeg(rawInput) {
 async function resolveNewsRaw(newsId) {
     // 1. Try Supabase
     try {
-        const url = `${SUPABASE_URL}/news?select=image_url,id,title&id=eq.${encodeURIComponent(newsId)}`;
+        const url = `${SUPABASE_URL}/news?select=image_url,gallery,id,title&id=eq.${encodeURIComponent(newsId)}`;
         const resp = await fetch(url, {
             headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
         });
         if (resp.ok) {
             const rows = await resp.json();
-            if (Array.isArray(rows) && rows.length > 0 && rows[0].image_url) {
-                return rows[0].image_url;
+            if (Array.isArray(rows) && rows.length > 0) {
+                const rawImg = (rows[0].image_url || '').trim();
+                const galImg = (Array.isArray(rows[0].gallery) && rows[0].gallery.length > 0 && typeof rows[0].gallery[0] === 'string') ? rows[0].gallery[0].trim() : '';
+                if (rawImg) return rawImg;
+                if (galImg) return galImg;
             }
         }
     } catch (e) {}
@@ -182,13 +195,16 @@ async function resolveNewsRaw(newsId) {
         if (fs.existsSync(canonPath)) {
             const cData = JSON.parse(fs.readFileSync(canonPath, 'utf8'));
             const article = (cData.news || []).find(n => String(n.id) === String(newsId));
-            if (article && (article.imageUrl || article.image_url)) {
-                return article.imageUrl || article.image_url;
+            if (article) {
+                const rawImg = (article.imageUrl || article.image_url || '').trim();
+                const galImg = (Array.isArray(article.gallery) && article.gallery.length > 0 && typeof article.gallery[0] === 'string') ? article.gallery[0].trim() : '';
+                if (rawImg) return rawImg;
+                if (galImg) return galImg;
             }
         }
     } catch (e) {}
 
-    return 'assets/images/foto-utama-wiz.jpg';
+    return 'assets/images/sedekah-beras-dhuafa.jpg';
 }
 
 // ─── Quote/Flyer Image Resolver ───────────────────────────────
@@ -236,11 +252,13 @@ async function resolveQuoteRaw(quoteId) {
 const PROGRAM_IMAGE_MAP = {
     'pray-for-ntt':                                 'assets/images/pray-for-ntt.jpg',
     'sedekah-beras-dhuafa':                         'assets/images/sedekah-beras-dhuafa.jpg',
+    'sedekah-beras-dai':                            'assets/images/sedekah-beras-dai.jpg',
+    'sedekah-beras-dai-koba':                       'assets/images/sedekah-beras-dai-koba.jpg',
     'beasiswa-pendidikan-juara':                    'assets/images/beasiswa-pendidikan-juara.jpg',
-    'beasiswa-tahfidz':                             'assets/images/default-program-wiz.jpg',
-    'beasiswa-tahfidz-dhuafa':                      'assets/images/default-program-wiz.jpg',
+    'beasiswa-tahfidz':                             'assets/images/beasiswa-tahfidz.jpg',
+    'beasiswa-tahfidz-dhuafa':                      'assets/images/beasiswa-tahfidz.jpg',
     'tebar-iftar':                                  'assets/images/tebar-iftar.jpg',
-    'tebar-iftar-nusantara':                        'assets/images/tebar-iftar.jpg',
+    'tebar-iftar-nusantara':                        'assets/images/tebar-iftar-nusantara.jpg',
     'santunan-yatim':                               'assets/images/santunan-yatim.jpg',
     'santunan-anak-yatim':                          'assets/images/santunan-yatim.jpg',
     'tebar-sembako':                                'assets/images/tebar-sembako.jpg',
@@ -252,14 +270,15 @@ const PROGRAM_IMAGE_MAP = {
     'gerobak-berkah-umkm':                          'assets/images/modal-usaha-dhuafa.jpg',
     'pelatihan-keterampilan-wirausaha':             'assets/images/pelatihan-keterampilan-wirausaha.jpg',
     'bantuan-pengobatan':                           'assets/images/bantuan-pengobatan.jpg',
-    'bantuan-kesehatan-dhuafa':                     'assets/images/default-program-wiz.jpg',
-    'bantuan-pasien-kritis-dhuafa':                 'assets/images/default-program-wiz.jpg',
-    'layanan-pengobatan-gratis':                    'assets/images/default-program-wiz.jpg',
+    'bantuan-kesehatan-dhuafa':                     'assets/images/bantuan-pengobatan.jpg',
+    'bantuan-pasien-kritis-dhuafa':                 'assets/images/bantuan-pengobatan.jpg',
+    'layanan-pengobatan-gratis':                    'assets/images/bantuan-pengobatan.jpg',
     'ambulance-gratis-ummat':                       'assets/images/ambulance-gratis-ummat.jpg',
     'ambulans-gratis-peduli':                       'assets/images/ambulance-gratis-ummat.jpg',
     'khitanan-massal-dhuafa':                       'assets/images/khitanan-massal-dhuafa.jpg',
-    'keberangkatan-kepulangan-dai':                 'assets/images/default-program-wiz.jpg',
-    'keberangkatan-dan-kepulangan-dai':             'assets/images/default-program-wiz.jpg',
+    'khitanan-massal':                              'assets/images/khitanan-massal.jpg',
+    'keberangkatan-kepulangan-dai':                 'assets/images/keberangkatan-kepulangan-dai.jpg',
+    'keberangkatan-dan-kepulangan-dai':             'assets/images/keberangkatan-kepulangan-dai.jpg',
     'pengadaan-celengan-sedekah-subuh':             'assets/images/default-program-wiz.jpg',
     'pengadaan-celengan-besar':                     'assets/images/default-program-wiz.jpg',
     'sedekah-jumat':                                'assets/images/default-program-wiz.jpg',

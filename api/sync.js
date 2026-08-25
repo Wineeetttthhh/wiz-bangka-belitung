@@ -32,214 +32,43 @@ function invalidateCache() {
     memCacheTime = 0;
 }
 
-// Default Quotes
-const DEFAULT_QUOTES = [
-    {
-        id: 'quote-1',
-        text: 'Sedekah itu tidak akan mengurangi harta. Tidak ada orang yang memberi maaf kepada orang lain melainkan Allah akan menambah kemuliaannya.',
-        source: 'HR. Muslim no. 2588',
-        category: 'Sedekah & Keberkahan',
-        imageUrl: 'assets/images/foto-utama-wiz.jpg',
-        date: '2026-08-20',
-        status: 'active'
-    },
-    {
-        id: 'quote-2',
-        text: 'Tidak ada suatu hari pun ketika seorang hamba memasuki waktu pagi melainkan turun dua malaikat. Salah satunya berdoa: Ya Allah, berikanlah ganti bagi orang yang berinfak.',
-        source: 'HR. Bukhari no. 1442 & Muslim no. 1010',
-        category: 'Infak Subuh',
-        imageUrl: 'assets/images/sedekah-beras-dhuafa.jpg',
-        date: '2026-08-19',
-        status: 'active'
-    },
-    {
-        id: 'quote-3',
-        text: 'Bentengilah hartamu dengan zakat, obatilah orang-orang sakit di antaramu dengan sedekah, dan hadapilah berbagai cobaan dengan doa.',
-        source: 'HR. Abu Dawud & At-Thabrani',
-        category: 'Zakat & Penyucian Jiwa',
-        imageUrl: 'assets/images/sedekah-beras-dai.jpg',
-        date: '2026-08-18',
-        status: 'active'
-    }
-];
-
-function mapProgramToPillar(progName, catName) {
-    if (catName && catName !== '-' && catName.includes('Berkah')) return catName;
-    const p = (progName || '').toLowerCase();
-    if (p.includes('markaz') || p.includes('tahfidz') || p.includes('dirosa') || p.includes('dakwah') || p.includes('dai') || p.includes('celengan') || p.includes('jenazah') || p.includes('poster') || p.includes('kantor') || p.includes('muker') || p.includes('kendaraan') || p.includes('mualaf') || p.includes('tabligh') || p.includes('public speaking')) return 'Berkah Hidayah';
-    if (p.includes('juara') || p.includes('beasiswa') || p.includes('sekolah') || p.includes('belajar') || p.includes('pendidikan') || p.includes('stiba') || p.includes('unmuh')) return 'Berkah Juara';
-    if (p.includes('sehat') || p.includes('pengobatan') || p.includes('khitan') || p.includes('ambulance') || p.includes('ambulans') || p.includes('kesehatan') || p.includes('jantung') || p.includes('pasien')) return 'Berkah Sehat';
-    if (p.includes('peduli') || p.includes('beras') || p.includes('sembako') || p.includes('yatim') || p.includes('iftar') || p.includes('ifthar') || p.includes('air') || p.includes('bencana') || p.includes('ntt') || p.includes('palestina') || p.includes('dhuafa') || p.includes('fitrah')) return 'Berkah Peduli';
-    if (p.includes('mandiri') || p.includes('modal') || p.includes('umkm') || p.includes('gerobak') || p.includes('usaha') || p.includes('wirausaha') || p.includes('pelatihan')) return 'Berkah Mandiri';
-    return 'Berkah Hidayah';
-}
-
 async function supabaseGetMaster() {
     try {
-        const fetchOpts = {
+        const res = await fetch(`${SUPABASE_URL}/site_settings?select=*`, {
             headers: {
                 'apikey': SUPABASE_KEY,
                 'Authorization': 'Bearer ' + SUPABASE_KEY,
                 'Accept': 'application/json'
             }
-        };
+        });
+        if (!res.ok) return null;
+        const list = await res.json();
+        if (Array.isArray(list) && list.length > 0) {
+            const masterDoc = list.find(d => d.key === 'master_bundle');
+            const siteImagesDoc = list.find(d => d.key === 'site_images');
+            const specificProgDoc = list.find(d => d.key === 'specific_prog_imgs');
+            const siteSettingsDoc = list.find(d => d.key === 'site_settings');
+            const quotesDoc = list.find(d => d.key === 'quotes');
 
-        const [settingsRes, donRes, newsRes, disbRes, refRes] = await Promise.allSettled([
-            fetch(`${SUPABASE_URL}/site_settings?select=*`, fetchOpts).then(r => r.ok ? r.json() : null),
-            fetch(`${SUPABASE_URL}/donations?select=*`, fetchOpts).then(r => r.ok ? r.json() : null),
-            fetch(`${SUPABASE_URL}/news?select=*`, fetchOpts).then(r => r.ok ? r.json() : null),
-            fetch(`${SUPABASE_URL}/disbursements?select=*`, fetchOpts).then(r => r.ok ? r.json() : null),
-            fetch(`${SUPABASE_URL}/referrals?select=*`, fetchOpts).then(r => r.ok ? r.json() : null)
-        ]);
+            let master = (masterDoc && masterDoc.value) ? masterDoc.value : null;
+            if (!master) master = loadCanonicalSeed();
 
-        const list = (settingsRes.status === 'fulfilled' && Array.isArray(settingsRes.value)) ? settingsRes.value : [];
-        const masterDoc = list.find(d => d.key === 'master_bundle');
-        const siteImagesDoc = list.find(d => d.key === 'site_images');
-        const specificProgDoc = list.find(d => d.key === 'specific_prog_imgs');
-        const siteSettingsDoc = list.find(d => d.key === 'site_settings');
-        const quotesDoc = list.find(d => d.key === 'quotes');
+            if (siteImagesDoc && siteImagesDoc.value && typeof siteImagesDoc.value === 'object') {
+                master.site_images = { ...(master.site_images || {}), ...siteImagesDoc.value };
+            }
+            if (specificProgDoc && specificProgDoc.value && typeof specificProgDoc.value === 'object') {
+                master.specific_prog_imgs = { ...(master.specific_prog_imgs || {}), ...specificProgDoc.value };
+            }
+            if (siteSettingsDoc && siteSettingsDoc.value && typeof siteSettingsDoc.value === 'object') {
+                master.site_settings = { ...(master.site_settings || {}), ...siteSettingsDoc.value };
+            }
+            if (quotesDoc && quotesDoc.value && Array.isArray(quotesDoc.value)) {
+                master.quotes = quotesDoc.value;
+            }
 
-        let master = (masterDoc && masterDoc.value && typeof masterDoc.value === 'object') ? masterDoc.value : loadCanonicalSeed();
-
-        if (siteImagesDoc && siteImagesDoc.value && typeof siteImagesDoc.value === 'object') {
-            master.site_images = { ...(master.site_images || {}), ...siteImagesDoc.value };
+            return master;
         }
-        if (specificProgDoc && specificProgDoc.value && typeof specificProgDoc.value === 'object') {
-            master.specific_prog_imgs = { ...(master.specific_prog_imgs || {}), ...specificProgDoc.value };
-        }
-        if (siteSettingsDoc && siteSettingsDoc.value && typeof siteSettingsDoc.value === 'object') {
-            master.site_settings = { ...(master.site_settings || {}), ...siteSettingsDoc.value };
-        }
-        if (quotesDoc && quotesDoc.value && Array.isArray(quotesDoc.value) && quotesDoc.value.length > 0) {
-            master.quotes = quotesDoc.value;
-        } else if (!master.quotes || !Array.isArray(master.quotes) || master.quotes.length === 0) {
-            master.quotes = DEFAULT_QUOTES;
-        }
-
-        // Direct table donations mapping
-        if (donRes.status === 'fulfilled' && Array.isArray(donRes.value) && donRes.value.length > 0) {
-            master.donations = donRes.value.map(d => {
-                let extractedWilayah = d.wilayah || 'Pangkalpinang';
-                let extractedProg = String(d.program_spesifik || d.program_title || d.program || '-');
-                let extractedCat = d.program_utama || d.category || '-';
-                let extractedRef = d.referral_id || d.referral_code || null;
-                let extractedFee = Number(d.referral_fee) || 0;
-                let isRecurring = d.is_recurring_donor || false;
-
-                const progTitleStr = String(d.program_title || '');
-                if (progTitleStr.includes('[')) {
-                    const mWil = progTitleStr.match(/\[([^\]]+)\]/);
-                    if (mWil) extractedWilayah = mWil[1].trim();
-                }
-
-                const notesStr = String(d.notes || '');
-                if (notesStr.includes('[Meta:')) {
-                    const m = notesStr.match(/\[Meta:([^\]]+)\]/);
-                    if (m) {
-                        const parts = m[1].split('|').map(s => s.trim());
-                        parts.forEach(p => {
-                            if (p.startsWith('Wilayah:')) extractedWilayah = p.replace('Wilayah:', '').trim();
-                            if (p.startsWith('Kategori:')) extractedCat = p.replace('Kategori:', '').trim();
-                            if (p.startsWith('Program:')) extractedProg = p.replace('Program:', '').trim();
-                            if (p.startsWith('Mitra:')) {
-                                const refMatch = p.match(/Mitra:\s*([^\s(]+)/);
-                                if (refMatch) extractedRef = refMatch[1];
-                                const feeMatch = p.match(/Rp\s*([0-9.]+)/);
-                                if (feeMatch) extractedFee = Number(feeMatch[1].replace(/[^0-9]/g, ''));
-                            }
-                            if (p.includes('Donatur Tetap')) isRecurring = true;
-                        });
-                    }
-                }
-
-                if (extractedProg.includes('[')) {
-                    extractedProg = extractedProg.replace(/\[[^\]]+\]/g, '').trim();
-                }
-
-                if (!extractedCat || extractedCat === '-') {
-                    extractedCat = mapProgramToPillar(extractedProg, d.donation_type);
-                }
-
-                return {
-                    id: d.id,
-                    donorName: d.donor_name || 'Hamba Allah',
-                    donorPhone: d.donor_phone || '-',
-                    donorEmail: d.donor_email || '',
-                    wilayah: extractedWilayah,
-                    type: d.donation_type || 'Infak Terikat',
-                    programUtama: extractedCat,
-                    programSpesifik: extractedProg,
-                    program: extractedProg,
-                    category: extractedCat,
-                    amount: Number(d.amount) || 0,
-                    alokasiOperasional: Number(d.alokasi_operasional) || (d.donation_type === 'Infak Terikat' ? Math.round(Number(d.amount) * 0.125) : 0),
-                    alokasiProgram: Number(d.alokasi_program) || (d.donation_type === 'Infak Terikat' ? Math.round(Number(d.amount) * 0.875) : 0),
-                    method: d.payment_method || 'Transfer Bank',
-                    referralId: extractedRef,
-                    referralCode: extractedRef,
-                    referralRate: 6,
-                    referralFee: extractedFee,
-                    isRecurringDonor: isRecurring,
-                    notes: (d.notes || '-').replace(/\[Meta:[^\]]*\]/g, '').trim() || '-',
-                    status: d.status || 'pending',
-                    verifiedAt: d.verified_at || (d.status === 'verified' ? (d.updated_at || d.created_at) : null),
-                    verifiedBy: d.verified_by || (d.status === 'verified' ? 'Admin' : null),
-                    createdAt: d.created_at || new Date().toISOString()
-                };
-            });
-        }
-
-        // Direct table news mapping
-        if (newsRes.status === 'fulfilled' && Array.isArray(newsRes.value) && newsRes.value.length > 0) {
-            master.news = newsRes.value.map(n => ({
-                id: n.id,
-                title: n.title,
-                category: n.category,
-                content: n.content,
-                imageUrl: n.image_url || n.imageUrl || '',
-                image_url: n.image_url || n.imageUrl || '',
-                gallery: Array.isArray(n.gallery) ? n.gallery : [],
-                eventDate: n.event_date || n.eventDate || n.created_at || new Date().toISOString(),
-                status: n.status || 'published',
-                author: n.author || 'Admin WIZ Babel',
-                createdAt: n.created_at || new Date().toISOString(),
-                updatedAt: n.updated_at || new Date().toISOString()
-            }));
-        }
-
-        // Direct table disbursements mapping
-        if (disbRes.status === 'fulfilled' && Array.isArray(disbRes.value) && disbRes.value.length > 0) {
-            master.disbursements = disbRes.value.map(d => ({
-                id: d.id,
-                wilayah: d.wilayah || 'Pangkalpinang',
-                program: d.program,
-                amount: Number(d.amount) || 0,
-                description: d.description,
-                disbursedAt: d.disbursed_at || d.created_at,
-                recordedBy: d.recorded_by || 'Admin',
-                createdAt: d.created_at
-            }));
-        }
-
-        // Direct table referrals mapping
-        if (refRes.status === 'fulfilled' && Array.isArray(refRes.value) && refRes.value.length > 0) {
-            master.referrals = refRes.value.map(r => ({
-                id: r.id,
-                code: r.code || r.id,
-                name: r.name,
-                phone: r.phone,
-                bankName: r.bank_name,
-                accountNumber: r.account_number,
-                accountHolder: r.account_holder,
-                defaultRate: Number(r.default_rate) || 6,
-                status: r.status || 'active',
-                notes: r.notes || '',
-                createdAt: r.created_at,
-                updatedAt: r.updated_at
-            }));
-        }
-
-        return master;
+        return null;
     } catch(e) {
         console.warn('[Sync API] Supabase GET error:', e.message);
         return null;

@@ -408,15 +408,15 @@
                     <!-- Step Nominal -->
                     <section class="bg-surface-container-lowest rounded-xl p-md sm:p-lg shadow-sm border border-outline-variant/20">
                         <h2 class="font-headline-md text-headline-md font-bold text-on-surface mb-sm">Masukkan Nominal Donasi</h2>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-sm">
-                            <button type="button" class="py-2 border border-outline-variant rounded-lg font-label-md text-label-md font-semibold text-on-surface hover:border-primary hover:bg-surface-container-low transition-colors" onclick="setNominal(50000)">Rp 50.000</button>
-                            <button type="button" class="py-2 border border-outline-variant rounded-lg font-label-md text-label-md font-semibold text-on-surface hover:border-primary hover:bg-surface-container-low transition-colors" onclick="setNominal(100000)">Rp 100.000</button>
-                            <button type="button" class="py-2 border border-outline-variant rounded-lg font-label-md text-label-md font-semibold text-on-surface hover:border-primary hover:bg-surface-container-low transition-colors" onclick="setNominal(250000)">Rp 250.000</button>
-                            <button type="button" class="py-2 border border-outline-variant rounded-lg font-label-md text-label-md font-semibold text-on-surface hover:border-primary hover:bg-surface-container-low transition-colors" onclick="setNominal(500000)">Rp 500.000</button>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-sm" id="nominal-chips-wrap">
+                            <button type="button" class="chip-nominal py-2 border border-outline-variant rounded-lg font-label-md text-label-md font-semibold text-on-surface hover:border-primary hover:bg-surface-container-low transition-all text-center cursor-pointer" data-nominal="50000" onclick="setNominal(50000)">Rp 50.000</button>
+                            <button type="button" class="chip-nominal py-2 border border-outline-variant rounded-lg font-label-md text-label-md font-semibold text-on-surface hover:border-primary hover:bg-surface-container-low transition-all text-center cursor-pointer" data-nominal="100000" onclick="setNominal(100000)">Rp 100.000</button>
+                            <button type="button" class="chip-nominal py-2 border border-outline-variant rounded-lg font-label-md text-label-md font-semibold text-on-surface hover:border-primary hover:bg-surface-container-low transition-all text-center cursor-pointer" data-nominal="250000" onclick="setNominal(250000)">Rp 250.000</button>
+                            <button type="button" class="chip-nominal py-2 border border-outline-variant rounded-lg font-label-md text-label-md font-semibold text-on-surface hover:border-primary hover:bg-surface-container-low transition-all text-center cursor-pointer" data-nominal="500000" onclick="setNominal(500000)">Rp 500.000</button>
                         </div>
                         <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-primary">Rp</span>
-                            <input class="w-full bg-surface border border-outline-variant rounded-lg pl-12 pr-4 py-2.5 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none" id="custom_nominal" oninput="updateNominal(this.value)" placeholder="Nominal lainnya (Minimal Rp 10.000)" type="number" required min="10000" />
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-primary select-none pointer-events-none">Rp</span>
+                            <input class="w-full bg-surface border border-outline-variant rounded-lg pl-12 pr-4 py-2.5 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none font-semibold" id="custom_nominal" name="custom_nominal" oninput="updateNominal(this.value)" onkeyup="updateNominal(this.value)" onchange="updateNominal(this.value)" onpaste="setTimeout(() => updateNominal(this.value), 10)" placeholder="Nominal donasi lainnya (Bebas / Tanpa Minimal)" type="number" required min="1" autocomplete="off" />
                         </div>
                     </section>
 
@@ -711,10 +711,9 @@
         </div>
     </div>
 
-    <script src="assets/js/supabase-client.js?v=20260825_parity1"></script>
-    <script src="assets/js/admin-store.js?v=20260825_parity1"></script>
-    <script src="assets/js/main.js?v=20260825_parity1"></script>
-    <script src="assets/js/nav-active.js?v=20260825_parity1"></script>
+    <script src="assets/js/supabase-client.js?v=20260823_31"></script>
+    <script src="assets/js/admin-store.js?v=20260823_31"></script>
+    <script src="assets/js/main.js?v=20260823_31"></script>
     <script>
         const SPECIFIC_PROGRAMS = {
             'Berkah Hidayah': [
@@ -875,14 +874,28 @@
             category: '-',
             program: '-',
             nominal: 0,
+            totalDonasi: 0,
             method: 'QRIS',
             donorName: '',
             donorPhone: '',
-            donorMessage: ''
+            donorMessage: '',
+            activeRefObj: null
         };
+        window.donationState = state;
+
+        function parseNominal(val) {
+            if (typeof val === 'number') {
+                return isNaN(val) ? 0 : Math.max(0, Math.floor(val));
+            }
+            if (!val) return 0;
+            const cleanStr = String(val).replace(/[^0-9]/g, '');
+            const parsed = parseInt(cleanStr, 10);
+            return isNaN(parsed) ? 0 : parsed;
+        }
 
         function formatRupiah(number) {
-            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+            const num = Number(number) || 0;
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
         }
 
         function renderInfakUmumNotice() {
@@ -891,16 +904,18 @@
             const noticeBox = document.getElementById('infak-umum-notice');
 
             if (state.type !== 'Infak Umum') {
-                noticeBox.classList.add('hidden');
+                if (noticeBox) noticeBox.classList.add('hidden');
                 return;
             }
 
-            noticeBox.classList.remove('hidden');
-            titleEl.textContent = `Alokasi Otomatis Infak Umum — Wilayah ${state.wilayah}`;
+            if (noticeBox) noticeBox.classList.remove('hidden');
+            if (titleEl) titleEl.textContent = `Alokasi Otomatis Infak Umum — Wilayah ${state.wilayah}`;
+
+            const currentNominal = Number(state.totalDonasi !== undefined ? state.totalDonasi : state.nominal) || 0;
 
             let items = [];
             if (window.wizStore && typeof window.wizStore.calcInfakUmumAllocation === 'function') {
-                items = window.wizStore.calcInfakUmumAllocation(state.nominal, state.wilayah);
+                items = window.wizStore.calcInfakUmumAllocation(currentNominal, state.wilayah);
             }
 
             if (!items || items.length === 0) {
@@ -915,54 +930,78 @@
                 items = fallback.map(f => ({
                     key: f.name || f.key,
                     percent: f.pct || f.percent || 20,
-                    amount: Math.round((state.nominal || 0) * ((f.pct || f.percent || 20) / 100))
+                    amount: Math.round(currentNominal * ((f.pct || f.percent || 20) / 100))
                 }));
             }
 
-            const hasNominal = state.nominal > 0;
-            breakdownEl.innerHTML = items.map(r => `
-                <div class="bg-white p-2.5 rounded-lg border border-outline-variant/30 flex flex-col justify-between">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-on-surface font-semibold text-xs truncate" title="${r.key}">${r.key}</span>
-                        <span class="text-primary font-bold text-[11px] bg-primary/10 px-1.5 py-0.5 rounded">${r.percent}%</span>
+            const hasNominal = currentNominal > 0;
+            if (breakdownEl) {
+                breakdownEl.innerHTML = items.map(r => `
+                    <div class="bg-white p-2.5 rounded-lg border border-outline-variant/30 flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-on-surface font-semibold text-xs truncate" title="${r.key}">${r.key}</span>
+                            <span class="text-primary font-bold text-[11px] bg-primary/10 px-1.5 py-0.5 rounded">${r.percent}%</span>
+                        </div>
+                        ${hasNominal ? `<div class="text-right font-mono font-bold text-xs text-primary">${formatRupiah(r.amount)}</div>` : ''}
                     </div>
-                    ${hasNominal ? `<div class="text-right font-mono font-bold text-xs text-primary">${formatRupiah(r.amount)}</div>` : ''}
-                </div>
-            `).join('');
+                `).join('');
+            }
         }
 
         function updateSummary() {
-            document.getElementById('summary-wilayah').textContent = state.wilayah;
-            document.getElementById('summary-type').textContent = state.type;
+            const currentTotal = Number(state.totalDonasi !== undefined ? state.totalDonasi : state.nominal) || 0;
+            const formattedTotal = formatRupiah(currentTotal);
+
+            // 1. Sinkronisasi Total Donasi di Ringkasan Donasi (Desktop & Mobile)
+            const summaryTotalEl = document.getElementById('summary-total');
+            if (summaryTotalEl) {
+                summaryTotalEl.textContent = formattedTotal;
+            }
+
+            const mobTotal = document.getElementById('mobile-summary-total');
+            if (mobTotal) {
+                mobTotal.textContent = formattedTotal;
+            }
+
+            // 2. Sinkronisasi Info Wilayah & Jenis
+            const summaryWilayahEl = document.getElementById('summary-wilayah');
+            if (summaryWilayahEl) {
+                summaryWilayahEl.textContent = state.wilayah || 'Pangkalpinang';
+            }
+
+            const summaryTypeEl = document.getElementById('summary-type');
+            if (summaryTypeEl) {
+                summaryTypeEl.textContent = state.type || 'Infak Umum';
+            }
 
             const catRow = document.getElementById('summary-cat-row');
             const progRow = document.getElementById('summary-prog-row');
 
             if (state.type === 'Infak Terikat') {
-                catRow.classList.remove('hidden');
-                progRow.classList.remove('hidden');
-                document.getElementById('summary-cat').textContent = state.category;
-                document.getElementById('summary-prog').textContent = state.program;
+                if (catRow) catRow.classList.remove('hidden');
+                if (progRow) progRow.classList.remove('hidden');
+                const catEl = document.getElementById('summary-cat');
+                const progEl = document.getElementById('summary-prog');
+                if (catEl) catEl.textContent = state.category;
+                if (progEl) progEl.textContent = state.program;
             } else {
-                catRow.classList.add('hidden');
-                progRow.classList.add('hidden');
+                if (catRow) catRow.classList.add('hidden');
+                if (progRow) progRow.classList.add('hidden');
             }
 
-            document.getElementById('summary-method').textContent = state.method;
-            document.getElementById('summary-total').textContent = formatRupiah(state.nominal);
-
-            const mobTotal = document.getElementById('mobile-summary-total');
-            if (mobTotal) {
-                mobTotal.textContent = formatRupiah(state.nominal);
+            const summaryMethodEl = document.getElementById('summary-method');
+            if (summaryMethodEl) {
+                summaryMethodEl.textContent = state.method;
             }
 
-            // Check active Mitra Penghimpunan referral — from URL parameter or active 30-day attribution
+            // 3. Check active Mitra Penghimpunan referral — from URL parameter or active 30-day attribution
             const activeRef = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || new URLSearchParams(window.location.search).get('perantara'));
             const refRow = document.getElementById('summary-ref-row');
             if (activeRef && window.wizStore && window.wizStore.referrals) {
                 const refObj = window.wizStore.referrals.getByCodeOrId(activeRef);
                 if (refObj && refRow) {
-                    document.getElementById('summary-ref-name').textContent = `${refObj.name} (${refObj.code || refObj.id})`;
+                    const refNameEl = document.getElementById('summary-ref-name');
+                    if (refNameEl) refNameEl.textContent = `${refObj.name} (${refObj.code || refObj.id})`;
                     refRow.classList.remove('hidden');
                     refRow.classList.add('flex');
                     state.activeRefObj = refObj;
@@ -983,6 +1022,7 @@
                 updateWhatsAppButtons();
             }
         }
+        window.updateSummary = updateSummary;
 
         function renderProgramDetailCard() {
             const card = document.getElementById('program-detail-card');
@@ -1108,21 +1148,48 @@
             updateSummary();
         }
 
-        function setNominal(val) {
-            state.nominal = val;
-            document.getElementById('custom_nominal').value = val;
-            updateSummary();
+        function updateChipActiveStyles(val) {
+            const numVal = parseNominal(val);
+            const chips = document.querySelectorAll('.chip-nominal');
+            chips.forEach(chip => {
+                const chipVal = parseNominal(chip.dataset.nominal || chip.getAttribute('onclick')?.match(/\d+/)?.[0]);
+                if (numVal > 0 && chipVal === numVal) {
+                    chip.classList.add('border-primary', 'bg-primary/10', 'text-primary', 'font-bold', 'ring-1', 'ring-primary');
+                    chip.classList.remove('text-on-surface', 'border-outline-variant');
+                } else {
+                    chip.classList.remove('border-primary', 'bg-primary/10', 'text-primary', 'font-bold', 'ring-1', 'ring-primary');
+                    chip.classList.add('text-on-surface', 'border-outline-variant');
+                }
+            });
         }
 
-        function updateNominal(val) {
-            state.nominal = parseInt(val) || 0;
+        function setNominal(val) {
+            const numVal = parseNominal(val);
+            state.nominal = numVal;
+            state.totalDonasi = numVal;
+            const inputEl = document.getElementById('custom_nominal');
+            if (inputEl) {
+                inputEl.value = numVal > 0 ? numVal : '';
+            }
+            updateChipActiveStyles(numVal);
             updateSummary();
         }
+        window.setNominal = setNominal;
+
+        function updateNominal(val) {
+            const numVal = parseNominal(val);
+            state.nominal = numVal;
+            state.totalDonasi = numVal;
+            updateChipActiveStyles(numVal);
+            updateSummary();
+        }
+        window.updateNominal = updateNominal;
 
         function setPayment(method) {
             state.method = method;
             updateSummary();
         }
+        window.setPayment = setPayment;
 
         function toggleAnonymousDonor(isAnon) {
             const nameInput = document.getElementById('donor-name');
@@ -1166,8 +1233,8 @@
                 }
             }
 
-            if (!state.nominal || state.nominal < 10000) {
-                alert('Silakan masukkan nominal donasi minimal Rp 10.000');
+            if (!state.nominal || state.nominal <= 0) {
+                alert('Silakan masukkan nominal donasi Anda');
                 return;
             }
 
@@ -1571,7 +1638,13 @@
         }
 
         // Read URL query parameters for pre-filling program & attach live sync (Runs once on initial load)
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
+            if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
+                try {
+                    await window.wizStore.syncFromCloud(true);
+                } catch(e) {}
+            }
+
             const urlParams = new URLSearchParams(window.location.search);
             const progParam = urlParams.get('program');
             const typeParam = urlParams.get('type');
@@ -1599,10 +1672,20 @@
             }
 
             if (nominalParam) {
-                const n = parseInt(nominalParam);
-                if (!isNaN(n) && n > 0) {
+                const n = parseNominal(nominalParam);
+                if (n > 0) {
                     setNominal(n);
                 }
+            }
+
+            // Live event listeners on custom nominal input for bulletproof two-way reactivity
+            const customNominalEl = document.getElementById('custom_nominal');
+            if (customNominalEl) {
+                ['input', 'keyup', 'change', 'paste', 'propertychange'].forEach(evt => {
+                    customNominalEl.addEventListener(evt, (e) => {
+                        setTimeout(() => updateNominal(e.target.value), evt === 'paste' ? 20 : 0);
+                    });
+                });
             }
 
             // Live event listeners on donor fields to ensure WhatsApp link is always pre-computed
@@ -1634,15 +1717,6 @@
 
             updateSummary();
             if (window.applySiteSettings) window.applySiteSettings();
-
-            if (window.wizStore && window.wizStore.syncFromCloud) {
-                try {
-                    await window.wizStore.syncFromCloud(true);
-                } catch(e) {}
-                updateSummary();
-                if (typeof updateProgramDetailCard === 'function') updateProgramDetailCard();
-                if (window.applySiteSettings) window.applySiteSettings();
-            }
         });
 
         // Cloud sync listener: only refresh global store settings/summaries without modifying active user form state

@@ -680,10 +680,9 @@
     </footer>
 
     <!-- JS Clients -->
-    <script src="assets/js/supabase-client.js?v=20260825_parity1"></script>
-    <script src="assets/js/admin-store.js?v=20260825_parity1"></script>
-    <script src="assets/js/main.js?v=20260825_parity1"></script>
-    <script src="assets/js/nav-active.js?v=20260825_parity1"></script>
+    <script src="assets/js/supabase-client.js?v=20260820_24"></script>
+    <script src="assets/js/admin-store.js?v=20260820_24"></script>
+    <script src="assets/js/main.js?v=20260820_7"></script>
 
     <!-- Page Logic -->
     <script>
@@ -1416,7 +1415,10 @@
 
             const activeRef = getActiveAffiliateRefCode();
             const origin = 'https://www.wizbangkabelitung.or.id';
-            const flyerUrl = `${origin}/flyer/${encodeURIComponent(q.id)}?ref=${encodeURIComponent(activeRef)}`;
+            const flyerUrlObj = new URL(`${origin}/flyer/${encodeURIComponent(q.id)}`);
+            if (activeRef) flyerUrlObj.searchParams.set('ref', activeRef);
+            flyerUrlObj.searchParams.set('v', Date.now());
+            const flyerUrl = flyerUrlObj.toString();
             
             if (typeof window.showWhatsAppShareToast === 'function') {
                 window.showWhatsAppShareToast('Tunggu 1–2 detik di WhatsApp hingga flyer poster muncul sebelum kirim Status ✨');
@@ -1444,7 +1446,9 @@
         function copyAffiliateQuoteLink(quoteId) {
             const activeRef = getActiveAffiliateRefCode();
             const origin = 'https://www.wizbangkabelitung.or.id';
-            const flyerUrl = `${origin}/flyer/${encodeURIComponent(quoteId)}?ref=${encodeURIComponent(activeRef)}`;
+            const flyerUrlObj = new URL(`${origin}/flyer/${encodeURIComponent(quoteId)}`);
+            if (activeRef) flyerUrlObj.searchParams.set('ref', activeRef);
+            const flyerUrl = flyerUrlObj.toString();
             navigator.clipboard.writeText(flyerUrl).then(() => {
                 alert(`✅ Link Flyer & Quote dengan Kode Mitra (${activeRef}) berhasil disalin:\n\n${flyerUrl}\n\nSetiap donasi dari link ini otomatis tersambung ke hak insentif 6% Anda.`);
             });
@@ -1481,7 +1485,10 @@
             if (!n) return;
 
             const origin = 'https://www.wizbangkabelitung.or.id';
-            const newsUrl = `${origin}/berita/${encodeURIComponent(n.id)}?ref=${encodeURIComponent(refCode)}`;
+            const newsUrlObj = new URL(`${origin}/berita/${encodeURIComponent(n.id)}`);
+            if (refCode) newsUrlObj.searchParams.set('ref', refCode);
+            newsUrlObj.searchParams.set('v', Date.now());
+            const newsUrl = newsUrlObj.toString();
 
             if (typeof window.showWhatsAppShareToast === 'function') {
                 window.showWhatsAppShareToast('Tunggu 1–2 detik di WhatsApp hingga foto kegiatan muncul sebelum kirim Status ✨');
@@ -1510,7 +1517,10 @@
             const cleanTitle = (programTitle || 'Program Kebaikan').trim();
             const slug = cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-');
             const origin = 'https://www.wizbangkabelitung.or.id';
-            const progUrl = `${origin}/program/${slug}?ref=${encodeURIComponent(refCode)}`;
+            const progUrlObj = new URL(`${origin}/program/${slug}`);
+            if (refCode) progUrlObj.searchParams.set('ref', refCode);
+            progUrlObj.searchParams.set('v', Date.now());
+            const progUrl = progUrlObj.toString();
             const waMsg = `🌟 *${cleanTitle}*\n\nSalurkan kepedulian dan donasi terbaik Anda bersama Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.\n\n🔗 ${progUrl}`;
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(waMsg)}`, '_blank');
         }

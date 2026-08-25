@@ -334,13 +334,19 @@ function triggerSocialShare(platform) {
     const { title, url, desc } = _currentUniversalShare;
 
     if (platform === 'wa') {
-        const text = `*${title}*\n\n${desc}\n\nSalurkan donasi terbaik Anda melalui tautan resmi berikut:\n👉 ${url}`;
+        const shareUrlObj = new URL(url.startsWith('http') ? url : `https://www.wizbangkabelitung.or.id/${url.replace(/^\//, '')}`);
+        shareUrlObj.searchParams.set('v', Date.now());
+        const finalUrl = shareUrlObj.toString();
+        const text = `*${title}*\n\n${desc}\n\nSalurkan donasi terbaik Anda melalui tautan resmi berikut:\n👉 ${finalUrl}`;
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
     } else if (platform === 'wa_status') {
+        const shareUrlObj = new URL(url.startsWith('http') ? url : `https://www.wizbangkabelitung.or.id/${url.replace(/^\//, '')}`);
+        shareUrlObj.searchParams.set('v', Date.now());
+        const finalUrl = shareUrlObj.toString();
         if (typeof window.showWhatsAppShareToast === 'function') {
             window.showWhatsAppShareToast('Tunggu 1–2 detik di layar WhatsApp hingga kartu preview gambar muncul sebelum menekan kirim Status ✨');
         }
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(url)}`, '_blank');
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(finalUrl)}`, '_blank');
     } else if (platform === 'ig') {
         copyShareCaption(true);
         setTimeout(() => {
@@ -493,7 +499,10 @@ function initHomeQuoteSection() {
     }
 
     window.shareHomeQuoteWA = function() {
-        const flyerUrl = `${origin}/flyer/${encodeURIComponent(today.id)}${activeRef ? '?ref=' + encodeURIComponent(activeRef) : ''}`;
+        const flyerUrlObj = new URL(`${origin}/flyer/${encodeURIComponent(today.id)}`);
+        if (activeRef) flyerUrlObj.searchParams.set('ref', activeRef);
+        flyerUrlObj.searchParams.set('v', Date.now());
+        const flyerUrl = flyerUrlObj.toString();
         if (typeof window.showWhatsAppShareToast === 'function') {
             window.showWhatsAppShareToast();
         }
@@ -2102,8 +2111,11 @@ window.openShareModal = function (title, desc, url, programImg) {
     if (imgEl) imgEl.src = activeImg;
 
     const encodedUrl = encodeURIComponent(url);
+    const waUrlObj = new URL(url.startsWith('http') ? url : `https://www.wizbangkabelitung.or.id/${url.replace(/^\//, '')}`);
+    waUrlObj.searchParams.set('v', Date.now());
+    const encodedWaUrl = encodeURIComponent(waUrlObj.toString());
 
-    document.getElementById('share-btn-wa').href = `https://api.whatsapp.com/send?text=${encodedUrl}`;
+    document.getElementById('share-btn-wa').href = `https://api.whatsapp.com/send?text=${encodedWaUrl}`;
     document.getElementById('share-btn-fb').href = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
     document.getElementById('share-btn-tw').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodedUrl}`;
     document.getElementById('share-btn-tg').href = `https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent(title)}`;
