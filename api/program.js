@@ -864,21 +864,30 @@ const PROGRAM_IMAGE_MAP = {
     </script>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans min-h-screen flex flex-col antialiased selection:bg-emerald-100 selection:text-emerald-900">
-    <!-- Header -->
-    <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50 shadow-xs">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
-            <a href="${origin}/index.html" class="flex items-center group py-1.5 shrink-0 max-w-[160px]">
-                <img src="${origin}/assets/images/logo-wiz-babel.png" alt="WIZ Babel" class="h-10 sm:h-12 w-auto object-contain transition-transform group-hover:scale-105 block">
+    <!-- TopNavBar -->
+    <nav class="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200/60 shadow-sm w-full">
+        <div class="flex justify-between items-center w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto h-20 sm:h-24 gap-4">
+            <a href="${origin}/index.html" class="flex items-center group py-2 shrink-0 max-w-xs">
+                <img src="${origin}/assets/images/logo-wiz-babel.png" alt="WIZ Babel" loading="eager" class="object-contain transition-transform group-hover:scale-105 h-12 sm:h-14 w-auto max-w-[160px] block"/>
             </a>
+            
+            <div class="hidden lg:flex gap-6 xl:gap-8 items-center text-sm font-semibold text-slate-600">
+                <a class="hover:text-[#006834] transition-all border-b-2 border-transparent pb-1 whitespace-nowrap" href="${origin}/index.html">Beranda</a>
+                <a class="hover:text-[#006834] transition-all border-b-2 border-transparent pb-1 whitespace-nowrap" href="${origin}/index.html#tentang-kami">Tentang Kami</a>
+                <a class="text-[#006834] font-bold transition-all border-b-2 border-[#006834] pb-1 whitespace-nowrap" href="${origin}/program.html">Program</a>
+                <a class="hover:text-[#006834] transition-all border-b-2 border-transparent pb-1 whitespace-nowrap" href="${origin}/laporan.html">Laporan Transparansi</a>
+                <a class="hover:text-[#006834] transition-all border-b-2 border-transparent pb-1 whitespace-nowrap" href="${origin}/berita">Berita &amp; Kegiatan</a>
+                <a class="hover:text-[#006834] transition-all border-b-2 border-transparent pb-1 whitespace-nowrap" href="${origin}/index.html#kontak">Kontak</a>
+            </div>
+
             <div class="flex items-center gap-3 shrink-0">
-                <a href="${origin}/program.html" class="hidden sm:inline-flex text-xs sm:text-sm font-semibold text-slate-600 hover:text-emerald-600 px-3 py-2 rounded-xl hover:bg-slate-100 transition-colors whitespace-nowrap">Katalog Program</a>
-                <a href="${origin}/berita" class="hidden sm:inline-flex text-xs sm:text-sm font-semibold text-slate-600 hover:text-emerald-600 px-3 py-2 rounded-xl hover:bg-slate-100 transition-colors whitespace-nowrap">Berita</a>
-                <a href="${escapeHtml(donateUrl)}" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-full shadow transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0">
-                    <span class="material-symbols-outlined text-sm">favorite</span> Donasi Sekarang
+                <a href="${escapeHtml(donateUrl)}" class="hidden sm:inline-flex bg-[#F7941D] hover:bg-[#e08416] text-white px-6 py-2.5 rounded-full font-bold text-sm hover:opacity-95 transition-all shadow-sm items-center gap-1.5 whitespace-nowrap shrink-0">
+                    <span class="material-symbols-outlined text-[18px]">favorite</span>
+                    <span>Donasi Sekarang</span>
                 </a>
             </div>
         </div>
-    </header>
+    </nav>
 
     <!-- Main Content -->
     <main class="max-w-3xl mx-auto px-4 py-8 flex-grow space-y-8 w-full">
