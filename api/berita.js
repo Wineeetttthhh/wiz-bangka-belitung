@@ -358,8 +358,8 @@ module.exports = async function handler(req, res) {
             if (ref) {
                 const cleanRef = ref.trim().toUpperCase();
                 const d = new Date();
-                d.setTime(d.getTime() + (365 * 24 * 60 * 60 * 1000));
-                document.cookie = "wiz_ref=" + encodeURIComponent(cleanRef) + ";expires=" + d.toUTCString() + ";path=/;max-age=31536000;SameSite=Lax";
+                d.setTime(d.getTime() + (30 * 24 * 60 * 60 * 1000));
+                document.cookie = "wiz_ref=" + encodeURIComponent(cleanRef) + ";expires=" + d.toUTCString() + ";path=/;max-age=2592000;SameSite=Lax";
                 try {
                     localStorage.setItem('wiz_ref_code', cleanRef);
                     localStorage.setItem('wiz_ref_exp', String(d.getTime()));

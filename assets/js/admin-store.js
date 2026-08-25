@@ -2974,12 +2974,25 @@
         getAttribution(phone, email = '') {
             const all = this.getAll();
             const cleanPhone = this.normalizePhone(phone);
-            if (cleanPhone && all[cleanPhone]) return all[cleanPhone];
+            const now = Date.now();
+            const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
+
+            function isAttributionActive(attr) {
+                if (!attr || (!attr.mitraId && !attr.referralId)) return false;
+                if (!attr.lockedAt) return true;
+                const lockedTime = new Date(attr.lockedAt).getTime();
+                return (now - lockedTime) <= ONE_YEAR_MS;
+            }
+
+            if (cleanPhone && all[cleanPhone]) {
+                const item = all[cleanPhone];
+                if (isAttributionActive(item)) return item;
+            }
             if (email) {
                 const cleanEmail = String(email).trim().toLowerCase();
-                if (all[cleanEmail]) return all[cleanEmail];
+                if (all[cleanEmail] && isAttributionActive(all[cleanEmail])) return all[cleanEmail];
                 for (const item of Object.values(all)) {
-                    if (item && item.email && item.email.toLowerCase() === cleanEmail) {
+                    if (item && item.email && item.email.toLowerCase() === cleanEmail && isAttributionActive(item)) {
                         return item;
                     }
                 }
@@ -2998,18 +3011,18 @@
 
             const all = this.getAll();
             const existing = this.getAttribution(cleanPhone, cleanEmail);
-            if (existing && (existing.mitraId || existing.referralId)) {
-                // Permanently locked to initial mitra, preserving lifetime recurring attribution
-                return existing;
-            }
+            
+            // Retain original mitra if active, or use newly assigned mitra
+            const targetMitra = (existing && (existing.mitraId || existing.referralId)) ? (existing.mitraId || existing.referralId) : mitraId;
 
             const record = {
                 phone: cleanPhone || '',
                 email: cleanEmail || '',
                 donorName: donorName || (existing ? existing.donorName : '') || 'Hamba Allah',
-                mitraId: mitraId,
+                mitraId: targetMitra,
                 lockedAt: new Date().toISOString(),
-                isRecurringLocked: true
+                isRecurringLocked: true,
+                lockDurationMonths: 12
             };
 
             if (cleanPhone) all[cleanPhone] = record;
@@ -3021,14 +3034,14 @@
                     window.wizSupabase.upsert('donor_attributions', {
                         phone: cleanPhone,
                         email: cleanEmail,
-                        donor_name: donorName,
-                        mitra_id: mitraId,
+                        donor_name: record.donorName,
+                        mitra_id: targetMitra,
                         locked_at: record.lockedAt
                     });
                 } catch(e) {}
             }
 
-            console.log(`[WIZ Attribution Locking] Donor ${donorName} (${cleanPhone}) permanently attributed to Mitra: ${mitraId}`);
+            console.log(`[WIZ Attribution Locking] Donor ${record.donorName} (${cleanPhone}) locked to Mitra: ${targetMitra} for 1 Year (12 Months)`);
             return record;
         },
         getDonorsByMitra(mitraId) {

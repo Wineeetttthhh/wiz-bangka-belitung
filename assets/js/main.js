@@ -18,9 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initDynamicProgramImages();
 });
 
-// ─── 365-DAY (1 YEAR) AFFILIATE & NEWS REFERRAL TRACKING ENGINE ──────────────
+// ─── 30-DAY AFFILIATE & NEWS REFERRAL TRACKING ENGINE ─────────────────────────
 const AFFILIATE_TRACKING = {
-    DAYS: 365, // 1 Tahun Penuh Cookie Retention
+    DAYS: 30, // Masa aktif klik 30 hari pasca-klik
     COOKIE_KEY: 'wiz_ref_code',
     EXP_KEY: 'wiz_ref_exp'
 };
@@ -35,13 +35,13 @@ function setAffiliateRef(refCode) {
         // 1. Session storage (instant)
         sessionStorage.setItem('wiz_active_ref_id', cleanRef);
 
-        // 2. Local storage (persisted across restarts for 365 days)
+        // 2. Local storage (persisted across restarts for 30 days)
         localStorage.setItem(AFFILIATE_TRACKING.COOKIE_KEY, cleanRef);
         localStorage.setItem(AFFILIATE_TRACKING.EXP_KEY, String(expiryMs));
 
-        // 3. Document Cookie (365-day max-age: 31,536,000 seconds)
-        document.cookie = `wiz_ref=${encodeURIComponent(cleanRef)}; path=/; max-age=31536000; SameSite=Lax`;
-        console.log('[WIZ Referral Tracker] Affiliate code recorded (365-day attribution):', cleanRef);
+        // 3. Document Cookie (30-day max-age: 2,592,000 seconds)
+        document.cookie = `wiz_ref=${encodeURIComponent(cleanRef)}; path=/; max-age=2592000; SameSite=Lax`;
+        console.log('[WIZ Referral Tracker] Affiliate code recorded (30-day attribution):', cleanRef);
     } catch(e) {
         console.warn('[WIZ Referral Tracker] Error storing ref:', e);
     }
