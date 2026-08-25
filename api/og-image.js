@@ -173,9 +173,11 @@ async function processToOgJpeg(rawInput) {
 
 // ─── News Image Resolver ──────────────────────────────────────
 async function resolveNewsRaw(newsId) {
-    // 1. Try Supabase
+    const cleanId = String(newsId || '').trim();
+
+    // 1. Try Supabase direct ID match
     try {
-        const url = `${SUPABASE_URL}/news?select=image_url,gallery,id,title&id=eq.${encodeURIComponent(newsId)}`;
+        const url = `${SUPABASE_URL}/news?select=image_url,gallery,id,title&id=eq.${encodeURIComponent(cleanId)}`;
         const resp = await fetch(url, {
             headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
         });
@@ -190,12 +192,32 @@ async function resolveNewsRaw(newsId) {
         }
     } catch (e) {}
 
-    // 2. Try canonical-store.json
+    // 2. Try Supabase title / slug match
+    try {
+        const allResp = await fetch(`${SUPABASE_URL}/news?select=image_url,gallery,id,title&order=created_at.desc&limit=25`, {
+            headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
+        });
+        if (allResp.ok) {
+            const allRows = await allResp.json();
+            if (Array.isArray(allRows) && allRows.length > 0) {
+                const cleanSlug = slugify(cleanId);
+                const matched = allRows.find(n => n && (slugify(n.title) === cleanSlug || String(n.id) === cleanId || cleanSlug.includes(slugify(n.title))));
+                if (matched) {
+                    const rawImg = (matched.image_url || '').trim();
+                    const galImg = (Array.isArray(matched.gallery) && matched.gallery.length > 0 && typeof matched.gallery[0] === 'string') ? matched.gallery[0].trim() : '';
+                    if (rawImg) return rawImg;
+                    if (galImg) return galImg;
+                }
+            }
+        }
+    } catch (e) {}
+
+    // 3. Try canonical-store.json
     try {
         const canonPath = path.join(process.cwd(), 'assets', 'data', 'canonical-store.json');
         if (fs.existsSync(canonPath)) {
             const cData = JSON.parse(fs.readFileSync(canonPath, 'utf8'));
-            const article = (cData.news || []).find(n => String(n.id) === String(newsId));
+            const article = (cData.news || []).find(n => String(n.id) === cleanId || slugify(n.title) === slugify(cleanId));
             if (article) {
                 const rawImg = (article.imageUrl || article.image_url || '').trim();
                 const galImg = (Array.isArray(article.gallery) && article.gallery.length > 0 && typeof article.gallery[0] === 'string') ? article.gallery[0].trim() : '';
@@ -205,7 +227,7 @@ async function resolveNewsRaw(newsId) {
         }
     } catch (e) {}
 
-    return 'assets/images/sedekah-beras-dhuafa.jpg';
+    return 'assets/images/foto-utama-wiz.jpg';
 }
 
 // ─── Quote/Flyer Image Resolver ───────────────────────────────
