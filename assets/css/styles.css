@@ -1788,4 +1788,36 @@ img {
   }
 }
 
+/* Mobile Menu & Touch Navigation Helpers */
+#mobile-menu-btn {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+#mobile-menu {
+  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+#mobile-menu.hidden {
+  display: none !important;
+}
+
+#mobile-menu:not(.hidden) {
+  display: block !important;
+  animation: wizSlideDown 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes wizSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
 

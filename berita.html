@@ -162,8 +162,8 @@
                     <span class="material-symbols-outlined text-[18px]">favorite</span>
                     <span>Donasi Sekarang</span>
                 </a>
-                <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="lg:hidden p-2 text-on-surface-variant hover:text-primary focus:outline-none cursor-pointer rounded-xl hover:bg-surface-container relative z-50 pointer-events-auto" aria-label="Menu">
-                    <span class="material-symbols-outlined text-2xl" id="menu-icon">menu</span>
+                <button id="mobile-menu-btn" onclick="toggleMobileMenu()" type="button" class="lg:hidden p-2.5 text-on-surface-variant hover:text-primary active:scale-95 transition-all focus:outline-none cursor-pointer rounded-xl hover:bg-surface-container relative z-50 pointer-events-auto select-none touch-manipulation" aria-label="Buka Menu" aria-expanded="false" aria-controls="mobile-menu">
+                    <span class="material-symbols-outlined text-2xl select-none pointer-events-none block" id="menu-icon">menu</span>
                 </button>
             </div>
         </div>
@@ -396,9 +396,10 @@
     </script>
 
     <!-- Scripts: Store & Supabase Sync -->
-    <script src="assets/js/supabase-client.js"></script>
-    <script src="assets/js/admin-store.js"></script>
-    <script src="assets/js/nav-active.js?v=20260825_1"></script>
+    <script src="assets/js/supabase-client.js?v=20260825_menu"></script>
+    <script src="assets/js/admin-store.js?v=20260825_menu"></script>
+    <script src="assets/js/main.js?v=20260825_menu"></script>
+    <script src="assets/js/nav-active.js?v=20260825_menu"></script>
 
     <script>
         let currentCategory = 'Semua';
@@ -660,17 +661,6 @@
                         alert('Tautan berita berhasil disalin ke clipboard!');
                     }
                 });
-            }
-        }
-
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            const icon = document.getElementById('menu-icon');
-            if (menu) {
-                menu.classList.toggle('hidden');
-                if (icon) {
-                    icon.textContent = menu.classList.contains('hidden') ? 'menu' : 'close';
-                }
             }
         }
 

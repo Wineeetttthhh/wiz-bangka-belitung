@@ -170,8 +170,8 @@
                 <span class="material-symbols-outlined text-sm">favorite</span>
                 <span>Donasi Sekarang</span>
             </a>
-            <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="lg:hidden p-2 text-on-surface-variant hover:text-primary focus:outline-none cursor-pointer rounded-xl hover:bg-surface-container relative z-50 pointer-events-auto" aria-label="Menu">
-                <span class="material-symbols-outlined text-2xl" id="menu-icon">menu</span>
+            <button id="mobile-menu-btn" onclick="toggleMobileMenu()" type="button" class="lg:hidden p-2.5 text-on-surface-variant hover:text-primary active:scale-95 transition-all focus:outline-none cursor-pointer rounded-xl hover:bg-surface-container relative z-50 pointer-events-auto select-none touch-manipulation" aria-label="Buka Menu" aria-expanded="false" aria-controls="mobile-menu">
+                <span class="material-symbols-outlined text-2xl select-none pointer-events-none block" id="menu-icon">menu</span>
             </button>
         </div>
     </div>
@@ -424,10 +424,10 @@
 </a>
 
 <!-- Scripts -->
-<script src="assets/js/supabase-client.js?v=20260820_24"></script>
-<script src="assets/js/admin-store.js?v=20260820_24"></script>
-<script src="assets/js/main.js?v=20260820_24"></script>
-<script src="assets/js/nav-active.js?v=20260820_7"></script>
+<script src="assets/js/supabase-client.js?v=20260825_menu"></script>
+<script src="assets/js/admin-store.js?v=20260825_menu"></script>
+<script src="assets/js/main.js?v=20260825_menu"></script>
+<script src="assets/js/nav-active.js?v=20260825_menu"></script>
 
 <script>
     // Live Time Indicator
@@ -611,22 +611,6 @@
                     <span class="text-[10px] opacity-85 font-mono font-bold block text-emerald-900">${fmt(p.saldo)}</span>
                 </div>
             </div>`).join('');
-    }
-
-    // Mobile Menu Toggle
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const menuIcon = document.getElementById('menu-icon');
-
-    if (mobileMenuBtn && mobileMenu) {
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-            if (mobileMenu.classList.contains('hidden')) {
-                menuIcon.textContent = 'menu';
-            } else {
-                menuIcon.textContent = 'close';
-            }
-        });
     }
 
     // Table Filter

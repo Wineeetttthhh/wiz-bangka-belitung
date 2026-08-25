@@ -3,22 +3,42 @@
  */
 
 (function() {
-    function toggleMobileMenu() {
+    let _lastMenuToggle = 0;
+
+    function toggleMobileMenu(forceState) {
+        const now = Date.now();
+        // Prevent rapid double-triggering from multiple event listeners (e.g. onclick + addEventListener)
+        if (typeof forceState !== 'boolean' && (now - _lastMenuToggle < 200)) {
+            return;
+        }
+        _lastMenuToggle = now;
+
         const mobileMenu = document.getElementById('mobile-menu');
         const menuIcon = document.getElementById('menu-icon');
+        const menuBtn = document.getElementById('mobile-menu-btn');
         if (!mobileMenu) return;
 
         const isCurrentlyHidden = mobileMenu.classList.contains('hidden');
-        if (isCurrentlyHidden) {
+        const shouldOpen = (typeof forceState === 'boolean') ? forceState : isCurrentlyHidden;
+
+        if (shouldOpen) {
             mobileMenu.classList.remove('hidden');
             if (menuIcon) menuIcon.textContent = 'close';
+            if (menuBtn) {
+                menuBtn.setAttribute('aria-expanded', 'true');
+                menuBtn.classList.add('text-primary');
+            }
         } else {
             mobileMenu.classList.add('hidden');
             if (menuIcon) menuIcon.textContent = 'menu';
+            if (menuBtn) {
+                menuBtn.setAttribute('aria-expanded', 'false');
+                menuBtn.classList.remove('text-primary');
+            }
         }
     }
 
-    // Expose toggle function globally for inline onclick fallbacks & framework interoperability
+    // Expose toggle function globally for inline onclick & interoperability
     window.toggleMobileMenu = toggleMobileMenu;
 
     function initActiveNavigation() {
@@ -61,7 +81,6 @@
             }
 
             if (matchedLink) {
-                // If there are multiple matching links (desktop & mobile), activate both or match text
                 const matchedText = matchedLink.textContent.trim();
                 navLinks.forEach(link => {
                     if (link.textContent.trim() === matchedText) {
@@ -155,13 +174,8 @@
                     });
                 }
 
-                // Close mobile menu if open
-                const mobileMenu = document.getElementById('mobile-menu');
-                const menuIcon = document.getElementById('menu-icon');
-                if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
-                    mobileMenu.classList.add('hidden');
-                    if (menuIcon) menuIcon.textContent = 'menu';
-                }
+                // Close mobile menu if open when a navigation link is clicked
+                toggleMobileMenu(false);
             });
         });
 
@@ -169,13 +183,14 @@
         updateActiveOnPageLoad();
     }
 
-    // Global document-level click handler (Event Delegation) for resilient mobile menu toggle
+    // Global document-level click handler (Event Delegation)
     if (!window._wizNavDelegationInitialized) {
         window._wizNavDelegationInitialized = true;
+
         document.addEventListener('click', function(e) {
             const btn = e.target.closest('#mobile-menu-btn');
             if (btn) {
-                e.preventDefault();
+                // If clicked button, toggle
                 e.stopPropagation();
                 toggleMobileMenu();
                 return;
@@ -185,9 +200,17 @@
             const mobileMenu = document.getElementById('mobile-menu');
             const nav = e.target.closest('nav');
             if (mobileMenu && !mobileMenu.classList.contains('hidden') && !nav) {
-                mobileMenu.classList.add('hidden');
-                const menuIcon = document.getElementById('menu-icon');
-                if (menuIcon) menuIcon.textContent = 'menu';
+                toggleMobileMenu(false);
+            }
+        });
+
+        // Escape key to close mobile menu
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.key === 'Esc') {
+                const mobileMenu = document.getElementById('mobile-menu');
+                if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                    toggleMobileMenu(false);
+                }
             }
         });
     }
