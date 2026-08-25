@@ -663,21 +663,32 @@ function initDynamicProgramImages() {
  * Mobile Navigation Toggle & Smooth Scrolling
  */
 function initNavigation() {
-    const mobileToggle = document.getElementById('mobile-toggle');
-    const mainNav = document.getElementById('main-nav');
+    const mobileToggle = document.getElementById('mobile-menu-btn') || document.getElementById('mobile-toggle');
+    const mainNav = document.getElementById('mobile-menu') || document.getElementById('main-nav');
     const navLinks = document.querySelectorAll('.nav-link');
 
-    if (mobileToggle && mainNav) {
-        mobileToggle.addEventListener('click', () => {
-            mainNav.classList.toggle('show');
-            const isExpanded = mainNav.classList.contains('show');
-            mobileToggle.setAttribute('aria-expanded', isExpanded);
+    if (mobileToggle && mainNav && !mobileToggle._wizNavBound) {
+        mobileToggle._wizNavBound = true;
+        mobileToggle.addEventListener('click', (e) => {
+            if (typeof window.toggleMobileMenu === 'function') {
+                window.toggleMobileMenu();
+            } else {
+                mainNav.classList.toggle('hidden');
+                const isHidden = mainNav.classList.contains('hidden');
+                const menuIcon = document.getElementById('menu-icon');
+                if (menuIcon) menuIcon.textContent = isHidden ? 'menu' : 'close';
+            }
         });
     }
 
     // Close mobile nav when clicking a link
     navLinks.forEach(link => {
         link.addEventListener('click', () => {
+            if (mainNav && !mainNav.classList.contains('hidden')) {
+                mainNav.classList.add('hidden');
+                const menuIcon = document.getElementById('menu-icon');
+                if (menuIcon) menuIcon.textContent = 'menu';
+            }
             if (mainNav && mainNav.classList.contains('show')) {
                 mainNav.classList.remove('show');
             }
