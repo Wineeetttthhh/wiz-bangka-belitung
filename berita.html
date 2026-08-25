@@ -612,7 +612,8 @@
         }
 
         function getPageRefCode() {
-            return (new URLSearchParams(window.location.search).get('ref') || sessionStorage.getItem('wiz_active_ref_id') || '').trim();
+            return (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || 
+                   (new URLSearchParams(window.location.search).get('ref') || sessionStorage.getItem('wiz_active_ref_id') || localStorage.getItem('wiz_ref_code') || '').trim();
         }
 
         function shareDirectWA(id) {

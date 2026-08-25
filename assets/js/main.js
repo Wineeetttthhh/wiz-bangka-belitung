@@ -1414,6 +1414,25 @@ Mohon dapat diverifikasi dan dikirimkan konfirmasi/bukti resi donasinya. Terima 
             const encodedMessage = encodeURIComponent(message);
             const waUrl = `https://wa.me/${targetPhone}?text=${encodedMessage}`;
 
+            // Capture active 30-day Mitra referral code
+            const refCode = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || 
+                            sessionStorage.getItem('wiz_active_ref_id') || 
+                            localStorage.getItem('wiz_ref_code') || '';
+            let refId = null;
+            let refRate = 6;
+            if (refCode && window.wizStore && window.wizStore.referrals) {
+                const refObj = window.wizStore.referrals.getByCodeOrId(refCode);
+                if (refObj) {
+                    refId = refObj.id;
+                    refRate = refObj.defaultRate || 6;
+                } else {
+                    refId = refCode;
+                }
+            } else if (refCode) {
+                refId = refCode;
+            }
+            const refFee = refId ? Math.round(finalAmount * (refRate / 100)) : 0;
+
             // Save transaction to Supabase cloud if enabled
             if (window.wizSupabase) {
                 window.wizSupabase.saveDonation({
@@ -1423,7 +1442,28 @@ Mohon dapat diverifikasi dan dikirimkan konfirmasi/bukti resi donasinya. Terima 
                     donation_type: selectedDtype,
                     amount: finalAmount,
                     payment_method: methodText,
-                    notes: donorNotes
+                    notes: donorNotes,
+                    referral_id: refId,
+                    referral_code: refCode || refId,
+                    referral_rate: refRate,
+                    referral_fee: refFee
+                });
+            }
+
+            if (window.wizStore && window.wizStore.donations) {
+                window.wizStore.donations.add({
+                    donorName: donorName,
+                    donorPhone: donorPhone,
+                    program: programName,
+                    type: selectedDtype,
+                    amount: finalAmount,
+                    method: methodText,
+                    notes: donorNotes,
+                    referralId: refId,
+                    referralCode: refCode || refId,
+                    referralRate: refRate,
+                    referralFee: refFee,
+                    status: 'pending'
                 });
             }
 
