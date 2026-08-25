@@ -1,12 +1,28 @@
 /**
- * WIZ Bangka Belitung - Active Navigation & ScrollSpy Handler
+ * WIZ Bangka Belitung - Active Navigation, ScrollSpy & Mobile Menu Handler
  */
 
 (function() {
+    function toggleMobileMenu() {
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+        if (!mobileMenu) return;
+
+        const isCurrentlyHidden = mobileMenu.classList.contains('hidden');
+        if (isCurrentlyHidden) {
+            mobileMenu.classList.remove('hidden');
+            if (menuIcon) menuIcon.textContent = 'close';
+        } else {
+            mobileMenu.classList.add('hidden');
+            if (menuIcon) menuIcon.textContent = 'menu';
+        }
+    }
+
+    // Expose toggle function globally for inline onclick fallbacks & framework interoperability
+    window.toggleMobileMenu = toggleMobileMenu;
+
     function initActiveNavigation() {
         const navLinks = document.querySelectorAll('.nav-link');
-        if (!navLinks.length) return;
-
         const path = window.location.pathname.split('/').pop() || 'index.html';
         const isIndexPage = (path === '' || path === 'index.html' || path === 'index.php');
 
@@ -76,6 +92,8 @@
                 activateByHref('program.html');
             } else if (path === 'laporan.html') {
                 activateByHref('laporan.html');
+            } else if (path === 'berita.html') {
+                activateByHref('berita.html');
             }
         }
 
@@ -87,7 +105,6 @@
                 { id: 'kontak', selector: '#kontak' }
             ];
 
-            let isScrolling;
             const onScroll = () => {
                 const scrollPos = window.scrollY || window.pageYOffset;
                 let currentSection = null;
@@ -152,9 +169,36 @@
         updateActiveOnPageLoad();
     }
 
+    // Global document-level click handler (Event Delegation) for resilient mobile menu toggle
+    if (!window._wizNavDelegationInitialized) {
+        window._wizNavDelegationInitialized = true;
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('#mobile-menu-btn');
+            if (btn) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleMobileMenu();
+                return;
+            }
+
+            // Close mobile menu when clicking outside navbar
+            const mobileMenu = document.getElementById('mobile-menu');
+            const nav = e.target.closest('nav');
+            if (mobileMenu && !mobileMenu.classList.contains('hidden') && !nav) {
+                mobileMenu.classList.add('hidden');
+                const menuIcon = document.getElementById('menu-icon');
+                if (menuIcon) menuIcon.textContent = 'menu';
+            }
+        });
+    }
+
+    // Lifecycle handlers: Support standard DOMContentLoaded, immediate execution, and Astro/SPA page loads
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initActiveNavigation);
     } else {
         initActiveNavigation();
     }
+
+    document.addEventListener('astro:page-load', initActiveNavigation);
+    window.addEventListener('popstate', initActiveNavigation);
 })();
