@@ -4177,7 +4177,8 @@
             }
         }
 
-        async function compressImageFile(file, maxDimension = 800, quality = 0.72) {
+        async function compressImageFile(file, maxDimension = 960, quality = 0.78) {
+            if (!file) return null;
             const isHeic = file.name && (file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif') || (file.type && file.type.includes('heic')));
             let processFile = file;
 
@@ -4194,6 +4195,28 @@
                 }
             }
 
+            // 1. High-Performance Hardware-Accelerated Path (createImageBitmap - prevents mobile RAM crash)
+            if (typeof window.createImageBitmap === 'function') {
+                try {
+                    const bmp = await createImageBitmap(processFile, {
+                        resizeWidth: maxDimension,
+                        resizeQuality: 'medium'
+                    });
+                    const canvas = document.createElement('canvas');
+                    canvas.width = bmp.width;
+                    canvas.height = bmp.height;
+                    const ctx = canvas.getContext('2d', { willReadFrequently: false });
+                    ctx.drawImage(bmp, 0, 0);
+                    bmp.close();
+                    let out = canvas.toDataURL('image/jpeg', quality);
+                    canvas.width = 1; canvas.height = 1;
+                    return out;
+                } catch(e) {
+                    console.warn('[createImageBitmap] fallback to canvas:', e);
+                }
+            }
+
+            // 2. Standard Safe Fallback
             return new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -4206,16 +4229,8 @@
                             const srcW = img.naturalWidth || img.width;
                             const srcH = img.naturalHeight || img.height;
 
-                            // High-performance lightweight compression: max 800px, quality 0.72 (produces sharp ~50-80KB images)
-                            let maxDim = 800;
-                            let qual = 0.72;
-
-                            if (typeof maxDimension === 'number' && maxDimension > 50) {
-                                maxDim = maxDimension;
-                            }
-                            if (typeof quality === 'number' && quality > 0 && quality <= 1) {
-                                qual = quality;
-                            }
+                            let maxDim = maxDimension || 960;
+                            let qual = quality || 0.78;
 
                             let targetW = srcW;
                             let targetH = srcH;
@@ -4233,17 +4248,12 @@
                             canvas.width = targetW;
                             canvas.height = targetH;
                             const ctx = canvas.getContext('2d', { willReadFrequently: false });
-
-                            // Fast smooth rendering
                             ctx.imageSmoothingEnabled = true;
                             ctx.imageSmoothingQuality = 'medium';
                             ctx.drawImage(img, 0, 0, targetW, targetH);
 
                             let result = canvas.toDataURL('image/jpeg', qual);
-                            // Safety guard: if still > 120KB, re-compress slightly to keep storage super light
-                            if (result && result.length > 160000) {
-                                result = canvas.toDataURL('image/jpeg', 0.58);
-                            }
+                            canvas.width = 1; canvas.height = 1;
                             resolve(result || dataUrl);
                         } catch(err) {
                             console.warn('[Image Compress Error]', err);
@@ -5365,13 +5375,13 @@
                     document.getElementById('spec-prog-location').value = progObj.location || 'Kepulauan Bangka Belitung';
                     document.getElementById('spec-prog-beneficiaries').value = progObj.beneficiaries || '';
                     document.getElementById('spec-prog-desc').value = progObj.description || '';
-                    setSpecificProgramPresetPhoto(progObj.imageUrl || 'assets/images/sedekah-beras-dhuafa.jpg');
+                    setSpecificProgramPresetPhoto(progObj.imageUrl || 'assets/images/default-program-wiz.jpg');
                     const statusRadios = document.getElementsByName('spec-prog-status');
                     for (const r of statusRadios) {
                         r.checked = (r.value === progObj.status);
                     }
                 } else {
-                    const currentImg = (window.wizStore && window.wizStore.allocationRulesManager) ? window.wizStore.allocationRulesManager.getSpecificProgramImage(editTitle, editPillar) : 'assets/images/sedekah-beras-dhuafa.jpg';
+                    const currentImg = (window.wizStore && window.wizStore.allocationRulesManager) ? window.wizStore.allocationRulesManager.getSpecificProgramImage(editTitle, editPillar) : 'assets/images/default-program-wiz.jpg';
                     setSpecificProgramPresetPhoto(currentImg);
                     document.getElementById('spec-prog-target').value = 'Rp 50.000.000';
                     document.getElementById('spec-prog-location').value = 'Kepulauan Bangka Belitung';
@@ -5384,7 +5394,7 @@
                 if (editPillar) document.getElementById('spec-prog-pillar').value = editPillar;
                 document.getElementById('spec-prog-location').value = 'Kepulauan Bangka Belitung';
                 document.getElementById('spec-prog-beneficiaries').value = '';
-                setSpecificProgramPresetPhoto('assets/images/sedekah-beras-dhuafa.jpg');
+                setSpecificProgramPresetPhoto('assets/images/default-program-wiz.jpg');
                 const statusRadios = document.getElementsByName('spec-prog-status');
                 for (const r of statusRadios) {
                     if (r.value === 'published') r.checked = true;
@@ -5410,7 +5420,7 @@
             const beneficiaries = document.getElementById('spec-prog-beneficiaries').value.trim();
             const desc = document.getElementById('spec-prog-desc').value.trim();
             const imgEl = document.getElementById('spec-prog-main-preview');
-            const imgUrl = (imgEl && imgEl.src) ? imgEl.src : (document.getElementById('spec-prog-img-url').value || 'assets/images/sedekah-beras-dhuafa.jpg');
+            const imgUrl = (imgEl && imgEl.src) ? imgEl.src : (document.getElementById('spec-prog-img-url').value || 'assets/images/default-program-wiz.jpg');
 
             let status = 'published';
             const statusRadios = document.getElementsByName('spec-prog-status');
@@ -5648,76 +5658,69 @@
             }).join('');
         }
 
-        function handleSpecificProgramPhotoUpload(event, progTitle, safeId) {
+        async function handleSpecificProgramPhotoUpload(event, progTitle, safeId) {
             const file = event.target.files && event.target.files[0];
             if (!file) return;
 
             const prevImg = safeId ? document.getElementById('prev-' + safeId) : null;
+            if (prevImg) prevImg.classList.add('opacity-50');
 
-            const objectUrl = URL.createObjectURL(file);
-            if (prevImg) { prevImg.src = objectUrl; prevImg.classList.remove('opacity-40'); }
+            try {
+                const compressed = await compressImageFile(file, 960, 0.78);
+                if (!compressed) {
+                    alert('Gagal memproses file foto.');
+                    if (prevImg) prevImg.classList.remove('opacity-50');
+                    return;
+                }
 
-            setTimeout(() => {
-                const img = new Image();
-                img.onload = async function() {
-                    const maxDim = 1080;
-                    let w = img.naturalWidth, h = img.naturalHeight;
-                    if (w > maxDim || h > maxDim) {
-                        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
-                        else       { w = Math.round(w * maxDim / h); h = maxDim; }
+                if (prevImg) {
+                    prevImg.src = compressed;
+                    prevImg.classList.remove('opacity-50');
+                }
+
+                if (window.wizStore && window.wizStore.programs) {
+                    const existing = window.wizStore.programs.getAll().find(p => p.title.toLowerCase() === progTitle.toLowerCase());
+                    if (existing) {
+                        await window.wizStore.programs.update(existing.id, { imageUrl: compressed });
                     }
-                    const canvas = document.createElement('canvas');
-                    canvas.width = w; canvas.height = h;
-                    const ctx = canvas.getContext('2d');
-                    ctx.imageSmoothingEnabled = true;
-                    ctx.imageSmoothingQuality = 'high';
-                    ctx.drawImage(img, 0, 0, w, h);
-                    const compressed = canvas.toDataURL('image/jpeg', 0.80);
-                    URL.revokeObjectURL(objectUrl);
-                    if (prevImg) prevImg.src = compressed;
+                }
 
-                    if (window.wizStore && window.wizStore.programs) {
-                        const existing = window.wizStore.programs.getAll().find(p => p.title.toLowerCase() === progTitle.toLowerCase());
-                        if (existing) {
-                            await window.wizStore.programs.update(existing.id, { imageUrl: compressed });
+                if (window.wizStore && window.wizStore.allocationRulesManager) {
+                    await window.wizStore.allocationRulesManager.updateSpecificProgramImageByName(progTitle, compressed);
+                }
+
+                // ── Segera simpan foto ke Supabase master_bundle.specific_prog_imgs ──
+                (async () => {
+                    try {
+                        const targets = ['/api/sync-photo'];
+                        if (window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
+                            targets.push('https://www.wizbangkabelitung.or.id/api/sync-photo');
                         }
-                    }
+                        for (const url of targets) {
+                            try {
+                                const r = await fetch(url, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ programTitle: progTitle, imageUrl: compressed })
+                                });
+                                if (r.ok) {
+                                    const result = await r.json();
+                                    console.log(`[Admin] ✅ Foto "${progTitle}" berhasil disimpan ke Supabase via ${url}:`, result.message);
+                                }
+                            } catch(e) {}
+                        }
+                    } catch(e) {}
+                })();
 
-                    if (window.wizStore && window.wizStore.allocationRulesManager) {
-                        await window.wizStore.allocationRulesManager.updateSpecificProgramImageByName(progTitle, compressed);
-                    }
-
-                    // ── Segera simpan foto ke Supabase master_bundle.specific_prog_imgs ──
-                    // Ini memastikan server OG Image (og-image.js), web utama, dan portal mitra
-                    // langsung mendapatkan foto yang benar.
-                    (async () => {
-                        try {
-                            const targets = ['/api/sync-photo'];
-                            if (window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
-                                targets.push('https://www.wizbangkabelitung.or.id/api/sync-photo');
-                            }
-                            for (const url of targets) {
-                                try {
-                                    const r = await fetch(url, {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ programTitle: progTitle, imageUrl: compressed })
-                                    });
-                                    if (r.ok) {
-                                        const result = await r.json();
-                                        console.log(`[Admin] ✅ Foto "${progTitle}" berhasil disimpan ke Supabase via ${url}:`, result.message);
-                                    }
-                                } catch(e) {}
-                            }
-                        } catch(e) {}
-                    })();
-
-                    renderSpecificProgramImagesSection();
-                    if (typeof renderProgramsCMSSection === 'function') renderProgramsCMSSection();
-                    alert(`✅ Foto Program "${progTitle}" berhasil diunggah ke Supabase Cloud dan langsung tersinkronkan ke Web Utama serta Portal Mitra!`);
-                };
-                img.src = objectUrl;
-            }, 10);
+                renderSpecificProgramImagesSection();
+                if (typeof renderProgramsCMSSection === 'function') renderProgramsCMSSection();
+                alert(`✅ Foto Program "${progTitle}" berhasil diunggah ke Supabase Cloud dan langsung tersinkronkan ke Web Utama serta Portal Mitra!`);
+            } catch(err) {
+                console.error('[Upload Specific Program Photo Error]', err);
+                alert('Terjadi kesalahan saat mengunggah foto.');
+            } finally {
+                event.target.value = '';
+            }
         }
 
         let currentCMSPillarFilter = 'Semua';

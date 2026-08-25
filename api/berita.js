@@ -249,7 +249,7 @@ module.exports = async function handler(req, res) {
 
     // ─── 2. DEDICATED OG IMAGE URL (Direct, Instant & Highest Accuracy) ──────────
     const firstGalleryImg = (Array.isArray(gallery) && gallery.length > 0 && typeof gallery[0] === 'string') ? gallery[0].trim() : '';
-    const primaryImg = rawImg || firstGalleryImg || 'assets/images/sedekah-beras-dhuafa.jpg';
+    const primaryImg = rawImg || firstGalleryImg || 'assets/images/default-program-wiz.jpg';
 
     // WhatsApp, Facebook, and Twitter standard proxy: guarantees <280KB, JPEG, and exact framing
     let ogImageUrl = `${origin}/api/og-image?type=news&id=${encodeURIComponent(article.id)}`;

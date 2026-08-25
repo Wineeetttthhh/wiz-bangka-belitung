@@ -89,7 +89,7 @@ async function fetchExternalBuffer(url) {
 
 function getLocalDefaultBuffer() {
     try {
-        const p = path.join(process.cwd(), 'assets', 'images', 'foto-utama-wiz.jpg');
+        const p = path.join(process.cwd(), 'assets', 'images', 'default-program-wiz.jpg');
         if (fs.existsSync(p)) return fs.readFileSync(p);
     } catch(e) {}
     return null;
@@ -142,21 +142,28 @@ async function processToOgJpeg(rawInput) {
 
         let finalImg;
 
-        if (ratio >= 1.4) {
-            // Standard Landscape photo (1200x630)
+        if (ratio >= 1.4 && ratio <= 2.2) {
+            // Standard Landscape photo (1200x630 cover)
             finalImg = srcImg.clone();
             finalImg.cover({ w: 1200, h: 630 });
         } else {
-            // Flyer / Poster (Square 1:1, 4:5, 3:4, etc.)
-            // Output clean, uncropped flyer image with max dimension 1080px
-            // WhatsApp Status & Chat will render the full large card preview!
-            finalImg = srcImg.clone();
-            if (w > 1080 || h > 1080) {
-                finalImg.scaleToFit({ w: 1080, h: 1080 });
-            }
+            // Smart Landscape Framing for Vertical / Square Posters (1:1, 4:5, 9:16, etc.)
+            // Guarantees WhatsApp Large Card rendering without cropping the poster!
+            const bgImg = srcImg.clone();
+            bgImg.cover({ w: 1200, h: 630 });
+            bgImg.blur(14);
+            bgImg.color([{ apply: 'darken', params: [25] }]);
+
+            const fgImg = srcImg.clone();
+            fgImg.scaleToFit({ w: 1200, h: 630 });
+
+            const posX = Math.round((1200 - fgImg.bitmap.width) / 2);
+            const posY = Math.round((630 - fgImg.bitmap.height) / 2);
+            bgImg.composite(fgImg, posX, posY);
+            finalImg = bgImg;
         }
 
-        // Compress to JPEG with quality 82 (typical output 60-140 KB, always < 300 KB)
+        // Compress to JPEG with quality 82 (typical output 70-130 KB, always < 280 KB for WhatsApp)
         let outputBuf = await finalImg.getBuffer('image/jpeg', { quality: 82 });
 
         if (outputBuf.length > 280000) {
@@ -227,7 +234,7 @@ async function resolveNewsRaw(newsId) {
         }
     } catch (e) {}
 
-    return 'assets/images/foto-utama-wiz.jpg';
+    return 'assets/images/default-program-wiz.jpg';
 }
 
 // ─── Quote/Flyer Image Resolver ───────────────────────────────
@@ -379,7 +386,7 @@ async function resolveProgramRaw(slug) {
         }
     } catch(e) {}
 
-    return 'assets/images/foto-utama-wiz.jpg';
+    return 'assets/images/default-program-wiz.jpg';
 }
 
 // ─── Main Handler ─────────────────────────────────────────────
@@ -398,7 +405,7 @@ module.exports = async function handler(req, res) {
         return sendJpegImage(res, cachedBuf);
     }
 
-    let rawSource = 'assets/images/foto-utama-wiz.jpg';
+    let rawSource = 'assets/images/default-program-wiz.jpg';
 
     // Priority 1: Use forwarded ?src= if present (highest accuracy from SSR engine)
     if (srcParam && (srcParam.startsWith('https://') || srcParam.startsWith('http://') || srcParam.startsWith('assets/') || srcParam.startsWith('data:image/') || srcParam.includes('/assets/'))) {
