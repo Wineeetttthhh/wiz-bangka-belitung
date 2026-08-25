@@ -229,6 +229,12 @@ const server = http.createServer((req, res) => {
     }
 
     if (reqUrl === '/') reqUrl = '/index.html';
+    if (!path.extname(reqUrl)) {
+        const tryHtml = path.join(__dirname, reqUrl + '.html');
+        if (fs.existsSync(tryHtml)) {
+            reqUrl = reqUrl + '.html';
+        }
+    }
 
     const filePath = path.join(__dirname, reqUrl);
 
