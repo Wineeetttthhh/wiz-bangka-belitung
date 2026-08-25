@@ -656,17 +656,8 @@ const PROGRAM_IMAGE_MAP = {
     }
 
     // ─── 2. OG IMAGE URL (Direct, Instant & Highly Compatible) ────────────────────
-    let ogImageUrl;
-    if (rawImg && rawImg.startsWith('data:image/')) {
-        // Direct binary stream — decoded directly from Supabase base64
-        ogImageUrl = `${origin}/api/program?slug=${encodeURIComponent(canonicalSlug)}&img=1`;
-    } else if (rawImg && (rawImg.startsWith('https://') || rawImg.startsWith('http://'))) {
-        ogImageUrl = rawImg;
-    } else if (rawImg) {
-        ogImageUrl = `${origin}/${rawImg.replace(/^\//, '')}`;
-    } else {
-        ogImageUrl = DEFAULT_FALLBACK_IMAGE;
-    }
+    // WhatsApp, Facebook, and Twitter standard proxy: guarantees <280KB, JPEG, and exact framing
+    const ogImageUrl = `${origin}/api/og-image?type=program&id=${encodeURIComponent(canonicalSlug)}`;
     const ogImageSecureUrl = ogImageUrl;
 
     // Determine actual page image source for HTML body display

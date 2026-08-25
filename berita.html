@@ -664,13 +664,22 @@
             }
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             const fyb = document.getElementById('footer-year-berita');
             if (fyb) fyb.textContent = new Date().getFullYear();
             renderArchive();
+
+            // Auto-fetch fresh news from Supabase Cloud on startup for multi-device sync
+            if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
+                try {
+                    await window.wizStore.syncFromCloud(true);
+                    renderArchive();
+                } catch(e) {}
+            }
         });
         window.addEventListener('wiz-news-changed', renderArchive);
         window.addEventListener('wiz-sync-complete', renderArchive);
+        window.addEventListener('wiz-data-changed', renderArchive);
     </script>
 </body>
 </html>

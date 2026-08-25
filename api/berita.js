@@ -251,17 +251,8 @@ module.exports = async function handler(req, res) {
     const firstGalleryImg = (Array.isArray(gallery) && gallery.length > 0 && typeof gallery[0] === 'string') ? gallery[0].trim() : '';
     const primaryImg = rawImg || firstGalleryImg || 'assets/images/sedekah-beras-dhuafa.jpg';
 
-    let ogImageUrl;
-    if (primaryImg.startsWith('data:image/')) {
-        // Direct binary serve from /berita-image/:id.jpg or /api/berita?id=:id&img=1
-        ogImageUrl = `${origin}/berita-image/${encodeURIComponent(article.id)}.jpg`;
-    } else if (primaryImg.startsWith('http://') || primaryImg.startsWith('https://')) {
-        ogImageUrl = primaryImg;
-    } else if (primaryImg) {
-        ogImageUrl = `${origin}/${primaryImg.replace(/^\//, '')}`;
-    } else {
-        ogImageUrl = `${origin}/assets/images/sedekah-beras-dhuafa.jpg`;
-    }
+    // WhatsApp, Facebook, and Twitter standard proxy: guarantees <280KB, JPEG, and exact framing
+    const ogImageUrl = `${origin}/api/og-image?type=news&id=${encodeURIComponent(article.id)}`;
     const secureImgUrl = ogImageUrl;
 
     // Determine actual page body image (can still use base64/direct for display quality)
