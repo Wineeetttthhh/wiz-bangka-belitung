@@ -258,7 +258,6 @@ const SUPABASE_CONFIG = {
             }));
             return { data: mapped, error: null };
         },
-        saveDisbursement: (data) => upsert('disbursements', data),
         saveReferral: async (data) => {
             if (!data) return { data: null, error: 'No data' };
             const rawNotes = data.notes || '';
