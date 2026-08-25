@@ -2526,35 +2526,37 @@
                                 extractedProg = extractedProg.replace(/\[[^\]]+\]/g, '').trim();
                             }
 
+                            const dType = d.type || d.donation_type || 'Infak Terikat';
+                            const dMethod = d.method || d.payment_method || 'Transfer Bank';
                             if (!extractedCat || extractedCat === '-') {
-                                extractedCat = mapProgramToPillar(extractedProg, d.donation_type);
+                                extractedCat = mapProgramToPillar(extractedProg, dType);
                             }
 
                             return {
                                 id: d.id,
-                                donorName: d.donor_name || 'Hamba Allah',
-                                donorPhone: d.donor_phone || '-',
-                                donorEmail: d.donor_email || '',
+                                donorName: d.donor_name || d.donorName || 'Hamba Allah',
+                                donorPhone: d.donor_phone || d.donorPhone || '-',
+                                donorEmail: d.donor_email || d.donorEmail || '',
                                 wilayah: extractedWilayah,
-                                type: d.donation_type || 'Infak Terikat',
+                                type: dType,
                                 programUtama: extractedCat,
                                 programSpesifik: extractedProg,
                                 program: extractedProg,
                                 category: extractedCat,
                                 amount: Number(d.amount) || 0,
-                                alokasiOperasional: Number(d.alokasi_operasional) || (d.donation_type === 'Infak Terikat' ? Math.round(Number(d.amount) * 0.125) : 0),
-                                alokasiProgram: Number(d.alokasi_program) || (d.donation_type === 'Infak Terikat' ? Math.round(Number(d.amount) * 0.875) : 0),
-                                method: d.payment_method || 'Transfer Bank',
+                                alokasiOperasional: Number(d.alokasi_operasional !== undefined ? d.alokasi_operasional : (d.alokasiOperasional || (dType === 'Infak Terikat' ? Math.round(Number(d.amount) * 0.125) : 0))),
+                                alokasiProgram: Number(d.alokasi_program !== undefined ? d.alokasi_program : (d.alokasiProgram || (dType === 'Infak Terikat' ? Math.round(Number(d.amount) * 0.875) : 0))),
+                                method: dMethod,
                                 referralId: extractedRef,
                                 referralCode: extractedRef,
-                                referralRate: 6,
+                                referralRate: Number(d.referral_rate || d.referralRate || 6),
                                 referralFee: extractedFee,
                                 isRecurringDonor: isRecurring,
                                 notes: (d.notes || '-').replace(/\[Meta:[^\]]*\]/g, '').trim() || '-',
                                 status: d.status || 'pending',
                                 verifiedAt: d.verified_at || (d.status === 'verified' ? (d.updated_at || d.created_at) : null),
                                 verifiedBy: d.verified_by || (d.status === 'verified' ? 'Admin' : null),
-                                createdAt: d.created_at || new Date().toISOString()
+                                createdAt: d.created_at || d.createdAt || new Date().toISOString()
                             };
                         });
                     }
@@ -3177,14 +3179,20 @@
             window.dispatchEvent(new CustomEvent('wiz-donations-changed', { detail: { action: 'add', donation: newDonation } }));
             window.dispatchEvent(new CustomEvent('wiz-referrals-changed'));
 
-            // Background Async Cloud Persistence (Non-blocking: instant < 50ms response for donor)
+            // Direct Supabase & Cloud Persistence
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.saveDonation(newDonation);
+                } catch(e) {
+                    console.warn('[WIZ Store] Supabase saveDonation direct error:', e);
+                }
+            }
+
+            // Background async sync & broadcast
             (async () => {
                 const cloudTasks = [];
                 if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                     cloudTasks.push(window.wizFirebase.insert('donations', newDonation).catch(() => {}));
-                }
-                if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                    cloudTasks.push(window.wizSupabase.saveDonation(newDonation).catch(() => {}));
                 }
                 cloudTasks.push(
                     fetch('/api/sync', {

@@ -483,20 +483,35 @@ module.exports = async function handler(req, res) {
                     const finalNotes = baseNotes ? (baseNotes === '-' ? metaTag.trim() : `${baseNotes}${metaTag}`) : (metaTag.trim() || '-');
 
                     const payload = {
+                        id: String(d.id),
                         donor_name: String(d.donorName || d.donor_name || 'Hamba Allah'),
                         donor_phone: String(d.donorPhone || d.donor_phone || '-'),
                         donor_email: String(d.donorEmail || d.donor_email || ''),
+                        wilayah: String(d.wilayah || 'Pangkalpinang'),
+                        program: String(d.programSpesifik || d.program || d.program_spesifik || '-'),
+                        program_spesifik: String(d.programSpesifik || d.program || d.program_spesifik || '-'),
+                        program_utama: String(d.programUtama || d.category || d.program_utama || '-'),
                         program_title: programTitleFormatted,
+                        category: String(d.programUtama || d.category || d.program_utama || '-'),
+                        type: String(d.type || d.donation_type || 'Infak Terikat'),
                         donation_type: String(d.type || d.donation_type || 'Infak Terikat'),
                         amount: Number(d.amount) || 0,
-                        payment_method: String(d.method || d.payment_method || 'Transfer Bank'),
+                        alokasi_operasional: Number(d.alokasiOperasional || d.alokasi_operasional || 0),
+                        alokasi_program: Number(d.alokasiProgram || d.alokasi_program || 0),
+                        payment_method: String(d.payment_method || d.method || 'Transfer Bank'),
+                        method: String(d.method || d.payment_method || 'Transfer Bank'),
                         notes: finalNotes,
                         status: String(d.status || 'pending'),
-                        created_at: d.createdAt || d.created_at || new Date().toISOString()
+                        referral_id: d.referralId || d.referral_id || null,
+                        referral_code: d.referralCode || d.referral_code || d.referralId || d.referral_id || null,
+                        referral_name: d.referralName || d.referral_name || null,
+                        referral_rate: d.referralRate !== undefined ? Number(d.referralRate) : (d.referral_rate !== undefined ? Number(d.referral_rate) : 6),
+                        referral_fee: d.referralFee !== undefined ? Number(d.referralFee) : (d.referral_fee !== undefined ? Number(d.referral_fee) : 0),
+                        additional_bonus: Number(d.additionalBonus || d.additional_bonus || 0),
+                        is_recurring_donor: Boolean(d.isRecurringDonor || d.is_recurring_donor || false),
+                        created_at: d.createdAt || d.created_at || new Date().toISOString(),
+                        updated_at: new Date().toISOString()
                     };
-                    if (isValidUUID) {
-                        payload.id = d.id;
-                    }
 
                     fetch(`${SUPABASE_URL}/donations`, {
                         method: 'POST',

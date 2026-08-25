@@ -25,6 +25,16 @@ const SUPABASE_CONFIG = {
             (SUPABASE_CONFIG.anonKey.startsWith('eyJ') || SUPABASE_CONFIG.anonKey.startsWith('sb_publishable_'));
     }
 
+    function generateUUID() {
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+            return crypto.randomUUID();
+        }
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
     function endpoint(table) {
         return `${SUPABASE_CONFIG.url.replace(/\/$/, '')}/rest/v1/${table}`;
     }
@@ -189,20 +199,35 @@ const SUPABASE_CONFIG = {
             const finalNotes = baseNotes ? (baseNotes === '-' ? metaTag.trim() : `${baseNotes}${metaTag}`) : (metaTag.trim() || '-');
 
             const payload = {
+                id: String(data.id || generateUUID()),
                 donor_name: String(data.donor_name || data.donorName || 'Hamba Allah'),
                 donor_phone: String(data.donor_phone || data.donorPhone || '-'),
                 donor_email: String(data.donor_email || data.donorEmail || ''),
+                wilayah: String(data.wilayah || 'Pangkalpinang'),
+                program: String(data.programSpesifik || data.program || data.program_spesifik || '-'),
+                program_spesifik: String(data.programSpesifik || data.program || data.program_spesifik || '-'),
+                program_utama: String(data.programUtama || data.category || data.program_utama || '-'),
                 program_title: programTitleFormatted,
-                donation_type: String(data.donation_type || data.type || 'Infak Terikat'),
+                category: String(data.programUtama || data.category || data.program_utama || '-'),
+                type: String(data.type || data.donation_type || 'Infak Terikat'),
+                donation_type: String(data.type || data.donation_type || 'Infak Terikat'),
                 amount: Number(data.amount) || 0,
+                alokasi_operasional: Number(data.alokasiOperasional || data.alokasi_operasional || 0),
+                alokasi_program: Number(data.alokasiProgram || data.alokasi_program || 0),
                 payment_method: String(data.payment_method || data.method || 'Transfer Bank'),
+                method: String(data.method || data.payment_method || 'Transfer Bank'),
                 notes: finalNotes,
                 status: String(data.status || 'pending'),
-                created_at: data.created_at || data.createdAt || new Date().toISOString()
+                referral_id: data.referralId || data.referral_id || null,
+                referral_code: data.referralCode || data.referral_code || data.referralId || data.referral_id || null,
+                referral_name: data.referralName || data.referral_name || null,
+                referral_rate: data.referralRate !== undefined ? Number(data.referralRate) : (data.referral_rate !== undefined ? Number(data.referral_rate) : 6),
+                referral_fee: data.referralFee !== undefined ? Number(data.referralFee) : (data.referral_fee !== undefined ? Number(data.referral_fee) : 0),
+                additional_bonus: Number(data.additionalBonus || data.additional_bonus || 0),
+                is_recurring_donor: Boolean(data.isRecurringDonor || data.is_recurring_donor || false),
+                created_at: data.created_at || data.createdAt || new Date().toISOString(),
+                updated_at: new Date().toISOString()
             };
-            if (isValidUUID) {
-                payload.id = data.id;
-            }
             return await upsert('donations', payload);
         },
         getAllDonations: async () => {
