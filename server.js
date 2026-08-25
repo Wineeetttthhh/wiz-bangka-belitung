@@ -127,8 +127,8 @@ const server = http.createServer((req, res) => {
         }
     }
 
-    // Dynamic News / Berita Open Graph Route (/berita/:id)
-    if (reqUrl.startsWith('/berita')) {
+    // Dynamic News / Berita Open Graph Route (/berita/:id or /berita?id=:id or /berita-image/:id)
+    if (reqUrl.startsWith('/berita/') || reqUrl.startsWith('/berita-image') || (reqUrl === '/berita' && (req.url.includes('?id=') || req.url.includes('?newsId=')))) {
         const apiFilePath = path.join(__dirname, 'api', 'berita.js');
         if (fs.existsSync(apiFilePath)) {
             try {
