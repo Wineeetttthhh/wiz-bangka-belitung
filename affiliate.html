@@ -1590,13 +1590,16 @@
 
         window.addEventListener('wiz-sync-complete', () => {
             renderAffiliateProgramsGrid();
+            renderAffiliateQuotesGrid();
+            renderAffiliateNewsGrid();
+            if (currentLoggedAffiliate) renderMemberDashboard();
         });
 
         window.addEventListener('storage', (e) => {
             if (!e.key || e.key.startsWith('wiz_')) {
                 renderAffiliateProgramsGrid();
                 renderAffiliateQuotesGrid();
-                if (currentActiveSubTab === 'subtab-news') renderAffiliateNewsGrid();
+                renderAffiliateNewsGrid();
             }
         });
 

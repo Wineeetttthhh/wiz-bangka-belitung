@@ -1579,6 +1579,10 @@
         if (typeof window.applySiteSettings === 'function') window.applySiteSettings();
     });
 
+    window.addEventListener('wiz-news-changed', () => {
+        renderPublicNews();
+    });
+
     window.addEventListener('wiz-programs-changed', () => {
         if (typeof initDynamicSiteImages === 'function') initDynamicSiteImages();
         renderHomeFeaturedPrograms();

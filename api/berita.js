@@ -162,9 +162,9 @@ module.exports = async function handler(req, res) {
         }
     }
 
-    // 3. If no specific newsId was passed in URL, default to latest news
+    // 3. If no specific newsId was passed in URL, default to latest published news
     if (!article && !cleanNewsId && allNews.length > 0) {
-        article = allNews[0];
+        article = allNews.find(n => n && n.status === 'published') || allNews[0];
     }
 
     // 4. Default fallback article if still not found

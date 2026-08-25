@@ -118,21 +118,35 @@ function loadCanonicalSeed() {
 function mergeArrays(existingArr = [], incomingArr = [], deletedIds = []) {
     const deletedSet = new Set((deletedIds || []).map(String));
     const map = new Map();
+    const titleToIdMap = new Map();
+
+    const getNormTitle = (item) => (item && item.title ? item.title.trim().toLowerCase() : null);
+
     (existingArr || []).forEach(item => {
         if (!item) return;
         const itemId = String(item.id || item.code || '');
         if (itemId && !deletedSet.has(itemId) && item.status !== 'deleted' && !item.isDeleted) {
             item.id = item.id || itemId;
             map.set(itemId, item);
+            const normTitle = getNormTitle(item);
+            if (normTitle) titleToIdMap.set(normTitle, itemId);
         }
     });
+
     (incomingArr || []).forEach(item => {
         if (!item) return;
-        const itemId = String(item.id || item.code || (item.name ? `${item.name}-${item.phone || ''}` : ''));
+        let itemId = String(item.id || item.code || (item.name ? `${item.name}-${item.phone || ''}` : ''));
         if (!itemId || deletedSet.has(itemId) || item.status === 'deleted' || item.isDeleted) return;
-        item.id = item.id || itemId;
+
+        const normTitle = getNormTitle(item);
+        if (normTitle && titleToIdMap.has(normTitle)) {
+            itemId = titleToIdMap.get(normTitle);
+            item.id = itemId;
+        }
+
         if (!map.has(itemId)) {
             map.set(itemId, item);
+            if (normTitle) titleToIdMap.set(normTitle, itemId);
         } else {
             const existing = map.get(itemId);
             const tExisting = new Date(existing.updatedAt || existing.verifiedAt || existing.createdAt || 0).getTime();

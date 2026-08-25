@@ -2680,10 +2680,25 @@
 
             // Sync News: Supabase news table is authoritative
             if (directSbNews !== null && Array.isArray(directSbNews)) {
+                const localNews = getStore(STORAGE_KEYS.NEWS) || [];
+                const localDraftMap = new Map();
+                localNews.forEach(ln => {
+                    if (ln && ln.status === 'draft') {
+                        const age = Date.now() - new Date(ln.updatedAt || ln.createdAt || 0).getTime();
+                        if (age < 180000) {
+                            localDraftMap.set(String(ln.id), true);
+                            if (ln.title) localDraftMap.set(ln.title.trim().toLowerCase(), true);
+                        }
+                    }
+                });
+
                 const mappedNews = directSbNews.map(rawN => {
                     const img = (rawN.imageUrl || rawN.image_url || (Array.isArray(rawN.gallery) && rawN.gallery.length > 0 ? rawN.gallery[0] : '') || '').trim();
+                    const normT = (rawN.title || '').trim().toLowerCase();
+                    const shouldBeDraft = localDraftMap.has(String(rawN.id)) || localDraftMap.has(normT);
                     return {
                         ...rawN,
+                        status: shouldBeDraft ? 'draft' : (rawN.status || 'published'),
                         imageUrl: img,
                         image_url: img,
                         eventDate: rawN.eventDate || rawN.event_date || rawN.createdAt || rawN.created_at || new Date().toISOString(),
@@ -3550,13 +3565,33 @@
                 setStore(STORAGE_KEYS.NEWS, raw);
             }
 
-            return raw
-                .filter(n => n && n.id && n.status !== 'deleted' && !n.isDeleted)
-                .sort((a, b) => {
-                    const timeA = new Date(a.eventDate || a.event_date || a.createdAt || 0).getTime();
-                    const timeB = new Date(b.eventDate || b.event_date || b.createdAt || 0).getTime();
-                    return timeB - timeA;
-                });
+            const deletedNewsSet = getDeletedNewsIds();
+            const active = raw.filter(n => n && n.id && !deletedNewsSet.has(String(n.id)) && n.status !== 'deleted' && !n.isDeleted);
+
+            // Deduplicate by title: if same title exists multiple times, keep latest and honor draft status
+            const uniqueMap = new Map();
+            active.forEach(n => {
+                const normKey = (n.title || '').trim().toLowerCase() || String(n.id);
+                if (!uniqueMap.has(normKey)) {
+                    uniqueMap.set(normKey, { ...n });
+                } else {
+                    const existing = uniqueMap.get(normKey);
+                    const tExisting = new Date(existing.updatedAt || existing.eventDate || existing.createdAt || 0).getTime();
+                    const tNew = new Date(n.updatedAt || n.eventDate || n.createdAt || 0).getTime();
+                    const mergedStatus = (existing.status === 'draft' || n.status === 'draft') ? 'draft' : 'published';
+                    if (tNew > tExisting) {
+                        uniqueMap.set(normKey, { ...existing, ...n, status: mergedStatus });
+                    } else {
+                        uniqueMap.set(normKey, { ...n, ...existing, status: mergedStatus });
+                    }
+                }
+            });
+
+            return Array.from(uniqueMap.values()).sort((a, b) => {
+                const timeA = new Date(a.eventDate || a.event_date || a.createdAt || 0).getTime();
+                const timeB = new Date(b.eventDate || b.event_date || b.createdAt || 0).getTime();
+                return timeB - timeA;
+            });
         },
 
         getPublished() {
@@ -3676,8 +3711,14 @@
             if (idx === -1) return null;
 
             const newStatus = list[idx].status === 'published' ? 'draft' : 'published';
-            list[idx].status = newStatus;
-            list[idx].updatedAt = new Date().toISOString();
+            const targetTitle = (list[idx].title || '').trim().toLowerCase();
+
+            list.forEach(n => {
+                if (String(n.id) === String(articleId) || (targetTitle && (n.title || '').trim().toLowerCase() === targetTitle)) {
+                    n.status = newStatus;
+                    n.updatedAt = new Date().toISOString();
+                }
+            });
             setStore(STORAGE_KEYS.NEWS, list);
 
             const statusLabel = newStatus === 'published' ? 'dipublikasikan ke web' : 'disimpan sebagai draft (disembunyikan dari web)';
@@ -3686,7 +3727,7 @@
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                 try {
                     const item = list[idx];
-                    const sbRes = await window.wizSupabase.saveNews({
+                    await window.wizSupabase.saveNews({
                         id: String(item.id),
                         title: item.title,
                         category: item.category,
@@ -3699,11 +3740,6 @@
                         createdAt: item.createdAt,
                         updatedAt: item.updatedAt
                     });
-                    if (sbRes.error) {
-                        console.warn('[News Toggle Supabase Error]:', sbRes.error);
-                    } else {
-                        console.log('✅ [News Toggle Supabase Success]:', item.id, item.status);
-                    }
                 } catch(e) {
                     console.warn('[News Toggle Supabase Exception]:', e);
                 }
@@ -3723,6 +3759,7 @@
             }
 
             broadcastSync('NEWS_STATUS_TOGGLED', list[idx]);
+            window.dispatchEvent(new CustomEvent('wiz-news-changed'));
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             return list[idx];
         },
