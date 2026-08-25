@@ -2563,16 +2563,51 @@
                 try {
                     const sbDisbRes = await window.wizSupabase.select('disbursements');
                     if (sbDisbRes && Array.isArray(sbDisbRes.data)) {
-                        directSbDisbursements = sbDisbRes.data.map(d => ({
-                            id: d.id,
-                            wilayah: d.wilayah,
-                            program: d.program,
-                            amount: Number(d.amount) || 0,
-                            description: d.description,
-                            disbursedAt: d.disbursed_at,
-                            recordedBy: d.recorded_by,
-                            createdAt: d.created_at
-                        }));
+                        directSbDisbursements = sbDisbRes.data.map(d => {
+                            let sType = 'program_spesifik';
+                            let tType = 'specific';
+                            let fromProg = Number(d.amount) || 0;
+                            let fromSub = 0;
+                            let cleanDesc = d.description || '';
+
+                            if (cleanDesc.includes('[Meta:')) {
+                                const m = cleanDesc.match(/\[Meta:([^\]]+)\]/);
+                                if (m) {
+                                    const parts = m[1].split('|');
+                                    parts.forEach(p => {
+                                        const [k, v] = p.split('=').map(s => s.trim());
+                                        if (k === 'source') sType = v;
+                                        if (k === 'target') tType = v;
+                                        if (k === 'fromProg') fromProg = Number(v) || fromProg;
+                                        if (k === 'fromSub') fromSub = Number(v) || fromSub;
+                                    });
+                                    cleanDesc = cleanDesc.replace(/\s*\[Meta:[^\]]+\]/, '').trim();
+                                }
+                            } else if (d.program && (d.program.toLowerCase().includes('global') || d.program.toLowerCase().includes('alih fungsi'))) {
+                                sType = 'infak_umum';
+                                tType = 'global';
+                            }
+
+                            const pillar = mapProgramToPillar(d.program) || 'Berkah Hidayah';
+                            const kategoriPilar = mapPillarToKategori(pillar);
+
+                            return {
+                                id: d.id,
+                                wilayah: d.wilayah || 'Pangkalpinang',
+                                sourceType: sType,
+                                targetType: tType,
+                                pillar: pillar,
+                                kategori_pilar: kategoriPilar,
+                                program: d.program,
+                                amount: Number(d.amount) || 0,
+                                amountFromProgram: fromProg,
+                                amountFromSubsidi: fromSub,
+                                description: cleanDesc,
+                                disbursedAt: d.disbursed_at || d.disbursedAt || new Date().toISOString(),
+                                recordedBy: d.recorded_by || d.recordedBy || 'Admin',
+                                createdAt: d.created_at || d.createdAt || new Date().toISOString()
+                            };
+                        });
                     }
                 } catch(e) {}
 
@@ -2666,8 +2701,15 @@
 
             // Sync Disbursements: Supabase disbursements table is authoritative
             if (directSbDisbursements !== null && Array.isArray(directSbDisbursements)) {
-                directSbDisbursements.sort((a, b) => new Date(b.disbursedAt || b.createdAt || 0) - new Date(a.disbursedAt || a.createdAt || 0));
-                setStore(STORAGE_KEYS.DISBURSEMENTS, directSbDisbursements);
+                const local = getStore(STORAGE_KEYS.DISBURSEMENTS) || [];
+                const recentLocal = local.filter(d => {
+                    if (!d || !d.id) return false;
+                    const age = Date.now() - new Date(d.createdAt || d.disbursedAt || 0).getTime();
+                    return age < 180000 && !directSbDisbursements.some(sd => String(sd.id) === String(d.id));
+                });
+                const finalDisbursements = [...recentLocal, ...directSbDisbursements];
+                finalDisbursements.sort((a, b) => new Date(b.disbursedAt || b.createdAt || 0) - new Date(a.disbursedAt || a.createdAt || 0));
+                setStore(STORAGE_KEYS.DISBURSEMENTS, finalDisbursements);
                 window.dispatchEvent(new CustomEvent('wiz-disbursements-changed'));
             } else if (masterData && Array.isArray(masterData.disbursements)) {
                 setStore(STORAGE_KEYS.DISBURSEMENTS, masterData.disbursements);
@@ -4508,20 +4550,7 @@
 
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                 try {
-                    await window.wizSupabase.saveDisbursement({
-                        id: String(newDisb.id),
-                        wilayah: newDisb.wilayah,
-                        source_type: newDisb.sourceType,
-                        target_type: newDisb.targetType,
-                        program: newDisb.program,
-                        amount: newDisb.amount,
-                        amount_from_program: newDisb.amountFromProgram,
-                        amount_from_subsidi: newDisb.amountFromSubsidi,
-                        description: newDisb.description,
-                        disbursed_at: newDisb.disbursedAt,
-                        recorded_by: newDisb.recordedBy,
-                        created_at: newDisb.createdAt
-                    });
+                    await window.wizSupabase.saveDisbursement(newDisb);
                 } catch(e) {}
             }
 
@@ -4568,18 +4597,7 @@
 
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                 try {
-                    await window.wizSupabase.update('disbursements', id, {
-                        wilayah: list[idx].wilayah,
-                        source_type: list[idx].sourceType,
-                        target_type: list[idx].targetType,
-                        program: list[idx].program,
-                        amount: list[idx].amount,
-                        amount_from_program: list[idx].amountFromProgram,
-                        amount_from_subsidi: list[idx].amountFromSubsidi,
-                        description: list[idx].description,
-                        disbursed_at: list[idx].disbursedAt,
-                        recorded_by: list[idx].recordedBy
-                    });
+                    await window.wizSupabase.saveDisbursement(list[idx]);
                 } catch(e) {}
             }
 

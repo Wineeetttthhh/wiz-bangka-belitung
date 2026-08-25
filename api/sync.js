@@ -544,6 +544,35 @@ module.exports = async function handler(req, res) {
                 }
             }
 
+            // Also upsert individual disbursement records to Supabase disbursements table
+            if (Array.isArray(master.disbursements)) {
+                for (const disb of master.disbursements) {
+                    if (!disb || !disb.id) continue;
+                    const sType = disb.sourceType || disb.source_type || 'program_spesifik';
+                    const tType = disb.targetType || disb.target_type || 'specific';
+                    const fromProg = (disb.amountFromProgram !== undefined) ? disb.amountFromProgram : (disb.amount_from_program !== undefined ? disb.amount_from_program : Number(disb.amount) || 0);
+                    const fromSub = (disb.amountFromSubsidi !== undefined) ? disb.amountFromSubsidi : (disb.amount_from_subsidi !== undefined ? disb.amount_from_subsidi : 0);
+
+                    let cleanDesc = String(disb.description || '').replace(/\s*\[Meta:[^\]]+\]/, '').trim();
+                    const fullDesc = `${cleanDesc} [Meta: source=${sType}|target=${tType}|fromProg=${fromProg}|fromSub=${fromSub}]`;
+
+                    fetch(`${SUPABASE_URL}/disbursements`, {
+                        method: 'POST',
+                        headers: supabaseHeaders,
+                        body: JSON.stringify({
+                            id: String(disb.id),
+                            wilayah: String(disb.wilayah || 'Pangkalpinang'),
+                            program: String(disb.program || 'Infak Umum'),
+                            amount: Number(disb.amount) || 0,
+                            description: fullDesc,
+                            disbursed_at: disb.disbursedAt || disb.disbursed_at || new Date().toISOString(),
+                            recorded_by: String(disb.recordedBy || disb.recorded_by || 'Admin'),
+                            created_at: disb.createdAt || disb.created_at || new Date().toISOString()
+                        })
+                    }).catch(() => {});
+                }
+            }
+
             // Also upsert site_settings direct key
             if (master.site_settings && typeof master.site_settings === 'object') {
                 fetch(`${SUPABASE_URL}/site_settings`, {

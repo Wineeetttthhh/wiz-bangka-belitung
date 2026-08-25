@@ -161,6 +161,7 @@ const SUPABASE_CONFIG = {
         update,
         upsert,
         remove,
+        delete: remove,
 
         // Helpers for entities
         saveDonation: async (data) => {
@@ -372,37 +373,69 @@ const SUPABASE_CONFIG = {
         },
         saveDisbursement: async (disb) => {
             if (!disb) return { data: null, error: 'No data' };
+            const sType = disb.source_type || disb.sourceType || 'program_spesifik';
+            const tType = disb.target_type || disb.targetType || 'specific';
+            const fromProg = (disb.amount_from_program !== undefined) ? disb.amount_from_program : (disb.amountFromProgram !== undefined ? disb.amountFromProgram : Number(disb.amount) || 0);
+            const fromSub = (disb.amount_from_subsidi !== undefined) ? disb.amount_from_subsidi : (disb.amountFromSubsidi !== undefined ? disb.amountFromSubsidi : 0);
+
+            let cleanDesc = String(disb.description || '').replace(/\s*\[Meta:[^\]]+\]/, '').trim();
+            const fullDesc = `${cleanDesc} [Meta: source=${sType}|target=${tType}|fromProg=${fromProg}|fromSub=${fromSub}]`;
+
             const payload = {
-                id: String(disb.id),
+                id: String(disb.id || ('disb-' + Date.now())),
                 wilayah: String(disb.wilayah || 'Pangkalpinang'),
-                source_type: String(disb.source_type || disb.sourceType || 'infak_umum'),
-                target_type: String(disb.target_type || disb.targetType || 'global'),
-                program: String(disb.program || 'Global (Pengurang Seluruh Program)'),
+                program: String(disb.program || 'Infak Umum'),
                 amount: Number(disb.amount) || 0,
-                description: String(disb.description || ''),
+                description: fullDesc,
                 disbursed_at: disb.disbursed_at || disb.disbursedAt || new Date().toISOString(),
                 recorded_by: String(disb.recorded_by || disb.recordedBy || 'Admin'),
-                created_at: disb.created_at || disb.createdAt || new Date().toISOString(),
-                updated_at: new Date().toISOString()
+                created_at: disb.created_at || disb.createdAt || new Date().toISOString()
             };
             return await upsert('disbursements', payload);
         },
         getDisbursements: async () => {
             const res = await select('disbursements', { order: 'disbursed_at.desc' });
             if (res.error || !Array.isArray(res.data)) return res;
-            const mapped = res.data.map(d => ({
-                id: d.id,
-                wilayah: d.wilayah || 'Pangkalpinang',
-                sourceType: d.source_type || (d.program && d.program.toLowerCase().includes('global') ? 'infak_umum' : 'program_spesifik'),
-                targetType: d.target_type || (d.program && d.program.toLowerCase().includes('global') ? 'global' : 'specific'),
-                program: d.program,
-                amount: Number(d.amount) || 0,
-                description: d.description,
-                disbursedAt: d.disbursed_at,
-                recordedBy: d.recorded_by,
-                createdAt: d.created_at,
-                updatedAt: d.updated_at
-            }));
+            const mapped = res.data.map(d => {
+                let sType = 'program_spesifik';
+                let tType = 'specific';
+                let fromProg = Number(d.amount) || 0;
+                let fromSub = 0;
+                let cleanDesc = d.description || '';
+
+                if (cleanDesc.includes('[Meta:')) {
+                    const m = cleanDesc.match(/\[Meta:([^\]]+)\]/);
+                    if (m) {
+                        const parts = m[1].split('|');
+                        parts.forEach(p => {
+                            const [k, v] = p.split('=').map(s => s.trim());
+                            if (k === 'source') sType = v;
+                            if (k === 'target') tType = v;
+                            if (k === 'fromProg') fromProg = Number(v) || fromProg;
+                            if (k === 'fromSub') fromSub = Number(v) || fromSub;
+                        });
+                        cleanDesc = cleanDesc.replace(/\s*\[Meta:[^\]]+\]/, '').trim();
+                    }
+                } else if (d.program && (d.program.toLowerCase().includes('global') || d.program.toLowerCase().includes('alih fungsi'))) {
+                    sType = 'infak_umum';
+                    tType = 'global';
+                }
+
+                return {
+                    id: d.id,
+                    wilayah: d.wilayah || 'Pangkalpinang',
+                    sourceType: sType,
+                    targetType: tType,
+                    program: d.program,
+                    amount: Number(d.amount) || 0,
+                    amountFromProgram: fromProg,
+                    amountFromSubsidi: fromSub,
+                    description: cleanDesc,
+                    disbursedAt: d.disbursed_at,
+                    recordedBy: d.recorded_by || 'Admin',
+                    createdAt: d.created_at
+                };
+            });
             return { data: mapped, error: null };
         },
         saveReferralPayout: (data) => upsert('referral_payouts', data),
