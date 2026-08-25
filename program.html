@@ -1415,9 +1415,8 @@
         const refCode = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || '');
         const progUrlObj = new URL(`${origin}/program/${slug}`);
         if (refCode) progUrlObj.searchParams.set('ref', refCode);
-        progUrlObj.searchParams.set('v', Date.now());
         const finalProgUrl = progUrlObj.toString();
-        const waMsg = `🌟 *${programTitle}*\n\nSalurkan kepedulian terbaik Anda bersama Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.\n\n🔗 ${finalProgUrl}`;
+        const waMsg = `🌟 *${programTitle}*\n\nSalurkan kepedulian dan donasi terbaik Anda bersama Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.\n\n🔗 ${finalProgUrl}`;
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(waMsg)}`, '_blank');
     }
 

@@ -274,7 +274,6 @@ module.exports = async function handler(req, res) {
 
     const shareUrlObj = new URL(`${origin}/berita/${encodeURIComponent(article.id)}`);
     if (refCode) shareUrlObj.searchParams.set('ref', refCode);
-    shareUrlObj.searchParams.set('v', Date.now());
     const shareUrlWithBuster = shareUrlObj.toString();
 
     const donateUrlObj = new URL(`${origin}/donasi.html`);
