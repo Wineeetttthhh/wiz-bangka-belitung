@@ -1062,6 +1062,10 @@
                     <img src="${imgUrl}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300 block" style="object-fit: cover; width: 100%; height: 100%; display: block;" alt="Dokumentasi Tambahan">
                 </div>
             `).join('');
+        } else if (galWrapper) {
+            galWrapper.classList.add('hidden');
+        }
+
         document.getElementById('public-news-modal').classList.add('show');
         document.body.style.overflow = 'hidden';
     }
