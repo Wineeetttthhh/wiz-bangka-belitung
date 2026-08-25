@@ -842,7 +842,7 @@ const PROGRAM_IMAGE_MAP = {
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script>
-        // Store refCode in Cookie, LocalStorage & SessionStorage for 30 days
+        // Store refCode in Cookie, LocalStorage & SessionStorage for 365 days (1 Year)
         (function() {
             const urlParams = new URLSearchParams(window.location.search);
             const ref = ('${escapeHtml(refCode)}' || urlParams.get('ref') || urlParams.get('affiliate') || urlParams.get('perantara') || '').trim();
@@ -850,13 +850,13 @@ const PROGRAM_IMAGE_MAP = {
                 try {
                     const cleanRef = ref.toUpperCase();
                     const d = new Date();
-                    d.setTime(d.getTime() + (30 * 24 * 60 * 60 * 1000));
-                    document.cookie = "wiz_ref=" + encodeURIComponent(cleanRef) + ";expires=" + d.toUTCString() + ";path=/;SameSite=Lax";
+                    d.setTime(d.getTime() + (365 * 24 * 60 * 60 * 1000));
+                    document.cookie = "wiz_ref=" + encodeURIComponent(cleanRef) + ";expires=" + d.toUTCString() + ";path=/;max-age=31536000;SameSite=Lax";
                     sessionStorage.setItem('wiz_active_ref_id', cleanRef);
                     localStorage.setItem('wiz_ref_code', cleanRef);
-                    localStorage.setItem('wiz_ref_exp', String(Date.now() + 30 * 24 * 60 * 60 * 1000));
+                    localStorage.setItem('wiz_ref_exp', String(Date.now() + 365 * 24 * 60 * 60 * 1000));
                     localStorage.setItem('wiz_affiliate_ref', cleanRef);
-                    localStorage.setItem('wiz_affiliate_exp', String(Date.now() + 30 * 24 * 60 * 60 * 1000));
+                    localStorage.setItem('wiz_affiliate_exp', String(Date.now() + 365 * 24 * 60 * 60 * 1000));
                 } catch(e) {}
             }
         })();
