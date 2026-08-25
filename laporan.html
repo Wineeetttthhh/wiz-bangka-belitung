@@ -443,7 +443,8 @@
     function renderPublicReport() {
         if (!window.wizStore) return;
 
-        const stats = wizStore.finance.getOverviewStats();
+        const filterWilayah = document.getElementById('pub-filter-wilayah') ? document.getElementById('pub-filter-wilayah').value : 'Pangkalpinang';
+        const stats = wizStore.finance.getOverviewStats(filterWilayah);
         const fmt = wizStore.utils.formatRupiahCompact;
 
         const elMasuk = document.getElementById('pub-total-masuk');
@@ -455,8 +456,6 @@
         if (elSalur) { elSalur.textContent = fmt(stats.totalTersalurkan); elSalur.title = fmt(stats.totalTersalurkan); }
         if (elSaldo) { elSaldo.textContent = fmt(stats.saldo); elSaldo.title = fmt(stats.saldo); }
         if (elDonatur) { elDonatur.textContent = stats.totalDonatur.toLocaleString('id-ID'); elDonatur.title = `${stats.totalDonatur} Donatur Terverifikasi`; }
-
-        const filterWilayah = document.getElementById('pub-filter-wilayah') ? document.getElementById('pub-filter-wilayah').value : 'Pangkalpinang';
 
         // Disbursement history render
         let disbList = wizStore.disbursements.getAll();
@@ -488,10 +487,10 @@
         }
 
         // Render Donut Chart for 5 Pillars distribution
-        renderPillarDonutChart(filterWilayah);
+        renderPillarDonutChart(filterWilayah, stats);
     }
 
-    function renderPillarDonutChart(filterWilayah) {
+    function renderPillarDonutChart(filterWilayah, overviewStats) {
         const containerChart = document.getElementById('pillar-chart-container');
         const containerLegend = document.getElementById('pillar-legend-container');
         if (!containerChart || !containerLegend || !window.wizStore) return;
@@ -581,8 +580,9 @@
                         class="transition-all duration-700 ease-out hover:opacity-90" />`;
         }).join('');
 
-        const centerLabel = hasRealSaldo ? 'Sisa Saldo Amanah' : (hasRealMasuk ? 'Total Terhimpun' : 'Alokasi 5 Pilar');
-        const centerValue = hasRealSaldo ? fmt(grandTotalSaldo) : (hasRealMasuk ? fmt(grandTotalMasuk) : '100%');
+        const actualSaldo = overviewStats ? overviewStats.saldo : grandTotalSaldo;
+        const centerLabel = actualSaldo > 0 ? 'Sisa Saldo Amanah' : (grandTotalMasuk > 0 ? 'Total Terhimpun' : 'Alokasi 5 Pilar');
+        const centerValue = actualSaldo > 0 ? fmt(actualSaldo) : (grandTotalMasuk > 0 ? fmt(grandTotalMasuk) : '100%');
 
         containerChart.innerHTML = `
             <div class="relative flex items-center justify-center py-sm">
