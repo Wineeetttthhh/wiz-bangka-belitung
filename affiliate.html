@@ -1417,7 +1417,6 @@
             const origin = 'https://www.wizbangkabelitung.or.id';
             const flyerUrlObj = new URL(`${origin}/flyer/${encodeURIComponent(q.id)}`);
             if (activeRef) flyerUrlObj.searchParams.set('ref', activeRef);
-            flyerUrlObj.searchParams.set('v', Date.now());
             const flyerUrl = flyerUrlObj.toString();
             
             if (typeof window.showWhatsAppShareToast === 'function') {
@@ -1487,7 +1486,6 @@
             const origin = 'https://www.wizbangkabelitung.or.id';
             const newsUrlObj = new URL(`${origin}/berita/${encodeURIComponent(n.id)}`);
             if (refCode) newsUrlObj.searchParams.set('ref', refCode);
-            newsUrlObj.searchParams.set('v', Date.now());
             const newsUrl = newsUrlObj.toString();
 
             if (typeof window.showWhatsAppShareToast === 'function') {
@@ -1519,7 +1517,6 @@
             const origin = 'https://www.wizbangkabelitung.or.id';
             const progUrlObj = new URL(`${origin}/program/${slug}`);
             if (refCode) progUrlObj.searchParams.set('ref', refCode);
-            progUrlObj.searchParams.set('v', Date.now());
             const progUrl = progUrlObj.toString();
             const waMsg = `🌟 *${cleanTitle}*\n\nSalurkan kepedulian dan donasi terbaik Anda bersama Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.\n\n🔗 ${progUrl}`;
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(waMsg)}`, '_blank');

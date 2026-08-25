@@ -335,13 +335,11 @@ function triggerSocialShare(platform) {
 
     if (platform === 'wa') {
         const shareUrlObj = new URL(url.startsWith('http') ? url : `https://www.wizbangkabelitung.or.id/${url.replace(/^\//, '')}`);
-        shareUrlObj.searchParams.set('v', Date.now());
         const finalUrl = shareUrlObj.toString();
         const text = `*${title}*\n\n${desc}\n\nSalurkan donasi terbaik Anda melalui tautan resmi berikut:\n👉 ${finalUrl}`;
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
     } else if (platform === 'wa_status') {
         const shareUrlObj = new URL(url.startsWith('http') ? url : `https://www.wizbangkabelitung.or.id/${url.replace(/^\//, '')}`);
-        shareUrlObj.searchParams.set('v', Date.now());
         const finalUrl = shareUrlObj.toString();
         if (typeof window.showWhatsAppShareToast === 'function') {
             window.showWhatsAppShareToast('Tunggu 1–2 detik di layar WhatsApp hingga kartu preview gambar muncul sebelum menekan kirim Status ✨');
@@ -501,7 +499,6 @@ function initHomeQuoteSection() {
     window.shareHomeQuoteWA = function() {
         const flyerUrlObj = new URL(`${origin}/flyer/${encodeURIComponent(today.id)}`);
         if (activeRef) flyerUrlObj.searchParams.set('ref', activeRef);
-        flyerUrlObj.searchParams.set('v', Date.now());
         const flyerUrl = flyerUrlObj.toString();
         if (typeof window.showWhatsAppShareToast === 'function') {
             window.showWhatsAppShareToast();
@@ -2150,7 +2147,6 @@ window.openShareModal = function (title, desc, url, programImg) {
 
     const encodedUrl = encodeURIComponent(url);
     const waUrlObj = new URL(url.startsWith('http') ? url : `https://www.wizbangkabelitung.or.id/${url.replace(/^\//, '')}`);
-    waUrlObj.searchParams.set('v', Date.now());
     const encodedWaUrl = encodeURIComponent(waUrlObj.toString());
 
     document.getElementById('share-btn-wa').href = `https://api.whatsapp.com/send?text=${encodedWaUrl}`;

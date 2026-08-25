@@ -655,9 +655,13 @@ const PROGRAM_IMAGE_MAP = {
         return res.status(404).send('Image not found');
     }
 
-    // ─── 2. OG IMAGE URL (Direct, Instant & Highly Compatible) ────────────────────
     // WhatsApp, Facebook, and Twitter standard proxy: guarantees <280KB, JPEG, and exact framing
-    const ogImageUrl = `${origin}/api/og-image?type=program&id=${encodeURIComponent(canonicalSlug)}&src=${encodeURIComponent(rawImg)}`;
+    let ogImageUrl = `${origin}/api/og-image?type=program&id=${encodeURIComponent(canonicalSlug)}`;
+    if (rawImg && !rawImg.startsWith('data:image/')) {
+        ogImageUrl += `&src=${encodeURIComponent(rawImg)}`;
+    } else if (rawImg && rawImg.startsWith('data:image/')) {
+        ogImageUrl = `${origin}/program-image/${encodeURIComponent(canonicalSlug)}.jpg`;
+    }
     const ogImageSecureUrl = ogImageUrl;
 
     // Determine actual page image source for HTML body display
@@ -1052,7 +1056,6 @@ const PROGRAM_IMAGE_MAP = {
                 }, 4000);
             }
             const shareUrlObj = new URL('${canonicalUrl}');
-            shareUrlObj.searchParams.set('v', Date.now());
             const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(shareUrlObj.toString());
             setTimeout(() => {
                 window.open(waUrl, '_blank');

@@ -624,14 +624,12 @@
             const baseOrigin = 'https://www.wizbangkabelitung.or.id';
             const shareUrlObj = new URL(`${baseOrigin}/berita/${encodeURIComponent(n.id)}`);
             if (refCode) shareUrlObj.searchParams.set('ref', refCode);
-            shareUrlObj.searchParams.set('v', Date.now());
             const finalShareUrl = shareUrlObj.toString();
             
             if (typeof window.showWhatsAppShareToast === 'function') {
                 window.showWhatsAppShareToast('Tunggu 1–2 detik di WhatsApp hingga kartu preview gambar muncul sebelum kirim Status ✨');
             }
 
-            // Send URL with cache buster to WhatsApp so Open Graph thumbnail card renders fresh
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(finalShareUrl)}`, '_blank');
         }
 
@@ -642,10 +640,8 @@
             const shareUrlObj = new URL(`${baseOrigin}/berita/${encodeURIComponent(currentModalArticle.id)}`);
             if (refCode) shareUrlObj.searchParams.set('ref', refCode);
 
+            const finalShareUrl = shareUrlObj.toString();
             if (platform === 'wa') {
-                shareUrlObj.searchParams.set('v', Date.now());
-                const finalShareUrl = shareUrlObj.toString();
-
                 if (typeof window.showWhatsAppShareToast === 'function') {
                     window.showWhatsAppShareToast('Tunggu 1–2 detik di WhatsApp hingga kartu preview gambar muncul sebelum kirim Status ✨');
                 }
