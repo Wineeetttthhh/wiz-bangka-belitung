@@ -657,7 +657,7 @@ const PROGRAM_IMAGE_MAP = {
 
     // ─── 2. OG IMAGE URL (Direct, Instant & Highly Compatible) ────────────────────
     // WhatsApp, Facebook, and Twitter standard proxy: guarantees <280KB, JPEG, and exact framing
-    const ogImageUrl = `${origin}/api/og-image?type=program&id=${encodeURIComponent(canonicalSlug)}`;
+    const ogImageUrl = `${origin}/api/og-image?type=program&id=${encodeURIComponent(canonicalSlug)}&src=${encodeURIComponent(rawImg)}`;
     const ogImageSecureUrl = ogImageUrl;
 
     // Determine actual page image source for HTML body display

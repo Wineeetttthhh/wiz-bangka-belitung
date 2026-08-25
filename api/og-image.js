@@ -318,65 +318,31 @@ const PROGRAM_IMAGE_MAP = {
 async function resolveProgramRaw(slug) {
     const cleanSlug = slugify(slug);
 
-    // 1. Try Supabase master_bundle, site_images, and specific_prog_imgs
+    // 1. Try Supabase specific_prog_imgs and custom program uploads
     try {
-        const resp = await fetch(`${SUPABASE_URL}/site_settings?key=in.(master_bundle,site_images,specific_prog_imgs)&select=*`, {
+        const resp = await fetch(`${SUPABASE_URL}/site_settings?key=in.(specific_prog_imgs,master_bundle)&select=*`, {
             headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
         });
         if (resp.ok) {
             const rows = await resp.json();
             if (Array.isArray(rows) && rows.length > 0) {
                 const mbRow = rows.find(r => r.key === 'master_bundle');
-                const siRow = rows.find(r => r.key === 'site_images');
                 const spiRow = rows.find(r => r.key === 'specific_prog_imgs');
 
                 // A. Check dedicated specific_prog_imgs row
                 if (spiRow && spiRow.value && typeof spiRow.value === 'object') {
                     for (const [title, imgUrl] of Object.entries(spiRow.value)) {
-                        if (imgUrl && (slugify(title) === cleanSlug || title.toLowerCase() === slug.toLowerCase())) {
+                        if (imgUrl && !imgUrl.includes('default-program-wiz') && (slugify(title) === cleanSlug || title.toLowerCase() === slug.toLowerCase())) {
                             return imgUrl;
                         }
                     }
                 }
 
-                // B. Check dedicated site_images row
-                if (siRow && siRow.value && typeof siRow.value === 'object') {
-                    const progKey = 'prog_' + cleanSlug.replace(/-/g, '_');
-                    if (siRow.value[progKey]) return siRow.value[progKey];
-                    if (siRow.value['__prog__' + slug]) return siRow.value['__prog__' + slug];
-                    for (const [title, imgUrl] of Object.entries(siRow.value)) {
-                        if (imgUrl && (slugify(title) === cleanSlug || title.toLowerCase() === slug.toLowerCase())) {
+                // B. Check master_bundle specific_prog_imgs
+                if (mbRow && mbRow.value && mbRow.value.specific_prog_imgs) {
+                    for (const [title, imgUrl] of Object.entries(mbRow.value.specific_prog_imgs)) {
+                        if (imgUrl && !imgUrl.includes('default-program-wiz') && (slugify(title) === cleanSlug || title.toLowerCase() === slug.toLowerCase())) {
                             return imgUrl;
-                        }
-                    }
-                }
-
-                // C. Check master_bundle row
-                if (mbRow && mbRow.value) {
-                    const val = mbRow.value;
-                    if (val.specific_prog_imgs) {
-                        for (const [title, imgUrl] of Object.entries(val.specific_prog_imgs)) {
-                            if (imgUrl && (slugify(title) === cleanSlug || title.toLowerCase() === slug.toLowerCase())) {
-                                return imgUrl;
-                            }
-                        }
-                    }
-                    if (Array.isArray(val.programs)) {
-                        for (const p of val.programs) {
-                            if (p && p.imageUrl && (slugify(p.title) === cleanSlug || p.slug === cleanSlug || p.id === cleanSlug || p.title.toLowerCase() === slug.toLowerCase())) {
-                                return p.imageUrl;
-                            }
-                        }
-                    }
-                    if (val.allocation_rules) {
-                        for (const pillar of Object.values(val.allocation_rules)) {
-                            if (pillar && Array.isArray(pillar.subAllocations)) {
-                                for (const sub of pillar.subAllocations) {
-                                    if (sub && sub.imageUrl && (slugify(sub.name) === cleanSlug || sub.name.toLowerCase() === slug.toLowerCase())) {
-                                        return sub.imageUrl;
-                                    }
-                                }
-                            }
                         }
                     }
                 }
@@ -384,7 +350,19 @@ async function resolveProgramRaw(slug) {
         }
     } catch (e) {}
 
-    // 2. Try Supabase 'programs' table directly
+    // 2. Direct exact static program poster map
+    if (PROGRAM_IMAGE_MAP[cleanSlug]) {
+        return PROGRAM_IMAGE_MAP[cleanSlug];
+    }
+
+    // 3. Fuzzy search in static map
+    for (const [key, localImg] of Object.entries(PROGRAM_IMAGE_MAP)) {
+        if (cleanSlug.includes(key) || key.includes(cleanSlug)) {
+            return localImg;
+        }
+    }
+
+    // 4. Try Supabase 'programs' table
     try {
         const pResp = await fetch(`${SUPABASE_URL}/programs?select=*`, {
             headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
@@ -401,29 +379,17 @@ async function resolveProgramRaw(slug) {
         }
     } catch(e) {}
 
-    // 3. Try static map
-    if (PROGRAM_IMAGE_MAP[cleanSlug]) {
-        return PROGRAM_IMAGE_MAP[cleanSlug];
-    }
-
-    // 4. Fuzzy search in static map
-    for (const [key, localImg] of Object.entries(PROGRAM_IMAGE_MAP)) {
-        if (cleanSlug.includes(key) || key.includes(cleanSlug)) {
-            return localImg;
-        }
-    }
-
     return 'assets/images/foto-utama-wiz.jpg';
 }
 
 // ─── Main Handler ─────────────────────────────────────────────
 module.exports = async function handler(req, res) {
-    const urlObj = new URL(req.url, 'https://www.wizbangkabelitung.or.id');
-    const type = (urlObj.searchParams.get('type') || '').toLowerCase().trim();
-    const id = String(urlObj.searchParams.get('id') || '').replace(/\.(jpe?g|png|webp|gif)$/i, '').trim();
+    const urlObj = new URL(req.url || '/', 'https://www.wizbangkabelitung.or.id');
+    const type = (urlObj.searchParams.get('type') || (req.query && req.query.type) || '').toLowerCase().trim();
+    const id = String(urlObj.searchParams.get('id') || (req.query && req.query.id) || '').replace(/\.(jpe?g|png|webp|gif)$/i, '').trim();
     // ?src= is the pre-resolved image URL forwarded directly from api/program.js
     // This avoids a second Supabase lookup and ensures the correct photo is shown
-    const srcParam = urlObj.searchParams.get('src') || '';
+    const srcParam = urlObj.searchParams.get('src') || (req.query && req.query.src) || '';
 
     // Cache key includes src so different images for same program ID are cached separately
     const cacheKey = srcParam ? `${type}:${id}:${srcParam}` : `${type}:${id || 'default'}`;
@@ -434,8 +400,8 @@ module.exports = async function handler(req, res) {
 
     let rawSource = 'assets/images/foto-utama-wiz.jpg';
 
-    // Priority 1: Use forwarded ?src= if it's a valid HTTPS URL
-    if (srcParam && (srcParam.startsWith('https://') || srcParam.startsWith('http://'))) {
+    // Priority 1: Use forwarded ?src= if present (highest accuracy from SSR engine)
+    if (srcParam && (srcParam.startsWith('https://') || srcParam.startsWith('http://') || srcParam.startsWith('assets/') || srcParam.startsWith('data:image/') || srcParam.includes('/assets/'))) {
         rawSource = srcParam;
     } else if (type === 'news' && id) {
         rawSource = await resolveNewsRaw(id);

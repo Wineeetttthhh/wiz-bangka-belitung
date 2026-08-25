@@ -252,7 +252,7 @@ module.exports = async function handler(req, res) {
     const primaryImg = rawImg || firstGalleryImg || 'assets/images/sedekah-beras-dhuafa.jpg';
 
     // WhatsApp, Facebook, and Twitter standard proxy: guarantees <280KB, JPEG, and exact framing
-    const ogImageUrl = `${origin}/api/og-image?type=news&id=${encodeURIComponent(article.id)}`;
+    const ogImageUrl = `${origin}/api/og-image?type=news&id=${encodeURIComponent(article.id)}&src=${encodeURIComponent(primaryImg)}`;
     const secureImgUrl = ogImageUrl;
 
     // Determine actual page body image (can still use base64/direct for display quality)
