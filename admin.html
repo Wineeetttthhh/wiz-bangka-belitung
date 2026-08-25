@@ -4177,7 +4177,7 @@
             }
         }
 
-        async function compressImageFile(file, maxDimension = 1280, quality = 0.85) {
+        async function compressImageFile(file, maxDimension = 800, quality = 0.72) {
             const isHeic = file.name && (file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif') || (file.type && file.type.includes('heic')));
             let processFile = file;
 
@@ -4186,7 +4186,7 @@
                     const convertedBlob = await heic2any({
                         blob: file,
                         toType: 'image/jpeg',
-                        quality: 0.88
+                        quality: 0.80
                     });
                     processFile = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
                 } catch(e) {
@@ -4206,9 +4206,9 @@
                             const srcW = img.naturalWidth || img.width;
                             const srcH = img.naturalHeight || img.height;
 
-                            // Handle flexible arguments: if 2nd arg was large width and 3rd arg was quality decimal
-                            let maxDim = 1280;
-                            let qual = 0.85;
+                            // High-performance lightweight compression: max 800px, quality 0.72 (produces sharp ~50-80KB images)
+                            let maxDim = 800;
+                            let qual = 0.72;
 
                             if (typeof maxDimension === 'number' && maxDimension > 50) {
                                 maxDim = maxDimension;
@@ -4232,14 +4232,18 @@
                             const canvas = document.createElement('canvas');
                             canvas.width = targetW;
                             canvas.height = targetH;
-                            const ctx = canvas.getContext('2d');
+                            const ctx = canvas.getContext('2d', { willReadFrequently: false });
 
-                            // High-quality rendering
+                            // Fast smooth rendering
                             ctx.imageSmoothingEnabled = true;
-                            ctx.imageSmoothingQuality = 'high';
+                            ctx.imageSmoothingQuality = 'medium';
                             ctx.drawImage(img, 0, 0, targetW, targetH);
 
-                            const result = canvas.toDataURL('image/jpeg', qual);
+                            let result = canvas.toDataURL('image/jpeg', qual);
+                            // Safety guard: if still > 120KB, re-compress slightly to keep storage super light
+                            if (result && result.length > 160000) {
+                                result = canvas.toDataURL('image/jpeg', 0.58);
+                            }
                             resolve(result || dataUrl);
                         } catch(err) {
                             console.warn('[Image Compress Error]', err);
@@ -5426,6 +5430,8 @@
                 }
             }
 
+            closeSpecificProgramModal();
+
             if (window.wizStore && window.wizStore.programs) {
                 if (progId) {
                     await window.wizStore.programs.update(progId, {
@@ -5456,36 +5462,25 @@
                 }
             }
 
-            // Segera kirim pembaruan foto ke Supabase sync-photo agar Open Graph & Landing page langsung sinkron
-            if (imgUrl) {
-                (async () => {
-                    try {
-                        const targets = [];
-                        if (window.location.hostname === 'www.wizbangkabelitung.or.id' || window.location.hostname === 'wizbangkabelitung.or.id') {
-                            targets.push('/api/sync-photo');
-                        } else {
-                            targets.push('/api/sync-photo');
-                            targets.push('https://www.wizbangkabelitung.or.id/api/sync-photo');
-                        }
-                        for (const url of targets) {
-                            try {
-                                await fetch(url, {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ programTitle: newTitle, imageUrl: imgUrl })
-                                });
-                            } catch(e) {}
-                        }
-                    } catch(e) {}
-                })();
-            }
-
-            closeSpecificProgramModal();
+            renderProgramsCMSSection();
             renderSpecificProgramImagesSection();
             
             const msgStatus = status === 'published' ? 'dipublikasikan & aktif di Web Utama serta Portal Mitra' : 'disimpan sebagai Draft';
             if (typeof showNotification === 'function') {
                 showNotification(`✅ Program "${newTitle}" berhasil ${msgStatus}!`);
+            }
+
+            // Background non-blocking sync for photo preview
+            if (imgUrl) {
+                setTimeout(async () => {
+                    try {
+                        await fetch('/api/sync-photo', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ programTitle: newTitle, imageUrl: imgUrl })
+                        });
+                    } catch(e) {}
+                }, 10);
             }
 
             const catVal = document.getElementById('man-program-utama') ? document.getElementById('man-program-utama').value : '';

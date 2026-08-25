@@ -423,21 +423,51 @@
         return memoryStoreFallback.get(key) || null;
     }
 
+    function cleanStorageQuota() {
+        try {
+            const nonEssentialKeys = [
+                'wiz_temp_upload', 'wiz_debug_logs', 'wiz_chart_cache',
+                'wiz_preview_cache', 'wiz_backup_temp'
+            ];
+            nonEssentialKeys.forEach(k => {
+                try { localStorage.removeItem(k); } catch(e) {}
+            });
+
+            // Compress or fallback oversized base64 stored in localStorage
+            const rawProgs = localStorage.getItem(STORAGE_KEYS.PROGRAMS);
+            if (rawProgs) {
+                try {
+                    let progs = JSON.parse(rawProgs);
+                    if (Array.isArray(progs)) {
+                        progs.forEach(p => {
+                            if (p && p.imageUrl && p.imageUrl.startsWith('data:image') && p.imageUrl.length > 200000) {
+                                p.imageUrl = DEFAULT_SPECIFIC_PROGRAM_IMAGES[p.title] || 'assets/images/default-program-wiz.jpg';
+                            }
+                        });
+                        localStorage.setItem(STORAGE_KEYS.PROGRAMS, JSON.stringify(progs));
+                    }
+                } catch(e) {}
+            }
+        } catch(e) {
+            console.warn('[WIZ Store] Storage cleanup error:', e.message);
+        }
+    }
+
     function setStore(key, data) {
         memoryStoreFallback.set(key, data);
         try {
             localStorage.setItem(key, JSON.stringify(data));
         } catch (e) {
             if (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014) {
-                console.warn('[WIZ Store] localStorage quota exceeded. Menjalankan auto-cleanup non-esensial...');
+                console.warn('[WIZ Store] localStorage quota reached. Running auto-cleanup...');
                 cleanStorageQuota();
                 try {
                     localStorage.setItem(key, JSON.stringify(data));
                 } catch (retryErr) {
-                    console.warn('[WIZ Store] Data tersimpan di memory buffer fallback.');
+                    console.warn('[WIZ Store] Safe fallback: Data preserved in memory buffer.');
                 }
             } else {
-                console.error('[WIZ Store] Gagal simpan data:', key, e);
+                console.warn('[WIZ Store] setStore warning:', key, e.message);
             }
         }
     }
