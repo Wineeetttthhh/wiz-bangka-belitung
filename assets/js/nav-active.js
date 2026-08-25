@@ -3,6 +3,15 @@
  */
 
 (function() {
+    // Enforce official custom domain (Redirect any *.vercel.app access to www.wizbangkabelitung.or.id)
+    if (typeof window !== 'undefined' && window.location && window.location.hostname) {
+        const host = window.location.hostname.toLowerCase();
+        if (host.endsWith('.vercel.app') || host === 'wizbangkabelitung.or.id') {
+            window.location.replace('https://www.wizbangkabelitung.or.id' + window.location.pathname + window.location.search + window.location.hash);
+            return;
+        }
+    }
+
     let _lastMenuToggle = 0;
 
     function toggleMobileMenu(forceState) {
