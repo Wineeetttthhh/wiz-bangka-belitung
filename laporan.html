@@ -568,6 +568,12 @@
         });
 
         const isSalurMode = (currentChartMetric === 'salur');
+        // Untuk mode masuk: gunakan total dana masuk sesungguhnya (overviewStats.totalMasuk)
+        // agar persentase cocok dengan alokasi yang diset di admin (bukan relative antar 5 pilar saja)
+        const grandTotalForPercent = isSalurMode
+            ? grandTotalSalur
+            : ((overviewStats && overviewStats.totalMasuk > 0) ? overviewStats.totalMasuk : grandTotalMasuk);
+        // grandTotal untuk center label tetap jumlah 5 pilar (agar nilai Rupiah yang tampil benar)
         const grandTotal = isSalurMode ? grandTotalSalur : grandTotalMasuk;
         const hasRealData = grandTotal > 0;
 
@@ -575,7 +581,7 @@
             pillarStats.forEach(p => {
                 const val = isSalurMode ? p.totalSalur : p.totalMasuk;
                 if (val > 0) {
-                    const rawPct = (val / grandTotal) * 100;
+                    const rawPct = (val / grandTotalForPercent) * 100;
                     p.percent = rawPct;
                     if (rawPct >= 99.9 && rawPct < 100) {
                         p.displayPercentStr = '99.9%';
@@ -600,13 +606,19 @@
         const circumference = 2 * Math.PI * radius;
         let accumulatedPercent = 0;
 
+        // Untuk SVG donut, segment harus proporsional relative antar pilar (bukan vs total dana masuk)
+        // sehingga lingkaran selalu penuh terisi jika ada data
+        const grandTotalForSVG = isSalurMode ? grandTotalSalur : grandTotalMasuk;
+
         let strokeSegments = '';
         if (hasRealData) {
             const activeSegments = pillarStats.filter(p => p.percent > 0);
             strokeSegments = activeSegments.map(p => {
-                const strokeDasharray = `${(p.percent / 100) * circumference} ${circumference}`;
+                const val = isSalurMode ? p.totalSalur : p.totalMasuk;
+                const svgPct = grandTotalForSVG > 0 ? (val / grandTotalForSVG) * 100 : 0;
+                const strokeDasharray = `${(svgPct / 100) * circumference} ${circumference}`;
                 const strokeDashoffset = -((accumulatedPercent / 100) * circumference);
-                accumulatedPercent += p.percent;
+                accumulatedPercent += svgPct;
 
                 return `<circle cx="${size / 2}" cy="${size / 2}" r="${radius}" 
                             fill="transparent" 
