@@ -4869,15 +4869,48 @@
 
         function handleDisbAmountInput(val) {
             const previewBox = document.getElementById('disb-split-preview-box');
+            const amountInput = document.getElementById('disb-amount');
+            const submitBtn = document.getElementById('btn-disbursement-submit');
             if (!previewBox) return;
 
             const progTitle = (document.getElementById('disb-program')?.value || '').trim();
             const sourceVal = document.getElementById('disb-source-type') ? document.getElementById('disb-source-type').value : 'program_spesifik';
             const numVal = Math.max(0, Number(val) || 0);
 
+            // Helper: set input merah / normal
+            function setInputError(isError) {
+                if (!amountInput) return;
+                if (isError) {
+                    amountInput.classList.remove('border-outline-variant', 'focus:border-primary');
+                    amountInput.classList.add('border-rose-500', 'ring-2', 'ring-rose-300', 'bg-rose-50', 'text-rose-700');
+                } else {
+                    amountInput.classList.remove('border-rose-500', 'ring-2', 'ring-rose-300', 'bg-rose-50', 'text-rose-700');
+                    amountInput.classList.add('border-outline-variant', 'focus:border-primary');
+                    amountInput.style.backgroundColor = '';
+                }
+            }
+
+            // Helper: disable / enable tombol Simpan
+            function setSubmitBlocked(isBlocked) {
+                if (!submitBtn) return;
+                if (isBlocked) {
+                    submitBtn.disabled = true;
+                    submitBtn.classList.remove('bg-primary', 'hover:bg-primary-container', 'text-on-primary');
+                    submitBtn.classList.add('bg-rose-100', 'text-rose-700', 'border', 'border-rose-400', 'cursor-not-allowed');
+                    submitBtn.innerHTML = '<span class="material-symbols-outlined text-sm">block</span><span>Saldo Tidak Mencukupi</span>';
+                } else {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.add('bg-primary', 'hover:bg-primary-container', 'text-on-primary');
+                    submitBtn.classList.remove('bg-rose-100', 'text-rose-700', 'border', 'border-rose-400', 'cursor-not-allowed');
+                    submitBtn.innerHTML = '<span class="material-symbols-outlined text-sm">save</span><span>Simpan Pengeluaran</span>';
+                }
+            }
+
             if (!progTitle || !numVal || !window.wizStore) {
                 previewBox.classList.add('hidden');
                 previewBox.innerHTML = '';
+                setInputError(false);
+                setSubmitBlocked(false);
                 return;
             }
 
@@ -4888,6 +4921,10 @@
             const progSaldo = progStats ? progStats.saldo : 0;
 
             if (sourceVal === 'program_spesifik') {
+                const isOver = numVal > progSaldo;
+                setInputError(isOver);
+                setSubmitBlocked(isOver);
+
                 if (numVal <= progSaldo) {
                     previewBox.className = 'rounded-xl p-3.5 text-xs space-y-1 bg-emerald-50 border border-emerald-300 text-emerald-950 block';
                     previewBox.innerHTML = `
@@ -4919,6 +4956,9 @@
                 }
             } else if (sourceVal === 'auto_split') {
                 const splitRes = wizStore.finance.calculateAutoSplit(progTitle, numVal, activeWilayah, editId);
+                const isOver = !splitRes.canSpend;
+                setInputError(isOver);
+                setSubmitBlocked(isOver);
 
                 if (splitRes.canSpend) {
                     previewBox.className = 'rounded-xl p-3.5 text-xs space-y-2 bg-purple-50/90 border border-purple-300 text-purple-950 block shadow-xs';
@@ -4970,6 +5010,7 @@
                 }
             }
         }
+
 
         function openDisbursementModal(editId) {
             document.getElementById('disb-edit-id').value = editId || '';
