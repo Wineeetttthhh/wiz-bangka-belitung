@@ -252,12 +252,7 @@ module.exports = async function handler(req, res) {
     const primaryImg = rawImg || firstGalleryImg || 'assets/images/default-program-wiz.jpg';
 
     // WhatsApp, Facebook, and Twitter standard proxy: guarantees <280KB, JPEG, and exact framing
-    let ogImageUrl = `${origin}/api/og-image?type=news&id=${encodeURIComponent(article.id)}`;
-    if (primaryImg && !primaryImg.startsWith('data:image/')) {
-        ogImageUrl += `&src=${encodeURIComponent(primaryImg)}`;
-    } else if (primaryImg && primaryImg.startsWith('data:image/')) {
-        ogImageUrl = `${origin}/berita-image/${encodeURIComponent(article.id)}.jpg`;
-    }
+    const ogImageUrl = `${origin}/api/og-image?type=news&id=${encodeURIComponent(article.id)}`;
     const secureImgUrl = ogImageUrl;
 
     // Determine actual page body image (can still use base64/direct for display quality)

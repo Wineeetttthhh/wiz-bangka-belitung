@@ -680,8 +680,8 @@
     </footer>
 
     <!-- JS Clients -->
-    <script src="assets/js/supabase-client.js?v=20260826_v11"></script>
-    <script src="assets/js/admin-store.js?v=20260826_v11"></script>
+    <script src="assets/js/supabase-client.js?v=20260826_v12"></script>
+    <script src="assets/js/admin-store.js?v=20260826_v12"></script>
     <script src="assets/js/main.js?v=20260826_v5"></script>
 
     <!-- Page Logic -->
@@ -1555,7 +1555,12 @@
             const progUrlObj = new URL(`${origin}/program/${slug}`);
             if (refCode) progUrlObj.searchParams.set('ref', refCode);
             const progUrl = progUrlObj.toString();
-            const waMsg = `🌟 *${cleanTitle}*\n\nSalurkan kepedulian dan donasi terbaik Anda bersama Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.\n\n🔗 ${progUrl}`;
+            
+            if (typeof window.showWhatsAppShareToast === 'function') {
+                window.showWhatsAppShareToast('Tunggu 1–2 detik di WhatsApp hingga foto program muncul sebelum kirim Status ✨');
+            }
+            
+            const waMsg = `${progUrl}\n\n🌟 *${cleanTitle}*\nSalurkan kepedulian dan donasi terbaik Anda bersama Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.`;
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(waMsg)}`, '_blank');
         }
 

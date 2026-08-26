@@ -656,12 +656,7 @@ const PROGRAM_IMAGE_MAP = {
     }
 
     // WhatsApp, Facebook, and Twitter standard proxy: guarantees <280KB, JPEG, and exact framing
-    let ogImageUrl = `${origin}/api/og-image?type=program&id=${encodeURIComponent(canonicalSlug)}`;
-    if (rawImg && !rawImg.startsWith('data:image/')) {
-        ogImageUrl += `&src=${encodeURIComponent(rawImg)}`;
-    } else if (rawImg && rawImg.startsWith('data:image/')) {
-        ogImageUrl = `${origin}/program-image/${encodeURIComponent(canonicalSlug)}.jpg`;
-    }
+    const ogImageUrl = `${origin}/api/og-image?type=program&id=${encodeURIComponent(canonicalSlug)}`;
     const ogImageSecureUrl = ogImageUrl;
 
     // Determine actual page image source for HTML body display
