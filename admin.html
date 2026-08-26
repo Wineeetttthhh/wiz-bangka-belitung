@@ -4668,6 +4668,7 @@
                 btn.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Mengambil...</span>`;
             }
             try {
+                localStorage.removeItem('wiz_deleted_news_ids');
                 if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                     const sbNewsRes = await window.wizSupabase.select('news');
                     if (sbNewsRes && Array.isArray(sbNewsRes.data) && sbNewsRes.data.length > 0) {
@@ -4687,11 +4688,12 @@
                         localStorage.setItem('wiz_news', JSON.stringify(mapped));
                     }
                 }
-                if (wizStore && wizStore.syncWithCloud) {
-                    await wizStore.syncWithCloud();
+                if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
+                    await window.wizStore.syncFromCloud(true);
                 }
                 refreshAll();
-                alert(`✅ Berhasil menarik data segar dari Supabase PostgreSQL! Total: ${wizStore.news.getAll().length} berita terdata.`);
+                const totalNews = (window.wizStore && window.wizStore.news) ? window.wizStore.news.getAll().length : 0;
+                alert(`✅ Berhasil menarik data segar dari Supabase PostgreSQL! Total: ${totalNews} berita terdata.`);
             } catch(e) {
                 alert('⚠️ Kendala: ' + e.message);
             } finally {

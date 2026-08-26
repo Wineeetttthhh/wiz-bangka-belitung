@@ -166,15 +166,13 @@
 
     function getDeletedNewsIds() {
         try {
-            return new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.DELETED_NEWS_IDS) || '[]'));
-        } catch { return new Set(); }
+            localStorage.removeItem(STORAGE_KEYS.DELETED_NEWS_IDS);
+        } catch(e) {}
+        return new Set();
     }
 
     function addDeletedNewsId(id) {
-        if (!id) return;
-        const set = getDeletedNewsIds();
-        set.add(String(id));
-        setStore(STORAGE_KEYS.DELETED_NEWS_IDS, Array.from(set));
+        // Deprecated: deletion is managed directly via Supabase status / delete API
     }
 
     function getDeletedDisbIds() {
@@ -3565,8 +3563,8 @@
             let raw = getStore(STORAGE_KEYS.NEWS) || [];
             if (!Array.isArray(raw)) raw = [];
 
-            const deletedNewsSet = getDeletedNewsIds();
-            const active = raw.filter(n => n && n.id && !deletedNewsSet.has(String(n.id)) && n.status !== 'deleted' && !n.isDeleted);
+            // Supabase news is authoritative: filter only items explicitly deleted
+            const active = raw.filter(n => n && n.id && n.status !== 'deleted' && !n.isDeleted);
 
             // Deduplicate by title: if same title exists multiple times, keep latest and honor draft status
             const uniqueMap = new Map();

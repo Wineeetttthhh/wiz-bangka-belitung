@@ -390,9 +390,7 @@ module.exports = async function handler(req, res) {
             if (deletedQuoteIds.length > 0 && Array.isArray(master.quotes)) {
                 master.quotes = master.quotes.filter(q => q && q.id && !deletedQuoteIds.includes(String(q.id)));
             }
-            if (deletedNewsIds.length > 0 && Array.isArray(master.news)) {
-                master.news = master.news.filter(n => n && n.id && !deletedNewsIds.includes(String(n.id)));
-            }
+            // Supabase news table is authoritative; do not filter out live published news by stale client arrays
             if (deletedProgramIds.length > 0 && Array.isArray(master.programs)) {
                 master.programs = master.programs.filter(p => p && p.id && !deletedProgramIds.includes(String(p.id)));
             }
@@ -525,7 +523,7 @@ module.exports = async function handler(req, res) {
             }
 
             master.deleted_ids         = Array.from(new Set([...(master.deleted_ids || []),         ...deletedIds]));
-            master.deleted_news_ids    = Array.from(new Set([...(master.deleted_news_ids || []),     ...deletedNewsIds]));
+            master.deleted_news_ids    = [];
             master.deleted_disb_ids    = Array.from(new Set([...(master.deleted_disb_ids || []),     ...deletedDisbIds]));
             master.deleted_ref_ids     = Array.from(new Set([...(master.deleted_ref_ids || []),      ...deletedRefIds]));
             master.deleted_quote_ids   = Array.from(new Set([...(master.deleted_quote_ids || []),    ...deletedQuoteIds]));
