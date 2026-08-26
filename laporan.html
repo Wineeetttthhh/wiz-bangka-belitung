@@ -255,7 +255,7 @@
                     <span class="material-symbols-outlined text-primary">pie_chart</span>
                     <span>Diagram Lingkaran Distribusi Program (5 Berkah WIZ)</span>
                 </h2>
-                <p id="chart-section-subtitle" class="font-body-md text-caption text-on-surface-variant">Proporsi dan persentase realisasi penyaluran dana per pilar utama lembaga (Dakwah, Pendidikan, Sosial, Kesehatan, Ekonomi) berdasarkan riwayat pengeluaran aktual.</p>
+                <p id="chart-section-subtitle" class="font-body-md text-caption text-on-surface-variant">Proporsi dan persentase realisasi penyaluran dana per 5 Berkah WIZ (Berkah Hidayah, Berkah Juara, Berkah Peduli, Berkah Sehat, Berkah Mandiri) berdasarkan riwayat pengeluaran aktual.</p>
             </div>
             <div class="flex flex-wrap items-center gap-2">
                 <div class="inline-flex p-1 bg-surface-container-high rounded-xl border border-outline-variant/30 text-xs font-bold">
@@ -520,8 +520,8 @@
         const subtitle = document.getElementById('chart-section-subtitle');
         if (subtitle) {
             subtitle.textContent = (metric === 'salur')
-                ? 'Proporsi dan persentase realisasi penyaluran dana per pilar utama lembaga (Dakwah, Pendidikan, Sosial, Kesehatan, Ekonomi) berdasarkan riwayat pengeluaran aktual.'
-                : 'Proporsi dan persentase dana terhimpun / pemasukan donasi per pilar utama lembaga (Dakwah, Pendidikan, Sosial, Kesehatan, Ekonomi) berdasarkan riwayat donasi terverifikasi.';
+                ? 'Proporsi dan persentase realisasi penyaluran dana per 5 Berkah WIZ (Berkah Hidayah, Berkah Juara, Berkah Peduli, Berkah Sehat, Berkah Mandiri) berdasarkan riwayat pengeluaran aktual.'
+                : 'Proporsi dan persentase dana terhimpun / pemasukan donasi per 5 Berkah WIZ (Berkah Hidayah, Berkah Juara, Berkah Peduli, Berkah Sehat, Berkah Mandiri) berdasarkan riwayat donasi terverifikasi.';
         }
         
         renderPublicReport();
@@ -536,11 +536,11 @@
         const perPillars = wizStore.finance.getPerProgram(filterWilayah);
 
         const pillarDefs = [
-            { key: 'Berkah Hidayah', label: 'Dakwah (Berkah Hidayah)', color: '#047857', bg: 'bg-emerald-50 border-emerald-200 text-emerald-900', dot: 'bg-emerald-600' },
-            { key: 'Berkah Juara', label: 'Pendidikan (Berkah Juara)', color: '#1d4ed8', bg: 'bg-blue-50 border-blue-200 text-blue-900', dot: 'bg-blue-600' },
-            { key: 'Berkah Peduli', label: 'Sosial (Berkah Peduli)', color: '#d97706', bg: 'bg-amber-50 border-amber-200 text-amber-900', dot: 'bg-amber-600' },
-            { key: 'Berkah Sehat', label: 'Kesehatan (Berkah Sehat)', color: '#be123c', bg: 'bg-rose-50 border-rose-200 text-rose-900', dot: 'bg-rose-600' },
-            { key: 'Berkah Mandiri', label: 'Ekonomi (Berkah Mandiri)', color: '#7e22ce', bg: 'bg-purple-50 border-purple-200 text-purple-900', dot: 'bg-purple-600' }
+            { key: 'Berkah Hidayah', label: 'Berkah Hidayah', color: '#047857', bg: 'bg-emerald-50 border-emerald-200 text-emerald-900', dot: 'bg-emerald-600' },
+            { key: 'Berkah Juara', label: 'Berkah Juara', color: '#1d4ed8', bg: 'bg-blue-50 border-blue-200 text-blue-900', dot: 'bg-blue-600' },
+            { key: 'Berkah Peduli', label: 'Berkah Peduli', color: '#d97706', bg: 'bg-amber-50 border-amber-200 text-amber-900', dot: 'bg-amber-600' },
+            { key: 'Berkah Sehat', label: 'Berkah Sehat', color: '#be123c', bg: 'bg-rose-50 border-rose-200 text-rose-900', dot: 'bg-rose-600' },
+            { key: 'Berkah Mandiri', label: 'Berkah Mandiri', color: '#7e22ce', bg: 'bg-purple-50 border-purple-200 text-purple-900', dot: 'bg-purple-600' }
         ];
 
         let grandTotalMasuk = 0;
