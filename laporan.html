@@ -255,7 +255,7 @@
                     <span class="material-symbols-outlined text-primary">pie_chart</span>
                     <span>Diagram Lingkaran Distribusi Program (5 Berkah WIZ)</span>
                 </h2>
-                <p class="font-body-md text-caption text-on-surface-variant">Proporsi dan persentase realisasi dana per pilar utama lembaga (Dakwah, Pendidikan, Sosial, Kesehatan, Ekonomi).</p>
+                <p class="font-body-md text-caption text-on-surface-variant">Proporsi dan persentase realisasi penyaluran dana per pilar utama lembaga (Dakwah, Pendidikan, Sosial, Kesehatan, Ekonomi) berdasarkan riwayat pengeluaran aktual.</p>
             </div>
             <select id="pub-filter-wilayah" onchange="renderPublicReport()" class="bg-surface border border-outline-variant rounded-lg px-3 py-2 font-caption text-caption text-on-surface font-bold outline-none cursor-pointer">
                 <option value="Semua" selected>Wilayah: Konsolidasi (Semua)</option>
@@ -497,14 +497,6 @@
 
         const fmt = wizStore.utils.formatRupiahCompact;
         const perPillars = wizStore.finance.getPerProgram(filterWilayah);
-        
-        // Get fallback default percentages from allocation rules if no donations recorded yet
-        const wRules = (wizStore.allocationRulesManager ? wizStore.allocationRulesManager.get(filterWilayah) : null) 
-            || (wizStore.allocationRules ? (wizStore.allocationRules[filterWilayah] || wizStore.allocationRules['Pangkalpinang']) : null);
-        const ruleMap = new Map();
-        if (wRules && wRules.mainAllocation) {
-            wRules.mainAllocation.forEach(m => ruleMap.set(m.key, Number(m.percent) || 0));
-        }
 
         const pillarDefs = [
             { key: 'Berkah Hidayah', label: 'Dakwah (Berkah Hidayah)', color: '#047857', bg: 'bg-emerald-50 border-emerald-200 text-emerald-900', dot: 'bg-emerald-600' },
@@ -527,37 +519,32 @@
             grandTotalMasuk += totalMasuk;
             grandTotalSalur += totalSalur;
             grandTotalSaldo += saldo;
-            
-            const fallbackPct = ruleMap.get(p.key) || 20;
 
             return {
                 ...p,
                 totalMasuk,
                 totalSalur,
                 saldo,
-                fallbackPct
+                percent: 0,
+                displayPercentStr: '0%'
             };
         });
 
-        // Calculate proportional percentage based on available saldo (reactive to disbursements)
-        // If saldo is 0 across all pillars, fallback to totalMasuk or allocation rules
-        const hasRealSaldo = grandTotalSaldo > 0;
-        const hasRealMasuk = grandTotalMasuk > 0;
+        // Diagram Distribusi: Patokan utama adalah realisasi penyaluran/pengeluaran aktual (Disbursements)
+        const hasRealSalur = grandTotalSalur > 0;
 
-        pillarStats.forEach(p => {
-            if (hasRealSaldo) {
-                p.percent = Math.round((p.saldo / grandTotalSaldo) * 100);
-            } else if (hasRealMasuk) {
-                p.percent = Math.round((p.totalMasuk / grandTotalMasuk) * 100);
-            } else {
-                p.percent = p.fallbackPct;
-            }
-        });
-
-        const displayStats = pillarStats.map(p => ({
-            ...p,
-            displayPercent: Math.max(1, p.percent || 1)
-        }));
+        if (hasRealSalur) {
+            pillarStats.forEach(p => {
+                if (p.totalSalur > 0) {
+                    const rawPct = (p.totalSalur / grandTotalSalur) * 100;
+                    p.percent = rawPct;
+                    p.displayPercentStr = (rawPct % 1 === 0) ? `${rawPct.toFixed(0)}%` : `${rawPct.toFixed(1)}%`;
+                } else {
+                    p.percent = 0;
+                    p.displayPercentStr = '0%';
+                }
+            });
+        }
 
         // Render SVG Donut Chart
         const size = 220;
@@ -566,49 +553,61 @@
         const circumference = 2 * Math.PI * radius;
         let accumulatedPercent = 0;
 
-        let strokeSegments = displayStats.map(p => {
-            const strokeDasharray = `${(p.displayPercent / 100) * circumference} ${circumference}`;
-            const strokeDashoffset = -((accumulatedPercent / 100) * circumference);
-            accumulatedPercent += p.displayPercent;
+        let strokeSegments = '';
+        if (hasRealSalur) {
+            const activeSegments = pillarStats.filter(p => p.percent > 0);
+            strokeSegments = activeSegments.map(p => {
+                const strokeDasharray = `${(p.percent / 100) * circumference} ${circumference}`;
+                const strokeDashoffset = -((accumulatedPercent / 100) * circumference);
+                accumulatedPercent += p.percent;
 
-            return `<circle cx="${size / 2}" cy="${size / 2}" r="${radius}" 
-                        fill="transparent" 
-                        stroke="${p.color}" 
-                        stroke-width="${strokeWidth}" 
-                        stroke-dasharray="${strokeDasharray}" 
-                        stroke-dashoffset="${strokeDashoffset}"
-                        class="transition-all duration-700 ease-out hover:opacity-90" />`;
-        }).join('');
+                return `<circle cx="${size / 2}" cy="${size / 2}" r="${radius}" 
+                            fill="transparent" 
+                            stroke="${p.color}" 
+                            stroke-width="${strokeWidth}" 
+                            stroke-dasharray="${strokeDasharray}" 
+                            stroke-dashoffset="${strokeDashoffset}"
+                            class="transition-all duration-700 ease-out hover:opacity-90" />`;
+            }).join('');
+        } else {
+            strokeSegments = `<circle cx="${size / 2}" cy="${size / 2}" r="${radius}" 
+                                fill="transparent" 
+                                stroke="#e2e8f0" 
+                                stroke-width="${strokeWidth}" 
+                                class="transition-all duration-700" />`;
+        }
 
-        const actualSaldo = overviewStats ? overviewStats.saldo : grandTotalSaldo;
-        const centerLabel = actualSaldo > 0 ? 'Sisa Saldo Amanah' : (grandTotalMasuk > 0 ? 'Total Terhimpun' : 'Alokasi 5 Pilar');
-        const centerValue = actualSaldo > 0 ? fmt(actualSaldo) : (grandTotalMasuk > 0 ? fmt(grandTotalMasuk) : '100%');
+        const centerLabel = hasRealSalur ? 'Total Tersalurkan' : 'Belum Ada Penyaluran';
+        const centerValue = hasRealSalur ? fmt(grandTotalSalur) : 'Rp 0';
 
         containerChart.innerHTML = `
             <div class="relative flex items-center justify-center py-sm">
                 <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" class="transform -rotate-90">
+                    <circle cx="${size / 2}" cy="${size / 2}" r="${radius}" fill="transparent" stroke="#f1f5f9" stroke-width="${strokeWidth}" />
                     ${strokeSegments}
                 </svg>
                 <div class="absolute flex flex-col items-center justify-center text-center p-2">
                     <span class="font-caption text-[11px] text-on-surface-variant font-semibold">${centerLabel}</span>
                     <span class="font-headline-md font-bold text-primary text-base">${centerValue}</span>
-                    <span class="text-[10px] text-outline font-semibold">5 Pilar WIZ</span>
+                    <span class="text-[10px] text-outline font-semibold">Realisasi 5 Pilar</span>
                 </div>
             </div>`;
 
         // Render Legend Cards
         containerLegend.innerHTML = pillarStats.map(p => `
             <div class="p-md rounded-xl border ${p.bg} shadow-xs flex items-center justify-between gap-md transition-transform hover:scale-[1.02]">
-                <div class="flex items-center gap-sm">
+                <div class="flex items-center gap-sm min-w-0">
                     <span class="w-3.5 h-3.5 rounded-full ${p.dot} shrink-0 shadow-xs"></span>
-                    <div>
-                        <h4 class="font-label-md font-bold text-xs">${p.label}</h4>
-                        <p class="font-caption text-[11px] opacity-80 mt-0.5">Masuk: ${fmt(p.totalMasuk)} | Salur: ${fmt(p.totalSalur)}</p>
+                    <div class="min-w-0">
+                        <h4 class="font-label-md font-bold text-xs truncate">${p.label}</h4>
+                        <p class="font-caption text-[11px] opacity-80 mt-0.5 truncate">
+                            Salur: <strong class="font-bold text-on-surface">${fmt(p.totalSalur)}</strong> <span class="opacity-70">| Masuk: ${fmt(p.totalMasuk)}</span>
+                        </p>
                     </div>
                 </div>
                 <div class="text-right shrink-0">
-                    <span class="font-headline-md font-bold text-sm block">${p.percent}%</span>
-                    <span class="text-[10px] opacity-85 font-mono font-bold block text-emerald-900">${fmt(p.saldo)}</span>
+                    <span class="font-headline-md font-bold text-sm block ${p.totalSalur > 0 ? 'text-primary' : 'text-slate-500'}">${p.displayPercentStr}</span>
+                    <span class="text-[10px] opacity-85 font-mono font-bold block ${p.totalSalur > 0 ? 'text-emerald-800' : 'text-slate-400'}">${fmt(p.totalSalur)}</span>
                 </div>
             </div>`).join('');
     }
