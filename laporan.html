@@ -253,7 +253,7 @@
             <div>
                 <h2 class="font-headline-md text-headline-md font-bold text-primary flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary">pie_chart</span>
-                    <span>Diagram Lingkaran Distribusi Program (5 Berkah WIZ)</span>
+                    <span>Diagram Lingkaran Distribusi Alokasi Dana WIZ</span>
                 </h2>
                 <p id="chart-section-subtitle" class="font-body-md text-caption text-on-surface-variant">Proporsi dan persentase realisasi penyaluran dana per 5 Berkah WIZ (Berkah Hidayah, Berkah Juara, Berkah Peduli, Berkah Sehat, Berkah Mandiri) berdasarkan riwayat pengeluaran aktual.</p>
             </div>
@@ -521,7 +521,7 @@
         if (subtitle) {
             subtitle.textContent = (metric === 'salur')
                 ? 'Proporsi dan persentase realisasi penyaluran dana per 5 Berkah WIZ (Berkah Hidayah, Berkah Juara, Berkah Peduli, Berkah Sehat, Berkah Mandiri) berdasarkan riwayat pengeluaran aktual.'
-                : 'Proporsi dan persentase dana terhimpun / pemasukan donasi per 5 Berkah WIZ (Berkah Hidayah, Berkah Juara, Berkah Peduli, Berkah Sehat, Berkah Mandiri) berdasarkan riwayat donasi terverifikasi.';
+                : 'Distribusi seluruh alokasi pemasukan donasi terverifikasi: 5 Berkah WIZ (program utama) + Dana Saving (cadangan) + Operasional lembaga, sesuai aturan alokasi yang ditetapkan.';
         }
         
         renderPublicReport();
@@ -535,6 +535,16 @@
         const fmt = wizStore.utils.formatRupiahCompact;
         const perPillars = wizStore.finance.getPerProgram(filterWilayah);
 
+        // Ambil aturan alokasi wilayah aktif untuk mendapatkan % Dana Saving & Operasional
+        const activeWilayah = (filterWilayah && filterWilayah !== 'Semua') ? filterWilayah : 'Pangkalpinang';
+        const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get)
+            ? (allocationRulesManager.get(activeWilayah) || null)
+            : null;
+        const mainAlloc = (wRules && wRules.mainAllocation) ? wRules.mainAllocation : [];
+
+        const getDanaSavingPct  = () => { const it = mainAlloc.find(i => i.key === 'Dana Saving');  return it ? (Number(it.percent) || 0) : 0; };
+        const getOperasionalPct = () => { const it = mainAlloc.find(i => i.key === 'Operasional'); return it ? (Number(it.percent) || 0) : 0; };
+
         const pillarDefs = [
             { key: 'Berkah Hidayah', label: 'Berkah Hidayah', color: '#047857', bg: 'bg-emerald-50 border-emerald-200 text-emerald-900', dot: 'bg-emerald-600' },
             { key: 'Berkah Juara', label: 'Berkah Juara', color: '#1d4ed8', bg: 'bg-blue-50 border-blue-200 text-blue-900', dot: 'bg-blue-600' },
@@ -545,53 +555,48 @@
 
         let grandTotalMasuk = 0;
         let grandTotalSalur = 0;
-        let grandTotalSaldo = 0;
 
         const pillarStats = pillarDefs.map(p => {
             const pData = perPillars.find(pp => pp.key === p.key);
             const totalMasuk = pData ? Number(pData.masuk) || 0 : 0;
             const totalSalur = pData ? Number(pData.tersalurkan) || 0 : 0;
             const saldo = pData ? Number(pData.saldo) || 0 : 0;
-            
+
             grandTotalMasuk += totalMasuk;
             grandTotalSalur += totalSalur;
-            grandTotalSaldo += saldo;
 
-            return {
-                ...p,
-                totalMasuk,
-                totalSalur,
-                saldo,
-                percent: 0,
-                displayPercentStr: '0%'
-            };
+            return { ...p, totalMasuk, totalSalur, saldo, percent: 0, displayPercentStr: '0%' };
         });
 
         const isSalurMode = (currentChartMetric === 'salur');
-        // Untuk mode masuk: gunakan total dana masuk sesungguhnya (overviewStats.totalMasuk)
-        // agar persentase cocok dengan alokasi yang diset di admin (bukan relative antar 5 pilar saja)
-        const grandTotalForPercent = isSalurMode
-            ? grandTotalSalur
-            : ((overviewStats && overviewStats.totalMasuk > 0) ? overviewStats.totalMasuk : grandTotalMasuk);
-        // grandTotal untuk center label tetap jumlah 5 pilar (agar nilai Rupiah yang tampil benar)
-        const grandTotal = isSalurMode ? grandTotalSalur : grandTotalMasuk;
-        const hasRealData = grandTotal > 0;
 
+        // Total sesungguhnya termasuk Dana Saving & Operasional
+        const realTotalMasuk = (overviewStats && overviewStats.totalMasuk > 0) ? overviewStats.totalMasuk : grandTotalMasuk;
+        const grandTotalFull = isSalurMode ? grandTotalSalur : realTotalMasuk;
+        const hasRealData = grandTotalFull > 0;
+
+        // Hitung jumlah rupiah Dana Saving & Operasional dari % × total dana masuk
+        const danaSavingPct  = getDanaSavingPct();
+        const operasionalPct = getOperasionalPct();
+        const danaSavingAmt  = isSalurMode ? 0 : Math.round(realTotalMasuk * danaSavingPct / 100);
+        const operasionalAmt = isSalurMode ? 0 : Math.round(realTotalMasuk * operasionalPct / 100);
+
+        // Helper: format persen dengan presisi
+        function fmtPct(rawPct) {
+            if (rawPct >= 99.9 && rawPct < 100) return '99.9%';
+            if (rawPct > 0 && rawPct < 0.1) return '<0.1%';
+            if (rawPct % 1 === 0) return `${rawPct.toFixed(0)}%`;
+            return `${rawPct.toFixed(1)}%`;
+        }
+
+        // Hitung persentase pilar (terhadap total dana masuk penuh)
         if (hasRealData) {
             pillarStats.forEach(p => {
                 const val = isSalurMode ? p.totalSalur : p.totalMasuk;
                 if (val > 0) {
-                    const rawPct = (val / grandTotalForPercent) * 100;
+                    const rawPct = (val / grandTotalFull) * 100;
                     p.percent = rawPct;
-                    if (rawPct >= 99.9 && rawPct < 100) {
-                        p.displayPercentStr = '99.9%';
-                    } else if (rawPct > 0 && rawPct < 0.1) {
-                        p.displayPercentStr = '<0.1%';
-                    } else if (rawPct % 1 === 0) {
-                        p.displayPercentStr = `${rawPct.toFixed(0)}%`;
-                    } else {
-                        p.displayPercentStr = `${rawPct.toFixed(1)}%`;
-                    }
+                    p.displayPercentStr = fmtPct(rawPct);
                 } else {
                     p.percent = 0;
                     p.displayPercentStr = '0%';
@@ -599,48 +604,51 @@
             });
         }
 
-        // Render SVG Donut Chart
+        // Render SVG Donut Chart — semua segmen proporsional terhadap grandTotalFull
         const size = 220;
         const strokeWidth = 32;
         const radius = (size - strokeWidth) / 2;
         const circumference = 2 * Math.PI * radius;
         let accumulatedPercent = 0;
 
-        // Untuk SVG donut, segment harus proporsional relative antar pilar (bukan vs total dana masuk)
-        // sehingga lingkaran selalu penuh terisi jika ada data
-        const grandTotalForSVG = isSalurMode ? grandTotalSalur : grandTotalMasuk;
+        function makeSvgSegment(pct, color) {
+            const dashArray = `${(pct / 100) * circumference} ${circumference}`;
+            const dashOffset = -((accumulatedPercent / 100) * circumference);
+            accumulatedPercent += pct;
+            return `<circle cx="${size / 2}" cy="${size / 2}" r="${radius}"
+                        fill="transparent" stroke="${color}" stroke-width="${strokeWidth}"
+                        stroke-dasharray="${dashArray}" stroke-dashoffset="${dashOffset}"
+                        class="transition-all duration-700 ease-out hover:opacity-90" />`;
+        }
 
         let strokeSegments = '';
         if (hasRealData) {
-            const activeSegments = pillarStats.filter(p => p.percent > 0);
-            strokeSegments = activeSegments.map(p => {
+            // Segmen 5 pilar
+            pillarStats.forEach(p => {
                 const val = isSalurMode ? p.totalSalur : p.totalMasuk;
-                const svgPct = grandTotalForSVG > 0 ? (val / grandTotalForSVG) * 100 : 0;
-                const strokeDasharray = `${(svgPct / 100) * circumference} ${circumference}`;
-                const strokeDashoffset = -((accumulatedPercent / 100) * circumference);
-                accumulatedPercent += svgPct;
-
-                return `<circle cx="${size / 2}" cy="${size / 2}" r="${radius}" 
-                            fill="transparent" 
-                            stroke="${p.color}" 
-                            stroke-width="${strokeWidth}" 
-                            stroke-dasharray="${strokeDasharray}" 
-                            stroke-dashoffset="${strokeDashoffset}"
-                            class="transition-all duration-700 ease-out hover:opacity-90" />`;
-            }).join('');
+                if (val > 0) strokeSegments += makeSvgSegment(p.percent, p.color);
+            });
+            // Segmen Dana Saving (hanya mode masuk)
+            if (!isSalurMode && danaSavingAmt > 0) {
+                const pct = (danaSavingAmt / grandTotalFull) * 100;
+                strokeSegments += makeSvgSegment(pct, '#0891b2'); // cyan-600
+            }
+            // Segmen Operasional (hanya mode masuk)
+            if (!isSalurMode && operasionalAmt > 0) {
+                const pct = (operasionalAmt / grandTotalFull) * 100;
+                strokeSegments += makeSvgSegment(pct, '#64748b'); // slate-500
+            }
         } else {
-            strokeSegments = `<circle cx="${size / 2}" cy="${size / 2}" r="${radius}" 
-                                fill="transparent" 
-                                stroke="#e2e8f0" 
-                                stroke-width="${strokeWidth}" 
+            strokeSegments = `<circle cx="${size / 2}" cy="${size / 2}" r="${radius}"
+                                fill="transparent" stroke="#e2e8f0" stroke-width="${strokeWidth}"
                                 class="transition-all duration-700" />`;
         }
 
-        const centerLabel = isSalurMode 
+        const centerLabel = isSalurMode
             ? (hasRealData ? 'Total Tersalurkan' : 'Belum Ada Penyaluran')
             : (hasRealData ? 'Total Dana Masuk' : 'Belum Ada Donasi');
-        const centerValue = hasRealData ? fmt(grandTotal) : 'Rp 0';
-        const centerSub = isSalurMode ? 'Realisasi 5 Pilar' : 'Terhimpun 5 Pilar';
+        const centerValue = hasRealData ? fmt(grandTotalFull) : 'Rp 0';
+        const centerSub = isSalurMode ? 'Realisasi 5 Pilar' : 'Seluruh Alokasi Dana';
 
         containerChart.innerHTML = `
             <div class="relative flex items-center justify-center py-sm">
@@ -655,11 +663,11 @@
                 </div>
             </div>`;
 
-        // Render Legend Cards
-        containerLegend.innerHTML = pillarStats.map(p => {
+        // Render Legend Cards — 5 pilar + Dana Saving + Operasional
+        const pillarCards = pillarStats.map(p => {
             const activeVal = isSalurMode ? p.totalSalur : p.totalMasuk;
             const valHighlight = activeVal > 0 ? (isSalurMode ? 'text-primary' : 'text-emerald-700') : 'text-slate-400';
-            const badgeClass = activeVal > 0 ? (isSalurMode ? 'text-primary' : 'text-emerald-800') : 'text-slate-500';
+            const badgeClass  = activeVal > 0 ? (isSalurMode ? 'text-primary' : 'text-emerald-800') : 'text-slate-500';
 
             return `
             <div class="p-md rounded-xl border ${p.bg} shadow-xs flex items-center justify-between gap-md transition-transform hover:scale-[1.02]">
@@ -668,7 +676,9 @@
                     <div class="min-w-0">
                         <h4 class="font-label-md font-bold text-xs truncate">${p.label}</h4>
                         <p class="font-caption text-[11px] opacity-80 mt-0.5 truncate">
-                            ${isSalurMode ? `Salur: <strong class="font-bold text-on-surface">${fmt(p.totalSalur)}</strong> <span class="opacity-70">| Masuk: ${fmt(p.totalMasuk)}</span>` : `Masuk: <strong class="font-bold text-on-surface">${fmt(p.totalMasuk)}</strong> <span class="opacity-70">| Salur: ${fmt(p.totalSalur)}</span>`}
+                            ${isSalurMode
+                                ? `Salur: <strong class="font-bold text-on-surface">${fmt(p.totalSalur)}</strong> <span class="opacity-70">| Masuk: ${fmt(p.totalMasuk)}</span>`
+                                : `Masuk: <strong class="font-bold text-on-surface">${fmt(p.totalMasuk)}</strong> <span class="opacity-70">| Salur: ${fmt(p.totalSalur)}</span>`}
                         </p>
                     </div>
                 </div>
@@ -677,7 +687,48 @@
                     <span class="text-[10px] opacity-85 font-mono font-bold block ${valHighlight}">${fmt(activeVal)}</span>
                 </div>
             </div>`;
-        }).join('');
+        });
+
+        // Tambahan card Dana Saving & Operasional (hanya mode masuk & ada data)
+        let extraCards = '';
+        if (!isSalurMode && hasRealData) {
+            if (danaSavingAmt > 0 || danaSavingPct > 0) {
+                const pct = danaSavingPct;
+                extraCards += `
+                <div class="p-md rounded-xl border bg-cyan-50 border-cyan-200 text-cyan-900 shadow-xs flex items-center justify-between gap-md transition-transform hover:scale-[1.02]">
+                    <div class="flex items-center gap-sm min-w-0">
+                        <span class="w-3.5 h-3.5 rounded-full bg-cyan-600 shrink-0 shadow-xs"></span>
+                        <div class="min-w-0">
+                            <h4 class="font-label-md font-bold text-xs truncate">Dana Saving</h4>
+                            <p class="font-caption text-[11px] opacity-80 mt-0.5">Cadangan & tabungan program</p>
+                        </div>
+                    </div>
+                    <div class="text-right shrink-0">
+                        <span class="font-headline-md font-bold text-sm block text-cyan-800">${pct % 1 === 0 ? pct.toFixed(0) : pct.toFixed(1)}%</span>
+                        <span class="text-[10px] opacity-85 font-mono font-bold block text-cyan-700">${fmt(danaSavingAmt)}</span>
+                    </div>
+                </div>`;
+            }
+            if (operasionalAmt > 0 || operasionalPct > 0) {
+                const pct = operasionalPct;
+                extraCards += `
+                <div class="p-md rounded-xl border bg-slate-50 border-slate-200 text-slate-700 shadow-xs flex items-center justify-between gap-md transition-transform hover:scale-[1.02]">
+                    <div class="flex items-center gap-sm min-w-0">
+                        <span class="w-3.5 h-3.5 rounded-full bg-slate-500 shrink-0 shadow-xs"></span>
+                        <div class="min-w-0">
+                            <h4 class="font-label-md font-bold text-xs truncate">Operasional</h4>
+                            <p class="font-caption text-[11px] opacity-80 mt-0.5">Biaya operasional lembaga</p>
+                        </div>
+                    </div>
+                    <div class="text-right shrink-0">
+                        <span class="font-headline-md font-bold text-sm block text-slate-600">${pct % 1 === 0 ? pct.toFixed(0) : pct.toFixed(1)}%</span>
+                        <span class="text-[10px] opacity-85 font-mono font-bold block text-slate-500">${fmt(operasionalAmt)}</span>
+                    </div>
+                </div>`;
+            }
+        }
+
+        containerLegend.innerHTML = pillarCards.join('') + extraCards;
     }
 
     // Table Filter
