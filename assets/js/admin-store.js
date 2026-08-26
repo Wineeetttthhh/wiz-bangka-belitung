@@ -4867,12 +4867,25 @@
                         const opItem = wRules.mainAllocation.find(i => i.key === 'Operasional');
                         if (opItem) {
                             opUmumMasuk += (Number(d.amount) || 0) * ((Number(opItem.percent) || 0) / 100);
+            // ─── Skenario Khusus 2: Operasional Lembaga (Alokasi Infak Umum) ───
+            if (pLower.includes('operasional')) {
+                let opUmumMasuk = 0;
+                let opUmumSalur = 0;
+                verified.forEach(d => {
+                    const dWilayah = d.wilayah || 'Pangkalpinang';
+                    const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get)
+                        ? (allocationRulesManager.get(dWilayah) || ALLOCATION_RULES[dWilayah])
+                        : ALLOCATION_RULES[dWilayah];
+                    if (isGeneralInfak(d) && wRules && wRules.mainAllocation) {
+                        const opItem = wRules.mainAllocation.find(i => i.key === 'Operasional');
+                        if (opItem) {
+                            opUmumMasuk += (Number(d.amount) || 0) * ((Number(opItem.percent) || 0) / 100);
                         }
                     }
                 });
                 disbList.forEach(db => {
                     const dbP = (db.program || '').toLowerCase();
-                    if (dbP.includes('operasional') && (dbP.includes('umum') || (!dbP.includes('terikat') && !dbP.includes('mitra')))) {
+                    if (dbP.includes('operasional')) {
                         opUmumSalur += Number(db.amount) || 0;
                     }
                 });
@@ -4886,39 +4899,7 @@
                     target: 50000000,
                     percent: 100,
                     pillar: 'Operasional',
-                    kategori_pilar: 'Operasional (Infak Umum)',
-                    isPriorityLocked: false
-                };
-            }
-
-            // ─── Skenario Khusus 3: Operasional — Infak Terikat ───
-            if (pLower.includes('operasional') && (pLower.includes('terikat') || pLower.includes('mitra'))) {
-                let opTerikatMasuk = 0;
-                let opTerikatSalur = 0;
-                verified.forEach(d => {
-                    if (!isGeneralInfak(d)) {
-                        const amt = Number(d.amount) || 0;
-                        const op = Number(d.alokasiOperasional || d.alokasi_operasional || Math.round(amt * 0.125));
-                        opTerikatMasuk += op;
-                    }
-                });
-                disbList.forEach(db => {
-                    const dbP = (db.program || '').toLowerCase();
-                    if (dbP.includes('operasional') && (dbP.includes('terikat') || dbP.includes('mitra'))) {
-                        opTerikatSalur += Number(db.amount) || 0;
-                    }
-                });
-                const saldo = Math.max(0, opTerikatMasuk - opTerikatSalur);
-                return {
-                    terkumpul: saldo,
-                    totalMasuk: opTerikatMasuk,
-                    masuk: opTerikatMasuk,
-                    tersalurkan: opTerikatSalur,
-                    saldo: saldo,
-                    target: 50000000,
-                    percent: 100,
-                    pillar: 'Operasional',
-                    kategori_pilar: 'Operasional (Infak Terikat)',
+                    kategori_pilar: 'Operasional Lembaga',
                     isPriorityLocked: false
                 };
             }
