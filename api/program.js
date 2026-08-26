@@ -495,7 +495,7 @@ module.exports = async function handler(req, res) {
                     location: foundProg.location || 'Kepulauan Bangka Belitung',
                     beneficiaries: foundProg.beneficiaries || '',
                     description: foundProg.description || `Salurkan kepedulian dan donasi terbaik Anda untuk program ${foundProg.title} bersama WIZ Babel.`,
-                    imageUrl: specificImgsMap[foundProg.title] || curatedImg || (foundProg.imageUrl && !foundProg.imageUrl.includes('default-program-wiz') ? foundProg.imageUrl : null) || DEFAULT_FALLBACK_IMAGE
+                    imageUrl: (specificImgsMap[foundProg.title] && !specificImgsMap[foundProg.title].includes("default-program-wiz") ? specificImgsMap[foundProg.title] : null) || curatedImg || (foundProg.imageUrl && !foundProg.imageUrl.includes('default-program-wiz') ? foundProg.imageUrl : null) || DEFAULT_FALLBACK_IMAGE
                 };
             }
         }
