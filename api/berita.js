@@ -460,7 +460,7 @@ module.exports = async function handler(req, res) {
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                         ${gallery.map(img => `
                         <div class="rounded-2xl overflow-hidden shadow-xs border border-slate-100 group relative aspect-video bg-slate-100">
-                            <img src="${img.startsWith('http') ? escapeHtml(img) : origin + '/' + escapeHtml(img.replace(/^\//, ''))}" alt="Galeri Kegiatan" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onerror="this.src='${origin}/assets/images/foto-utama-wiz.jpg'"/>
+                            <img src="${(img.startsWith('http') || img.startsWith('data:image')) ? escapeHtml(img) : origin + '/' + escapeHtml(img.replace(/^\//, ''))}" alt="Galeri Kegiatan" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onerror="this.src='${origin}/assets/images/foto-utama-wiz.jpg'"/>
                         </div>`).join('')}
                     </div>
                 </div>` : ''}
