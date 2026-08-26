@@ -258,9 +258,9 @@
                 <p class="font-body-md text-caption text-on-surface-variant">Proporsi dan persentase realisasi dana per pilar utama lembaga (Dakwah, Pendidikan, Sosial, Kesehatan, Ekonomi).</p>
             </div>
             <select id="pub-filter-wilayah" onchange="renderPublicReport()" class="bg-surface border border-outline-variant rounded-lg px-3 py-2 font-caption text-caption text-on-surface font-bold outline-none cursor-pointer">
+                <option value="Semua" selected>Wilayah: Konsolidasi (Semua)</option>
                 <option value="Pangkalpinang">Wilayah: Pangkalpinang</option>
                 <option value="Sungailiat">Wilayah: Sungailiat</option>
-                <option value="Semua">Wilayah: Konsolidasi (Semua)</option>
             </select>
         </div>
 
@@ -425,7 +425,7 @@
 
 <!-- Scripts -->
 <script src="assets/js/supabase-client.js?v=20260825_menu"></script>
-<script src="assets/js/admin-store.js?v=20260825_menu"></script>
+<script src="assets/js/admin-store.js?v=20260826_donatur"></script>
 <script src="assets/js/main.js?v=20260825_menu"></script>
 <script src="assets/js/nav-active.js?v=20260825_menu"></script>
 
@@ -443,7 +443,7 @@
     function renderPublicReport() {
         if (!window.wizStore) return;
 
-        const filterWilayah = document.getElementById('pub-filter-wilayah') ? document.getElementById('pub-filter-wilayah').value : 'Pangkalpinang';
+        const filterWilayah = document.getElementById('pub-filter-wilayah') ? document.getElementById('pub-filter-wilayah').value : 'Semua';
         const stats = wizStore.finance.getOverviewStats(filterWilayah);
         const fmt = wizStore.utils.formatRupiahCompact;
 

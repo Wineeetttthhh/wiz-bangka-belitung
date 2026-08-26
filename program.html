@@ -1132,10 +1132,9 @@
     <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.121 4.092 4.164-1.091z"/></svg>
 </a>
 
-<!-- Store & Supabase Scripts -->
-<script src="assets/js/supabase-client.js?v=20260825_menu"></script>
-<script src="assets/js/admin-store.js?v=20260825_menu"></script>
-<script src="assets/js/main.js?v=20260825_menu"></script>
+<script src="assets/js/supabase-client.js?v=20260826_donatur"></script>
+<script src="assets/js/admin-store.js?v=20260826_donatur"></script>
+<script src="assets/js/main.js?v=20260826_donatur"></script>
 <script src="assets/js/nav-active.js?v=20260825_menu"></script>
 
 <!-- Interactive JavaScript -->
@@ -1169,10 +1168,9 @@
                         card.style.display = 'none';
                         return;
                     } else {
-                        card.style.display = '';
                         if (progObj.imageUrl && !progObj.imageUrl.includes('unsplash.com') && !progObj.imageUrl.includes('placeholder')) {
                             const imgEl = card.querySelector('img');
-                            if (imgEl) imgEl.src = progObj.imageUrl;
+                            if (imgEl && imgEl.src !== progObj.imageUrl) imgEl.src = progObj.imageUrl;
                         }
                         if (progObj.target) {
                             const targetOutline = card.querySelector('.text-outline');
@@ -1205,14 +1203,12 @@
         }
 
         document.querySelectorAll('.program-card, article[data-title]').forEach(card => {
-            if (card.style.display === 'none') return;
             const titleEl = card.querySelector('h3, h4');
             if (!titleEl) return;
 
             const progTitle = (card.getAttribute('data-title') || titleEl.textContent).trim();
             if (!progTitle) return;
 
-            // 1. Fetch dynamic program details from CMS store
             let progObj = null;
             if (window.wizStore && window.wizStore.programs && typeof window.wizStore.programs.getAll === 'function') {
                 const allProgs = window.wizStore.programs.getAll();
@@ -1221,11 +1217,10 @@
                     : (p.title && p.title.toLowerCase() === progTitle.toLowerCase()));
             }
 
-            // 2. Dynamically bind title, description, target, and photo
             if (progObj) {
-                if (titleEl && progObj.title) titleEl.textContent = progObj.title;
+                if (titleEl && progObj.title && titleEl.textContent !== progObj.title) titleEl.textContent = progObj.title;
                 const descEl = card.querySelector('p.font-body-md, p.card-desc, p.line-clamp-2, p.line-clamp-3, p.line-clamp-4');
-                if (descEl && progObj.description) {
+                if (descEl && progObj.description && descEl.textContent !== progObj.description) {
                     descEl.textContent = progObj.description;
                 }
                 if (progObj.targetAmount) {
@@ -1238,7 +1233,7 @@
             const customImg = (progObj && progObj.imageUrl) ? progObj.imageUrl : getCustomImg(progTitle);
             if (customImg && !customImg.includes('unsplash.com') && !customImg.includes('placeholder')) {
                 const imgEl = card.querySelector('img');
-                if (imgEl) {
+                if (imgEl && imgEl.src !== customImg) {
                     imgEl.src = customImg;
                 }
             }
@@ -1269,48 +1264,64 @@
         });
     }
 
-    // Category Filter & Search Logic
+    // High-Performance Instant Category Filter & Search Logic
     const categoryButtons = document.querySelectorAll('.category-btn');
     const searchInput = document.getElementById('program-search');
-    const programCards = document.querySelectorAll('.program-card');
-    const programSections = document.querySelectorAll('.program-section');
     const noResultsState = document.getElementById('no-results');
 
     let currentCategory = 'all';
 
     function filterPrograms() {
         const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        const sections = document.querySelectorAll('.program-section');
         let totalVisibleCards = 0;
 
-        programSections.forEach(section => {
-            const sectionCategory = section.getAttribute('data-section-category');
-            const cardsInSection = section.querySelectorAll('.program-card');
-            let visibleCardsInSection = 0;
-
-            cardsInSection.forEach(card => {
-                const cardCategory = card.getAttribute('data-category');
-                const cardTitle = (card.getAttribute('data-title') || '').toLowerCase();
-                const cardText = card.textContent.toLowerCase();
-
-                const categoryMatch = (currentCategory === 'all') || (cardCategory === currentCategory);
-                const searchMatch = !query || cardTitle.includes(query) || cardText.includes(query);
-
-                if (categoryMatch && searchMatch) {
-                    card.style.display = 'flex';
-                    visibleCardsInSection++;
-                    totalVisibleCards++;
+        if (!query) {
+            // Instant fast-path: toggle whole sections directly without looping every child card
+            sections.forEach(section => {
+                const secCat = section.getAttribute('data-section-category');
+                const isMatch = (currentCategory === 'all') || (secCat === currentCategory);
+                
+                if (isMatch) {
+                    section.style.display = '';
+                    const cards = section.querySelectorAll('.program-card');
+                    cards.forEach(c => { c.style.display = ''; });
+                    totalVisibleCards += cards.length;
                 } else {
-                    card.style.display = 'none';
+                    section.style.display = 'none';
                 }
             });
+        } else {
+            // Search active: filter cards across relevant sections
+            sections.forEach(section => {
+                const secCat = section.getAttribute('data-section-category');
+                const categoryAllowed = (currentCategory === 'all') || (secCat === currentCategory);
+                
+                if (!categoryAllowed) {
+                    section.style.display = 'none';
+                    return;
+                }
 
-            // Hide empty sections during search or category filtering
-            if (visibleCardsInSection > 0) {
-                section.style.display = 'block';
-            } else {
-                section.style.display = 'none';
-            }
-        });
+                const cards = section.querySelectorAll('.program-card');
+                let visibleCardsInSection = 0;
+
+                cards.forEach(card => {
+                    const cardTitle = (card.getAttribute('data-title') || '').toLowerCase();
+                    const cardDesc = (card.querySelector('p')?.textContent || '').toLowerCase();
+                    const match = !query || cardTitle.includes(query) || cardDesc.includes(query);
+
+                    if (match) {
+                        card.style.display = '';
+                        visibleCardsInSection++;
+                        totalVisibleCards++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                section.style.display = visibleCardsInSection > 0 ? '' : 'none';
+            });
+        }
 
         if (noResultsState) {
             if (totalVisibleCards === 0) {
@@ -1331,7 +1342,7 @@
             btn.classList.add('active', 'bg-primary', 'text-on-primary', 'border-primary');
             btn.classList.remove('bg-surface', 'text-on-surface-variant', 'border-outline-variant');
 
-            currentCategory = btn.getAttribute('data-category');
+            currentCategory = btn.getAttribute('data-category') || 'all';
             filterPrograms();
         });
     });
@@ -1521,92 +1532,6 @@
         filterPrograms();
     }
 
-    document.addEventListener('DOMContentLoaded', async () => {
-        renderCustomDynamicPrograms();
-        injectShareButtonsOnCards();
-        document.querySelectorAll('.program-card').forEach(card => {
-            const btn = card.querySelector('button[onclick]');
-            if (btn) {
-                card.style.cursor = 'pointer';
-                card.addEventListener('click', (e) => {
-                    if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
-                    btn.click();
-                });
-            }
-        });
-
-        updateDynamicProgramCards();
-        if (window.wizStore && window.wizStore.syncFromCloud) {
-            await window.wizStore.syncFromCloud();
-            renderCustomDynamicPrograms();
-            updateDynamicProgramCards();
-            injectShareButtonsOnCards();
-        }
-
-        window.addEventListener('wiz-sync-complete', () => {
-            renderCustomDynamicPrograms();
-            updateDynamicProgramCards();
-            injectShareButtonsOnCards();
-        });
-
-        window.addEventListener('wiz-programs-changed', () => {
-            renderCustomDynamicPrograms();
-            updateDynamicProgramCards();
-            injectShareButtonsOnCards();
-        });
-
-        window.addEventListener('wiz-program-images-changed', () => {
-            updateDynamicProgramCards();
-        });
-
-        window.addEventListener('storage', (e) => {
-            if (!e.key || e.key.startsWith('wiz_')) {
-                renderCustomDynamicPrograms();
-                updateDynamicProgramCards();
-                injectShareButtonsOnCards();
-            }
-        });
-
-        // Auto-scroll and highlight target program from URL parameter
-        const urlParams = new URLSearchParams(window.location.search);
-        const progParam = urlParams.get('program');
-        if (progParam) {
-            const cleanProg = decodeURIComponent(progParam).trim().toLowerCase();
-            let targetCard = null;
-            document.querySelectorAll('.program-card').forEach(card => {
-                const title = (card.getAttribute('data-title') || card.querySelector('h3, h4')?.textContent || '').trim().toLowerCase();
-                if (title && (title === cleanProg || title.includes(cleanProg) || cleanProg.includes(title))) {
-                    targetCard = card;
-                }
-            });
-
-            if (targetCard) {
-                setTimeout(() => {
-                    targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    targetCard.classList.add('ring-4', 'ring-primary', 'shadow-2xl', 'scale-[1.02]');
-                    setTimeout(() => {
-                        targetCard.classList.remove('scale-[1.02]');
-                    }, 400);
-                }, 300);
-
-                // Update Dynamic OpenGraph Meta Tags
-                const titleText = (targetCard.getAttribute('data-title') || progParam).trim();
-                const cardImg = targetCard.querySelector('img')?.src;
-                if (cardImg && (cardImg.startsWith('http') || cardImg.startsWith('data:image'))) {
-                    const ogImgEl = document.getElementById('og-image');
-                    const twImgEl = document.getElementById('twitter-image');
-                    if (ogImgEl) ogImgEl.setAttribute('content', cardImg);
-                    if (twImgEl) twImgEl.setAttribute('content', cardImg);
-                }
-                document.title = `${titleText} — WIZ Bangka Belitung`;
-                const ogTitleEl = document.getElementById('og-title');
-                const twTitleEl = document.getElementById('twitter-title');
-                if (ogTitleEl) ogTitleEl.setAttribute('content', `Program: ${titleText}`);
-                if (twTitleEl) twTitleEl.setAttribute('content', `Program: ${titleText}`);
-            }
-        }
-    });
-
     // Dynamic Real-time Verified Donors Renderer for Program Page
     function renderVerifiedDonorsProg(containerId = 'verified-donors-container-prog') {
         if (!window.wizStore || !wizStore.donations) return;
@@ -1676,32 +1601,92 @@
         }).join('');
     }
 
-    document.addEventListener('DOMContentLoaded', async () => {
+    function initCardClickListeners() {
+        document.querySelectorAll('.program-card').forEach(card => {
+            const btn = card.querySelector('button[onclick]');
+            if (btn) {
+                card.style.cursor = 'pointer';
+                card.onclick = (e) => {
+                    if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+                    btn.click();
+                };
+            }
+        });
+    }
+
+    // Consolidated Initializer
+    document.addEventListener('DOMContentLoaded', () => {
+        renderCustomDynamicPrograms();
         updateDynamicProgramCards();
         renderVerifiedDonorsProg();
+        initCardClickListeners();
 
-        if (wizStore && wizStore.syncFromCloud) {
-            try {
-                await wizStore.syncFromCloud(true);
-            } catch(e) {}
-            updateDynamicProgramCards();
-            renderVerifiedDonorsProg();
-            if (typeof window.applySiteSettings === 'function') window.applySiteSettings();
+        // Background non-blocking sync
+        if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
+            window.wizStore.syncFromCloud(true).then(() => {
+                renderCustomDynamicPrograms();
+                updateDynamicProgramCards();
+                renderVerifiedDonorsProg();
+                initCardClickListeners();
+                if (typeof window.applySiteSettings === 'function') window.applySiteSettings();
+            }).catch(() => {});
+        }
+
+        // Auto-scroll and highlight target program from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const progParam = urlParams.get('program');
+        if (progParam) {
+            const cleanProg = decodeURIComponent(progParam).trim().toLowerCase();
+            let targetCard = null;
+            document.querySelectorAll('.program-card').forEach(card => {
+                const title = (card.getAttribute('data-title') || card.querySelector('h3, h4')?.textContent || '').trim().toLowerCase();
+                if (title && (title === cleanProg || title.includes(cleanProg) || cleanProg.includes(title))) {
+                    targetCard = card;
+                }
+            });
+
+            if (targetCard) {
+                setTimeout(() => {
+                    targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    targetCard.classList.add('ring-4', 'ring-primary', 'shadow-2xl', 'scale-[1.02]');
+                    setTimeout(() => {
+                        targetCard.classList.remove('scale-[1.02]');
+                    }, 400);
+                }, 300);
+
+                // Update Dynamic OpenGraph Meta Tags
+                const titleText = (targetCard.getAttribute('data-title') || progParam).trim();
+                const cardImg = targetCard.querySelector('img')?.src;
+                if (cardImg && (cardImg.startsWith('http') || cardImg.startsWith('data:image'))) {
+                    const ogImgEl = document.getElementById('og-image');
+                    const twImgEl = document.getElementById('twitter-image');
+                    if (ogImgEl) ogImgEl.setAttribute('content', cardImg);
+                    if (twImgEl) twImgEl.setAttribute('content', cardImg);
+                }
+                document.title = `${titleText} — WIZ Bangka Belitung`;
+                const ogTitleEl = document.getElementById('og-title');
+                const twTitleEl = document.getElementById('twitter-title');
+                if (ogTitleEl) ogTitleEl.setAttribute('content', `Program: ${titleText}`);
+                if (twTitleEl) twTitleEl.setAttribute('content', `Program: ${titleText}`);
+            }
         }
     });
 
-    window.addEventListener('wiz-sync-complete', () => {
-        updateDynamicProgramCards();
-        renderVerifiedDonorsProg();
-        if (typeof window.applySiteSettings === 'function') window.applySiteSettings();
-    });
-    window.addEventListener('wiz-data-changed', () => {
-        updateDynamicProgramCards();
-        renderVerifiedDonorsProg();
-    });
-    window.addEventListener('wiz-program-images-changed', () => {
-        updateDynamicProgramCards();
-    });
+    let _syncDebounceTimer = null;
+    function handleDataRefresh() {
+        clearTimeout(_syncDebounceTimer);
+        _syncDebounceTimer = setTimeout(() => {
+            renderCustomDynamicPrograms();
+            updateDynamicProgramCards();
+            renderVerifiedDonorsProg();
+            initCardClickListeners();
+        }, 150);
+    }
+
+    window.addEventListener('wiz-sync-complete', handleDataRefresh);
+    window.addEventListener('wiz-programs-changed', handleDataRefresh);
+    window.addEventListener('wiz-data-changed', handleDataRefresh);
+    window.addEventListener('wiz-program-images-changed', handleDataRefresh);
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════ -->

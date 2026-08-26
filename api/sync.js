@@ -419,8 +419,23 @@ module.exports = async function handler(req, res) {
                 );
             }
 
-            if (incoming.allocation_rules && typeof incoming.allocation_rules === 'object')
+            if (incoming.allocation_rules && typeof incoming.allocation_rules === 'object') {
+                // Strip redundant huge base64 strings from allocation_rules before persisting
+                for (const [w, rules] of Object.entries(incoming.allocation_rules)) {
+                    if (rules && rules.subAllocation) {
+                        for (const [p, sub] of Object.entries(rules.subAllocation)) {
+                            if (sub && Array.isArray(sub.items)) {
+                                sub.items.forEach(it => {
+                                    if (it && it.image && it.image.startsWith('data:image')) {
+                                        delete it.image;
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
                 master.allocation_rules = { ...(master.allocation_rules || {}), ...incoming.allocation_rules };
+            }
             if (incoming.baselines && typeof incoming.baselines === 'object')
                 master.baselines = { ...(master.baselines || {}), ...incoming.baselines };
             if (incoming.custom_specific_programs && typeof incoming.custom_specific_programs === 'object')
@@ -451,7 +466,10 @@ module.exports = async function handler(req, res) {
             master.deleted_quote_ids   = Array.from(new Set([...(master.deleted_quote_ids || []),    ...deletedQuoteIds]));
             master.deleted_program_ids = Array.from(new Set([...(master.deleted_program_ids || []),  ...deletedProgramIds]));
             master.deleted_admin_ids   = Array.from(new Set([...(master.deleted_admin_ids || []),    ...deletedAdminIds]));
+
             master.updatedAt = new Date().toISOString();
+            memCache = master;
+            memCacheTime = Date.now();
 
             // Persist to Supabase Database
             await supabaseSaveMaster(master);

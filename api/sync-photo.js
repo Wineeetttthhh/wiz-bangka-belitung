@@ -67,9 +67,14 @@ module.exports = async function handler(req, res) {
         let updatedMsg = '';
 
         // 2. Update site image keys
-        if (siteImageKey && imageUrl) {
-            currentSiteImages[siteImageKey] = imageUrl;
-            updatedMsg += `Site image "${siteImageKey}" updated. `;
+        if (siteImageKey) {
+            if (imageUrl && !imageUrl.includes('default') && !imageUrl.includes('placeholder')) {
+                currentSiteImages[siteImageKey] = imageUrl;
+                updatedMsg += `Site image "${siteImageKey}" updated. `;
+            } else {
+                delete currentSiteImages[siteImageKey];
+                updatedMsg += `Site image "${siteImageKey}" reset to default. `;
+            }
         }
 
         // 3. Batch site images
@@ -78,12 +83,36 @@ module.exports = async function handler(req, res) {
             updatedMsg += `Batch site images (${Object.keys(siteImages).length}) updated. `;
         }
 
-        // 4. Specific program images (stored in site_images with prog_ prefix)
-        if (programTitle && imageUrl) {
+        // 4. Specific program images (stored in site_images with prog_ prefix and specific_prog_imgs)
+        let specificProgMap = {};
+        try {
+            const spGet = await fetch(`${SUPABASE_URL}/site_settings?key=eq.specific_prog_imgs&select=*`, {
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Accept': 'application/json' }
+            });
+            if (spGet.ok) {
+                const list = await spGet.json();
+                if (Array.isArray(list) && list.length > 0 && list[0].value) {
+                    specificProgMap = list[0].value;
+                }
+            }
+        } catch(e) {}
+
+        if (programTitle) {
             const progKey = 'prog_' + programTitle.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-            currentSiteImages[progKey] = imageUrl;
-            currentSiteImages['__prog__' + programTitle] = imageUrl; // raw key for lookup
-            updatedMsg += `Program "${programTitle}" photo updated. `;
+            const rawKey = '__prog__' + programTitle;
+
+            if (imageUrl && !imageUrl.includes('default-program-wiz') && !imageUrl.includes('placeholder')) {
+                currentSiteImages[progKey] = imageUrl;
+                currentSiteImages[rawKey] = imageUrl;
+                specificProgMap[programTitle] = imageUrl;
+                updatedMsg += `Program "${programTitle}" photo updated. `;
+            } else {
+                // Photo cleared or reset to default
+                delete currentSiteImages[progKey];
+                delete currentSiteImages[rawKey];
+                delete specificProgMap[programTitle];
+                updatedMsg += `Program "${programTitle}" photo removed (reset to default). `;
+            }
         }
 
         const updatedAt = new Date().toISOString();
@@ -105,20 +134,9 @@ module.exports = async function handler(req, res) {
             return res.status(500).json({ error: 'Failed to save to Supabase', detail: errText });
         }
 
-        // 6. Update specific_prog_imgs key jika ada program photo
-        let specificProgMap = {};
-        if (programTitle && imageUrl) {
+        // 6. Simpan ke specific_prog_imgs key
+        if (programTitle) {
             try {
-                const spGet = await fetch(`${SUPABASE_URL}/site_settings?key=eq.specific_prog_imgs&select=*`, {
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Accept': 'application/json' }
-                });
-                if (spGet.ok) {
-                    const list = await spGet.json();
-                    if (Array.isArray(list) && list.length > 0 && list[0].value) {
-                        specificProgMap = list[0].value;
-                    }
-                }
-                specificProgMap[programTitle] = imageUrl;
                 await fetch(`${SUPABASE_URL}/site_settings`, {
                     method: 'POST',
                     headers: supabaseHeaders,
@@ -127,7 +145,7 @@ module.exports = async function handler(req, res) {
             } catch(e) {}
         }
 
-        // 7. Update master_bundle.site_images & master_bundle.specific_prog_imgs untuk konsistensi 100%
+        // 7. Update master_bundle.site_images, specific_prog_imgs, & programs for 100% consistency
         try {
             const mbRes = await fetch(`${SUPABASE_URL}/site_settings?key=eq.master_bundle&select=*`, {
                 headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Accept': 'application/json' }
@@ -136,10 +154,17 @@ module.exports = async function handler(req, res) {
                 const mbList = await mbRes.json();
                 if (Array.isArray(mbList) && mbList.length > 0 && mbList[0].value) {
                     const master = mbList[0].value;
-                    master.site_images = { ...(master.site_images || {}), ...currentSiteImages };
-                    if (programTitle && imageUrl) {
-                        master.specific_prog_imgs = { ...(master.specific_prog_imgs || {}), ...specificProgMap, [programTitle]: imageUrl };
+                    master.site_images = currentSiteImages;
+                    master.specific_prog_imgs = specificProgMap;
+                    
+                    if (programTitle && Array.isArray(master.programs)) {
+                        const prog = master.programs.find(p => p && p.title && p.title.toLowerCase() === programTitle.toLowerCase());
+                        if (prog) {
+                            prog.imageUrl = (imageUrl && !imageUrl.includes('default-program-wiz')) ? imageUrl : 'assets/images/default-program-wiz.jpg';
+                            prog.updatedAt = updatedAt;
+                        }
                     }
+
                     await fetch(`${SUPABASE_URL}/site_settings`, {
                         method: 'POST',
                         headers: supabaseHeaders,

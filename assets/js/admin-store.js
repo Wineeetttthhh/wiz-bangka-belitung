@@ -161,7 +161,7 @@
         if (!id) return;
         const set = getDeletedIds();
         set.add(String(id));
-        localStorage.setItem(STORAGE_KEYS.DELETED_IDS, JSON.stringify(Array.from(set)));
+        setStore(STORAGE_KEYS.DELETED_IDS, Array.from(set));
     }
 
     function getDeletedNewsIds() {
@@ -174,7 +174,7 @@
         if (!id) return;
         const set = getDeletedNewsIds();
         set.add(String(id));
-        localStorage.setItem(STORAGE_KEYS.DELETED_NEWS_IDS, JSON.stringify(Array.from(set)));
+        setStore(STORAGE_KEYS.DELETED_NEWS_IDS, Array.from(set));
     }
 
     function getDeletedDisbIds() {
@@ -187,7 +187,7 @@
         if (!id) return;
         const set = getDeletedDisbIds();
         set.add(String(id));
-        localStorage.setItem(STORAGE_KEYS.DELETED_DISB_IDS, JSON.stringify(Array.from(set)));
+        setStore(STORAGE_KEYS.DELETED_DISB_IDS, Array.from(set));
     }
 
     function getDeletedRefIds() {
@@ -200,7 +200,7 @@
         if (!id) return;
         const set = getDeletedRefIds();
         set.add(String(id));
-        localStorage.setItem(STORAGE_KEYS.DELETED_REF_IDS, JSON.stringify(Array.from(set)));
+        setStore(STORAGE_KEYS.DELETED_REF_IDS, Array.from(set));
     }
 
     function getDeletedQuoteIds() {
@@ -213,7 +213,7 @@
         if (!id) return;
         const set = getDeletedQuoteIds();
         set.add(String(id));
-        localStorage.setItem(STORAGE_KEYS.DELETED_QUOTE_IDS, JSON.stringify(Array.from(set)));
+        setStore(STORAGE_KEYS.DELETED_QUOTE_IDS, Array.from(set));
     }
 
     function getDeletedProgramIds() {
@@ -226,7 +226,7 @@
         if (!id) return;
         const set = getDeletedProgramIds();
         set.add(String(id));
-        localStorage.setItem(STORAGE_KEYS.DELETED_PROGRAM_IDS, JSON.stringify(Array.from(set)));
+        setStore(STORAGE_KEYS.DELETED_PROGRAM_IDS, Array.from(set));
     }
 
     function getDeletedAdminIds() {
@@ -239,7 +239,7 @@
         if (!id) return;
         const set = getDeletedAdminIds();
         set.add(String(id));
-        localStorage.setItem(STORAGE_KEYS.DELETED_ADMIN_IDS, JSON.stringify(Array.from(set)));
+        setStore(STORAGE_KEYS.DELETED_ADMIN_IDS, Array.from(set));
     }
 
     function generateUUID() {
@@ -260,14 +260,46 @@
 
     function cleanStorageQuota() {
         try {
-            // 1. Trim activity logs to top 20
+            // 1. Clear temporary and non-essential caches
+            const tempKeys = ['wiz_preview_cache', 'wiz_backup_temp', 'wiz_last_export', 'wiz_temp_log'];
+            tempKeys.forEach(k => {
+                try { localStorage.removeItem(k); } catch(e) {}
+            });
+
+            // 2. Trim activity logs to top 20
             const acts = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACTIVITY) || '[]');
             if (acts.length > 20) {
-                localStorage.setItem(STORAGE_KEYS.ACTIVITY, JSON.stringify(acts.slice(-20)));
+                try { localStorage.setItem(STORAGE_KEYS.ACTIVITY, JSON.stringify(acts.slice(-20))); } catch(e) {}
             }
 
-            // 2. Clear old deleted tracking sets if oversized
-            ['wiz_deleted_ids', 'wiz_deleted_news_ids', 'wiz_deleted_disb_ids', 'wiz_deleted_ref_ids', 'wiz_deleted_quote_ids'].forEach(k => {
+            // 3. Strip duplicate base64 from allocation_rules
+            const rawRules = localStorage.getItem(STORAGE_KEYS.ALLOCATION_RULES);
+            if (rawRules) {
+                try {
+                    let rules = JSON.parse(rawRules);
+                    if (rules && typeof rules === 'object') {
+                        let modified = false;
+                        for (const wData of Object.values(rules)) {
+                            if (wData && wData.subAllocation) {
+                                for (const sub of Object.values(wData.subAllocation)) {
+                                    if (sub && Array.isArray(sub.items)) {
+                                        sub.items.forEach(it => {
+                                            if (it && it.image && it.image.startsWith('data:image')) {
+                                                delete it.image;
+                                                modified = true;
+                                            }
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                        if (modified) localStorage.setItem(STORAGE_KEYS.ALLOCATION_RULES, JSON.stringify(rules));
+                    }
+                } catch(e) {}
+            }
+
+            // 4. Clear old deleted tracking sets if oversized
+            ['wiz_deleted_ids', 'wiz_deleted_news_ids', 'wiz_deleted_disb_ids', 'wiz_deleted_ref_ids', 'wiz_deleted_quote_ids', 'wiz_deleted_program_ids', 'wiz_deleted_admin_ids'].forEach(k => {
                 try {
                     const arr = JSON.parse(localStorage.getItem(k) || '[]');
                     if (arr.length > 40) {
@@ -1001,7 +1033,7 @@
             const delSet = getDeletedAdminIds();
             if (delSet.has(cleanUser)) {
                 delSet.delete(cleanUser);
-                localStorage.setItem(STORAGE_KEYS.DELETED_ADMIN_IDS, JSON.stringify(Array.from(delSet)));
+                setStore(STORAGE_KEYS.DELETED_ADMIN_IDS, Array.from(delSet));
             }
 
             let list = this.getAll();
@@ -1109,7 +1141,7 @@
             const delSet = getDeletedAdminIds();
             if (delSet.has(cleanUser)) {
                 delSet.delete(cleanUser);
-                localStorage.setItem(STORAGE_KEYS.DELETED_ADMIN_IDS, JSON.stringify(Array.from(delSet)));
+                setStore(STORAGE_KEYS.DELETED_ADMIN_IDS, Array.from(delSet));
             }
 
             let list = this.getAll();
@@ -1863,26 +1895,38 @@
             return pillarPhotos[pillar] || 'assets/images/default-program-wiz.jpg';
         },
         async updateSpecificProgramImageByName(title, imgDataUrl) {
-            if (!title || !imgDataUrl) return false;
+            if (!title) return false;
             const cleanTitle = String(title).trim();
+            const isCleared = !imgDataUrl || imgDataUrl.includes('default-program-wiz') || imgDataUrl.includes('placeholder');
 
             let imgMap = {};
             try {
                 imgMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
             } catch(e) {}
-            imgMap[cleanTitle] = imgDataUrl;
-            localStorage.setItem('wiz_specific_prog_imgs', JSON.stringify(imgMap));
+
+            if (isCleared) {
+                delete imgMap[cleanTitle];
+            } else {
+                imgMap[cleanTitle] = imgDataUrl;
+            }
+            try {
+                localStorage.setItem('wiz_specific_prog_imgs', JSON.stringify(imgMap));
+            } catch(e) {
+                cleanStorageQuota();
+                try { localStorage.setItem('wiz_specific_prog_imgs', JSON.stringify(imgMap)); } catch(err) {}
+            }
 
             try {
                 if (typeof programs !== 'undefined' && programs.getAll) {
                     const allP = programs.getAll();
                     const target = allP.find(p => p && p.title && p.title.toLowerCase() === cleanTitle.toLowerCase());
                     if (target) {
-                        await programs.update(target.id, { imageUrl: imgDataUrl });
+                        await programs.update(target.id, { imageUrl: isCleared ? 'assets/images/default-program-wiz.jpg' : imgDataUrl });
                     }
                 }
             } catch(e) {}
 
+            // Clean up rules (do not store heavy base64 strings in allocation rules)
             try {
                 const rules = this.getAll();
                 let modified = false;
@@ -1892,7 +1936,7 @@
                             if (sub && sub.items) {
                                 sub.items.forEach(i => {
                                     if ((i.key || '').toLowerCase() === cleanTitle.toLowerCase()) {
-                                        i.image = imgDataUrl;
+                                        delete i.image;
                                         modified = true;
                                     }
                                 });
@@ -1905,32 +1949,47 @@
                 }
             } catch(e) {}
 
-            try {
-                if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                    await window.wizSupabase.upsert('site_settings', {
-                        id: 'specific_prog_imgs',
-                        key: 'specific_prog_imgs',
-                        value: imgMap,
-                        updated_at: new Date().toISOString()
-                    });
-                }
-                if (window.wizFirebase && window.wizFirebase.isConfigured()) {
-                    await window.wizFirebase.upsert('site_settings', {
-                        key: 'specific_prog_imgs',
-                        data: imgMap,
-                        updatedAt: new Date().toISOString()
-                    });
-                }
-                if (typeof pushToCloud === 'function') {
-                    await pushToCloud();
-                }
-            } catch(e) {}
+            // Direct sync to Supabase via dedicated endpoint & client
+            (async () => {
+                try {
+                    const syncTargets = ['/api/sync-photo'];
+                    if (window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
+                        syncTargets.push('https://www.wizbangkabelitung.or.id/api/sync-photo');
+                    }
+                    for (const target of syncTargets) {
+                        try {
+                            await fetch(target, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ programTitle: cleanTitle, imageUrl: isCleared ? '' : imgDataUrl })
+                            });
+                        } catch(e) {}
+                    }
 
-            window.dispatchEvent(new CustomEvent('wiz-program-images-changed', { detail: { title: cleanTitle, image: imgDataUrl } }));
+                    if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                        await window.wizSupabase.upsert('site_settings', {
+                            key: 'specific_prog_imgs',
+                            value: imgMap,
+                            updated_at: new Date().toISOString()
+                        });
+                    }
+                } catch(e) {}
+            })();
+
+            // Broadcast real-time across tabs
+            if (typeof BroadcastChannel !== 'undefined') {
+                try {
+                    const bc = new BroadcastChannel('wiz_sync_channel');
+                    bc.postMessage({ type: 'program-photo-updated', programTitle: cleanTitle, imageUrl: isCleared ? 'assets/images/default-program-wiz.jpg' : imgDataUrl });
+                    bc.close();
+                } catch(e) {}
+            }
+
+            window.dispatchEvent(new CustomEvent('wiz-program-images-changed', { detail: { title: cleanTitle, image: isCleared ? 'assets/images/default-program-wiz.jpg' : imgDataUrl } }));
             window.dispatchEvent(new CustomEvent('wiz-programs-changed'));
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             if (typeof broadcastSync === 'function') {
-                broadcastSync('PROGRAM_IMAGES_UPDATED', { title: cleanTitle, image: imgDataUrl });
+                broadcastSync('PROGRAM_IMAGES_UPDATED', { title: cleanTitle, image: isCleared ? 'assets/images/default-program-wiz.jpg' : imgDataUrl });
             }
             return true;
         },
@@ -2224,6 +2283,25 @@
 
             const currentQuotes = getStore(STORAGE_KEYS.QUOTES) || DEFAULT_QUOTES;
 
+            // Clean allocation_rules of heavy duplicate base64 images before cloud push
+            let cleanRules = getStore(STORAGE_KEYS.ALLOCATION_RULES) || ALLOCATION_RULES;
+            try {
+                cleanRules = JSON.parse(JSON.stringify(cleanRules));
+                for (const wData of Object.values(cleanRules)) {
+                    if (wData && wData.subAllocation) {
+                        for (const sub of Object.values(wData.subAllocation)) {
+                            if (sub && Array.isArray(sub.items)) {
+                                sub.items.forEach(it => {
+                                    if (it && it.image && it.image.startsWith('data:image')) {
+                                        delete it.image;
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            } catch(e) {}
+
             const bundle = {
                 donations: getStore(STORAGE_KEYS.DONATIONS) || [],
                 news: getStore(STORAGE_KEYS.NEWS) || [],
@@ -2233,7 +2311,7 @@
                 activity: getStore(STORAGE_KEYS.ACTIVITY) || [],
                 site_settings: getStore(STORAGE_KEYS.SITE_SETTINGS) || DEFAULT_SITE_SETTINGS,
                 site_images: getStore(STORAGE_KEYS.SITE_IMAGES) || DEFAULT_SITE_IMAGES,
-                allocation_rules: getStore(STORAGE_KEYS.ALLOCATION_RULES) || ALLOCATION_RULES,
+                allocation_rules: cleanRules,
                 baselines: getStore(STORAGE_KEYS.BASELINES) || DEFAULT_BASELINES,
                 admin_users: getStore(STORAGE_KEYS.ADMIN_USERS) || DEFAULT_ADMIN_USERS,
                 custom_specific_programs: JSON.parse(localStorage.getItem('wiz_custom_specific_programs') || '{}'),
@@ -4380,11 +4458,36 @@
 
             activityLog.add('system_config', `Program "${updated.title}" diperbarui (Status: ${updated.status}).`, sessionStorage.getItem('wiz_admin_name') || 'Admin');
 
+            // Real-time broadcast across all tabs
+            if (typeof BroadcastChannel !== 'undefined') {
+                try {
+                    const bc = new BroadcastChannel('wiz_sync_channel');
+                    bc.postMessage({ type: 'program-updated', program: updated });
+                    bc.close();
+                } catch(e) {}
+            }
+
             window.dispatchEvent(new CustomEvent('wiz-programs-changed', { detail: updated }));
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
 
+            // Instant targeted cloud sync
             (async () => {
                 try {
+                    if (updates.imageUrl) {
+                        const syncTargets = ['/api/sync-photo'];
+                        if (window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
+                            syncTargets.push('https://www.wizbangkabelitung.or.id/api/sync-photo');
+                        }
+                        for (const target of syncTargets) {
+                            try {
+                                await fetch(target, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ programTitle: updated.title, imageUrl: updates.imageUrl })
+                                });
+                            } catch(e) {}
+                        }
+                    }
                     if (typeof pushToCloud === 'function') await pushToCloud();
                 } catch(e) {}
             })();
@@ -4665,18 +4768,30 @@
             let verified = donations.getVerified();
             if (wilayah && wilayah !== 'Semua') verified = verified.filter(d => (d.wilayah || 'Pangkalpinang') === wilayah);
 
-            // Each "Hamba Allah" donation represents a distinct individual donor unless sharing a verified phone number
-            const donorKeys = verified.map(d => {
-                const name = (d.donorName || d.donor_name || 'Hamba Allah').trim();
+            const isAnonymous = (name, d) => {
+                if (!name || typeof name !== 'string') return true;
+                const clean = name.trim().toLowerCase();
+                if (!clean || clean === '-' || clean === '.' || clean === 'hamba allah' || clean === 'hamba_allah' || clean === 'hambaallah' || clean === 'anonim' || clean === 'anonymous' || clean === 'tanpa nama') return true;
+                if (d && (d.isAnonymous === true || d.is_anonymous === true)) return true;
+                return false;
+            };
+
+            // Tiap donasi "Hamba Allah" / Anonim dihitung sebagai 1 donatur unik tersendiri (+1 per donasi)
+            const donorKeys = verified.map((d, index) => {
+                const rawName = (d.donorName || d.donor_name || '').trim();
                 const phone = (d.donorPhone || d.donor_phone || '').replace(/[^0-9]/g, '');
-                if (name.toLowerCase() === 'hamba allah') {
-                    return phone ? `hamba_allah_${phone}` : `hamba_allah_${d.id}`;
+
+                if (isAnonymous(rawName, d)) {
+                    return `hamba_allah_${d.id || ('idx_' + index)}`;
                 }
-                return (name + '_' + (phone || d.id)).toLowerCase();
+
+                // Donatur dengan nama spesifik: jika nama & no hp sama, dihitung sebagai 1 donatur yang sama
+                const cleanName = rawName.toLowerCase();
+                return phone ? `named_${cleanName}_${phone}` : `named_${cleanName}_${d.id || ('idx_' + index)}`;
             });
 
             const uniqueDonors = new Set(donorKeys);
-            const base = wilayah && wilayah !== 'Semua' ? 0 : baselines.get().baseDonatur;
+            const base = (wilayah && wilayah !== 'Semua') ? 0 : (Number(baselines.get().baseDonatur) || 0);
             return base + uniqueDonors.size;
         },
 

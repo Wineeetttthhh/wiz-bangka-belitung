@@ -2813,9 +2813,8 @@
         </div>
     </div>
 
-    <!-- Supabase Client & Admin Store -->
-    <script src="assets/js/supabase-client.js?v=20260824_fastreg"></script>
-    <script src="assets/js/admin-store.js?v=20260824_fastreg"></script>
+    <script src="assets/js/supabase-client.js?v=20260826_donatur"></script>
+    <script src="assets/js/admin-store.js?v=20260826_donatur"></script>
 
     <script>
         const SPECIFIC_PROGRAMS_MAP = {
@@ -5261,7 +5260,9 @@
         }
 
         async function saveSpecificProgramsMap(map) {
-            localStorage.setItem('wiz_custom_specific_programs', JSON.stringify(map));
+            try {
+                localStorage.setItem('wiz_custom_specific_programs', JSON.stringify(map));
+            } catch(e) {}
             if (window.wizStore && window.wizStore.allocationRulesManager) {
                 const rules = window.wizStore.allocationRulesManager.getAll();
                 for (const [wKey, wData] of Object.entries(rules)) {
@@ -5522,7 +5523,25 @@
                 await window.wizStore.allocationRulesManager.deleteSpecificProgram(pillar, title);
             }
 
+            // Also purge photo from Supabase specific_prog_imgs and site_images
+            try {
+                const syncTargets = ['/api/sync-photo'];
+                if (window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
+                    syncTargets.push('https://www.wizbangkabelitung.or.id/api/sync-photo');
+                }
+                for (const target of syncTargets) {
+                    try {
+                        fetch(target, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ programTitle: title, imageUrl: '' })
+                        }).catch(() => {});
+                    } catch(e) {}
+                }
+            } catch(e) {}
+
             renderSpecificProgramImagesSection();
+            if (typeof renderProgramsCMSSection === 'function') renderProgramsCMSSection();
             
             if (typeof showNotification === 'function') {
                 showNotification(`✅ Program "${title}" berhasil dihapus.`);
