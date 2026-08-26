@@ -4867,25 +4867,12 @@
                         const opItem = wRules.mainAllocation.find(i => i.key === 'Operasional');
                         if (opItem) {
                             opUmumMasuk += (Number(d.amount) || 0) * ((Number(opItem.percent) || 0) / 100);
-            // ─── Skenario Khusus 2: Operasional Lembaga (Alokasi Infak Umum) ───
-            if (pLower.includes('operasional')) {
-                let opUmumMasuk = 0;
-                let opUmumSalur = 0;
-                verified.forEach(d => {
-                    const dWilayah = d.wilayah || 'Pangkalpinang';
-                    const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get)
-                        ? (allocationRulesManager.get(dWilayah) || ALLOCATION_RULES[dWilayah])
-                        : ALLOCATION_RULES[dWilayah];
-                    if (isGeneralInfak(d) && wRules && wRules.mainAllocation) {
-                        const opItem = wRules.mainAllocation.find(i => i.key === 'Operasional');
-                        if (opItem) {
-                            opUmumMasuk += (Number(d.amount) || 0) * ((Number(opItem.percent) || 0) / 100);
                         }
                     }
                 });
                 disbList.forEach(db => {
                     const dbP = (db.program || '').toLowerCase();
-                    if (dbP.includes('operasional')) {
+                    if (dbP.includes('operasional') && (dbP.includes('umum') || (!dbP.includes('terikat') && !dbP.includes('mitra')))) {
                         opUmumSalur += Number(db.amount) || 0;
                     }
                 });
@@ -4899,7 +4886,39 @@
                     target: 50000000,
                     percent: 100,
                     pillar: 'Operasional',
-                    kategori_pilar: 'Operasional Lembaga',
+                    kategori_pilar: 'Operasional (Infak Umum)',
+                    isPriorityLocked: false
+                };
+            }
+
+            // ─── Skenario Khusus 3: Operasional — Infak Terikat ───
+            if (pLower.includes('operasional') && (pLower.includes('terikat') || pLower.includes('mitra'))) {
+                let opTerikatMasuk = 0;
+                let opTerikatSalur = 0;
+                verified.forEach(d => {
+                    if (!isGeneralInfak(d)) {
+                        const amt = Number(d.amount) || 0;
+                        const op = Number(d.alokasiOperasional || d.alokasi_operasional || Math.round(amt * 0.125));
+                        opTerikatMasuk += op;
+                    }
+                });
+                disbList.forEach(db => {
+                    const dbP = (db.program || '').toLowerCase();
+                    if (dbP.includes('operasional') && (dbP.includes('terikat') || dbP.includes('mitra'))) {
+                        opTerikatSalur += Number(db.amount) || 0;
+                    }
+                });
+                const saldo = Math.max(0, opTerikatMasuk - opTerikatSalur);
+                return {
+                    terkumpul: saldo,
+                    totalMasuk: opTerikatMasuk,
+                    masuk: opTerikatMasuk,
+                    tersalurkan: opTerikatSalur,
+                    saldo: saldo,
+                    target: 50000000,
+                    percent: 100,
+                    pillar: 'Operasional',
+                    kategori_pilar: 'Operasional (Infak Terikat)',
                     isPriorityLocked: false
                 };
             }
@@ -6256,9 +6275,34 @@
     // Full authoritative sync on startup:
     async function initSync() {
         try {
+            // Jika local store kosong (misal fresh browser/cache reset), segera isi dari canonical snapshot dulu
+            const curDons = getStore(STORAGE_KEYS.DONATIONS) || [];
+            const curRefs = getStore(STORAGE_KEYS.REFERRALS) || [];
+            if (curDons.length === 0 || curRefs.length === 0) {
+                try {
+                    const cRes = await fetch('assets/data/canonical-store.json', { cache: 'no-cache' });
+                    if (cRes.ok) {
+                        const cData = await cRes.json();
+                        if (cData && Array.isArray(cData.donations) && cData.donations.length > 0 && curDons.length === 0) {
+                            setStore(STORAGE_KEYS.DONATIONS, cData.donations);
+                        }
+                        if (cData && Array.isArray(cData.referrals) && cData.referrals.length > 0 && curRefs.length === 0) {
+                            setStore(STORAGE_KEYS.REFERRALS, cData.referrals);
+                        }
+                        if (cData && Array.isArray(cData.disbursements) && cData.disbursements.length > 0) {
+                            const curDisb = getStore(STORAGE_KEYS.DISBURSEMENTS) || [];
+                            if (curDisb.length === 0) setStore(STORAGE_KEYS.DISBURSEMENTS, cData.disbursements);
+                        }
+                    }
+                } catch(e) {}
+            }
+
             await syncFromCloud(true);   // Pull fresh authoritative data from Supabase Cloud and replace local state
             console.log('[WIZ Sync Engine] Initial real-time cloud sync complete (Supabase SSOT active).');
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+            window.dispatchEvent(new CustomEvent('wiz-donations-changed'));
+            window.dispatchEvent(new CustomEvent('wiz-referrals-changed'));
+            window.dispatchEvent(new CustomEvent('wiz-disbursements-changed'));
         } catch(e) {
             console.warn('[WIZ Sync Engine] Init sync warning:', e.message);
         }
