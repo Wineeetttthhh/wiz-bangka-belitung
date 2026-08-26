@@ -4680,7 +4680,17 @@
                 const tType = d.targetType || (d.program && (d.program.toLowerCase().includes('global') || d.program.toLowerCase().includes('alih fungsi')) ? 'global' : 'specific');
                 
                 let sourceBadge = '';
-                if (sType === 'auto_split') {
+                const progNameLower = (d.program || '').toLowerCase();
+                if (progNameLower.includes('operasional')) {
+                    const isTerikat = progNameLower.includes('terikat') || progNameLower.includes('mitra');
+                    sourceBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-slate-100 text-slate-800 border border-slate-300">
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span> 🏢 ${isTerikat ? 'Operasional Infak Terikat (Termasuk 6% Hak Mitra)' : 'Operasional Infak Umum'}
+                    </span>`;
+                } else if (progNameLower.includes('saving') || progNameLower.includes('cadangan')) {
+                    sourceBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-cyan-100 text-cyan-800 border border-cyan-300">
+                        <span class="w-1.5 h-1.5 rounded-full bg-cyan-600"></span> 💰 Dana Saving (Cadangan Kas)
+                    </span>`;
+                } else if (sType === 'auto_split') {
                     const fromProg = d.amountFromProgram !== undefined ? d.amountFromProgram : d.amount;
                     const fromSub = d.amountFromSubsidi !== undefined ? d.amountFromSubsidi : 0;
                     sourceBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-purple-100 text-purple-900 border border-purple-300/70">
@@ -4763,6 +4773,19 @@
             };
 
             let html = '<option value="">-- Pilih Program Spesifik (Target Penyaluran) --</option>';
+
+            // 1. Kategori Operasional Lembaga & Hak Mitra (Alokasi Internal)
+            html += `<optgroup label="🏢 Operasional Lembaga &amp; Hak Mitra (Alokasi Internal)">`;
+            html += `<option value="Operasional — Infak Umum">Operasional — Infak Umum (Alokasi Operasional Infak Umum)</option>`;
+            html += `<option value="Operasional — Infak Terikat (Termasuk 6% Hak Mitra)">Operasional — Infak Terikat (Alokasi 12.5% Termasuk 6% Hak Mitra)</option>`;
+            html += `</optgroup>`;
+
+            // 2. Kategori Dana Saving (Cadangan & Tabungan)
+            html += `<optgroup label="💰 Dana Saving (Cadangan &amp; Tabungan)">`;
+            html += `<option value="Dana Saving — Alokasi Kas Cadangan">Dana Saving — Alokasi Kas Cadangan</option>`;
+            html += `</optgroup>`;
+
+            // 3. Kategori 5 Berkah WIZ
             for (const [pillar, itemSet] of pillarMap.entries()) {
                 const icon = pillarIcons[pillar] || '📌';
                 const kat = (wizStore.utils && wizStore.utils.mapPillarToKategori) ? wizStore.utils.mapPillarToKategori(pillar) : '';
@@ -4808,13 +4831,18 @@
 
             const progStats = wizStore.finance.getSpecificProgramStats(progTitle);
             const progSaldo = progStats ? progStats.saldo : 0;
-            const pillarPool = wizStore.finance.getPillarAvailableSubsidiPool(pillar, activeWilayah, editId);
+            const isSpecialBucket = progTitle.includes('Operasional') || progTitle.includes('Saving');
+            const pillarPool = isSpecialBucket ? progSaldo : wizStore.finance.getPillarAvailableSubsidiPool(pillar, activeWilayah, editId);
             const fmt = wizStore.utils.formatRupiah;
 
             if (detectedText) detectedText.textContent = `${pillar} (Pilar ${kat})`;
             if (saldoText) saldoText.textContent = fmt(progSaldo);
             if (poolText) poolText.textContent = fmt(pillarPool);
             if (infoContainer) infoContainer.classList.remove('hidden');
+
+            if (sourceSelect && isSpecialBucket) {
+                sourceSelect.value = 'program_spesifik';
+            }
 
             handleDisbAmountInput(document.getElementById('disb-amount')?.value || '');
         }

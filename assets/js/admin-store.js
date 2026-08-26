@@ -2977,10 +2977,13 @@
         }
     };
 
-    // Helper: Map program name to its 5 Berkah Pillar
+    // Helper: Map program name to its 5 Berkah Pillar / Internal Bucket
     function mapProgramToPillar(progName, catName) {
         if (catName && catName !== '-' && catName.includes('Berkah')) return catName;
         const p = (progName || '').toLowerCase();
+        if (p.includes('saving') || p.includes('cadangan')) return 'Dana Saving';
+        if (p.includes('operasional') && (p.includes('terikat') || p.includes('mitra'))) return 'Operasional';
+        if (p.includes('operasional')) return 'Operasional';
         if (p.includes('markaz') || p.includes('tahfidz') || p.includes('dirosa') || p.includes('dakwah') || p.includes('dai') || p.includes('celengan') || p.includes('jenazah') || p.includes('poster') || p.includes('kantor') || p.includes('muker') || p.includes('kendaraan') || p.includes('mualaf') || p.includes('tabligh') || p.includes('public speaking')) return 'Berkah Hidayah';
         if (p.includes('beasiswa') || p.includes('pendidikan') || p.includes('belajar') || p.includes('juara') || p.includes('perlengkapan')) return 'Berkah Juara';
         if (p.includes('sembako') || p.includes('yatim') || p.includes('beras') || p.includes('jumat') || p.includes('iftar') || p.includes('qur\'an') || p.includes('guru ngaji') || p.includes('air') || p.includes('peduli')) return 'Berkah Peduli';
@@ -2989,10 +2992,13 @@
         return 'Berkah Hidayah';
     }
 
-    // Helper: Map pillar to kategori_pilar ('Dakwah', 'Pendidikan', 'Sosial', 'Kesehatan', 'Ekonomi') and vice-versa
+    // Helper: Map pillar to kategori_pilar ('Dakwah', 'Pendidikan', 'Sosial', 'Kesehatan', 'Ekonomi', 'Operasional', 'Saving') and vice-versa
     function mapPillarToKategori(pillar) {
         if (!pillar) return 'Sosial';
         const str = String(pillar).toLowerCase();
+        if (str.includes('saving') || str.includes('cadangan')) return 'Cadangan & Tabungan';
+        if (str.includes('operasional') && (str.includes('terikat') || str.includes('mitra'))) return 'Operasional (Infak Terikat & Hak Mitra)';
+        if (str.includes('operasional')) return 'Operasional (Infak Umum)';
         if (str.includes('hidayah') || str.includes('dakwah')) return 'Dakwah';
         if (str.includes('juara') || str.includes('pendidikan') || str.includes('beasiswa')) return 'Pendidikan';
         if (str.includes('peduli') || str.includes('sosial') || str.includes('kemanusiaan')) return 'Sosial';
@@ -4809,6 +4815,113 @@
             const verified = donations.getVerified();
             const disbList = disbursements.getAll();
             const pName = String(programName || '').trim();
+            const pLower = pName.toLowerCase();
+
+            // ─── Skenario Khusus 1: Dana Saving (Alokasi Kas Cadangan) ───
+            if (pLower.includes('saving') || pLower.includes('cadangan')) {
+                let savingMasuk = 0;
+                let savingSalur = 0;
+                verified.forEach(d => {
+                    const dWilayah = d.wilayah || 'Pangkalpinang';
+                    const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get)
+                        ? (allocationRulesManager.get(dWilayah) || ALLOCATION_RULES[dWilayah])
+                        : ALLOCATION_RULES[dWilayah];
+                    if (isGeneralInfak(d) && wRules && wRules.mainAllocation) {
+                        const sItem = wRules.mainAllocation.find(i => i.key === 'Dana Saving');
+                        if (sItem) {
+                            savingMasuk += (Number(d.amount) || 0) * ((Number(sItem.percent) || 0) / 100);
+                        }
+                    }
+                });
+                disbList.forEach(db => {
+                    const dbP = (db.program || '').toLowerCase();
+                    if (dbP.includes('saving') || dbP.includes('cadangan')) {
+                        savingSalur += Number(db.amount) || 0;
+                    }
+                });
+                const saldo = Math.max(0, savingMasuk - savingSalur);
+                return {
+                    terkumpul: saldo,
+                    totalMasuk: savingMasuk,
+                    masuk: savingMasuk,
+                    tersalurkan: savingSalur,
+                    saldo: saldo,
+                    target: 50000000,
+                    percent: 100,
+                    pillar: 'Dana Saving',
+                    kategori_pilar: 'Cadangan & Tabungan',
+                    isPriorityLocked: false
+                };
+            }
+
+            // ─── Skenario Khusus 2: Operasional — Infak Umum ───
+            if (pLower.includes('operasional') && (pLower.includes('umum') || (!pLower.includes('terikat') && !pLower.includes('mitra')))) {
+                let opUmumMasuk = 0;
+                let opUmumSalur = 0;
+                verified.forEach(d => {
+                    const dWilayah = d.wilayah || 'Pangkalpinang';
+                    const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get)
+                        ? (allocationRulesManager.get(dWilayah) || ALLOCATION_RULES[dWilayah])
+                        : ALLOCATION_RULES[dWilayah];
+                    if (isGeneralInfak(d) && wRules && wRules.mainAllocation) {
+                        const opItem = wRules.mainAllocation.find(i => i.key === 'Operasional');
+                        if (opItem) {
+                            opUmumMasuk += (Number(d.amount) || 0) * ((Number(opItem.percent) || 0) / 100);
+                        }
+                    }
+                });
+                disbList.forEach(db => {
+                    const dbP = (db.program || '').toLowerCase();
+                    if (dbP.includes('operasional') && (dbP.includes('umum') || (!dbP.includes('terikat') && !dbP.includes('mitra')))) {
+                        opUmumSalur += Number(db.amount) || 0;
+                    }
+                });
+                const saldo = Math.max(0, opUmumMasuk - opUmumSalur);
+                return {
+                    terkumpul: saldo,
+                    totalMasuk: opUmumMasuk,
+                    masuk: opUmumMasuk,
+                    tersalurkan: opUmumSalur,
+                    saldo: saldo,
+                    target: 50000000,
+                    percent: 100,
+                    pillar: 'Operasional',
+                    kategori_pilar: 'Operasional (Infak Umum)',
+                    isPriorityLocked: false
+                };
+            }
+
+            // ─── Skenario Khusus 3: Operasional — Infak Terikat (Termasuk 6% Hak Mitra) ───
+            if (pLower.includes('operasional') && (pLower.includes('terikat') || pLower.includes('mitra'))) {
+                let opTerikatMasuk = 0;
+                let opTerikatSalur = 0;
+                verified.forEach(d => {
+                    if (!isGeneralInfak(d)) {
+                        const amt = Number(d.amount) || 0;
+                        const op = Number(d.alokasiOperasional || d.alokasi_operasional || Math.round(amt * 0.125));
+                        opTerikatMasuk += op;
+                    }
+                });
+                disbList.forEach(db => {
+                    const dbP = (db.program || '').toLowerCase();
+                    if (dbP.includes('operasional') && (dbP.includes('terikat') || dbP.includes('mitra'))) {
+                        opTerikatSalur += Number(db.amount) || 0;
+                    }
+                });
+                const saldo = Math.max(0, opTerikatMasuk - opTerikatSalur);
+                return {
+                    terkumpul: saldo,
+                    totalMasuk: opTerikatMasuk,
+                    masuk: opTerikatMasuk,
+                    tersalurkan: opTerikatSalur,
+                    saldo: saldo,
+                    target: 50000000,
+                    percent: 100,
+                    pillar: 'Operasional',
+                    kategori_pilar: 'Operasional (Infak Terikat & Hak Mitra)',
+                    isPriorityLocked: false
+                };
+            }
 
             const progObj = (typeof programs !== 'undefined' && programs.getProgramDetails) 
                 ? programs.getProgramDetails(pName) 
