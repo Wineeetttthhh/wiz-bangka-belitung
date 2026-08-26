@@ -396,9 +396,9 @@
     </script>
 
     <!-- Scripts: Store & Supabase Sync -->
-    <script src="assets/js/supabase-client.js?v=20260826_live"></script>
-    <script src="assets/js/admin-store.js?v=20260826_live"></script>
-    <script src="assets/js/main.js?v=20260826_live"></script>
+    <script src="assets/js/supabase-client.js?v=20260826_v5"></script>
+    <script src="assets/js/admin-store.js?v=20260826_v5"></script>
+    <script src="assets/js/main.js?v=20260826_v5"></script>
     <script src="assets/js/nav-active.js?v=20260825_menu"></script>
 
     <script>
@@ -436,6 +436,7 @@
             });
         }
 
+        let isFetchingPublicNews = false;
         function renderArchive() {
             const grid = document.getElementById('news-grid');
             const countEl = document.getElementById('news-count');
@@ -446,6 +447,30 @@
             if (countEl) countEl.textContent = filtered.length;
 
             if (filtered.length === 0) {
+                if (!isFetchingPublicNews && window.wizSupabase && window.wizSupabase.isConfigured()) {
+                    isFetchingPublicNews = true;
+                    window.wizSupabase.select('news').then(res => {
+                        isFetchingPublicNews = false;
+                        if (res && Array.isArray(res.data) && res.data.length > 0) {
+                            const mapped = res.data.map(n => ({
+                                id: n.id,
+                                title: n.title,
+                                category: n.category || 'Kegiatan & Penyaluran',
+                                content: n.content,
+                                imageUrl: n.image_url || n.imageUrl || '',
+                                gallery: Array.isArray(n.gallery) ? n.gallery : [],
+                                eventDate: n.event_date || n.eventDate || n.created_at,
+                                status: n.status || 'published',
+                                author: n.author || 'Admin WIZ Babel',
+                                createdAt: n.created_at,
+                                updatedAt: n.updated_at
+                            }));
+                            localStorage.setItem('wiz_news', JSON.stringify(mapped));
+                            renderArchive();
+                        }
+                    }).catch(() => { isFetchingPublicNews = false; });
+                }
+
                 grid.innerHTML = `
                 <div class="col-span-1 md:col-span-3 text-center py-16 bg-white rounded-3xl border border-dashed border-slate-300 p-8 space-y-3 shadow-xs">
                     <span class="material-symbols-outlined text-5xl text-emerald-600/40">feed</span>

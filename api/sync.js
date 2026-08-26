@@ -35,41 +35,106 @@ function invalidateCache() {
 
 async function supabaseGetMaster() {
     try {
-        const res = await fetch(`${SUPABASE_URL}/site_settings?select=*`, {
-            headers: {
-                'apikey': SUPABASE_KEY,
-                'Authorization': 'Bearer ' + SUPABASE_KEY,
-                'Accept': 'application/json'
-            }
-        });
-        if (!res.ok) return null;
-        const list = await res.json();
-        if (Array.isArray(list) && list.length > 0) {
-            const masterDoc = list.find(d => d.key === 'master_bundle');
-            const siteImagesDoc = list.find(d => d.key === 'site_images');
-            const specificProgDoc = list.find(d => d.key === 'specific_prog_imgs');
-            const siteSettingsDoc = list.find(d => d.key === 'site_settings');
-            const quotesDoc = list.find(d => d.key === 'quotes');
+        const [settingsRes, newsRes, referralsRes] = await Promise.all([
+            fetch(`${SUPABASE_URL}/site_settings?select=*`, {
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': 'Bearer ' + SUPABASE_KEY,
+                    'Accept': 'application/json'
+                }
+            }).catch(() => null),
+            fetch(`${SUPABASE_URL}/news?select=*&order=event_date.desc`, {
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': 'Bearer ' + SUPABASE_KEY,
+                    'Accept': 'application/json'
+                }
+            }).catch(() => null),
+            fetch(`${SUPABASE_URL}/referrals?select=*`, {
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': 'Bearer ' + SUPABASE_KEY,
+                    'Accept': 'application/json'
+                }
+            }).catch(() => null)
+        ]);
 
-            let master = (masterDoc && masterDoc.value) ? masterDoc.value : null;
-            if (!master) master = loadCanonicalSeed();
+        let master = null;
+        if (settingsRes && settingsRes.ok) {
+            const list = await settingsRes.json();
+            if (Array.isArray(list) && list.length > 0) {
+                const masterDoc = list.find(d => d.key === 'master_bundle');
+                const siteImagesDoc = list.find(d => d.key === 'site_images');
+                const specificProgDoc = list.find(d => d.key === 'specific_prog_imgs');
+                const siteSettingsDoc = list.find(d => d.key === 'site_settings');
+                const quotesDoc = list.find(d => d.key === 'quotes');
 
-            if (siteImagesDoc && siteImagesDoc.value && typeof siteImagesDoc.value === 'object') {
-                master.site_images = { ...(master.site_images || {}), ...siteImagesDoc.value };
-            }
-            if (specificProgDoc && specificProgDoc.value && typeof specificProgDoc.value === 'object') {
-                master.specific_prog_imgs = { ...(master.specific_prog_imgs || {}), ...specificProgDoc.value };
-            }
-            if (siteSettingsDoc && siteSettingsDoc.value && typeof siteSettingsDoc.value === 'object') {
-                master.site_settings = { ...(master.site_settings || {}), ...siteSettingsDoc.value };
-            }
-            if (quotesDoc && quotesDoc.value && Array.isArray(quotesDoc.value)) {
-                master.quotes = quotesDoc.value;
-            }
+                master = (masterDoc && masterDoc.value) ? masterDoc.value : null;
+                if (!master) master = loadCanonicalSeed();
 
-            return master;
+                if (siteImagesDoc && siteImagesDoc.value && typeof siteImagesDoc.value === 'object') {
+                    master.site_images = { ...(master.site_images || {}), ...siteImagesDoc.value };
+                }
+                if (specificProgDoc && specificProgDoc.value && typeof specificProgDoc.value === 'object') {
+                    master.specific_prog_imgs = { ...(master.specific_prog_imgs || {}), ...specificProgDoc.value };
+                }
+                if (siteSettingsDoc && siteSettingsDoc.value && typeof siteSettingsDoc.value === 'object') {
+                    master.site_settings = { ...(master.site_settings || {}), ...siteSettingsDoc.value };
+                }
+                if (quotesDoc && quotesDoc.value && Array.isArray(quotesDoc.value)) {
+                    master.quotes = quotesDoc.value;
+                }
+            }
         }
-        return null;
+        if (!master) master = loadCanonicalSeed();
+
+        if (newsRes && newsRes.ok) {
+            const newsList = await newsRes.json();
+            if (Array.isArray(newsList) && newsList.length > 0) {
+                master.news = newsList.map(n => ({
+                    id: n.id,
+                    title: n.title,
+                    category: n.category,
+                    content: n.content,
+                    imageUrl: n.image_url || n.imageUrl || '',
+                    gallery: Array.isArray(n.gallery) ? n.gallery : [],
+                    eventDate: n.event_date || n.eventDate,
+                    status: n.status || 'published',
+                    author: n.author || 'Admin WIZ Babel',
+                    createdAt: n.created_at || n.createdAt,
+                    updatedAt: n.updated_at || n.updatedAt
+                }));
+            }
+        }
+
+        if (referralsRes && referralsRes.ok) {
+            const refList = await referralsRes.json();
+            if (Array.isArray(refList) && refList.length > 0) {
+                master.referrals = refList.map(r => {
+                    let pin = r.pin || '';
+                    if (!pin && r.notes && r.notes.includes('[PIN:')) {
+                        const m = r.notes.match(/\[PIN:([^\]]+)\]/);
+                        if (m) pin = m[1].trim();
+                    }
+                    return {
+                        id: r.id || r.code,
+                        code: r.code || r.id,
+                        name: r.name || 'Mitra WIZ',
+                        phone: r.phone || '-',
+                        bankName: r.bank_name || r.bankName || '-',
+                        accountNumber: r.account_number || r.accountNumber || '-',
+                        accountHolder: r.account_holder || r.accountHolder || r.name || '-',
+                        defaultRate: Number(r.default_rate !== undefined ? r.default_rate : 6),
+                        status: r.status || 'active',
+                        pin: pin,
+                        notes: r.notes || '',
+                        createdAt: r.created_at || r.createdAt || new Date().toISOString()
+                    };
+                });
+            }
+        }
+
+        return master;
     } catch(e) {
         console.warn('[Sync API] Supabase GET error:', e.message);
         return null;

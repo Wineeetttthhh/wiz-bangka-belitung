@@ -2534,176 +2534,175 @@
             let directSbQuotes = null;
 
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                try {
-                    const sbQRes = await window.wizSupabase.getQuotes();
-                    if (sbQRes && Array.isArray(sbQRes.data) && sbQRes.data.length > 0) {
-                        directSbQuotes = sbQRes.data;
-                    }
-                } catch(e) {}
-                try {
-                    const sbNewsRes = await window.wizSupabase.select('news');
-                    if (sbNewsRes && Array.isArray(sbNewsRes.data) && sbNewsRes.data.length > 0) {
-                        directSbNews = sbNewsRes.data.map(n => {
-                            const mainImg = (n.image_url || (Array.isArray(n.gallery) && n.gallery.length > 0 ? n.gallery[0] : '') || n.imageUrl || '').trim();
-                            return {
-                                id: n.id,
-                                title: n.title,
-                                category: n.category,
-                                content: n.content,
-                                imageUrl: mainImg,
-                                image_url: mainImg,
-                                gallery: Array.isArray(n.gallery) ? n.gallery : [],
-                                eventDate: n.event_date || n.eventDate,
-                                status: n.status || 'published',
-                                author: n.author || 'Admin WIZ Babel',
-                                createdAt: n.created_at || n.createdAt,
-                                updatedAt: n.updated_at || n.updatedAt
-                            };
-                        });
-                    }
-                } catch(e) {}
+                const [sbQResult, sbNewsResult, sbDonResult, sbDisbResult, sbRefResult, sbSetResult] = await Promise.allSettled([
+                    window.wizSupabase.getQuotes().catch(() => null),
+                    window.wizSupabase.select('news').catch(() => null),
+                    window.wizSupabase.select('donations').catch(() => null),
+                    window.wizSupabase.select('disbursements').catch(() => null),
+                    window.wizSupabase.getReferrals().catch(() => null),
+                    window.wizSupabase.getSiteSettings().catch(() => null)
+                ]);
 
-                try {
-                    const sbDonRes = await window.wizSupabase.select('donations');
-                    if (sbDonRes && Array.isArray(sbDonRes.data)) {
-                        directSbDonations = sbDonRes.data.map(d => {
-                            let extractedWilayah = d.wilayah || 'Pangkalpinang';
-                            let extractedProg = String(d.program_spesifik || d.program_title || d.program || '-');
-                            let extractedCat = d.program_utama || d.category || '-';
-                            let extractedRef = d.referral_id || d.referral_code || null;
-                            let extractedFee = Number(d.referral_fee) || 0;
-                            let isRecurring = d.is_recurring_donor || false;
+                const sbQRes = (sbQResult.status === 'fulfilled' && sbQResult.value) ? sbQResult.value : null;
+                const sbNewsRes = (sbNewsResult.status === 'fulfilled' && sbNewsResult.value) ? sbNewsResult.value : null;
+                const sbDonRes = (sbDonResult.status === 'fulfilled' && sbDonResult.value) ? sbDonResult.value : null;
+                const sbDisbRes = (sbDisbResult.status === 'fulfilled' && sbDisbResult.value) ? sbDisbResult.value : null;
+                const sbRefRes = (sbRefResult.status === 'fulfilled' && sbRefResult.value) ? sbRefResult.value : null;
+                const sbSetRes = (sbSetResult.status === 'fulfilled' && sbSetResult.value) ? sbSetResult.value : null;
 
-                            const progTitleStr = String(d.program_title || '');
-                            if (progTitleStr.includes('[')) {
-                                const mWil = progTitleStr.match(/\[([^\]]+)\]/);
-                                if (mWil) extractedWilayah = mWil[1].trim();
+                if (sbQRes && Array.isArray(sbQRes.data) && sbQRes.data.length > 0) {
+                    directSbQuotes = sbQRes.data;
+                }
+
+                if (sbNewsRes && Array.isArray(sbNewsRes.data) && sbNewsRes.data.length > 0) {
+                    directSbNews = sbNewsRes.data.map(n => {
+                        const mainImg = (n.image_url || (Array.isArray(n.gallery) && n.gallery.length > 0 ? n.gallery[0] : '') || n.imageUrl || '').trim();
+                        return {
+                            id: n.id,
+                            title: n.title,
+                            category: n.category,
+                            content: n.content,
+                            imageUrl: mainImg,
+                            image_url: mainImg,
+                            gallery: Array.isArray(n.gallery) ? n.gallery : [],
+                            eventDate: n.event_date || n.eventDate,
+                            status: n.status || 'published',
+                            author: n.author || 'Admin WIZ Babel',
+                            createdAt: n.created_at || n.createdAt,
+                            updatedAt: n.updated_at || n.updatedAt
+                        };
+                    });
+                }
+
+                if (sbDonRes && Array.isArray(sbDonRes.data)) {
+                    directSbDonations = sbDonRes.data.map(d => {
+                        let extractedWilayah = d.wilayah || 'Pangkalpinang';
+                        let extractedProg = String(d.program_spesifik || d.program_title || d.program || '-');
+                        let extractedCat = d.program_utama || d.category || '-';
+                        let extractedRef = d.referral_id || d.referral_code || null;
+                        let extractedFee = Number(d.referral_fee) || 0;
+                        let isRecurring = d.is_recurring_donor || false;
+
+                        const progTitleStr = String(d.program_title || '');
+                        if (progTitleStr.includes('[')) {
+                            const mWil = progTitleStr.match(/\[([^\]]+)\]/);
+                            if (mWil) extractedWilayah = mWil[1].trim();
+                        }
+
+                        const notesStr = String(d.notes || '');
+                        if (notesStr.includes('[Meta:')) {
+                            const m = notesStr.match(/\[Meta:([^\]]+)\]/);
+                            if (m) {
+                                const parts = m[1].split('|').map(s => s.trim());
+                                parts.forEach(p => {
+                                    if (p.startsWith('Wilayah:')) extractedWilayah = p.replace('Wilayah:', '').trim();
+                                    if (p.startsWith('Kategori:')) extractedCat = p.replace('Kategori:', '').trim();
+                                    if (p.startsWith('Program:')) extractedProg = p.replace('Program:', '').trim();
+                                    if (p.startsWith('Mitra:')) {
+                                        const refMatch = p.match(/Mitra:\s*([^\s(]+)/);
+                                        if (refMatch) extractedRef = refMatch[1];
+                                        const feeMatch = p.match(/Rp\s*([0-9.]+)/);
+                                        if (feeMatch) extractedFee = Number(feeMatch[1].replace(/[^0-9]/g, ''));
+                                    }
+                                    if (p.includes('Donatur Tetap')) isRecurring = true;
+                                });
                             }
+                        }
 
-                            const notesStr = String(d.notes || '');
-                            if (notesStr.includes('[Meta:')) {
-                                const m = notesStr.match(/\[Meta:([^\]]+)\]/);
-                                if (m) {
-                                    const parts = m[1].split('|').map(s => s.trim());
-                                    parts.forEach(p => {
-                                        if (p.startsWith('Wilayah:')) extractedWilayah = p.replace('Wilayah:', '').trim();
-                                        if (p.startsWith('Kategori:')) extractedCat = p.replace('Kategori:', '').trim();
-                                        if (p.startsWith('Program:')) extractedProg = p.replace('Program:', '').trim();
-                                        if (p.startsWith('Mitra:')) {
-                                            const refMatch = p.match(/Mitra:\s*([^\s(]+)/);
-                                            if (refMatch) extractedRef = refMatch[1];
-                                            const feeMatch = p.match(/Rp\s*([0-9.]+)/);
-                                            if (feeMatch) extractedFee = Number(feeMatch[1].replace(/[^0-9]/g, ''));
-                                        }
-                                        if (p.includes('Donatur Tetap')) isRecurring = true;
-                                    });
-                                }
+                        if (extractedProg.includes('[')) {
+                            extractedProg = extractedProg.replace(/\[[^\]]+\]/g, '').trim();
+                        }
+
+                        const dType = d.type || d.donation_type || 'Infak Terikat';
+                        const dMethod = d.method || d.payment_method || 'Transfer Bank';
+                        if (!extractedCat || extractedCat === '-') {
+                            extractedCat = mapProgramToPillar(extractedProg, dType);
+                        }
+
+                        return {
+                            id: d.id,
+                            donorName: d.donor_name || d.donorName || 'Hamba Allah',
+                            donorPhone: d.donor_phone || d.donorPhone || '-',
+                            donorEmail: d.donor_email || d.donorEmail || '',
+                            wilayah: extractedWilayah,
+                            type: dType,
+                            programUtama: extractedCat,
+                            programSpesifik: extractedProg,
+                            program: extractedProg,
+                            category: extractedCat,
+                            amount: Number(d.amount) || 0,
+                            alokasiOperasional: Number(d.alokasi_operasional !== undefined ? d.alokasi_operasional : (d.alokasiOperasional || (dType === 'Infak Terikat' ? Math.round(Number(d.amount) * 0.125) : 0))),
+                            alokasiProgram: Number(d.alokasi_program !== undefined ? d.alokasi_program : (d.alokasiProgram || (dType === 'Infak Terikat' ? Math.round(Number(d.amount) * 0.875) : 0))),
+                            method: dMethod,
+                            referralId: extractedRef,
+                            referralCode: extractedRef,
+                            referralRate: Number(d.referral_rate || d.referralRate || 6),
+                            referralFee: extractedFee,
+                            isRecurringDonor: isRecurring,
+                            notes: (d.notes || '-').replace(/\[Meta:[^\]]*\]/g, '').trim() || '-',
+                            status: d.status || 'pending',
+                            verifiedAt: d.verified_at || (d.status === 'verified' ? (d.updated_at || d.created_at) : null),
+                            verifiedBy: d.verified_by || (d.status === 'verified' ? 'Admin' : null),
+                            createdAt: d.created_at || d.createdAt || new Date().toISOString()
+                        };
+                    });
+                }
+
+                if (sbDisbRes && Array.isArray(sbDisbRes.data)) {
+                    directSbDisbursements = sbDisbRes.data.map(d => {
+                        let sType = 'program_spesifik';
+                        let tType = 'specific';
+                        let fromProg = Number(d.amount) || 0;
+                        let fromSub = 0;
+                        let cleanDesc = d.description || '';
+
+                        if (cleanDesc.includes('[Meta:')) {
+                            const m = cleanDesc.match(/\[Meta:([^\]]+)\]/);
+                            if (m) {
+                                const parts = m[1].split('|');
+                                parts.forEach(p => {
+                                    const [k, v] = p.split('=').map(s => s.trim());
+                                    if (k === 'source') sType = v;
+                                    if (k === 'target') tType = v;
+                                    if (k === 'fromProg') fromProg = Number(v) || fromProg;
+                                    if (k === 'fromSub') fromSub = Number(v) || fromSub;
+                                });
+                                cleanDesc = cleanDesc.replace(/\s*\[Meta:[^\]]+\]/, '').trim();
                             }
+                        } else if (d.program && (d.program.toLowerCase().includes('global') || d.program.toLowerCase().includes('alih fungsi'))) {
+                            sType = 'infak_umum';
+                            tType = 'global';
+                        }
 
-                            if (extractedProg.includes('[')) {
-                                extractedProg = extractedProg.replace(/\[[^\]]+\]/g, '').trim();
-                            }
+                        const pillar = mapProgramToPillar(d.program) || 'Berkah Hidayah';
+                        const kategoriPilar = mapPillarToKategori(pillar);
 
-                            const dType = d.type || d.donation_type || 'Infak Terikat';
-                            const dMethod = d.method || d.payment_method || 'Transfer Bank';
-                            if (!extractedCat || extractedCat === '-') {
-                                extractedCat = mapProgramToPillar(extractedProg, dType);
-                            }
+                        return {
+                            id: d.id,
+                            wilayah: d.wilayah || 'Pangkalpinang',
+                            sourceType: sType,
+                            targetType: tType,
+                            pillar: pillar,
+                            kategori_pilar: kategoriPilar,
+                            program: d.program,
+                            amount: Number(d.amount) || 0,
+                            amountFromProgram: fromProg,
+                            amountFromSubsidi: fromSub,
+                            description: cleanDesc,
+                            disbursedAt: d.disbursed_at || d.disbursedAt || new Date().toISOString(),
+                            recordedBy: d.recorded_by || d.recordedBy || 'Admin',
+                            createdAt: d.created_at || d.createdAt || new Date().toISOString()
+                        };
+                    });
+                }
 
-                            return {
-                                id: d.id,
-                                donorName: d.donor_name || d.donorName || 'Hamba Allah',
-                                donorPhone: d.donor_phone || d.donorPhone || '-',
-                                donorEmail: d.donor_email || d.donorEmail || '',
-                                wilayah: extractedWilayah,
-                                type: dType,
-                                programUtama: extractedCat,
-                                programSpesifik: extractedProg,
-                                program: extractedProg,
-                                category: extractedCat,
-                                amount: Number(d.amount) || 0,
-                                alokasiOperasional: Number(d.alokasi_operasional !== undefined ? d.alokasi_operasional : (d.alokasiOperasional || (dType === 'Infak Terikat' ? Math.round(Number(d.amount) * 0.125) : 0))),
-                                alokasiProgram: Number(d.alokasi_program !== undefined ? d.alokasi_program : (d.alokasiProgram || (dType === 'Infak Terikat' ? Math.round(Number(d.amount) * 0.875) : 0))),
-                                method: dMethod,
-                                referralId: extractedRef,
-                                referralCode: extractedRef,
-                                referralRate: Number(d.referral_rate || d.referralRate || 6),
-                                referralFee: extractedFee,
-                                isRecurringDonor: isRecurring,
-                                notes: (d.notes || '-').replace(/\[Meta:[^\]]*\]/g, '').trim() || '-',
-                                status: d.status || 'pending',
-                                verifiedAt: d.verified_at || (d.status === 'verified' ? (d.updated_at || d.created_at) : null),
-                                verifiedBy: d.verified_by || (d.status === 'verified' ? 'Admin' : null),
-                                createdAt: d.created_at || d.createdAt || new Date().toISOString()
-                            };
-                        });
-                    }
-                } catch(e) {}
+                if (sbRefRes && Array.isArray(sbRefRes.data) && sbRefRes.data.length > 0) {
+                    directSbReferrals = sbRefRes.data;
+                }
 
-                try {
-                    const sbDisbRes = await window.wizSupabase.select('disbursements');
-                    if (sbDisbRes && Array.isArray(sbDisbRes.data)) {
-                        directSbDisbursements = sbDisbRes.data.map(d => {
-                            let sType = 'program_spesifik';
-                            let tType = 'specific';
-                            let fromProg = Number(d.amount) || 0;
-                            let fromSub = 0;
-                            let cleanDesc = d.description || '';
-
-                            if (cleanDesc.includes('[Meta:')) {
-                                const m = cleanDesc.match(/\[Meta:([^\]]+)\]/);
-                                if (m) {
-                                    const parts = m[1].split('|');
-                                    parts.forEach(p => {
-                                        const [k, v] = p.split('=').map(s => s.trim());
-                                        if (k === 'source') sType = v;
-                                        if (k === 'target') tType = v;
-                                        if (k === 'fromProg') fromProg = Number(v) || fromProg;
-                                        if (k === 'fromSub') fromSub = Number(v) || fromSub;
-                                    });
-                                    cleanDesc = cleanDesc.replace(/\s*\[Meta:[^\]]+\]/, '').trim();
-                                }
-                            } else if (d.program && (d.program.toLowerCase().includes('global') || d.program.toLowerCase().includes('alih fungsi'))) {
-                                sType = 'infak_umum';
-                                tType = 'global';
-                            }
-
-                            const pillar = mapProgramToPillar(d.program) || 'Berkah Hidayah';
-                            const kategoriPilar = mapPillarToKategori(pillar);
-
-                            return {
-                                id: d.id,
-                                wilayah: d.wilayah || 'Pangkalpinang',
-                                sourceType: sType,
-                                targetType: tType,
-                                pillar: pillar,
-                                kategori_pilar: kategoriPilar,
-                                program: d.program,
-                                amount: Number(d.amount) || 0,
-                                amountFromProgram: fromProg,
-                                amountFromSubsidi: fromSub,
-                                description: cleanDesc,
-                                disbursedAt: d.disbursed_at || d.disbursedAt || new Date().toISOString(),
-                                recordedBy: d.recorded_by || d.recordedBy || 'Admin',
-                                createdAt: d.created_at || d.createdAt || new Date().toISOString()
-                            };
-                        });
-                    }
-                } catch(e) {}
-
-                try {
-                    const sbRefRes = await window.wizSupabase.getReferrals();
-                    if (sbRefRes && Array.isArray(sbRefRes.data) && sbRefRes.data.length > 0) {
-                        directSbReferrals = sbRefRes.data;
-                    }
-                } catch(e) {}
-
-                try {
-                    const sbSetRes = await window.wizSupabase.getSiteSettings();
-                    if (sbSetRes && sbSetRes.data && typeof sbSetRes.data === 'object') {
-                        directSbSettings = sbSetRes.data;
-                    }
-                } catch(e) {}
+                if (sbSetRes && sbSetRes.data && typeof sbSetRes.data === 'object') {
+                    directSbSettings = sbSetRes.data;
+                }
             }
 
             if (!masterData && !directSbDonations && !directSbDisbursements && !directSbNews && !directSbReferrals && !directSbSettings) {
@@ -2760,25 +2759,24 @@
 
             // Sync News: Supabase news table is authoritative
             if (directSbNews !== null && Array.isArray(directSbNews)) {
-                const localNews = getStore(STORAGE_KEYS.NEWS) || [];
-                const localDraftMap = new Map();
-                localNews.forEach(ln => {
-                    if (ln && ln.status === 'draft') {
-                        const age = Date.now() - new Date(ln.updatedAt || ln.createdAt || 0).getTime();
-                        if (age < 180000) {
-                            localDraftMap.set(String(ln.id), true);
-                            if (ln.title) localDraftMap.set(ln.title.trim().toLowerCase(), true);
-                        }
+                // Clear any obsolete deleted ID flags for items currently active in Supabase
+                const deletedSet = getDeletedNewsIds();
+                let hasDeletedChanges = false;
+                directSbNews.forEach(n => {
+                    if (n && n.id && deletedSet.has(String(n.id))) {
+                        deletedSet.delete(String(n.id));
+                        hasDeletedChanges = true;
                     }
                 });
+                if (hasDeletedChanges) {
+                    setStore(STORAGE_KEYS.DELETED_NEWS_IDS, Array.from(deletedSet));
+                }
 
                 const mappedNews = directSbNews.map(rawN => {
                     const img = (rawN.imageUrl || rawN.image_url || (Array.isArray(rawN.gallery) && rawN.gallery.length > 0 ? rawN.gallery[0] : '') || '').trim();
-                    const normT = (rawN.title || '').trim().toLowerCase();
-                    const shouldBeDraft = localDraftMap.has(String(rawN.id)) || localDraftMap.has(normT);
                     return {
                         ...rawN,
-                        status: shouldBeDraft ? 'draft' : (rawN.status || 'published'),
+                        status: rawN.status || 'published',
                         imageUrl: img,
                         image_url: img,
                         eventDate: rawN.eventDate || rawN.event_date || rawN.createdAt || rawN.created_at || new Date().toISOString(),
@@ -3580,11 +3578,11 @@
                     const existing = uniqueMap.get(normKey);
                     const tExisting = new Date(existing.updatedAt || existing.eventDate || existing.createdAt || 0).getTime();
                     const tNew = new Date(n.updatedAt || n.eventDate || n.createdAt || 0).getTime();
-                    const mergedStatus = (existing.status === 'draft' || n.status === 'draft') ? 'draft' : 'published';
+                    const targetStatus = (n.status === 'published' || existing.status === 'published') ? 'published' : (tNew >= tExisting ? n.status : existing.status);
                     if (tNew > tExisting) {
-                        uniqueMap.set(normKey, { ...existing, ...n, status: mergedStatus });
+                        uniqueMap.set(normKey, { ...existing, ...n, status: targetStatus });
                     } else {
-                        uniqueMap.set(normKey, { ...n, ...existing, status: mergedStatus });
+                        uniqueMap.set(normKey, { ...n, ...existing, status: targetStatus });
                     }
                 }
             });
@@ -3597,11 +3595,54 @@
         },
 
         getPublished() {
-            return this.getAll().filter(n => n.status === 'published');
+            return this.getAll().filter(n => (n.status || 'published') === 'published');
         },
 
         getDrafts() {
             return this.getAll().filter(n => n.status === 'draft');
+        },
+
+        async publishAll() {
+            const list = getStore(STORAGE_KEYS.NEWS) || [];
+            if (!Array.isArray(list) || list.length === 0) return 0;
+            let count = 0;
+            list.forEach(n => {
+                if (n && n.status !== 'published') {
+                    n.status = 'published';
+                    n.updatedAt = new Date().toISOString();
+                    count++;
+                }
+            });
+            setStore(STORAGE_KEYS.NEWS, list);
+
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                for (const item of list) {
+                    try {
+                        await window.wizSupabase.upsert('news', {
+                            id: String(item.id),
+                            title: item.title,
+                            category: item.category || 'Kegiatan & Penyaluran',
+                            content: item.content,
+                            image_url: item.imageUrl || item.image_url || '',
+                            gallery: item.gallery || [],
+                            event_date: item.eventDate || item.event_date || new Date().toISOString(),
+                            status: 'published',
+                            author: item.author || 'Admin WIZ Babel',
+                            created_at: item.createdAt || new Date().toISOString(),
+                            updated_at: new Date().toISOString()
+                        });
+                    } catch(e) {}
+                }
+            }
+
+            if (typeof pushToCloud === 'function') {
+                pushToCloud().catch(() => {});
+            }
+
+            broadcastSync('NEWS_ALL_PUBLISHED', { count });
+            window.dispatchEvent(new CustomEvent('wiz-news-changed'));
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+            return count;
         },
 
         getById(articleId) {
@@ -4613,9 +4654,15 @@
             activityLog.add('disbursement', `Penyaluran dana ${formatRupiahCompact(newDisb.amount)} (${newDisb.wilayah}) [${sourceLabel}] untuk "${newDisb.program}" dicatat.`, newDisb.recordedBy);
 
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                try {
-                    await window.wizSupabase.saveDisbursement(newDisb);
-                } catch(e) {}
+                const sbRes = await window.wizSupabase.saveDisbursement(newDisb);
+                if (sbRes && sbRes.error) {
+                    let errMsg = sbRes.error;
+                    try {
+                        const parsed = typeof errMsg === 'string' ? JSON.parse(errMsg) : errMsg;
+                        if (parsed.message) errMsg = parsed.message;
+                    } catch(e) {}
+                    throw new Error(errMsg);
+                }
             }
 
             try { await pushToCloud(); } catch(e) {}
@@ -4643,7 +4690,7 @@
                 ? Number(updates.amountFromSubsidi) 
                 : (list[idx].amountFromSubsidi !== undefined ? list[idx].amountFromSubsidi : (sType === 'infak_umum' ? totalAmount : 0));
 
-            list[idx] = { 
+            const updatedItem = { 
                 ...list[idx], 
                 ...updates, 
                 sourceType: sType,
@@ -4655,15 +4702,22 @@
                 amountFromSubsidi: fromSubsidi,
                 updatedAt: new Date().toISOString() 
             };
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                const sbRes = await window.wizSupabase.saveDisbursement(updatedItem);
+                if (sbRes && sbRes.error) {
+                    let errMsg = sbRes.error;
+                    try {
+                        const parsed = typeof errMsg === 'string' ? JSON.parse(errMsg) : errMsg;
+                        if (parsed.message) errMsg = parsed.message;
+                    } catch(e) {}
+                    throw new Error(errMsg);
+                }
+            }
+
+            list[idx] = updatedItem;
             setStore(STORAGE_KEYS.DISBURSEMENTS, list);
 
             activityLog.add('disbursement', `Penyaluran dana untuk "${list[idx].program}" diperbarui.`, updates.recordedBy || 'Admin');
-
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                try {
-                    await window.wizSupabase.saveDisbursement(list[idx]);
-                } catch(e) {}
-            }
 
             try { await pushToCloud(); } catch(e) {}
 
@@ -4811,11 +4865,17 @@
             return base + uniqueDonors.size;
         },
 
-        getSpecificProgramStats(programName, defaultBase, defaultTarget) {
-            const verified = donations.getVerified();
-            const disbList = disbursements.getAll();
+        getSpecificProgramStats(programName, defaultBase, defaultTarget, targetWilayah) {
+            let verified = donations.getVerified();
+            let disbList = disbursements.getAll();
             const pName = String(programName || '').trim();
             const pLower = pName.toLowerCase();
+            const reqWilayah = (targetWilayah && targetWilayah !== 'Semua') ? targetWilayah : null;
+
+            if (reqWilayah) {
+                verified = verified.filter(d => (d.wilayah || 'Pangkalpinang') === reqWilayah);
+                disbList = disbList.filter(db => (db.wilayah || 'Pangkalpinang') === reqWilayah);
+            }
 
             // ─── Skenario Khusus 1: Dana Saving (Alokasi Kas Cadangan) ───
             if (pLower.includes('saving') || pLower.includes('cadangan')) {
@@ -4823,23 +4883,26 @@
                 let savingSalur = 0;
                 verified.forEach(d => {
                     const dWilayah = d.wilayah || 'Pangkalpinang';
+                    if (reqWilayah && dWilayah !== reqWilayah) return;
                     const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get)
                         ? (allocationRulesManager.get(dWilayah) || ALLOCATION_RULES[dWilayah])
                         : ALLOCATION_RULES[dWilayah];
                     if (isGeneralInfak(d) && wRules && wRules.mainAllocation) {
                         const sItem = wRules.mainAllocation.find(i => i.key === 'Dana Saving');
                         if (sItem) {
-                            savingMasuk += (Number(d.amount) || 0) * ((Number(sItem.percent) || 0) / 100);
+                            savingMasuk += Math.round((Number(d.amount) || 0) * ((Number(sItem.percent) || 0) / 100));
                         }
                     }
                 });
                 disbList.forEach(db => {
+                    const dbWil = db.wilayah || 'Pangkalpinang';
+                    if (reqWilayah && dbWil !== reqWilayah) return;
                     const dbP = (db.program || '').toLowerCase();
                     if (dbP.includes('saving') || dbP.includes('cadangan')) {
                         savingSalur += Number(db.amount) || 0;
                     }
                 });
-                const saldo = Math.max(0, savingMasuk - savingSalur);
+                const saldo = Math.max(0, Math.round(savingMasuk - savingSalur));
                 return {
                     terkumpul: saldo,
                     totalMasuk: savingMasuk,
@@ -4860,23 +4923,26 @@
                 let opUmumSalur = 0;
                 verified.forEach(d => {
                     const dWilayah = d.wilayah || 'Pangkalpinang';
+                    if (reqWilayah && dWilayah !== reqWilayah) return;
                     const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get)
                         ? (allocationRulesManager.get(dWilayah) || ALLOCATION_RULES[dWilayah])
                         : ALLOCATION_RULES[dWilayah];
                     if (isGeneralInfak(d) && wRules && wRules.mainAllocation) {
                         const opItem = wRules.mainAllocation.find(i => i.key === 'Operasional');
                         if (opItem) {
-                            opUmumMasuk += (Number(d.amount) || 0) * ((Number(opItem.percent) || 0) / 100);
+                            opUmumMasuk += Math.round((Number(d.amount) || 0) * ((Number(opItem.percent) || 0) / 100));
                         }
                     }
                 });
                 disbList.forEach(db => {
+                    const dbWil = db.wilayah || 'Pangkalpinang';
+                    if (reqWilayah && dbWil !== reqWilayah) return;
                     const dbP = (db.program || '').toLowerCase();
                     if (dbP.includes('operasional') && (dbP.includes('umum') || (!dbP.includes('terikat') && !dbP.includes('mitra')))) {
                         opUmumSalur += Number(db.amount) || 0;
                     }
                 });
-                const saldo = Math.max(0, opUmumMasuk - opUmumSalur);
+                const saldo = Math.max(0, Math.round(opUmumMasuk - opUmumSalur));
                 return {
                     terkumpul: saldo,
                     totalMasuk: opUmumMasuk,
@@ -4896,6 +4962,8 @@
                 let opTerikatMasuk = 0;
                 let opTerikatSalur = 0;
                 verified.forEach(d => {
+                    const dWil = d.wilayah || 'Pangkalpinang';
+                    if (reqWilayah && dWil !== reqWilayah) return;
                     if (!isGeneralInfak(d)) {
                         const amt = Number(d.amount) || 0;
                         const op = Number(d.alokasiOperasional || d.alokasi_operasional || Math.round(amt * 0.125));
@@ -4903,12 +4971,14 @@
                     }
                 });
                 disbList.forEach(db => {
+                    const dbWil = db.wilayah || 'Pangkalpinang';
+                    if (reqWilayah && dbWil !== reqWilayah) return;
                     const dbP = (db.program || '').toLowerCase();
                     if (dbP.includes('operasional') && (dbP.includes('terikat') || dbP.includes('mitra'))) {
                         opTerikatSalur += Number(db.amount) || 0;
                     }
                 });
-                const saldo = Math.max(0, opTerikatMasuk - opTerikatSalur);
+                const saldo = Math.max(0, Math.round(opTerikatMasuk - opTerikatSalur));
                 return {
                     terkumpul: saldo,
                     totalMasuk: opTerikatMasuk,
@@ -4934,6 +5004,7 @@
 
             verified.forEach(d => {
                 const dWilayah = d.wilayah || 'Pangkalpinang';
+                if (reqWilayah && dWilayah !== reqWilayah) return;
                 const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get) 
                     ? (allocationRulesManager.get(dWilayah) || ALLOCATION_RULES[dWilayah])
                     : ALLOCATION_RULES[dWilayah];
@@ -4947,12 +5018,12 @@
                             if (subRule && subRule.items && subRule.items.length > 0) {
                                 const subItem = subRule.items.find(si => isProgramMatching(si.key, pName));
                                 if (subItem) {
-                                    infakUmumMasuk += (pillarAmount * (subItem.percent / 100));
+                                    infakUmumMasuk += Math.round(pillarAmount * (subItem.percent / 100));
                                     return;
                                 }
                             }
                             if (isProgramMatching(progPillar, pName)) {
-                                infakUmumMasuk += pillarAmount;
+                                infakUmumMasuk += Math.round(pillarAmount);
                             }
                         }
                     }
@@ -4972,6 +5043,8 @@
             let spesifikSalur = 0;
 
             disbList.forEach(db => {
+                const dbWil = db.wilayah || 'Pangkalpinang';
+                if (reqWilayah && dbWil !== reqWilayah) return;
                 const sType = db.sourceType || (db.program && (db.program.toLowerCase().includes('global') || db.program.toLowerCase().includes('alih fungsi')) ? 'infak_umum' : 'program_spesifik');
                 const tType = db.targetType || (db.program && (db.program.toLowerCase().includes('global') || db.program.toLowerCase().includes('alih fungsi')) ? 'global' : 'specific');
                 const dbAmount = Number(db.amount) || 0;
@@ -4984,16 +5057,12 @@
                     }
                 } else if (sType === 'infak_umum' && tType === 'global') {
                     // 2. Skenario Infak Umum (Alih Fungsi Dana): RING-FENCING INTRA-PILAR
-                    // Dana Infak Umum HANYA bisa disubsidi-silangkan (Alih Fungsi) antar-program di dalam PILAR YANG SAMA!
                     const dbPillar = db.pillar || mapProgramToPillar(db.program, db.category);
                     
-                    // JIKA PILAR BERBEDA: 100% Ring-Fenced (Zero Leakage) - TIDAK BOLEH memotong pilar ini!
                     if (dbPillar !== progPillar) {
                         return;
                     }
 
-                    // Pengecualian Program Prioritas: "Pembangunan Markaz" TERKUNCI (LOCKED).
-                    // Porsi Infak Umum yang dialokasikan ke Pembangunan Markaz TIDAK BOLEH dikurangi atau diganggu gugat!
                     if (isLockedPriorityProgram(pName)) {
                         return;
                     }
@@ -5007,15 +5076,13 @@
                     if (subRule && subRule.items && subRule.items.length > 0) {
                         const subItem = subRule.items.find(si => isProgramMatching(si.key, pName));
                         if (subItem) {
-                            // Hitung bobot proporsional di dalam pilar yang sama
                             let subWeight = (Number(subItem.percent) || 0) / 100;
-                            // Jika di Berkah Hidayah, kecualikan porsi Markaz yang terkunci
                             if (progPillar === 'Berkah Hidayah') {
                                 const markazSub = subRule.items.find(si => isLockedPriorityProgram(si.key));
                                 const markazPct = markazSub ? ((Number(markazSub.percent) || 0) / 100) : 0.05;
                                 subWeight = subWeight / (1 - markazPct || 0.95);
                             }
-                            infakUmumAlihFungsiSalur += (dbAmount * subWeight);
+                            infakUmumAlihFungsiSalur += Math.round(dbAmount * subWeight);
                             return;
                         }
                     }
@@ -5025,21 +5092,17 @@
                     const fromSub = (db.amountFromSubsidi !== undefined) ? Number(db.amountFromSubsidi) : 0;
                     const dbProg = db.program || db.programSpesifik || '';
 
-                    // Potong langsung kas program yang bersangkutan (Tahap 1)
                     if (dbProg && isProgramMatching(dbProg, pName)) {
                         spesifikSalur += fromProg;
                     }
 
-                    // Potong porsi Infak Umum intra-pilar (Tahap 2 & 3: HANYA jika ada sisa kekurangan / fromSub > 0)
                     if (fromSub > 0) {
                         const dbPillar = db.pillar || mapProgramToPillar(db.program, db.category);
                         
-                        // JIKA PILAR BERBEDA: 100% Ring-Fenced (Zero Leakage) - TIDAK BOLEH memotong pilar ini!
                         if (dbPillar !== progPillar) {
                             return;
                         }
 
-                        // PENGECUALIAN MUTLAK: Pembangunan Markaz TERKUNCI & TIDAK BOLEH berkurang sepeser pun!
                         if (isLockedPriorityProgram(pName)) {
                             return;
                         }
@@ -5059,7 +5122,7 @@
                                     const markazPct = markazSub ? ((Number(markazSub.percent) || 0) / 100) : 0.05;
                                     subWeight = subWeight / (1 - markazPct || 0.95);
                                 }
-                                infakUmumAlihFungsiSalur += (fromSub * subWeight);
+                                infakUmumAlihFungsiSalur += Math.round(fromSub * subWeight);
                                 return;
                             }
                         }
@@ -5075,20 +5138,17 @@
             const totalMasuk = base + infakTerikatMasuk + infakUmumMasuk;
             const totalSalur = infakUmumAlihFungsiSalur + spesifikSalur;
 
-            // Proteksi Mutlak: Alih Fungsi Infak Umum HANYA mengurangi porsi Infak Umum, TIDAK BOLEH memotong Infak Terikat
-            // Rumus Total Terkumpul = (Total Donasi Spesifik Program) + (Alokasi Infak Umum untuk Program) - (Pengeluaran Spesifik Program)
             const infakUmumBersih = Math.max(0, infakUmumMasuk - infakUmumAlihFungsiSalur);
             const saldoAktual = Math.max(0, base + infakTerikatMasuk + infakUmumBersih - spesifikSalur);
             
-            // Progress Bar (%) dihitung dari Total Terkumpul Bersih dibagi Target Dana
             const percent = target > 0 ? Math.min(100, Math.max(0, Math.round((saldoAktual / target) * 100))) : 0;
 
             return {
-                terkumpul: saldoAktual, // Total Terkumpul Bersih yang tampil di UI kartu
-                totalMasuk: totalMasuk, // Akumulasi kotor dana masuk (Terikat + Umum)
+                terkumpul: saldoAktual,
+                totalMasuk: totalMasuk,
                 masuk: totalMasuk,
-                tersalurkan: totalSalur, // Dana terpakai / disalurkan
-                saldo: saldoAktual,     // Saldo aktual
+                tersalurkan: totalSalur,
+                saldo: saldoAktual,
                 target: target,
                 percent: isNaN(percent) ? 0 : percent,
                 infakTerikat: infakTerikatMasuk,
@@ -5652,18 +5712,33 @@
             return { success: true, isExisting: false, referral: newRef, message: 'Pendaftaran Affiliate/Perantara Kebaikan berhasil!' };
         },
 
-        login({ identifier, pin }) {
-            if (!identifier) return { success: false, message: 'Masukkan No. WhatsApp atau Kode Referral.' };
-            const ref = this.getByCodeOrId(identifier);
-            if (!ref) {
-                return { success: false, message: 'Akun Affiliate tidak ditemukan. Silakan mendaftar terlebih dahulu.' };
+        async login({ identifier, pin }) {
+            if (!identifier) return { success: false, message: 'Masukkan No. WhatsApp atau Kode Mitra.' };
+            const cleanIden = String(identifier).trim();
+            let ref = this.getByCodeOrId(cleanIden);
+
+            // Fast targeted Supabase fetch only if not found locally
+            if (!ref && window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    const sbRes = await window.wizSupabase.getReferrals();
+                    if (sbRes && Array.isArray(sbRes.data) && sbRes.data.length > 0) {
+                        setStore(STORAGE_KEYS.REFERRALS, sbRes.data);
+                        ref = this.getByCodeOrId(cleanIden);
+                    }
+                } catch(e) {}
             }
 
-            const inputPin = (pin || '').trim();
-            const actualPin = (ref.pin || '').trim() || ref.phone.slice(-4) || '1234';
+            if (!ref) {
+                return { success: false, message: 'Akun Mitra tidak ditemukan. Silakan periksa kembali No. WA / Kode Mitra Anda atau lakukan pendaftaran.' };
+            }
+
+            const inputPin = String(pin || '').trim();
+            const rawPhone = String(ref.phone || '').replace(/\D/g, '');
+            const defaultPinFromPhone = rawPhone.length >= 4 ? rawPhone.slice(-4) : '1234';
+            const actualPin = String(ref.pin || '').trim() || defaultPinFromPhone;
 
             if (inputPin && actualPin && inputPin !== actualPin) {
-                return { success: false, message: 'PIN/Password yang Anda masukkan salah.' };
+                return { success: false, message: 'PIN yang Anda masukkan salah. Silakan coba lagi atau gunakan menu Lupa PIN.' };
             }
 
             return { success: true, referral: ref, message: 'Login berhasil!' };

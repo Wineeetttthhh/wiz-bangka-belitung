@@ -680,9 +680,9 @@
     </footer>
 
     <!-- JS Clients -->
-    <script src="assets/js/supabase-client.js?v=20260826_live"></script>
-    <script src="assets/js/admin-store.js?v=20260826_live"></script>
-    <script src="assets/js/main.js?v=20260826_live"></script>
+    <script src="assets/js/supabase-client.js?v=20260826_v5"></script>
+    <script src="assets/js/admin-store.js?v=20260826_v5"></script>
+    <script src="assets/js/main.js?v=20260826_v5"></script>
 
     <!-- Page Logic -->
     <script>
@@ -730,15 +730,17 @@
             }
             renderAffiliateProgramsGrid();
 
-            // Initial cloud sync
-            if (window.wizStore && typeof wizStore.syncFromCloud === 'function') {
-                try {
-                    await wizStore.syncFromCloud(true);
-                } catch(e) {}
-            }
-
+            // 1. Instant session restore from local cache (<5ms)
             await verifyAndRestoreMemberSession();
             renderAffiliateNewsGrid();
+
+            // 2. Non-blocking background cloud sync
+            if (window.wizStore && typeof wizStore.syncFromCloud === 'function') {
+                wizStore.syncFromCloud().then(() => {
+                    if (currentLoggedAffiliate) renderMemberDashboard();
+                    renderAffiliateNewsGrid();
+                }).catch(() => {});
+            }
         });
 
         function toggleAuthTab(tab) {
@@ -901,49 +903,60 @@
             const identifier = document.getElementById('login-identifier').value.trim();
             const pin = document.getElementById('login-pin').value.trim();
 
-            if (!wizStore || !wizStore.referrals) return;
+            if (!wizStore || !wizStore.referrals) {
+                alert('Sistem sedang memuat data, silakan coba beberapa saat lagi.');
+                return;
+            }
 
             const btn = e.target.querySelector('button[type="submit"]');
             if (btn) {
                 btn.disabled = true;
-                btn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Memverifikasi Akun...</span>';
+                btn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Memverifikasi...</span>';
             }
 
-            // Always sync fresh cloud data first before checking credentials
-            if (typeof wizStore.syncFromCloud === 'function') {
-                try { await wizStore.syncFromCloud(true); } catch(e) {}
-            }
-
-            const res = wizStore.referrals.login({ identifier, pin });
-            if (res.success) {
-                const ref = res.referral;
-                // Verify account is active and not deleted by admin
-                if (ref.status === 'deleted' || ref.isDeleted) {
-                    alert('⚠️ Akun Mitra Penghimpunan Anda telah dinonaktifkan atau dihapus oleh Admin Utama.');
-                    if (btn) {
-                        btn.disabled = false;
-                        btn.innerHTML = '<span>Masuk ke Dashboard</span><span class="material-symbols-outlined text-base">arrow_forward</span>';
+            try {
+                // 1. Fast direct login (<10ms for local / <150ms for targeted fetch)
+                const res = await wizStore.referrals.login({ identifier, pin });
+                
+                if (res.success) {
+                    const ref = res.referral;
+                    if (ref.status === 'deleted' || ref.isDeleted) {
+                        alert('⚠️ Akun Mitra Penghimpunan Anda telah dinonaktifkan atau dihapus oleh Admin Utama.');
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerHTML = '<span>Masuk ke Dashboard</span><span class="material-symbols-outlined text-base">arrow_forward</span>';
+                        }
+                        return;
                     }
-                    return;
+
+                    currentLoggedAffiliate = ref;
+                    sessionStorage.setItem('wiz_logged_affiliate', JSON.stringify(ref));
+                    localStorage.setItem('wiz_logged_affiliate', JSON.stringify(ref));
+
+                    const refCode = ref.code || ref.id;
+                    sessionStorage.setItem('wiz_active_ref_id', refCode);
+                    localStorage.setItem('wiz_active_ref_id', refCode);
+
+                    // 2. Instantly activate Member Dashboard
+                    activateMemberState(ref);
+
+                    // 3. Non-blocking silent background refresh for transactions & stats
+                    if (typeof wizStore.syncFromCloud === 'function') {
+                        wizStore.syncFromCloud().then(() => {
+                            renderMemberDashboard();
+                        }).catch(() => {});
+                    }
+                } else {
+                    alert(`⚠️ ${res.message}`);
                 }
-
-                currentLoggedAffiliate = ref;
-                sessionStorage.setItem('wiz_logged_affiliate', JSON.stringify(ref));
-                localStorage.setItem('wiz_logged_affiliate', JSON.stringify(ref));
-
-                const refCode = ref.code || ref.id;
-                sessionStorage.setItem('wiz_active_ref_id', refCode);
-                localStorage.setItem('wiz_active_ref_id', refCode);
-
-                alert(`✅ ${res.message} Selamat Datang, ${ref.name}`);
-                activateMemberState(ref);
-            } else {
-                alert(`⚠️ ${res.message}`);
-            }
-
-            if (btn) {
-                btn.disabled = false;
-                btn.innerHTML = '<span>Masuk ke Dashboard</span><span class="material-symbols-outlined text-base">arrow_forward</span>';
+            } catch(err) {
+                console.error('[Affiliate Login Error]', err);
+                alert('⚠️ Terjadi kendala saat memproses login: ' + err.message);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>Masuk ke Dashboard</span><span class="material-symbols-outlined text-base">arrow_forward</span>';
+                }
             }
         }
 
@@ -1201,6 +1214,7 @@
             }).join('');
         }
 
+        let isFetchingAffNews = false;
         function renderAffiliateNewsGrid() {
             if (!window.wizStore || !window.wizStore.news) return;
             const published = wizStore.news.getPublished();
@@ -1211,6 +1225,29 @@
             const grid = document.getElementById('affiliate-news-grid');
 
             if (!published || published.length === 0) {
+                if (!isFetchingAffNews && window.wizSupabase && window.wizSupabase.isConfigured()) {
+                    isFetchingAffNews = true;
+                    window.wizSupabase.select('news').then(res => {
+                        isFetchingAffNews = false;
+                        if (res && Array.isArray(res.data) && res.data.length > 0) {
+                            const mapped = res.data.map(n => ({
+                                id: n.id,
+                                title: n.title,
+                                category: n.category || 'Kegiatan & Penyaluran',
+                                content: n.content,
+                                imageUrl: n.image_url || n.imageUrl || '',
+                                gallery: Array.isArray(n.gallery) ? n.gallery : [],
+                                eventDate: n.event_date || n.eventDate || n.created_at,
+                                status: n.status || 'published',
+                                author: n.author || 'Admin WIZ Babel',
+                                createdAt: n.created_at,
+                                updatedAt: n.updated_at
+                            }));
+                            localStorage.setItem('wiz_news', JSON.stringify(mapped));
+                            renderAffiliateNewsGrid();
+                        }
+                    }).catch(() => { isFetchingAffNews = false; });
+                }
                 if (featuredCard) featuredCard.style.display = 'none';
                 if (grid) grid.innerHTML = '';
                 if (emptyNotice) emptyNotice.classList.remove('hidden');

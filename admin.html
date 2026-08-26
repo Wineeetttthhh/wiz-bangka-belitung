@@ -819,13 +819,21 @@
                     <p class="font-caption text-caption text-on-surface-variant">Tulis artikel, laporan penyaluran, dan upload foto dokumentasi kegiatan. Berita <strong>Published</strong> otomatis tayang realtime di Website Utama.</p>
                 </div>
                 <div class="flex items-center gap-sm shrink-0 w-full sm:w-auto flex-wrap">
+                    <button id="btn-pull-news-cloud" type="button" onclick="handlePullNewsCloud()" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 border border-outline-variant bg-surface text-on-surface hover:text-primary px-md py-sm rounded-xl font-label-md text-label-md font-bold transition-all shadow-xs cursor-pointer hover:bg-surface-container-low" title="Ambil data berita terbaru langsung dari Supabase">
+                        <span class="material-symbols-outlined text-sm">cloud_download</span>
+                        <span>Tarik Data Supabase</span>
+                    </button>
+                    <button id="btn-publish-all-news" type="button" onclick="handlePublishAllNews()" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-md py-sm rounded-xl font-label-md text-label-md font-bold transition-all shadow-xs cursor-pointer" title="Publikasikan semua berita ke web">
+                        <span class="material-symbols-outlined text-sm">public</span>
+                        <span>Tayangkan Semua</span>
+                    </button>
                     <button id="btn-sync-news-cloud" type="button" onclick="forceSyncNewsToCloud()" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 border border-emerald-500/60 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 px-md py-sm rounded-xl font-label-md text-label-md font-bold transition-all shadow-xs cursor-pointer" title="Simpan dan sinkronkan berita ke Supabase">
                         <span class="material-symbols-outlined text-sm">database</span>
-                        <span>Sinkronkan ke Supabase</span>
+                        <span>Sinkronkan ke Cloud</span>
                     </button>
-                    <a href="index.html#berita" target="_blank" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 border border-outline-variant text-on-surface hover:text-primary px-md py-sm rounded-xl font-label-md text-label-md font-bold transition-all hover:bg-surface-container-low cursor-pointer">
+                    <a href="berita.html" target="_blank" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 border border-outline-variant text-on-surface hover:text-primary px-md py-sm rounded-xl font-label-md text-label-md font-bold transition-all hover:bg-surface-container-low cursor-pointer">
                         <span class="material-symbols-outlined text-sm">open_in_new</span>
-                        <span>Lihat di Web</span>
+                        <span>Lihat Arsip Publik</span>
                     </a>
                     <button id="btn-add-news" type="button" onclick="openNewsModal()"
                         class="flex-1 sm:flex-none flex items-center justify-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-xl font-label-md text-label-md hover:bg-primary-container transition-all shadow-md font-bold cursor-pointer hover:scale-[1.02] active:scale-95">
@@ -2813,8 +2821,8 @@
         </div>
     </div>
 
-    <script src="assets/js/supabase-client.js?v=20260826_live"></script>
-    <script src="assets/js/admin-store.js?v=20260826_live"></script>
+    <script src="assets/js/supabase-client.js?v=20260826_v5"></script>
+    <script src="assets/js/admin-store.js?v=20260826_v5"></script>
 
     <script>
         const SPECIFIC_PROGRAMS_MAP = {
@@ -4045,11 +4053,37 @@
         // ─── News & Dokumentasi Handlers ───────────────────
         let activeNewsGallery = [];
 
+        let isFetchingNewsFallback = false;
         function renderNewsList() {
             if (!wizStore || !wizStore.news) return;
             const allNews = wizStore.news.getAll();
             const container = document.getElementById('news-list');
             if (!container) return;
+
+            // Auto fallback fetch if empty on first view
+            if (allNews.length === 0 && !isFetchingNewsFallback && window.wizSupabase && window.wizSupabase.isConfigured()) {
+                isFetchingNewsFallback = true;
+                window.wizSupabase.select('news').then(res => {
+                    isFetchingNewsFallback = false;
+                    if (res && Array.isArray(res.data) && res.data.length > 0) {
+                        const mapped = res.data.map(n => ({
+                            id: n.id,
+                            title: n.title,
+                            category: n.category || 'Kegiatan & Penyaluran',
+                            content: n.content,
+                            imageUrl: n.image_url || n.imageUrl || '',
+                            gallery: Array.isArray(n.gallery) ? n.gallery : [],
+                            eventDate: n.event_date || n.eventDate || n.created_at,
+                            status: n.status || 'published',
+                            author: n.author || 'Admin WIZ Babel',
+                            createdAt: n.created_at,
+                            updatedAt: n.updated_at
+                        }));
+                        localStorage.setItem('wiz_news', JSON.stringify(mapped));
+                        renderNewsList();
+                    }
+                }).catch(() => { isFetchingNewsFallback = false; });
+            }
 
             // Update stats badges
             const totalCount = allNews.length;
@@ -4604,6 +4638,70 @@
             alert(`✅ Status berita "${article.title}" diubah menjadi: ${statusLabel}`);
         }
 
+        async function handlePublishAllNews() {
+            if (!confirm('Apakah Anda yakin ingin menayangkan (mempublikasikan) SEMUA berita ke Website Utama dan Supabase?')) return;
+            const btn = document.getElementById('btn-publish-all-news');
+            const orig = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Menayangkan...</span>`;
+            }
+            try {
+                const count = await wizStore.news.publishAll();
+                refreshAll();
+                alert(`✅ Berhasil! Semua berita (${wizStore.news.getAll().length} berita) kini berstatus DIPUBLIKASIKAN dan aktif di Website Utama & Supabase.`);
+            } catch(e) {
+                alert('⚠️ Kendala saat menayangkan semua: ' + e.message);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = orig;
+                }
+            }
+        }
+
+        async function handlePullNewsCloud() {
+            const btn = document.getElementById('btn-pull-news-cloud');
+            const orig = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Mengambil...</span>`;
+            }
+            try {
+                if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                    const sbNewsRes = await window.wizSupabase.select('news');
+                    if (sbNewsRes && Array.isArray(sbNewsRes.data) && sbNewsRes.data.length > 0) {
+                        const mapped = sbNewsRes.data.map(n => ({
+                            id: n.id,
+                            title: n.title,
+                            category: n.category || 'Kegiatan & Penyaluran',
+                            content: n.content,
+                            imageUrl: n.image_url || n.imageUrl || '',
+                            gallery: Array.isArray(n.gallery) ? n.gallery : [],
+                            eventDate: n.event_date || n.eventDate || n.created_at,
+                            status: n.status || 'published',
+                            author: n.author || 'Admin WIZ Babel',
+                            createdAt: n.created_at,
+                            updatedAt: n.updated_at
+                        }));
+                        localStorage.setItem('wiz_news', JSON.stringify(mapped));
+                    }
+                }
+                if (wizStore && wizStore.syncWithCloud) {
+                    await wizStore.syncWithCloud();
+                }
+                refreshAll();
+                alert(`✅ Berhasil menarik data segar dari Supabase PostgreSQL! Total: ${wizStore.news.getAll().length} berita terdata.`);
+            } catch(e) {
+                alert('⚠️ Kendala: ' + e.message);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = orig;
+                }
+            }
+        }
+
         async function forceSyncNewsToCloud() {
             if (!window.wizStore) return;
             const btn = document.getElementById('btn-sync-news-cloud');
@@ -4808,6 +4906,8 @@
             populateDisbursementPrograms(currentProg);
             if (currentProg) {
                 handleDisbProgramSelect(currentProg);
+            } else {
+                handleDisbAmountInput(document.getElementById('disb-amount')?.value || '');
             }
         }
 
@@ -4829,13 +4929,13 @@
             const activeWilayah = document.getElementById('disb-wilayah') ? document.getElementById('disb-wilayah').value : 'Pangkalpinang';
             const editId = document.getElementById('disb-edit-id')?.value || null;
 
-            const progStats = wizStore.finance.getSpecificProgramStats(progTitle);
+            const progStats = wizStore.finance.getSpecificProgramStats(progTitle, 0, 50000000, activeWilayah);
             const progSaldo = progStats ? progStats.saldo : 0;
             const isSpecialBucket = progTitle.includes('Operasional') || progTitle.includes('Saving');
             const pillarPool = isSpecialBucket ? progSaldo : wizStore.finance.getPillarAvailableSubsidiPool(pillar, activeWilayah, editId);
             const fmt = wizStore.utils.formatRupiah;
 
-            if (detectedText) detectedText.textContent = `${pillar} (Pilar ${kat})`;
+            if (detectedText) detectedText.textContent = `${pillar} (Pilar ${kat}) — [${activeWilayah}]`;
             if (saldoText) saldoText.textContent = fmt(progSaldo);
             if (poolText) poolText.textContent = fmt(pillarPool);
             if (infoContainer) infoContainer.classList.remove('hidden');
@@ -4858,7 +4958,7 @@
                     descField.placeholder = progTitle ? `Contoh: Pengeluaran kegiatan "${progTitle}" (Auto-Split kas program + subsidi pilar)...` : "Rincian penyaluran, lokasi penerima manfaat, dll...";
                 }
             } else {
-                if (hint) hint.textContent = '🔵 Hanya memotong kas program yang dipilih. Ditolak/diblokir jika nominal input melebihi saldo kas.';
+                if (hint) hint.textContent = '🔵 Hanya memotong kas program yang dipilih. Ditolak jika nominal input melebihi saldo kas.';
                 if (descField && !descField.value) {
                     descField.placeholder = progTitle ? `Contoh: Penyaluran operasional langsung dari kas program "${progTitle}"...` : "Rincian penyaluran, lokasi penerima manfaat, dll...";
                 }
@@ -4917,7 +5017,7 @@
             const fmt = wizStore.utils.formatRupiah;
             const activeWilayah = document.getElementById('disb-wilayah') ? document.getElementById('disb-wilayah').value : 'Pangkalpinang';
             const editId = document.getElementById('disb-edit-id')?.value || null;
-            const progStats = wizStore.finance.getSpecificProgramStats(progTitle);
+            const progStats = wizStore.finance.getSpecificProgramStats(progTitle, 0, 50000000, activeWilayah);
             const progSaldo = progStats ? progStats.saldo : 0;
 
             if (sourceVal === 'program_spesifik') {
@@ -4926,28 +5026,29 @@
                 setSubmitBlocked(isOver);
 
                 if (numVal <= progSaldo) {
-                    previewBox.className = 'rounded-xl p-3.5 text-xs space-y-1 bg-emerald-50 border border-emerald-300 text-emerald-950 block';
+                    previewBox.className = 'rounded-xl p-3.5 text-xs space-y-1 bg-emerald-50 border border-emerald-300 text-emerald-950 block shadow-xs';
                     previewBox.innerHTML = `
                         <div class="flex items-center gap-1.5 font-bold text-emerald-900">
                             <span class="material-symbols-outlined text-sm text-emerald-700">check_circle</span>
-                            <span>Saldo Kas Program Mencukupi</span>
+                            <span>Saldo Kas Program Mencukupi (${activeWilayah})</span>
                         </div>
-                        <p class="text-[11px] text-emerald-800">
-                            Pengeluaran <strong>${fmt(numVal)}</strong> akan memotong langsung saldo kas "${escapeHtml(progTitle)}". Sisa saldo setelah penyaluran: <strong>${fmt(progSaldo - numVal)}</strong>.
+                        <p class="text-[11px] text-emerald-800 leading-relaxed">
+                            Pengeluaran <strong>${fmt(numVal)}</strong> memotong saldo kas "${escapeHtml(progTitle)}". Sisa saldo kas setelah penyaluran: <strong>${fmt(progSaldo - numVal)}</strong>.
                         </p>
                     `;
                 } else {
-                    previewBox.className = 'rounded-xl p-3.5 text-xs space-y-1.5 bg-rose-50 border border-rose-300 text-rose-950 block';
+                    const selisih = numVal - progSaldo;
+                    previewBox.className = 'rounded-xl p-3.5 text-xs space-y-1.5 bg-rose-50 border border-rose-300 text-rose-950 block shadow-xs';
                     previewBox.innerHTML = `
                         <div class="flex items-center gap-1.5 font-bold text-rose-900">
                             <span class="material-symbols-outlined text-sm text-rose-700">error</span>
                             <span>Saldo Kas Program Tidak Mencukupi!</span>
                         </div>
                         <p class="text-[11px] text-rose-800 leading-relaxed">
-                            Nominal pengeluaran <strong>${fmt(numVal)}</strong> melebihi saldo kas yang tersedia saat ini (<strong>${fmt(progSaldo)}</strong>).
+                            Nominal pengeluaran <strong>${fmt(numVal)}</strong> melebihi saldo kas ${escapeHtml(progTitle)} di <strong>${activeWilayah}</strong> yang tersedia saat ini (<strong>${fmt(progSaldo)}</strong>).
                         </p>
                         <div class="p-2 bg-white/80 rounded-lg border border-rose-200 text-[11px] text-rose-900 font-semibold flex items-center justify-between">
-                            <span>Kekurangan Dana: <strong>${fmt(numVal - progSaldo)}</strong></span>
+                            <span>Kekurangan Dana: <strong class="text-rose-700">${fmt(selisih)}</strong></span>
                             <button type="button" onclick="document.getElementById('disb-source-type').value='auto_split'; handleDisbSourceChange('auto_split');" class="px-2.5 py-1 bg-primary text-white rounded font-bold hover:bg-primary-container text-[11px] cursor-pointer shadow-xs">
                                 Aktifkan Auto-Split ⚡
                             </button>
@@ -4966,7 +5067,7 @@
                         <div class="flex items-center justify-between font-bold text-purple-900 border-b border-purple-200/80 pb-1.5">
                             <span class="flex items-center gap-1.5">
                                 <span class="material-symbols-outlined text-sm text-purple-700">splitscreen</span>
-                                <span>Rincian Pemotongan Pintar (Auto-Split)</span>
+                                <span>Rincian Pemotongan Pintar (Auto-Split) — [${activeWilayah}]</span>
                             </span>
                             <span class="px-2 py-0.5 bg-purple-200/70 text-purple-950 font-extrabold rounded text-[11px]">Total: ${fmt(numVal)}</span>
                         </div>
@@ -4998,10 +5099,10 @@
                     previewBox.innerHTML = `
                         <div class="flex items-center gap-1.5 font-bold text-rose-900">
                             <span class="material-symbols-outlined text-sm text-rose-700">block</span>
-                            <span>Total Dana di Pilar Ini Tidak Mencukupi</span>
+                            <span>Total Dana di Pilar Ini Tidak Mencukupi (${activeWilayah})</span>
                         </div>
                         <p class="text-[11px] text-rose-800 leading-relaxed">
-                            Total dana di pilar ${escapeHtml(splitRes.kategoriPilar)} (di luar dana Markaz) tidak mencukupi untuk membiayai pengeluaran sebesar <strong>${fmt(numVal)}</strong>.
+                            Total dana di pilar ${escapeHtml(splitRes.kategoriPilar)} di ${activeWilayah} (di luar dana Markaz) tidak mencukupi untuk membiayai pengeluaran sebesar <strong>${fmt(numVal)}</strong>.
                         </p>
                         <p class="text-[11px] text-rose-900 font-semibold pt-1 border-t border-rose-200">
                             Maksimal dana yang tersedia di pilar ini saat ini: <strong>${fmt(splitRes.totalAvailableInPillar)}</strong>.
@@ -5061,7 +5162,7 @@
 
             const sourceVal = document.getElementById('disb-source-type') ? document.getElementById('disb-source-type').value : 'program_spesifik';
             const activeWilayah = document.getElementById('disb-wilayah') ? document.getElementById('disb-wilayah').value : 'Pangkalpinang';
-            const progStats = wizStore.finance.getSpecificProgramStats(progTitle);
+            const progStats = wizStore.finance.getSpecificProgramStats(progTitle, 0, 50000000, activeWilayah);
             const progSaldo = progStats ? progStats.saldo : 0;
             const pillar = (window.wizStore && window.wizStore.utils) ? window.wizStore.utils.mapProgramToPillar(progTitle) : 'Berkah Peduli';
             const kategoriPilar = (window.wizStore && window.wizStore.utils) ? window.wizStore.utils.mapPillarToKategori(pillar) : 'Sosial';
@@ -5072,7 +5173,7 @@
             // Validasi Opsi 1: Hanya Saldo Program Ini
             if (sourceVal === 'program_spesifik') {
                 if (amount > progSaldo) {
-                    alert(`❌ Saldo kas program "${progTitle}" tidak mencukupi!\n\nSaldo tersedia: ${wizStore.utils.formatRupiah(progSaldo)}\nNominal pengeluaran: ${wizStore.utils.formatRupiah(amount)}\n\nSilakan pilih opsi "⚡ Saldo Program + Subsidi Silang Pilar (Otomatis)" untuk menutup kekurangan dana, atau sesuaikan nominal pengeluaran.`);
+                    alert(`❌ Saldo kas program "${progTitle}" (${activeWilayah}) tidak mencukupi!\n\nSaldo tersedia: ${wizStore.utils.formatRupiah(progSaldo)}\nNominal pengeluaran: ${wizStore.utils.formatRupiah(amount)}\nKelebihan pengeluaran: ${wizStore.utils.formatRupiah(amount - progSaldo)}\n\nPengeluaran ditolak secara otomatis untuk menjaga integritas saldo kas.`);
                     document.getElementById('disb-amount')?.focus();
                     return;
                 }
@@ -5082,7 +5183,7 @@
                 // Validasi Opsi 2: Auto-Split (Pemotongan Pintar)
                 const splitRes = wizStore.finance.calculateAutoSplit(progTitle, amount, activeWilayah, editId);
                 if (!splitRes.canSpend) {
-                    alert(`❌ ${splitRes.errorMessage || 'Total dana di pilar ini (di luar dana Markaz) tidak mencukupi.'}\n\nMaksimal dana yang tersedia di pilar ${kategoriPilar}: ${wizStore.utils.formatRupiah(splitRes.totalAvailableInPillar)}`);
+                    alert(`❌ ${splitRes.errorMessage || 'Total dana di pilar ini (di luar dana Markaz) tidak mencukupi.'}\n\nMaksimal dana yang tersedia di pilar ${kategoriPilar} (${activeWilayah}): ${wizStore.utils.formatRupiah(splitRes.totalAvailableInPillar)}`);
                     document.getElementById('disb-amount')?.focus();
                     return;
                 }
@@ -7912,6 +8013,27 @@
                 }
             } else if (section === 'news') {
                 try { if (typeof renderNewsList === 'function') renderNewsList(); } catch(e) { console.error(e); }
+                if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                    window.wizSupabase.select('news').then(res => {
+                        if (res && Array.isArray(res.data) && res.data.length > 0) {
+                            const mapped = res.data.map(n => ({
+                                id: n.id,
+                                title: n.title,
+                                category: n.category || 'Kegiatan & Penyaluran',
+                                content: n.content,
+                                imageUrl: n.image_url || n.imageUrl || '',
+                                gallery: Array.isArray(n.gallery) ? n.gallery : [],
+                                eventDate: n.event_date || n.eventDate || n.created_at,
+                                status: n.status || 'published',
+                                author: n.author || 'Admin WIZ Babel',
+                                createdAt: n.created_at,
+                                updatedAt: n.updated_at
+                            }));
+                            localStorage.setItem('wiz_news', JSON.stringify(mapped));
+                            if (typeof renderNewsList === 'function') renderNewsList();
+                        }
+                    }).catch(() => {});
+                }
             } else if (section === 'programs' || section === 'programs-cms') {
                 try { if (typeof renderProgramsCMSSection === 'function') renderProgramsCMSSection(); } catch(e) { console.error(e); }
             } else if (section === 'quotes') {

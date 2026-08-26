@@ -163,6 +163,28 @@ const SUPABASE_CONFIG = {
         }
     }
 
+    // ─── RPC (Remote Procedure Call) ─────────────────────
+    async function rpc(functionName, params = {}) {
+        if (!isConfigured()) return { data: null, error: 'Not configured' };
+
+        try {
+            const url = `${SUPABASE_CONFIG.url.replace(/\/$/, '')}/rest/v1/rpc/${functionName}`;
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: headers(),
+                body: JSON.stringify(params)
+            });
+            if (!res.ok) {
+                const err = await res.text();
+                return { data: null, error: err };
+            }
+            const data = await res.json();
+            return { data: data, error: null };
+        } catch (e) {
+            return { data: null, error: e.message };
+        }
+    }
+
     // ─── Public API ──────────────────────────────────────
     window.wizSupabase = {
         isConfigured,
@@ -171,7 +193,15 @@ const SUPABASE_CONFIG = {
         update,
         upsert,
         remove,
+        rpc,
         delete: remove,
+
+        getBranchFinancialLimit: async (wilayah = 'Pangkalpinang', checkDate = null) => {
+            return await rpc('get_branch_financial_limit', {
+                p_wilayah: wilayah,
+                p_check_date: checkDate || new Date().toISOString()
+            });
+        },
 
         // Helpers for entities
         saveDonation: async (data) => {
@@ -401,15 +431,27 @@ const SUPABASE_CONFIG = {
             const tType = disb.target_type || disb.targetType || 'specific';
             const fromProg = (disb.amount_from_program !== undefined) ? disb.amount_from_program : (disb.amountFromProgram !== undefined ? disb.amountFromProgram : Number(disb.amount) || 0);
             const fromSub = (disb.amount_from_subsidi !== undefined) ? disb.amount_from_subsidi : (disb.amountFromSubsidi !== undefined ? disb.amountFromSubsidi : 0);
+            const disbCat = disb.disbursement_category || disb.disbursementCategory || (
+                (disb.program && disb.program.toLowerCase().includes('operasional') && (disb.program.toLowerCase().includes('umum') || (!disb.program.toLowerCase().includes('terikat') && !disb.program.toLowerCase().includes('mitra')))) ? 'operasional_infak_umum' :
+                (disb.program && (disb.program.toLowerCase().includes('ujrah') || disb.program.toLowerCase().includes('mitra'))) ? 'hak_mitra_ujrah' :
+                (disb.program && disb.program.toLowerCase().includes('operasional') && disb.program.toLowerCase().includes('terikat')) ? 'operasional_infak_terikat_lembaga' :
+                (disb.program && (disb.program.toLowerCase().includes('saving') || disb.program.toLowerCase().includes('cadangan'))) ? 'dana_saving' :
+                'program_execution'
+            );
 
             let cleanDesc = String(disb.description || '').replace(/\s*\[Meta:[^\]]+\]/, '').trim();
-            const fullDesc = `${cleanDesc} [Meta: source=${sType}|target=${tType}|fromProg=${fromProg}|fromSub=${fromSub}]`;
+            const fullDesc = `${cleanDesc} [Meta: source=${sType}|target=${tType}|fromProg=${fromProg}|fromSub=${fromSub}|cat=${disbCat}]`;
 
             const payload = {
                 id: String(disb.id || ('disb-' + Date.now())),
                 wilayah: String(disb.wilayah || 'Pangkalpinang'),
                 program: String(disb.program || 'Infak Umum'),
+                disbursement_category: disbCat,
+                source_type: sType,
+                target_type: tType,
                 amount: Number(disb.amount) || 0,
+                amount_from_program: fromProg,
+                amount_from_subsidi: fromSub,
                 description: fullDesc,
                 disbursed_at: disb.disbursed_at || disb.disbursedAt || new Date().toISOString(),
                 recorded_by: String(disb.recorded_by || disb.recordedBy || 'Admin'),
@@ -421,10 +463,11 @@ const SUPABASE_CONFIG = {
             const res = await select('disbursements', { order: 'disbursed_at.desc' });
             if (res.error || !Array.isArray(res.data)) return res;
             const mapped = res.data.map(d => {
-                let sType = 'program_spesifik';
-                let tType = 'specific';
-                let fromProg = Number(d.amount) || 0;
-                let fromSub = 0;
+                let sType = d.source_type || 'program_spesifik';
+                let tType = d.target_type || 'specific';
+                let fromProg = d.amount_from_program !== undefined ? Number(d.amount_from_program) : (Number(d.amount) || 0);
+                let fromSub = d.amount_from_subsidi !== undefined ? Number(d.amount_from_subsidi) : 0;
+                let disbCat = d.disbursement_category || 'program_execution';
                 let cleanDesc = d.description || '';
 
                 if (cleanDesc.includes('[Meta:')) {
@@ -437,6 +480,7 @@ const SUPABASE_CONFIG = {
                             if (k === 'target') tType = v;
                             if (k === 'fromProg') fromProg = Number(v) || fromProg;
                             if (k === 'fromSub') fromSub = Number(v) || fromSub;
+                            if (k === 'cat') disbCat = v;
                         });
                         cleanDesc = cleanDesc.replace(/\s*\[Meta:[^\]]+\]/, '').trim();
                     }
@@ -450,6 +494,7 @@ const SUPABASE_CONFIG = {
                     wilayah: d.wilayah || 'Pangkalpinang',
                     sourceType: sType,
                     targetType: tType,
+                    disbursementCategory: disbCat,
                     program: d.program,
                     amount: Number(d.amount) || 0,
                     amountFromProgram: fromProg,
