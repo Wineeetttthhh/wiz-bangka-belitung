@@ -4891,7 +4891,7 @@
                 };
             }
 
-            // ─── Skenario Khusus 3: Operasional — Infak Terikat (Termasuk 6% Hak Mitra) ───
+            // ─── Skenario Khusus 3: Operasional — Infak Terikat ───
             if (pLower.includes('operasional') && (pLower.includes('terikat') || pLower.includes('mitra'))) {
                 let opTerikatMasuk = 0;
                 let opTerikatSalur = 0;
@@ -4918,7 +4918,7 @@
                     target: 50000000,
                     percent: 100,
                     pillar: 'Operasional',
-                    kategori_pilar: 'Operasional (Infak Terikat & Hak Mitra)',
+                    kategori_pilar: 'Operasional (Infak Terikat)',
                     isPriorityLocked: false
                 };
             }

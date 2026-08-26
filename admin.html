@@ -4682,9 +4682,9 @@
                 let sourceBadge = '';
                 const progNameLower = (d.program || '').toLowerCase();
                 if (progNameLower.includes('operasional')) {
-                    const isTerikat = progNameLower.includes('terikat') || progNameLower.includes('mitra');
+                    const isTerikat = progNameLower.includes('terikat');
                     sourceBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-slate-100 text-slate-800 border border-slate-300">
-                        <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span> 🏢 ${isTerikat ? 'Operasional Infak Terikat (Termasuk 6% Hak Mitra)' : 'Operasional Infak Umum'}
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span> 🏢 ${isTerikat ? 'Operasional Infak Terikat' : 'Operasional Infak Umum'}
                     </span>`;
                 } else if (progNameLower.includes('saving') || progNameLower.includes('cadangan')) {
                     sourceBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-cyan-100 text-cyan-800 border border-cyan-300">
@@ -4774,10 +4774,10 @@
 
             let html = '<option value="">-- Pilih Program Spesifik (Target Penyaluran) --</option>';
 
-            // 1. Kategori Operasional Lembaga & Hak Mitra (Alokasi Internal)
-            html += `<optgroup label="🏢 Operasional Lembaga &amp; Hak Mitra (Alokasi Internal)">`;
-            html += `<option value="Operasional — Infak Umum">Operasional — Infak Umum (Alokasi Operasional Infak Umum)</option>`;
-            html += `<option value="Operasional — Infak Terikat (Termasuk 6% Hak Mitra)">Operasional — Infak Terikat (Alokasi 12.5% Termasuk 6% Hak Mitra)</option>`;
+            // 1. Kategori Operasional Lembaga (Alokasi Internal)
+            html += `<optgroup label="🏢 Operasional Lembaga (Alokasi Internal)">`;
+            html += `<option value="Operasional — Infak Umum">Operasional — Infak Umum</option>`;
+            html += `<option value="Operasional — Infak Terikat">Operasional — Infak Terikat</option>`;
             html += `</optgroup>`;
 
             // 2. Kategori Dana Saving (Cadangan & Tabungan)
