@@ -3028,6 +3028,16 @@
         return mapPillarToKategori(pillar);
     }
 
+    function isGeneralInfak(d) {
+        if (!d) return false;
+        if (d.type === 'Infak Umum') return true;
+        const prog = (d.programSpesifik || d.program || '').trim();
+        if (!prog || prog === '-' || prog === '.' || prog.toLowerCase() === 'infak umum' || prog.toLowerCase() === 'sedekah umum' || prog.toLowerCase() === 'umum' || prog.toLowerCase() === 'infak' || prog.toLowerCase() === 'sedekah') {
+            return true;
+        }
+        return false;
+    }
+
     function escapeHtml(str) {
         if (str === null || str === undefined) return '';
         return String(str)
@@ -4815,7 +4825,7 @@
                     ? (allocationRulesManager.get(dWilayah) || ALLOCATION_RULES[dWilayah])
                     : ALLOCATION_RULES[dWilayah];
 
-                if (d.type === 'Infak Umum') {
+                if (isGeneralInfak(d)) {
                     if (wRules && wRules.mainAllocation) {
                         const mainItem = wRules.mainAllocation.find(i => i.key === progPillar);
                         if (mainItem) {
@@ -4985,7 +4995,7 @@
 
             verified.forEach(d => {
                 if (wilayah && wilayah !== 'Semua' && d.wilayah !== wilayah) return;
-                if (d.type === 'Infak Umum') {
+                if (isGeneralInfak(d)) {
                     const dWilayah = d.wilayah || 'Pangkalpinang';
                     const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get) 
                         ? (allocationRulesManager.get(dWilayah) || ALLOCATION_RULES[dWilayah])
@@ -5100,7 +5110,7 @@
                     ? (allocationRulesManager.get(dWilayah) || ALLOCATION_RULES[dWilayah])
                     : ALLOCATION_RULES[dWilayah];
 
-                if (d.type === 'Infak Umum') {
+                if (isGeneralInfak(d)) {
                     if (wRules && wRules.mainAllocation) {
                         wRules.mainAllocation.forEach(item => {
                             if (dynamicMasukUmum[item.key] !== undefined) {
@@ -5276,7 +5286,7 @@
                 const dWilayah = d.wilayah || 'Pangkalpinang';
                 if (wilayah && wilayah !== 'Semua' && dWilayah !== wilayah) return;
 
-                if (d.type === 'Infak Umum') {
+                if (isGeneralInfak(d)) {
                     const wObj = ruleData[dWilayah];
                     if (wObj && wObj.mainAllocation && wObj.subAllocation) {
                         const mainAllocMap = new Map();
