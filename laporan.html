@@ -259,11 +259,11 @@
             </div>
             <div class="flex flex-wrap items-center gap-2">
                 <div class="inline-flex p-1 bg-surface-container-high rounded-xl border border-outline-variant/30 text-xs font-bold">
-                    <button type="button" id="btn-chart-salur" onclick="setChartMetric('salur')" class="px-3 py-1.5 rounded-lg transition-all bg-primary text-on-primary font-bold shadow-xs">
-                        📤 Penyaluran
-                    </button>
                     <button type="button" id="btn-chart-masuk" onclick="setChartMetric('masuk')" class="px-3 py-1.5 rounded-lg transition-all text-on-surface-variant hover:text-on-surface font-semibold">
                         📥 Pemasukan
+                    </button>
+                    <button type="button" id="btn-chart-salur" onclick="setChartMetric('salur')" class="px-3 py-1.5 rounded-lg transition-all bg-primary text-on-primary font-bold shadow-xs">
+                        📤 Penyaluran
                     </button>
                 </div>
                 <select id="pub-filter-wilayah" onchange="renderPublicReport()" class="bg-surface border border-outline-variant rounded-lg px-3 py-2 font-caption text-caption text-on-surface font-bold outline-none cursor-pointer">
