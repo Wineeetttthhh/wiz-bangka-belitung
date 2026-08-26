@@ -255,13 +255,23 @@
                     <span class="material-symbols-outlined text-primary">pie_chart</span>
                     <span>Diagram Lingkaran Distribusi Program (5 Berkah WIZ)</span>
                 </h2>
-                <p class="font-body-md text-caption text-on-surface-variant">Proporsi dan persentase realisasi penyaluran dana per pilar utama lembaga (Dakwah, Pendidikan, Sosial, Kesehatan, Ekonomi) berdasarkan riwayat pengeluaran aktual.</p>
+                <p id="chart-section-subtitle" class="font-body-md text-caption text-on-surface-variant">Proporsi dan persentase realisasi penyaluran dana per pilar utama lembaga (Dakwah, Pendidikan, Sosial, Kesehatan, Ekonomi) berdasarkan riwayat pengeluaran aktual.</p>
             </div>
-            <select id="pub-filter-wilayah" onchange="renderPublicReport()" class="bg-surface border border-outline-variant rounded-lg px-3 py-2 font-caption text-caption text-on-surface font-bold outline-none cursor-pointer">
-                <option value="Semua" selected>Wilayah: Konsolidasi (Semua)</option>
-                <option value="Pangkalpinang">Wilayah: Pangkalpinang</option>
-                <option value="Sungailiat">Wilayah: Sungailiat</option>
-            </select>
+            <div class="flex flex-wrap items-center gap-2">
+                <div class="inline-flex p-1 bg-surface-container-high rounded-xl border border-outline-variant/30 text-xs font-bold">
+                    <button type="button" id="btn-chart-salur" onclick="setChartMetric('salur')" class="px-3 py-1.5 rounded-lg transition-all bg-primary text-on-primary font-bold shadow-xs">
+                        📤 Penyaluran
+                    </button>
+                    <button type="button" id="btn-chart-masuk" onclick="setChartMetric('masuk')" class="px-3 py-1.5 rounded-lg transition-all text-on-surface-variant hover:text-on-surface font-semibold">
+                        📥 Pemasukan
+                    </button>
+                </div>
+                <select id="pub-filter-wilayah" onchange="renderPublicReport()" class="bg-surface border border-outline-variant rounded-lg px-3 py-2 font-caption text-caption text-on-surface font-bold outline-none cursor-pointer">
+                    <option value="Semua" selected>Wilayah: Konsolidasi (Semua)</option>
+                    <option value="Pangkalpinang">Wilayah: Pangkalpinang</option>
+                    <option value="Sungailiat">Wilayah: Sungailiat</option>
+                </select>
+            </div>
         </div>
 
         <!-- Donut Chart & Legend Grid -->
@@ -490,6 +500,33 @@
         renderPillarDonutChart(filterWilayah, stats);
     }
 
+    let currentChartMetric = 'salur'; // 'salur' | 'masuk'
+
+    function setChartMetric(metric) {
+        currentChartMetric = metric;
+        const btnSalur = document.getElementById('btn-chart-salur');
+        const btnMasuk = document.getElementById('btn-chart-masuk');
+        
+        if (btnSalur && btnMasuk) {
+            if (metric === 'salur') {
+                btnSalur.className = 'px-3 py-1.5 rounded-lg transition-all bg-primary text-on-primary font-bold shadow-xs';
+                btnMasuk.className = 'px-3 py-1.5 rounded-lg transition-all text-on-surface-variant hover:text-on-surface font-semibold';
+            } else {
+                btnMasuk.className = 'px-3 py-1.5 rounded-lg transition-all bg-primary text-on-primary font-bold shadow-xs';
+                btnSalur.className = 'px-3 py-1.5 rounded-lg transition-all text-on-surface-variant hover:text-on-surface font-semibold';
+            }
+        }
+        
+        const subtitle = document.getElementById('chart-section-subtitle');
+        if (subtitle) {
+            subtitle.textContent = (metric === 'salur')
+                ? 'Proporsi dan persentase realisasi penyaluran dana per pilar utama lembaga (Dakwah, Pendidikan, Sosial, Kesehatan, Ekonomi) berdasarkan riwayat pengeluaran aktual.'
+                : 'Proporsi dan persentase dana terhimpun / pemasukan donasi per pilar utama lembaga (Dakwah, Pendidikan, Sosial, Kesehatan, Ekonomi) berdasarkan riwayat donasi terverifikasi.';
+        }
+        
+        renderPublicReport();
+    }
+
     function renderPillarDonutChart(filterWilayah, overviewStats) {
         const containerChart = document.getElementById('pillar-chart-container');
         const containerLegend = document.getElementById('pillar-legend-container');
@@ -530,15 +567,25 @@
             };
         });
 
-        // Diagram Distribusi: Patokan utama adalah realisasi penyaluran/pengeluaran aktual (Disbursements)
-        const hasRealSalur = grandTotalSalur > 0;
+        const isSalurMode = (currentChartMetric === 'salur');
+        const grandTotal = isSalurMode ? grandTotalSalur : grandTotalMasuk;
+        const hasRealData = grandTotal > 0;
 
-        if (hasRealSalur) {
+        if (hasRealData) {
             pillarStats.forEach(p => {
-                if (p.totalSalur > 0) {
-                    const rawPct = (p.totalSalur / grandTotalSalur) * 100;
+                const val = isSalurMode ? p.totalSalur : p.totalMasuk;
+                if (val > 0) {
+                    const rawPct = (val / grandTotal) * 100;
                     p.percent = rawPct;
-                    p.displayPercentStr = (rawPct % 1 === 0) ? `${rawPct.toFixed(0)}%` : `${rawPct.toFixed(1)}%`;
+                    if (rawPct >= 99.9 && rawPct < 100) {
+                        p.displayPercentStr = '99.9%';
+                    } else if (rawPct > 0 && rawPct < 0.1) {
+                        p.displayPercentStr = '<0.1%';
+                    } else if (rawPct % 1 === 0) {
+                        p.displayPercentStr = `${rawPct.toFixed(0)}%`;
+                    } else {
+                        p.displayPercentStr = `${rawPct.toFixed(1)}%`;
+                    }
                 } else {
                     p.percent = 0;
                     p.displayPercentStr = '0%';
@@ -554,7 +601,7 @@
         let accumulatedPercent = 0;
 
         let strokeSegments = '';
-        if (hasRealSalur) {
+        if (hasRealData) {
             const activeSegments = pillarStats.filter(p => p.percent > 0);
             strokeSegments = activeSegments.map(p => {
                 const strokeDasharray = `${(p.percent / 100) * circumference} ${circumference}`;
@@ -577,8 +624,11 @@
                                 class="transition-all duration-700" />`;
         }
 
-        const centerLabel = hasRealSalur ? 'Total Tersalurkan' : 'Belum Ada Penyaluran';
-        const centerValue = hasRealSalur ? fmt(grandTotalSalur) : 'Rp 0';
+        const centerLabel = isSalurMode 
+            ? (hasRealData ? 'Total Tersalurkan' : 'Belum Ada Penyaluran')
+            : (hasRealData ? 'Total Dana Masuk' : 'Belum Ada Donasi');
+        const centerValue = hasRealData ? fmt(grandTotal) : 'Rp 0';
+        const centerSub = isSalurMode ? 'Realisasi 5 Pilar' : 'Terhimpun 5 Pilar';
 
         containerChart.innerHTML = `
             <div class="relative flex items-center justify-center py-sm">
@@ -589,27 +639,33 @@
                 <div class="absolute flex flex-col items-center justify-center text-center p-2">
                     <span class="font-caption text-[11px] text-on-surface-variant font-semibold">${centerLabel}</span>
                     <span class="font-headline-md font-bold text-primary text-base">${centerValue}</span>
-                    <span class="text-[10px] text-outline font-semibold">Realisasi 5 Pilar</span>
+                    <span class="text-[10px] text-outline font-semibold">${centerSub}</span>
                 </div>
             </div>`;
 
         // Render Legend Cards
-        containerLegend.innerHTML = pillarStats.map(p => `
+        containerLegend.innerHTML = pillarStats.map(p => {
+            const activeVal = isSalurMode ? p.totalSalur : p.totalMasuk;
+            const valHighlight = activeVal > 0 ? (isSalurMode ? 'text-primary' : 'text-emerald-700') : 'text-slate-400';
+            const badgeClass = activeVal > 0 ? (isSalurMode ? 'text-primary' : 'text-emerald-800') : 'text-slate-500';
+
+            return `
             <div class="p-md rounded-xl border ${p.bg} shadow-xs flex items-center justify-between gap-md transition-transform hover:scale-[1.02]">
                 <div class="flex items-center gap-sm min-w-0">
                     <span class="w-3.5 h-3.5 rounded-full ${p.dot} shrink-0 shadow-xs"></span>
                     <div class="min-w-0">
                         <h4 class="font-label-md font-bold text-xs truncate">${p.label}</h4>
                         <p class="font-caption text-[11px] opacity-80 mt-0.5 truncate">
-                            Salur: <strong class="font-bold text-on-surface">${fmt(p.totalSalur)}</strong> <span class="opacity-70">| Masuk: ${fmt(p.totalMasuk)}</span>
+                            ${isSalurMode ? `Salur: <strong class="font-bold text-on-surface">${fmt(p.totalSalur)}</strong> <span class="opacity-70">| Masuk: ${fmt(p.totalMasuk)}</span>` : `Masuk: <strong class="font-bold text-on-surface">${fmt(p.totalMasuk)}</strong> <span class="opacity-70">| Salur: ${fmt(p.totalSalur)}</span>`}
                         </p>
                     </div>
                 </div>
                 <div class="text-right shrink-0">
-                    <span class="font-headline-md font-bold text-sm block ${p.totalSalur > 0 ? 'text-primary' : 'text-slate-500'}">${p.displayPercentStr}</span>
-                    <span class="text-[10px] opacity-85 font-mono font-bold block ${p.totalSalur > 0 ? 'text-emerald-800' : 'text-slate-400'}">${fmt(p.totalSalur)}</span>
+                    <span class="font-headline-md font-bold text-sm block ${badgeClass}">${p.displayPercentStr}</span>
+                    <span class="text-[10px] opacity-85 font-mono font-bold block ${valHighlight}">${fmt(activeVal)}</span>
                 </div>
-            </div>`).join('');
+            </div>`;
+        }).join('');
     }
 
     // Table Filter
