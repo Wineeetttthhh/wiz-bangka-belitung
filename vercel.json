@@ -89,7 +89,7 @@
       ]
     },
     {
-      "source": "/api/(berita|quote|program)",
+      "source": "/api/(berita|quote|program|sync)",
       "headers": [
         {
           "key": "Cache-Control",

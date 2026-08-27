@@ -2417,6 +2417,24 @@ window.addEventListener('wiz-sync-complete', () => {
     window.applySiteSettings();
 });
 
+// Instant cross-device cloud sync on tab focus or mobile browser wake
+document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState === 'visible' && window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
+        try {
+            await window.wizStore.syncFromCloud();
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+        } catch(e) {}
+    }
+});
+window.addEventListener('focus', async () => {
+    if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
+        try {
+            await window.wizStore.syncFromCloud();
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+        } catch(e) {}
+    }
+});
+
 
 
 

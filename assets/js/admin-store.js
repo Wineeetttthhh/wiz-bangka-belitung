@@ -6448,7 +6448,27 @@
         }
     }
 
-    // Automatic recurring background cloud sync every 10 seconds (when tab is active)
+    // Instant cross-device cloud sync on tab focus or mobile app wake
+    if (typeof document !== 'undefined') {
+        document.addEventListener('visibilitychange', async () => {
+            if (document.visibilityState === 'visible') {
+                try {
+                    await syncFromCloud();
+                    window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+                } catch(e) {}
+            }
+        });
+    }
+    if (typeof window !== 'undefined') {
+        window.addEventListener('focus', async () => {
+            try {
+                await syncFromCloud();
+                window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+            } catch(e) {}
+        });
+    }
+
+    // Automatic recurring background cloud sync every 8 seconds (when tab is active)
     setInterval(async () => {
         if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
             try {
@@ -6456,7 +6476,7 @@
                 window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             } catch(e) {}
         }
-    }, 10000);
+    }, 8000);
 
     // ─── Public API ───────────────────────────────────────
     window.wizStore = {
