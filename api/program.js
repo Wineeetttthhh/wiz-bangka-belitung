@@ -71,11 +71,13 @@ const SPECIFIC_PROGRAMS_METADATA = {
         imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'tahfidz': {
-        title: 'Tahfidz Al-Qur\'an',
+        title: 'Tahfidz (Berkah untuk Ahlul Qur\'an)',
         pillar: 'Dakwah & Pembinaan',
         target: 'Rp 15.000.000',
-        description: 'Bantu pembinaan dan fasilitas para santri penghafal Al-Qur\'an untuk mencetak generasi penjaga wahyu di Bangka Belitung.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
+        location: 'Masjid Kemas Adil (Jl. A. Yani sebelum Simpang Tujuh, Pangkalpinang)',
+        beneficiaries: 'Penghafal Al-Qur\'an & Santri Tahfidz',
+        description: '✨ Berkah untuk Ahlul Qur\'an ✨\n\nDukung para penghafal Al-Qur\'an dalam menjaga kalamullah dengan sedekah konsumsi setiap akhir pekan di Masjid Kemas Adil (Jl. A. Yani sebelum Simpang Tujuh).\n\nSetiap dukungan yang diberikan menjadi bagian dari perjuangan mereka dalam menghafal dan mengamalkan Al-Qur\'an.\n\nDengan Rp 10.000/paket, kita turut membersamai langkah para ahlul Qur\'an. Nilainya mungkin kecil, namun insyaAllah berdampak besar di sisi Allah.',
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/logo-wiz-babel.png'
     },
     'pelatihan-public-speaking': {
         title: 'Pelatihan Public Speaking',
