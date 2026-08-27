@@ -2356,41 +2356,7 @@ window.applySiteSettings = function () {
 
 // ─── Auto-Enhance Program Cards With Share Buttons ───────
 window.enhanceProgramCardsWithShareButtons = function () {
-    document.querySelectorAll('.program-card').forEach(card => {
-        if (card.querySelector('.btn-share-program')) return; // Already enhanced
-
-        const titleEl = card.querySelector('h3');
-        if (!titleEl) return;
-        const progTitle = card.getAttribute('data-title') || titleEl.textContent.trim();
-        const descEl = card.querySelector('p');
-        const progDesc = descEl ? descEl.textContent.trim() : '';
-
-        // Find donate button
-        const btnDonate = card.querySelector('button[onclick*="openDonationModal"]');
-        if (btnDonate) {
-            const parent = btnDonate.parentElement;
-            if (!parent.classList.contains('program-card-actions')) {
-                // Wrap in a flex-col container — donate button stays full width on top
-                const actionsWrapper = document.createElement('div');
-                actionsWrapper.className = 'program-card-actions flex flex-col gap-1 w-full';
-                parent.insertBefore(actionsWrapper, btnDonate);
-
-                // Donate button stays as-is (w-full, same style as original)
-                actionsWrapper.appendChild(btnDonate);
-
-                // Share button below donate — small, subtle, full width
-                const shareBtn = document.createElement('button');
-                shareBtn.type = 'button';
-                shareBtn.className = 'btn-share-program w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border border-outline-variant/40 text-on-surface-variant hover:text-primary hover:border-primary/40 hover:bg-primary/5 transition-colors text-xs font-semibold cursor-pointer bg-transparent';
-                shareBtn.innerHTML = `<span class="material-symbols-outlined text-sm">share</span><span>Bagikan Program Ini</span>`;
-                shareBtn.onclick = function (e) {
-                    e.stopPropagation();
-                    window.shareProgram(progTitle, progDesc);
-                };
-                actionsWrapper.appendChild(shareBtn);
-            }
-        }
-    });
+    // Disabled: program card sharing removed from public catalog; affiliate/mitra portal handles program sharing
 };
 
 /**
@@ -2442,7 +2408,6 @@ window.populateMonthFilterOptions = function(selectElementId, includeAll = true,
 document.addEventListener('DOMContentLoaded', () => {
     window.autoUpdateCopyrightYears();
     window.applySiteSettings();
-    window.enhanceProgramCardsWithShareButtons();
 });
 window.addEventListener('wiz-site-settings-changed', () => {
     window.applySiteSettings();
@@ -2450,7 +2415,6 @@ window.addEventListener('wiz-site-settings-changed', () => {
 window.addEventListener('wiz-sync-complete', () => {
     window.autoUpdateCopyrightYears();
     window.applySiteSettings();
-    window.enhanceProgramCardsWithShareButtons();
 });
 
 
