@@ -641,7 +641,7 @@
                    (new URLSearchParams(window.location.search).get('ref') || sessionStorage.getItem('wiz_active_ref_id') || localStorage.getItem('wiz_ref_code') || '').trim();
         }
 
-        function shareDirectWA(id) {
+        async function shareDirectWA(id) {
             if (!window.wizStore || !window.wizStore.news) return;
             const n = wizStore.news.getById(id);
             if (!n) return;
@@ -650,15 +650,49 @@
             const shareUrlObj = new URL(`${baseOrigin}/berita/${encodeURIComponent(n.id)}`);
             if (refCode) shareUrlObj.searchParams.set('ref', refCode);
             const finalShareUrl = shareUrlObj.toString();
+            const caption = `📰 *${n.title}*\n\nSimak dokumentasi kegiatan penyaluran dan aksi nyata kebaikan WIZ Bangka Belitung selengkapnya:\n🔗 ${finalShareUrl}`;
+
+            const newsImg = n.imageUrl || n.image_url || `${baseOrigin}/berita-image/${encodeURIComponent(n.id)}.jpg`;
+
+            // 1. Try Native Mobile Share with Image File
+            if (navigator.share && typeof navigator.canShare === 'function' && newsImg) {
+                try {
+                    let imgBlob = null;
+                    if (newsImg.startsWith('data:image/')) {
+                        const arr = newsImg.split(',');
+                        const mime = (arr[0].match(/:(.*?);/) || [])[1] || 'image/jpeg';
+                        const bstr = atob(arr[1]);
+                        let len = bstr.length;
+                        const u8arr = new Uint8Array(len);
+                        while (len--) u8arr[len] = bstr.charCodeAt(len);
+                        imgBlob = new File([u8arr], `Berita-WIZ-${n.id}.jpg`, { type: mime });
+                    } else {
+                        const resp = await fetch(newsImg, { mode: 'cors' });
+                        const blob = await resp.blob();
+                        imgBlob = new File([blob], `Berita-WIZ-${n.id}.jpg`, { type: blob.type || 'image/jpeg' });
+                    }
+
+                    if (imgBlob && navigator.canShare({ files: [imgBlob] })) {
+                        await navigator.share({
+                            title: n.title,
+                            text: caption,
+                            files: [imgBlob]
+                        });
+                        return;
+                    }
+                } catch (e) {
+                    if (e.name === 'AbortError') return;
+                }
+            }
             
             if (typeof window.showWhatsAppShareToast === 'function') {
-                window.showWhatsAppShareToast('Tunggu 1–2 detik di WhatsApp hingga kartu preview gambar muncul sebelum kirim Status ✨');
+                window.showWhatsAppShareToast('Membuka WhatsApp... Tunggu 1–2 detik hingga kartu preview gambar muncul ✨');
             }
 
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(finalShareUrl)}`, '_blank');
         }
 
-        function shareArticleModal(platform) {
+        async function shareArticleModal(platform) {
             if (!currentModalArticle) return;
             const refCode = getPageRefCode();
             const baseOrigin = 'https://www.wizbangkabelitung.or.id';
@@ -667,10 +701,42 @@
 
             const finalShareUrl = shareUrlObj.toString();
             if (platform === 'wa') {
-                if (typeof window.showWhatsAppShareToast === 'function') {
-                    window.showWhatsAppShareToast('Tunggu 1–2 detik di WhatsApp hingga kartu preview gambar muncul sebelum kirim Status ✨');
+                const caption = `📰 *${currentModalArticle.title}*\n\nSimak dokumentasi kegiatan penyaluran dan aksi nyata kebaikan WIZ Bangka Belitung selengkapnya:\n🔗 ${finalShareUrl}`;
+                const newsImg = currentModalArticle.imageUrl || currentModalArticle.image_url || `${baseOrigin}/berita-image/${encodeURIComponent(currentModalArticle.id)}.jpg`;
+
+                if (navigator.share && typeof navigator.canShare === 'function' && newsImg) {
+                    try {
+                        let imgBlob = null;
+                        if (newsImg.startsWith('data:image/')) {
+                            const arr = newsImg.split(',');
+                            const mime = (arr[0].match(/:(.*?);/) || [])[1] || 'image/jpeg';
+                            const bstr = atob(arr[1]);
+                            let len = bstr.length;
+                            const u8arr = new Uint8Array(len);
+                            while (len--) u8arr[len] = bstr.charCodeAt(len);
+                            imgBlob = new File([u8arr], `Berita-WIZ-${currentModalArticle.id}.jpg`, { type: mime });
+                        } else {
+                            const resp = await fetch(newsImg, { mode: 'cors' });
+                            const blob = await resp.blob();
+                            imgBlob = new File([blob], `Berita-WIZ-${currentModalArticle.id}.jpg`, { type: blob.type || 'image/jpeg' });
+                        }
+
+                        if (imgBlob && navigator.canShare({ files: [imgBlob] })) {
+                            await navigator.share({
+                                title: currentModalArticle.title,
+                                text: caption,
+                                files: [imgBlob]
+                            });
+                            return;
+                        }
+                    } catch (e) {
+                        if (e.name === 'AbortError') return;
+                    }
                 }
-                // Send URL with dynamic cache buster to WhatsApp
+
+                if (typeof window.showWhatsAppShareToast === 'function') {
+                    window.showWhatsAppShareToast('Membuka WhatsApp... Tunggu 1–2 detik hingga kartu preview gambar muncul ✨');
+                }
                 window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(finalShareUrl)}`, '_blank');
             } else if (platform === 'copy') {
                 const cleanCopyUrl = shareUrlObj.toString();

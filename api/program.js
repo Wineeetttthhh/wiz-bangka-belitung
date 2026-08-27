@@ -655,9 +655,15 @@ const PROGRAM_IMAGE_MAP = {
         return res.status(404).send('Image not found');
     }
 
-    // WhatsApp, Facebook, and Twitter standard proxy: guarantees <280KB, JPEG, and exact framing
-    const ogImageUrl = `${origin}/api/og-image?type=program&id=${encodeURIComponent(canonicalSlug)}`;
-    const ogImageSecureUrl = ogImageUrl;
+    // Direct Image Resolution for WhatsApp, Facebook, and Twitter (< 50ms response)
+    let directOgImage = `${origin}/program-image/${encodeURIComponent(canonicalSlug)}.jpg`;
+    if (selectedProgram.imageUrl && selectedProgram.imageUrl.startsWith('https://')) {
+        directOgImage = selectedProgram.imageUrl;
+    } else if (PROGRAM_IMAGE_MAP[canonicalSlug]) {
+        directOgImage = `${origin}/${PROGRAM_IMAGE_MAP[canonicalSlug].replace(/^\//, '')}`;
+    }
+    const ogImageUrl = directOgImage;
+    const ogImageSecureUrl = directOgImage;
 
     // Determine actual page image source for HTML body display
     let pageImgSrc = rawImg;
@@ -798,7 +804,7 @@ const PROGRAM_IMAGE_MAP = {
 
     // Return Rich SSR HTML with OpenGraph tags for WhatsApp, Facebook, Twitter, Telegram
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=3600, stale-while-revalidate=86400');
 
     const html = `<!DOCTYPE html>
 <html lang="id">

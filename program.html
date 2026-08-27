@@ -1420,15 +1420,56 @@
             .replace(/[-\s]+/g, '-');
     }
 
-    function shareProgramToWA(programTitle) {
+    async function shareProgramToWA(programTitle) {
         const origin = 'https://www.wizbangkabelitung.or.id';
-        const slug = String(programTitle || '').toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-');
+        const cleanTitle = (programTitle || 'Program Kebaikan').trim();
+        const slug = cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-');
         const refCode = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || '');
         const progUrlObj = new URL(`${origin}/program/${slug}`);
         if (refCode) progUrlObj.searchParams.set('ref', refCode);
         const finalProgUrl = progUrlObj.toString();
-        const waMsg = `🌟 *${programTitle}*\n\nSalurkan kepedulian dan donasi terbaik Anda bersama Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.\n\n🔗 ${finalProgUrl}`;
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(waMsg)}`, '_blank');
+        const waMsg = `🌟 *${cleanTitle}*\n\nSalurkan kepedulian dan donasi terbaik Anda bersama Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.\n\n🔗 ${finalProgUrl}`;
+
+        // Resolve program image
+        let progImg = `${origin}/assets/images/${slug}.jpg`;
+        if (window.wizStore && window.wizStore.programs) {
+            const p = window.wizStore.programs.getBySlug ? window.wizStore.programs.getBySlug(slug) : null;
+            if (p && p.imageUrl) progImg = p.imageUrl;
+        }
+
+        // 1. Try Native Mobile Share with Image File (Opens WhatsApp Photo Story)
+        if (navigator.share && typeof navigator.canShare === 'function') {
+            try {
+                let imgBlob = null;
+                if (progImg.startsWith('data:image/')) {
+                    const arr = progImg.split(',');
+                    const mime = (arr[0].match(/:(.*?);/) || [])[1] || 'image/jpeg';
+                    const bstr = atob(arr[1]);
+                    let n = bstr.length;
+                    const u8arr = new Uint8Array(n);
+                    while (n--) u8arr[n] = bstr.charCodeAt(n);
+                    imgBlob = new File([u8arr], `Poster-${slug}.jpg`, { type: mime });
+                } else {
+                    const resp = await fetch(progImg, { mode: 'cors' });
+                    const blob = await resp.blob();
+                    imgBlob = new File([blob], `Poster-${slug}.jpg`, { type: blob.type || 'image/jpeg' });
+                }
+
+                if (imgBlob && navigator.canShare({ files: [imgBlob] })) {
+                    await navigator.share({
+                        title: cleanTitle,
+                        text: waMsg,
+                        files: [imgBlob]
+                    });
+                    return;
+                }
+            } catch (e) {
+                if (e.name === 'AbortError') return;
+            }
+        }
+
+        // 2. Fallback to WhatsApp URL
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(finalProgUrl)}`, '_blank');
     }
 
     function shareSpecificProgram(programTitle) {

@@ -249,21 +249,18 @@ module.exports = async function handler(req, res) {
 
     // ─── 2. DEDICATED OG IMAGE URL (Direct, Instant & Highest Accuracy) ──────────
     const firstGalleryImg = (Array.isArray(gallery) && gallery.length > 0 && typeof gallery[0] === 'string') ? gallery[0].trim() : '';
-    const primaryImg = rawImg || firstGalleryImg || 'assets/images/default-program-wiz.jpg';
+    const primaryImg = rawImg || firstGalleryImg || 'assets/images/foto-utama-wiz.jpg';
 
-    // WhatsApp, Facebook, and Twitter standard proxy: guarantees <280KB, JPEG, and exact framing
-    const ogImageUrl = `${origin}/api/og-image?type=news&id=${encodeURIComponent(article.id)}`;
-    const secureImgUrl = ogImageUrl;
-
-    // Determine actual page body image (can still use base64/direct for display quality)
-    let absoluteImgUrl = ogImageUrl;
-    if (primaryImg.startsWith('data:image/')) {
-        absoluteImgUrl = `${origin}/berita-image/${encodeURIComponent(article.id)}.jpg`;
-    } else if (primaryImg.startsWith('http://') || primaryImg.startsWith('https://')) {
-        absoluteImgUrl = primaryImg;
-    } else if (primaryImg) {
-        absoluteImgUrl = `${origin}/${primaryImg.replace(/^\//, '')}`;
+    // Direct Image URL for WhatsApp, Facebook, and Twitter (< 50ms response from CDN)
+    let directOgImage = `${origin}/berita-image/${encodeURIComponent(article.id)}.jpg`;
+    if (primaryImg.startsWith('http://') || primaryImg.startsWith('https://')) {
+        directOgImage = primaryImg;
+    } else if (primaryImg && !primaryImg.startsWith('data:image/')) {
+        directOgImage = `${origin}/${primaryImg.replace(/^\//, '')}`;
     }
+    const ogImageUrl = directOgImage;
+    const secureImgUrl = directOgImage;
+    const absoluteImgUrl = directOgImage;
 
     const refCode = (urlObj.searchParams.get('ref') || urlObj.searchParams.get('affiliate') || urlObj.searchParams.get('perantara') || '').trim();
     const excerpt = rawContent.slice(0, 180).replace(/\r?\n|\r/g, ' ') + (rawContent.length > 180 ? '...' : '');
@@ -544,6 +541,6 @@ module.exports = async function handler(req, res) {
 </html>`;
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120');
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=3600, stale-while-revalidate=86400');
     return res.status(200).send(html);
 };

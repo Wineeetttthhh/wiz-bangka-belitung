@@ -1445,7 +1445,7 @@
             }
         }
 
-        function shareAffiliateQuoteWA(quoteId) {
+        async function shareAffiliateQuoteWA(quoteId) {
             if (!window.wizStore || !window.wizStore.quotes) return;
             const q = wizStore.quotes.getById(quoteId);
             if (!q) return;
@@ -1456,11 +1456,30 @@
             if (activeRef) flyerUrlObj.searchParams.set('ref', activeRef);
             const flyerUrl = flyerUrlObj.toString();
             
+            const caption = `🌟 *Inspirasi Kebaikan — WIZ Bangka Belitung*\n\nMari bersama tebarkan kepedulian dan sedekah terbaik Anda.\n\n🔗 ${flyerUrl}`;
+
+            // Try Native Mobile Share with Image File (Opens WhatsApp Photo Story with full poster & caption)
+            if (navigator.share && typeof navigator.canShare === 'function' && q.imageUrl) {
+                try {
+                    const imgFile = await urlOrBase64ToFile(q.imageUrl, `Flyer-WIZ-${q.id || 'quote'}.jpg`);
+                    if (imgFile && navigator.canShare({ files: [imgFile] })) {
+                        await navigator.share({
+                            title: 'Flyer Inspirasi Kebaikan WIZ',
+                            text: caption,
+                            files: [imgFile]
+                        });
+                        return;
+                    }
+                } catch (e) {
+                    if (e.name === 'AbortError') return;
+                }
+            }
+
             if (typeof window.showWhatsAppShareToast === 'function') {
-                window.showWhatsAppShareToast('Tunggu 1–2 detik di WhatsApp hingga flyer poster muncul sebelum kirim Status ✨');
+                window.showWhatsAppShareToast('Membuka WhatsApp... Tunggu 1–2 detik hingga kartu preview gambar muncul ✨');
             }
             
-            // Send pure URL only to WhatsApp so Open Graph thumbnail card renders reliably on WhatsApp Status
+            // Send pure URL to WhatsApp so Open Graph thumbnail card renders reliably
             const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(flyerUrl);
             window.open(waUrl, '_blank');
         }
@@ -1496,7 +1515,7 @@
             try {
                 if (imageUrl.startsWith('data:image/')) {
                     const arr = imageUrl.split(',');
-                    const mime = arr[0].match(/:(.*?);/)[1];
+                    const mime = (arr[0].match(/:(.*?);/) || [])[1] || 'image/jpeg';
                     const bstr = atob(arr[1]);
                     let n = bstr.length;
                     const u8arr = new Uint8Array(n);
@@ -1505,7 +1524,7 @@
                     }
                     return new File([u8arr], filename, { type: mime });
                 } else {
-                    const resp = await fetch(imageUrl);
+                    const resp = await fetch(imageUrl, { mode: 'cors' });
                     const blob = await resp.blob();
                     return new File([blob], filename, { type: blob.type || 'image/jpeg' });
                 }
@@ -1515,7 +1534,7 @@
             }
         }
 
-        function shareAffiliateNewsWA(newsId) {
+        async function shareAffiliateNewsWA(newsId) {
             const refCode = getActiveAffiliateRefCode();
             const n = wizStore.news ? wizStore.news.getById(newsId) : null;
             if (!n) return;
@@ -1525,29 +1544,49 @@
             if (refCode) newsUrlObj.searchParams.set('ref', refCode);
             const newsUrl = newsUrlObj.toString();
 
-            if (typeof window.showWhatsAppShareToast === 'function') {
-                window.showWhatsAppShareToast('Tunggu 1–2 detik di WhatsApp hingga foto kegiatan muncul sebelum kirim Status ✨');
+            const caption = `📰 *${n.title}*\n\nSimak dokumentasi kegiatan penyaluran dan aksi nyata kebaikan WIZ Bangka Belitung selengkapnya:\n🔗 ${newsUrl}`;
+
+            // Try Native Mobile Share with Image File (Opens WhatsApp Photo Story with full photo & caption)
+            const newsImg = n.imageUrl || n.image_url || `${origin}/berita-image/${encodeURIComponent(n.id)}.jpg`;
+            if (navigator.share && typeof navigator.canShare === 'function' && newsImg) {
+                try {
+                    const imgFile = await urlOrBase64ToFile(newsImg, `Berita-WIZ-${n.id || 'news'}.jpg`);
+                    if (imgFile && navigator.canShare({ files: [imgFile] })) {
+                        await navigator.share({
+                            title: n.title,
+                            text: caption,
+                            files: [imgFile]
+                        });
+                        return;
+                    }
+                } catch (e) {
+                    if (e.name === 'AbortError') return;
+                }
             }
 
-            // Send pure URL only to WhatsApp so Open Graph thumbnail card renders reliably on WhatsApp Status
+            if (typeof window.showWhatsAppShareToast === 'function') {
+                window.showWhatsAppShareToast('Membuka WhatsApp... Tunggu 1–2 detik hingga foto kegiatan muncul ✨');
+            }
+
+            // Send pure URL to WhatsApp so Open Graph thumbnail card renders reliably
             window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(newsUrl), '_blank');
         }
 
         function downloadAffiliateNewsImage(newsId) {
             const n = wizStore.news ? wizStore.news.getById(newsId) : null;
-            if (!n || !n.imageUrl) {
+            if (!n || (!n.imageUrl && !n.image_url)) {
                 alert('Foto kegiatan tidak ditemukan.');
                 return;
             }
             const a = document.createElement('a');
-            a.href = n.imageUrl;
+            a.href = n.imageUrl || n.image_url;
             a.download = `Foto-Kegiatan-WIZ-${n.id || 'berita'}.jpg`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
         }
 
-        function shareAffiliateProgramWA(programTitle) {
+        async function shareAffiliateProgramWA(programTitle) {
             const refCode = getActiveAffiliateRefCode();
             const cleanTitle = (programTitle || 'Program Kebaikan').trim();
             const slug = cleanTitle.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-');
@@ -1556,12 +1595,41 @@
             if (refCode) progUrlObj.searchParams.set('ref', refCode);
             const progUrl = progUrlObj.toString();
             
+            const caption = `🌟 *${cleanTitle}*\n\nSalurkan kepedulian dan donasi terbaik Anda bersama Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.\n\n🔗 ${progUrl}`;
+
+            // Try to resolve program image from store or static map
+            let progImg = null;
+            if (window.wizStore && window.wizStore.programs) {
+                const p = window.wizStore.programs.getBySlug ? window.wizStore.programs.getBySlug(slug) : null;
+                if (p && p.imageUrl) progImg = p.imageUrl;
+            }
+            if (!progImg) {
+                progImg = `${origin}/assets/images/${slug}.jpg`;
+            }
+
+            // Try Native Mobile Share with Image File (Opens WhatsApp Photo Story with full poster & caption)
+            if (navigator.share && typeof navigator.canShare === 'function') {
+                try {
+                    const imgFile = await urlOrBase64ToFile(progImg, `Poster-${slug}.jpg`);
+                    if (imgFile && navigator.canShare({ files: [imgFile] })) {
+                        await navigator.share({
+                            title: cleanTitle,
+                            text: caption,
+                            files: [imgFile]
+                        });
+                        return;
+                    }
+                } catch (e) {
+                    if (e.name === 'AbortError') return;
+                }
+            }
+
             if (typeof window.showWhatsAppShareToast === 'function') {
-                window.showWhatsAppShareToast('Tunggu 1–2 detik di WhatsApp hingga foto program muncul sebelum kirim Status ✨');
+                window.showWhatsAppShareToast('Membuka WhatsApp... Tunggu 1–2 detik hingga foto program muncul ✨');
             }
             
-            const waMsg = `${progUrl}\n\n🌟 *${cleanTitle}*\nSalurkan kepedulian dan donasi terbaik Anda bersama Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.`;
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(waMsg)}`, '_blank');
+            // Send pure URL so WhatsApp link preview card triggers reliably
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(progUrl)}`, '_blank');
         }
 
         function copyAffiliateNewsLink(newsId) {

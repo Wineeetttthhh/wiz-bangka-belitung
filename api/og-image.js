@@ -54,7 +54,7 @@ function sendJpegImage(res, buf) {
     res.setHeader('Content-Type', 'image/jpeg');
     res.setHeader('Content-Length', String(buf.length));
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400, immutable');
     res.setHeader('X-Content-Type-Options', 'nosniff');
     if (typeof res.status === 'function') {
         res.status(200).end(buf);
@@ -63,7 +63,7 @@ function sendJpegImage(res, buf) {
             'Content-Type': 'image/jpeg',
             'Content-Length': String(buf.length),
             'Access-Control-Allow-Origin': '*',
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Cache-Control': 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400, immutable',
             'X-Content-Type-Options': 'nosniff'
         });
         res.end(buf);
