@@ -733,7 +733,7 @@
                 "Pengadaan & Perbaikan Kendaraan",
                 "Santunan Mualaf",
                 "Pengadaan Celengan Sedekah Subuh",
-                "Tahfidz",
+                "Tahfidz Weekend",
                 "Pelatihan Public Speaking",
                 "Tabligh Akbar Dzhulhijjah",
                 "Pelatihan Guru Dirosa",
@@ -1050,7 +1050,7 @@
 
             let progObj = null;
             if (window.wizStore && window.wizStore.programs && typeof window.wizStore.programs.getProgramDetails === 'function') {
-                progObj = window.wizStore.programs.getProgramDetails(progName);
+                progObj = window.wizStore.programs.getProgramDetails(progName, catName);
             }
 
             const defaultImg = (window.wizStore && window.wizStore.allocationRulesManager) ? window.wizStore.allocationRulesManager.getSpecificProgramImage(progName, catName) : 'assets/images/foto-utama-wiz.jpg';
