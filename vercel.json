@@ -174,11 +174,11 @@
     },
     {
       "source": "/berita-image/:id.jpg",
-      "destination": "/api/berita?id=:id&img=1"
+      "destination": "/api/og-image?type=news&id=:id"
     },
     {
       "source": "/berita-image/:id",
-      "destination": "/api/berita?id=:id&img=1"
+      "destination": "/api/og-image?type=news&id=:id"
     },
     {
       "source": "/program-image/:slug.jpg",

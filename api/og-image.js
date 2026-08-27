@@ -21,7 +21,7 @@ const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY |
 
 // ─── In-Memory Cache for Sub-10ms Serverless Response ────────
 const imageCache = new Map(); // key → { buf, ts }
-const CACHE_TTL_MS = 10 * 1000; // 10s fresh cache
+const CACHE_TTL_MS = 60 * 1000; // 60s fresh cache
 
 function getCached(key) {
     const entry = imageCache.get(key);
@@ -50,6 +50,21 @@ function slugify(str = '') {
         .replace(/[-\s]+/g, '-');
 }
 
+async function fetchWithTimeout(url, options = {}, timeoutMs = 1200) {
+    try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), timeoutMs);
+        const resp = await fetch(url, {
+            ...options,
+            signal: controller.signal
+        });
+        clearTimeout(timeout);
+        return resp;
+    } catch (e) {
+        return null;
+    }
+}
+
 function sendJpegImage(res, buf) {
     res.setHeader('Content-Type', 'image/jpeg');
     res.setHeader('Content-Length', String(buf.length));
@@ -72,14 +87,10 @@ function sendJpegImage(res, buf) {
 
 async function fetchExternalBuffer(url) {
     try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 3500); // 3.5s timeout
-        const resp = await fetch(url, {
-            signal: controller.signal,
+        const resp = await fetchWithTimeout(url, {
             headers: { 'User-Agent': 'Mozilla/5.0 (compatible; WIZ-OG-Proxy/2.0)' }
-        });
-        clearTimeout(timeout);
-        if (!resp.ok) return null;
+        }, 2000);
+        if (!resp || !resp.ok) return null;
         const arr = await resp.arrayBuffer();
         return Buffer.from(arr);
     } catch (e) {
@@ -89,8 +100,12 @@ async function fetchExternalBuffer(url) {
 
 function getLocalDefaultBuffer() {
     try {
-        const p = path.join(process.cwd(), 'assets', 'images', 'default-program-wiz.jpg');
+        const p = path.join(process.cwd(), 'assets', 'images', 'foto-utama-wiz.jpg');
         if (fs.existsSync(p)) return fs.readFileSync(p);
+    } catch(e) {}
+    try {
+        const p2 = path.join(process.cwd(), 'assets', 'images', 'default-program-wiz.jpg');
+        if (fs.existsSync(p2)) return fs.readFileSync(p2);
     } catch(e) {}
     return null;
 }
@@ -98,7 +113,7 @@ function getLocalDefaultBuffer() {
 /**
  * Smart Jimp Processor:
  * Standardizes any image (base64, URL, local file) to 1200x630 JPEG < 300KB.
- * - Landscape (1.5 - 2.1): crop/cover 1200x630.
+ * - Landscape (1.4 - 2.2): crop/cover 1200x630.
  * - Vertical/Square (Flyer 1:1, 4:5, 9:16): Blurred background cover + sharp centered foreground.
  */
 async function processToOgJpeg(rawInput) {
@@ -163,11 +178,10 @@ async function processToOgJpeg(rawInput) {
             finalImg = bgImg;
         }
 
-        // Compress to JPEG with quality 82 (typical output 70-130 KB, always < 280 KB for WhatsApp)
-        let outputBuf = await finalImg.getBuffer('image/jpeg', { quality: 82 });
+        // Compress to JPEG with quality 80 (typical output 50-100 KB, always < 250 KB for WhatsApp)
+        let outputBuf = await finalImg.getBuffer('image/jpeg', { quality: 80 });
 
-        if (outputBuf.length > 280000) {
-            // Extra compression guarantee if still large
+        if (outputBuf.length > 250000) {
             outputBuf = await finalImg.getBuffer('image/jpeg', { quality: 65 });
         }
 
@@ -181,14 +195,30 @@ async function processToOgJpeg(rawInput) {
 // ─── News Image Resolver ──────────────────────────────────────
 async function resolveNewsRaw(newsId) {
     const cleanId = String(newsId || '').trim();
+    const cleanSlug = slugify(cleanId);
 
-    // 1. Try Supabase direct ID match
+    // 1. FAST PATH: Check canonical-store.json first (0ms local disk read)
+    try {
+        const canonPath = path.join(process.cwd(), 'assets', 'data', 'canonical-store.json');
+        if (fs.existsSync(canonPath)) {
+            const cData = JSON.parse(fs.readFileSync(canonPath, 'utf8'));
+            const article = (cData.news || []).find(n => n && (String(n.id) === cleanId || slugify(n.title) === cleanSlug || (n.title && cleanSlug.includes(slugify(n.title)))));
+            if (article) {
+                const rawImg = (article.imageUrl || article.image_url || '').trim();
+                const galImg = (Array.isArray(article.gallery) && article.gallery.length > 0 && typeof article.gallery[0] === 'string') ? article.gallery[0].trim() : '';
+                if (rawImg) return rawImg;
+                if (galImg) return galImg;
+            }
+        }
+    } catch (e) {}
+
+    // 2. Try Supabase direct ID match with fast timeout
     try {
         const url = `${SUPABASE_URL}/news?select=image_url,gallery,id,title&id=eq.${encodeURIComponent(cleanId)}`;
-        const resp = await fetch(url, {
+        const resp = await fetchWithTimeout(url, {
             headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
-        });
-        if (resp.ok) {
+        }, 1200);
+        if (resp && resp.ok) {
             const rows = await resp.json();
             if (Array.isArray(rows) && rows.length > 0) {
                 const rawImg = (rows[0].image_url || '').trim();
@@ -199,15 +229,14 @@ async function resolveNewsRaw(newsId) {
         }
     } catch (e) {}
 
-    // 2. Try Supabase title / slug match
+    // 3. Try Supabase title / slug match
     try {
-        const allResp = await fetch(`${SUPABASE_URL}/news?select=image_url,gallery,id,title&order=created_at.desc&limit=25`, {
+        const allResp = await fetchWithTimeout(`${SUPABASE_URL}/news?select=image_url,gallery,id,title&order=created_at.desc&limit=25`, {
             headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
-        });
-        if (allResp.ok) {
+        }, 1200);
+        if (allResp && allResp.ok) {
             const allRows = await allResp.json();
             if (Array.isArray(allRows) && allRows.length > 0) {
-                const cleanSlug = slugify(cleanId);
                 const matched = allRows.find(n => n && (slugify(n.title) === cleanSlug || String(n.id) === cleanId || cleanSlug.includes(slugify(n.title))));
                 if (matched) {
                     const rawImg = (matched.image_url || '').trim();
@@ -219,34 +248,31 @@ async function resolveNewsRaw(newsId) {
         }
     } catch (e) {}
 
-    // 3. Try canonical-store.json
-    try {
-        const canonPath = path.join(process.cwd(), 'assets', 'data', 'canonical-store.json');
-        if (fs.existsSync(canonPath)) {
-            const cData = JSON.parse(fs.readFileSync(canonPath, 'utf8'));
-            const article = (cData.news || []).find(n => String(n.id) === cleanId || slugify(n.title) === slugify(cleanId));
-            if (article) {
-                const rawImg = (article.imageUrl || article.image_url || '').trim();
-                const galImg = (Array.isArray(article.gallery) && article.gallery.length > 0 && typeof article.gallery[0] === 'string') ? article.gallery[0].trim() : '';
-                if (rawImg) return rawImg;
-                if (galImg) return galImg;
-            }
-        }
-    } catch (e) {}
-
-    return 'assets/images/default-program-wiz.jpg';
+    return 'assets/images/foto-utama-wiz.jpg';
 }
 
 // ─── Quote/Flyer Image Resolver ───────────────────────────────
 async function resolveQuoteRaw(quoteId) {
     const cleanId = String(quoteId).replace(/\.(jpe?g|png|webp|gif)$/i, '').trim();
 
-    // 1. Try Supabase master_bundle
+    // 1. FAST PATH: Check canonical-store.json (0ms disk read)
     try {
-        const resp = await fetch(`${SUPABASE_URL}/site_settings?key=eq.master_bundle&select=value`, {
+        const canonPath = path.join(process.cwd(), 'assets', 'data', 'canonical-store.json');
+        if (fs.existsSync(canonPath)) {
+            const cData = JSON.parse(fs.readFileSync(canonPath, 'utf8'));
+            const q = (cData.quotes || []).find(q => String(q.id).replace(/\.(jpe?g|png|webp|gif)$/i, '').trim() === cleanId);
+            if (q && q.imageUrl) {
+                return q.imageUrl;
+            }
+        }
+    } catch (e) {}
+
+    // 2. Try Supabase master_bundle with fast timeout
+    try {
+        const resp = await fetchWithTimeout(`${SUPABASE_URL}/site_settings?key=eq.master_bundle&select=value`, {
             headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
-        });
-        if (resp.ok) {
+        }, 1200);
+        if (resp && resp.ok) {
             const rows = await resp.json();
             if (Array.isArray(rows) && rows.length > 0 && rows[0].value && Array.isArray(rows[0].value.quotes)) {
                 const q = rows[0].value.quotes.find(q => {
@@ -260,19 +286,6 @@ async function resolveQuoteRaw(quoteId) {
         }
     } catch (e) {}
 
-    // 2. Try canonical-store.json
-    try {
-        const canonPath = path.join(process.cwd(), 'assets', 'data', 'canonical-store.json');
-        if (fs.existsSync(canonPath)) {
-            const cData = JSON.parse(fs.readFileSync(canonPath, 'utf8'));
-            const q = (cData.quotes || []).find(q => String(q.id).replace(/\.(jpe?g|png|webp|gif)$/i, '').trim() === cleanId);
-            if (q && q.imageUrl) {
-                return q.imageUrl;
-            }
-        }
-    } catch (e) {}
-
-    // 3. Fallback quote images
     if (cleanId.includes('2')) return 'assets/images/sedekah-beras-dhuafa.jpg';
     if (cleanId.includes('3')) return 'assets/images/beasiswa-tahfidz.jpg';
     return 'assets/images/foto-utama-wiz.jpg';
@@ -325,29 +338,40 @@ const PROGRAM_IMAGE_MAP = {
 async function resolveProgramRaw(slug) {
     const cleanSlug = slugify(slug);
 
-    // 1. Try Supabase specific_prog_imgs and custom program uploads
+    // 1. FAST PATH: Check static map
+    if (PROGRAM_IMAGE_MAP[cleanSlug]) {
+        return PROGRAM_IMAGE_MAP[cleanSlug];
+    }
+    for (const [key, localImg] of Object.entries(PROGRAM_IMAGE_MAP)) {
+        if (cleanSlug.includes(key) || key.includes(cleanSlug)) {
+            return localImg;
+        }
+    }
+
+    // 2. Check canonical-store.json (0ms disk read)
     try {
-        const resp = await fetch(`${SUPABASE_URL}/site_settings?key=in.(specific_prog_imgs,master_bundle)&select=*`, {
+        const canonPath = path.join(process.cwd(), 'assets', 'data', 'canonical-store.json');
+        if (fs.existsSync(canonPath)) {
+            const cData = JSON.parse(fs.readFileSync(canonPath, 'utf8'));
+            if (cData.specificProgramImages && cData.specificProgramImages[slug]) {
+                return cData.specificProgramImages[slug];
+            }
+            const prog = (cData.programs || []).find(p => p && (slugify(p.title) === cleanSlug || p.slug === cleanSlug));
+            if (prog && prog.imageUrl) return prog.imageUrl;
+        }
+    } catch(e) {}
+
+    // 3. Try Supabase with fast timeout
+    try {
+        const resp = await fetchWithTimeout(`${SUPABASE_URL}/site_settings?key=in.(specific_prog_imgs,master_bundle)&select=*`, {
             headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
-        });
-        if (resp.ok) {
+        }, 1200);
+        if (resp && resp.ok) {
             const rows = await resp.json();
             if (Array.isArray(rows) && rows.length > 0) {
-                const mbRow = rows.find(r => r.key === 'master_bundle');
                 const spiRow = rows.find(r => r.key === 'specific_prog_imgs');
-
-                // A. Check dedicated specific_prog_imgs row
                 if (spiRow && spiRow.value && typeof spiRow.value === 'object') {
                     for (const [title, imgUrl] of Object.entries(spiRow.value)) {
-                        if (imgUrl && !imgUrl.includes('default-program-wiz') && (slugify(title) === cleanSlug || title.toLowerCase() === slug.toLowerCase())) {
-                            return imgUrl;
-                        }
-                    }
-                }
-
-                // B. Check master_bundle specific_prog_imgs
-                if (mbRow && mbRow.value && mbRow.value.specific_prog_imgs) {
-                    for (const [title, imgUrl] of Object.entries(mbRow.value.specific_prog_imgs)) {
                         if (imgUrl && !imgUrl.includes('default-program-wiz') && (slugify(title) === cleanSlug || title.toLowerCase() === slug.toLowerCase())) {
                             return imgUrl;
                         }
@@ -357,35 +381,6 @@ async function resolveProgramRaw(slug) {
         }
     } catch (e) {}
 
-    // 2. Direct exact static program poster map
-    if (PROGRAM_IMAGE_MAP[cleanSlug]) {
-        return PROGRAM_IMAGE_MAP[cleanSlug];
-    }
-
-    // 3. Fuzzy search in static map
-    for (const [key, localImg] of Object.entries(PROGRAM_IMAGE_MAP)) {
-        if (cleanSlug.includes(key) || key.includes(cleanSlug)) {
-            return localImg;
-        }
-    }
-
-    // 4. Try Supabase 'programs' table
-    try {
-        const pResp = await fetch(`${SUPABASE_URL}/programs?select=*`, {
-            headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
-        });
-        if (pResp.ok) {
-            const progs = await pResp.json();
-            if (Array.isArray(progs)) {
-                for (const p of progs) {
-                    if (p && p.imageUrl && (slugify(p.title) === cleanSlug || p.slug === cleanSlug || p.id === cleanSlug || p.title.toLowerCase() === slug.toLowerCase())) {
-                        return p.imageUrl;
-                    }
-                }
-            }
-        }
-    } catch(e) {}
-
     return 'assets/images/default-program-wiz.jpg';
 }
 
@@ -394,18 +389,15 @@ module.exports = async function handler(req, res) {
     const urlObj = new URL(req.url || '/', 'https://www.wizbangkabelitung.or.id');
     const type = (urlObj.searchParams.get('type') || (req.query && req.query.type) || '').toLowerCase().trim();
     const id = String(urlObj.searchParams.get('id') || (req.query && req.query.id) || '').replace(/\.(jpe?g|png|webp|gif)$/i, '').trim();
-    // ?src= is the pre-resolved image URL forwarded directly from api/program.js
-    // This avoids a second Supabase lookup and ensures the correct photo is shown
     const srcParam = urlObj.searchParams.get('src') || (req.query && req.query.src) || '';
 
-    // Cache key includes src so different images for same program ID are cached separately
-    const cacheKey = srcParam ? `${type}:${id}:${srcParam}` : `${type}:${id || 'default'}`;
+    const cacheKey = srcParam ? `${type}:${id}:${srcParam.slice(0, 100)}` : `${type}:${id || 'default'}`;
     const cachedBuf = getCached(cacheKey);
     if (cachedBuf) {
         return sendJpegImage(res, cachedBuf);
     }
 
-    let rawSource = 'assets/images/default-program-wiz.jpg';
+    let rawSource = 'assets/images/foto-utama-wiz.jpg';
 
     // Priority 1: Use forwarded ?src= if present (highest accuracy from SSR engine)
     if (srcParam && (srcParam.startsWith('https://') || srcParam.startsWith('http://') || srcParam.startsWith('assets/') || srcParam.startsWith('data:image/') || srcParam.includes('/assets/'))) {
@@ -440,3 +432,4 @@ module.exports = async function handler(req, res) {
     res.writeHead(500, { 'Content-Type': 'text/plain' });
     res.end('Failed to generate Open Graph image');
 };
+module.exports.processToOgJpeg = processToOgJpeg;
