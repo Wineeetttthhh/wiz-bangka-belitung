@@ -179,10 +179,22 @@
             box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
         }
 
-        .modal-backdrop.show .modal-dialog {
-            transform: translateY(0);
-        }
+        html.preload-infak-terikat #infak-umum-notice { display: none !important; }
+        html.preload-infak-terikat #infak-terikat-flow { display: block !important; }
     </style>
+    <script>
+        // Instant Pre-Parser (< 1ms execution before paint)
+        (function() {
+            try {
+                var p = new URLSearchParams(window.location.search);
+                var prog = p.get('program');
+                var type = p.get('type');
+                if (prog || type === 'Infak Terikat') {
+                    document.documentElement.classList.add('preload-infak-terikat');
+                }
+            } catch(e) {}
+        })();
+    </script>
 </head>
 
 <body class="bg-surface text-on-surface font-body-md text-body-md antialiased min-h-screen flex flex-col">
@@ -711,9 +723,9 @@
         </div>
     </div>
 
-    <script src="assets/js/supabase-client.js?v=20260826_v14"></script>
-    <script src="assets/js/admin-store.js?v=20260826_v14"></script>
-    <script src="assets/js/main.js?v=20260826_v5"></script>
+    <script defer src="assets/js/supabase-client.js?v=20260826_v14"></script>
+    <script defer src="assets/js/admin-store.js?v=20260826_v14"></script>
+    <script defer src="assets/js/main.js?v=20260826_v5"></script>
     <script>
         const SPECIFIC_PROGRAMS = {
             'Berkah Hidayah': [
@@ -1673,6 +1685,11 @@
                 }
             }
         }
+
+        // 🚀 Execute INSTANTLY upon script parse (< 1ms) - ZERO DELAY!
+        try {
+            initDonationParamsFromUrl();
+        } catch(e) {}
 
         // Read URL query parameters synchronously first, then attach cloud sync
         window.addEventListener('DOMContentLoaded', () => {
