@@ -57,6 +57,7 @@ const SUPABASE_CONFIG = {
         let url = endpoint(table);
         const params = [];
 
+        if (options.select) params.push(`select=${options.select}`);
         if (options.filter) params.push(options.filter);      // e.g. 'status=eq.published'
         if (options.order) params.push(`order=${options.order}`); // e.g. 'created_at.desc'
         if (options.limit) params.push(`limit=${options.limit}`);
@@ -408,18 +409,22 @@ const SUPABASE_CONFIG = {
         },
         getNews: async (onlyPublished = false) => {
             const filter = onlyPublished ? 'status=eq.published' : undefined;
-            const res = await select('news', { filter, order: 'event_date.desc' });
+            const res = await select('news', { 
+                select: 'id,slug,title,category,content,image_url,imageUrl,gallery,event_date,status,author,created_at,updated_at',
+                filter, 
+                order: 'event_date.desc' 
+            });
             if (res.error || !Array.isArray(res.data)) return res;
             const mapped = res.data.map(n => ({
                 id: n.id,
                 title: n.title,
-                category: n.category,
-                content: n.content,
-                imageUrl: n.image_url,
+                category: n.category || 'Kegiatan & Penyaluran',
+                content: n.content || '',
+                imageUrl: n.image_url || n.imageUrl || '',
                 gallery: Array.isArray(n.gallery) ? n.gallery : [],
-                eventDate: n.event_date,
+                eventDate: n.event_date || n.eventDate || n.created_at,
                 status: n.status || 'published',
-                author: n.author,
+                author: n.author || 'Admin WIZ Babel',
                 createdAt: n.created_at,
                 updatedAt: n.updated_at
             }));

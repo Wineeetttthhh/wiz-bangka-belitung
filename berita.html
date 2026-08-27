@@ -699,6 +699,21 @@
                     renderArchive();
                 } catch(e) {}
             }
+
+            // Guaranteed multi-device fallback: Ensure all 9 authoritative news items are loaded
+            try {
+                const localNews = JSON.parse(localStorage.getItem('wiz_news') || '[]');
+                if (localNews.length < 9) {
+                    const res = await fetch('/api/sync', { cache: 'no-cache' });
+                    if (res.ok) {
+                        const json = await res.json();
+                        if (json && json.data && Array.isArray(json.data.news) && json.data.news.length >= 9) {
+                            localStorage.setItem('wiz_news', JSON.stringify(json.data.news));
+                            renderArchive();
+                        }
+                    }
+                }
+            } catch(e) {}
         });
         window.addEventListener('wiz-news-changed', renderArchive);
         window.addEventListener('wiz-sync-complete', renderArchive);

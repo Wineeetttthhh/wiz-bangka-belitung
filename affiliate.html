@@ -734,13 +734,26 @@
             await verifyAndRestoreMemberSession();
             renderAffiliateNewsGrid();
 
-            // 2. Non-blocking background cloud sync
+            // 2. Forced cloud sync on startup for exact multi-device synchronization
             if (window.wizStore && typeof wizStore.syncFromCloud === 'function') {
-                wizStore.syncFromCloud().then(() => {
+                wizStore.syncFromCloud(true).then(() => {
                     if (currentLoggedAffiliate) renderMemberDashboard();
                     renderAffiliateNewsGrid();
                 }).catch(() => {});
             }
+
+            // 3. Guaranteed multi-device fallback: Ensure all 9 authoritative news items are loaded
+            try {
+                const localNews = JSON.parse(localStorage.getItem('wiz_news') || '[]');
+                if (localNews.length < 9) {
+                    fetch('/api/sync', { cache: 'no-cache' }).then(r => r.json()).then(json => {
+                        if (json && json.data && Array.isArray(json.data.news) && json.data.news.length >= 9) {
+                            localStorage.setItem('wiz_news', JSON.stringify(json.data.news));
+                            renderAffiliateNewsGrid();
+                        }
+                    }).catch(() => {});
+                }
+            } catch(e) {}
         });
 
         function toggleAuthTab(tab) {

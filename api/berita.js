@@ -34,7 +34,7 @@ async function supabaseGetNews(newsId) {
     }
 
     try {
-        let url = `${SUPABASE_URL}/news?select=*`;
+        let url = `${SUPABASE_URL}/news?select=id,slug,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at`;
         if (newsId) {
             url += `&id=eq.${encodeURIComponent(newsId)}`;
         }

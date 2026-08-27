@@ -43,7 +43,7 @@ async function supabaseGetMaster() {
                     'Accept': 'application/json'
                 }
             }).catch(() => null),
-            fetch(`${SUPABASE_URL}/news?select=*&order=event_date.desc`, {
+            fetch(`${SUPABASE_URL}/news?select=id,slug,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at&order=event_date.desc`, {
                 headers: {
                     'apikey': SUPABASE_KEY,
                     'Authorization': 'Bearer ' + SUPABASE_KEY,
