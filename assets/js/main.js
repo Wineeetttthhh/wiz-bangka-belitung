@@ -750,7 +750,7 @@ function initModalSystem() {
         const refCode = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || new URLSearchParams(window.location.search).get('perantara'));
         let url = 'donasi.html';
         if (programTitle && programTitle !== 'Donasi Umum') {
-            url += `?program=${encodeURIComponent(programTitle)}`;
+            url += `?type=Infak%20Terikat&program=${encodeURIComponent(programTitle)}`;
             if (refCode) url += `&ref=${encodeURIComponent(refCode)}`;
         } else if (refCode) {
             url += `?ref=${encodeURIComponent(refCode)}`;

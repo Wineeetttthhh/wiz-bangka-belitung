@@ -676,6 +676,7 @@ const PROGRAM_IMAGE_MAP = {
     const canonicalUrl = canonicalUrlObj.toString();
 
     const donateUrlObj = new URL(`${origin}/donasi.html`);
+    donateUrlObj.searchParams.set('type', 'Infak Terikat');
     donateUrlObj.searchParams.set('program', title);
     if (refCode) donateUrlObj.searchParams.set('ref', refCode);
     const donateUrl = donateUrlObj.toString();
@@ -762,7 +763,7 @@ const PROGRAM_IMAGE_MAP = {
 
     const relatedCardsHtml = relatedPrograms.map(item => {
         const itemProgUrl = `${origin}/program/${item.slug}${refCode ? '?ref=' + encodeURIComponent(refCode) : ''}`;
-        const itemDonateUrl = `${origin}/donasi.html?program=${encodeURIComponent(item.title)}${refCode ? '&ref=' + encodeURIComponent(refCode) : ''}`;
+        const itemDonateUrl = `${origin}/donasi.html?type=Infak%20Terikat&program=${encodeURIComponent(item.title)}${refCode ? '&ref=' + encodeURIComponent(refCode) : ''}`;
         let itemImgSrc = item.img || 'assets/images/foto-utama-wiz.jpg';
         if (!itemImgSrc.startsWith('http') && !itemImgSrc.startsWith('data:image')) {
             itemImgSrc = `${origin}/${itemImgSrc.replace(/^\//, '')}`;

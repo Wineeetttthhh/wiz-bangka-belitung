@@ -1089,7 +1089,7 @@
         const refCode = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || new URLSearchParams(window.location.search).get('perantara'));
         let url = 'donasi.html';
         if (programName && programName !== 'Donasi Umum') {
-            url += `?program=${encodeURIComponent(programName)}`;
+            url += `?type=Infak%20Terikat&program=${encodeURIComponent(programName)}`;
             if (refCode) url += `&ref=${encodeURIComponent(refCode)}`;
         } else if (refCode) {
             url += `?ref=${encodeURIComponent(refCode)}`;

@@ -1586,18 +1586,20 @@
                 const wRadio = document.querySelector('input[name="wilayah"][value="Sungailiat"]');
                 if (wRadio) {
                     wRadio.checked = true;
-                    handleWilayahChange(wRadio);
+                    state.wilayah = 'Sungailiat';
                 }
             }
 
-            // 1. Select Infak Terikat radio
-            const infakRadio = document.querySelector('input[name="donation_type"][value="Infak Terikat"]');
-            if (infakRadio) {
-                infakRadio.checked = true;
-                state.type = 'Infak Terikat';
-                const flow = document.getElementById('infak-terikat-flow');
-                if (flow) flow.classList.remove('hidden');
-            }
+            // 1. Select Infak Terikat radio & uncheck all others
+            state.type = 'Infak Terikat';
+            document.querySelectorAll('input[name="donation_type"]').forEach(r => {
+                r.checked = (r.value === 'Infak Terikat');
+            });
+
+            const flow = document.getElementById('infak-terikat-flow');
+            if (flow) flow.classList.remove('hidden');
+            const noticeBox = document.getElementById('infak-umum-notice');
+            if (noticeBox) noticeBox.classList.add('hidden');
 
             // 2. Select Program Utama button & populate dropdown
             const cat = match.category;
@@ -1637,14 +1639,7 @@
             updateSummary();
         }
 
-        // Read URL query parameters for pre-filling program & attach live sync (Runs once on initial load)
-        window.addEventListener('DOMContentLoaded', async () => {
-            if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
-                try {
-                    await window.wizStore.syncFromCloud(true);
-                } catch(e) {}
-            }
-
+        function initDonationParamsFromUrl() {
             const urlParams = new URLSearchParams(window.location.search);
             const progParam = urlParams.get('program');
             const typeParam = urlParams.get('type');
@@ -1677,8 +1672,14 @@
                     setNominal(n);
                 }
             }
+        }
 
-            // Live event listeners on custom nominal input for bulletproof two-way reactivity
+        // Read URL query parameters synchronously first, then attach cloud sync
+        window.addEventListener('DOMContentLoaded', () => {
+            // 1. Instantly parse URL parameters without blocking
+            initDonationParamsFromUrl();
+
+            // 2. Live event listeners on custom nominal input for bulletproof two-way reactivity
             const customNominalEl = document.getElementById('custom_nominal');
             if (customNominalEl) {
                 ['input', 'keyup', 'change', 'paste', 'propertychange'].forEach(evt => {
@@ -1688,7 +1689,7 @@
                 });
             }
 
-            // Live event listeners on donor fields to ensure WhatsApp link is always pre-computed
+            // 3. Live event listeners on donor fields to ensure WhatsApp link is always pre-computed
             const donorNameEl = document.getElementById('donor-name');
             const donorPhoneEl = document.getElementById('donor-phone');
             const donorMsgEl = document.getElementById('donor-message');
@@ -1717,6 +1718,11 @@
 
             updateSummary();
             if (window.applySiteSettings) window.applySiteSettings();
+
+            // 4. Background cloud sync without disturbing form inputs
+            if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
+                window.wizStore.syncFromCloud(true).catch(() => {});
+            }
         });
 
         // Cloud sync listener: only refresh global store settings/summaries without modifying active user form state
