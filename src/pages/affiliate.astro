@@ -764,8 +764,7 @@ import MitraLayout from '../layouts/MitraLayout.astro';
                         activateMemberState(res.referral);
                         return;
                     } else {
-                        alert(`⚠️ ${res.message}`);
-                        return;
+return;
                     }
                 } catch(err) {
                     console.warn('Login error:', err);
@@ -791,6 +790,51 @@ import MitraLayout from '../layouts/MitraLayout.astro';
                     return;
                 }
             } catch(e) {}
+
+            // Fallback: cek wizStore.affiliates (mitra yang daftar via portal baru)
+            if (window.wizStore && window.wizStore.affiliates) {
+                try {
+                    const allAff = await window.wizStore.affiliates.list();
+                    const cleanPhone = identifier.replace(/\D/g,'');
+                    const aff = allAff.find(a => {
+                        const ap = (a.phone || '').replace(/\D/g,'');
+                        const matchPhone = ap === cleanPhone || 
+                            (cleanPhone.startsWith('0') && ap === '62' + cleanPhone.substring(1)) ||
+                            (cleanPhone.startsWith('62') && ap === '0' + cleanPhone.substring(2));
+                        const matchCode = a.code && a.code.toLowerCase().replace(/[^a-z0-9]/g,'') === identifier.toLowerCase().replace(/[^a-z0-9]/g,'');
+                        return matchPhone || matchCode;
+                    });
+                    if (aff) {
+                        const affPin = aff.pin || aff.password || '';
+                        if (pin && affPin && pin !== affPin) {
+                            alert('⚠️ PIN yang Anda masukkan salah.');
+                            return;
+                        }
+                        const mitraObj = {
+                            id: aff.id,
+                            code: aff.code || aff.id,
+                            name: aff.name,
+                            phone: aff.phone,
+                            bankName: aff.bankName || aff.bank_name || '',
+                            accountNumber: aff.accountNumber || aff.account_number || '',
+                            accountHolder: aff.accountHolder || aff.account_holder || aff.name,
+                            defaultRate: aff.defaultRate || aff.rate || 6,
+                            status: aff.status || 'approved',
+                            totalDonationAmount: aff.totalDonationAmount || 0,
+                            donationsCount: aff.donationsCount || 0,
+                            totalEarned: aff.totalEarned || 0,
+                            pendingBalance: aff.pendingBalance || 0
+                        };
+                        currentLoggedAffiliate = mitraObj;
+                        sessionStorage.setItem('wiz_logged_affiliate', JSON.stringify(mitraObj));
+                        localStorage.setItem('wiz_logged_affiliate', JSON.stringify(mitraObj));
+                        activateMemberState(mitraObj);
+                        return;
+                    }
+                } catch(err) {
+                    console.warn('[WIZ] affiliates lookup error:', err);
+                }
+            }
 
             alert('⚠️ Akun Mitra tidak ditemukan. Silakan periksa No. WA / Kode Mitra Anda atau lakukan pendaftaran Mitra baru.');
         }
