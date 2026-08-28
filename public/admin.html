@@ -4026,21 +4026,18 @@
             ${d.verifiedBy ? `<div class="pt-sm border-t border-outline-variant/30"><p class="font-caption text-caption text-on-surface-variant">Diverifikasi oleh <strong>${d.verifiedBy}</strong> pada ${wizStore.utils.formatDateTime(d.verifiedAt)}</p></div>` : ''}
             ${d.rejectedBy ? `<div class="pt-sm border-t border-outline-variant/30 text-rose-700"><p class="font-caption text-caption">Ditolak oleh <strong>${d.rejectedBy}</strong> pada ${wizStore.utils.formatDateTime(d.rejectedAt)}</p></div>` : ''}
             
-            <div class="flex flex-wrap gap-md pt-md border-t border-outline-variant/30 mt-sm">
+            <div class="flex flex-wrap gap-2 pt-3 border-t border-slate-200 mt-3">
                 ${d.status === 'pending' ? `
-                    <button onclick="verifyDonation('${d.id}'); closeDonationDetail();" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-label-md font-bold transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
-                        <span class="material-symbols-outlined text-[18px]">check_circle</span> Setujui / Verifikasi Donasi
+                    <button onclick="verifyDonation('${d.id}'); closeDonationDetail();" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors shadow-sm cursor-pointer"><span class="material-symbols-outlined text-[14px]">check_circle</span> Setujui
                     </button>
-                    <button onclick="rejectDonation('${d.id}'); closeDonationDetail();" class="px-5 bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 py-2.5 rounded-xl font-label-md font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
-                        <span class="material-symbols-outlined text-[18px]">cancel</span> Tolak
+                    <button onclick="rejectDonation('${d.id}'); closeDonationDetail();" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 text-xs font-bold transition-colors cursor-pointer"><span class="material-symbols-outlined text-[14px]">cancel</span> Tolak
                     </button>
                 ` : d.status === 'rejected' ? `
-                    <button onclick="verifyDonation('${d.id}'); closeDonationDetail();" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-label-md font-bold transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
-                        <span class="material-symbols-outlined text-[18px]">check_circle</span> Pulihkan &amp; Setujui Donasi
+                    <button onclick="verifyDonation('${d.id}'); closeDonationDetail();" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors shadow-sm cursor-pointer"><span class="material-symbols-outlined text-[14px]">check_circle</span> Pulihkan
                     </button>
                 ` : ''}
-                <button onclick="editManualDonation('${d.id}'); closeDonationDetail();" class="px-4 bg-surface-container border border-outline-variant text-on-surface py-2.5 rounded-xl font-label-md font-bold hover:bg-surface-variant transition-colors cursor-pointer">Edit Transaksi &amp; Mitra Penghimpunan</button>
-                <button onclick="deleteDonation('${d.id}'); closeDonationDetail();" class="px-4 border border-error/40 text-error hover:bg-error/5 rounded-xl font-label-md font-bold transition-colors cursor-pointer">Hapus</button>
+                <button onclick="editManualDonation('${d.id}'); closeDonationDetail();" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-bold transition-colors cursor-pointer"><span class="material-symbols-outlined text-[14px]">edit</span> Edit</button>
+                <button onclick="deleteDonation('${d.id}'); closeDonationDetail();" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold transition-colors cursor-pointer"><span class="material-symbols-outlined text-[14px]">delete</span> Hapus</button>
             </div>`;
 
             showModal('donation-detail-modal');

@@ -168,21 +168,31 @@ import MitraLayout from '../layouts/MitraLayout.astro';
                         </form>
 
                         <!-- Lupa PIN Panel (hidden by default) -->
-                        <div id="forgot-pin-panel" class="hidden mt-4 p-5 bg-emerald-50 rounded-2xl border border-emerald-200">
+                        <div id="forgot-pin-panel" class="hidden mt-4 p-5 bg-slate-50 rounded-2xl border border-slate-200">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="material-symbols-outlined text-emerald-700 text-xl">lock_reset</span>
-                                <h4 class="font-extrabold text-emerald-900 text-sm">Reset PIN via WhatsApp</h4>
+                                <h4 class="font-extrabold text-slate-900 text-sm">Reset PIN Sendiri</h4>
                             </div>
-                            <p class="text-emerald-800 text-xs leading-relaxed mb-4">Masukkan nomor WhatsApp yang terdaftar sebagai Mitra. Admin WIZ akan mengirimkan PIN baru ke nomor tersebut.</p>
+                            <p class="text-slate-500 text-xs leading-relaxed mb-4">Masukkan nomor WhatsApp yang terdaftar dan buat PIN baru. Sistem akan memverifikasi bahwa nomor tersebut terdaftar sebagai Mitra.</p>
                             <div class="space-y-3">
                                 <div class="relative">
-                                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none">whatsapp</span>
-                                    <input type="tel" id="forgot-pin-phone" placeholder="Contoh: 081234567890"
-                                        class="w-full bg-white border-2 border-emerald-200 rounded-xl pl-10 pr-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400">
+                                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none">smartphone</span>
+                                    <input type="tel" id="forgot-pin-phone" placeholder="No. WhatsApp terdaftar"
+                                        class="w-full bg-white border-2 border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400">
                                 </div>
-                                <button type="button" onclick="sendForgotPinWA()" class="w-full bg-green-600 hover:bg-green-500 text-white font-extrabold py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-sm cursor-pointer shadow-md shadow-green-600/20">
-                                    <span class="material-symbols-outlined text-lg">send</span>
-                                    <span>Kirim Permintaan Reset PIN ke Admin</span>
+                                <div class="relative">
+                                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none">lock</span>
+                                    <input type="password" id="forgot-pin-new" placeholder="PIN baru (4–6 digit angka)" maxlength="6"
+                                        class="w-full bg-white border-2 border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400">
+                                </div>
+                                <div class="relative">
+                                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none">lock_clock</span>
+                                    <input type="password" id="forgot-pin-confirm" placeholder="Konfirmasi PIN baru" maxlength="6"
+                                        class="w-full bg-white border-2 border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400">
+                                </div>
+                                <button type="button" onclick="doResetPin()" class="w-full bg-gradient-to-r from-emerald-700 to-emerald-600 hover:from-emerald-600 hover:to-emerald-500 text-white font-extrabold py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-sm cursor-pointer shadow-md">
+                                    <span class="material-symbols-outlined text-lg">lock_reset</span>
+                                    <span>Reset PIN Sekarang</span>
                                 </button>
                                 <button type="button" onclick="toggleForgotPin()" class="w-full text-xs text-slate-400 hover:text-slate-600 font-semibold py-1.5 cursor-pointer transition-colors">Batal</button>
                             </div>
@@ -542,31 +552,86 @@ import MitraLayout from '../layouts/MitraLayout.astro';
         }
 
         function sendForgotPinWA() {
-            const phoneInput = document.getElementById('forgot-pin-phone');
-            const phone = phoneInput ? phoneInput.value.trim() : '';
+            // Deprecated - kept for compatibility, redirects to doResetPin
+            doResetPin();
+        }
 
+        async function doResetPin() {
+            const phoneInput = document.getElementById('forgot-pin-phone');
+            const newPinInput = document.getElementById('forgot-pin-new');
+            const confirmInput = document.getElementById('forgot-pin-confirm');
+
+            const phone = phoneInput ? phoneInput.value.trim() : '';
+            const newPin = newPinInput ? newPinInput.value.trim() : '';
+            const confirmPin = confirmInput ? confirmInput.value.trim() : '';
+
+            // Validasi input
             if (!phone || phone.length < 8) {
-                alert('Mohon masukkan nomor WhatsApp yang terdaftar terlebih dahulu.');
+                alert('Mohon masukkan nomor WhatsApp yang terdaftar.');
                 if (phoneInput) phoneInput.focus();
                 return;
             }
+            if (!newPin || newPin.length < 4) {
+                alert('PIN baru harus minimal 4 digit angka.');
+                if (newPinInput) newPinInput.focus();
+                return;
+            }
+            if (!/^\d+$/.test(newPin)) {
+                alert('PIN hanya boleh berisi angka.');
+                if (newPinInput) newPinInput.focus();
+                return;
+            }
+            if (newPin !== confirmPin) {
+                alert('Konfirmasi PIN tidak cocok. Pastikan keduanya sama.');
+                if (confirmInput) confirmInput.focus();
+                return;
+            }
 
-            // Format nomor: hapus leading 0, tambah 62
-            let formatted = phone.replace(/\D/g, '');
-            if (formatted.startsWith('0')) formatted = '62' + formatted.substring(1);
-            if (!formatted.startsWith('62')) formatted = '62' + formatted;
+            // Normalisasi nomor: hapus +, spasi, leading 0 → simpan sebagai 08xxx
+            let normalizedPhone = phone.replace(/\D/g, '');
+            if (normalizedPhone.startsWith('62')) normalizedPhone = '0' + normalizedPhone.substring(2);
+            if (!normalizedPhone.startsWith('0')) normalizedPhone = '0' + normalizedPhone;
 
-            const adminWA = '6282380830808'; // Admin WIZ Babel Pangkalpinang
-            const message = encodeURIComponent(
-                'Assalamu\'alaikum Admin WIZ Babel,\n\n' +
-                'Saya lupa PIN login Portal Mitra saya.\n' +
-                '• No. WhatsApp terdaftar: *' + phone + '*\n\n' +
-                'Mohon bantuan reset PIN atau kirimkan PIN baru ke nomor saya.\n\n' +
-                'Terima kasih, Jazakallahu Khayran. 🙏'
-            );
+            try {
+                const resetBtn = document.querySelector('#forgot-pin-panel button[onclick="doResetPin()"]');
+                if (resetBtn) { resetBtn.disabled = true; resetBtn.textContent = 'Memverifikasi...'; }
 
-            const url = 'https://wa.me/' + adminWA + '?text=' + message;
-            window.open(url, '_blank');
+                // Cari mitra berdasarkan nomor WA di wizStore
+                const allAffiliates = await window.wizStore.affiliates.list();
+                const mitra = allAffiliates.find(a => {
+                    let ap = (a.phone || '').replace(/\D/g, '');
+                    if (ap.startsWith('62')) ap = '0' + ap.substring(2);
+                    if (!ap.startsWith('0')) ap = '0' + ap;
+                    return ap === normalizedPhone;
+                });
+
+                if (!mitra) {
+                    alert('Nomor WhatsApp ' + phone + ' tidak ditemukan sebagai Mitra terdaftar.\n\nPastikan nomor yang Anda masukkan sama persis dengan saat pendaftaran.');
+                    if (resetBtn) { resetBtn.disabled = false; resetBtn.innerHTML = '<span class="material-symbols-outlined text-lg">lock_reset</span><span>Reset PIN Sekarang</span>'; }
+                    return;
+                }
+
+                // Update PIN via wizStore
+                await window.wizStore.affiliates.update(mitra.id, { password: newPin, pin: newPin });
+
+                // Tutup panel dan reset form
+                document.getElementById('forgot-pin-panel').classList.add('hidden');
+                if (phoneInput) phoneInput.value = '';
+                if (newPinInput) newPinInput.value = '';
+                if (confirmInput) confirmInput.value = '';
+
+                // Isi field login dengan nomor WA
+                const loginId = document.getElementById('login-identifier');
+                if (loginId) loginId.value = phone;
+
+                alert('✅ PIN berhasil direset!\n\nSilakan masuk menggunakan PIN baru Anda.');
+
+            } catch (err) {
+                console.error('[WIZ] Reset PIN error:', err);
+                alert('Terjadi kesalahan saat mereset PIN. Coba lagi atau hubungi admin WIZ.\n\nError: ' + (err.message || err));
+                const resetBtn = document.querySelector('#forgot-pin-panel button[onclick="doResetPin()"]');
+                if (resetBtn) { resetBtn.disabled = false; resetBtn.innerHTML = '<span class="material-symbols-outlined text-lg">lock_reset</span><span>Reset PIN Sekarang</span>'; }
+            }
         }
 
         function activateMemberState(ref) {
