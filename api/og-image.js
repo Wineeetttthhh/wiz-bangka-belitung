@@ -99,14 +99,17 @@ async function fetchExternalBuffer(url) {
 }
 
 function getLocalDefaultBuffer() {
-    try {
-        const p = path.join(process.cwd(), 'assets', 'images', 'foto-utama-wiz.jpg');
-        if (fs.existsSync(p)) return fs.readFileSync(p);
-    } catch(e) {}
-    try {
-        const p2 = path.join(process.cwd(), 'assets', 'images', 'default-program-wiz.jpg');
-        if (fs.existsSync(p2)) return fs.readFileSync(p2);
-    } catch(e) {}
+    const candidates = [
+        path.join(process.cwd(), 'public', 'assets', 'images', 'foto-utama-wiz.jpg'),
+        path.join(process.cwd(), 'assets', 'images', 'foto-utama-wiz.jpg'),
+        path.join(process.cwd(), 'public', 'assets', 'images', 'default-program-wiz.png'),
+        path.join(process.cwd(), 'assets', 'images', 'default-program-wiz.png')
+    ];
+    for (const p of candidates) {
+        try {
+            if (fs.existsSync(p)) return fs.readFileSync(p);
+        } catch(e) {}
+    }
     return null;
 }
 
@@ -132,18 +135,38 @@ async function processToOgJpeg(rawInput) {
                 // Check if it is a local asset path on the domain first to avoid HTTP loop
                 try {
                     const parsedUrl = new URL(str);
-                    const localPath = path.join(process.cwd(), parsedUrl.pathname.replace(/^\//, ''));
-                    if (fs.existsSync(localPath)) {
-                        inputBuffer = fs.readFileSync(localPath);
+                    const cleanPath = parsedUrl.pathname.replace(/^\//, '');
+                    const candidates = [
+                        path.join(process.cwd(), cleanPath),
+                        path.join(process.cwd(), 'public', cleanPath),
+                        path.join(process.cwd(), 'dist', cleanPath),
+                        path.join(process.cwd(), 'public', 'assets', 'images', path.basename(cleanPath)),
+                        path.join(process.cwd(), 'assets', 'images', path.basename(cleanPath))
+                    ];
+                    for (const candidate of candidates) {
+                        if (fs.existsSync(candidate)) {
+                            inputBuffer = fs.readFileSync(candidate);
+                            break;
+                        }
                     }
                 } catch(e) {}
                 if (!inputBuffer) {
                     inputBuffer = await fetchExternalBuffer(str);
                 }
             } else if (str) {
-                const fp = path.join(process.cwd(), str.replace(/^\//, ''));
-                if (fs.existsSync(fp)) {
-                    inputBuffer = fs.readFileSync(fp);
+                const cleanRel = str.replace(/^\//, '');
+                const candidatePaths = [
+                    path.join(process.cwd(), cleanRel),
+                    path.join(process.cwd(), 'public', cleanRel),
+                    path.join(process.cwd(), 'dist', cleanRel),
+                    path.join(process.cwd(), 'public', 'assets', 'images', path.basename(cleanRel)),
+                    path.join(process.cwd(), 'assets', 'images', path.basename(cleanRel))
+                ];
+                for (const candidate of candidatePaths) {
+                    if (fs.existsSync(candidate)) {
+                        inputBuffer = fs.readFileSync(candidate);
+                        break;
+                    }
                 }
             }
         }

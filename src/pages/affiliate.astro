@@ -26,94 +26,12 @@ import MitraLayout from '../layouts/MitraLayout.astro';
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
 
         <!-- ======================================================== -->
-        <!-- STATE 1: GUEST AUTH VIEW (Login / Register Tabs)         -->
+        <!-- STATE 1: GUEST AUTH VIEW (Login / Register Form)         -->
         <!-- ======================================================== -->
         <div id="auth-state-container" class="w-full">
 
-            <!-- 2-Column Premium Card -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-0 bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200/60 max-w-5xl mx-auto">
-
-                <!-- LEFT: Brand Panel -->
-                <div class="relative bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-900 p-8 sm:p-10 flex flex-col justify-between min-h-[480px] lg:min-h-[600px] overflow-hidden">
-                    <div class="absolute inset-0 opacity-[0.07] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none"></div>
-                    <div class="absolute -top-24 -right-24 w-72 h-72 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none"></div>
-                    <div class="absolute -bottom-16 -left-16 w-64 h-64 bg-teal-400/15 rounded-full blur-3xl pointer-events-none"></div>
-
-                    <div class="relative z-10">
-                        <div class="inline-flex items-center gap-2.5 bg-white/10 border border-white/20 px-4 py-2 rounded-full mb-7 backdrop-blur-sm">
-                            <span class="material-symbols-outlined text-emerald-300 text-lg">handshake</span>
-                            <span class="text-emerald-100 text-xs font-bold tracking-wide uppercase">Program Mitra Resmi WIZ Babel</span>
-                        </div>
-                        <h2 class="text-white text-2xl sm:text-3xl font-extrabold leading-tight mb-3">
-                            Bergabung &amp; Raih<br>
-                            <span class="text-emerald-300">Pahala Jariyah</span> Tanpa Batas
-                        </h2>
-                        <p class="text-emerald-100/80 text-sm leading-relaxed mb-9">
-                            Sebarkan link kebaikan, himpun donasi ummat, dan dapatkan hak insentif secara transparan bersama WIZ Bangka Belitung.
-                        </p>
-
-                        <div class="space-y-4">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-xl bg-emerald-400/20 border border-emerald-400/30 flex items-center justify-center shrink-0">
-                                    <span class="material-symbols-outlined text-emerald-300 text-xl">percent</span>
-                                </div>
-                                <div>
-                                    <p class="text-white font-bold text-sm">Insentif 6% per Donasi</p>
-                                    <p class="text-emerald-200/70 text-xs">Otomatis tercatat dari setiap donasi melalui link Anda</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-xl bg-emerald-400/20 border border-emerald-400/30 flex items-center justify-center shrink-0">
-                                    <span class="material-symbols-outlined text-emerald-300 text-xl">share</span>
-                                </div>
-                                <div>
-                                    <p class="text-white font-bold text-sm">Link &amp; Flyer Siap Pakai</p>
-                                    <p class="text-emerald-200/70 text-xs">Bagikan langsung ke WhatsApp, IG, dan semua media sosial</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-xl bg-emerald-400/20 border border-emerald-400/30 flex items-center justify-center shrink-0">
-                                    <span class="material-symbols-outlined text-emerald-300 text-xl">analytics</span>
-                                </div>
-                                <div>
-                                    <p class="text-white font-bold text-sm">Dashboard Real-time</p>
-                                    <p class="text-emerald-200/70 text-xs">Pantau total himpunan &amp; insentif kapan saja</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-xl bg-emerald-400/20 border border-emerald-400/30 flex items-center justify-center shrink-0">
-                                    <span class="material-symbols-outlined text-emerald-300 text-xl">verified_user</span>
-                                </div>
-                                <div>
-                                    <p class="text-white font-bold text-sm">Resmi &amp; Transparan</p>
-                                    <p class="text-emerald-200/70 text-xs">Terdaftar resmi LAZ WIZ Bangka Belitung</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="relative z-10 mt-8 pt-6 border-t border-white/10">
-                        <div class="flex items-center gap-6">
-                            <div class="text-center">
-                                <p class="text-white text-2xl font-extrabold">120+</p>
-                                <p class="text-emerald-300 text-xs font-semibold mt-0.5">Mitra Aktif</p>
-                            </div>
-                            <div class="w-px h-12 bg-white/15"></div>
-                            <div class="text-center">
-                                <p class="text-white text-2xl font-extrabold">Rp 2,4M+</p>
-                                <p class="text-emerald-300 text-xs font-semibold mt-0.5">Terhimpun</p>
-                            </div>
-                            <div class="w-px h-12 bg-white/15"></div>
-                            <div class="text-center">
-                                <p class="text-white text-2xl font-extrabold">6%</p>
-                                <p class="text-emerald-300 text-xs font-semibold mt-0.5">Hak Insentif</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- RIGHT: Auth Forms Panel -->
-                <div class="p-8 sm:p-10 flex flex-col">
+            <!-- Clean Centered Auth Form Box -->
+            <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200/80 max-w-xl mx-auto p-8 sm:p-10 flex flex-col">
 
                     <!-- Tab Switcher -->
                     <div class="flex bg-slate-100 p-1.5 rounded-2xl gap-1.5 mb-8">
@@ -250,8 +168,6 @@ import MitraLayout from '../layouts/MitraLayout.astro';
 
                 </div>
             </div>
-
-        </div>
 
         <!-- ======================================================== -->
         <!-- STATE 2: LOGGED-IN MEMBER DASHBOARD VIEW                 -->
