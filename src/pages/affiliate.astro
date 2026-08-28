@@ -934,7 +934,7 @@ return;
             return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, ' ');
         }
 
-        async function shareAffiliateNewsWA(newsId) {
+        function shareAffiliateNewsWA(newsId) {
             const refCode = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || 'WIZ';
             const n = (window.wizStore && window.wizStore.news) ? window.wizStore.news.getById(newsId) : null;
             if (!n) return;
@@ -945,23 +945,17 @@ return;
             const newsUrl = newsUrlObj.toString();
 
             const titleText = (n.title || 'BERITA KEGIATAN WIZ BABEL').trim();
-
-            // Native Mobile Web Share API for Mobile Devices
-            // Passing url cleanly allows WhatsApp Status & Chat to fetch OpenGraph metadata and display the full preview card box!
-            if (navigator.share && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                try {
-                    await navigator.share({
-                        title: titleText,
-                        url: newsUrl
-                    });
-                    return;
-                } catch(e) {
-                    if (e && e.name === 'AbortError') return;
-                }
-            }
-
             const waText = `*${titleText.toUpperCase()}*\n\n${newsUrl}`;
-            window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(waText), '_blank');
+            const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(waText);
+
+            try {
+                const win = window.open(waUrl, '_blank');
+                if (!win || win.closed || typeof win.closed === 'undefined') {
+                    window.location.href = waUrl;
+                }
+            } catch(e) {
+                window.location.href = waUrl;
+            }
         }
 
         function copyAffiliateNewsLink(newsId) {
@@ -1025,24 +1019,19 @@ return;
             });
         }
 
-        async function shareProgramWA(title, url) {
+        function shareProgramWA(title, url) {
             const cleanTitle = (title || 'Program Donasi WIZ Babel').trim();
-
-            // Native Mobile Web Share API for Mobile Devices
-            if (navigator.share && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                try {
-                    await navigator.share({
-                        title: cleanTitle,
-                        url: url
-                    });
-                    return;
-                } catch(e) {
-                    if (e && e.name === 'AbortError') return;
-                }
-            }
-
             const waText = `*PROGRAM KEBAIKAN WIZ BANGKA BELITUNG*\n*${cleanTitle.toUpperCase()}*\n\n${url}`;
-            window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(waText), '_blank');
+            const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(waText);
+
+            try {
+                const win = window.open(waUrl, '_blank');
+                if (!win || win.closed || typeof win.closed === 'undefined') {
+                    window.location.href = waUrl;
+                }
+            } catch(e) {
+                window.location.href = waUrl;
+            }
         }
 
         function renderAffiliateQuotesGrid() {
