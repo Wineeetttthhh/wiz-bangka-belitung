@@ -166,18 +166,16 @@ const canonicalUrl = `https://www.wizbangkabelitung.or.id/berita/${news.id}`;
     if (shareBtn) {
         shareBtn.addEventListener('click', () => {
             const newsId = shareBtn.getAttribute('data-id') || '1';
-            const title = shareBtn.getAttribute('data-title') || 'Berita WIZ';
             const ref = getActiveAffiliate();
-            const baseUrl = window.location.origin;
+            const baseUrl = window.location.origin || 'https://www.wizbangkabelitung.or.id';
             const shareUrl = `${baseUrl}/berita/${newsId}${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`;
-
-            const text = encodeURIComponent(`*${title}*\n\nSimak kabar kegiatan dan dokumentasi selengkapnya di website resmi WIZ Bangka Belitung:\n${shareUrl}`);
 
             if (window.showWhatsAppToast) {
                 window.showWhatsAppToast();
             }
 
-            window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+            // Pure URL sharing so WhatsApp reliably renders the OpenGraph card preview (thumbnail, title, link card)
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareUrl)}`, '_blank');
         });
     }
 </script>

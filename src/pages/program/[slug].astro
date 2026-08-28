@@ -105,24 +105,6 @@ const canonicalUrl = `https://www.wizbangkabelitung.or.id/program/${program.slug
                     </div>
                 </div>
 
-                <!-- Share Widget -->
-                <div class="bg-gradient-to-r from-emerald-900 to-slate-900 text-white rounded-3xl p-6 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div>
-                        <h4 class="font-bold text-base text-amber-300">Ajak Sahabat & Keluarga Berdonasi</h4>
-                        <p class="text-xs text-emerald-100">Sebarkan program ini. Setiap kebaikan yang dilakukan orang lain lewat ajakan Anda bernilai pahala yang sama.</p>
-                    </div>
-                    <button
-                        type="button"
-                        id="share-program-btn"
-                        data-slug={program.slug}
-                        data-title={program.title}
-                        class="px-5 py-3 rounded-2xl bg-[#25D366] hover:bg-[#1fa851] text-white font-bold text-xs sm:text-sm flex items-center gap-2 shrink-0 shadow-md transition-all hover:scale-105"
-                    >
-                        <span class="material-symbols-outlined text-lg">share</span>
-                        <span>Bagikan ke WhatsApp</span>
-                    </button>
-                </div>
-
             </div>
 
             <!-- Right 5 Cols: Sticky Donation Action Widget -->
@@ -169,7 +151,7 @@ const canonicalUrl = `https://www.wizbangkabelitung.or.id/program/${program.slug
                                 <button
                                     type="button"
                                     data-amount={nom}
-                                    class="nominal-btn py-2.5 px-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:border-emerald-600 hover:bg-emerald-50 transition-all text-center"
+                                    class="nominal-btn py-2.5 px-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:border-emerald-600 hover:bg-emerald-50 transition-all text-center cursor-pointer"
                                 >
                                     {formatRupiah(nom).replace(',00', '')}
                                 </button>
@@ -191,7 +173,7 @@ const canonicalUrl = `https://www.wizbangkabelitung.or.id/program/${program.slug
                         <a
                             href={`/donasi?program=${program.slug}`}
                             id="checkout-donate-btn"
-                            class="w-full py-4 rounded-2xl bg-[#006834] hover:bg-[#008444] text-white font-black text-center text-base shadow-lg shadow-emerald-900/10 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                            class="w-full py-4 rounded-2xl bg-[#006834] hover:bg-[#008444] text-white font-black text-center text-base shadow-lg shadow-emerald-900/10 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
                         >
                             <span class="material-symbols-outlined text-xl text-amber-300">volunteer_activism</span>
                             <span>Lanjut Pembayaran</span>
@@ -203,6 +185,25 @@ const canonicalUrl = `https://www.wizbangkabelitung.or.id/program/${program.slug
                     </div>
 
                 </div>
+
+                <!-- Share Widget (Diposisikan di akhir setelah Lanjut Pembayaran) -->
+                <div class="bg-gradient-to-r from-emerald-900 to-slate-900 text-white rounded-3xl p-6 shadow-xl flex flex-col items-stretch gap-4">
+                    <div>
+                        <h4 class="font-bold text-base text-amber-300">Ajak Sahabat & Keluarga Berdonasi</h4>
+                        <p class="text-xs text-emerald-100 mt-1">Sebarkan program ini. Setiap kebaikan yang dilakukan orang lain lewat ajakan Anda bernilai pahala yang sama.</p>
+                    </div>
+                    <button
+                        type="button"
+                        id="share-program-btn"
+                        data-slug={program.slug}
+                        data-title={program.title}
+                        class="w-full py-3 px-4 rounded-2xl bg-[#25D366] hover:bg-[#1fa851] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md transition-all hover:scale-102 active:scale-98 cursor-pointer"
+                    >
+                        <span class="material-symbols-outlined text-lg">share</span>
+                        <span>Bagikan ke WhatsApp</span>
+                    </button>
+                </div>
+
             </div>
 
         </div>
@@ -267,18 +268,16 @@ const canonicalUrl = `https://www.wizbangkabelitung.or.id/program/${program.slug
     if (shareBtn) {
         shareBtn.addEventListener('click', () => {
             const slug = shareBtn.getAttribute('data-slug') || '';
-            const title = shareBtn.getAttribute('data-title') || '';
             const ref = getActiveAffiliate();
-            const baseUrl = window.location.origin;
+            const baseUrl = window.location.origin || 'https://www.wizbangkabelitung.or.id';
             const shareUrl = `${baseUrl}/program/${slug}${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`;
-
-            const text = encodeURIComponent(`*Bantu Program: ${title}*\n\nMari bersama alirkan sedekah dan kepedulian untuk saudara kita di Bangka Belitung bersama Wahdah Inspirasi Zakat (WIZ).\n\n📲 Donasi & selengkapnya:\n${shareUrl}`);
 
             if (window.showWhatsAppToast) {
                 window.showWhatsAppToast();
             }
 
-            window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+            // Pure URL sharing so WhatsApp reliably renders the OpenGraph card preview (thumbnail, title, link card)
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareUrl)}`, '_blank');
         });
     }
 </script>
