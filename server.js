@@ -246,14 +246,28 @@ const server = http.createServer((req, res) => {
     }
 
     if (reqUrl === '/') reqUrl = '/index.html';
-    if (!path.extname(reqUrl)) {
+
+    let filePath = path.join(__dirname, reqUrl);
+
+    if (reqUrl.startsWith('/_astro/')) {
+        const tryDistAstro = path.join(__dirname, 'dist', reqUrl);
+        if (fs.existsSync(tryDistAstro)) {
+            filePath = tryDistAstro;
+        }
+    } else if (reqUrl === '/donasi' || reqUrl === '/donasi/' || reqUrl === '/donasi.html') {
+        const tryDistDonasi = path.join(__dirname, 'dist', 'donasi', 'index.html');
+        if (fs.existsSync(tryDistDonasi)) {
+            filePath = tryDistDonasi;
+        }
+    } else if (!path.extname(reqUrl)) {
         const tryHtml = path.join(__dirname, reqUrl + '.html');
-        if (fs.existsSync(tryHtml)) {
-            reqUrl = reqUrl + '.html';
+        const tryDistHtml = path.join(__dirname, 'dist', reqUrl, 'index.html');
+        if (fs.existsSync(tryDistHtml)) {
+            filePath = tryDistHtml;
+        } else if (fs.existsSync(tryHtml)) {
+            filePath = tryHtml;
         }
     }
-
-    const filePath = path.join(__dirname, reqUrl);
 
     // Prevent path traversal
     if (!filePath.startsWith(__dirname)) {
