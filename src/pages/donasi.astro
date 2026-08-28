@@ -932,8 +932,8 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
             wilayah: 'Pangkalpinang',
             category: '-',
             program: '-',
-            nominal: 50000,
-            totalDonasi: 50000,
+            nominal: 0,
+            totalDonasi: 0,
             method: 'QRIS',
             donorName: '',
             donorPhone: '',
@@ -1325,8 +1325,10 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
             if (sumType) sumType.textContent = state.isProgramLocked ? 'Infak Terikat' : state.type;
             if (sumWil) sumWil.textContent = state.wilayah;
             if (sumMethod) sumMethod.textContent = state.method === 'QRIS' ? 'QRIS (Instan)' : 'Transfer Bank';
-            if (sumTotal) sumTotal.textContent = formatRupiah(state.nominal);
-            if (mobileSumTotal) mobileSumTotal.textContent = formatRupiah(state.nominal);
+            
+            const totalDisplay = (state.nominal && state.nominal > 0) ? formatRupiah(state.nominal) : 'Rp 0';
+            if (sumTotal) sumTotal.textContent = totalDisplay;
+            if (mobileSumTotal) mobileSumTotal.textContent = totalDisplay;
 
             if (state.isProgramLocked || (state.type === 'Infak Terikat' && state.program !== '-')) {
                 if (catRow) catRow.classList.remove('hidden');
@@ -1369,15 +1371,19 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
             state.donorPhone = phoneEl?.value?.trim() || '';
             state.donorMessage = msgEl?.value?.trim() || '';
 
-            // Nominal handling
+            // Nominal validation - don't default if donor hasn't chosen
             let currentNominal = Number(state.nominal) || 0;
+            const inputVal = Number(nominalInput?.value) || 0;
+            if (inputVal >= 1000) {
+                currentNominal = inputVal;
+            }
             if (currentNominal < 1000) {
-                const inputVal = Number(nominalInput?.value) || 0;
-                if (inputVal >= 1000) {
-                    currentNominal = inputVal;
-                } else {
-                    currentNominal = 50000; // Fallback default Rp 50.000
+                alert('⚠️ Mohon masukkan atau pilih nominal donasi terlebih dahulu.');
+                if (nominalInput) {
+                    nominalInput.focus();
+                    nominalInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
+                return false;
             }
             state.nominal = currentNominal;
             state.totalDonasi = currentNominal;
@@ -1737,7 +1743,13 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
             if (nominalParam) {
                 setNominal(Number(nominalParam));
             } else {
-                setNominal(50000); // Default Rp 50.000
+                state.nominal = 0;
+                state.totalDonasi = 0;
+                const input = document.getElementById('custom_nominal');
+                if (input) input.value = '';
+                document.querySelectorAll('#nominal-chips-wrap .chip-nominal').forEach(chip => {
+                    chip.className = 'chip-nominal py-3 px-2 border-2 border-slate-200 bg-white text-slate-800 font-bold rounded-xl text-sm hover:border-emerald-600 hover:bg-emerald-50/40 transition-all text-center cursor-pointer';
+                });
             }
 
             updateRadioVisuals();
@@ -1799,7 +1811,7 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
 
         window.openQRISModal = function() {
             var s = window.donationState || {};
-            var n = Number(s.nominal || s.totalDonasi) || 50000;
+            var n = Number(s.nominal || s.totalDonasi) || 0;
             var el;
             el = document.getElementById('qris-modal-total'); if(el) el.textContent = _fmt(n);
             var progLabel = (s.isProgramLocked || (s.type==='Infak Terikat' && s.program!=='-')) ? s.program : (s.type || 'Infak Umum');
@@ -1812,7 +1824,7 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
 
         window.openBankModal = function() {
             var s = window.donationState || {};
-            var n = Number(s.nominal || s.totalDonasi) || 50000;
+            var n = Number(s.nominal || s.totalDonasi) || 0;
             var el;
             el = document.getElementById('bank-modal-total'); if(el) el.textContent = _fmt(n);
             var progLabel = (s.isProgramLocked || (s.type==='Infak Terikat' && s.program!=='-')) ? s.program : (s.type || 'Infak Umum');
@@ -1825,7 +1837,7 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
         window.handleCheckoutSubmit = function(e) {
             if (e) { if(e.preventDefault) e.preventDefault(); if(e.stopPropagation) e.stopPropagation(); }
             var s = window.donationState;
-            if (!s) { s = {method:'QRIS',nominal:50000,type:'Infak Umum',wilayah:'Pangkalpinang',donorName:'',donorPhone:'',donorMessage:'',category:'-',program:'-'}; window.donationState = s; }
+            if (!s) { s = {method:'QRIS',nominal:0,type:'Infak Umum',wilayah:'Pangkalpinang',donorName:'',donorPhone:'',donorMessage:'',category:'-',program:'-'}; window.donationState = s; }
 
             var el;
             el = document.getElementById('is-anonymous-donor');
@@ -1836,8 +1848,19 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
             el = document.getElementById('donor-message'); if(el) s.donorMessage = el.value.trim();
 
             var nom = Number(s.nominal) || 0;
-            if (nom < 1000) { el = document.getElementById('custom_nominal'); nom = el ? (Number(el.value)||50000) : 50000; }
-            if (nom < 1000) nom = 50000;
+            el = document.getElementById('custom_nominal');
+            var customVal = el ? (Number(el.value) || 0) : 0;
+            if (customVal > 0) nom = customVal;
+
+            if (nom < 1000) {
+                alert('⚠️ Mohon masukkan atau pilih nominal donasi terlebih dahulu.');
+                if (el) {
+                    el.focus();
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return false;
+            }
+
             s.nominal = nom; s.totalDonasi = nom;
 
             var r;
