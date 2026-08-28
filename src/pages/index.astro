@@ -8,30 +8,30 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     image="/assets/images/foto-utama-wiz.jpg"
 >
     <!-- Hero Section -->
-    <section class="relative pt-6 sm:pt-12 pb-12 sm:pb-20 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            <div class="lg:col-span-7 space-y-5 sm:space-y-6 z-10">
-                <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-emerald-950 leading-[1.15] tracking-tight">
+    <section class="relative pt-6 sm:pt-12 pb-10 sm:pb-16 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-center">
+            <div class="lg:col-span-7 space-y-4 sm:space-y-6 z-10">
+                <h1 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-emerald-950 leading-[1.2] tracking-tight">
                     Tebarkan Kebaikan, <br class="hidden sm:inline" />
                     <span class="text-emerald-700">Hadirkan Kebermanfaatan</span>
                 </h1>
-                <p class="text-base sm:text-lg md:text-xl text-slate-700 leading-relaxed font-normal max-w-2xl">
+                <p class="text-sm sm:text-base md:text-lg text-slate-700 leading-relaxed font-normal max-w-2xl">
                     Bersama Wahdah Inspirasi Zakat Bangka Belitung, wujudkan kepedulian melalui Zakat, Infak, dan Sedekah untuk membangun masyarakat yang lebih berdaya dan mandiri.
                 </p>
-                <div class="flex flex-col sm:flex-row gap-3.5 pt-2 w-full sm:w-auto">
-                    <a href="/donasi" class="bg-[#F7941D] hover:bg-[#ea7e00] text-white px-8 py-4 rounded-2xl shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 transition-all text-base sm:text-lg font-extrabold flex items-center justify-center gap-2.5 active:scale-98">
-                        <span class="material-symbols-outlined text-xl">volunteer_activism</span>
+                <div class="grid grid-cols-2 sm:flex sm:flex-row gap-3 pt-1 w-full sm:w-auto">
+                    <a href="/donasi" class="bg-[#F7941D] hover:bg-[#ea7e00] text-white px-4 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl shadow-md shadow-orange-500/20 hover:shadow-orange-500/30 transition-all text-xs sm:text-base font-extrabold flex items-center justify-center gap-1.5 sm:gap-2 active:scale-98">
+                        <span class="material-symbols-outlined text-lg sm:text-xl">volunteer_activism</span>
                         <span>Donasi Sekarang</span>
                     </a>
-                    <a href="/program" class="bg-white hover:bg-emerald-50 text-emerald-800 border-2 border-emerald-600/80 px-8 py-4 rounded-2xl shadow-sm hover:shadow-md transition-all text-base sm:text-lg font-bold flex items-center justify-center gap-2.5 active:scale-98">
-                        <span class="material-symbols-outlined text-xl">grid_view</span>
+                    <a href="/program" class="bg-white hover:bg-emerald-50 text-emerald-800 border-2 border-emerald-600/80 px-4 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl shadow-xs hover:shadow-md transition-all text-xs sm:text-base font-bold flex items-center justify-center gap-1.5 sm:gap-2 active:scale-98">
+                        <span class="material-symbols-outlined text-lg sm:text-xl">grid_view</span>
                         <span>Lihat Program</span>
                     </a>
                 </div>
             </div>
-            <div class="lg:col-span-5 relative h-[320px] sm:h-[420px] lg:h-[480px] rounded-3xl overflow-hidden shadow-2xl border-2 border-emerald-100 bg-slate-100">
-                <img id="main-hero-img" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" data-site-img="hero_card" data-alt="Relawan WIZ Bangka Belitung" src="/assets/images/foto-utama-wiz.jpg" onerror="this.src='/assets/images/sedekah-beras-dhuafa.jpg';" alt="Relawan WIZ Bangka Belitung Menyerahkan Sedekah Beras"/>
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/35 via-transparent to-transparent"></div>
+            <div class="lg:col-span-5 relative aspect-[16/10] sm:aspect-[16/10] lg:aspect-auto lg:h-[460px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl border-2 border-emerald-100 bg-slate-100">
+                <img id="main-hero-img" class="w-full h-full object-cover transition-transform duration-700 hover:scale-105" data-site-img="hero_card" data-alt="Relawan WIZ Bangka Belitung" src="/assets/images/foto-utama-wiz.jpg" onerror="this.src='/assets/images/sedekah-beras-dhuafa.jpg';" alt="Relawan WIZ Bangka Belitung Menyerahkan Sedekah Beras"/>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/25 via-transparent to-transparent pointer-events-none"></div>
             </div>
         </div>
     </section>

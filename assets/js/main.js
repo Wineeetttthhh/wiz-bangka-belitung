@@ -575,12 +575,17 @@ if (typeof BroadcastChannel !== 'undefined') {
 function initDynamicSiteImages() {
     if (!window.wizStore || !window.wizStore.siteImages) return;
     const images = window.wizStore.siteImages.getAll();
-    const fallbackDefault = 'assets/images/foto-utama-wiz.jpg';
+    const fallbackDefault = '/assets/images/foto-utama-wiz.jpg';
 
     document.querySelectorAll('[data-site-img]').forEach(el => {
         const key = el.getAttribute('data-site-img');
-        const targetSrc = (key && images[key]) ? images[key] : (el.getAttribute('data-default-src') || fallbackDefault);
+        let targetSrc = (key && images[key]) ? images[key] : (el.getAttribute('data-default-src') || fallbackDefault);
         if (!targetSrc) return;
+
+        // If hero_card key accidentally has the logo URL, fallback to proper hero photo
+        if (key === 'hero_card' && (targetSrc.includes('logo') || targetSrc.includes('data:image/svg'))) {
+            targetSrc = fallbackDefault;
+        }
 
         if (el.tagName === 'IMG') {
             el.onerror = function() {
@@ -597,12 +602,11 @@ function initDynamicSiteImages() {
 
     // Also explicitly target hero image by ID if present
     const heroEl = document.getElementById('main-hero-img');
-    if (heroEl && images.hero_card) {
-        if (heroEl.tagName === 'IMG') {
+    if (heroEl) {
+        if (images.hero_card && !images.hero_card.includes('logo') && !images.hero_card.includes('data:image/svg')) {
             heroEl.src = images.hero_card;
-            heroEl.setAttribute('src', images.hero_card);
         } else {
-            heroEl.style.backgroundImage = `url('${images.hero_card}')`;
+            heroEl.src = fallbackDefault;
         }
     }
 }
