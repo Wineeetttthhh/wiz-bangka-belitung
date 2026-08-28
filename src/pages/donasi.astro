@@ -254,42 +254,101 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                     </section>
 
                     <!-- Step Metode Pembayaran -->
-                    <section class="bg-surface-container-lowest rounded-xl p-md sm:p-lg shadow-sm border border-outline-variant/20">
-                        <h2 class="font-headline-md text-headline-md font-bold text-on-surface mb-sm">Metode Pembayaran</h2>
-                        <div class="space-y-xs sm:space-y-sm">
-                            <!-- QRIS -->
-                            <label class="option-card cursor-pointer relative block">
-                                <input class="peer sr-only" name="payment_method" onchange="setPayment('QRIS')" type="radio" value="QRIS" checked />
-                                <div class="border border-outline-variant rounded-lg p-3 transition-all duration-200 hover:border-primary/50 flex items-center justify-between">
-                                    <div class="flex items-center gap-sm">
-                                        <div class="w-10 h-10 bg-surface-container flex items-center justify-center rounded-md text-primary shrink-0">
-                                            <span class="material-symbols-outlined text-xl">qr_code_scanner</span>
+                    <section class="bg-surface-container-lowest rounded-xl p-md sm:p-lg shadow-sm border border-outline-variant/20 space-y-4">
+                        <h2 class="font-headline-md text-headline-md font-bold text-on-surface">Metode Pembayaran</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="payment-methods-grid">
+                            <!-- QRIS Option -->
+                            <label id="payment-card-qris" class="payment-method-card cursor-pointer relative block border-2 border-primary bg-emerald-50/60 rounded-xl p-3.5 transition-all shadow-xs ring-2 ring-primary/20">
+                                <input class="sr-only" name="payment_method" onchange="setPayment('QRIS')" type="radio" value="QRIS" checked />
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-11 h-11 bg-white flex items-center justify-center rounded-xl text-primary shadow-xs shrink-0 border border-emerald-200">
+                                            <span class="material-symbols-outlined text-2xl">qr_code_scanner</span>
                                         </div>
                                         <div>
-                                            <span class="font-label-md text-label-md text-on-surface block font-bold">QRIS (Otomatis &amp; Instan)</span>
-                                            <span class="font-caption text-caption text-on-surface-variant block text-[11px]">GoPay, OVO, DANA, ShopeePay, LinkAja, M-Banking</span>
+                                            <span class="font-bold text-slate-900 block text-sm">QRIS (Instan)</span>
+                                            <span class="text-[11px] text-slate-500 block">GoPay, OVO, DANA, BCA, BSI</span>
                                         </div>
                                     </div>
-                                    <span class="material-symbols-outlined text-primary opacity-0 icon-check transition-opacity shrink-0">check_circle</span>
+                                    <span id="check-qris" class="material-symbols-outlined text-primary text-xl">check_circle</span>
                                 </div>
                             </label>
 
-                            <!-- Bank Transfer -->
-                            <label class="option-card cursor-pointer relative block">
-                                <input class="peer sr-only" name="payment_method" onchange="setPayment('Bank Transfer')" type="radio" value="Bank Transfer" />
-                                <div class="border border-outline-variant rounded-lg p-3 transition-all duration-200 hover:border-primary/50 flex items-center justify-between">
-                                    <div class="flex items-center gap-sm">
-                                        <div class="w-10 h-10 bg-surface-container flex items-center justify-center rounded-md text-primary shrink-0">
-                                            <span class="material-symbols-outlined text-xl">account_balance</span>
+                            <!-- Bank Transfer Option -->
+                            <label id="payment-card-bank" class="payment-method-card cursor-pointer relative block border border-slate-200 bg-white hover:border-primary/50 rounded-xl p-3.5 transition-all shadow-xs">
+                                <input class="sr-only" name="payment_method" onchange="setPayment('Bank Transfer')" type="radio" value="Bank Transfer" />
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-11 h-11 bg-slate-100 flex items-center justify-center rounded-xl text-slate-700 shadow-xs shrink-0 border border-slate-200">
+                                            <span class="material-symbols-outlined text-2xl">account_balance</span>
                                         </div>
                                         <div>
-                                            <span class="font-label-md text-label-md text-on-surface block font-bold">Transfer Bank Manual</span>
-                                            <span class="font-caption text-caption text-on-surface-variant block text-[11px]">BSI (Bank Syariah Indonesia)</span>
+                                            <span class="font-bold text-slate-900 block text-sm">Transfer Bank</span>
+                                            <span class="text-[11px] text-slate-500 block">BSI (Bank Syariah Indonesia)</span>
                                         </div>
                                     </div>
-                                    <span class="material-symbols-outlined text-primary opacity-0 icon-check transition-opacity shrink-0">check_circle</span>
+                                    <span id="check-bank" class="material-symbols-outlined text-primary text-xl hidden">check_circle</span>
                                 </div>
                             </label>
+                        </div>
+
+                        <!-- LIVE INLINE PAYMENT DISPLAY: QRIS -->
+                        <div id="live-qris-display" class="p-4 sm:p-5 bg-gradient-to-b from-white to-slate-50 rounded-2xl border-2 border-emerald-500/40 shadow-sm space-y-3 text-center">
+                            <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2 py-0.5 bg-red-100 text-red-700 font-bold text-[10px] rounded uppercase">QRIS Nasional</span>
+                                    <span class="font-bold text-xs text-slate-800">WAHDAH INSPIRASI ZAKAT BABEL</span>
+                                </div>
+                                <span class="text-[10px] text-emerald-800 font-extrabold bg-emerald-100 px-2 py-0.5 rounded-full">Bebas Biaya Admin</span>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 py-2">
+                                <div class="bg-white p-2 rounded-2xl border-2 border-primary/30 shadow-md inline-block">
+                                    <img src="/assets/images/qris-code-wiz-babel.png" alt="QRIS WIZ Babel" class="w-48 h-48 sm:w-52 sm:h-52 object-contain rounded-xl">
+                                </div>
+                                <div class="text-left space-y-2 max-w-xs">
+                                    <div class="bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
+                                        <span class="text-[10px] text-emerald-800 uppercase font-bold block">Nominal Donasi:</span>
+                                        <span id="inline-qris-amount" class="text-xl font-extrabold text-primary block">Rp 50.000</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 leading-relaxed">
+                                        Scan barcode di samping melalui aplikasi e-wallet (GoPay, OVO, DANA, ShopeePay) atau mobile banking Anda.
+                                    </p>
+                                    <div class="flex items-center gap-2 pt-1">
+                                        <button type="button" onclick="downloadQRISImage()" class="flex-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1 shadow-xs cursor-pointer">
+                                            <span class="material-symbols-outlined text-sm">download</span>
+                                            <span>Unduh QRIS</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- LIVE INLINE PAYMENT DISPLAY: BANK TRANSFER -->
+                        <div id="live-bank-display" class="hidden p-4 sm:p-5 bg-gradient-to-br from-emerald-50 via-teal-50 to-emerald-100/50 rounded-2xl border-2 border-emerald-500/50 shadow-sm space-y-3">
+                            <div class="flex items-center justify-between border-b border-emerald-200 pb-2.5">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-xs text-emerald-950">Rekening Resmi Donasi WIZ Babel</span>
+                                </div>
+                                <span class="px-2.5 py-0.5 rounded-full bg-emerald-200/80 text-emerald-900 text-[10px] font-extrabold">Terverifikasi</span>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-xl border border-emerald-200 flex items-center justify-between gap-3 shadow-xs">
+                                <div class="space-y-1">
+                                    <span class="text-xs font-bold text-slate-600 block">Bank Syariah Indonesia (BSI)</span>
+                                    <span class="font-mono font-black text-2xl text-slate-900 tracking-wider block" id="inline-bank-acc">7168008001</span>
+                                    <span class="text-xs text-slate-500 block font-medium">A.n. WIZ Bangka Belitung</span>
+                                </div>
+                                <button type="button" onclick="copyAccount('7168008001')" class="px-4 py-2.5 bg-primary hover:bg-emerald-700 text-white rounded-xl font-bold text-xs flex flex-col items-center gap-0.5 shadow-sm transition-all cursor-pointer">
+                                    <span class="material-symbols-outlined text-base">content_copy</span>
+                                    <span>Salin</span>
+                                </button>
+                            </div>
+
+                            <div class="bg-emerald-100/60 p-3 rounded-xl border border-emerald-200/60 flex items-center justify-between text-xs text-emerald-950">
+                                <span>Nominal yang Harus Ditransfer:</span>
+                                <span id="inline-bank-amount" class="text-base font-extrabold text-primary">Rp 50.000</span>
+                            </div>
                         </div>
                     </section>
                 </div>
@@ -749,7 +808,76 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
         function setPayment(method) {
             state.method = method;
+
+            const cardQris = document.getElementById('payment-card-qris');
+            const cardBank = document.getElementById('payment-card-bank');
+            const checkQris = document.getElementById('check-qris');
+            const checkBank = document.getElementById('check-bank');
+            const liveQris = document.getElementById('live-qris-display');
+            const liveBank = document.getElementById('live-bank-display');
+
+            if (method === 'QRIS') {
+                if (cardQris) cardQris.className = 'payment-method-card cursor-pointer relative block border-2 border-primary bg-emerald-50/60 rounded-xl p-3.5 transition-all shadow-xs ring-2 ring-primary/20';
+                if (cardBank) cardBank.className = 'payment-method-card cursor-pointer relative block border border-slate-200 bg-white hover:border-primary/50 rounded-xl p-3.5 transition-all shadow-xs';
+                if (checkQris) checkQris.classList.remove('hidden');
+                if (checkBank) checkBank.classList.add('hidden');
+                if (liveQris) liveQris.classList.remove('hidden');
+                if (liveBank) liveBank.classList.add('hidden');
+            } else {
+                if (cardBank) cardBank.className = 'payment-method-card cursor-pointer relative block border-2 border-primary bg-emerald-50/60 rounded-xl p-3.5 transition-all shadow-xs ring-2 ring-primary/20';
+                if (cardQris) cardQris.className = 'payment-method-card cursor-pointer relative block border border-slate-200 bg-white hover:border-primary/50 rounded-xl p-3.5 transition-all shadow-xs';
+                if (checkBank) checkBank.classList.remove('hidden');
+                if (checkQris) checkQris.classList.add('hidden');
+                if (liveBank) liveBank.classList.remove('hidden');
+                if (liveQris) liveQris.classList.add('hidden');
+            }
+
             updateSummary();
+        }
+
+        function updateSummary() {
+            const sumType = document.getElementById('summary-type');
+            const sumCat = document.getElementById('summary-cat');
+            const sumProg = document.getElementById('summary-prog');
+            const sumWil = document.getElementById('summary-wilayah');
+            const sumMethod = document.getElementById('summary-method');
+            const sumTotal = document.getElementById('summary-total');
+            const mobileSumTotal = document.getElementById('mobile-summary-total');
+            const inlineQrisAmt = document.getElementById('inline-qris-amount');
+            const inlineBankAmt = document.getElementById('inline-bank-amount');
+
+            const catRow = document.getElementById('summary-cat-row');
+            const progRow = document.getElementById('summary-prog-row');
+
+            if (sumType) sumType.textContent = state.type;
+            if (sumWil) sumWil.textContent = state.wilayah;
+            if (sumMethod) sumMethod.textContent = state.method === 'QRIS' ? 'QRIS (Instan)' : 'Transfer Bank';
+            if (sumTotal) sumTotal.textContent = formatRupiah(state.nominal);
+            if (mobileSumTotal) mobileSumTotal.textContent = formatRupiah(state.nominal);
+            if (inlineQrisAmt) inlineQrisAmt.textContent = formatRupiah(state.nominal);
+            if (inlineBankAmt) inlineBankAmt.textContent = formatRupiah(state.nominal);
+
+            if (state.type === 'Infak Terikat') {
+                if (catRow) catRow.classList.remove('hidden');
+                if (progRow) progRow.classList.remove('hidden');
+                if (sumCat) sumCat.textContent = state.category !== '-' ? state.category : 'Berkah Peduli';
+                if (sumProg) sumProg.textContent = state.program !== '-' ? state.program : 'Pilih Program';
+            } else {
+                if (catRow) catRow.classList.add('hidden');
+                if (progRow) progRow.classList.add('hidden');
+            }
+
+            const activeRef = (typeof getActiveAffiliateRef === 'function') ? getActiveAffiliateRef() : (sessionStorage.getItem('wiz_active_ref_id') || localStorage.getItem('wiz_ref_code') || '');
+            const refRow = document.getElementById('summary-ref-row');
+            const refName = document.getElementById('summary-ref-name');
+            if (refRow && refName) {
+                if (activeRef) {
+                    refRow.classList.remove('hidden');
+                    refName.textContent = activeRef;
+                } else {
+                    refRow.classList.add('hidden');
+                }
+            }
         }
 
         function handleCheckoutSubmit(e) {
@@ -763,9 +891,29 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             state.donorMessage = msgEl?.value?.trim() || '';
 
             if (!state.nominal || state.nominal < 1000) {
-                alert('Silakan masukkan nominal donasi yang valid (minimal Rp 1.000).');
+                alert('Silakan pilih atau masukkan nominal donasi yang valid (minimal Rp 1.000).');
                 return;
             }
+
+            // Save donation record to store and supabase
+            try {
+                if (window.wizStore && window.wizStore.donations) {
+                    const activeRef = (typeof getActiveAffiliateRef === 'function') ? getActiveAffiliateRef() : (sessionStorage.getItem('wiz_active_ref_id') || localStorage.getItem('wiz_ref_code') || '');
+                    const progName = (state.type === 'Infak Terikat' && state.program !== '-') ? state.program : state.type;
+                    window.wizStore.donations.add({
+                        donorName: state.donorName,
+                        donorPhone: state.donorPhone,
+                        amount: state.nominal,
+                        program: progName,
+                        pillar: state.category !== '-' ? state.category : 'Berkah Peduli',
+                        type: state.type,
+                        method: state.method === 'QRIS' ? 'QRIS' : 'Transfer Bank (BSI)',
+                        wilayah: state.wilayah,
+                        message: state.donorMessage,
+                        referralCode: activeRef || undefined
+                    });
+                }
+            } catch(e) {}
 
             if (state.method === 'QRIS') {
                 openQRISModal();
