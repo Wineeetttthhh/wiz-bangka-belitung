@@ -1,0 +1,242 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+    title="Berita & Kegiatan Penyaluran — Laznas WIZ Bangka Belitung"
+    description="Arsip berita lengkap, dokumentasi kegiatan penyaluran donasi, dan program kebaikan Laznas Wahdah Inspirasi Zakat (WIZ) Bangka Belitung."
+    image="/assets/images/foto-utama-wiz.jpg"
+>
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-b from-emerald-950 via-slate-900 to-slate-900 text-white py-12 sm:py-16 px-4 sm:px-6 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:16px_16px]"></div>
+        <div class="max-w-4xl mx-auto text-center relative z-10 space-y-4">
+            <span class="inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 px-4 py-1 rounded-full text-xs font-bold border border-emerald-500/30 uppercase tracking-wider backdrop-blur-xs">
+                <span class="material-symbols-outlined text-sm">newspaper</span>
+                Kabar &amp; Dokumentasi Penyaluran
+            </span>
+            <h1 class="font-heading text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+                Arsip Berita &amp; Kegiatan Penyaluran
+            </h1>
+            <p class="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+                Jejak transparansi dan dokumentasi nyata amanah zakat, infak, sedekah dari para muhsinin untuk kemaslahatan ummat di Bangka Belitung.
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Content Section -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 flex-grow space-y-8 w-full">
+
+        <!-- Search & Filter Bar -->
+        <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <div class="flex flex-col md:flex-row gap-3 justify-between items-center">
+                <div class="relative w-full md:w-80">
+                    <span class="material-symbols-outlined absolute left-3.5 top-3 text-slate-400 text-lg">search</span>
+                    <input type="text" id="news-search-input" placeholder="Cari judul berita atau kegiatan..." oninput="handleSearchChange(this.value)"
+                        class="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-emerald-600 focus:bg-white transition-colors">
+                </div>
+
+                <div class="text-xs text-slate-500 font-semibold self-start md:self-center">
+                    Menampilkan <span id="news-count" class="font-bold text-emerald-800">0</span> Berita Terpublikasi
+                </div>
+            </div>
+
+            <!-- Category Filter Pills -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none" id="category-pills">
+                <button type="button" onclick="filterCategory('Semua', this)" class="cat-pill active px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-xs shrink-0 transition-all cursor-pointer">Semua Kategori</button>
+                <button type="button" onclick="filterCategory('Kegiatan & Penyaluran', this)" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition-all cursor-pointer">Kegiatan &amp; Penyaluran</button>
+                <button type="button" onclick="filterCategory('Dakwah & Pembinaan', this)" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition-all cursor-pointer">Dakwah</button>
+                <button type="button" onclick="filterCategory('Sosial & Kemanusiaan', this)" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition-all cursor-pointer">Sosial</button>
+                <button type="button" onclick="filterCategory('Pendidikan & Beasiswa', this)" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition-all cursor-pointer">Pendidikan</button>
+                <button type="button" onclick="filterCategory('Kesehatan Masyarakat', this)" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition-all cursor-pointer">Kesehatan</button>
+                <button type="button" onclick="filterCategory('Ekonomi & Pemberdayaan', this)" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition-all cursor-pointer">Ekonomi</button>
+            </div>
+        </div>
+
+        <!-- News Cards Grid Container -->
+        <div id="news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        </div>
+
+        <!-- Pagination Controls -->
+        <div id="pagination-wrapper" class="hidden flex items-center justify-center gap-2 pt-4">
+            <button id="prev-page-btn" onclick="changePage(-1)" class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-600 font-bold text-xs hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none transition-colors flex items-center gap-1 cursor-pointer">
+                <span class="material-symbols-outlined text-sm">arrow_back</span>
+                <span>Sebelumnya</span>
+            </button>
+            <div id="page-numbers" class="flex items-center gap-1"></div>
+            <button id="next-page-btn" onclick="changePage(1)" class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-600 font-bold text-xs hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none transition-colors flex items-center gap-1 cursor-pointer">
+                <span>Selanjutnya</span>
+                <span class="material-symbols-outlined text-sm">arrow_forward</span>
+            </button>
+        </div>
+    </main>
+
+    <!-- Interactive Script matching berita.html -->
+    <script is:inline>
+        let currentCategory = 'Semua';
+        let currentSearchQuery = '';
+        let currentPage = 1;
+        const ITEMS_PER_PAGE = 9;
+
+        function getPublishedNews() {
+            if (window.wizStore && window.wizStore.news) {
+                return wizStore.news.getPublished() || [];
+            }
+            return [];
+        }
+
+        function renderArchive() {
+            const all = getPublishedNews();
+            const grid = document.getElementById('news-grid');
+            const countEl = document.getElementById('news-count');
+            const paginationWrapper = document.getElementById('pagination-wrapper');
+            if (!grid) return;
+
+            const filtered = all.filter(n => {
+                const matchCat = (currentCategory === 'Semua') || 
+                    (n.category && n.category.toLowerCase().includes(currentCategory.toLowerCase())) ||
+                    (currentCategory.toLowerCase().includes(n.category ? n.category.toLowerCase() : ''));
+                
+                const q = currentSearchQuery.toLowerCase();
+                const matchSearch = !q || 
+                    (n.title && n.title.toLowerCase().includes(q)) || 
+                    (n.content && n.content.toLowerCase().includes(q));
+                
+                return matchCat && matchSearch;
+            });
+
+            if (countEl) countEl.textContent = filtered.length;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                <div class="col-span-1 md:col-span-3 text-center py-16 bg-white rounded-3xl border border-dashed border-slate-200 p-8 space-y-3">
+                    <span class="material-symbols-outlined text-4xl text-slate-300">feed</span>
+                    <p class="font-heading text-slate-700 font-bold text-base">Tidak Ada Berita Ditemukan</p>
+                    <p class="text-xs text-slate-400 max-w-sm mx-auto">Silakan coba kata kunci lain atau pilih kategori yang berbeda.</p>
+                </div>`;
+                if (paginationWrapper) paginationWrapper.classList.add('hidden');
+                return;
+            }
+
+            const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+            const pageItems = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+            const defaultImg = '/assets/images/sedekah-beras-dhuafa.jpg';
+
+            grid.innerHTML = pageItems.map(n => {
+                const galCount = Array.isArray(n.gallery) ? n.gallery.filter(Boolean).length : 0;
+                const formattedDate = (window.wizStore && wizStore.utils) ? wizStore.utils.formatDate(n.eventDate || n.createdAt) : (n.eventDate || n.createdAt || '');
+                const rawImg = (n.imageUrl || n.image_url || '').trim();
+                const firstGal = (Array.isArray(n.gallery) && n.gallery.length > 0 && typeof n.gallery[0] === 'string') ? n.gallery[0].trim() : '';
+                const cardImg = rawImg || firstGal || defaultImg;
+
+                return `
+                <article class="bg-white rounded-3xl overflow-hidden shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-200 flex flex-col group">
+                    <div onclick="openModal('${n.id}')" class="relative aspect-video overflow-hidden bg-slate-900 cursor-pointer w-full">
+                        <img src="${cardImg}" onerror="this.src='${defaultImg}'" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 block" alt="${n.title}" loading="lazy">
+                        <span class="absolute top-3 left-3 bg-emerald-600 text-white text-[11px] px-3 py-1 rounded-full font-bold shadow backdrop-blur-xs">${n.category || 'Kegiatan'}</span>
+                        ${galCount > 0 ? `
+                        <span class="absolute bottom-3 right-3 bg-black/75 backdrop-blur-xs text-white text-[11px] px-2.5 py-0.5 rounded-full font-bold shadow flex items-center gap-1">
+                            <span class="material-symbols-outlined text-xs">collections</span>
+                            <span>+${galCount} foto</span>
+                        </span>` : ''}
+                    </div>
+                    <div class="p-4 sm:p-5 flex flex-col flex-grow space-y-2">
+                        <div class="flex items-center text-[#006834] text-xs font-semibold gap-1.5 flex-wrap">
+                            <span class="material-symbols-outlined text-sm">event</span>
+                            <span>Kegiatan: ${formattedDate}</span>
+                            <span class="text-slate-400">• Oleh: ${n.author || 'Super Admin 1 (WIZ Babel)'}</span>
+                        </div>
+                        <h3 onclick="openModal('${n.id}')" class="text-sm sm:text-base font-bold text-slate-900 group-hover:text-[#008444] transition-colors line-clamp-2 cursor-pointer leading-snug">${n.title}</h3>
+                        <p onclick="openModal('${n.id}')" class="text-xs sm:text-[13px] text-slate-600 line-clamp-3 flex-grow cursor-pointer leading-relaxed">${n.content || ''}</p>
+                        
+                        <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2">
+                            <button onclick="openModal('${n.id}')" class="text-[#008444] font-bold text-xs flex items-center gap-1 hover:underline cursor-pointer">
+                                <span>Baca Selengkapnya</span>
+                                <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                            </button>
+                            <button onclick="shareDirectWA('${n.id}')" title="Bagikan ke WhatsApp" class="text-slate-400 hover:text-[#25D366] transition-colors p-1.5 rounded-lg flex items-center justify-center cursor-pointer hover:bg-slate-50">
+                                <span class="material-symbols-outlined text-base">share</span>
+                            </button>
+                        </div>
+                    </div>
+                </article>`;
+            }).join('');
+
+            if (paginationWrapper) {
+                if (totalPages > 1) {
+                    paginationWrapper.classList.remove('hidden');
+                    document.getElementById('prev-page-btn').disabled = (currentPage === 1);
+                    document.getElementById('next-page-btn').disabled = (currentPage === totalPages);
+
+                    const pageNumbersEl = document.getElementById('page-numbers');
+                    pageNumbersEl.innerHTML = Array.from({ length: totalPages }, (_, i) => i + 1).map(p => `
+                        <button type="button" onclick="goToPage(${p})" class="w-8 h-8 rounded-xl font-bold text-xs flex items-center justify-center transition-all cursor-pointer ${p === currentPage ? 'bg-emerald-600 text-white shadow-xs' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'}">
+                            ${p}
+                        </button>
+                    `).join('');
+                } else {
+                    paginationWrapper.classList.add('hidden');
+                }
+            }
+        }
+
+        function filterCategory(cat, btn) {
+            currentCategory = cat;
+            currentPage = 1;
+            document.querySelectorAll('.cat-pill').forEach(b => {
+                b.classList.remove('bg-emerald-600', 'text-white', 'shadow-xs', 'active');
+                b.classList.add('bg-slate-100', 'text-slate-600');
+            });
+            if (btn) {
+                btn.classList.remove('bg-slate-100', 'text-slate-600');
+                btn.classList.add('bg-emerald-600', 'text-white', 'shadow-xs', 'active');
+            }
+            renderArchive();
+        }
+
+        function handleSearchChange(q) {
+            currentSearchQuery = (q || '').trim();
+            currentPage = 1;
+            renderArchive();
+        }
+
+        function changePage(delta) {
+            currentPage += delta;
+            renderArchive();
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+        }
+
+        function goToPage(p) {
+            currentPage = p;
+            renderArchive();
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+        }
+
+        function openModal(id) {
+            if (typeof openPublicNewsModal === 'function') {
+                openPublicNewsModal(id);
+            }
+        }
+
+        function shareDirectWA(id) {
+            const baseOrigin = window.location.origin;
+            const finalShareUrl = `${baseOrigin}/berita/${encodeURIComponent(id)}`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(finalShareUrl)}`, '_blank');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderArchive();
+            if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
+                window.wizStore.syncFromCloud(true).then(() => renderArchive()).catch(() => {});
+            }
+        });
+
+        window.addEventListener('wiz-news-changed', renderArchive);
+        window.addEventListener('wiz-sync-complete', renderArchive);
+    </script>
+</BaseLayout>

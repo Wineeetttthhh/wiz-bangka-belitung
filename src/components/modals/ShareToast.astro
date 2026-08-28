@@ -1,0 +1,46 @@
+---
+// Toast helper component for smooth WhatsApp Sharing
+---
+
+<div
+    id="wiz-share-toast"
+    class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] bg-slate-900/95 backdrop-blur-md text-white text-xs sm:text-sm font-medium px-4 py-3 rounded-2xl shadow-2xl border border-emerald-500/30 flex items-center gap-3 max-w-[90vw] sm:max-w-md transition-all duration-300 transform translate-y-12 opacity-0 pointer-events-none"
+    role="status"
+    aria-live="polite"
+>
+    <div class="w-8 h-8 rounded-xl bg-[#25D366] text-white flex items-center justify-center shrink-0 shadow-md">
+        <span class="material-symbols-outlined text-lg">chat</span>
+    </div>
+    <div class="leading-tight flex-1">
+        <span class="block font-bold text-emerald-400 text-xs">Membuka WhatsApp...</span>
+        <span id="wiz-share-toast-msg" class="text-[11px] text-slate-200">Tunggu 1–2 detik di layar WhatsApp hingga kartu preview gambar muncul sebelum menekan tombol Kirim ✨</span>
+    </div>
+</div>
+
+<script>
+    declare global {
+        interface Window {
+            showWhatsAppToast: (customMsg?: string) => void;
+            _wizToastTimer?: any;
+        }
+    }
+
+    window.showWhatsAppToast = function(customMsg?: string) {
+        const toast = document.getElementById('wiz-share-toast');
+        const msgEl = document.getElementById('wiz-share-toast-msg');
+        if (!toast) return;
+
+        if (customMsg && msgEl) {
+            msgEl.textContent = customMsg;
+        }
+
+        toast.classList.remove('translate-y-12', 'opacity-0', 'pointer-events-none');
+        toast.classList.add('translate-y-0', 'opacity-100');
+
+        clearTimeout(window._wizToastTimer);
+        window._wizToastTimer = setTimeout(() => {
+            toast.classList.remove('translate-y-0', 'opacity-100');
+            toast.classList.add('translate-y-12', 'opacity-0', 'pointer-events-none');
+        }, 4000);
+    };
+</script>

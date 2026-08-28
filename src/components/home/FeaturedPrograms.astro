@@ -1,0 +1,37 @@
+---
+import { MASTER_PROGRAMS } from '../../lib/programs-data';
+import ProgramCard from '../cards/ProgramCard.astro';
+
+const featuredList = MASTER_PROGRAMS.filter((p) => p.featured || p.urgent).slice(0, 6);
+---
+
+<section class="py-16 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-2 border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                Pilar Kebaikan
+            </div>
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                Program Pilihan & Mendesak
+            </h2>
+            <p class="text-sm sm:text-base text-slate-500 mt-2 max-w-2xl">
+                Setiap rupiah yang Anda salurkan menjadi harapan dan senyuman baru bagi para mustahik, santri, dan dhuafa di Bangka Belitung.
+            </p>
+        </div>
+        <a
+            href="/program"
+            class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-md transition-all self-start md:self-auto shrink-0"
+        >
+            <span>Lihat Semua Program</span>
+            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+        </a>
+    </div>
+
+    <!-- Grid of Program Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        {featuredList.map((program) => (
+            <ProgramCard program={program} />
+        ))}
+    </div>
+</section>

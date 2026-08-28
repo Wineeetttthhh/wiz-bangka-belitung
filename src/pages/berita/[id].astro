@@ -1,0 +1,181 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { MASTER_NEWS } from '../../lib/news-data';
+import { MASTER_PROGRAMS } from '../../lib/programs-data';
+
+export function getStaticPaths() {
+    return MASTER_NEWS.map((news) => ({
+        params: { id: news.id },
+        props: { news }
+    }));
+}
+
+const { news } = Astro.props;
+
+if (!news) {
+    return Astro.redirect('/berita');
+}
+
+const otherNews = MASTER_NEWS.filter((n) => n.id !== news.id).slice(0, 3);
+const relatedPrograms = MASTER_PROGRAMS.slice(0, 2);
+---
+
+<BaseLayout
+    title={`${news.title} | WIZ Bangka Belitung`}
+    description={news.summary}
+    image={news.imageUrl}
+    type="article"
+>
+    <!-- Breadcrumb -->
+    <div class="bg-slate-100 py-3 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-xs text-slate-500 flex items-center gap-2">
+            <a href="/" class="hover:text-emerald-700">Beranda</a>
+            <span>/</span>
+            <a href="/berita" class="hover:text-emerald-700">Berita</a>
+            <span>/</span>
+            <span class="text-slate-800 font-semibold truncate">{news.title}</span>
+        </div>
+    </div>
+
+    <div class="py-10 sm:py-14 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+            
+            <!-- Left 8 cols: Main Article Body -->
+            <article class="lg:col-span-8 bg-white rounded-3xl p-6 sm:p-10 border border-slate-100 shadow-sm space-y-8">
+                
+                <!-- Category & Meta -->
+                <div class="space-y-3">
+                    <span class="text-xs font-bold px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 inline-block">
+                        {news.category}
+                    </span>
+                    <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
+                        {news.title}
+                    </h1>
+                    <div class="flex flex-wrap items-center gap-4 text-xs text-slate-400 pt-2 border-t border-slate-100">
+                        <span class="flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[16px] text-emerald-600">person</span>
+                            {news.author}
+                        </span>
+                        <span>•</span>
+                        <span class="flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                            {news.date}
+                        </span>
+                        <span>•</span>
+                        <span class="flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[16px]">schedule</span>
+                            {news.readTime}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Featured Image -->
+                <div class="relative aspect-video rounded-2xl overflow-hidden bg-slate-900 shadow-md">
+                    <img
+                        src={news.imageUrl}
+                        alt={news.title}
+                        class="w-full h-full object-cover"
+                        onerror="this.src='/assets/images/foto-utama-wiz.jpg'"
+                    />
+                </div>
+
+                <!-- Article Body -->
+                <div class="prose prose-slate max-w-none text-slate-700 leading-relaxed text-sm sm:text-base" set:html={news.content}></div>
+
+                <!-- Tags -->
+                {news.tags && news.tags.length > 0 && (
+                    <div class="pt-6 border-t border-slate-100 flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-bold text-slate-400">Tags:</span>
+                        {news.tags.map((tag) => (
+                            <span class="text-xs px-3 py-1 bg-slate-100 text-slate-600 rounded-full font-medium">
+                                #{tag}
+                            </span>
+                        ))}
+                    </div>
+                )}
+
+                <!-- WhatsApp Share Card -->
+                <div class="p-6 bg-slate-900 text-white rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                        <h4 class="font-bold text-sm sm:text-base text-amber-300">Bagikan Kabar Kebaikan Ini</h4>
+                        <p class="text-xs text-slate-300">Ajak sahabat & kerabat membaca kabar kegiatan ini di WhatsApp.</p>
+                    </div>
+                    <button
+                        type="button"
+                        id="share-news-wa-btn"
+                        data-id={news.id}
+                        data-title={news.title}
+                        class="px-5 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#1fa851] text-white font-bold text-xs flex items-center gap-1.5 shrink-0 shadow-md transition-all"
+                    >
+                        <span class="material-symbols-outlined text-base">share</span>
+                        <span>Bagikan ke WhatsApp</span>
+                    </button>
+                </div>
+
+            </article>
+
+            <!-- Right 4 cols: Sidebar -->
+            <aside class="lg:col-span-4 space-y-6">
+                
+                <!-- Donation Box -->
+                <div class="bg-gradient-to-br from-emerald-900 to-slate-900 text-white rounded-3xl p-6 shadow-xl space-y-4">
+                    <span class="text-xs font-bold text-amber-300 uppercase tracking-wider block">Mari Mengambil Peran</span>
+                    <h3 class="font-bold text-lg text-white">Ikut Berdonasi Bersama WIZ Bangka Belitung</h3>
+                    <p class="text-xs text-emerald-100 leading-relaxed">
+                        Salurkan kepedulian Anda untuk mendukung berbagai program kemanusiaan, dakwah, dan beasiswa santri.
+                    </p>
+                    <a
+                        href="/donasi"
+                        class="w-full py-3 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-center text-xs block shadow-md transition-all"
+                    >
+                        Donasi Sekarang
+                    </a>
+                </div>
+
+                <!-- Related News -->
+                <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
+                    <h3 class="font-bold text-slate-900 text-base pb-3 border-b border-slate-100 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-emerald-600">newspaper</span>
+                        Berita Lainnya
+                    </h3>
+
+                    <div class="space-y-3">
+                        {otherNews.map((item) => (
+                            <a href={`/berita/${item.id}`} class="group block space-y-1 hover:bg-slate-50 p-2 rounded-xl transition-colors">
+                                <span class="text-[11px] text-emerald-700 font-bold">{item.category} • {item.date}</span>
+                                <h4 class="text-xs font-bold text-slate-800 line-clamp-2 group-hover:text-emerald-800 transition-colors">
+                                    {item.title}
+                                </h4>
+                            </a>
+                        ))}
+                    </div>
+                </div>
+
+            </aside>
+
+        </div>
+    </div>
+</BaseLayout>
+
+<script>
+    import { getActiveAffiliate } from '../../lib/affiliate-tracker';
+
+    const shareBtn = document.getElementById('share-news-wa-btn');
+    if (shareBtn) {
+        shareBtn.addEventListener('click', () => {
+            const newsId = shareBtn.getAttribute('data-id') || '1';
+            const title = shareBtn.getAttribute('data-title') || 'Berita WIZ';
+            const ref = getActiveAffiliate();
+            const baseUrl = window.location.origin;
+            const shareUrl = `${baseUrl}/berita/${newsId}${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`;
+
+            const text = encodeURIComponent(`*${title}*\n\nSimak kabar kegiatan dan dokumentasi selengkapnya di website resmi WIZ Bangka Belitung:\n${shareUrl}`);
+
+            if (window.showWhatsAppToast) {
+                window.showWhatsAppToast();
+            }
+
+            window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+        });
+    }
+</script>

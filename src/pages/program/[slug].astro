@@ -1,0 +1,279 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { MASTER_PROGRAMS } from '../../lib/programs-data';
+import { formatRupiah } from '../../lib/affiliate-tracker';
+
+export function getStaticPaths() {
+    return MASTER_PROGRAMS.map((program) => ({
+        params: { slug: program.slug },
+        props: { program }
+    }));
+}
+
+const { program } = Astro.props;
+
+if (!program) {
+    return Astro.redirect('/program');
+}
+
+const percentage = Math.min(100, Math.round((program.collected / program.target) * 100));
+
+const nominalPresets = [20000, 50000, 100000, 250000, 500000, 1000000];
+---
+
+<BaseLayout
+    title={`${program.title} | WIZ Bangka Belitung`}
+    description={program.description}
+    image={program.imageUrl}
+    type="article"
+>
+    <!-- Breadcrumb -->
+    <div class="bg-slate-100 py-3 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-xs text-slate-500 flex items-center gap-2">
+            <a href="/" class="hover:text-emerald-700">Beranda</a>
+            <span>/</span>
+            <a href="/program" class="hover:text-emerald-700">Program</a>
+            <span>/</span>
+            <span class="text-slate-800 font-semibold truncate">{program.title}</span>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
+    <div class="py-10 sm:py-14 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+            
+            <!-- Left 7 Cols: Image, Header & Story -->
+            <div class="lg:col-span-7 space-y-8">
+                
+                <!-- Main Image -->
+                <div class="relative aspect-video rounded-3xl overflow-hidden shadow-lg border border-slate-200 bg-slate-900">
+                    <img
+                        src={program.imageUrl}
+                        alt={program.title}
+                        class="w-full h-full object-cover"
+                        onerror="this.src='/assets/images/default-program-wiz.jpg'"
+                    />
+                    <div class="absolute top-4 left-4">
+                        <span class="px-3.5 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md text-amber-300 text-xs font-bold border border-slate-700 shadow-md">
+                            {program.pillar}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Title & Meta Badges -->
+                <div class="space-y-4">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                            <span class="material-symbols-outlined text-[15px] text-emerald-600">verified</span>
+                            Program Terverifikasi
+                        </span>
+                        {program.location && (
+                            <span class="inline-flex items-center gap-1 text-xs text-slate-600 bg-slate-100 px-3 py-1 rounded-full">
+                                <span class="material-symbols-outlined text-[15px] text-slate-500">location_on</span>
+                                {program.location}
+                            </span>
+                        )}
+                        {program.beneficiaries && (
+                            <span class="inline-flex items-center gap-1 text-xs text-slate-600 bg-slate-100 px-3 py-1 rounded-full">
+                                <span class="material-symbols-outlined text-[15px] text-slate-500">group</span>
+                                {program.beneficiaries}
+                            </span>
+                        )}
+                    </div>
+
+                    <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
+                        {program.title}
+                    </h1>
+                </div>
+
+                <!-- Story & Description Section -->
+                <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-sm space-y-6">
+                    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2 pb-4 border-b border-slate-100">
+                        <span class="material-symbols-outlined text-emerald-600">article</span>
+                        Deskripsi & Rencana Penyaluran
+                    </h2>
+
+                    <div class="prose prose-slate max-w-none text-sm sm:text-base leading-relaxed text-slate-700 space-y-4">
+                        <p>{program.description}</p>
+                        {program.fullDescription && <p>{program.fullDescription}</p>}
+                        
+                        <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs sm:text-sm text-emerald-950 font-medium space-y-1">
+                            <span class="font-bold block text-emerald-800">Kenapa Program Ini Penting?</span>
+                            Setiap donasi Anda dikelola dengan standar akuntabilitas Lembaga Amil Zakat Nasional (SK Kemenag RI No. 805) dan disalurkan langsung kepada mustahik yang membutuhkan di pelosok Bangka Belitung.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Share Widget -->
+                <div class="bg-gradient-to-r from-emerald-900 to-slate-900 text-white rounded-3xl p-6 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                        <h4 class="font-bold text-base text-amber-300">Ajak Sahabat & Keluarga Berdonasi</h4>
+                        <p class="text-xs text-emerald-100">Sebarkan program ini. Setiap kebaikan yang dilakukan orang lain lewat ajakan Anda bernilai pahala yang sama.</p>
+                    </div>
+                    <button
+                        type="button"
+                        id="share-program-btn"
+                        data-slug={program.slug}
+                        data-title={program.title}
+                        class="px-5 py-3 rounded-2xl bg-[#25D366] hover:bg-[#1fa851] text-white font-bold text-xs sm:text-sm flex items-center gap-2 shrink-0 shadow-md transition-all hover:scale-105"
+                    >
+                        <span class="material-symbols-outlined text-lg">share</span>
+                        <span>Bagikan ke WhatsApp</span>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Right 5 Cols: Sticky Donation Action Widget -->
+            <div class="lg:col-span-5 sticky top-28 space-y-6">
+                <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/60 border border-slate-100 space-y-6">
+                    
+                    <!-- Funding Progress -->
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-baseline">
+                            <span class="text-xs text-slate-400 font-medium">Dana Terkumpul</span>
+                            <span class="text-2xl font-black text-emerald-700">{formatRupiah(program.collected)}</span>
+                        </div>
+
+                        <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                            <div
+                                class="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-full"
+                                style={`width: ${percentage}%`}
+                            ></div>
+                        </div>
+
+                        <div class="flex justify-between items-center text-xs text-slate-500 pt-1">
+                            <span>Target: <strong class="text-slate-800">{formatRupiah(program.target)}</strong></span>
+                            <span class="font-bold text-emerald-700">{percentage}%</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100 text-center">
+                            <div class="bg-slate-50 p-2.5 rounded-xl">
+                                <span class="text-xs text-slate-400 block">Donatur</span>
+                                <span class="text-base font-bold text-slate-800">{program.donorsCount} Orang</span>
+                            </div>
+                            <div class="bg-slate-50 p-2.5 rounded-xl">
+                                <span class="text-xs text-slate-400 block">Sisa Waktu</span>
+                                <span class="text-base font-bold text-slate-800">{program.daysLeft} Hari</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nominal Selection Form -->
+                    <div class="space-y-4 pt-2">
+                        <span class="text-xs font-bold text-slate-700 uppercase tracking-wider block">Pilih Nominal Donasi</span>
+                        
+                        <div class="grid grid-cols-3 gap-2" id="nominal-grid">
+                            {nominalPresets.map((nom) => (
+                                <button
+                                    type="button"
+                                    data-amount={nom}
+                                    class="nominal-btn py-2.5 px-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:border-emerald-600 hover:bg-emerald-50 transition-all text-center"
+                                >
+                                    {formatRupiah(nom).replace(',00', '')}
+                                </button>
+                            ))}
+                        </div>
+
+                        <!-- Custom Input -->
+                        <div>
+                            <label class="text-[11px] font-semibold text-slate-500 block mb-1">Atau Masukkan Nominal Lain (Rp)</label>
+                            <input
+                                type="number"
+                                id="custom-amount-input"
+                                placeholder="Minimal Rp 10.000"
+                                class="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:ring-2 focus:ring-emerald-600 focus:outline-none text-slate-900 font-bold text-sm"
+                            />
+                        </div>
+
+                        <!-- Direct Donate Checkout Button -->
+                        <a
+                            href={`/donasi?program=${program.slug}&amount=50000`}
+                            id="checkout-donate-btn"
+                            class="w-full py-4 rounded-2xl bg-[#006834] hover:bg-[#008444] text-white font-black text-center text-base shadow-lg shadow-emerald-900/10 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                        >
+                            <span class="material-symbols-outlined text-xl text-amber-300">volunteer_activism</span>
+                            <span>Lanjut Pembayaran</span>
+                        </a>
+
+                        <span class="text-[11px] text-slate-400 text-center block leading-tight">
+                            Tersedia QRIS instan & Transfer Rekening Bank (BSI, Muamalat, Mandiri)
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</BaseLayout>
+
+<script>
+    import { getActiveAffiliate } from '../../lib/affiliate-tracker';
+
+    // Nominal Selection Logic
+    let selectedAmount = 50000;
+    const programSlug = document.getElementById('checkout-donate-btn')?.getAttribute('href')?.split('program=')[1]?.split('&')[0] || '';
+    const checkoutBtn = document.getElementById('checkout-donate-btn') as HTMLAnchorElement;
+    const nominalBtns = document.querySelectorAll('.nominal-btn');
+    const customInput = document.getElementById('custom-amount-input') as HTMLInputElement;
+
+    function updateCheckoutUrl() {
+        if (checkoutBtn) {
+            checkoutBtn.href = `/donasi?program=${programSlug}&amount=${selectedAmount}`;
+        }
+    }
+
+    nominalBtns.forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+            const target = e.currentTarget as HTMLButtonElement;
+            const amt = Number(target.getAttribute('data-amount')) || 50000;
+            selectedAmount = amt;
+
+            nominalBtns.forEach((b) => {
+                b.classList.remove('border-emerald-600', 'bg-emerald-50', 'text-emerald-800');
+                b.classList.add('border-slate-200', 'text-slate-700');
+            });
+
+            target.classList.add('border-emerald-600', 'bg-emerald-50', 'text-emerald-800');
+            target.classList.remove('border-slate-200', 'text-slate-700');
+
+            if (customInput) customInput.value = '';
+            updateCheckoutUrl();
+        });
+    });
+
+    if (customInput) {
+        customInput.addEventListener('input', () => {
+            const val = Number(customInput.value) || 0;
+            if (val > 0) {
+                selectedAmount = val;
+                nominalBtns.forEach((b) => {
+                    b.classList.remove('border-emerald-600', 'bg-emerald-50', 'text-emerald-800');
+                    b.classList.add('border-slate-200', 'text-slate-700');
+                });
+                updateCheckoutUrl();
+            }
+        });
+    }
+
+    // Share Button with Affiliate Tracking
+    const shareBtn = document.getElementById('share-program-btn');
+    if (shareBtn) {
+        shareBtn.addEventListener('click', () => {
+            const slug = shareBtn.getAttribute('data-slug') || '';
+            const title = shareBtn.getAttribute('data-title') || '';
+            const ref = getActiveAffiliate();
+            const baseUrl = window.location.origin;
+            const shareUrl = `${baseUrl}/program/${slug}${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`;
+
+            const text = encodeURIComponent(`*Bantu Program: ${title}*\n\nMari bersama alirkan sedekah dan kepedulian untuk saudara kita di Bangka Belitung bersama Wahdah Inspirasi Zakat (WIZ).\n\n📲 Donasi & selengkapnya:\n${shareUrl}`);
+
+            if (window.showWhatsAppToast) {
+                window.showWhatsAppToast();
+            }
+
+            window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+        });
+    }
+</script>

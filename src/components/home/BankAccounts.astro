@@ -1,0 +1,91 @@
+---
+// BankAccounts component - horizontal layout, full width section
+---
+
+<section id="transparansi" class="py-12 sm:py-16 bg-slate-50 border-t border-slate-200/60">
+    <div style="max-width:900px; margin:0 auto; padding:0 1.5rem;">
+        
+        <!-- Section Header -->
+        <div style="text-align:center; margin-bottom:2rem;">
+            <span style="display:inline-flex; align-items:center; gap:6px; background:#d1fae5; color:#065f46; padding:4px 12px; border-radius:999px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:10px;">
+                <span class="material-symbols-outlined" style="font-size:14px;">account_balance</span>
+                Rekening Resmi
+            </span>
+            <h2 style="font-size:clamp(1.5rem, 4vw, 2rem); font-weight:800; color:#0f172a; margin:0 0 8px 0; letter-spacing:-0.02em;">
+                Saluran Donasi &amp; Rekening Bank
+            </h2>
+            <p style="font-size:0.875rem; color:#64748b; max-width:420px; margin:0 auto; line-height:1.6;">
+                Transfer donasi Anda secara mudah melalui rekening bank resmi WIZ Bangka Belitung.
+            </p>
+        </div>
+
+        <!-- Cards: BSI + QRIS side by side -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; align-items:stretch;">
+
+            <!-- Left Card: Bank BSI -->
+            <div style="background:linear-gradient(135deg,#ecfdf5,#f0fdfa); border:2px solid #6ee7b7; border-radius:24px; padding:1.75rem; display:flex; flex-direction:column; justify-content:space-between; gap:1rem;">
+                
+                <!-- Logo + Badge -->
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                    <img src="/assets/images/logo-bsi.jpg" alt="Bank Syariah Indonesia" style="height:36px; object-fit:contain;" onerror="this.style.display='none'">
+                    <span style="display:inline-flex; align-items:center; gap:4px; background:#d1fae5; color:#065f46; border:1px solid #6ee7b7; border-radius:999px; padding:4px 10px; font-size:11px; font-weight:700;">
+                        <span class="material-symbols-outlined" style="font-size:14px; color:#059669;">verified</span>
+                        Rekening Aktif
+                    </span>
+                </div>
+
+                <!-- Name & subtitle -->
+                <div>
+                    <div style="font-size:1.125rem; font-weight:800; color:#064e3b; margin-bottom:4px;">Bank BSI</div>
+                    <div style="font-size:12px; color:#6b7280;">Saluran Resmi Donasi Zakat, Infak &amp; Sedekah</div>
+                </div>
+
+                <!-- Account Number -->
+                <div style="background:white; border:1px solid #a7f3d0; border-radius:16px; padding:14px; text-align:center; box-shadow:inset 0 1px 4px rgba(0,0,0,.05);">
+                    <span style="font-family:monospace; font-size:clamp(1.4rem,3.5vw,2rem); font-weight:900; color:#0f172a; letter-spacing:0.12em; display:block; user-select:all;">
+                        7168008001
+                    </span>
+                </div>
+
+                <div style="font-size:12px; color:#6b7280; text-align:center; font-weight:600;">
+                    A.n. <strong style="color:#065f46;">Wiz Bangka Belitung</strong>
+                </div>
+
+                <!-- Copy Button -->
+                <button 
+                    type="button" 
+                    onclick="copyToClipboard('7168008001', 'No. Rekening Bank BSI berhasil disalin!')" 
+                    style="width:100%; background:#008444; color:white; border:none; border-radius:12px; padding:14px; font-size:14px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:background .2s;"
+                    onmouseover="this.style.background='#006834'"
+                    onmouseout="this.style.background='#008444'"
+                >
+                    <span class="material-symbols-outlined" style="font-size:18px;">content_copy</span>
+                    Salin No. Rekening Bank BSI
+                </button>
+            </div>
+
+            <!-- Right Card: QRIS -->
+            <div style="background:white; border:2px solid #fbbf24; border-radius:24px; padding:1.75rem; display:flex; flex-direction:column; align-items:center; justify-content:space-between; gap:1rem; text-align:center;">
+                
+                <div>
+                    <div style="font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:#94a3b8; margin-bottom:6px;">SCAN QRIS SEMUA PEMBAYARAN</div>
+                    <div style="font-size:1rem; font-weight:800; color:#0f172a;">WIZ BANGKA BELITUNG</div>
+                </div>
+
+                <!-- QR Code -->
+                <div style="width:170px; height:170px; background:#f8fafc; border-radius:16px; border:1px solid #e2e8f0; padding:10px; display:flex; align-items:center; justify-content:center; box-shadow:inset 0 1px 4px rgba(0,0,0,.06);">
+                    <img
+                        src="/assets/images/qris-code-wiz-babel.png"
+                        alt="QRIS WIZ Bangka Belitung"
+                        style="width:100%; height:100%; object-fit:contain; display:block;"
+                    />
+                </div>
+
+                <p style="font-size:11px; color:#94a3b8; font-weight:500; line-height:1.6; max-width:220px; margin:0 auto;">
+                    BCA, Mandiri, BSI Mobile, GoPay, OVO, ShopeePay, DANA, LinkAja &amp; semua mobile banking.
+                </p>
+            </div>
+
+        </div>
+    </div>
+</section>

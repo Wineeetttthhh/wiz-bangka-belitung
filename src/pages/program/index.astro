@@ -1,0 +1,410 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { MASTER_PROGRAMS } from '../../lib/programs-data';
+---
+
+<BaseLayout
+    title="Daftar Program - WIZ Bangka Belitung"
+    description="Jelajahi berbagai program kebaikan Wahdah Inspirasi Zakat (WIZ) Bangka Belitung dalam bidang Dakwah, Sosial, Pendidikan, Kesehatan, dan Ekonomi."
+    image="/assets/images/foto-utama-wiz.jpg"
+>
+    <!-- Header Section -->
+    <header class="bg-surface-container-low py-xxl border-b border-surface-variant">
+        <div class="max-w-container-max mx-auto px-margin-mobile md:px-lg text-center flex flex-col items-center">
+            <span class="inline-flex items-center gap-xs bg-primary-container/10 text-primary-container px-md py-xs rounded-full font-label-md text-caption uppercase tracking-wider mb-sm font-bold">
+                <span class="material-symbols-outlined text-sm">auto_awesome</span>
+                Kebaikan Berkelanjutan
+            </span>
+            <h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-background mb-md font-bold">
+                Jelajahi Program Kebaikan
+            </h1>
+            <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto mb-lg">
+                Salurkan niat baik Anda melalui berbagai program unggulan yang kami jalankan dengan amanah, transparan, dan profesional untuk kemaslahatan umat.
+            </p>
+
+            <!-- Search and Filter -->
+            <div class="w-full max-w-2xl mx-auto space-y-md">
+                <div class="relative w-full">
+                    <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline">search</span>
+                    <input id="program-search" class="w-full bg-surface border border-outline-variant rounded-full py-sm pl-xxl pr-lg font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm" placeholder="Cari program donasi (misal: Tahfidz, Sembako, Mualaf)..." type="text"/>
+                </div>
+                
+                <div class="flex flex-row flex-wrap justify-center items-center gap-2 mt-md" id="category-filter-buttons">
+                    <button data-category="all" class="category-btn active inline-flex items-center whitespace-nowrap px-4 py-1.5 rounded-full border border-primary bg-primary text-on-primary text-sm font-semibold transition-colors shadow-sm cursor-pointer">Semua Kategori</button>
+                    <button data-category="dakwah" class="category-btn inline-flex items-center whitespace-nowrap px-4 py-1.5 rounded-full border border-outline-variant bg-surface text-on-surface-variant text-sm font-semibold hover:border-primary hover:text-primary transition-colors cursor-pointer">Dakwah</button>
+                    <button data-category="sosial" class="category-btn inline-flex items-center whitespace-nowrap px-4 py-1.5 rounded-full border border-outline-variant bg-surface text-on-surface-variant text-sm font-semibold hover:border-primary hover:text-primary transition-colors cursor-pointer">Sosial</button>
+                    <button data-category="pendidikan" class="category-btn inline-flex items-center whitespace-nowrap px-4 py-1.5 rounded-full border border-outline-variant bg-surface text-on-surface-variant text-sm font-semibold hover:border-primary hover:text-primary transition-colors cursor-pointer">Pendidikan</button>
+                    <button data-category="kesehatan" class="category-btn inline-flex items-center whitespace-nowrap px-4 py-1.5 rounded-full border border-outline-variant bg-surface text-on-surface-variant text-sm font-semibold hover:border-primary hover:text-primary transition-colors cursor-pointer">Kesehatan</button>
+                    <button data-category="ekonomi" class="category-btn inline-flex items-center whitespace-nowrap px-4 py-1.5 rounded-full border border-outline-variant bg-surface text-on-surface-variant text-sm font-semibold hover:border-primary hover:text-primary transition-colors cursor-pointer">Ekonomi</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="w-full pb-xxl flex-grow">
+
+        <!-- Section 1: Berkah Hidayah (Dakwah) -->
+        <section class="program-section max-w-container-max mx-auto px-margin-mobile md:px-lg py-xl" data-section-category="dakwah">
+            <div class="flex items-center gap-sm mb-lg">
+                <span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">mosque</span>
+                <h2 class="font-headline-lg text-headline-lg text-on-surface font-bold">BERKAH HIDAYAH <span class="font-body-md text-body-md text-on-surface-variant ml-xs font-normal">(Dakwah &amp; Pembinaan)</span></h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+                {MASTER_PROGRAMS.filter(p => p.pillar.includes('Dakwah') || p.pillar.includes('Hidayah')).map(program => {
+                    const col = Number(program.collected || 0);
+                    const tgt = Number(program.target || 1);
+                    const pct = Math.min(100, Math.round((col / tgt) * 100));
+                    return (
+                        <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="dakwah" data-title={program.title}>
+                            <div class="relative overflow-hidden aspect-video bg-surface-container">
+                                <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt={program.title} src={program.imageUrl} onerror="this.onerror=null; this.src='/assets/images/foto-utama-wiz.jpg';" alt={program.title}/>
+                                <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Dakwah</span>
+                            </div>
+                            <div class="p-lg flex flex-col flex-grow">
+                                <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">{program.title}</h3>
+                                <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">{program.description}</p>
+                                <div class="mb-lg space-y-xs">
+                                    <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                                        <span>Terkumpul: <strong>Rp {col.toLocaleString('id-ID')}</strong></span>
+                                        <span class="font-semibold text-primary">{pct}%</span>
+                                    </div>
+                                    <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                                        <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style={`width: ${pct}%`}></div>
+                                    </div>
+                                    <div class="text-right font-caption text-caption text-outline">Target: Rp {tgt.toLocaleString('id-ID')}</div>
+                                </div>
+                                <div class="mt-auto">
+                                    <a href={`/donasi?program=${encodeURIComponent(program.slug)}`} class="w-full block bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</a>
+                                </div>
+                            </div>
+                        </article>
+                    );
+                })}
+            </div>
+        </section>
+
+        <!-- Section 2: Berkah Peduli (Sosial) -->
+        <section class="program-section max-w-container-max mx-auto px-margin-mobile md:px-lg py-xl border-t border-surface-variant/50" data-section-category="sosial">
+            <div class="flex items-center gap-sm mb-lg">
+                <span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">volunteer_activism</span>
+                <h2 class="font-headline-lg text-headline-lg text-on-surface font-bold">BERKAH PEDULI <span class="font-body-md text-body-md text-on-surface-variant ml-xs font-normal">(Sosial &amp; Kemanusiaan)</span></h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+                {MASTER_PROGRAMS.filter(p => p.pillar.includes('Sosial') || p.pillar.includes('Peduli')).map(program => {
+                    const col = Number(program.collected || 0);
+                    const tgt = Number(program.target || 1);
+                    const pct = Math.min(100, Math.round((col / tgt) * 100));
+                    return (
+                        <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="sosial" data-title={program.title}>
+                            <div class="relative overflow-hidden aspect-video bg-surface-container">
+                                <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt={program.title} src={program.imageUrl} onerror="this.onerror=null; this.src='/assets/images/foto-utama-wiz.jpg';" alt={program.title}/>
+                                <span class="absolute top-sm left-sm bg-tertiary-container/90 text-on-tertiary font-caption text-caption px-sm py-xs rounded-full font-semibold">Sosial</span>
+                            </div>
+                            <div class="p-lg flex flex-col flex-grow">
+                                <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">{program.title}</h3>
+                                <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">{program.description}</p>
+                                <div class="mb-lg space-y-xs">
+                                    <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                                        <span>Terkumpul: <strong>Rp {col.toLocaleString('id-ID')}</strong></span>
+                                        <span class="font-semibold text-primary">{pct}%</span>
+                                    </div>
+                                    <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                                        <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style={`width: ${pct}%`}></div>
+                                    </div>
+                                    <div class="text-right font-caption text-caption text-outline">Target: Rp {tgt.toLocaleString('id-ID')}</div>
+                                </div>
+                                <div class="mt-auto">
+                                    <a href={`/donasi?program=${encodeURIComponent(program.slug)}`} class="w-full block bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</a>
+                                </div>
+                            </div>
+                        </article>
+                    );
+                })}
+            </div>
+        </section>
+
+        <!-- Section 3: Berkah Juara (Pendidikan) -->
+        <section class="program-section max-w-container-max mx-auto px-margin-mobile md:px-lg py-xl border-t border-surface-variant/50" data-section-category="pendidikan">
+            <div class="flex items-center gap-sm mb-lg">
+                <span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">school</span>
+                <h2 class="font-headline-lg text-headline-lg text-on-surface font-bold">BERKAH JUARA <span class="font-body-md text-body-md text-on-surface-variant ml-xs font-normal">(Pendidikan &amp; Beasiswa)</span></h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+                {MASTER_PROGRAMS.filter(p => p.pillar.includes('Pendidikan') || p.pillar.includes('Juara')).map(program => {
+                    const col = Number(program.collected || 0);
+                    const tgt = Number(program.target || 1);
+                    const pct = Math.min(100, Math.round((col / tgt) * 100));
+                    return (
+                        <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="pendidikan" data-title={program.title}>
+                            <div class="relative overflow-hidden aspect-video bg-surface-container">
+                                <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt={program.title} src={program.imageUrl} onerror="this.onerror=null; this.src='/assets/images/foto-utama-wiz.jpg';" alt={program.title}/>
+                                <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Pendidikan</span>
+                            </div>
+                            <div class="p-lg flex flex-col flex-grow">
+                                <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">{program.title}</h3>
+                                <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">{program.description}</p>
+                                <div class="mb-lg space-y-xs">
+                                    <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                                        <span>Terkumpul: <strong>Rp {col.toLocaleString('id-ID')}</strong></span>
+                                        <span class="font-semibold text-primary">{pct}%</span>
+                                    </div>
+                                    <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                                        <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style={`width: ${pct}%`}></div>
+                                    </div>
+                                    <div class="text-right font-caption text-caption text-outline">Target: Rp {tgt.toLocaleString('id-ID')}</div>
+                                </div>
+                                <div class="mt-auto">
+                                    <a href={`/donasi?program=${encodeURIComponent(program.slug)}`} class="w-full block bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</a>
+                                </div>
+                            </div>
+                        </article>
+                    );
+                })}
+            </div>
+        </section>
+
+        <!-- Section 4: Berkah Sehat (Kesehatan) -->
+        <section class="program-section max-w-container-max mx-auto px-margin-mobile md:px-lg py-xl border-t border-surface-variant/50" data-section-category="kesehatan">
+            <div class="flex items-center gap-sm mb-lg">
+                <span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">medical_services</span>
+                <h2 class="font-headline-lg text-headline-lg text-on-surface font-bold">BERKAH SEHAT <span class="font-body-md text-body-md text-on-surface-variant ml-xs font-normal">(Kesehatan &amp; Ambulans)</span></h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+                {MASTER_PROGRAMS.filter(p => p.pillar.includes('Kesehatan') || p.pillar.includes('Sehat')).map(program => {
+                    const col = Number(program.collected || 0);
+                    const tgt = Number(program.target || 1);
+                    const pct = Math.min(100, Math.round((col / tgt) * 100));
+                    return (
+                        <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="kesehatan" data-title={program.title}>
+                            <div class="relative overflow-hidden aspect-video bg-surface-container">
+                                <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt={program.title} src={program.imageUrl} onerror="this.onerror=null; this.src='/assets/images/foto-utama-wiz.jpg';" alt={program.title}/>
+                                <span class="absolute top-sm left-sm bg-tertiary-container/90 text-on-tertiary font-caption text-caption px-sm py-xs rounded-full font-semibold">Kesehatan</span>
+                            </div>
+                            <div class="p-lg flex flex-col flex-grow">
+                                <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">{program.title}</h3>
+                                <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">{program.description}</p>
+                                <div class="mb-lg space-y-xs">
+                                    <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                                        <span>Terkumpul: <strong>Rp {col.toLocaleString('id-ID')}</strong></span>
+                                        <span class="font-semibold text-primary">{pct}%</span>
+                                    </div>
+                                    <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                                        <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style={`width: ${pct}%`}></div>
+                                    </div>
+                                    <div class="text-right font-caption text-caption text-outline">Target: Rp {tgt.toLocaleString('id-ID')}</div>
+                                </div>
+                                <div class="mt-auto">
+                                    <a href={`/donasi?program=${encodeURIComponent(program.slug)}`} class="w-full block bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</a>
+                                </div>
+                            </div>
+                        </article>
+                    );
+                })}
+            </div>
+        </section>
+
+        <!-- Section 5: Berkah Mandiri (Ekonomi & Bencana) -->
+        <section class="program-section max-w-container-max mx-auto px-margin-mobile md:px-lg py-xl border-t border-surface-variant/50" data-section-category="ekonomi">
+            <div class="flex items-center gap-sm mb-lg">
+                <span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">storefront</span>
+                <h2 class="font-headline-lg text-headline-lg text-on-surface font-bold">BERKAH MANDIRI <span class="font-body-md text-body-md text-on-surface-variant ml-xs font-normal">(Ekonomi &amp; Pemberdayaan)</span></h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+                {MASTER_PROGRAMS.filter(p => p.pillar.includes('Ekonomi') || p.pillar.includes('Mandiri')).map(program => {
+                    const col = Number(program.collected || 0);
+                    const tgt = Number(program.target || 1);
+                    const pct = Math.min(100, Math.round((col / tgt) * 100));
+                    return (
+                        <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="ekonomi" data-title={program.title}>
+                            <div class="relative overflow-hidden aspect-video bg-surface-container">
+                                <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt={program.title} src={program.imageUrl} onerror="this.onerror=null; this.src='/assets/images/foto-utama-wiz.jpg';" alt={program.title}/>
+                                <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Ekonomi</span>
+                            </div>
+                            <div class="p-lg flex flex-col flex-grow">
+                                <h3 class="font-headline-md text-headline-md text-on-surface mb-xs font-bold">{program.title}</h3>
+                                <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">{program.description}</p>
+                                <div class="mb-lg space-y-xs">
+                                    <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                                        <span>Terkumpul: <strong>Rp {col.toLocaleString('id-ID')}</strong></span>
+                                        <span class="font-semibold text-primary">{pct}%</span>
+                                    </div>
+                                    <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                                        <div class="bg-tertiary-container h-2 rounded-full transition-all duration-500" style={`width: ${pct}%`}></div>
+                                    </div>
+                                    <div class="text-right font-caption text-caption text-outline">Target: Rp {tgt.toLocaleString('id-ID')}</div>
+                                </div>
+                                <div class="mt-auto">
+                                    <a href={`/donasi?program=${encodeURIComponent(program.slug)}`} class="w-full block bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</a>
+                                </div>
+                            </div>
+                        </article>
+                    );
+                })}
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Interactive Filtering, Search & Admin Live Sync Script -->
+    <script is:inline>
+        const searchInput = document.getElementById('program-search');
+        const filterButtons = document.querySelectorAll('.category-btn');
+        const sections = document.querySelectorAll('.program-section');
+        let activeCategory = 'all';
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function renderCustomDynamicPrograms() {
+            if (!window.wizStore) return;
+
+            let published = [];
+            if (window.wizStore.programs && typeof window.wizStore.programs.getPublished === 'function') {
+                published = window.wizStore.programs.getPublished();
+            }
+
+            if (!published || published.length === 0) return;
+
+            const fmt = (window.wizStore.utils && window.wizStore.utils.formatRupiahCompact) 
+                ? window.wizStore.utils.formatRupiahCompact 
+                : (v => 'Rp ' + Number(v||0).toLocaleString('id-ID'));
+
+            const categorySections = [
+                { catKey: 'dakwah', pillars: ['Berkah Hidayah', 'Dakwah & Pembinaan', 'Dakwah'] },
+                { catKey: 'sosial', pillars: ['Berkah Peduli', 'Sosial & Kemanusiaan', 'Sosial'] },
+                { catKey: 'pendidikan', pillars: ['Berkah Juara', 'Pendidikan & Beasiswa', 'Pendidikan'] },
+                { catKey: 'kesehatan', pillars: ['Berkah Sehat', 'Kesehatan Masyarakat', 'Kesehatan'] },
+                { catKey: 'ekonomi', pillars: ['Berkah Mandiri', 'Ekonomi & Pemberdayaan', 'Ekonomi'] }
+            ];
+
+            categorySections.forEach(({ catKey, pillars }) => {
+                const section = document.querySelector(`.program-section[data-section-category="${catKey}"]`);
+                if (!section) return;
+                const grid = section.querySelector('.grid');
+                if (!grid) return;
+
+                const categoryPrograms = published.filter(p => pillars.includes(p.pillar) || pillars.includes(p.category));
+                if (categoryPrograms.length === 0) return;
+
+                grid.innerHTML = categoryPrograms.map(p => {
+                    const stats = (window.wizStore.finance && typeof window.wizStore.finance.getSpecificProgramStats === 'function')
+                        ? window.wizStore.finance.getSpecificProgramStats(p.title, 0, p.targetAmount || 15000000)
+                        : { percent: 0, saldo: 0 };
+
+                    const dynamicImg = (window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function')
+                        ? window.wizStore.allocationRulesManager.getSpecificProgramImage(p.title, p.pillar)
+                        : (p.imageUrl || '/assets/images/default-program-wiz.png');
+
+                    const targetLabel = p.target || (`Rp ${(p.targetAmount || 15000000).toLocaleString('id-ID')}`);
+                    const slug = p.slug || (p.title ? p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : 'program');
+
+                    return `
+                    <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full cursor-pointer" data-category="${catKey}" data-title="${escapeHtml(p.title)}" data-target="${p.targetAmount || 15000000}">
+                        <div class="relative overflow-hidden aspect-video bg-surface-container">
+                            <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="${escapeHtml(p.title)}" src="${escapeHtml(dynamicImg)}" onerror="this.onerror=null; this.src='/assets/images/default-program-wiz.png';" alt="${escapeHtml(p.title)}"/>
+                            <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">${escapeHtml(p.pillar)}</span>
+                            ${p.urgent ? '<span class="absolute top-sm right-sm bg-error text-on-error font-caption text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider animate-pulse shadow-sm">Mendesak</span>' : ''}
+                        </div>
+                        <div class="p-lg flex flex-col flex-grow">
+                            <h3 class="font-headline-md text-headline-md text-on-surface mb-1 font-bold">${escapeHtml(p.title)}</h3>
+                            <div class="flex items-center gap-1 text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md w-fit mb-2 border border-emerald-200">
+                                <span class="material-symbols-outlined text-xs">pin_drop</span>
+                                <span class="truncate">${escapeHtml(p.location || 'Kepulauan Bangka Belitung')}</span>
+                            </div>
+                            <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-3">${escapeHtml(p.description || `Salurkan kepedulian dan donasi terbaik Anda untuk program ${p.title} bersama WIZ Babel.`)}</p>
+                            <div class="mb-lg space-y-xs">
+                                <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                                    <span>Terkumpul: <strong class="text-primary">${fmt(stats.saldo)}</strong></span>
+                                    <span class="font-semibold text-primary">${stats.percent}%</span>
+                                </div>
+                                <div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+                                    <div class="bg-primary h-2 rounded-full transition-all duration-500" style="width: ${stats.percent}%"></div>
+                                </div>
+                                <div class="text-right font-caption text-caption text-outline">Target: ${escapeHtml(targetLabel)}</div>
+                            </div>
+                            <div class="mt-auto">
+                                <a href="/donasi?program=${encodeURIComponent(slug)}" class="w-full block bg-secondary-container text-on-secondary font-label-md text-label-md py-sm rounded-lg hover:bg-secondary transition-colors text-center shadow-sm font-bold">Donasi Sekarang</a>
+                            </div>
+                        </div>
+                    </article>`;
+                }).join('');
+            });
+
+            filterPrograms();
+        }
+
+        function filterPrograms() {
+            const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+
+            sections.forEach(section => {
+                const sectionCategory = section.getAttribute('data-section-category');
+                const matchesCategory = activeCategory === 'all' || activeCategory === sectionCategory;
+
+                let visibleCardsInSection = 0;
+                const cards = section.querySelectorAll('.program-card');
+
+                cards.forEach(card => {
+                    const title = (card.getAttribute('data-title') || '').toLowerCase();
+                    const desc = (card.querySelector('p')?.textContent || '').toLowerCase();
+                    const matchesSearch = query === '' || title.includes(query) || desc.includes(query);
+
+                    if (matchesCategory && matchesSearch) {
+                        card.style.display = 'flex';
+                        visibleCardsInSection++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                if (visibleCardsInSection > 0) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', filterPrograms);
+        }
+
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterButtons.forEach(b => {
+                    b.classList.remove('active', 'bg-primary', 'text-on-primary', 'border-primary');
+                    b.classList.add('bg-surface', 'text-on-surface-variant', 'border-outline-variant');
+                });
+                btn.classList.add('active', 'bg-primary', 'text-on-primary', 'border-primary');
+                btn.classList.remove('bg-surface', 'text-on-surface-variant', 'border-outline-variant');
+
+                activeCategory = btn.getAttribute('data-category') || 'all';
+                filterPrograms();
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCustomDynamicPrograms();
+            setTimeout(renderCustomDynamicPrograms, 500);
+            setTimeout(renderCustomDynamicPrograms, 1500);
+        });
+
+        window.addEventListener('storage', (e) => {
+            if (e.key && (e.key.includes('program') || e.key.includes('wiz_') || e.key.includes('image'))) {
+                renderCustomDynamicPrograms();
+            }
+        });
+    </script>
+</BaseLayout>

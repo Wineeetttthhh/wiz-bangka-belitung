@@ -1,0 +1,99 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { MASTER_QUOTES } from '../../lib/quotes-data';
+
+export function getStaticPaths() {
+    return MASTER_QUOTES.map((quote) => ({
+        params: { id: quote.id },
+        props: { quote }
+    }));
+}
+
+const { quote } = Astro.props;
+
+if (!quote) {
+    return Astro.redirect('/quote');
+}
+---
+
+<BaseLayout
+    title={`${quote.title} | Quote WIZ Bangka Belitung`}
+    description={`"${quote.quoteText}" — ${quote.source}`}
+    image={quote.imageUrl}
+    type="article"
+>
+    <!-- Breadcrumb -->
+    <div class="bg-slate-100 py-3 border-b border-slate-200">
+        <div class="max-w-4xl mx-auto px-4 text-xs text-slate-500 flex items-center gap-2">
+            <a href="/" class="hover:text-emerald-700">Beranda</a>
+            <span>/</span>
+            <a href="/quote" class="hover:text-emerald-700">Quote</a>
+            <span>/</span>
+            <span class="text-slate-800 font-semibold truncate">{quote.title}</span>
+        </div>
+    </div>
+
+    <div class="py-12 sm:py-16 max-w-4xl mx-auto px-4">
+        <div class="bg-white rounded-3xl overflow-hidden shadow-xl border border-slate-100 space-y-6">
+            
+            <div class="relative aspect-square sm:aspect-[4/3] w-full bg-slate-900 overflow-hidden">
+                <img
+                    src={quote.imageUrl}
+                    alt={quote.title}
+                    class="w-full h-full object-cover"
+                    onerror="this.src='/assets/images/foto-utama-wiz.jpg'"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent flex flex-col justify-end p-6 sm:p-10">
+                    <span class="text-xs font-bold text-amber-400 uppercase tracking-widest mb-3">{quote.category}</span>
+                    <blockquote class="text-white text-lg sm:text-2xl font-serif italic leading-relaxed mb-4">
+                        "{quote.quoteText}"
+                    </blockquote>
+                    <span class="text-emerald-300 font-semibold text-sm sm:text-base">— {quote.source}</span>
+                </div>
+            </div>
+
+            <div class="p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100">
+                <span class="text-xs text-slate-400">Diterbitkan pada {quote.date} • WIZ Bangka Belitung</span>
+                <button
+                    type="button"
+                    id="share-single-quote-btn"
+                    data-id={quote.id}
+                    data-title={quote.title}
+                    data-text={quote.quoteText}
+                    data-source={quote.source}
+                    class="px-6 py-3 rounded-2xl bg-[#25D366] hover:bg-[#1fa851] text-white font-bold text-sm flex items-center gap-2 shadow-md transition-all"
+                >
+                    <span class="material-symbols-outlined text-lg">share</span>
+                    <span>Bagikan ke Status WhatsApp</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+</BaseLayout>
+
+<script>
+    import { getActiveAffiliate } from '../../lib/affiliate-tracker';
+
+    const btn = document.getElementById('share-single-quote-btn');
+    if (btn) {
+        btn.addEventListener('click', () => {
+            const quoteId = btn.getAttribute('data-id') || '1';
+            const title = btn.getAttribute('data-title') || '';
+            const text = btn.getAttribute('data-text') || '';
+            const source = btn.getAttribute('data-source') || '';
+
+            const ref = getActiveAffiliate();
+            const baseUrl = window.location.origin;
+            const shareUrl = `${baseUrl}/quote/${quoteId}${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`;
+
+            const waMsg = encodeURIComponent(`*${title}*\n\n"${text}"\n— _${source}_\n\n📲 Dapatkan flyer dakwah harian di:\n${shareUrl}`);
+
+            if (window.showWhatsAppToast) {
+                window.showWhatsAppToast();
+            }
+
+            window.open(`https://api.whatsapp.com/send?text=${waMsg}`, '_blank');
+        });
+    }
+</script>

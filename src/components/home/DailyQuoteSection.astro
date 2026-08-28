@@ -1,0 +1,40 @@
+---
+import { MASTER_QUOTES } from '../../lib/quotes-data';
+import QuoteCard from '../cards/QuoteCard.astro';
+---
+
+<section class="py-16 sm:py-20 bg-slate-900 text-white relative overflow-hidden">
+    <!-- Background subtle pattern -->
+    <div class="absolute -top-24 -left-24 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2 border border-emerald-800">
+                    <span class="material-symbols-outlined text-sm">menu_book</span>
+                    Mutiara Hikmah
+                </div>
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+                    Quote & Flyer Dakwah Harian
+                </h2>
+                <p class="text-sm sm:text-base text-slate-400 mt-2 max-w-2xl">
+                    Bagikan pesan kebaikan ke status WhatsApp, Facebook, dan keluarga untuk mengalirkan pahala jariyah tanpa henti.
+                </p>
+            </div>
+            <a
+                href="/quote"
+                class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-sm shadow-md transition-all self-start md:self-auto shrink-0"
+            >
+                <span>Lihat Semua Flyer</span>
+                <span class="material-symbols-outlined text-sm">arrow_forward</span>
+            </a>
+        </div>
+
+        <!-- Grid of Quotes -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {MASTER_QUOTES.slice(0, 4).map((quote) => (
+                <QuoteCard quote={quote} />
+            ))}
+        </div>
+    </div>
+</section>

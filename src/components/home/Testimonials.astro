@@ -1,0 +1,70 @@
+---
+// Testimonials Component
+const testimonials = [
+    {
+        name: 'H. Bambang Sulistyo',
+        role: 'Muzakki & Donatur Rutin (Pangkalpinang)',
+        avatar: 'account_circle',
+        text: 'Alhamdulillah, penyaluran zakat dan sedekah melalui WIZ Bangka Belitung sangat transparan dan terdokumentasi rapi. Saya selalu menerima laporan dan kuitansi resmi.',
+        rating: 5
+    },
+    {
+        name: 'Ustadz Ridwan Al-Hafidz',
+        role: 'Pengasuh Pesantren Tahfidz Quran',
+        avatar: 'school',
+        text: 'Program beasiswa tahfidz WIZ Babel sangat membantu anak-anak santri kami dari keluarga prasejahtera. Semoga para donatur dilimpahi keberkahan rezeki berlipat ganda.',
+        rating: 5
+    },
+    {
+        name: 'Ibu Salmah',
+        role: 'Penerima Manfaat Sedekah Beras & Usaha Dhuafa',
+        avatar: 'favorite',
+        text: 'Terima kasih banyak kepada donatur dan WIZ. Bantuan sembako dan modal usaha jualan gorengan sangat menolong kami menghidupi anak-anak yatim saya.',
+        rating: 5
+    }
+];
+---
+
+<section class="py-16 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center max-w-3xl mx-auto mb-12">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-2 border border-emerald-200">
+            <span class="material-symbols-outlined text-sm text-emerald-600">star</span>
+            Kata Mereka
+        </div>
+        <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+            Testimoni Donatur & Penerima Manfaat
+        </h2>
+        <p class="text-sm sm:text-base text-slate-500 mt-2">
+            Membangun kepercayaan ummat dengan aksi nyata dan transparansi yang berkelanjutan.
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+        {testimonials.map((item) => (
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                <div>
+                    <!-- Stars -->
+                    <div class="flex items-center gap-1 text-amber-400 mb-4">
+                        {[...Array(item.rating)].map(() => (
+                            <span class="material-symbols-outlined text-lg fill-current">star</span>
+                        ))}
+                    </div>
+
+                    <p class="text-sm text-slate-600 leading-relaxed italic mb-6">
+                        "{item.text}"
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+                    <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
+                        <span class="material-symbols-outlined text-xl">{item.avatar}</span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-900 text-sm leading-tight">{item.name}</h4>
+                        <span class="text-xs text-slate-400">{item.role}</span>
+                    </div>
+                </div>
+            </div>
+        ))}
+    </div>
+</section>

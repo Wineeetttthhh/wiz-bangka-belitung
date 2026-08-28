@@ -1,6 +1,11 @@
 # Dependencies
 node_modules/
 
+# Astro & Build Output
+.astro/
+dist/
+.vercel/
+
 # IDE & System Files
 .vscode/
 .gemini/

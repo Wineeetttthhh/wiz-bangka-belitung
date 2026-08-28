@@ -1,0 +1,913 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+    title="WIZ Babel - Form Donasi Online"
+    description="Selesaikan donasi Zakat, Infak, dan Sedekah Anda secara aman, cepat, dan transparan bersama Wahdah Inspirasi Zakat (WIZ) Bangka Belitung."
+    image="/assets/images/sedekah-beras-dhuafa.jpg"
+>
+    <main class="flex-grow w-full max-w-5xl mx-auto px-margin-mobile sm:px-gutter py-md md:py-xl pb-28 lg:pb-xl">
+        <div class="mb-md">
+            <h1 class="font-headline-lg text-display-lg-mobile md:text-headline-lg font-bold text-on-surface">Selesaikan Donasi Anda</h1>
+            <p class="text-on-surface-variant mt-xs font-body-md">Pilih jenis donasi, wilayah, dan lengkapi detail pembayaran untuk kemaslahatan umat.</p>
+        </div>
+
+        <form id="donation-checkout-form" onsubmit="handleCheckoutSubmit(event)">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-md md:gap-lg relative">
+
+                <!-- Left Column: Form Flow -->
+                <div class="lg:col-span-7 space-y-md">
+
+                    <!-- Step 1: Jenis Donasi -->
+                    <section class="bg-surface-container-lowest rounded-xl p-md sm:p-lg shadow-sm border border-outline-variant/20">
+                        <h2 class="font-headline-md text-headline-md font-bold text-on-surface mb-sm">1. Jenis Donasi</h2>
+                        <div class="grid grid-cols-2 gap-2 sm:gap-3">
+                            <label class="option-card cursor-pointer relative">
+                                <input class="peer sr-only" name="donation_type" onchange="handleTypeChange(this)" type="radio" value="Infak Umum" checked />
+                                <div class="border border-outline-variant rounded-lg p-3 transition-all duration-200 hover:border-primary/50 group h-full flex flex-col justify-between">
+                                    <div class="flex justify-between items-start mb-xs">
+                                        <span class="font-label-md text-label-md text-on-surface font-bold">Infak Umum</span>
+                                        <span class="material-symbols-outlined text-primary opacity-0 icon-check transition-opacity text-lg">check_circle</span>
+                                    </div>
+                                    <p class="font-caption text-caption text-on-surface-variant text-[11px] leading-tight">Dana tidak terikat program tertentu.</p>
+                                </div>
+                            </label>
+                            <label class="option-card cursor-pointer relative">
+                                <input class="peer sr-only" name="donation_type" onchange="handleTypeChange(this)" type="radio" value="Infak Terikat" />
+                                <div class="border border-outline-variant rounded-lg p-3 transition-all duration-200 hover:border-primary/50 group h-full flex flex-col justify-between">
+                                    <div class="flex justify-between items-start mb-xs">
+                                        <span class="font-label-md text-label-md text-on-surface font-bold">Infak Terikat</span>
+                                        <span class="material-symbols-outlined text-primary opacity-0 icon-check transition-opacity text-lg">check_circle</span>
+                                    </div>
+                                    <p class="font-caption text-caption text-on-surface-variant text-[11px] leading-tight">Donasi spesifik program &amp; wilayah.</p>
+                                </div>
+                            </label>
+                            <label class="option-card cursor-pointer relative">
+                                <input class="peer sr-only" name="donation_type" onchange="handleTypeChange(this)" type="radio" value="Zakat" />
+                                <div class="border border-outline-variant rounded-lg p-3 transition-all duration-200 hover:border-primary/50 group h-full flex flex-col justify-between">
+                                    <div class="flex justify-between items-start mb-xs">
+                                        <span class="font-label-md text-label-md text-on-surface font-bold">Zakat</span>
+                                        <span class="material-symbols-outlined text-primary opacity-0 icon-check transition-opacity text-lg">check_circle</span>
+                                    </div>
+                                    <p class="font-caption text-caption text-on-surface-variant text-[11px] leading-tight">Zakat Maal, Fitrah, Profesi.</p>
+                                </div>
+                            </label>
+                            <label class="option-card cursor-pointer relative">
+                                <input class="peer sr-only" name="donation_type" onchange="handleTypeChange(this)" type="radio" value="Sedekah" />
+                                <div class="border border-outline-variant rounded-lg p-3 transition-all duration-200 hover:border-primary/50 group h-full flex flex-col justify-between">
+                                    <div class="flex justify-between items-start mb-xs">
+                                        <span class="font-label-md text-label-md text-on-surface font-bold">Sedekah Jariyah</span>
+                                        <span class="material-symbols-outlined text-primary opacity-0 icon-check transition-opacity text-lg">check_circle</span>
+                                    </div>
+                                    <p class="font-caption text-caption text-on-surface-variant text-[11px] leading-tight">Sedekah air bersih, Qur'an, dll.</p>
+                                </div>
+                            </label>
+                        </div>
+                    </section>
+
+                    <!-- Step 2: Pemilihan Wilayah -->
+                    <section class="bg-surface-container-lowest rounded-xl p-md sm:p-lg shadow-sm border border-outline-variant/20">
+                        <h2 class="font-headline-md text-headline-md font-bold text-on-surface mb-xs">2. Wilayah Operasional</h2>
+                        <p class="font-caption text-caption text-on-surface-variant mb-sm">Pencatatan keuangan akan disesuaikan dengan wilayah pilihan Anda.</p>
+                        <div class="grid grid-cols-2 gap-2 sm:gap-3">
+                            <label class="option-card cursor-pointer relative">
+                                <input class="peer sr-only" name="wilayah" onchange="handleWilayahChange(this)" type="radio" value="Pangkalpinang" checked />
+                                <div class="border border-outline-variant rounded-lg p-3 transition-all duration-200 hover:border-primary/50 group h-full">
+                                    <div class="flex justify-between items-start mb-xs">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="material-symbols-outlined text-primary text-lg">location_city</span>
+                                            <span class="font-label-md text-label-md text-on-surface font-bold">Pangkalpinang</span>
+                                        </div>
+                                        <span class="material-symbols-outlined text-primary opacity-0 icon-check transition-opacity text-lg">check_circle</span>
+                                    </div>
+                                    <p class="font-caption text-caption text-on-surface-variant text-[11px]">Wilayah Pangkalpinang</p>
+                                </div>
+                            </label>
+                            <label class="option-card cursor-pointer relative">
+                                <input class="peer sr-only" name="wilayah" onchange="handleWilayahChange(this)" type="radio" value="Sungailiat" />
+                                <div class="border border-outline-variant rounded-lg p-3 transition-all duration-200 hover:border-primary/50 group h-full">
+                                    <div class="flex justify-between items-start mb-xs">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="material-symbols-outlined text-primary text-lg">location_city</span>
+                                            <span class="font-label-md text-label-md text-on-surface font-bold">Sungailiat</span>
+                                        </div>
+                                        <span class="material-symbols-outlined text-primary opacity-0 icon-check transition-opacity text-lg">check_circle</span>
+                                    </div>
+                                    <p class="font-caption text-caption text-on-surface-variant text-[11px]">Wilayah Sungailiat</p>
+                                </div>
+                            </label>
+                        </div>
+                    </section>
+
+                    <!-- Informasi Allocation Infak Umum -->
+                    <div id="infak-umum-notice" class="bg-surface-container-low rounded-xl p-md border border-outline-variant/30 text-on-surface">
+                        <div class="flex items-start gap-sm">
+                            <span class="material-symbols-outlined text-primary text-xl shrink-0 mt-0.5">info</span>
+                            <div>
+                                <p class="font-label-md text-label-md font-bold text-primary mb-xs" id="infak-umum-title">Alokasi Otomatis Infak Umum — Pangkalpinang</p>
+                                <p class="font-caption text-caption text-on-surface-variant mb-2">Dana Infak Umum dibagi otomatis berdasarkan allocation rule wilayah:</p>
+                                <div id="infak-umum-breakdown" class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-xs font-semibold">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Conditional Steps for Infak Terikat -->
+                    <div class="hidden space-y-md" id="infak-terikat-flow">
+                        <!-- Step 3: Program Utama (5 Berkah) -->
+                        <section class="bg-surface-container-lowest rounded-xl p-md sm:p-lg shadow-sm border border-outline-variant/20">
+                            <h2 class="font-headline-md text-headline-md font-bold text-on-surface mb-sm">3. Program Utama</h2>
+                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2" id="program-utama-buttons">
+                                <button type="button" class="cat-btn px-2.5 py-2 border border-outline-variant rounded-xl font-label-md text-caption text-on-surface-variant hover:bg-surface-container-high hover:border-primary transition-colors font-bold text-center flex flex-col items-center gap-1 cursor-pointer" onclick="setProgramUtama('Berkah Hidayah', this)">
+                                    <span class="material-symbols-outlined text-primary text-lg">auto_stories</span>
+                                    <span>BERKAH HIDAYAH</span>
+                                    <span class="text-[10px] font-normal text-outline">Dakwah</span>
+                                </button>
+                                <button type="button" class="cat-btn px-2.5 py-2 border border-outline-variant rounded-xl font-label-md text-caption text-on-surface-variant hover:bg-surface-container-high hover:border-primary transition-colors font-bold text-center flex flex-col items-center gap-1 cursor-pointer" onclick="setProgramUtama('Berkah Peduli', this)">
+                                    <span class="material-symbols-outlined text-primary text-lg">favorite</span>
+                                    <span>BERKAH PEDULI</span>
+                                    <span class="text-[10px] font-normal text-outline">Sosial</span>
+                                </button>
+                                <button type="button" class="cat-btn px-2.5 py-2 border border-outline-variant rounded-xl font-label-md text-caption text-on-surface-variant hover:bg-surface-container-high hover:border-primary transition-colors font-bold text-center flex flex-col items-center gap-1 cursor-pointer" onclick="setProgramUtama('Berkah Juara', this)">
+                                    <span class="material-symbols-outlined text-primary text-lg">school</span>
+                                    <span>BERKAH JUARA</span>
+                                    <span class="text-[10px] font-normal text-outline">Pendidikan</span>
+                                </button>
+                                <button type="button" class="cat-btn px-2.5 py-2 border border-outline-variant rounded-xl font-label-md text-caption text-on-surface-variant hover:bg-surface-container-high hover:border-primary transition-colors font-bold text-center flex flex-col items-center gap-1 cursor-pointer" onclick="setProgramUtama('Berkah Sehat', this)">
+                                    <span class="material-symbols-outlined text-primary text-lg">medical_services</span>
+                                    <span>BERKAH SEHAT</span>
+                                    <span class="text-[10px] font-normal text-outline">Kesehatan</span>
+                                </button>
+                                <button type="button" class="cat-btn px-2.5 py-2 border border-outline-variant rounded-xl font-label-md text-caption text-on-surface-variant hover:bg-surface-container-high hover:border-primary transition-colors font-bold text-center flex flex-col items-center gap-1 cursor-pointer" onclick="setProgramUtama('Berkah Mandiri', this)">
+                                    <span class="material-symbols-outlined text-primary text-lg">storefront</span>
+                                    <span>BERKAH MANDIRI</span>
+                                    <span class="text-[10px] font-normal text-outline">Ekonomi</span>
+                                </button>
+                            </div>
+                        </section>
+
+                        <!-- Step 4: Program Spesifik -->
+                        <section class="bg-surface-container-lowest rounded-xl p-md sm:p-lg shadow-sm border border-outline-variant/20">
+                            <h2 class="font-headline-md text-headline-md font-bold text-on-surface mb-sm">4. Program Spesifik</h2>
+                            <select id="program-spesifik-select" class="w-full bg-surface border border-outline-variant rounded-lg px-3.5 py-2.5 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none font-semibold cursor-pointer" onchange="setProgramSpesifik(this.value)">
+                                <option value="">-- Pilih Program Utama Terlebih Dahulu --</option>
+                            </select>
+                        </section>
+
+                        <!-- Program Detail Card -->
+                        <div id="program-detail-card" class="hidden bg-surface-container-lowest rounded-2xl p-4 sm:p-6 border-2 border-emerald-500/30 shadow-md space-y-4 transition-all duration-300">
+                            <div class="flex items-center justify-between border-b border-outline-variant/20 pb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary text-xl">info</span>
+                                    <span class="font-label-md text-xs sm:text-sm font-bold text-slate-900">Detail &amp; Lokasi Penyaluran Program</span>
+                                </div>
+                                <span id="detail-card-pillar" class="bg-primary text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">BERKAH PEDULI</span>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row gap-4 items-start">
+                                <div class="relative w-full sm:w-44 h-36 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-outline-variant/30 shadow-xs">
+                                    <img id="detail-card-img" src="/assets/images/foto-utama-wiz.jpg" onerror="this.onerror=null; this.src='/assets/images/foto-utama-wiz.jpg';" alt="Foto Program" class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex-1 space-y-2.5 min-w-0 w-full">
+                                    <h3 id="detail-card-title" class="font-headline-md text-base sm:text-lg font-extrabold text-slate-900 leading-snug">Nama Program Kebaikan</h3>
+                                    
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <div class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-lg text-xs font-semibold">
+                                            <span class="material-symbols-outlined text-sm text-emerald-700">pin_drop</span>
+                                            <span id="detail-card-location">Lokasi: Kepulauan Bangka Belitung</span>
+                                        </div>
+                                        <div id="detail-card-beneficiary-wrap" class="hidden inline-flex items-center gap-1.5 bg-blue-50 text-blue-800 border border-blue-200 px-2.5 py-1 rounded-lg text-xs font-semibold">
+                                            <span class="material-symbols-outlined text-sm text-blue-700">group</span>
+                                            <span id="detail-card-beneficiary">Mustahik &amp; Santri</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-surface-container-low/80 rounded-xl p-3 sm:p-3.5 border border-outline-variant/30 text-xs text-slate-700 leading-relaxed">
+                                        <p id="detail-card-desc" class="whitespace-pre-line font-medium text-slate-800">Deskripsi lengkap program...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Transparency Notice 12.5% for Infak Terikat -->
+                        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-md text-emerald-900">
+                            <div class="flex items-start gap-sm">
+                                <span class="material-symbols-outlined text-emerald-700 text-xl shrink-0 mt-0.5">verified</span>
+                                <div>
+                                    <p class="font-label-md text-label-md font-bold text-emerald-900 mb-xs">Catatan Transparansi Pengelolaan Dana</p>
+                                    <p class="font-caption text-caption text-emerald-800">
+                                        Catatan transparansi: Dana Infak Terikat pada program ini memiliki <strong>alokasi operasional lembaga sebesar 12,5%</strong> untuk mendukung pengelolaan, pelayanan, administrasi, dan keberlangsungan program.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step Nominal -->
+                    <section class="bg-surface-container-lowest rounded-xl p-md sm:p-lg shadow-sm border border-outline-variant/20">
+                        <h2 class="font-headline-md text-headline-md font-bold text-on-surface mb-sm">Masukkan Nominal Donasi</h2>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-sm" id="nominal-chips-wrap">
+                            <button type="button" class="chip-nominal py-2 border border-outline-variant rounded-lg font-label-md text-label-md font-semibold text-on-surface hover:border-primary hover:bg-surface-container-low transition-all text-center cursor-pointer" data-nominal="50000" onclick="setNominal(50000)">Rp 50.000</button>
+                            <button type="button" class="chip-nominal py-2 border border-outline-variant rounded-lg font-label-md text-label-md font-semibold text-on-surface hover:border-primary hover:bg-surface-container-low transition-all text-center cursor-pointer" data-nominal="100000" onclick="setNominal(100000)">Rp 100.000</button>
+                            <button type="button" class="chip-nominal py-2 border border-outline-variant rounded-lg font-label-md text-label-md font-semibold text-on-surface hover:border-primary hover:bg-surface-container-low transition-all text-center cursor-pointer" data-nominal="250000" onclick="setNominal(250000)">Rp 250.000</button>
+                            <button type="button" class="chip-nominal py-2 border border-outline-variant rounded-lg font-label-md text-label-md font-semibold text-on-surface hover:border-primary hover:bg-surface-container-low transition-all text-center cursor-pointer" data-nominal="500000" onclick="setNominal(500000)">Rp 500.000</button>
+                        </div>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-primary select-none pointer-events-none">Rp</span>
+                            <input class="w-full bg-surface border border-outline-variant rounded-lg pl-12 pr-4 py-2.5 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none font-semibold" id="custom_nominal" name="custom_nominal" oninput="updateNominal(this.value)" onkeyup="updateNominal(this.value)" onchange="updateNominal(this.value)" placeholder="Nominal donasi lainnya (Bebas / Tanpa Minimal)" type="number" required min="1" autocomplete="off" />
+                        </div>
+                    </section>
+
+                    <!-- Step Data Donatur -->
+                    <section class="bg-surface-container-lowest rounded-xl p-md sm:p-lg shadow-sm border border-outline-variant/20 space-y-sm">
+                        <h2 class="font-headline-md text-headline-md font-bold text-on-surface mb-xs">Data Donatur</h2>
+                        <div>
+                            <div class="flex justify-between items-center mb-xs">
+                                <label class="block font-label-md text-label-md text-on-surface font-semibold">Nama Lengkap Donatur</label>
+                                <label class="flex items-center gap-1.5 cursor-pointer text-xs text-primary font-semibold">
+                                    <input type="checkbox" id="is-anonymous-donor" onchange="toggleAnonymousDonor(this.checked)" class="rounded text-primary focus:ring-primary w-3.5 h-3.5">
+                                    <span>Hamba Allah (Anonim)</span>
+                                </label>
+                            </div>
+                            <input type="text" id="donor-name" required class="w-full bg-surface border border-outline-variant rounded-lg px-3.5 py-2.5 font-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="Masukkan nama Anda / Hamba Allah" />
+                        </div>
+                        <div>
+                            <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Nomor WhatsApp / HP</label>
+                            <input type="tel" id="donor-phone" required class="w-full bg-surface border border-outline-variant rounded-lg px-3.5 py-2.5 font-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="08xxxxxxxxxx" />
+                        </div>
+                        <div>
+                            <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Doa &amp; Pesan Kebaikan (Opsional)</label>
+                            <textarea id="donor-message" rows="2" class="w-full bg-surface border border-outline-variant rounded-lg px-3.5 py-2.5 font-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="Tuliskan doa atau niat donasi Anda..."></textarea>
+                        </div>
+
+                        <!-- Recurring Donor Option -->
+                        <div id="recurring-donor-section" class="p-md bg-emerald-50/70 border border-emerald-200/80 rounded-xl">
+                            <label class="flex items-start gap-sm cursor-pointer">
+                                <input type="checkbox" id="is-recurring-donor" class="mt-0.5 w-4 h-4 text-primary border-outline-variant rounded focus:ring-primary shrink-0">
+                                <div>
+                                    <span class="font-label-md text-label-md font-bold text-slate-900 block">Saya ingin menjadi Donatur Tetap (Bulanan)</span>
+                                    <span class="font-caption text-[11px] text-slate-600">Dapatkan laporan penyaluran dan pengingat kebaikan berkala setiap bulan melalui WhatsApp.</span>
+                                </div>
+                            </label>
+                        </div>
+                    </section>
+
+                    <!-- Step Metode Pembayaran -->
+                    <section class="bg-surface-container-lowest rounded-xl p-md sm:p-lg shadow-sm border border-outline-variant/20">
+                        <h2 class="font-headline-md text-headline-md font-bold text-on-surface mb-sm">Metode Pembayaran</h2>
+                        <div class="space-y-xs sm:space-y-sm">
+                            <!-- QRIS -->
+                            <label class="option-card cursor-pointer relative block">
+                                <input class="peer sr-only" name="payment_method" onchange="setPayment('QRIS')" type="radio" value="QRIS" checked />
+                                <div class="border border-outline-variant rounded-lg p-3 transition-all duration-200 hover:border-primary/50 flex items-center justify-between">
+                                    <div class="flex items-center gap-sm">
+                                        <div class="w-10 h-10 bg-surface-container flex items-center justify-center rounded-md text-primary shrink-0">
+                                            <span class="material-symbols-outlined text-xl">qr_code_scanner</span>
+                                        </div>
+                                        <div>
+                                            <span class="font-label-md text-label-md text-on-surface block font-bold">QRIS (Otomatis &amp; Instan)</span>
+                                            <span class="font-caption text-caption text-on-surface-variant block text-[11px]">GoPay, OVO, DANA, ShopeePay, LinkAja, M-Banking</span>
+                                        </div>
+                                    </div>
+                                    <span class="material-symbols-outlined text-primary opacity-0 icon-check transition-opacity shrink-0">check_circle</span>
+                                </div>
+                            </label>
+
+                            <!-- Bank Transfer -->
+                            <label class="option-card cursor-pointer relative block">
+                                <input class="peer sr-only" name="payment_method" onchange="setPayment('Bank Transfer')" type="radio" value="Bank Transfer" />
+                                <div class="border border-outline-variant rounded-lg p-3 transition-all duration-200 hover:border-primary/50 flex items-center justify-between">
+                                    <div class="flex items-center gap-sm">
+                                        <div class="w-10 h-10 bg-surface-container flex items-center justify-center rounded-md text-primary shrink-0">
+                                            <span class="material-symbols-outlined text-xl">account_balance</span>
+                                        </div>
+                                        <div>
+                                            <span class="font-label-md text-label-md text-on-surface block font-bold">Transfer Bank Manual</span>
+                                            <span class="font-caption text-caption text-on-surface-variant block text-[11px]">BSI (Bank Syariah Indonesia)</span>
+                                        </div>
+                                    </div>
+                                    <span class="material-symbols-outlined text-primary opacity-0 icon-check transition-opacity shrink-0">check_circle</span>
+                                </div>
+                            </label>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right Column: Summary Sidebar -->
+                <div class="lg:col-span-5">
+                    <div class="sticky top-24 bg-surface-container-lowest rounded-xl p-md sm:p-lg shadow-sm border border-outline-variant/20">
+                        <h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-sm pb-xs border-b border-outline-variant/30">Ringkasan Donasi</h3>
+                        <ul class="space-y-xs mb-md text-body-md">
+                            <li class="flex justify-between items-start">
+                                <span class="font-body-md text-caption text-on-surface-variant">Lembaga</span>
+                                <span class="font-label-md text-caption text-on-surface text-right font-bold">WIZ Bangka Belitung</span>
+                            </li>
+                            <li class="flex justify-between items-start">
+                                <span class="font-body-md text-caption text-on-surface-variant">Wilayah</span>
+                                <span class="font-label-md text-caption text-on-surface text-right font-bold text-primary" id="summary-wilayah">Pangkalpinang</span>
+                            </li>
+                            <li class="flex justify-between items-start">
+                                <span class="font-body-md text-caption text-on-surface-variant">Jenis Donasi</span>
+                                <span class="font-label-md text-caption text-on-surface text-right font-bold" id="summary-type">Infak Umum</span>
+                            </li>
+                            <li class="flex justify-between items-start hidden" id="summary-cat-row">
+                                <span class="font-body-md text-caption text-on-surface-variant">Program Utama</span>
+                                <span class="font-label-md text-caption text-on-surface text-right font-semibold" id="summary-cat">-</span>
+                            </li>
+                            <li class="flex justify-between items-start hidden" id="summary-prog-row">
+                                <span class="font-body-md text-caption text-on-surface-variant">Program Spesifik</span>
+                                <span class="font-label-md text-caption text-on-surface text-right font-semibold max-w-[160px]" id="summary-prog">-</span>
+                            </li>
+                            <li class="flex justify-between items-start">
+                                <span class="font-body-md text-caption text-on-surface-variant">Metode</span>
+                                <span class="font-label-md text-caption text-on-surface text-right font-semibold" id="summary-method">QRIS</span>
+                            </li>
+                            <li class="hidden mt-2 p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs text-slate-700" id="summary-ref-row">
+                                <span class="font-bold text-[11px] text-slate-500 uppercase tracking-wide">ID Referensi:</span>
+                                <span class="font-mono font-bold text-primary text-xs" id="summary-ref-name">-</span>
+                            </li>
+                        </ul>
+
+                        <div class="pt-sm border-t border-outline-variant/30 mb-md">
+                            <div class="flex justify-between items-center">
+                                <span class="font-body-md text-caption text-on-surface-variant">Total Donasi</span>
+                                <span class="font-headline-md text-headline-md text-primary font-bold" id="summary-total">Rp 0</span>
+                            </div>
+                        </div>
+
+                        <button id="checkout-submit-btn" class="w-full bg-[#F7941D] text-white py-2.5 rounded-lg font-label-md text-label-md font-bold shadow-md hover:opacity-90 transition-opacity flex justify-center items-center gap-2 cursor-pointer" type="submit">
+                            <span>Lanjutkan Pembayaran</span>
+                            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                        </button>
+
+                        <p class="font-caption text-caption text-on-surface-variant text-center mt-xs flex items-center justify-center gap-1">
+                            <span class="material-symbols-outlined text-[14px] text-primary">lock</span>
+                            <span>Transaksi Aman &amp; Terenkripsi</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <!-- Mobile Sticky Bottom Action Bar -->
+        <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface-container-lowest border-t border-outline-variant/30 p-3 px-margin-mobile shadow-2xl z-40 flex items-center justify-between gap-sm">
+            <div>
+                <span class="font-caption text-caption text-on-surface-variant block text-[11px]">Total Donasi</span>
+                <span class="font-headline-md text-headline-md text-primary font-bold block text-lg" id="mobile-summary-total">Rp 0</span>
+            </div>
+            <button id="mobile-checkout-submit-btn" type="submit" form="donation-checkout-form" class="bg-[#F7941D] text-white px-5 py-2.5 rounded-lg font-label-md text-label-md font-bold shadow-md hover:opacity-90 transition-opacity flex items-center gap-1.5 cursor-pointer">
+                <span>Lanjutkan</span>
+                <span class="material-symbols-outlined text-sm">arrow_forward</span>
+            </button>
+        </div>
+    </main>
+
+    <!-- QRIS Payment Display Modal -->
+    <div id="qris-modal" class="modal-backdrop">
+        <div class="modal-dialog">
+            <div class="p-lg border-b border-surface-variant flex justify-between items-center bg-surface rounded-t-xl">
+                <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 bg-red-100 text-red-700 font-bold text-xs rounded uppercase tracking-wider">QRIS Standar</span>
+                    <h3 class="font-headline-md text-body-lg font-bold text-primary">Scan Kode QRIS Donasi</h3>
+                </div>
+                <button type="button" onclick="closeQRISModal()" class="text-outline hover:text-on-surface p-1 cursor-pointer">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="p-lg space-y-md text-center">
+                <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 text-xs flex items-start gap-2.5 text-left shadow-xs">
+                    <span class="material-symbols-outlined text-amber-700 text-lg shrink-0 mt-0.5">hourglass_top</span>
+                    <div>
+                        <span class="font-bold text-amber-900 block" id="qris-admin-target-title">Status: Menunggu Verifikasi Admin</span>
+                        <span class="text-amber-800 text-[11px] leading-relaxed block mt-0.5" id="qris-admin-target-desc">Transaksi Anda otomatis masuk ke antrean verifikasi Admin WIZ Babel. Silakan lakukan pembayaran dan konfirmasi melalui tombol WhatsApp di bawah.</span>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-low p-md rounded-xl border border-surface-variant space-y-xs">
+                    <p class="font-caption text-caption text-on-surface-variant uppercase font-bold">Total Pembayaran Donasi</p>
+                    <h4 id="qris-modal-total" class="font-headline-lg text-headline-lg font-bold text-primary">Rp 0</h4>
+                    <p id="qris-modal-donor" class="font-body-md text-caption text-on-surface-variant font-medium">-</p>
+                </div>
+
+                <div class="bg-white p-md rounded-2xl border border-outline-variant/40 shadow-inner flex flex-col items-center space-y-2">
+                    <div class="flex items-center justify-between w-full border-b border-slate-100 pb-2 mb-1">
+                        <span class="font-bold text-xs text-slate-700">WAHDAH INSPIRASI ZAKAT BABEL</span>
+                        <span class="text-[10px] text-red-600 font-bold uppercase bg-red-50 px-2 py-0.5 rounded">All e-Wallet &amp; Banking</span>
+                    </div>
+
+                    <img id="qris-modal-img" src="/assets/images/qris-code-wiz-babel.png" alt="Kode QRIS WIZ Bangka Belitung" class="w-64 h-64 object-contain rounded-xl border-2 border-primary/20 shadow-md p-1.5 bg-white">
+
+                    <p class="font-caption text-caption text-outline font-medium mt-1">Scan menggunakan GoPay, OVO, DANA, ShopeePay, LinkAja, BSI, atau m-Banking apapun</p>
+
+                    <button type="button" onclick="downloadQRISImage()" class="w-full mt-2 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs">
+                        <span class="material-symbols-outlined text-base">download</span>
+                        <span>Unduh Gambar Kode QRIS</span>
+                    </button>
+                </div>
+
+                <div class="bg-emerald-50 p-sm rounded-lg border border-emerald-200 text-left space-y-1 text-xs text-emerald-900">
+                    <p class="font-bold flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">info</span>
+                        Langkah Pembayaran &amp; Konfirmasi:
+                    </p>
+                    <ol class="list-decimal list-inside space-y-0.5 text-[11px] text-emerald-800">
+                        <li>Pindai kode QRIS di atas dengan aplikasi pembayaran Anda.</li>
+                        <li>Pastikan nama penerima adalah <strong>WAHDAH INSPIRASI ZAKAT BABEL</strong>.</li>
+                        <li>Setelah sukses transfer, klik tombol hijau di bawah untuk konfirmasi bukti pembayaran ke WhatsApp admin.</li>
+                    </ol>
+                </div>
+
+                <a id="qris-wa-btn" href="https://wa.me/6282380830808" target="_blank" onclick="confirmQRISToWhatsApp(event)" class="w-full bg-[#25D366] text-white py-3 rounded-lg font-label-md text-label-md font-bold shadow-md hover:opacity-95 transition-opacity flex items-center justify-center gap-2 cursor-pointer no-underline">
+                    <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+                    <span id="qris-wa-btn-text">Konfirmasi Pembayaran via WhatsApp</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bank Transfer Display Modal -->
+    <div id="bank-modal" class="modal-backdrop">
+        <div class="modal-dialog">
+            <div class="p-lg border-b border-surface-variant flex justify-between items-center bg-surface rounded-t-xl">
+                <h3 class="font-headline-md text-body-lg font-bold text-primary">Rekening Transfer Bank</h3>
+                <button type="button" onclick="closeBankModal()" class="text-outline hover:text-on-surface p-1 cursor-pointer">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="p-lg space-y-md">
+                <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 text-xs flex items-start gap-2.5 text-left shadow-xs">
+                    <span class="material-symbols-outlined text-amber-700 text-lg shrink-0 mt-0.5">hourglass_top</span>
+                    <div>
+                        <span class="font-bold text-amber-900 block" id="bank-admin-target-title">Status: Menunggu Verifikasi Admin</span>
+                        <span class="text-amber-800 text-[11px] leading-relaxed block mt-0.5" id="bank-admin-target-desc">Transaksi Anda otomatis masuk ke antrean verifikasi Admin WIZ Babel. Silakan transfer dan konfirmasi bukti transfer via WhatsApp agar admin segera menyetujui.</span>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-low p-md rounded-xl border border-surface-variant text-center space-y-xs">
+                    <p class="font-caption text-caption text-on-surface-variant uppercase font-bold">Total Pembayaran Donasi</p>
+                    <h4 id="bank-modal-total" class="font-headline-lg text-headline-lg font-bold text-primary">Rp 0</h4>
+                    <p id="bank-modal-donor" class="font-body-md text-caption text-on-surface-variant font-medium">-</p>
+                </div>
+
+                <div id="dynamic-donasi-banks-container" class="space-y-sm">
+                    <div class="p-lg bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-500/50 rounded-2xl shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <img src="/assets/images/logo-bsi.jpg" alt="Bank Syariah Indonesia" class="h-9 object-contain" onerror="this.style.display='none'">
+                            <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-extrabold border border-emerald-300">✅ Rekening Aktif</span>
+                        </div>
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="space-y-0.5">
+                                <span class="font-bold text-emerald-800 text-sm block" data-site-bank-name="bsi">Bank Syariah Indonesia (BSI)</span>
+                                <span class="font-mono font-extrabold text-2xl text-on-surface tracking-widest block" data-site-bank-no="bsi">7168008001</span>
+                                <span class="text-xs text-on-surface-variant block font-semibold" data-site-bank-holder="bsi">A.n. WIZ Bangka Belitung</span>
+                            </div>
+                            <button type="button" onclick="copyAccount('7168008001')" class="shrink-0 px-4 py-2.5 bg-emerald-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-emerald-700 transition-colors flex flex-col items-center gap-0.5 cursor-pointer">
+                                <span class="material-symbols-outlined text-base">content_copy</span>
+                                <span>Salin</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <a id="bank-wa-btn" href="https://wa.me/6282380830808" target="_blank" onclick="confirmBankToWhatsApp(event)" class="w-full bg-[#25D366] text-white py-3 rounded-lg font-label-md text-label-md font-bold shadow-md hover:opacity-95 transition-opacity flex items-center justify-center gap-2 cursor-pointer no-underline">
+                    <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+                    <span id="bank-wa-btn-text">Konfirmasi Bukti Transfer via WhatsApp</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script from donasi.html -->
+    <script is:inline>
+        const SPECIFIC_PROGRAMS = {
+            'Berkah Hidayah': [
+                "Pembangunan Markaz", "Pengadaan & Perbaikan Kendaraan", "Santunan Mualaf",
+                "Pengadaan Celengan Sedekah Subuh", "Tahfidz Weekend", "Pelatihan Public Speaking",
+                "Tabligh Akbar Dzhulhijjah", "Pelatihan Guru Dirosa", "Pelatihan Penyelenggaraan Jenazah",
+                "Pelatihan Volunteer Media Dakwah", "Lomba Desain Poster Dakwah", "Kantor DPW WI Babel dan WIZ",
+                "Mukerwil/Mukernas/Muktamar", "Keberangkatan Kepulangan Dai"
+            ],
+            'Berkah Peduli': [
+                "Pray For NTT", "Tebar Sembako", "Sedekah Beras & Sembako Dhuafa", "Sedekah Beras Dhuafa",
+                "Sedekah Jumat", "Santunan Yatim", "Tebar Iftar Nusantara", "Tebar Qur'an Nusantara",
+                "Bahagiakan Guru Ngaji", "Sedekah Air Bersih", "Sedekah Air"
+            ],
+            'Berkah Juara': [
+                "Beasiswa Pendidikan Juara", "Beasiswa Tahfidz & Dhuafa", "Beasiswa Tahfidz Qur'an", "Perlengkapan Belajar Yatim"
+            ],
+            'Berkah Sehat': [
+                "Khitanan Massal Dhuafa", "Khitanan Massal", "Layanan Pengobatan Gratis", "Layanan Ambulance Ummat", "Ambulance Gratis Ummat"
+            ],
+            'Berkah Mandiri': [
+                "Modal Usaha Mandiri Dhuafa", "Modal Usaha Dhuafa", "Bantuan Usaha Mikro", "Pelatihan Keterampilan Wirausaha"
+            ]
+        };
+
+        function getProgramMap() {
+            let map = JSON.parse(JSON.stringify(SPECIFIC_PROGRAMS));
+            try {
+                if (window.wizStore && window.wizStore.programs && typeof window.wizStore.programs.getPublished === 'function') {
+                    const published = window.wizStore.programs.getPublished();
+                    published.forEach(p => {
+                        const pPillar = p.pillar || 'Berkah Peduli';
+                        if (!map[pPillar]) map[pPillar] = [];
+                        if (!map[pPillar].includes(p.title)) {
+                            map[pPillar].unshift(p.title);
+                        }
+                    });
+                }
+            } catch(e) {}
+            return map;
+        }
+
+        function matchProgramToPillarAndProgram(inputName) {
+            if (!inputName) return null;
+            const clean = decodeURIComponent(inputName).trim();
+            const lower = clean.toLowerCase();
+            const map = getProgramMap();
+
+            for (const [cat, progs] of Object.entries(map)) {
+                for (const p of progs) {
+                    if (p.toLowerCase() === lower || p.toLowerCase().includes(lower) || lower.includes(p.toLowerCase())) {
+                        return { category: cat, program: p };
+                    }
+                }
+            }
+            return { category: 'Berkah Peduli', program: clean };
+        }
+
+        const state = {
+            type: 'Infak Umum',
+            wilayah: 'Pangkalpinang',
+            category: '-',
+            program: '-',
+            nominal: 0,
+            totalDonasi: 0,
+            method: 'QRIS',
+            donorName: '',
+            donorPhone: '',
+            donorMessage: '',
+            activeRefObj: null
+        };
+        window.donationState = state;
+
+        function formatRupiah(number) {
+            const num = Number(number) || 0;
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+        }
+
+        function renderInfakUmumNotice() {
+            const titleEl = document.getElementById('infak-umum-title');
+            const breakdownEl = document.getElementById('infak-umum-breakdown');
+            const noticeBox = document.getElementById('infak-umum-notice');
+
+            if (state.type !== 'Infak Umum') {
+                if (noticeBox) noticeBox.classList.add('hidden');
+                return;
+            }
+
+            if (noticeBox) noticeBox.classList.remove('hidden');
+            if (titleEl) titleEl.textContent = `Alokasi Otomatis Infak Umum — Wilayah ${state.wilayah}`;
+
+            const currentNominal = Number(state.totalDonasi || state.nominal) || 0;
+            let items = [];
+            if (window.wizStore && typeof window.wizStore.calcInfakUmumAllocation === 'function') {
+                items = window.wizStore.calcInfakUmumAllocation(currentNominal, state.wilayah);
+            }
+
+            if (breakdownEl && items.length > 0) {
+                breakdownEl.innerHTML = items.map(r => `
+                    <div class="bg-white p-2.5 rounded-lg border border-outline-variant/30 flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-on-surface font-semibold text-xs truncate" title="${r.key}">${r.key}</span>
+                            <span class="text-primary font-bold text-[11px] bg-primary/10 px-1.5 py-0.5 rounded">${r.percent}%</span>
+                        </div>
+                        ${currentNominal > 0 ? `<div class="text-right font-mono font-bold text-xs text-primary">${formatRupiah(r.amount)}</div>` : ''}
+                    </div>
+                `).join('');
+            }
+        }
+
+        function updateSummary() {
+            const currentTotal = Number(state.totalDonasi || state.nominal) || 0;
+            const formattedTotal = formatRupiah(currentTotal);
+
+            const summaryTotalEl = document.getElementById('summary-total');
+            if (summaryTotalEl) summaryTotalEl.textContent = formattedTotal;
+
+            const mobTotal = document.getElementById('mobile-summary-total');
+            if (mobTotal) mobTotal.textContent = formattedTotal;
+
+            const summaryWilayahEl = document.getElementById('summary-wilayah');
+            if (summaryWilayahEl) summaryWilayahEl.textContent = state.wilayah || 'Pangkalpinang';
+
+            const summaryTypeEl = document.getElementById('summary-type');
+            if (summaryTypeEl) summaryTypeEl.textContent = state.type || 'Infak Umum';
+
+            const catRow = document.getElementById('summary-cat-row');
+            const progRow = document.getElementById('summary-prog-row');
+
+            if (state.type === 'Infak Terikat') {
+                if (catRow) catRow.classList.remove('hidden');
+                if (progRow) progRow.classList.remove('hidden');
+                const catEl = document.getElementById('summary-cat');
+                const progEl = document.getElementById('summary-prog');
+                if (catEl) catEl.textContent = state.category;
+                if (progEl) progEl.textContent = state.program;
+            } else {
+                if (catRow) catRow.classList.add('hidden');
+                if (progRow) progRow.classList.add('hidden');
+            }
+
+            const summaryMethodEl = document.getElementById('summary-method');
+            if (summaryMethodEl) summaryMethodEl.textContent = state.method || 'QRIS';
+
+            renderInfakUmumNotice();
+        }
+
+        function handleTypeChange(radio) {
+            state.type = radio.value;
+            const flow = document.getElementById('infak-terikat-flow');
+            const notice = document.getElementById('infak-umum-notice');
+
+            if (state.type === 'Infak Terikat') {
+                if (flow) flow.classList.remove('hidden');
+                if (notice) notice.classList.add('hidden');
+                if (state.category === '-' || !state.category) {
+                    setProgramUtama('Berkah Peduli');
+                }
+            } else {
+                if (flow) flow.classList.add('hidden');
+                if (notice) notice.classList.remove('hidden');
+            }
+            updateSummary();
+        }
+
+        function handleWilayahChange(radio) {
+            state.wilayah = radio.value;
+            updateSummary();
+            if (typeof updateWhatsAppButtons === 'function') updateWhatsAppButtons();
+        }
+
+        function setProgramUtama(catName, btn) {
+            state.category = catName;
+            document.querySelectorAll('#program-utama-buttons .cat-btn').forEach(b => {
+                b.classList.remove('active', 'border-primary', 'bg-primary', 'text-white');
+                b.classList.add('border-outline-variant', 'text-on-surface-variant');
+            });
+            if (btn) {
+                btn.classList.add('active', 'border-primary', 'bg-primary', 'text-white');
+                btn.classList.remove('border-outline-variant', 'text-on-surface-variant');
+            } else {
+                const targetBtn = Array.from(document.querySelectorAll('#program-utama-buttons .cat-btn')).find(b => b.textContent.includes(catName.toUpperCase()));
+                if (targetBtn) {
+                    targetBtn.classList.add('active', 'border-primary', 'bg-primary', 'text-white');
+                    targetBtn.classList.remove('border-outline-variant', 'text-on-surface-variant');
+                }
+            }
+
+            const select = document.getElementById('program-spesifik-select');
+            if (select) {
+                const map = getProgramMap();
+                const list = map[catName] || [];
+                select.innerHTML = `<option value="">-- Pilih Program Spesifik ${catName} --</option>` + list.map(p => `<option value="${p}">${p}</option>`).join('');
+                if (list.length > 0) {
+                    select.value = list[0];
+                    setProgramSpesifik(list[0]);
+                }
+            }
+            updateSummary();
+        }
+
+        function setProgramSpesifik(progName) {
+            state.program = progName || '-';
+            const detailCard = document.getElementById('program-detail-card');
+            if (detailCard) {
+                if (progName && progName !== '-') {
+                    detailCard.classList.remove('hidden');
+                    const titleEl = document.getElementById('detail-card-title');
+                    if (titleEl) titleEl.textContent = progName;
+                } else {
+                    detailCard.classList.add('hidden');
+                }
+            }
+            updateSummary();
+        }
+
+        function setNominal(amount) {
+            const num = Number(amount) || 0;
+            state.nominal = num;
+            state.totalDonasi = num;
+            const input = document.getElementById('custom_nominal');
+            if (input) input.value = num > 0 ? num : '';
+
+            document.querySelectorAll('#nominal-chips-wrap .chip-nominal').forEach(chip => {
+                const chipNom = Number(chip.dataset.nominal) || 0;
+                if (chipNom === num && num > 0) {
+                    chip.classList.add('border-primary', 'bg-primary/10', 'text-primary', 'font-bold');
+                } else {
+                    chip.classList.remove('border-primary', 'bg-primary/10', 'text-primary', 'font-bold');
+                }
+            });
+
+            updateSummary();
+        }
+
+        function updateNominal(val) {
+            const num = Number(val) || 0;
+            state.nominal = num;
+            state.totalDonasi = num;
+            document.querySelectorAll('#nominal-chips-wrap .chip-nominal').forEach(chip => {
+                const chipNom = Number(chip.dataset.nominal) || 0;
+                if (chipNom === num && num > 0) {
+                    chip.classList.add('border-primary', 'bg-primary/10', 'text-primary', 'font-bold');
+                } else {
+                    chip.classList.remove('border-primary', 'bg-primary/10', 'text-primary', 'font-bold');
+                }
+            });
+            updateSummary();
+        }
+
+        function toggleAnonymousDonor(checked) {
+            const donorInput = document.getElementById('donor-name');
+            if (donorInput) {
+                if (checked) {
+                    donorInput.value = 'Hamba Allah';
+                    donorInput.setAttribute('disabled', 'true');
+                    state.donorName = 'Hamba Allah';
+                } else {
+                    donorInput.value = '';
+                    donorInput.removeAttribute('disabled');
+                    state.donorName = '';
+                }
+            }
+            updateSummary();
+        }
+
+        function setPayment(method) {
+            state.method = method;
+            updateSummary();
+        }
+
+        function handleCheckoutSubmit(e) {
+            e.preventDefault();
+            const nameEl = document.getElementById('donor-name');
+            const phoneEl = document.getElementById('donor-phone');
+            const msgEl = document.getElementById('donor-message');
+
+            state.donorName = nameEl?.value?.trim() || 'Hamba Allah';
+            state.donorPhone = phoneEl?.value?.trim() || '';
+            state.donorMessage = msgEl?.value?.trim() || '';
+
+            if (!state.nominal || state.nominal < 1000) {
+                alert('Silakan masukkan nominal donasi yang valid (minimal Rp 1.000).');
+                return;
+            }
+
+            if (state.method === 'QRIS') {
+                openQRISModal();
+            } else {
+                openBankModal();
+            }
+        }
+
+        function openQRISModal() {
+            let progText = `${state.type} (${state.wilayah})`;
+            if (state.type === 'Infak Terikat' && state.program !== '-') {
+                progText = `${state.program} — ${state.wilayah}`;
+            }
+
+            const totalEl = document.getElementById('qris-modal-total');
+            if (totalEl) totalEl.textContent = formatRupiah(state.nominal);
+
+            const donorEl = document.getElementById('qris-modal-donor');
+            if (donorEl) donorEl.textContent = `Donatur: ${state.donorName} (${progText})`;
+
+            const qrisModal = document.getElementById('qris-modal');
+            if (qrisModal) {
+                qrisModal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeQRISModal() {
+            const qrisModal = document.getElementById('qris-modal');
+            if (qrisModal) {
+                qrisModal.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+
+        function openBankModal() {
+            let progText = `${state.type} (${state.wilayah})`;
+            if (state.type === 'Infak Terikat' && state.program !== '-') {
+                progText = `${state.program} — ${state.wilayah}`;
+            }
+
+            const totalEl = document.getElementById('bank-modal-total');
+            if (totalEl) totalEl.textContent = formatRupiah(state.nominal);
+
+            const donorEl = document.getElementById('bank-modal-donor');
+            if (donorEl) donorEl.textContent = `Donatur: ${state.donorName} (${progText})`;
+
+            const bankModal = document.getElementById('bank-modal');
+            if (bankModal) {
+                bankModal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeBankModal() {
+            const bankModal = document.getElementById('bank-modal');
+            if (bankModal) {
+                bankModal.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+
+        function copyAccount(accNum) {
+            const clean = String(accNum || '').trim();
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(clean).then(() => {
+                    alert(`✅ Nomor rekening ${clean} berhasil disalin!`);
+                }).catch(() => {
+                    alert(`✅ Nomor rekening ${clean} berhasil disalin!`);
+                });
+            } else {
+                alert(`✅ Nomor rekening ${clean} berhasil disalin!`);
+            }
+        }
+
+        function generateWhatsAppMessage(method) {
+            let progText = `*Jenis*: ${state.type} (${state.wilayah})`;
+            if (state.type === 'Infak Terikat' && state.program !== '-') {
+                progText = `*Program*: ${state.program}%0A• *Pilar*: ${state.category} (${state.wilayah})`;
+            }
+
+            return `Bismillah, saya *${state.donorName || 'Hamba Allah'}* (${state.donorPhone || '-'}) ingin mengonfirmasi *${method}*:%0A%0A• *Lembaga*: WIZ Bangka Belitung%0A• ${progText}%0A• *Nominal*: ${formatRupiah(state.nominal)}%0A• *Metode*: ${method}%0A• *Doa/Pesan*: ${state.donorMessage || '-'}`;
+        }
+
+        function confirmQRISToWhatsApp(e) {
+            if (e) e.preventDefault();
+            const text = generateWhatsAppMessage('QRIS (Otomatis & Instan)');
+            window.open(`https://wa.me/6282380830808?text=${text}`, '_blank');
+            closeQRISModal();
+        }
+
+        function confirmBankToWhatsApp(e) {
+            if (e) e.preventDefault();
+            const text = generateWhatsAppMessage('Transfer Bank Manual');
+            window.open(`https://wa.me/6282380830808?text=${text}`, '_blank');
+            closeBankModal();
+        }
+
+        function downloadQRISImage() {
+            const imgEl = document.getElementById('qris-modal-img');
+            const src = imgEl ? imgEl.src : '/assets/images/qris-code-wiz-babel.png';
+            const a = document.createElement('a');
+            a.href = src;
+            a.download = 'QRIS-Donasi-WIZ-Bangka-Belitung.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const progParam = urlParams.get('program');
+            const typeParam = urlParams.get('type');
+            const amountParam = urlParams.get('nominal') || urlParams.get('amount');
+
+            if (progParam) {
+                const match = matchProgramToPillarAndProgram(progParam);
+                if (match) {
+                    state.type = 'Infak Terikat';
+                    const radio = document.querySelector('input[name="donation_type"][value="Infak Terikat"]');
+                    if (radio) {
+                        radio.checked = true;
+                        handleTypeChange(radio);
+                    }
+                    setProgramUtama(match.category);
+                    setProgramSpesifik(match.program);
+                }
+            } else if (typeParam) {
+                const radio = document.querySelector(`input[name="donation_type"][value="${typeParam}"]`);
+                if (radio) {
+                    radio.checked = true;
+                    handleTypeChange(radio);
+                }
+            }
+
+            if (amountParam) {
+                setNominal(Number(amountParam));
+            } else {
+                setNominal(50000);
+            }
+
+            updateSummary();
+        });
+    </script>
+</BaseLayout>

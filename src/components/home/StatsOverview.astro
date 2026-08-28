@@ -1,0 +1,50 @@
+---
+// Stats Overview Component
+const stats = [
+    {
+        icon: 'savings',
+        value: 'Rp 1,8+ M',
+        label: 'Total Dana Kebaikan',
+        sublabel: 'Tersalurkan Amanah & Tepat Sasaran',
+        color: 'text-emerald-700 bg-emerald-50 border-emerald-200'
+    },
+    {
+        icon: 'diversity_1',
+        value: '12.450+',
+        label: 'Penerima Manfaat',
+        sublabel: 'Santri, Yatim, Dhuafa & Mualaf',
+        color: 'text-blue-700 bg-blue-50 border-blue-200'
+    },
+    {
+        icon: 'task_alt',
+        value: '25+',
+        label: 'Program Aktif',
+        sublabel: 'Di 5 Pilar Pemberdayaan Ummat',
+        color: 'text-amber-700 bg-amber-50 border-amber-200'
+    },
+    {
+        icon: 'volunteer_activism',
+        value: '40+',
+        label: 'Da\'i & Relawan',
+        sublabel: 'Menjangkau Pelosok Pulau Bangka Belitung',
+        color: 'text-teal-700 bg-teal-50 border-teal-200'
+    }
+];
+---
+
+<section class="relative -mt-10 z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {stats.map((item) => (
+            <div class="bg-white rounded-3xl p-6 shadow-lg shadow-slate-200/50 border border-slate-100 flex items-start gap-4 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                <div class={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border ${item.color}`}>
+                    <span class="material-symbols-outlined text-2xl">{item.icon}</span>
+                </div>
+                <div class="space-y-1">
+                    <span class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight block leading-tight">{item.value}</span>
+                    <span class="text-sm font-bold text-slate-800 block">{item.label}</span>
+                    <span class="text-xs text-slate-500 block leading-normal">{item.sublabel}</span>
+                </div>
+            </div>
+        ))}
+    </div>
+</section>

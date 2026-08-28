@@ -1,12 +1,13 @@
 {
   "name": "web-wiz-bangka-belitung",
+  "type": "module",
   "version": "1.0.0",
   "description": "Website Resmi Wahdah Inspirasi Zakat (WIZ) Bangka Belitung",
-  "main": "index.html",
   "scripts": {
-    "dev": "node dev-server.js",
-    "start": "node server.js",
-    "watch": "node auto-push.js"
+    "dev": "astro dev --host",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
   },
   "keywords": [
     "wiz",
@@ -18,8 +19,13 @@
   "author": "WIZ Bangka Belitung",
   "license": "MIT",
   "dependencies": {
+    "@astrojs/vercel": "^11.0.8",
+    "@supabase/supabase-js": "^2.112.4",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.2.9",
     "heic-convert": "^2.1.0",
     "jimp": "^1.6.1",
-    "pg": "^8.23.0"
+    "pg": "^8.23.0",
+    "tailwindcss": "^4.3.3"
   }
 }

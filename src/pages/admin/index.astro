@@ -1,0 +1,21 @@
+---
+// Redirection wrapper to full Admin CMS & Control Panel
+---
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="0;url=/admin.html">
+    <title>Mengalihkan ke Portal Admin WIZ Bangka Belitung...</title>
+    <script is:inline>
+        window.location.replace('/admin.html' + window.location.search + window.location.hash);
+    </script>
+</head>
+<body style="font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #0f172a; color: #94a3b8;">
+    <div style="text-align: center;">
+        <p style="font-size: 16px; font-weight: 700; color: #4ade80; margin-bottom: 8px;">Memuat Portal Admin & CMS WIZ Babel...</p>
+        <p style="font-size: 13px;">Jika halaman tidak otomatis dialihkan, <a href="/admin.html" style="color: #6ee7b7; text-decoration: underline;">klik di sini untuk masuk</a>.</p>
+    </div>
+</body>
+</html>

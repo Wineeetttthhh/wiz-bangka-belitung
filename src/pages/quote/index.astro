@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import QuoteCard from '../../components/cards/QuoteCard.astro';
+import { MASTER_QUOTES } from '../../lib/quotes-data';
+---
+
+<BaseLayout
+    title="Galeri Quote & Flyer Dakwah | WIZ Bangka Belitung"
+    description="Koleksi flyer dakwah, mutiara hikmah, dan kata motivasi Islami harian untuk dibagikan ke status WhatsApp dan media sosial."
+    image="/assets/images/foto-utama-wiz.jpg"
+>
+    <!-- Header -->
+    <div class="bg-gradient-to-b from-slate-900 to-emerald-950 text-white py-14 px-4 text-center">
+        <div class="max-w-3xl mx-auto space-y-3">
+            <span class="text-xs font-bold tracking-widest text-amber-300 uppercase px-3 py-1 rounded-full bg-slate-800 border border-slate-700 inline-block">
+                Mutiara Dakwah
+            </span>
+            <h1 class="text-3xl sm:text-5xl font-extrabold text-white">
+                Galeri Flyer & Quote Dakwah
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto">
+                Tebarkan pesan kebaikan ke lingkaran keluarga dan sahabat Anda di WhatsApp untuk mengalirkan pahala jariyah.
+            </p>
+        </div>
+    </div>
+
+    <!-- Quotes Grid -->
+    <div class="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {MASTER_QUOTES.map((quote) => (
+                <QuoteCard quote={quote} />
+            ))}
+        </div>
+    </div>
+</BaseLayout>

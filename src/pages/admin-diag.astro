@@ -1,0 +1,69 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+    title="Diagnostik Sistem & Database | WIZ Bangka Belitung"
+    description="Halaman diagnostik koneksi database Supabase dan status endpoint API."
+>
+    <div class="py-12 max-w-4xl mx-auto px-4 space-y-6">
+        <div class="flex items-center gap-3">
+            <a href="/admin" class="p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200">
+                <span class="material-symbols-outlined text-lg">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="text-2xl font-black text-slate-900">Diagnostik Sistem WIZ Babel</h1>
+                <p class="text-xs text-slate-500">Cek status konektivitas Supabase dan integritas data lokal</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-100">
+                <span class="text-sm font-bold text-slate-800">Status Koneksi Supabase</span>
+                <button
+                    type="button"
+                    id="run-diag-btn"
+                    class="px-4 py-2 rounded-xl bg-[#006834] text-white font-bold text-xs flex items-center gap-1.5 shadow-sm"
+                >
+                    <span class="material-symbols-outlined text-sm">refresh</span>
+                    <span>Jalankan Tes</span>
+                </button>
+            </div>
+
+            <div id="diag-results" class="p-4 bg-slate-900 rounded-2xl text-emerald-400 font-mono text-xs space-y-2">
+                <div>[SYSTEM] Menunggu pengujian...</div>
+            </div>
+        </div>
+    </div>
+</BaseLayout>
+
+<script>
+    import { supabase } from '../lib/supabase';
+
+    const diagBtn = document.getElementById('run-diag-btn');
+    const diagResults = document.getElementById('diag-results');
+
+    async function runDiagnostics() {
+        if (!diagResults) return;
+        diagResults.innerHTML = '<div class="text-amber-300">[CHECK] Menguji koneksi ke Supabase...</div>';
+
+        try {
+            const start = performance.now();
+            const { data, error } = await supabase.from('site_store').select('*').limit(1);
+            const duration = Math.round(performance.now() - start);
+
+            if (error) {
+                diagResults.innerHTML += `<div class="text-rose-400">[ERROR] Supabase query error: ${error.message}</div>`;
+            } else {
+                diagResults.innerHTML += `<div class="text-emerald-300">[OK] Supabase terhubung dalam ${duration}ms!</div>`;
+                diagResults.innerHTML += `<div class="text-slate-300">[DATA] Records retrieved: ${data ? data.length : 0}</div>`;
+            }
+        } catch (err: any) {
+            diagResults.innerHTML += `<div class="text-rose-400">[FATAL] Exception: ${err?.message || err}</div>`;
+        }
+    }
+
+    if (diagBtn) {
+        diagBtn.addEventListener('click', runDiagnostics);
+    }
+</script>

@@ -1,0 +1,73 @@
+---
+import type { QuoteItem } from '../../lib/types';
+
+export interface Props {
+    quote: QuoteItem;
+}
+
+const { quote } = Astro.props;
+---
+
+<div class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 flex flex-col h-full hover:-translate-y-1">
+    <!-- Image Preview -->
+    <div class="relative aspect-square w-full overflow-hidden bg-slate-900">
+        <img
+            src={quote.imageUrl}
+            alt={quote.title}
+            loading="lazy"
+            class="w-full h-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-105"
+            onerror="this.src='/assets/images/foto-utama-wiz.jpg'"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent flex flex-col justify-end p-6">
+            <span class="text-xs font-bold text-amber-300 uppercase tracking-wider mb-2">{quote.category}</span>
+            <p class="text-white text-sm sm:text-base font-serif italic line-clamp-4 leading-relaxed mb-3">
+                "{quote.quoteText}"
+            </p>
+            <span class="text-xs text-emerald-300 font-medium">— {quote.source}</span>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-2">
+        <span class="text-[11px] text-slate-400 font-medium">{quote.date}</span>
+        <div class="flex items-center gap-2">
+            <button
+                type="button"
+                data-quote-id={quote.id}
+                data-quote-title={quote.title}
+                data-quote-text={quote.quoteText}
+                data-quote-source={quote.source}
+                class="share-wa-quote-btn px-3 py-1.5 rounded-full bg-[#25D366] hover:bg-[#1fa851] text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all"
+            >
+                <span class="material-symbols-outlined text-sm">share</span>
+                <span>Bagikan ke WhatsApp</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    import { getActiveAffiliate } from '../../lib/affiliate-tracker';
+
+    document.querySelectorAll('.share-wa-quote-btn').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+            const target = e.currentTarget as HTMLButtonElement;
+            const quoteId = target.getAttribute('data-quote-id') || '1';
+            const title = target.getAttribute('data-quote-title') || 'Quote Dakwah';
+            const text = target.getAttribute('data-quote-text') || '';
+            const source = target.getAttribute('data-quote-source') || '';
+            
+            const ref = getActiveAffiliate();
+            const baseUrl = window.location.origin;
+            const shareUrl = `${baseUrl}/quote/${quoteId}${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`;
+
+            const waText = encodeURIComponent(`*${title}*\n\n"${text}"\n— _${source}_\n\n📲 Simak flyer & donasi program kebaikan WIZ Bangka Belitung:\n${shareUrl}`);
+            
+            if (window.showWhatsAppToast) {
+                window.showWhatsAppToast();
+            }
+
+            window.open(`https://api.whatsapp.com/send?text=${waText}`, '_blank');
+        });
+    });
+</script>

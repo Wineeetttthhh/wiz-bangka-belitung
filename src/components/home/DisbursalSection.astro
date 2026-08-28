@@ -1,0 +1,67 @@
+---
+import { MASTER_DISBURSALS } from '../../lib/disbursals-data';
+---
+
+<section class="py-16 sm:py-20 bg-slate-50 border-t border-slate-200/70">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-3xl mx-auto mb-12">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-2 border border-emerald-200">
+                <span class="material-symbols-outlined text-sm text-emerald-600">verified</span>
+                Akuntabilitas & Amanah
+            </div>
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                Transparansi Penyaluran Donasi
+            </h2>
+            <p class="text-sm sm:text-base text-slate-500 mt-2">
+                Kami berkomitmen menjaga amanah para donatur dengan laporan penyaluran yang terbuka, terdokumentasi, dan dapat dipertanggungjawabkan.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {MASTER_DISBURSALS.slice(0, 3).map((item) => (
+                <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between text-xs text-slate-400 mb-3">
+                            <span class="font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-100">{item.pillar}</span>
+                            <span class="flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[15px]">calendar_today</span>
+                                {item.date}
+                            </span>
+                        </div>
+
+                        <h3 class="font-bold text-slate-900 text-base line-clamp-2 mb-2">
+                            {item.programTitle}
+                        </h3>
+
+                        <p class="text-xs text-slate-500 line-clamp-3 mb-4 leading-relaxed">
+                            {item.description}
+                        </p>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] text-slate-400 uppercase font-bold block">Tersalurkan</span>
+                            <span class="text-sm font-black text-emerald-700">{item.amountFormatted}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] text-slate-400 uppercase font-bold block">Penerima</span>
+                            <span class="text-xs font-bold text-slate-700">{item.beneficiariesCount} Jiwa</span>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+
+        <div class="text-center mt-10">
+            <a
+                href="/laporan"
+                class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-sm border border-slate-200 shadow-sm transition-all"
+            >
+                <span class="material-symbols-outlined text-emerald-700 text-lg">receipt_long</span>
+                <span>Lihat Laporan Penyaluran Lengkap</span>
+            </a>
+        </div>
+
+    </div>
+</section>

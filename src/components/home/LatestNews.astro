@@ -1,0 +1,37 @@
+---
+import { MASTER_NEWS } from '../../lib/news-data';
+import NewsCard from '../cards/NewsCard.astro';
+
+const recentNews = MASTER_NEWS.slice(0, 3);
+---
+
+<section class="py-16 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-xs font-bold uppercase tracking-wider mb-2 border border-blue-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                Kabar Kegiatan
+            </div>
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                Berita & Kabar Penyaluran
+            </h2>
+            <p class="text-sm sm:text-base text-slate-500 mt-2 max-w-2xl">
+                Dokumentasi nyata kegiatan dakwah, aksi kemanusiaan, dan jejak langkah kebaikan WIZ di seluruh Bangka Belitung.
+            </p>
+        </div>
+        <a
+            href="/berita"
+            class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-md transition-all self-start md:self-auto shrink-0"
+        >
+            <span>Arsip Berita Lengkap</span>
+            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+        </a>
+    </div>
+
+    <!-- Grid of News Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+        {recentNews.map((news) => (
+            <NewsCard news={news} />
+        ))}
+    </div>
+</section>

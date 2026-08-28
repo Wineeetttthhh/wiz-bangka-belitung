@@ -1,0 +1,113 @@
+---
+import type { ProgramItem } from '../../lib/types';
+import { formatRupiah } from '../../lib/affiliate-tracker';
+
+export interface Props {
+    program: ProgramItem;
+}
+
+const { program } = Astro.props;
+
+const percentage = Math.min(100, Math.round((program.collected / program.target) * 100));
+
+const pillarColors: Record<string, { bg: string; text: string; border: string }> = {
+    'Dakwah & Pembinaan': { bg: 'bg-emerald-50', text: 'text-emerald-800', border: 'border-emerald-200' },
+    'Pendidikan': { bg: 'bg-blue-50', text: 'text-blue-800', border: 'border-blue-200' },
+    'Sosial & Kemanusiaan': { bg: 'bg-amber-50', text: 'text-amber-900', border: 'border-amber-200' },
+    'Kesehatan': { bg: 'bg-rose-50', text: 'text-rose-800', border: 'border-rose-200' },
+    'Pemberdayaan Ekonomi & Bencana': { bg: 'bg-purple-50', text: 'text-purple-800', border: 'border-purple-200' }
+};
+
+const pillarStyle = pillarColors[program.pillar] || { bg: 'bg-slate-50', text: 'text-slate-800', border: 'border-slate-200' };
+---
+
+<div class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 flex flex-col h-full hover:-translate-y-1">
+    <!-- Image & Badge Container -->
+    <div class="relative h-48 sm:h-52 w-full overflow-hidden bg-slate-100">
+        <img
+            src={program.imageUrl}
+            alt={program.title}
+            loading="lazy"
+            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            onerror="this.src='/assets/images/default-program-wiz.jpg'"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
+
+        <!-- Pillar Pill -->
+        <div class="absolute top-3 left-3">
+            <span class={`text-[11px] font-bold px-3 py-1 rounded-full shadow-sm border ${pillarStyle.bg} ${pillarStyle.text} ${pillarStyle.border}`}>
+                {program.pillar}
+            </span>
+        </div>
+
+        {program.urgent && (
+            <div class="absolute top-3 right-3">
+                <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-rose-600 text-white shadow-md flex items-center gap-1 animate-pulse">
+                    <span class="w-1.5 h-1.5 bg-white rounded-full"></span> Mendesak
+                </span>
+            </div>
+        )}
+
+        <!-- Days Left Badge -->
+        <div class="absolute bottom-3 left-3 flex items-center gap-1.5 text-white text-xs font-semibold drop-shadow-md">
+            <span class="material-symbols-outlined text-[16px] text-amber-300">schedule</span>
+            <span>{program.daysLeft} hari lagi</span>
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="p-5 sm:p-6 flex flex-col flex-grow">
+        <h3 class="font-bold text-slate-900 text-lg sm:text-lg line-clamp-2 group-hover:text-[#006834] transition-colors leading-snug mb-2">
+            <a href={`/program/${program.slug}`}>
+                {program.title}
+            </a>
+        </h3>
+
+        <p class="text-xs sm:text-sm text-slate-500 line-clamp-2 mb-4 leading-relaxed">
+            {program.description}
+        </p>
+
+        <!-- Progress Bar Section -->
+        <div class="mt-auto pt-2 space-y-2">
+            <div class="flex justify-between items-center text-xs font-semibold">
+                <span class="text-slate-500">Terkumpul</span>
+                <span class="text-[#006834] font-bold">{percentage}%</span>
+            </div>
+            
+            <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                <div
+                    class="h-full bg-gradient-to-r from-[#006834] to-[#00a854] rounded-full transition-all duration-700"
+                    style={`width: ${percentage}%`}
+                ></div>
+            </div>
+
+            <div class="flex justify-between items-baseline pt-1">
+                <div>
+                    <span class="text-xs text-slate-400 block">Terkumpul</span>
+                    <span class="text-sm font-extrabold text-slate-900">{formatRupiah(program.collected)}</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs text-slate-400 block">Target</span>
+                    <span class="text-xs font-semibold text-slate-600">{formatRupiah(program.target)}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-2 gap-2.5 pt-5 mt-4 border-t border-slate-100">
+            <a
+                href={`/program/${program.slug}`}
+                class="w-full text-center py-2.5 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs transition-colors border border-slate-200"
+            >
+                Detail
+            </a>
+            <a
+                href={`/donasi?program=${program.slug}`}
+                class="w-full text-center py-2.5 px-3 rounded-xl bg-[#006834] hover:bg-[#008444] text-white font-bold text-xs shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-1.5"
+            >
+                <span class="material-symbols-outlined text-[15px] text-amber-300">volunteer_activism</span>
+                Donasi
+            </a>
+        </div>
+    </div>
+</div>
