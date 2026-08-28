@@ -310,9 +310,13 @@ import MitraLayout from '../layouts/MitraLayout.astro';
                         <p id="aff-featured-news-excerpt" class="text-slate-600 text-xs leading-relaxed line-clamp-2"></p>
                         
                         <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
-                            <button type="button" id="aff-featured-share-wa-btn" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white px-3.5 sm:px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-transform hover:scale-105 cursor-pointer">
-                                <span class="material-symbols-outlined text-sm">send</span>
-                                <span>Bagikan ke WhatsApp</span>
+                            <button type="button" id="aff-featured-share-status-btn" class="bg-gradient-to-r from-emerald-700 to-teal-700 hover:from-emerald-600 hover:to-teal-600 text-white px-3.5 sm:px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-transform hover:scale-105 cursor-pointer">
+                                <span class="material-symbols-outlined text-sm">photo_camera</span>
+                                <span>Status WA (Foto)</span>
+                            </button>
+                            <button type="button" id="aff-featured-share-chat-btn" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white px-3.5 sm:px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-transform hover:scale-105 cursor-pointer">
+                                <span class="material-symbols-outlined text-sm">chat</span>
+                                <span>Chat WA</span>
                             </button>
                             <button type="button" id="aff-featured-copy-btn" class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-3 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer" title="Salin Link Penghimpunan Berita">
                                 <span class="material-symbols-outlined text-base">content_copy</span>
@@ -886,7 +890,8 @@ return;
             const fDate = document.getElementById('aff-featured-news-date');
             const fTitle = document.getElementById('aff-featured-news-title');
             const fExcerpt = document.getElementById('aff-featured-news-excerpt');
-            const fWaBtn = document.getElementById('aff-featured-share-wa-btn');
+            const fStatusBtn = document.getElementById('aff-featured-share-status-btn');
+            const fChatBtn = document.getElementById('aff-featured-share-chat-btn');
             const fCopyBtn = document.getElementById('aff-featured-copy-btn');
             const fViewBtn = document.getElementById('aff-featured-view-btn');
 
@@ -896,7 +901,8 @@ return;
             if (fTitle) fTitle.textContent = latest.title;
             if (fExcerpt) fExcerpt.textContent = (latest.content || '').slice(0, 160).replace(/\r?\n/g, ' ') + '...';
 
-            if (fWaBtn) fWaBtn.onclick = () => shareAffiliateNewsWA(latest.id);
+            if (fStatusBtn) fStatusBtn.onclick = () => shareAffiliateNewsStatusWA(latest.id);
+            if (fChatBtn) fChatBtn.onclick = () => shareAffiliateNewsChatWA(latest.id);
             if (fCopyBtn) fCopyBtn.onclick = () => copyAffiliateNewsLink(latest.id);
             if (fViewBtn) fViewBtn.href = `/berita/${encodeURIComponent(latest.id)}?ref=${encodeURIComponent(activeRef)}`;
 
@@ -915,10 +921,14 @@ return;
                             </div>
                             <h4 class="text-xs font-bold text-slate-900 line-clamp-2 leading-snug">${n.title}</h4>
                             <p class="text-[11px] text-slate-500 line-clamp-1">${rawExcerpt}</p>
-                            <div class="pt-1 flex items-center gap-1.5">
-                                <button type="button" onclick="shareAffiliateNewsWA('${n.id}')" class="flex-1 bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold text-xs py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 shadow-xs transition-colors cursor-pointer" title="Bagikan ke WhatsApp">
-                                    <span class="material-symbols-outlined text-sm">send</span>
-                                    <span>Share WA</span>
+                            <div class="pt-1 flex items-center gap-1.5 flex-wrap">
+                                <button type="button" onclick="shareAffiliateNewsStatusWA('${n.id}')" class="bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-[11px] py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 transition-colors cursor-pointer" title="Share Foto ke WA Status">
+                                    <span class="material-symbols-outlined text-xs">photo_camera</span>
+                                    <span>Status WA</span>
+                                </button>
+                                <button type="button" onclick="shareAffiliateNewsChatWA('${n.id}')" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold text-[11px] py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 transition-colors cursor-pointer" title="Share Link ke WA Chat">
+                                    <span class="material-symbols-outlined text-xs">chat</span>
+                                    <span>Chat WA</span>
                                 </button>
                                 <button type="button" onclick="copyAffiliateNewsLink('${n.id}')" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-xs flex items-center justify-center transition-colors cursor-pointer" title="Salin Link">
                                     <span class="material-symbols-outlined text-[15px]">content_copy</span>
@@ -937,7 +947,54 @@ return;
             return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, ' ');
         }
 
-        async function shareAffiliateNewsWA(newsId) {
+        async function shareAffiliateNewsStatusWA(newsId) {
+            const refCode = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || 'WIZ';
+            const n = (window.wizStore && window.wizStore.news) ? window.wizStore.news.getById(newsId) : null;
+            if (!n) return;
+
+            const origin = 'https://www.wizbangkabelitung.or.id';
+            const newsUrlObj = new URL(`${origin}/berita/${encodeURIComponent(n.id)}`);
+            if (refCode) newsUrlObj.searchParams.set('ref', refCode);
+            const newsUrl = newsUrlObj.toString();
+
+            const titleText = (n.title || 'BERITA KEGIATAN WIZ BABEL').trim();
+            const rawExcerpt = (n.summary || n.content || '').replace(/<[^>]*>/g, '').trim();
+            const cleanExcerpt = rawExcerpt ? (rawExcerpt.slice(0, 120) + '...') : '';
+            const caption = `*${titleText.toUpperCase()}*\n\n${cleanExcerpt}\n\nBaca selengkapnya & dukung program kebaikan WIZ Babel:\n${newsUrl}`;
+
+            let imgUrl = n.imageUrl || n.image || '/assets/images/default-program-wiz.png';
+            if (!imgUrl.startsWith('http')) {
+                imgUrl = `${origin}${imgUrl.startsWith('/') ? '' : '/'}${imgUrl}`;
+            }
+
+            // Native Mobile Web Share (Direct to WhatsApp Status Photo Editor)
+            if (navigator.canShare && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                try {
+                    const resp = await fetch(imgUrl);
+                    const blob = await resp.blob();
+                    const file = new File([blob], `wiz-berita-${n.id}.jpg`, { type: 'image/jpeg' });
+
+                    if (navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            files: [file],
+                            title: titleText,
+                            text: caption
+                        });
+                        return;
+                    }
+                } catch(e) {
+                    console.warn('[Status Share File Error]', e);
+                }
+            }
+
+            // Fallback for WhatsApp Status
+            navigator.clipboard.writeText(newsUrl).then(() => {
+                alert(`📸 PETUNJUK POSTING STATUS WHATSAPP:\n\n1. Link Berita Mitra Anda telah disalin!\n2. Buka WhatsApp -> Status Saya.\n3. Tempel (Paste) link ini dan tunggu 2-3 detik hingga foto preview muncul otomatis.\n\nLink: ${newsUrl}`);
+                window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(caption), '_blank');
+            });
+        }
+
+        function shareAffiliateNewsChatWA(newsId) {
             const refCode = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || 'WIZ';
             const n = (window.wizStore && window.wizStore.news) ? window.wizStore.news.getById(newsId) : null;
             if (!n) return;
@@ -950,22 +1007,8 @@ return;
             const titleText = (n.title || 'BERITA KEGIATAN WIZ BABEL').trim();
             const rawExcerpt = (n.summary || n.content || '').replace(/<[^>]*>/g, '').trim();
             const cleanExcerpt = rawExcerpt ? (rawExcerpt.slice(0, 140) + '...') : '';
-
-            // Native Mobile Web Share (Direct to WhatsApp Status / Chat with full photo card preview)
-            if (navigator.share && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                try {
-                    await navigator.share({
-                        title: titleText,
-                        text: `${titleText}\n\n${cleanExcerpt}\n\nBaca & dukung program kebaikan melalui link resmi WIZ Babel:`,
-                        url: newsUrl
-                    });
-                    return;
-                } catch(e) {
-                    if (e && e.name === 'AbortError') return;
-                }
-            }
-
             const waText = `*${titleText.toUpperCase()}*${cleanExcerpt ? '\n\n' + cleanExcerpt : ''}\n\nBaca selengkapnya & dukung program kebaikan WIZ Bangka Belitung melalui link resmi:\n${newsUrl}`;
+
             window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(waText), '_blank');
         }
 
@@ -1010,13 +1053,17 @@ return;
                     <div class="p-4 flex flex-col flex-grow space-y-2">
                         <h4 class="text-sm font-bold text-slate-900 line-clamp-1">${p.title}</h4>
                         <p class="text-xs text-slate-500 line-clamp-2">${descSnippet}...</p>
-                        <div class="pt-3 mt-auto flex items-center gap-2">
-                            <button type="button" onclick="copyProgramShareLink('${progUrl}')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1 transition-colors cursor-pointer">
-                                <span>Salin Link</span>
+                        <div class="pt-3 mt-auto flex items-center gap-1.5 flex-wrap">
+                            <button type="button" onclick="shareProgramStatusWA('${escapeJsString(p.title)}', '${progUrl}', '${escapeJsString(descSnippet)}', '${escapeJsString(dynamicImg)}')" class="bg-emerald-800 hover:bg-emerald-700 text-white py-2 px-2.5 rounded-xl flex items-center justify-center gap-1 font-bold text-xs transition-colors cursor-pointer" title="Share Foto ke Status WhatsApp">
+                                <span class="material-symbols-outlined text-sm">photo_camera</span>
+                                <span>Status WA</span>
                             </button>
-                            <button type="button" onclick="shareProgramWA('${escapeJsString(p.title)}', '${progUrl}', '${escapeJsString(descSnippet)}')" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white py-2 px-3 rounded-xl flex items-center justify-center gap-1 font-bold text-xs transition-colors cursor-pointer" title="Share WhatsApp (Status / Chat)">
-                                <span class="material-symbols-outlined text-base">send</span>
-                                <span>Share WA</span>
+                            <button type="button" onclick="shareProgramChatWA('${escapeJsString(p.title)}', '${progUrl}', '${escapeJsString(descSnippet)}')" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white py-2 px-2.5 rounded-xl flex items-center justify-center gap-1 font-bold text-xs transition-colors cursor-pointer" title="Share Link ke Chat WhatsApp">
+                                <span class="material-symbols-outlined text-sm">chat</span>
+                                <span>Chat WA</span>
+                            </button>
+                            <button type="button" onclick="copyProgramShareLink('${progUrl}')" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl flex items-center justify-center transition-colors cursor-pointer" title="Salin Link Program">
+                                <span class="material-symbols-outlined text-sm">content_copy</span>
                             </button>
                         </div>
                     </div>
@@ -1030,26 +1077,51 @@ return;
             });
         }
 
-        async function shareProgramWA(title, url, description) {
+        async function shareProgramStatusWA(title, url, description, imageUrl) {
             const cleanTitle = (title || 'Program Donasi WIZ Babel').trim();
             const cleanDesc = (description || '').replace(/<[^>]*>/g, '').trim();
-            const descSnippet = cleanDesc ? (cleanDesc.slice(0, 140) + '...') : '';
+            const descSnippet = cleanDesc ? (cleanDesc.slice(0, 120) + '...') : '';
+            const caption = `*PROGRAM KEBAIKAN WIZ BANGKA BELITUNG*\n*${cleanTitle.toUpperCase()}*\n\n${descSnippet}\n\nSalurkan infak/donasi terbaik Anda melalui link resmi:\n${url}`;
 
-            // Native Mobile Web Share (Direct to WhatsApp Status / Chat with full photo card preview)
-            if (navigator.share && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            const origin = 'https://www.wizbangkabelitung.or.id';
+            let imgUrl = imageUrl || '/assets/images/default-program-wiz.png';
+            if (!imgUrl.startsWith('http')) {
+                imgUrl = `${origin}${imgUrl.startsWith('/') ? '' : '/'}${imgUrl}`;
+            }
+
+            // Native Mobile Web Share (Direct to WhatsApp Status Photo Editor)
+            if (navigator.canShare && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
                 try {
-                    await navigator.share({
-                        title: cleanTitle,
-                        text: `*PROGRAM KEBAIKAN WIZ BABEL*\n${cleanTitle}\n\n${descSnippet}\n\nSalurkan infak/donasi terbaik Anda melalui link resmi:`,
-                        url: url
-                    });
-                    return;
+                    const resp = await fetch(imgUrl);
+                    const blob = await resp.blob();
+                    const file = new File([blob], `wiz-program.jpg`, { type: 'image/jpeg' });
+
+                    if (navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            files: [file],
+                            title: cleanTitle,
+                            text: caption
+                        });
+                        return;
+                    }
                 } catch(e) {
-                    if (e && e.name === 'AbortError') return;
+                    console.warn('[Status Share Program File Error]', e);
                 }
             }
 
+            // Fallback for WhatsApp Status
+            navigator.clipboard.writeText(url).then(() => {
+                alert(`📸 PETUNJUK POSTING STATUS WHATSAPP:\n\n1. Link Program Mitra Anda telah disalin!\n2. Buka WhatsApp -> Status Saya.\n3. Tempel (Paste) link ini dan tunggu 2-3 detik hingga foto preview muncul otomatis.\n\nLink: ${url}`);
+                window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(caption), '_blank');
+            });
+        }
+
+        function shareProgramChatWA(title, url, description) {
+            const cleanTitle = (title || 'Program Donasi WIZ Babel').trim();
+            const cleanDesc = (description || '').replace(/<[^>]*>/g, '').trim();
+            const descSnippet = cleanDesc ? (cleanDesc.slice(0, 140) + '...') : '';
             const waText = `*PROGRAM KEBAIKAN WIZ BANGKA BELITUNG*\n*${cleanTitle.toUpperCase()}*${descSnippet ? '\n\n' + descSnippet : ''}\n\nSalurkan infak/donasi terbaik Anda melalui link resmi WIZ Babel:\n${url}`;
+
             window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(waText), '_blank');
         }
 
