@@ -303,7 +303,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                         <!-- Custom Nominal Input -->
                         <div class="relative">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 font-extrabold text-emerald-700 text-lg select-none pointer-events-none">Rp</span>
-                            <input class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl pl-14 pr-4 py-3.5 text-lg sm:text-xl font-bold text-slate-900 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-400 placeholder:text-sm sm:placeholder:text-base placeholder:font-normal" id="custom_nominal" name="custom_nominal" oninput="updateNominal(this.value)" onkeyup="updateNominal(this.value)" onchange="updateNominal(this.value)" placeholder="Atau masukkan nominal lainnya (Bebas / Tanpa Minimal)" type="number" required min="1" autocomplete="off" />
+                            <input class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl pl-14 pr-4 py-3.5 text-lg sm:text-xl font-bold text-slate-900 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-400 placeholder:text-sm sm:placeholder:text-base placeholder:font-normal" id="custom_nominal" name="custom_nominal" oninput="updateNominal(this.value)" onkeyup="updateNominal(this.value)" onchange="updateNominal(this.value)" placeholder="Atau masukkan nominal lainnya (Bebas / Tanpa Minimal)" type="number" min="1" autocomplete="off" />
                         </div>
                     </section>
 
@@ -362,7 +362,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                         
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="payment-methods-grid">
                             <!-- QRIS Option -->
-                            <label id="payment-card-qris" class="payment-method-card cursor-pointer relative block border-2 border-emerald-600 bg-emerald-50/70 rounded-2xl p-4 sm:p-5 transition-all shadow-sm ring-2 ring-emerald-500/20">
+                            <label id="payment-card-qris" onclick="setPayment('QRIS')" class="payment-method-card cursor-pointer relative block border-2 border-emerald-600 bg-emerald-50/70 rounded-2xl p-4 sm:p-5 transition-all shadow-sm ring-2 ring-emerald-500/20">
                                 <input class="sr-only" name="payment_method" onchange="setPayment('QRIS')" type="radio" value="QRIS" checked />
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-3.5">
@@ -382,7 +382,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                             </label>
 
                             <!-- Bank Transfer Option -->
-                            <label id="payment-card-bank" class="payment-method-card cursor-pointer relative block border-2 border-slate-200 bg-white hover:border-emerald-500/50 rounded-2xl p-4 sm:p-5 transition-all shadow-xs">
+                            <label id="payment-card-bank" onclick="setPayment('Bank Transfer')" class="payment-method-card cursor-pointer relative block border-2 border-slate-200 bg-white hover:border-emerald-500/50 rounded-2xl p-4 sm:p-5 transition-all shadow-xs">
                                 <input class="sr-only" name="payment_method" onchange="setPayment('Bank Transfer')" type="radio" value="Bank Transfer" />
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-3.5">
@@ -754,6 +754,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
         }
 
+        function setPayment(method) {
+            state.method = method;
+            const methodStr = String(method || '').toUpperCase();
+            const isQris = methodStr.includes('QRIS') || (!methodStr.includes('BANK') && !methodStr.includes('TRANSFER'));
+            
+            const radioQris = document.querySelector('input[name="payment_method"][value="QRIS"]');
+            const radioBank = document.querySelector('input[name="payment_method"][value="Bank Transfer"]');
+            if (isQris && radioQris) radioQris.checked = true;
+            if (!isQris && radioBank) radioBank.checked = true;
+            
+            updateRadioVisuals();
+            updateSummary();
+        }
+        window.setPayment = setPayment;
+
         function updateRadioVisuals() {
             // 1. Jenis Donasi
             document.querySelectorAll('input[name="donation_type"]').forEach(radio => {
@@ -802,7 +817,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             });
 
             // 3. Payment Method
-            const isQris = state.method === 'QRIS';
+            const methodStr = String(state.method || '').toUpperCase();
+            const isQris = methodStr.includes('QRIS') || (!methodStr.includes('BANK') && !methodStr.includes('TRANSFER'));
             const cardQris = document.getElementById('payment-card-qris');
             const cardBank = document.getElementById('payment-card-bank');
             const checkQris = document.getElementById('check-qris');
@@ -1031,8 +1047,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
         function handleCheckoutSubmit(e) {
             if (e) {
-                e.preventDefault();
-                e.stopPropagation();
+                if (typeof e.preventDefault === 'function') e.preventDefault();
+                if (typeof e.stopPropagation === 'function') e.stopPropagation();
             }
 
             const nameEl = document.getElementById('donor-name');
@@ -1057,20 +1073,27 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             }
             state.nominal = currentNominal;
             state.totalDonasi = currentNominal;
+
             // Direct check on radio
             const checkedMethod = document.querySelector('input[name="payment_method"]:checked');
-            if (checkedMethod) {
+            if (checkedMethod && checkedMethod.value) {
                 state.method = checkedMethod.value;
+            } else if (!state.method) {
+                state.method = 'QRIS';
             }
 
             const checkedType = document.querySelector('input[name="donation_type"]:checked');
-            if (checkedType) state.type = checkedType.value;
+            if (checkedType && checkedType.value) state.type = checkedType.value;
 
             const checkedWilayah = document.querySelector('input[name="wilayah"]:checked');
-            if (checkedWilayah) state.wilayah = checkedWilayah.value;
+            if (checkedWilayah && checkedWilayah.value) state.wilayah = checkedWilayah.value;
 
-            // 🚀 Open Payment Modal IMMEDIATELY
-            const isQris = String(state.method || '').toUpperCase().includes('QRIS');
+            // 🚀 Determine Payment Method (QRIS vs Bank)
+            const methodStr = String(state.method || '').toUpperCase();
+            const isQris = methodStr.includes('QRIS') || (!methodStr.includes('BANK') && !methodStr.includes('TRANSFER'));
+
+            console.log('[Donasi] Submitting checkout: method=', state.method, 'isQris=', isQris, 'nominal=', state.nominal);
+
             if (isQris) {
                 openQRISModal();
             } else {
@@ -1204,20 +1227,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                     if (document.body && typeof document.body.appendChild === 'function' && qrisModal.parentNode !== document.body) {
                         document.body.appendChild(qrisModal);
                     }
+                    qrisModal.style.cssText = 'position: fixed !important; inset: 0 !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important; height: 100% !important; background: rgba(0, 0, 0, 0.85) !important; -webkit-backdrop-filter: blur(8px) !important; backdrop-filter: blur(8px) !important; z-index: 2147483647 !important; display: flex !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; align-items: center !important; justify-content: center !important; padding: 1rem !important; overflow-y: auto !important;';
                     qrisModal.classList.add('show', 'active');
-                    qrisModal.style.setProperty('display', 'flex', 'important');
-                    qrisModal.style.setProperty('opacity', '1', 'important');
-                    qrisModal.style.setProperty('visibility', 'visible', 'important');
-                    qrisModal.style.setProperty('pointer-events', 'auto', 'important');
-                    qrisModal.style.setProperty('z-index', '2147483647', 'important');
                     document.body.style.overflow = 'hidden';
 
                     const dialog = qrisModal.querySelector ? qrisModal.querySelector('.modal-dialog') : null;
                     if (dialog) {
                         dialog.scrollTop = 0;
-                        dialog.style.setProperty('opacity', '1', 'important');
-                        dialog.style.setProperty('visibility', 'visible', 'important');
-                        dialog.style.setProperty('z-index', '2147483647', 'important');
+                        dialog.style.cssText = 'position: relative !important; z-index: 2147483647 !important; display: block !important; opacity: 1 !important; visibility: visible !important; max-height: 90vh !important; overflow-y: auto !important; margin: auto !important; transform: translateY(0) !important;';
                     }
                 } else {
                     console.error('qris-modal element not found!');
@@ -1232,10 +1249,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             const qrisModal = document.getElementById('qris-modal');
             if (qrisModal) {
                 qrisModal.classList.remove('show', 'active');
-                qrisModal.style.setProperty('display', 'none', 'important');
-                qrisModal.style.setProperty('opacity', '0', 'important');
-                qrisModal.style.setProperty('visibility', 'hidden', 'important');
-                qrisModal.style.setProperty('pointer-events', 'none', 'important');
+                qrisModal.style.cssText = 'display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;';
                 document.body.style.overflow = '';
             }
         }
@@ -1264,20 +1278,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                     if (document.body && typeof document.body.appendChild === 'function' && bankModal.parentNode !== document.body) {
                         document.body.appendChild(bankModal);
                     }
+                    bankModal.style.cssText = 'position: fixed !important; inset: 0 !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important; height: 100% !important; background: rgba(0, 0, 0, 0.85) !important; -webkit-backdrop-filter: blur(8px) !important; backdrop-filter: blur(8px) !important; z-index: 2147483647 !important; display: flex !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; align-items: center !important; justify-content: center !important; padding: 1rem !important; overflow-y: auto !important;';
                     bankModal.classList.add('show', 'active');
-                    bankModal.style.setProperty('display', 'flex', 'important');
-                    bankModal.style.setProperty('opacity', '1', 'important');
-                    bankModal.style.setProperty('visibility', 'visible', 'important');
-                    bankModal.style.setProperty('pointer-events', 'auto', 'important');
-                    bankModal.style.setProperty('z-index', '2147483647', 'important');
                     document.body.style.overflow = 'hidden';
 
                     const dialog = bankModal.querySelector ? bankModal.querySelector('.modal-dialog') : null;
                     if (dialog) {
                         dialog.scrollTop = 0;
-                        dialog.style.setProperty('opacity', '1', 'important');
-                        dialog.style.setProperty('visibility', 'visible', 'important');
-                        dialog.style.setProperty('z-index', '2147483647', 'important');
+                        dialog.style.cssText = 'position: relative !important; z-index: 2147483647 !important; display: block !important; opacity: 1 !important; visibility: visible !important; max-height: 90vh !important; overflow-y: auto !important; margin: auto !important; transform: translateY(0) !important;';
                     }
                 } else {
                     console.error('bank-modal element not found!');
@@ -1292,10 +1300,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             const bankModal = document.getElementById('bank-modal');
             if (bankModal) {
                 bankModal.classList.remove('show', 'active');
-                bankModal.style.setProperty('display', 'none', 'important');
-                bankModal.style.setProperty('opacity', '0', 'important');
-                bankModal.style.setProperty('visibility', 'hidden', 'important');
-                bankModal.style.setProperty('pointer-events', 'none', 'important');
+                bankModal.style.cssText = 'display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;';
                 document.body.style.overflow = '';
             }
         }

@@ -1703,42 +1703,9 @@
             }
         }
 
-        // QRIS Modal Logic
-        function openQRISModal() {
-            try {
-                let progText = `${state.type} (${state.wilayah})`;
-                if (state.type === 'Infak Terikat' && state.program !== '-') {
-                    progText = `${state.program} — ${state.wilayah}`;
-                }
-
-                const totalEl = document.getElementById('qris-modal-total');
-                if (totalEl) totalEl.textContent = formatRupiah(state.nominal || 50000);
-
-                const donorEl = document.getElementById('qris-modal-donor');
-                if (donorEl) donorEl.textContent = `Donatur: ${state.donorName || 'Hamba Allah'} (${progText})`;
-
-                const imgEl = document.getElementById('qris-modal-img');
-                if (imgEl) imgEl.src = 'assets/images/qris-code-wiz-babel.png';
-
-                if (typeof updateWhatsAppButtons === 'function') {
-                    updateWhatsAppButtons();
-                }
-
-                const qrisModal = document.getElementById('qris-modal');
-                if (qrisModal) {
-                    if (document.body && typeof document.body.appendChild === 'function' && qrisModal.parentNode !== document.body) {
-                        document.body.appendChild(qrisModal);
-                    }
-                    qrisModal.classList.add('show', 'active');
-                    qrisModal.style.setProperty('display', 'flex', 'important');
-                    qrisModal.style.setProperty('opacity', '1', 'important');
-                    qrisModal.style.setProperty('visibility', 'visible', 'important');
-                    qrisModal.style.setProperty('pointer-events', 'auto', 'important');
-                    qrisModal.style.setProperty('z-index', '2147483647', 'important');
-                    document.body.style.overflow = 'hidden';
-
         let _lastModalOpenTime = 0;
 
+        // QRIS Modal Logic
         function openQRISModal() {
             _lastModalOpenTime = Date.now();
             try {
@@ -1765,20 +1732,14 @@
                     if (document.body && typeof document.body.appendChild === 'function' && qrisModal.parentNode !== document.body) {
                         document.body.appendChild(qrisModal);
                     }
+                    qrisModal.style.cssText = 'position: fixed !important; inset: 0 !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important; height: 100% !important; background: rgba(0, 0, 0, 0.85) !important; -webkit-backdrop-filter: blur(8px) !important; backdrop-filter: blur(8px) !important; z-index: 2147483647 !important; display: flex !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; align-items: center !important; justify-content: center !important; padding: 1rem !important; overflow-y: auto !important;';
                     qrisModal.classList.add('show', 'active');
-                    qrisModal.style.setProperty('display', 'flex', 'important');
-                    qrisModal.style.setProperty('opacity', '1', 'important');
-                    qrisModal.style.setProperty('visibility', 'visible', 'important');
-                    qrisModal.style.setProperty('pointer-events', 'auto', 'important');
-                    qrisModal.style.setProperty('z-index', '2147483647', 'important');
                     document.body.style.overflow = 'hidden';
 
                     const dialog = qrisModal.querySelector ? qrisModal.querySelector('.modal-dialog') : null;
                     if (dialog) {
                         dialog.scrollTop = 0;
-                        dialog.style.setProperty('opacity', '1', 'important');
-                        dialog.style.setProperty('visibility', 'visible', 'important');
-                        dialog.style.setProperty('z-index', '2147483647', 'important');
+                        dialog.style.cssText = 'position: relative !important; z-index: 2147483647 !important; display: block !important; opacity: 1 !important; visibility: visible !important; max-height: 90vh !important; overflow-y: auto !important; margin: auto !important; transform: translateY(0) !important;';
                     }
                 } else {
                     console.error('qris-modal element not found!');
@@ -1787,18 +1748,17 @@
                 console.error('Error opening QRIS modal:', err);
             }
         }
+        window.openQRISModal = openQRISModal;
 
         function closeQRISModal() {
             const qrisModal = document.getElementById('qris-modal');
             if (qrisModal) {
                 qrisModal.classList.remove('show', 'active');
-                qrisModal.style.setProperty('display', 'none', 'important');
-                qrisModal.style.setProperty('opacity', '0', 'important');
-                qrisModal.style.setProperty('visibility', 'hidden', 'important');
-                qrisModal.style.setProperty('pointer-events', 'none', 'important');
+                qrisModal.style.cssText = 'display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;';
                 document.body.style.overflow = '';
             }
         }
+        window.closeQRISModal = closeQRISModal;
 
         function confirmQRISToWhatsApp(event) {
             const checkedWilayah = document.querySelector('input[name="wilayah"]:checked');
@@ -1868,20 +1828,14 @@
                     if (document.body && typeof document.body.appendChild === 'function' && bankModal.parentNode !== document.body) {
                         document.body.appendChild(bankModal);
                     }
+                    bankModal.style.cssText = 'position: fixed !important; inset: 0 !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important; height: 100% !important; background: rgba(0, 0, 0, 0.85) !important; -webkit-backdrop-filter: blur(8px) !important; backdrop-filter: blur(8px) !important; z-index: 2147483647 !important; display: flex !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; align-items: center !important; justify-content: center !important; padding: 1rem !important; overflow-y: auto !important;';
                     bankModal.classList.add('show', 'active');
-                    bankModal.style.setProperty('display', 'flex', 'important');
-                    bankModal.style.setProperty('opacity', '1', 'important');
-                    bankModal.style.setProperty('visibility', 'visible', 'important');
-                    bankModal.style.setProperty('pointer-events', 'auto', 'important');
-                    bankModal.style.setProperty('z-index', '2147483647', 'important');
                     document.body.style.overflow = 'hidden';
 
                     const dialog = bankModal.querySelector ? bankModal.querySelector('.modal-dialog') : null;
                     if (dialog) {
                         dialog.scrollTop = 0;
-                        dialog.style.setProperty('opacity', '1', 'important');
-                        dialog.style.setProperty('visibility', 'visible', 'important');
-                        dialog.style.setProperty('z-index', '2147483647', 'important');
+                        dialog.style.cssText = 'position: relative !important; z-index: 2147483647 !important; display: block !important; opacity: 1 !important; visibility: visible !important; max-height: 90vh !important; overflow-y: auto !important; margin: auto !important; transform: translateY(0) !important;';
                     }
                 } else {
                     console.error('bank-modal element not found!');
@@ -1890,18 +1844,17 @@
                 console.error('Error opening Bank modal:', err);
             }
         }
+        window.openBankModal = openBankModal;
 
         function closeBankModal() {
             const bankModal = document.getElementById('bank-modal');
             if (bankModal) {
                 bankModal.classList.remove('show', 'active');
-                bankModal.style.setProperty('display', 'none', 'important');
-                bankModal.style.setProperty('opacity', '0', 'important');
-                bankModal.style.setProperty('visibility', 'hidden', 'important');
-                bankModal.style.setProperty('pointer-events', 'none', 'important');
+                bankModal.style.cssText = 'display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;';
                 document.body.style.overflow = '';
             }
         }
+        window.closeBankModal = closeBankModal;
 
         function confirmBankToWhatsApp(event) {
             const checkedWilayah = document.querySelector('input[name="wilayah"]:checked');
