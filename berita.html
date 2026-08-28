@@ -437,6 +437,48 @@
         }
 
         let isFetchingPublicNews = false;
+        async function fetchFreshArchiveNews() {
+            if (isFetchingPublicNews) return;
+            isFetchingPublicNews = true;
+            try {
+                if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                    const res = await window.wizSupabase.select('news', { order: 'created_at.desc' });
+                    if (res && Array.isArray(res.data) && res.data.length > 0) {
+                        const mapped = res.data.map(n => {
+                            const mainImg = (n.image_url || (Array.isArray(n.gallery) && n.gallery.length > 0 ? n.gallery[0] : '') || n.imageUrl || '').trim();
+                            return {
+                                id: String(n.id),
+                                title: n.title,
+                                category: n.category || 'Kegiatan & Penyaluran',
+                                content: n.content,
+                                imageUrl: mainImg,
+                                image_url: mainImg,
+                                gallery: Array.isArray(n.gallery) ? n.gallery : [],
+                                eventDate: n.event_date || n.eventDate || n.created_at,
+                                event_date: n.event_date || n.eventDate || n.created_at,
+                                status: n.status || 'published',
+                                author: n.author || 'Admin WIZ Babel',
+                                createdAt: n.created_at || n.createdAt || new Date().toISOString(),
+                                created_at: n.created_at || n.createdAt || new Date().toISOString(),
+                                updatedAt: n.updated_at || n.updatedAt || new Date().toISOString(),
+                                updated_at: n.updated_at || n.updatedAt || new Date().toISOString()
+                            };
+                        });
+                        mapped.sort((a, b) => {
+                            const timeA = new Date(a.createdAt || a.created_at || a.updatedAt || a.updated_at || a.eventDate || a.event_date || 0).getTime();
+                            const timeB = new Date(b.createdAt || b.created_at || b.updatedAt || b.updated_at || b.eventDate || b.event_date || 0).getTime();
+                            return timeB - timeA;
+                        });
+                        localStorage.setItem('wiz_news', JSON.stringify(mapped));
+                        renderArchive();
+                    }
+                }
+            } catch(e) {}
+            finally {
+                isFetchingPublicNews = false;
+            }
+        }
+
         function renderArchive() {
             const grid = document.getElementById('news-grid');
             const countEl = document.getElementById('news-count');
@@ -447,30 +489,7 @@
             if (countEl) countEl.textContent = filtered.length;
 
             if (filtered.length === 0) {
-                if (!isFetchingPublicNews && window.wizSupabase && window.wizSupabase.isConfigured()) {
-                    isFetchingPublicNews = true;
-                    window.wizSupabase.select('news').then(res => {
-                        isFetchingPublicNews = false;
-                        if (res && Array.isArray(res.data) && res.data.length > 0) {
-                            const mapped = res.data.map(n => ({
-                                id: n.id,
-                                title: n.title,
-                                category: n.category || 'Kegiatan & Penyaluran',
-                                content: n.content,
-                                imageUrl: n.image_url || n.imageUrl || '',
-                                gallery: Array.isArray(n.gallery) ? n.gallery : [],
-                                eventDate: n.event_date || n.eventDate || n.created_at,
-                                status: n.status || 'published',
-                                author: n.author || 'Admin WIZ Babel',
-                                createdAt: n.created_at,
-                                updatedAt: n.updated_at
-                            }));
-                            localStorage.setItem('wiz_news', JSON.stringify(mapped));
-                            renderArchive();
-                        }
-                    }).catch(() => { isFetchingPublicNews = false; });
-                }
-
+                fetchFreshArchiveNews();
                 grid.innerHTML = `
                 <div class="col-span-1 md:col-span-3 text-center py-16 bg-white rounded-3xl border border-dashed border-slate-300 p-8 space-y-3 shadow-xs">
                     <span class="material-symbols-outlined text-5xl text-emerald-600/40">feed</span>
@@ -493,7 +512,7 @@
 
             grid.innerHTML = pageItems.map(n => {
                 const galCount = Array.isArray(n.gallery) ? n.gallery.filter(Boolean).length : 0;
-                const formattedDate = (window.wizStore && wizStore.utils) ? wizStore.utils.formatDate(n.eventDate || n.createdAt) : (n.eventDate || n.createdAt || '');
+                const formattedDate = (window.wizStore && wizStore.utils) ? wizStore.utils.formatDate(n.eventDate || n.event_date || n.createdAt || n.created_at) : (n.eventDate || n.createdAt || '');
                 const rawImg = (n.imageUrl || n.image_url || '').trim();
                 const firstGal = (Array.isArray(n.gallery) && n.gallery.length > 0 && typeof n.gallery[0] === 'string') ? n.gallery[0].trim() : '';
                 const cardImg = rawImg || firstGal || defaultImg;
@@ -691,6 +710,7 @@
             const fyb = document.getElementById('footer-year-berita');
             if (fyb) fyb.textContent = new Date().getFullYear();
             renderArchive();
+            fetchFreshArchiveNews();
 
             // Auto-fetch fresh news from Supabase Cloud on startup for multi-device sync
             if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
@@ -700,17 +720,14 @@
                 } catch(e) {}
             }
 
-            // Guaranteed multi-device fallback: Ensure all 9 authoritative news items are loaded
+            // Guaranteed multi-device fallback: Ensure all authoritative news items are loaded
             try {
-                const localNews = JSON.parse(localStorage.getItem('wiz_news') || '[]');
-                if (localNews.length < 9) {
-                    const res = await fetch('/api/sync', { cache: 'no-cache' });
-                    if (res.ok) {
-                        const json = await res.json();
-                        if (json && json.data && Array.isArray(json.data.news) && json.data.news.length >= 9) {
-                            localStorage.setItem('wiz_news', JSON.stringify(json.data.news));
-                            renderArchive();
-                        }
+                const res = await fetch('/api/sync?t=' + Date.now(), { cache: 'no-store' });
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json && json.data && Array.isArray(json.data.news) && json.data.news.length > 0) {
+                        localStorage.setItem('wiz_news', JSON.stringify(json.data.news));
+                        renderArchive();
                     }
                 }
             } catch(e) {}

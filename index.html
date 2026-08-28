@@ -939,41 +939,60 @@
         }
     }
 
-    // Dynamic Public News Render (Limited to 3 latest items on Homepage)
+    // Dynamic Public News Render (Latest items on Homepage)
     let isFetchingHomeNews = false;
+    async function fetchFreshNewsDirectly() {
+        if (isFetchingHomeNews) return;
+        isFetchingHomeNews = true;
+        try {
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                const res = await window.wizSupabase.select('news', { order: 'created_at.desc' });
+                if (res && Array.isArray(res.data) && res.data.length > 0) {
+                    const mapped = res.data.map(n => {
+                        const mainImg = (n.image_url || (Array.isArray(n.gallery) && n.gallery.length > 0 ? n.gallery[0] : '') || n.imageUrl || '').trim();
+                        return {
+                            id: String(n.id),
+                            title: n.title,
+                            category: n.category || 'Kegiatan & Penyaluran',
+                            content: n.content,
+                            imageUrl: mainImg,
+                            image_url: mainImg,
+                            gallery: Array.isArray(n.gallery) ? n.gallery : [],
+                            eventDate: n.event_date || n.eventDate || n.created_at,
+                            event_date: n.event_date || n.eventDate || n.created_at,
+                            status: n.status || 'published',
+                            author: n.author || 'Admin WIZ Babel',
+                            createdAt: n.created_at || n.createdAt || new Date().toISOString(),
+                            created_at: n.created_at || n.createdAt || new Date().toISOString(),
+                            updatedAt: n.updated_at || n.updatedAt || new Date().toISOString(),
+                            updated_at: n.updated_at || n.updatedAt || new Date().toISOString()
+                        };
+                    });
+                    mapped.sort((a, b) => {
+                        const timeA = new Date(a.createdAt || a.created_at || a.updatedAt || a.updated_at || a.eventDate || a.event_date || 0).getTime();
+                        const timeB = new Date(b.createdAt || b.created_at || b.updatedAt || b.updated_at || b.eventDate || b.event_date || 0).getTime();
+                        return timeB - timeA;
+                    });
+                    localStorage.setItem('wiz_news', JSON.stringify(mapped));
+                    renderPublicNews();
+                }
+            }
+        } catch(e) {}
+        finally {
+            isFetchingHomeNews = false;
+        }
+    }
+
     function renderPublicNews() {
         if (!window.wizStore) return;
         const allPublished = wizStore.news.getPublished();
-        // Limit strictly to 3 latest news items on Homepage
-        const publishedNews = (allPublished || []).slice(0, 3);
+        // Limit to 6 latest news items on Homepage
+        const publishedNews = (allPublished || []).slice(0, 6);
         const grid = document.getElementById('public-news-grid');
         if (!grid) return;
 
         if (publishedNews.length === 0) {
-            if (!isFetchingHomeNews && window.wizSupabase && window.wizSupabase.isConfigured()) {
-                isFetchingHomeNews = true;
-                window.wizSupabase.select('news').then(res => {
-                    isFetchingHomeNews = false;
-                    if (res && Array.isArray(res.data) && res.data.length > 0) {
-                        const mapped = res.data.map(n => ({
-                            id: n.id,
-                            title: n.title,
-                            category: n.category || 'Kegiatan & Penyaluran',
-                            content: n.content,
-                            imageUrl: n.image_url || n.imageUrl || '',
-                            gallery: Array.isArray(n.gallery) ? n.gallery : [],
-                            eventDate: n.event_date || n.eventDate || n.created_at,
-                            status: n.status || 'published',
-                            author: n.author || 'Admin WIZ Babel',
-                            createdAt: n.created_at,
-                            updatedAt: n.updated_at
-                        }));
-                        localStorage.setItem('wiz_news', JSON.stringify(mapped));
-                        renderPublicNews();
-                    }
-                }).catch(() => { isFetchingHomeNews = false; });
-            }
-
+            fetchFreshNewsDirectly();
             grid.innerHTML = `
             <div class="col-span-1 md:col-span-3 text-center py-xl bg-surface-container-low rounded-2xl border border-dashed border-outline-variant/50 p-lg space-y-sm">
                 <span class="material-symbols-outlined text-4xl text-primary/60">feed</span>
@@ -1005,7 +1024,7 @@
                 <div class="p-lg flex flex-col flex-grow space-y-xs">
                     <div class="flex items-center text-on-surface-variant font-caption text-[11px] gap-xs text-primary font-semibold">
                         <span class="material-symbols-outlined text-[15px]">event</span>
-                        <span>Kegiatan: ${wizStore.utils.formatDate(n.eventDate || n.createdAt)}</span>
+                        <span>Kegiatan: ${wizStore.utils.formatDate(n.eventDate || n.event_date || n.createdAt || n.created_at)}</span>
                         <span class="text-outline">• Oleh: ${n.author || 'Admin WIZ Babel'}</span>
                     </div>
                     <h3 onclick="openPublicNewsModal('${n.id}')" class="font-headline-md text-headline-md font-bold text-on-surface group-hover:text-primary transition-colors line-clamp-2 cursor-pointer leading-snug">${n.title}</h3>
@@ -1558,6 +1577,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
         if (typeof initDynamicSiteImages === 'function') initDynamicSiteImages();
         renderPublicNews();
+        fetchFreshNewsDirectly();
         renderHomeFeaturedPrograms();
         updateDynamicProgramCards();
         renderVerifiedDonors();

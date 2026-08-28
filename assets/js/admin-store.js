@@ -2593,7 +2593,7 @@
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                 const [sbQResult, sbNewsResult, sbDonResult, sbDisbResult, sbRefResult, sbSetResult] = await Promise.allSettled([
                     window.wizSupabase.getQuotes().catch(() => null),
-                    window.wizSupabase.select('news').catch(() => null),
+                    window.wizSupabase.select('news', { order: 'created_at.desc' }).catch(() => null),
                     window.wizSupabase.select('donations').catch(() => null),
                     window.wizSupabase.select('disbursements').catch(() => null),
                     window.wizSupabase.getReferrals().catch(() => null),
@@ -2615,18 +2615,21 @@
                     directSbNews = sbNewsRes.data.map(n => {
                         const mainImg = (n.image_url || (Array.isArray(n.gallery) && n.gallery.length > 0 ? n.gallery[0] : '') || n.imageUrl || '').trim();
                         return {
-                            id: n.id,
+                            id: String(n.id),
                             title: n.title,
-                            category: n.category,
+                            category: n.category || 'Kegiatan & Penyaluran',
                             content: n.content,
                             imageUrl: mainImg,
                             image_url: mainImg,
                             gallery: Array.isArray(n.gallery) ? n.gallery : [],
-                            eventDate: n.event_date || n.eventDate,
+                            eventDate: n.event_date || n.eventDate || n.created_at,
+                            event_date: n.event_date || n.eventDate || n.created_at,
                             status: n.status || 'published',
                             author: n.author || 'Admin WIZ Babel',
-                            createdAt: n.created_at || n.createdAt,
-                            updatedAt: n.updated_at || n.updatedAt
+                            createdAt: n.created_at || n.createdAt || new Date().toISOString(),
+                            created_at: n.created_at || n.createdAt || new Date().toISOString(),
+                            updatedAt: n.updated_at || n.updatedAt || new Date().toISOString(),
+                            updated_at: n.updated_at || n.updatedAt || new Date().toISOString()
                         };
                     });
                 }
@@ -2841,7 +2844,11 @@
                         updatedAt: rawN.updatedAt || rawN.updated_at || new Date().toISOString()
                     };
                 });
-                mappedNews.sort((a, b) => new Date(b.eventDate || b.createdAt || 0) - new Date(a.eventDate || a.createdAt || 0));
+                mappedNews.sort((a, b) => {
+                    const timeA = new Date(a.createdAt || a.created_at || a.updatedAt || a.updated_at || a.eventDate || a.event_date || 0).getTime();
+                    const timeB = new Date(b.createdAt || b.created_at || b.updatedAt || b.updated_at || b.eventDate || b.event_date || 0).getTime();
+                    return timeB - timeA;
+                });
                 setStore(STORAGE_KEYS.NEWS, mappedNews);
                 window.dispatchEvent(new CustomEvent('wiz-news-changed'));
             } else if (masterData && Array.isArray(masterData.news)) {
@@ -3645,8 +3652,8 @@
             });
 
             return Array.from(uniqueMap.values()).sort((a, b) => {
-                const timeA = new Date(a.eventDate || a.event_date || a.createdAt || 0).getTime();
-                const timeB = new Date(b.eventDate || b.event_date || b.createdAt || 0).getTime();
+                const timeA = new Date(a.createdAt || a.created_at || a.updatedAt || a.updated_at || a.eventDate || a.event_date || 0).getTime();
+                const timeB = new Date(b.createdAt || b.created_at || b.updatedAt || b.updated_at || b.eventDate || b.event_date || 0).getTime();
                 return timeB - timeA;
             });
         },
@@ -3723,7 +3730,11 @@
                 createdAt: new Date().toISOString()
             };
             list.unshift(newArticle);
-            list.sort((a, b) => new Date(b.eventDate || b.event_date || b.createdAt || 0) - new Date(a.eventDate || a.event_date || a.createdAt || 0));
+            list.sort((a, b) => {
+                const timeA = new Date(a.createdAt || a.created_at || a.updatedAt || a.updated_at || a.eventDate || a.event_date || 0).getTime();
+                const timeB = new Date(b.createdAt || b.created_at || b.updatedAt || b.updated_at || b.eventDate || b.event_date || 0).getTime();
+                return timeB - timeA;
+            });
             setStore(STORAGE_KEYS.NEWS, list);
 
             const statusLabel = newArticle.status === 'published' ? 'dipublikasikan' : 'disimpan sebagai draft';
@@ -3745,6 +3756,24 @@
                     });
                 } catch(e) {}
             }
+
+            // Direct instant micro-action to /api/sync
+            try {
+                fetch('/api/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'save_news', news: newArticle })
+                }).catch(() => {});
+            } catch(e) {}
+
+            // Direct instant micro-action to /api/sync
+            try {
+                fetch('/api/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'save_news', news: newArticle })
+                }).catch(() => {});
+            } catch(e) {}
 
             // Background non-blocking cloud push
             if (typeof pushToCloud === 'function') {
@@ -3771,7 +3800,11 @@
                 gallery: cleanGallery,
                 updatedAt: new Date().toISOString() 
             };
-            list.sort((a, b) => new Date(b.eventDate || b.event_date || b.createdAt || 0) - new Date(a.eventDate || a.event_date || a.createdAt || 0));
+            list.sort((a, b) => {
+                const timeA = new Date(a.createdAt || a.created_at || a.updatedAt || a.updated_at || a.eventDate || a.event_date || 0).getTime();
+                const timeB = new Date(b.createdAt || b.created_at || b.updatedAt || b.updated_at || b.eventDate || b.event_date || 0).getTime();
+                return timeB - timeA;
+            });
             setStore(STORAGE_KEYS.NEWS, list);
 
             activityLog.add('news', `Berita "${list[idx].title}" diperbarui.`, authorName);
@@ -3794,6 +3827,15 @@
                     });
                 } catch(e) {}
             }
+
+            // Direct instant micro-action to /api/sync
+            try {
+                fetch('/api/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'save_news', news: list[idx] })
+                }).catch(() => {});
+            } catch(e) {}
 
             // Background non-blocking cloud push
             if (typeof pushToCloud === 'function') {
@@ -3882,6 +3924,7 @@
                     await window.wizSupabase.remove('news', strId);
                 } catch(e) {}
             }
+            try { fetch('/api/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'delete_news', id: strId }) }).catch(() => {}); } catch(e) {}
 
             // Push to Vercel Serverless Sync & Firestore Master Bundle immediately
             try { await pushToCloud(); } catch(e) {}

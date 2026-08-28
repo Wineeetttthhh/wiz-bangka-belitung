@@ -742,17 +742,14 @@
                 }).catch(() => {});
             }
 
-            // 3. Guaranteed multi-device fallback: Ensure all 9 authoritative news items are loaded
+            // 3. Guaranteed multi-device fallback: Ensure all authoritative news items are loaded
             try {
-                const localNews = JSON.parse(localStorage.getItem('wiz_news') || '[]');
-                if (localNews.length < 9) {
-                    fetch('/api/sync', { cache: 'no-cache' }).then(r => r.json()).then(json => {
-                        if (json && json.data && Array.isArray(json.data.news) && json.data.news.length >= 9) {
-                            localStorage.setItem('wiz_news', JSON.stringify(json.data.news));
-                            renderAffiliateNewsGrid();
-                        }
-                    }).catch(() => {});
-                }
+                fetch('/api/sync?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(json => {
+                    if (json && json.data && Array.isArray(json.data.news) && json.data.news.length > 0) {
+                        localStorage.setItem('wiz_news', JSON.stringify(json.data.news));
+                        renderAffiliateNewsGrid();
+                    }
+                }).catch(() => {});
             } catch(e) {}
         });
 

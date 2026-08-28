@@ -43,7 +43,7 @@ async function supabaseGetMaster() {
                     'Accept': 'application/json'
                 }
             }).catch(() => null),
-            fetch(`${SUPABASE_URL}/news?select=id,slug,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at&order=event_date.desc`, {
+            fetch(`${SUPABASE_URL}/news?select=id,slug,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at&order=created_at.desc`, {
                 headers: {
                     'apikey': SUPABASE_KEY,
                     'Authorization': 'Bearer ' + SUPABASE_KEY,
@@ -92,18 +92,29 @@ async function supabaseGetMaster() {
             const newsList = await newsRes.json();
             if (Array.isArray(newsList) && newsList.length > 0) {
                 master.news = newsList.map(n => ({
-                    id: n.id,
+                    id: String(n.id),
+                    slug: n.slug || '',
                     title: n.title,
-                    category: n.category,
+                    category: n.category || 'Kegiatan & Penyaluran',
                     content: n.content,
-                    imageUrl: n.image_url || n.imageUrl || '',
+                    imageUrl: (n.image_url || n.imageUrl || (Array.isArray(n.gallery) && n.gallery.length > 0 ? n.gallery[0] : '') || '').trim(),
+                    image_url: (n.image_url || n.imageUrl || (Array.isArray(n.gallery) && n.gallery.length > 0 ? n.gallery[0] : '') || '').trim(),
                     gallery: Array.isArray(n.gallery) ? n.gallery : [],
-                    eventDate: n.event_date || n.eventDate,
+                    eventDate: n.event_date || n.eventDate || n.created_at || new Date().toISOString(),
+                    event_date: n.event_date || n.eventDate || n.created_at || new Date().toISOString(),
                     status: n.status || 'published',
-                    author: n.author || 'Admin WIZ Babel',
-                    createdAt: n.created_at || n.createdAt,
-                    updatedAt: n.updated_at || n.updatedAt
+                    author: n.author || 'Super Admin 1 (WIZ Babel)',
+                    createdAt: n.created_at || n.createdAt || new Date().toISOString(),
+                    created_at: n.created_at || n.createdAt || new Date().toISOString(),
+                    updatedAt: n.updated_at || n.updatedAt || new Date().toISOString(),
+                    updated_at: n.updated_at || n.updatedAt || new Date().toISOString()
                 }));
+                // Sort by publication timestamp descending so newly published news is immediately at the top
+                master.news.sort((a, b) => {
+                    const timeA = new Date(a.created_at || a.createdAt || a.updated_at || a.updatedAt || a.event_date || a.eventDate || 0).getTime();
+                    const timeB = new Date(b.created_at || b.createdAt || b.updated_at || b.updatedAt || b.event_date || b.eventDate || 0).getTime();
+                    return timeB - timeA;
+                });
             }
         }
 
@@ -369,6 +380,106 @@ module.exports = async function handler(req, res) {
                 return res.status(200).json({ status: 'success', action: 'delete_admin_user', id: targetId });
             }
 
+            if (body && (body.action === 'save_news' || body.action === 'add_news' || body.action === 'update_news') && body.news) {
+                const incomingArticle = body.news;
+                const articleId = String(incomingArticle.id || '');
+                if (!articleId) {
+                    return res.status(400).json({ status: 'error', message: 'Article id is required' });
+                }
+
+                const cleanGallery = Array.isArray(incomingArticle.gallery) ? incomingArticle.gallery.filter(Boolean) : [];
+                const mainImg = (incomingArticle.imageUrl || incomingArticle.image_url || (cleanGallery.length > 0 ? cleanGallery[0] : '') || '').trim();
+                const cleanDate = incomingArticle.eventDate || incomingArticle.event_date || incomingArticle.createdAt || incomingArticle.created_at || new Date().toISOString();
+
+                const dbPayload = {
+                    id: articleId,
+                    title: (incomingArticle.title || '').trim(),
+                    category: incomingArticle.category || 'Kegiatan & Penyaluran',
+                    content: (incomingArticle.content || '').trim(),
+                    image_url: mainImg,
+                    gallery: cleanGallery,
+                    event_date: cleanDate,
+                    status: incomingArticle.status || 'published',
+                    author: (incomingArticle.author || 'Admin WIZ Babel').trim(),
+                    created_at: incomingArticle.createdAt || incomingArticle.created_at || new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                };
+
+                // 1. Upsert directly to Supabase news table
+                await fetch(`${SUPABASE_URL}/news`, {
+                    method: 'POST',
+                    headers: supabaseHeaders,
+                    body: JSON.stringify(dbPayload)
+                }).catch(e => console.error('[Micro-Action save_news Error]', e));
+
+                // 2. Synchronize master_bundle & in-memory cache
+                if (!master.news) master.news = [];
+                const existIdx = master.news.findIndex(n => String(n.id) === articleId);
+                const fullArticle = {
+                    id: articleId,
+                    title: dbPayload.title,
+                    category: dbPayload.category,
+                    content: dbPayload.content,
+                    imageUrl: dbPayload.image_url,
+                    image_url: dbPayload.image_url,
+                    gallery: dbPayload.gallery,
+                    eventDate: dbPayload.event_date,
+                    event_date: dbPayload.event_date,
+                    status: dbPayload.status,
+                    author: dbPayload.author,
+                    createdAt: dbPayload.created_at,
+                    created_at: dbPayload.created_at,
+                    updatedAt: dbPayload.updated_at,
+                    updated_at: dbPayload.updated_at
+                };
+                if (existIdx !== -1) {
+                    master.news[existIdx] = fullArticle;
+                } else {
+                    master.news.unshift(fullArticle);
+                }
+                master.news.sort((a, b) => {
+                    const timeA = new Date(a.created_at || a.createdAt || a.updated_at || a.updatedAt || a.event_date || a.eventDate || 0).getTime();
+                    const timeB = new Date(b.created_at || b.createdAt || b.updated_at || b.updatedAt || b.event_date || b.eventDate || 0).getTime();
+                    return timeB - timeA;
+                });
+                master.updatedAt = new Date().toISOString();
+                supabaseSaveMaster(master).catch(() => {});
+
+                // 3. Invalidate caches
+                invalidateCache();
+
+                return res.status(200).json({
+                    status: 'success',
+                    action: 'save_news',
+                    news: dbPayload
+                });
+            }
+
+            if (body && body.action === 'delete_news' && body.id) {
+                const targetId = String(body.id);
+                // 1. Delete from Supabase news table
+                await fetch(`${SUPABASE_URL}/news?id=eq.${encodeURIComponent(targetId)}`, {
+                    method: 'DELETE',
+                    headers: supabaseHeaders
+                }).catch(e => console.error('[Micro-Action delete_news Error]', e));
+
+                // 2. Update master state
+                if (master.news) {
+                    master.news = master.news.filter(n => String(n.id) !== targetId);
+                    master.updatedAt = new Date().toISOString();
+                    supabaseSaveMaster(master).catch(() => {});
+                }
+
+                // 3. Invalidate caches
+                invalidateCache();
+
+                return res.status(200).json({
+                    status: 'success',
+                    action: 'delete_news',
+                    id: targetId
+                });
+            }
+
             const deletedDonationIds = [
                 ...(Array.isArray(incoming.deleted_ids) ? incoming.deleted_ids : []),
                 ...(Array.isArray(incoming.deleted_donation_ids) ? incoming.deleted_donation_ids : [])
@@ -594,34 +705,38 @@ module.exports = async function handler(req, res) {
                         updated_at: new Date().toISOString()
                     };
 
-                    fetch(`${SUPABASE_URL}/donations`, {
-                        method: 'POST',
-                        headers: supabaseHeaders,
-                        body: JSON.stringify(payload)
-                    }).catch(() => {});
+                    entityTasks.push(
+                        fetch(`${SUPABASE_URL}/donations`, {
+                            method: 'POST',
+                            headers: supabaseHeaders,
+                            body: JSON.stringify(payload)
+                        }).catch(() => {})
+                    );
                 }
             }
 
             // Also upsert individual news records to Supabase news table
             if (Array.isArray(master.news)) {
                 for (const item of master.news) {
-                    fetch(`${SUPABASE_URL}/news`, {
-                        method: 'POST',
-                        headers: supabaseHeaders,
-                        body: JSON.stringify({
-                            id: String(item.id),
-                            title: item.title,
-                            category: item.category || 'Kegiatan & Penyaluran',
-                            content: item.content,
-                            image_url: item.imageUrl || item.image_url || '',
-                            gallery: Array.isArray(item.gallery) ? item.gallery : [],
-                            event_date: item.eventDate || item.event_date || new Date().toISOString(),
-                            status: item.status || 'published',
-                            author: item.author || 'Super Admin 1 (WIZ Babel)',
-                            created_at: item.createdAt || item.created_at || new Date().toISOString(),
-                            updated_at: item.updatedAt || new Date().toISOString()
-                        })
-                    }).catch(() => {});
+                    entityTasks.push(
+                        fetch(`${SUPABASE_URL}/news`, {
+                            method: 'POST',
+                            headers: supabaseHeaders,
+                            body: JSON.stringify({
+                                id: String(item.id),
+                                title: item.title,
+                                category: item.category || 'Kegiatan & Penyaluran',
+                                content: item.content,
+                                image_url: item.imageUrl || item.image_url || '',
+                                gallery: Array.isArray(item.gallery) ? item.gallery : [],
+                                event_date: item.eventDate || item.event_date || new Date().toISOString(),
+                                status: item.status || 'published',
+                                author: item.author || 'Super Admin 1 (WIZ Babel)',
+                                created_at: item.createdAt || item.created_at || new Date().toISOString(),
+                                updated_at: item.updatedAt || new Date().toISOString()
+                            })
+                        }).catch(() => {})
+                    );
                 }
             }
 
@@ -633,24 +748,26 @@ module.exports = async function handler(req, res) {
                     const pinPart = r.pin ? ` [PIN:${r.pin}]` : '';
                     const notesWithPin = rawNotes.includes('[PIN:') ? rawNotes : (rawNotes + pinPart);
 
-                    fetch(`${SUPABASE_URL}/referrals`, {
-                        method: 'POST',
-                        headers: supabaseHeaders,
-                        body: JSON.stringify({
-                            id: String(r.id || r.code),
-                            code: String(r.code || r.id),
-                            name: String(r.name || 'Affiliator'),
-                            phone: String(r.phone || '-'),
-                            bank_name: String(r.bankName || r.bank_name || '-'),
-                            account_number: String(r.accountNumber || r.account_number || '-'),
-                            account_holder: String(r.accountHolder || r.account_holder || r.name || '-'),
-                            default_rate: Number(r.defaultRate !== undefined ? r.defaultRate : (r.default_rate !== undefined ? r.default_rate : 6)),
-                            status: String(r.status || 'active'),
-                            notes: notesWithPin,
-                            created_at: r.createdAt || r.created_at || new Date().toISOString(),
-                            updated_at: new Date().toISOString()
-                        })
-                    }).catch(() => {});
+                    entityTasks.push(
+                        fetch(`${SUPABASE_URL}/referrals`, {
+                            method: 'POST',
+                            headers: supabaseHeaders,
+                            body: JSON.stringify({
+                                id: String(r.id || r.code),
+                                code: String(r.code || r.id),
+                                name: String(r.name || 'Affiliator'),
+                                phone: String(r.phone || '-'),
+                                bank_name: String(r.bankName || r.bank_name || '-'),
+                                account_number: String(r.accountNumber || r.account_number || '-'),
+                                account_holder: String(r.accountHolder || r.account_holder || r.name || '-'),
+                                default_rate: Number(r.defaultRate !== undefined ? r.defaultRate : (r.default_rate !== undefined ? r.default_rate : 6)),
+                                status: String(r.status || 'active'),
+                                notes: notesWithPin,
+                                created_at: r.createdAt || r.created_at || new Date().toISOString(),
+                                updated_at: new Date().toISOString()
+                            })
+                        }).catch(() => {})
+                    );
                 }
             }
 
@@ -666,35 +783,45 @@ module.exports = async function handler(req, res) {
                     let cleanDesc = String(disb.description || '').replace(/\s*\[Meta:[^\]]+\]/, '').trim();
                     const fullDesc = `${cleanDesc} [Meta: source=${sType}|target=${tType}|fromProg=${fromProg}|fromSub=${fromSub}]`;
 
-                    fetch(`${SUPABASE_URL}/disbursements`, {
-                        method: 'POST',
-                        headers: supabaseHeaders,
-                        body: JSON.stringify({
-                            id: String(disb.id),
-                            wilayah: String(disb.wilayah || 'Pangkalpinang'),
-                            program: String(disb.program || 'Infak Umum'),
-                            amount: Number(disb.amount) || 0,
-                            description: fullDesc,
-                            disbursed_at: disb.disbursedAt || disb.disbursed_at || new Date().toISOString(),
-                            recorded_by: String(disb.recordedBy || disb.recorded_by || 'Admin'),
-                            created_at: disb.createdAt || disb.created_at || new Date().toISOString()
-                        })
-                    }).catch(() => {});
+                    entityTasks.push(
+                        fetch(`${SUPABASE_URL}/disbursements`, {
+                            method: 'POST',
+                            headers: supabaseHeaders,
+                            body: JSON.stringify({
+                                id: String(disb.id),
+                                wilayah: String(disb.wilayah || 'Pangkalpinang'),
+                                program: String(disb.program || 'Infak Umum'),
+                                amount: Number(disb.amount) || 0,
+                                description: fullDesc,
+                                disbursed_at: disb.disbursedAt || disb.disbursed_at || new Date().toISOString(),
+                                recorded_by: String(disb.recordedBy || disb.recorded_by || 'Admin'),
+                                created_at: disb.createdAt || disb.created_at || new Date().toISOString()
+                            })
+                        }).catch(() => {})
+                    );
                 }
             }
 
             // Also upsert site_settings direct key
             if (master.site_settings && typeof master.site_settings === 'object') {
-                fetch(`${SUPABASE_URL}/site_settings`, {
-                    method: 'POST',
-                    headers: supabaseHeaders,
-                    body: JSON.stringify({
-                        key: 'site_settings',
-                        value: master.site_settings,
-                        updated_at: new Date().toISOString()
-                    })
-                }).catch(() => {});
+                entityTasks.push(
+                    fetch(`${SUPABASE_URL}/site_settings`, {
+                        method: 'POST',
+                        headers: supabaseHeaders,
+                        body: JSON.stringify({
+                            key: 'site_settings',
+                            value: master.site_settings,
+                            updated_at: new Date().toISOString()
+                        })
+                    }).catch(() => {})
+                );
             }
+
+            if (entityTasks.length > 0) {
+                await Promise.allSettled(entityTasks);
+            }
+
+            invalidateCache();
 
             memCache = master;
             memCacheTime = Date.now();

@@ -4565,17 +4565,24 @@
             }
 
             const cleanGallery = activeNewsGallery.filter(Boolean);
+            const nowIso = new Date().toISOString();
+            const existingNews = editId && wizStore.news ? wizStore.news.getById(editId) : null;
 
             const data = {
                 title,
                 category,
                 content,
                 imageUrl,
+                image_url: imageUrl,
                 gallery: cleanGallery,
                 eventDate,
+                event_date: eventDate,
                 status,
                 author,
-                updatedAt: new Date().toISOString()
+                createdAt: existingNews ? (existingNews.createdAt || existingNews.created_at || nowIso) : nowIso,
+                created_at: existingNews ? (existingNews.created_at || existingNews.createdAt || nowIso) : nowIso,
+                updatedAt: nowIso,
+                updated_at: nowIso
             };
 
             // 1. Instantly save to local store
@@ -4591,34 +4598,45 @@
             refreshAll();
 
             // 3. Directly save to Supabase Database (Non-blocking background)
+            const itemToSave = savedArticle || data;
+            const fullPayload = {
+                id: String(editId || itemToSave.id),
+                title: itemToSave.title,
+                category: itemToSave.category,
+                content: itemToSave.content,
+                image_url: itemToSave.imageUrl || itemToSave.image_url || '',
+                gallery: itemToSave.gallery || [],
+                event_date: itemToSave.eventDate || itemToSave.event_date || nowIso,
+                status: itemToSave.status || 'published',
+                author: itemToSave.author,
+                created_at: itemToSave.createdAt || itemToSave.created_at || nowIso,
+                updated_at: nowIso
+            };
+
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                const itemToSave = savedArticle || data;
-                window.wizSupabase.upsert('news', {
-                    id: String(editId || itemToSave.id),
-                    title: itemToSave.title,
-                    category: itemToSave.category,
-                    content: itemToSave.content,
-                    image_url: itemToSave.imageUrl,
-                    gallery: itemToSave.gallery || [],
-                    event_date: itemToSave.eventDate,
-                    status: itemToSave.status || 'published',
-                    author: itemToSave.author,
-                    created_at: itemToSave.createdAt || new Date().toISOString(),
-                    updated_at: new Date().toISOString()
-                }).then(() => {
-                    console.log('[Supabase] News saved successfully to PostgreSQL:', itemToSave.id);
+                window.wizSupabase.upsert('news', fullPayload).then(() => {
+                    console.log('[Supabase] News saved successfully to PostgreSQL:', fullPayload.id);
                 }).catch(err => {
                     console.error('[Supabase Save Error]', err);
                 });
             }
 
-            // 4. Background broadcast to /api/sync
+            // 4. Send direct micro-action to /api/sync so serverless cache is instantly updated
+            try {
+                fetch('/api/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'save_news', news: fullPayload })
+                }).catch(() => {});
+            } catch(e) {}
+
+            // 5. Background cloud push for master bundle
             if (wizStore.pushToCloud) {
                 wizStore.pushToCloud().catch(() => {});
             }
 
-            // 5. User feedback
-            alert(`✅ Berita "${title}" berhasil ${editId ? 'diperbarui' : 'disimpan'}!\n\nStatus: ${status === 'published' ? 'Dipublikasikan (Aktif di Web)' : 'Draft'}\nDatabase: Supabase PostgreSQL`);
+            // 6. User feedback
+            alert(`✅ Berita "${title}" berhasil ${editId ? 'diperbarui' : 'disimpan'}!\n\nStatus: ${status === 'published' ? 'Dipublikasikan (Aktif di Seluruh Perangkat)' : 'Draft'}\nDatabase: Supabase PostgreSQL`);
         }
 
         function editNews(id) {

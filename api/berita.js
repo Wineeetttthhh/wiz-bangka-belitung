@@ -24,7 +24,7 @@ const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY |
 let cachedNewsMap = new Map();
 let cachedNewsAll = null;
 let cachedNewsTime = 0;
-const CACHE_TTL_MS = 60000; // 60s
+const CACHE_TTL_MS = 5000; // 5s for fast fresh updates
 
 async function fetchWithTimeout(url, options = {}, timeoutMs = 1200) {
     try {
@@ -50,7 +50,7 @@ async function supabaseGetNews(newsId) {
     }
 
     try {
-        let url = `${SUPABASE_URL}/news?select=id,slug,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at`;
+        let url = `${SUPABASE_URL}/news?select=id,slug,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at&order=created_at.desc`;
         if (newsId) {
             url += `&id=eq.${encodeURIComponent(newsId)}`;
         }
