@@ -442,7 +442,7 @@
             isFetchingPublicNews = true;
             try {
                 if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                    const res = await window.wizSupabase.select('news', { order: 'created_at.desc' });
+                    const res = await window.wizSupabase.select('news', { select: 'id,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at', order: 'created_at.desc' });
                     if (res && Array.isArray(res.data) && res.data.length > 0) {
                         const mapped = res.data.map(n => {
                             const mainImg = (n.image_url || (Array.isArray(n.gallery) && n.gallery.length > 0 ? n.gallery[0] : '') || n.imageUrl || '').trim();

@@ -57,7 +57,11 @@ const SUPABASE_CONFIG = {
         let url = endpoint(table);
         const params = [];
 
-        if (options.select) params.push(`select=${options.select}`);
+        if (options.select) {
+            params.push(`select=${options.select}`);
+        } else if (table === 'news') {
+            params.push('select=id,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at');
+        }
         if (options.filter) params.push(options.filter);      // e.g. 'status=eq.published'
         if (options.order) params.push(`order=${options.order}`); // e.g. 'created_at.desc'
         if (options.limit) params.push(`limit=${options.limit}`);
