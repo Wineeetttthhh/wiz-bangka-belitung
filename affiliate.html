@@ -513,7 +513,7 @@ return;
             return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, ' ');
         }
 
-        function shareAffiliateNewsWA(newsId) {
+        async function shareAffiliateNewsWA(newsId) {
             const refCode = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || 'WIZ';
             const n = (window.wizStore && window.wizStore.news) ? window.wizStore.news.getById(newsId) : null;
             if (!n) return;
@@ -523,12 +523,25 @@ return;
             if (refCode) newsUrlObj.searchParams.set('ref', refCode);
             const newsUrl = newsUrlObj.toString();
 
+            const titleText = (n.title || 'BERITA KEGIATAN WIZ BABEL').trim();
             const rawExcerpt = (n.summary || n.content || '').replace(/<[^>]*>/g, '').trim();
             const cleanExcerpt = rawExcerpt ? (rawExcerpt.slice(0, 140) + '...') : '';
-            const descText = cleanExcerpt ? `\n\n${cleanExcerpt}` : '';
 
-            const waText = `*${(n.title || 'BERITA KEGIATAN WIZ BABEL').toUpperCase()}*${descText}\n\nBaca selengkapnya & dukung program kebaikan WIZ Bangka Belitung melalui link resmi:\n${newsUrl}`;
+            // Native Mobile Web Share (Direct to WhatsApp Status / Chat with full photo card preview)
+            if (navigator.share && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                try {
+                    await navigator.share({
+                        title: titleText,
+                        text: `${titleText}\n\n${cleanExcerpt}\n\nBaca & dukung program kebaikan melalui link resmi WIZ Babel:`,
+                        url: newsUrl
+                    });
+                    return;
+                } catch(e) {
+                    if (e && e.name === 'AbortError') return;
+                }
+            }
 
+            const waText = `*${titleText.toUpperCase()}*${cleanExcerpt ? '\n\n' + cleanExcerpt : ''}\n\nBaca selengkapnya & dukung program kebaikan WIZ Bangka Belitung melalui link resmi:\n${newsUrl}`;
             window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(waText), '_blank');
         }
 
@@ -577,7 +590,7 @@ return;
                             <button type="button" onclick="copyProgramShareLink('${progUrl}')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1 transition-colors cursor-pointer">
                                 <span>Salin Link</span>
                             </button>
-                            <button type="button" onclick="shareProgramWA('${escapeJsString(p.title)}', '${progUrl}', '${escapeJsString(descSnippet)}')" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white py-2 px-3 rounded-xl flex items-center justify-center gap-1 font-bold text-xs transition-colors cursor-pointer" title="Share WhatsApp">
+                            <button type="button" onclick="shareProgramWA('${escapeJsString(p.title)}', '${progUrl}', '${escapeJsString(descSnippet)}')" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white py-2 px-3 rounded-xl flex items-center justify-center gap-1 font-bold text-xs transition-colors cursor-pointer" title="Share WhatsApp (Status / Chat)">
                                 <span class="material-symbols-outlined text-base">send</span>
                                 <span>Share WA</span>
                             </button>
@@ -593,11 +606,26 @@ return;
             });
         }
 
-        function shareProgramWA(title, url, description) {
+        async function shareProgramWA(title, url, description) {
+            const cleanTitle = (title || 'Program Donasi WIZ Babel').trim();
             const cleanDesc = (description || '').replace(/<[^>]*>/g, '').trim();
-            const descSnippet = cleanDesc ? `\n\n${cleanDesc.slice(0, 140)}...` : '';
-            const waText = `*PROGRAM KEBAIKAN WIZ BANGKA BELITUNG*\n*${(title || 'Donasi').toUpperCase()}*${descSnippet}\n\nSalurkan infak/donasi terbaik Anda melalui link resmi WIZ Babel:\n${url}`;
+            const descSnippet = cleanDesc ? (cleanDesc.slice(0, 140) + '...') : '';
 
+            // Native Mobile Web Share (Direct to WhatsApp Status / Chat with full photo card preview)
+            if (navigator.share && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                try {
+                    await navigator.share({
+                        title: cleanTitle,
+                        text: `*PROGRAM KEBAIKAN WIZ BABEL*\n${cleanTitle}\n\n${descSnippet}\n\nSalurkan infak/donasi terbaik Anda melalui link resmi:`,
+                        url: url
+                    });
+                    return;
+                } catch(e) {
+                    if (e && e.name === 'AbortError') return;
+                }
+            }
+
+            const waText = `*PROGRAM KEBAIKAN WIZ BANGKA BELITUNG*\n*${cleanTitle.toUpperCase()}*${descSnippet ? '\n\n' + descSnippet : ''}\n\nSalurkan infak/donasi terbaik Anda melalui link resmi WIZ Babel:\n${url}`;
             window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(waText), '_blank');
         }
 

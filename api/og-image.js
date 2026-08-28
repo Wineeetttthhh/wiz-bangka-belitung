@@ -173,6 +173,14 @@ async function processToOgJpeg(rawInput) {
 
         if (!inputBuffer || inputBuffer.length < 100) return null;
 
+        // ULTRA-FAST FAST-PATH (< 1ms): If inputBuffer is already a valid JPEG image buffer under 400KB,
+        // serve it directly to WhatsApp scrapers without running heavy CPU-intensive Jimp processing!
+        if (inputBuffer.length > 500 && inputBuffer.length < 400000) {
+            if (inputBuffer[0] === 0xff && inputBuffer[1] === 0xd8) {
+                return inputBuffer;
+            }
+        }
+
         const srcImg = await Jimp.read(inputBuffer);
         const w = srcImg.bitmap.width;
         const h = srcImg.bitmap.height;
