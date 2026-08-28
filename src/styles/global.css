@@ -177,3 +177,9 @@
 .modal-backdrop.active .modal-dialog {
   transform: translateY(0) !important;
 }
+
+html, body {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  width: 100%;
+}
