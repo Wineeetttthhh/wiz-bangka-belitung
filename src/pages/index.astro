@@ -8,64 +8,74 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     image="/assets/images/foto-utama-wiz.jpg"
 >
     <!-- Hero Section -->
-    <section class="relative pt-xxl pb-xxl px-margin-mobile md:px-gutter">
-        <div class="max-w-container-max mx-auto grid grid-cols-1 md:grid-cols-2 gap-xl items-center">
-            <div class="space-y-6 z-10">
-                <h1 class="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg text-primary font-bold leading-tight">Tebarkan Kebaikan, Hadirkan Kebermanfaatan</h1>
-                <p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">Bersama Wahdah Inspirasi Zakat Bangka Belitung, wujudkan kepedulian melalui Zakat, Infak, dan Sedekah untuk membangun masyarakat yang lebih berdaya.</p>
-                <div class="flex flex-wrap gap-4 pt-4">
-                    <a href="/donasi" class="bg-[#F7941D] text-white px-8 py-3 rounded-lg shadow-level-1 hover:shadow-level-2 hover:opacity-95 transition-all font-label-md text-label-md font-bold flex items-center gap-xs">
-                        <span class="material-symbols-outlined text-base">volunteer_activism</span>
+    <section class="relative pt-6 sm:pt-12 pb-12 sm:pb-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            <div class="lg:col-span-7 space-y-5 sm:space-y-6 z-10">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm font-bold shadow-2xs">
+                    <span class="material-symbols-outlined text-base text-emerald-700">verified</span>
+                    <span>Lembaga Amil Zakat Resmi SK Kemenag RI No. 1209/2024</span>
+                </div>
+                <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-emerald-950 leading-[1.15] tracking-tight">
+                    Tebarkan Kebaikan, <br class="hidden sm:inline" />
+                    <span class="text-emerald-700">Hadirkan Kebermanfaatan</span>
+                </h1>
+                <p class="text-base sm:text-lg md:text-xl text-slate-700 leading-relaxed font-normal max-w-2xl">
+                    Bersama Wahdah Inspirasi Zakat Bangka Belitung, wujudkan kepedulian melalui Zakat, Infak, dan Sedekah untuk membangun masyarakat yang lebih berdaya dan mandiri.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-3.5 pt-2 w-full sm:w-auto">
+                    <a href="/donasi" class="bg-[#F7941D] hover:bg-[#ea7e00] text-white px-8 py-4 rounded-2xl shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 transition-all text-base sm:text-lg font-extrabold flex items-center justify-center gap-2.5 active:scale-98">
+                        <span class="material-symbols-outlined text-xl">volunteer_activism</span>
                         <span>Donasi Sekarang</span>
                     </a>
-                    <a href="/program" class="bg-primary-container text-on-primary px-8 py-3 rounded-lg shadow-level-1 hover:shadow-level-2 hover:bg-primary transition-all font-label-md text-label-md font-bold flex items-center gap-xs">
-                        <span class="material-symbols-outlined text-base">grid_view</span>
+                    <a href="/program" class="bg-white hover:bg-emerald-50 text-emerald-800 border-2 border-emerald-600/80 px-8 py-4 rounded-2xl shadow-sm hover:shadow-md transition-all text-base sm:text-lg font-bold flex items-center justify-center gap-2.5 active:scale-98">
+                        <span class="material-symbols-outlined text-xl">grid_view</span>
                         <span>Lihat Program</span>
                     </a>
                 </div>
             </div>
-            <div class="relative h-[400px] md:h-[500px] rounded-xl overflow-hidden shadow-level-2 border border-surface-variant">
+            <div class="lg:col-span-5 relative h-[320px] sm:h-[420px] lg:h-[480px] rounded-3xl overflow-hidden shadow-2xl border-2 border-emerald-100 bg-slate-100">
                 <img id="main-hero-img" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" data-site-img="hero_card" data-alt="Relawan WIZ Bangka Belitung" src="/assets/images/foto-utama-wiz.jpg" onerror="this.src='/assets/images/sedekah-beras-dhuafa.jpg';" alt="Relawan WIZ Bangka Belitung Menyerahkan Sedekah Beras"/>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/35 via-transparent to-transparent"></div>
             </div>
         </div>
     </section>
 
     <!-- Section: Tentang Kami, Legalitas, Visi & Misi WIZ -->
-    <section id="tentang-kami" class="py-xxl bg-surface border-t border-b border-outline-variant/20">
-        <div class="max-w-container-max mx-auto px-margin-mobile md:px-gutter space-y-xl">
+    <section id="tentang-kami" class="py-14 sm:py-20 bg-white border-t border-b border-slate-200/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 sm:space-y-12">
             
             <!-- Section Header -->
-            <div class="max-w-3xl space-y-xs">
-                <span class="inline-flex items-center gap-xs font-label-md text-label-md text-primary font-bold uppercase tracking-wider">
-                    <span class="material-symbols-outlined text-sm">info</span>
+            <div class="max-w-3xl space-y-2">
+                <span class="inline-flex items-center gap-2 text-emerald-700 font-extrabold text-xs sm:text-sm uppercase tracking-wider bg-emerald-50 px-3.5 py-1 rounded-full border border-emerald-200">
+                    <span class="material-symbols-outlined text-base">info</span>
                     Tentang Kami
                 </span>
-                <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">Wahdah Inspirasi Zakat (WIZ) Bangka Belitung</h2>
-                <p class="font-body-lg text-body-lg text-on-surface-variant">Lembaga Amil Zakat Nasional yang Amanah, Profesional, dan Berkelanjutan.</p>
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">Wahdah Inspirasi Zakat (WIZ) Bangka Belitung</h2>
+                <p class="text-base sm:text-lg text-slate-600 font-medium">Lembaga Amil Zakat Nasional yang Amanah, Profesional, dan Berkelanjutan.</p>
             </div>
 
             <!-- Content Grid: Profil Lengkap & Visi Misi -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-xl items-start">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
                 
                 <!-- Left Column: Profil & Legalitas Formal (7 Cols) -->
-                <div class="lg:col-span-7 bg-surface-container-lowest p-xl rounded-2xl border border-outline-variant/30 shadow-level-1 space-y-md">
-                    <h3 class="font-headline-md text-headline-md font-bold text-primary flex items-center gap-2">
-                        <span class="material-symbols-outlined text-2xl">verified_user</span>
+                <div class="lg:col-span-7 bg-slate-50 p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-sm space-y-5">
+                    <h3 class="text-lg sm:text-xl font-black text-emerald-800 flex items-center gap-2.5">
+                        <span class="material-symbols-outlined text-2xl text-emerald-700">verified_user</span>
                         <span>Profil &amp; Legal Formal Kelembagaan</span>
                     </h3>
                     
-                    <div class="space-y-md text-on-surface-variant font-body-md leading-relaxed text-justify">
+                    <div class="space-y-4 text-slate-700 text-sm sm:text-base leading-relaxed text-justify">
                         <p>
-                            <strong>Wahdah Inspirasi Zakat (WIZ)</strong> merupakan Lembaga Amil Zakat Nasional (LAZNAS) yang berfokus pada pengelolaan dana zakat, infak, sedekah (ZIS), serta dana kemanusiaan. WIZ berkomitmen menghadirkan program-program pemberdayaan umat yang berorientasi pada kemaslahatan dan keberlanjutan yang mencakup bidang dakwah, pendidikan, ekonomi, kesehatan, dan sosial kemanusiaan.
+                            <strong class="text-slate-900">Wahdah Inspirasi Zakat (WIZ)</strong> merupakan Lembaga Amil Zakat Nasional (LAZNAS) yang berfokus pada pengelolaan dana zakat, infak, sedekah (ZIS), serta dana kemanusiaan. WIZ berkomitmen menghadirkan program-program pemberdayaan umat yang berorientasi pada kemaslahatan dan keberlanjutan yang mencakup bidang dakwah, pendidikan, ekonomi, kesehatan, dan sosial kemanusiaan.
                         </p>
 
                         <!-- Legal Badge Box -->
-                        <div class="p-md bg-emerald-50 border border-emerald-200 rounded-xl space-y-1 text-emerald-950 font-label-md text-caption">
-                            <p class="font-bold flex items-center gap-1 text-emerald-900 text-sm">
-                                <span class="material-symbols-outlined text-base text-primary">gavel</span>
+                        <div class="p-4 sm:p-5 bg-emerald-50/90 border border-emerald-200 rounded-2xl space-y-2 text-emerald-950">
+                            <p class="font-extrabold flex items-center gap-2 text-emerald-900 text-sm sm:text-base">
+                                <span class="material-symbols-outlined text-lg text-emerald-700">gavel</span>
                                 Pengakuan Legal Formal LAZNAS:
                             </p>
-                            <ul class="list-disc list-inside space-y-1 font-medium text-emerald-800">
+                            <ul class="list-disc list-inside space-y-1.5 font-medium text-emerald-800 text-xs sm:text-sm">
                                 <li>SK Kementerian Agama Republik Indonesia <strong>Nomor 1209 Tahun 2024</strong> (LAZNAS)</li>
                                 <li>SK Kantor Wilayah Kementerian Agama Prov. Kep. Bangka Belitung <strong>Nomor 290 Tahun 2023</strong></li>
                             </ul>
@@ -86,41 +96,41 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 </div>
 
                 <!-- Right Column: Visi & Misi WIZ (5 Cols) -->
-                <div class="lg:col-span-5 space-y-md">
+                <div class="lg:col-span-5 space-y-6">
                     <!-- Visi Card -->
-                    <div class="bg-primary text-on-primary p-xl rounded-2xl shadow-level-1 space-y-xs">
+                    <div class="bg-gradient-to-br from-emerald-800 to-emerald-950 text-white p-6 sm:p-8 rounded-3xl shadow-md space-y-3 border border-emerald-700/50">
                         <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-primary-fixed">visibility</span>
-                            <span class="font-caption text-caption font-bold uppercase tracking-widest text-primary-fixed">VISI WIZ</span>
+                            <span class="material-symbols-outlined text-emerald-300">visibility</span>
+                            <span class="text-xs font-extrabold uppercase tracking-widest text-emerald-300">VISI WIZ</span>
                         </div>
-                        <h3 class="font-headline-md text-headline-md font-bold text-white leading-snug">
+                        <h3 class="text-lg sm:text-xl font-bold text-white leading-snug">
                             Menjadi Lembaga Amil Zakat Nasional Yang Amanah Dan Profesional.
                         </h3>
                     </div>
 
                     <!-- Misi Card -->
-                    <div class="bg-surface-container-lowest p-xl rounded-2xl border border-outline-variant/30 shadow-level-1 space-y-md">
-                        <div class="flex items-center gap-2 border-b border-outline-variant/30 pb-xs">
-                            <span class="material-symbols-outlined text-primary">target</span>
-                            <span class="font-caption text-caption font-bold uppercase tracking-widest text-primary">MISI WIZ</span>
+                    <div class="bg-slate-50 p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
+                        <div class="flex items-center gap-2 border-b border-slate-200 pb-3">
+                            <span class="material-symbols-outlined text-emerald-700">target</span>
+                            <span class="text-xs font-extrabold uppercase tracking-widest text-emerald-800">MISI WIZ</span>
                         </div>
 
-                        <ul class="space-y-md font-body-md text-on-surface">
-                            <li class="flex items-start gap-sm">
-                                <span class="w-7 h-7 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center shrink-0 text-xs mt-0.5">1</span>
-                                <span class="font-medium text-on-surface-variant">Meningkatkan Kesadaran Ummat Tentang Urgensi Menunaikan Ibadah Zakat.</span>
+                        <ul class="space-y-3.5 text-sm sm:text-base text-slate-700">
+                            <li class="flex items-start gap-3">
+                                <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center shrink-0 text-xs mt-0.5 border border-emerald-300">1</span>
+                                <span class="font-medium text-slate-800">Meningkatkan Kesadaran Ummat Tentang Urgensi Menunaikan Ibadah Zakat.</span>
                             </li>
-                            <li class="flex items-start gap-sm">
-                                <span class="w-7 h-7 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center shrink-0 text-xs mt-0.5">2</span>
-                                <span class="font-medium text-on-surface-variant">Meningkatkan Penghimpunan dan Pendayagunaan Dana Zakat, Infaq dan Sedekah Secara Profesional, Transparan, Tepat Guna dan Tepat Sasaran.</span>
+                            <li class="flex items-start gap-3">
+                                <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center shrink-0 text-xs mt-0.5 border border-emerald-300">2</span>
+                                <span class="font-medium text-slate-800">Meningkatkan Penghimpunan dan Pendayagunaan Dana Zakat, Infaq dan Sedekah Secara Profesional, Transparan, Tepat Guna dan Tepat Sasaran.</span>
                             </li>
-                            <li class="flex items-start gap-sm">
-                                <span class="w-7 h-7 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center shrink-0 text-xs mt-0.5">3</span>
-                                <span class="font-medium text-on-surface-variant">Memaksimalkan Kualitas Pelayanan Berbasis Kerja Yang Solutif, Praktis Dan Aplikatif.</span>
+                            <li class="flex items-start gap-3">
+                                <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center shrink-0 text-xs mt-0.5 border border-emerald-300">3</span>
+                                <span class="font-medium text-slate-800">Memaksimalkan Kualitas Pelayanan Berbasis Kerja Yang Solutif, Praktis Dan Aplikatif.</span>
                             </li>
-                            <li class="flex items-start gap-sm">
-                                <span class="w-7 h-7 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center shrink-0 text-xs mt-0.5">4</span>
-                                <span class="font-medium text-on-surface-variant">Memaksimalkan Peran Lembaga Dalam Bidang Sosial, Dakwah dan Kemandirian Ummat.</span>
+                            <li class="flex items-start gap-3">
+                                <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center shrink-0 text-xs mt-0.5 border border-emerald-300">4</span>
+                                <span class="font-medium text-slate-800">Memaksimalkan Peran Lembaga Dalam Bidang Sosial, Dakwah dan Kemandirian Ummat.</span>
                             </li>
                         </ul>
                     </div>
@@ -131,117 +141,117 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     </section>
 
     <!-- Program Preview Section (5 Berkah WIZ) -->
-    <section class="py-xxl px-margin-mobile md:px-gutter bg-surface-container-low">
-        <div class="max-w-container-max mx-auto space-y-xl">
-            <div class="text-center max-w-2xl mx-auto space-y-sm">
-                <span class="inline-flex items-center gap-xs bg-primary-container/10 text-primary-container px-md py-xs rounded-full font-label-md text-caption font-bold uppercase tracking-wider">
-                    <span class="material-symbols-outlined text-sm">stars</span>
+    <section class="py-14 sm:py-20 px-4 sm:px-6 lg:px-8 bg-slate-50">
+        <div class="max-w-7xl mx-auto space-y-10 sm:space-y-12">
+            <div class="text-center max-w-2xl mx-auto space-y-2">
+                <span class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-1 rounded-full text-xs sm:text-sm font-extrabold uppercase tracking-wider">
+                    <span class="material-symbols-outlined text-base">stars</span>
                     Program Unggulan WIZ
                 </span>
-                <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">5 Berkah WIZ Bangka Belitung</h2>
-                <p class="font-body-lg text-body-lg text-on-surface-variant">Pilar program penyaluran zakat, infak, dan sedekah tepat sasaran untuk masyarakat Babel.</p>
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">5 Berkah WIZ Bangka Belitung</h2>
+                <p class="text-base sm:text-lg text-slate-600 font-medium">Pilar program penyaluran zakat, infak, dan sedekah tepat sasaran untuk masyarakat Babel.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter" id="home-featured-programs-grid">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8" id="home-featured-programs-grid">
                 <!-- Program Preview Card 1 -->
-                <article data-title="Sedekah Beras Dhuafa" class="program-card bg-surface rounded-xl overflow-hidden shadow-level-1 hover:shadow-level-2 transition-all border border-surface-variant flex flex-col">
+                <article data-title="Sedekah Beras Dhuafa" class="program-card bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all border border-slate-200 flex flex-col">
                     <div class="relative aspect-video overflow-hidden">
                         <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" src="/assets/images/sedekah-beras-dhuafa.jpg" onerror="this.onerror=null; this.src='/assets/images/sedekah-beras-dai.jpg';" alt="Sedekah Beras Dhuafa"/>
-                        <span class="absolute top-sm left-sm bg-primary text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Sosial</span>
+                        <span class="absolute top-3 left-3 bg-emerald-600 text-white text-xs px-3 py-1 rounded-full font-bold shadow-sm">Sosial</span>
                     </div>
-                    <div class="p-lg flex flex-col flex-grow">
-                        <h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-xs">Sedekah Beras &amp; Sembako Dhuafa</h3>
-                        <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-2">Bantuan kebutuhan pokok untuk lansia dan keluarga pra-sejahtera.</p>
-                        <div class="mb-lg space-y-xs">
-                            <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                    <div class="p-5 sm:p-6 flex flex-col flex-grow space-y-3">
+                        <h3 class="text-lg sm:text-xl font-black text-slate-900">Sedekah Beras &amp; Sembako Dhuafa</h3>
+                        <p class="text-sm sm:text-base text-slate-600 flex-grow line-clamp-2 leading-relaxed">Bantuan kebutuhan pokok untuk lansia dan keluarga pra-sejahtera.</p>
+                        <div class="space-y-1.5 pt-1">
+                            <div class="flex justify-between text-xs sm:text-sm text-slate-600 font-semibold">
                                 <span>Terkumpul: <strong>Rp 0</strong></span>
-                                <span class="font-semibold text-primary">0%</span>
+                                <span class="font-bold text-emerald-700">0%</span>
                             </div>
-                            <div class="w-full bg-surface-variant rounded-full h-2">
-                                <div class="bg-primary h-2 rounded-full" style="width: 0%"></div>
+                            <div class="w-full bg-slate-100 rounded-full h-2">
+                                <div class="bg-emerald-600 h-2 rounded-full" style="width: 0%"></div>
                             </div>
                         </div>
-                        <button onclick="openDonationModal('Sedekah Beras &amp; Sembako Dhuafa')" class="w-full bg-[#F7941D] text-white font-label-md text-label-md py-sm rounded-lg hover:opacity-90 transition-opacity font-bold cursor-pointer">Donasi Sekarang</button>
+                        <a href="/donasi?program=sedekah-beras-dhuafa" class="w-full block bg-[#F7941D] hover:bg-[#ea7e00] text-white py-3 rounded-xl hover:opacity-95 transition-opacity font-extrabold text-sm sm:text-base text-center cursor-pointer shadow-sm">Donasi Sekarang</a>
                     </div>
                 </article>
 
                 <!-- Program Preview Card 2 -->
-                <article data-title="Beasiswa Tahfidz Qur'an" class="program-card bg-surface rounded-xl overflow-hidden shadow-level-1 hover:shadow-level-2 transition-all border border-surface-variant flex flex-col">
+                <article data-title="Beasiswa Tahfidz Qur'an" class="program-card bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all border border-slate-200 flex flex-col">
                     <div class="relative aspect-video overflow-hidden">
                         <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" src="/assets/images/beasiswa-tahfidz.jpg" onerror="this.onerror=null; this.src='/assets/images/beasiswa-tahfidz.jpg';" alt="Beasiswa Tahfidz"/>
-                        <span class="absolute top-sm left-sm bg-primary text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Pendidikan</span>
+                        <span class="absolute top-3 left-3 bg-emerald-600 text-white text-xs px-3 py-1 rounded-full font-bold shadow-sm">Pendidikan</span>
                     </div>
-                    <div class="p-lg flex flex-col flex-grow">
-                        <h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-xs">Beasiswa Tahfidz Qur'an</h3>
-                        <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-2">Beasiswa pendidikan penuh dan asrama bagi santri penghafal Al-Qur'an yatim dhuafa.</p>
-                        <div class="mb-lg space-y-xs">
-                            <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                    <div class="p-5 sm:p-6 flex flex-col flex-grow space-y-3">
+                        <h3 class="text-lg sm:text-xl font-black text-slate-900">Beasiswa Tahfidz Qur'an</h3>
+                        <p class="text-sm sm:text-base text-slate-600 flex-grow line-clamp-2 leading-relaxed">Beasiswa pendidikan penuh dan asrama bagi santri penghafal Al-Qur'an yatim dhuafa.</p>
+                        <div class="space-y-1.5 pt-1">
+                            <div class="flex justify-between text-xs sm:text-sm text-slate-600 font-semibold">
                                 <span>Terkumpul: <strong>Rp 0</strong></span>
-                                <span class="font-semibold text-primary">0%</span>
+                                <span class="font-bold text-emerald-700">0%</span>
                             </div>
-                            <div class="w-full bg-surface-variant rounded-full h-2">
-                                <div class="bg-tertiary-container h-2 rounded-full" style="width: 0%"></div>
+                            <div class="w-full bg-slate-100 rounded-full h-2">
+                                <div class="bg-teal-600 h-2 rounded-full" style="width: 0%"></div>
                             </div>
                         </div>
-                        <button onclick="openDonationModal('Beasiswa Tahfidz Qur\'an')" class="w-full bg-[#F7941D] text-white font-label-md text-label-md py-sm rounded-lg hover:opacity-90 transition-opacity font-bold cursor-pointer">Donasi Sekarang</button>
+                        <a href="/donasi?program=tahfidz" class="w-full block bg-[#F7941D] hover:bg-[#ea7e00] text-white py-3 rounded-xl hover:opacity-95 transition-opacity font-extrabold text-sm sm:text-base text-center cursor-pointer shadow-sm">Donasi Sekarang</a>
                     </div>
                 </article>
 
                 <!-- Program Preview Card 3 -->
-                <article data-title="Beasiswa Pendidikan Juara" class="program-card bg-surface rounded-xl overflow-hidden shadow-level-1 hover:shadow-level-2 transition-all border border-surface-variant flex flex-col">
+                <article data-title="Beasiswa Pendidikan Juara" class="program-card bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all border border-slate-200 flex flex-col">
                     <div class="relative aspect-video overflow-hidden">
                         <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" src="/assets/images/beasiswa-pendidikan-juara.jpg" onerror="this.onerror=null; this.src='/assets/images/default-program-wiz.jpg';" alt="Beasiswa Pendidikan"/>
-                        <span class="absolute top-sm left-sm bg-secondary-container text-on-secondary font-caption text-caption px-sm py-xs rounded-full font-semibold">Pendidikan</span>
+                        <span class="absolute top-3 left-3 bg-amber-600 text-white text-xs px-3 py-1 rounded-full font-bold shadow-sm">Pendidikan</span>
                     </div>
-                    <div class="p-lg flex flex-col flex-grow">
-                        <h3 class="font-headline-md text-headline-md font-bold text-on-surface mb-xs">Beasiswa Pendidikan Juara</h3>
-                        <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-2">Bantuan biaya sekolah dan kelengkapan perlengkapan belajar.</p>
-                        <div class="mb-lg space-y-xs">
-                            <div class="flex justify-between font-caption text-caption text-on-surface-variant">
+                    <div class="p-5 sm:p-6 flex flex-col flex-grow space-y-3">
+                        <h3 class="text-lg sm:text-xl font-black text-slate-900">Beasiswa Pendidikan Juara</h3>
+                        <p class="text-sm sm:text-base text-slate-600 flex-grow line-clamp-2 leading-relaxed">Bantuan biaya sekolah dan kelengkapan perlengkapan belajar.</p>
+                        <div class="space-y-1.5 pt-1">
+                            <div class="flex justify-between text-xs sm:text-sm text-slate-600 font-semibold">
                                 <span>Terkumpul: <strong>Rp 0</strong></span>
-                                <span class="font-semibold text-primary">0%</span>
+                                <span class="font-bold text-emerald-700">0%</span>
                             </div>
-                            <div class="w-full bg-surface-variant rounded-full h-2">
-                                <div class="bg-tertiary-container h-2 rounded-full" style="width: 0%"></div>
+                            <div class="w-full bg-slate-100 rounded-full h-2">
+                                <div class="bg-amber-500 h-2 rounded-full" style="width: 0%"></div>
                             </div>
                         </div>
-                        <button onclick="openDonationModal('Beasiswa Pendidikan Juara')" class="w-full bg-[#F7941D] text-white font-label-md text-label-md py-sm rounded-lg hover:opacity-90 transition-opacity font-bold cursor-pointer">Donasi Sekarang</button>
+                        <a href="/donasi?program=beasiswa-pendidikan-juara" class="w-full block bg-[#F7941D] hover:bg-[#ea7e00] text-white py-3 rounded-xl hover:opacity-95 transition-opacity font-extrabold text-sm sm:text-base text-center cursor-pointer shadow-sm">Donasi Sekarang</a>
                     </div>
                 </article>
             </div>
 
-            <div class="text-center">
-                <a href="/program" class="inline-flex items-center gap-xs bg-primary text-on-primary px-xxl py-md rounded-lg font-label-md text-label-md font-bold hover:bg-primary-container transition-all shadow-level-1">
+            <div class="text-center pt-2">
+                <a href="/program" class="inline-flex items-center gap-2 bg-emerald-700 text-white px-8 py-4 rounded-2xl text-base sm:text-lg font-extrabold hover:bg-emerald-800 transition-all shadow-md">
                     <span>Lihat Semua Program Kebaikan</span>
-                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    <span class="material-symbols-outlined text-lg">arrow_forward</span>
                 </a>
             </div>
         </div>
     </section>
 
     <!-- Visualisasi Dinamis: Distribusi Infak Umum Berbasis Wilayah -->
-    <section id="distribusi-infak-umum" class="py-xxl px-margin-mobile md:px-gutter bg-surface border-t border-b border-surface-variant/40">
-        <div class="max-w-container-max mx-auto space-y-xl">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-md">
-                <div class="space-y-xs max-w-2xl">
-                    <span class="inline-flex items-center gap-1.5 bg-primary/10 text-primary px-md py-xs rounded-full font-label-md text-caption font-bold uppercase tracking-wider">
-                        <span class="material-symbols-outlined text-[16px]">pie_chart</span>
+    <section id="distribusi-infak-umum" class="py-14 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white border-t border-b border-slate-200/80">
+        <div class="max-w-7xl mx-auto space-y-10 sm:space-y-12">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                <div class="space-y-2 max-w-2xl">
+                    <span class="inline-flex items-center gap-1.5 bg-emerald-100 text-emerald-800 px-3.5 py-1 rounded-full text-xs sm:text-sm font-extrabold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-base">pie_chart</span>
                         Alokasi Otomatis &amp; Transparansi 100%
                     </span>
-                    <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">Distribusi Dinamis 'Infak Umum' Berbasis Wilayah</h2>
-                    <p class="font-body-lg text-body-lg text-on-surface-variant">Setiap rupiah dari donasi <strong>Infak Umum</strong> otomatis dipecah dan didistribusikan ke 5 Pilar program WIZ sesuai persentase kebutuhan cabang operasional.</p>
+                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">Distribusi Dinamis 'Infak Umum' Berbasis Wilayah</h2>
+                    <p class="text-base sm:text-lg text-slate-600 leading-relaxed">Setiap rupiah dari donasi <strong>Infak Umum</strong> otomatis dipecah dan didistribusikan ke 5 Pilar program WIZ sesuai persentase kebutuhan cabang operasional.</p>
                 </div>
                 
                 <!-- Wilayah Switcher Tabs -->
-                <div class="flex items-center gap-1 bg-surface-container-low p-1 rounded-xl border border-outline-variant/30 shrink-0">
-                    <button type="button" onclick="switchInfakUmumWilayah('Pangkalpinang', this)" class="infak-tab-btn active px-4 py-2 rounded-lg text-xs font-bold transition-all bg-primary text-white shadow-xs">Pangkalpinang</button>
-                    <button type="button" onclick="switchInfakUmumWilayah('Sungailiat', this)" class="infak-tab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all text-on-surface-variant hover:text-primary">Sungailiat</button>
-                    <button type="button" onclick="switchInfakUmumWilayah('Semua', this)" class="infak-tab-btn px-4 py-2 rounded-lg text-xs font-bold transition-all text-on-surface-variant hover:text-primary">Semua Wilayah</button>
+                <div class="flex items-center gap-1 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shrink-0">
+                    <button type="button" onclick="switchInfakUmumWilayah('Pangkalpinang', this)" class="infak-tab-btn active px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all bg-emerald-700 text-white shadow-xs cursor-pointer">Pangkalpinang</button>
+                    <button type="button" onclick="switchInfakUmumWilayah('Sungailiat', this)" class="infak-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-emerald-700 cursor-pointer">Sungailiat</button>
+                    <button type="button" onclick="switchInfakUmumWilayah('Semua', this)" class="infak-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-emerald-700 cursor-pointer">Semua Wilayah</button>
                 </div>
             </div>
 
             <!-- Main Grid Container: Donut Chart + Pillars Breakdown -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-xl items-center bg-surface-container-lowest p-lg md:p-xl rounded-3xl border border-outline-variant/30 shadow-level-1">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center bg-slate-50 p-6 sm:p-10 rounded-3xl border border-slate-200 shadow-sm">
                 
                 <!-- Left Column: Interactive SVG Donut Chart & Simulator -->
                 <div class="lg:col-span-5 flex flex-col items-center justify-center space-y-6">
@@ -249,32 +259,32 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                     </div>
 
                     <!-- Live Nominal Simulator -->
-                    <div class="w-full bg-surface-container-low p-4 rounded-2xl border border-outline-variant/30 space-y-2">
-                        <label class="block text-xs font-bold text-on-surface flex items-center justify-between">
-                            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm text-primary">calculate</span> Simulasikan Nominal Infak Anda:</span>
-                            <span class="text-[10px] text-outline font-semibold">Simulasi Real-Time</span>
+                    <div class="w-full bg-white p-5 rounded-2xl border border-slate-200 space-y-3 shadow-2xs">
+                        <label class="block text-xs sm:text-sm font-bold text-slate-900 flex items-center justify-between">
+                            <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-base text-emerald-700">calculate</span> Simulasikan Nominal Infak Anda:</span>
+                            <span class="text-xs text-slate-500 font-semibold">Real-Time</span>
                         </label>
                         <div class="relative">
-                            <span class="absolute left-3 top-2.5 text-xs font-bold text-outline">Rp</span>
+                            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-500">Rp</span>
                             <input type="number" id="home-sim-amount" value="100000" min="10000" step="10000" oninput="handleHomeSimulationChange(this.value)"
-                                class="w-full pl-9 pr-3 py-2 text-sm font-bold font-mono text-primary bg-white border border-outline-variant/50 rounded-xl focus:outline-none focus:border-primary">
+                                class="w-full pl-11 pr-3 py-3 text-base sm:text-lg font-bold font-mono text-emerald-800 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-emerald-600 focus:bg-white transition-all">
                         </div>
-                        <div class="flex gap-1.5 pt-1">
-                            <button type="button" onclick="setHomeSimAmount(50000)" class="flex-1 py-1 text-[11px] font-bold rounded-lg bg-white border border-outline-variant/40 hover:border-primary text-on-surface-variant transition-colors cursor-pointer">50rb</button>
-                            <button type="button" onclick="setHomeSimAmount(100000)" class="flex-1 py-1 text-[11px] font-bold rounded-lg bg-white border border-outline-variant/40 hover:border-primary text-on-surface-variant transition-colors cursor-pointer">100rb</button>
-                            <button type="button" onclick="setHomeSimAmount(250000)" class="flex-1 py-1 text-[11px] font-bold rounded-lg bg-white border border-outline-variant/40 hover:border-primary text-on-surface-variant transition-colors cursor-pointer">250rb</button>
-                            <button type="button" onclick="setHomeSimAmount(500000)" class="flex-1 py-1 text-[11px] font-bold rounded-lg bg-white border border-outline-variant/40 hover:border-primary text-on-surface-variant transition-colors cursor-pointer">500rb</button>
+                        <div class="flex gap-2 pt-1">
+                            <button type="button" onclick="setHomeSimAmount(50000)" class="flex-1 py-1.5 text-xs sm:text-sm font-bold rounded-lg bg-slate-100 border border-slate-200 hover:border-emerald-600 text-slate-700 transition-colors cursor-pointer">50rb</button>
+                            <button type="button" onclick="setHomeSimAmount(100000)" class="flex-1 py-1.5 text-xs sm:text-sm font-bold rounded-lg bg-slate-100 border border-slate-200 hover:border-emerald-600 text-slate-700 transition-colors cursor-pointer">100rb</button>
+                            <button type="button" onclick="setHomeSimAmount(250000)" class="flex-1 py-1.5 text-xs sm:text-sm font-bold rounded-lg bg-slate-100 border border-slate-200 hover:border-emerald-600 text-slate-700 transition-colors cursor-pointer">250rb</button>
+                            <button type="button" onclick="setHomeSimAmount(500000)" class="flex-1 py-1.5 text-xs sm:text-sm font-bold rounded-lg bg-slate-100 border border-slate-200 hover:border-emerald-600 text-slate-700 transition-colors cursor-pointer">500rb</button>
                         </div>
                     </div>
 
-                    <a id="home-infak-cta-btn" href="/donasi?type=Infak%20Umum&wilayah=Pangkalpinang" class="w-full bg-[#F7941D] hover:opacity-95 text-white py-3.5 px-6 rounded-xl font-label-md text-label-md font-bold text-center flex items-center justify-center gap-2 shadow-sm transition-transform hover:scale-[1.01]">
-                        <span class="material-symbols-outlined text-base">volunteer_activism</span>
+                    <a id="home-infak-cta-btn" href="/donasi?type=Infak%20Umum&wilayah=Pangkalpinang" class="w-full bg-[#F7941D] hover:bg-[#ea7e00] text-white py-4 px-6 rounded-2xl text-base sm:text-lg font-extrabold text-center flex items-center justify-center gap-2 shadow-md transition-all">
+                        <span class="material-symbols-outlined text-xl">volunteer_activism</span>
                         <span>Salurkan Infak Umum (Pangkalpinang)</span>
                     </a>
                 </div>
 
                 <!-- Right Column: 5 Pillars Detailed Breakdown List -->
-                <div class="lg:col-span-7 space-y-3" id="home-infak-pillars-container">
+                <div class="lg:col-span-7 space-y-3.5" id="home-infak-pillars-container">
                 </div>
 
             </div>
@@ -282,56 +292,56 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     </section>
 
     <!-- Live Social Proof: Donatur Terbaru & Terverifikasi Real-Time -->
-    <section id="donatur-terbaru" class="py-xxl px-margin-mobile md:px-gutter bg-surface border-t border-b border-surface-variant/40">
-        <div class="max-w-container-max mx-auto space-y-lg">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-md">
-                <div>
-                    <span class="inline-flex items-center gap-1.5 bg-emerald-100 text-emerald-800 px-md py-xs rounded-full font-label-md text-caption font-bold uppercase tracking-wider mb-xs">
-                        <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
-                        <span class="material-symbols-outlined text-[16px] text-emerald-700">verified</span>
+    <section id="donatur-terbaru" class="py-14 sm:py-20 px-4 sm:px-6 lg:px-8 bg-slate-50 border-t border-b border-slate-200/80">
+        <div class="max-w-7xl mx-auto space-y-8 sm:space-y-10">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+                <div class="space-y-2">
+                    <span class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-3.5 py-1 rounded-full text-xs sm:text-sm font-extrabold uppercase tracking-wider">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                        <span class="material-symbols-outlined text-base text-emerald-700">verified</span>
                         Donasi Terverifikasi Real-Time
                     </span>
-                    <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">Donatur Terbaru &amp; Sahabat Kebaikan</h2>
-                    <p class="font-body-lg text-body-lg text-on-surface-variant">Jejak kepedulian para muhsinin yang telah terverifikasi dan siap disalurkan ke program-program WIZ.</p>
+                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">Donatur Terbaru &amp; Sahabat Kebaikan</h2>
+                    <p class="text-base sm:text-lg text-slate-600 font-medium">Jejak kepedulian para muhsinin yang telah terverifikasi dan siap disalurkan ke program-program WIZ.</p>
                 </div>
-                <a href="/laporan" class="inline-flex items-center gap-1 text-primary hover:text-primary-container font-label-md text-caption font-bold transition-colors">
+                <a href="/laporan" class="inline-flex items-center gap-1 text-emerald-700 hover:text-emerald-800 text-sm sm:text-base font-extrabold transition-colors">
                     <span>Lihat Laporan Transparansi Lengkap</span>
-                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    <span class="material-symbols-outlined text-lg">arrow_forward</span>
                 </a>
             </div>
 
-            <div id="verified-donors-container" class="grid grid-cols-1 md:grid-cols-2 gap-md">
+            <div id="verified-donors-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             </div>
         </div>
     </section>
 
     <!-- Kalkulator Zakat Quick Tool -->
-    <section id="kalkulator-zakat" class="py-xxl px-margin-mobile md:px-gutter bg-surface">
-        <div class="max-w-container-max mx-auto bg-surface-container-low rounded-2xl p-xl md:p-xxl border border-surface-variant shadow-level-1">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-xl items-center">
-                <div class="space-y-md">
-                    <span class="inline-flex items-center gap-xs bg-primary/10 text-primary px-md py-xs rounded-full font-label-md text-caption font-bold uppercase tracking-wider">
-                        <span class="material-symbols-outlined text-sm">calculate</span>
+    <section id="kalkulator-zakat" class="py-14 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white">
+        <div class="max-w-7xl mx-auto bg-slate-50 rounded-3xl p-6 sm:p-10 lg:p-12 border border-slate-200 shadow-md">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-center">
+                <div class="space-y-4">
+                    <span class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-3.5 py-1 rounded-full text-xs sm:text-sm font-extrabold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-base">calculate</span>
                         Hitung Zakat
                     </span>
-                    <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">Kalkulator Zakat Maal &amp; Penghasilan</h2>
-                    <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">Kalkulator Zakat Maal &amp; Penghasilan</h2>
+                    <p class="text-base sm:text-lg text-slate-600 leading-relaxed">
                         Hitung kewajiban zakat Anda secara akurat sesuai kaidah fiqih. Masukkan jumlah penghasilan atau tabungan bulanan Anda.
                     </p>
                 </div>
 
-                <div class="bg-surface p-lg rounded-xl border border-surface-variant space-y-md shadow-sm">
+                <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 space-y-4 shadow-sm">
                     <div>
-                        <label class="block font-label-md text-label-md font-semibold text-on-surface mb-xs">Total Penghasilan / Tabungan (Rp)</label>
-                        <input type="number" id="zakat-income" placeholder="Contoh: 10000000" class="w-full px-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary">
+                        <label class="block text-sm sm:text-base font-bold text-slate-900 mb-2">Total Penghasilan / Tabungan (Rp)</label>
+                        <input type="number" id="zakat-income" placeholder="Contoh: 10000000" class="w-full px-4 py-3.5 border-2 border-slate-200 rounded-xl text-base sm:text-lg font-bold focus:outline-none focus:border-emerald-600 focus:bg-white transition-all">
                     </div>
-                    <button onclick="calculateZakat()" class="w-full bg-primary text-on-primary py-sm rounded-lg font-label-md text-label-md font-bold hover:bg-primary-container transition-colors cursor-pointer">
+                    <button onclick="calculateZakat()" class="w-full bg-emerald-700 text-white py-3.5 rounded-xl text-base sm:text-lg font-extrabold hover:bg-emerald-800 transition-colors cursor-pointer shadow-sm">
                         Hitung Zakat (2.5%)
                     </button>
-                    <div id="zakat-result" class="hidden p-md bg-primary-container/10 border border-primary-container/30 rounded-lg text-center space-y-xs">
-                        <p class="font-caption text-caption text-on-surface-variant uppercase font-bold">Kewajiban Zakat Anda:</p>
-                        <p id="zakat-amount" class="font-headline-lg text-headline-lg font-bold text-primary">Rp 0</p>
-                        <button onclick="payZakatFromCalc()" class="mt-sm bg-[#F7941D] text-white px-lg py-xs rounded font-label-md text-caption font-bold cursor-pointer">Salurkan Zakat Sekarang</button>
+                    <div id="zakat-result" class="hidden p-5 bg-emerald-50 border border-emerald-200 rounded-xl text-center space-y-2">
+                        <p class="text-xs sm:text-sm text-slate-600 uppercase font-bold tracking-wider">Kewajiban Zakat Anda:</p>
+                        <p id="zakat-amount" class="text-2xl sm:text-3xl font-black text-emerald-700">Rp 0</p>
+                        <button onclick="payZakatFromCalc()" class="mt-2 bg-[#F7941D] hover:bg-[#ea7e00] text-white px-6 py-2.5 rounded-xl text-sm sm:text-base font-extrabold cursor-pointer transition-all shadow-sm">Salurkan Zakat Sekarang</button>
                     </div>
                 </div>
             </div>
@@ -339,30 +349,30 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     </section>
 
     <!-- Berita & Kegiatan Terbaru -->
-    <section id="berita" class="py-xxl bg-surface px-margin-mobile md:px-gutter border-t border-surface-variant/50">
-        <div class="max-w-container-max mx-auto space-y-xl">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-md">
-                <div>
-                    <span class="inline-flex items-center gap-xs bg-primary-container/10 text-primary-container px-md py-xs rounded-full font-label-md text-caption font-bold uppercase tracking-wider mb-xs">
-                        <span class="material-symbols-outlined text-sm">newspaper</span>
+    <section id="berita" class="py-14 sm:py-20 bg-slate-50 px-4 sm:px-6 lg:px-8 border-t border-slate-200/80">
+        <div class="max-w-7xl mx-auto space-y-10 sm:space-y-12">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+                <div class="space-y-2">
+                    <span class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-3.5 py-1 rounded-full text-xs sm:text-sm font-extrabold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-base">newspaper</span>
                         Kabar &amp; Dokumentasi Kegiatan
                     </span>
-                    <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">Berita &amp; Kegiatan Terbaru</h2>
-                    <p class="font-body-lg text-body-lg text-on-surface-variant">Dokumentasi foto kegiatan dan tanggal penyaluran donasi WIZ Bangka Belitung.</p>
+                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">Berita &amp; Kegiatan Terbaru</h2>
+                    <p class="text-base sm:text-lg text-slate-600 font-medium">Dokumentasi foto kegiatan dan tanggal penyaluran donasi WIZ Bangka Belitung.</p>
                 </div>
-                <a href="/berita" class="hidden sm:inline-flex items-center gap-1.5 text-primary hover:text-primary-container font-label-md text-caption font-bold transition-colors">
+                <a href="/berita" class="hidden sm:inline-flex items-center gap-1.5 text-emerald-700 hover:text-emerald-800 text-sm sm:text-base font-extrabold transition-colors">
                     <span>Lihat Semua Berita</span>
-                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    <span class="material-symbols-outlined text-lg">arrow_forward</span>
                 </a>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter" id="public-news-grid">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8" id="public-news-grid">
             </div>
 
-            <div class="flex justify-center pt-md">
-                <a href="/berita" class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-extrabold text-sm sm:text-base px-8 py-3.5 rounded-full shadow-lg hover:shadow-emerald-600/30 transition-all hover:scale-105 cursor-pointer">
+            <div class="flex justify-center pt-2">
+                <a href="/berita" class="inline-flex items-center justify-center gap-2.5 bg-emerald-700 hover:bg-emerald-800 active:scale-98 text-white font-extrabold text-base sm:text-lg px-9 py-4 rounded-2xl shadow-lg hover:shadow-emerald-700/30 transition-all hover:scale-102 cursor-pointer">
                     <span>Lihat Semua Berita &amp; Kegiatan</span>
-                    <span class="material-symbols-outlined text-lg">arrow_forward</span>
+                    <span class="material-symbols-outlined text-xl">arrow_forward</span>
                 </a>
             </div>
         </div>
