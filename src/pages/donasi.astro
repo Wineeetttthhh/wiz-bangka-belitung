@@ -478,8 +478,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 </main>
 
             <!-- QRIS Payment Display Modal -->
-            <div id="qris-modal" class="modal-backdrop">
-                <div class="modal-dialog">
+            <div id="qris-modal" class="modal-backdrop" onclick="if(event.target===this) closeQRISModal()">
+                <div class="modal-dialog" onclick="event.stopPropagation()">
                     <div class="p-5 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl">
                         <div class="flex items-center gap-2">
                             <span class="px-2.5 py-0.5 bg-red-100 text-red-700 font-extrabold text-xs rounded-full uppercase tracking-wider">QRIS Standar</span>
@@ -574,8 +574,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             </div>
 
             <!-- Bank Transfer Display Modal -->
-            <div id="bank-modal" class="modal-backdrop">
-                <div class="modal-dialog">
+            <div id="bank-modal" class="modal-backdrop" onclick="if(event.target===this) closeBankModal()">
+                <div class="modal-dialog" onclick="event.stopPropagation()">
                     <div class="p-5 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl">
                         <h3 class="text-lg font-bold text-slate-900">Rekening Transfer Bank Syariah</h3>
                         <button type="button" onclick="closeBankModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center cursor-pointer transition-colors">
@@ -1216,10 +1216,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         }
         window.updateWhatsAppButtons = updateWhatsAppButtons;
 
-        let _lastModalOpenTime = 0;
-
         function openQRISModal() {
-            _lastModalOpenTime = Date.now();
             try {
                 let progText = `${state.type} (${state.wilayah})`;
                 if (state.type === 'Infak Terikat' && state.program !== '-') {
@@ -1238,9 +1235,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
                 const qrisModal = document.getElementById('qris-modal');
                 if (qrisModal) {
-                    if (document.body && typeof document.body.appendChild === 'function' && qrisModal.parentNode !== document.body) {
-                        document.body.appendChild(qrisModal);
-                    }
                     qrisModal.style.cssText = 'position: fixed !important; inset: 0 !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important; height: 100% !important; background: rgba(0, 0, 0, 0.85) !important; -webkit-backdrop-filter: blur(8px) !important; backdrop-filter: blur(8px) !important; z-index: 2147483647 !important; display: flex !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; align-items: center !important; justify-content: center !important; padding: 1rem !important; overflow-y: auto !important;';
                     qrisModal.classList.add('show', 'active');
                     document.body.style.overflow = 'hidden';
@@ -1270,7 +1264,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         window.closeQRISModal = closeQRISModal;
 
         function openBankModal() {
-            _lastModalOpenTime = Date.now();
             try {
                 let progText = `${state.type} (${state.wilayah})`;
                 if (state.type === 'Infak Terikat' && state.program !== '-') {
@@ -1289,9 +1282,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
                 const bankModal = document.getElementById('bank-modal');
                 if (bankModal) {
-                    if (document.body && typeof document.body.appendChild === 'function' && bankModal.parentNode !== document.body) {
-                        document.body.appendChild(bankModal);
-                    }
                     bankModal.style.cssText = 'position: fixed !important; inset: 0 !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important; height: 100% !important; background: rgba(0, 0, 0, 0.85) !important; -webkit-backdrop-filter: blur(8px) !important; backdrop-filter: blur(8px) !important; z-index: 2147483647 !important; display: flex !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; align-items: center !important; justify-content: center !important; padding: 1rem !important; overflow-y: auto !important;';
                     bankModal.classList.add('show', 'active');
                     document.body.style.overflow = 'hidden';
@@ -1395,11 +1385,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         }
         window.downloadQRISImage = downloadQRISImage;
 
-        // Close modal strictly on backdrop click only (with debounce protection)
-        window.addEventListener('click', (e) => {
-            if (Date.now() - _lastModalOpenTime < 450) return; // Prevent instant close from opening event trigger
-            if (e.target && e.target.id === 'qris-modal') closeQRISModal();
-            if (e.target && e.target.id === 'bank-modal') closeBankModal();
+        // Close on Escape key press
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeQRISModal();
+                closeBankModal();
+            }
         });
 
         document.addEventListener('DOMContentLoaded', () => {
