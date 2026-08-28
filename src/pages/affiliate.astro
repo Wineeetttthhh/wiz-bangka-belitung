@@ -871,36 +871,75 @@ return;
 
         function renderMemberDashboard() {
             if (!currentLoggedAffiliate) return;
-            const refId = currentLoggedAffiliate.id || currentLoggedAffiliate.code;
-            const fullRef = (window.wizStore && window.wizStore.referrals) ? (window.wizStore.referrals.getById(refId) || currentLoggedAffiliate) : currentLoggedAffiliate;
+            const mitra = currentLoggedAffiliate;
+            const mitraId   = (mitra.id   || '').toLowerCase();
+            const mitraCode = (mitra.code || '').toLowerCase();
+            const mitraPhone = (mitra.phone || '').replace(/\D/g, '');
 
-            const kpiCount = document.getElementById('kpi-total-count');
-            const kpiAmt = document.getElementById('kpi-total-amount');
-            const kpiEarned = document.getElementById('kpi-total-earned');
+            // Ambil semua donasi dari store (sama persis dengan admin)
+            let allDonations = [];
+            if (window.wizStore && window.wizStore.donations) {
+                try { allDonations = window.wizStore.donations.getAll() || []; } catch(e) {}
+            }
+
+            // Filter donasi yang terhubung ke mitra ini
+            // Cocokkan: referralId, referralCode, referral_id, referral_code, atau phone
+            const myDonations = allDonations.filter(d => {
+                const dRefId   = String(d.referralId   || d.referral_id   || '').toLowerCase();
+                const dRefCode = String(d.referralCode || d.referral_code || '').toLowerCase();
+                const dPhone   = String(d.referralPhone || d.referral_phone || '').replace(/\D/g,'');
+                return (mitraId   && (dRefId === mitraId || dRefCode === mitraId)) ||
+                       (mitraCode && (dRefId === mitraCode || dRefCode === mitraCode)) ||
+                       (mitraPhone && dPhone && dPhone === mitraPhone);
+            });
+
+            // Hitung KPI dari data nyata
+            const totalCount  = myDonations.length;
+            const totalAmount = myDonations.reduce((s, d) => s + (Number(d.amount) || 0), 0);
+            const rate = Number(mitra.defaultRate || mitra.rate || 6) / 100;
+            const totalEarned  = Math.round(totalAmount * rate);
+            const pendingBalance = myDonations
+                .filter(d => d.status === 'pending' || d.status === 'verified')
+                .reduce((s, d) => s + Math.round((Number(d.amount) || 0) * rate), 0);
+
+            // Update KPI cards
+            const kpiCount   = document.getElementById('kpi-total-count');
+            const kpiAmt     = document.getElementById('kpi-total-amount');
+            const kpiEarned  = document.getElementById('kpi-total-earned');
             const kpiPending = document.getElementById('kpi-pending-balance');
+            if (kpiCount)   kpiCount.textContent   = totalCount;
+            if (kpiAmt)     kpiAmt.textContent     = `Rp ${totalAmount.toLocaleString('id-ID')}`;
+            if (kpiEarned)  kpiEarned.textContent  = `Rp ${totalEarned.toLocaleString('id-ID')}`;
+            if (kpiPending) kpiPending.textContent = `Rp ${pendingBalance.toLocaleString('id-ID')}`;
 
-            if (kpiCount) kpiCount.textContent = fullRef.donationsCount || 0;
-            if (kpiAmt) kpiAmt.textContent = `Rp ${(fullRef.totalDonationAmount || 0).toLocaleString('id-ID')}`;
-            if (kpiEarned) kpiEarned.textContent = `Rp ${(fullRef.totalEarned || 0).toLocaleString('id-ID')}`;
-            if (kpiPending) kpiPending.textContent = `Rp ${(fullRef.pendingBalance || 0).toLocaleString('id-ID')}`;
-
+            // Render tabel riwayat
             const tbody = document.getElementById('member-donations-tbody');
-            if (tbody) {
-                const donList = (window.wizStore && window.wizStore.donations) ? window.wizStore.donations.getByReferral(refId) : [];
-                if (donList.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada transaksi donasi melalui link Anda. Bagikan program dan berita untuk mulai menghimpun kebaikan!</td></tr>';
-                } else {
-                    tbody.innerHTML = donList.map(d => `
-                        <tr class="border-b border-slate-100 hover:bg-slate-50">
-                            <td class="p-3">${(d.createdAt || '').split('T')[0]}</td>
-                            <td class="p-3 font-semibold">${d.donorName || 'Hamba Allah'}</td>
-                            <td class="p-3">${d.program || d.program_title || 'Umum'}</td>
-                            <td class="p-3 font-bold text-primary">Rp ${(Number(d.amount)||0).toLocaleString('id-ID')}</td>
-                            <td class="p-3 font-bold text-emerald-800">Rp ${Math.round((Number(d.amount)||0) * 0.06).toLocaleString('id-ID')}</td>
-                            <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Terverifikasi</span></td>
-                        </tr>
-                    `).join('');
-                }
+            if (!tbody) return;
+
+            if (myDonations.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400 text-sm">Belum ada transaksi donasi melalui link Anda. Bagikan program dan berita untuk mulai menghimpun kebaikan!</td></tr>';
+            } else {
+                const statusBadge = (s) => {
+                    if (s === 'verified') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">✓ Terverifikasi</span>';
+                    if (s === 'pending')  return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">⏳ Menunggu</span>';
+                    if (s === 'rejected') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">✕ Ditolak</span>';
+                    return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">' + (s||'-') + '</span>';
+                };
+                tbody.innerHTML = myDonations.map(d => {
+                    const tgl = (d.createdAt || d.transactionDate || '').split('T')[0] || '-';
+                    const nama = d.donorName || 'Hamba Allah';
+                    const prog = d.program || d.program_title || d.programSpesifik || 'Umum';
+                    const amt  = Number(d.amount) || 0;
+                    const fee  = d.referralFee || Math.round(amt * rate);
+                    return `<tr class="border-b border-slate-100 hover:bg-slate-50 text-sm">
+                        <td class="p-3 text-slate-500 text-xs">${tgl}</td>
+                        <td class="p-3 font-semibold text-slate-800">${nama}</td>
+                        <td class="p-3 text-slate-600">${prog}</td>
+                        <td class="p-3 font-bold text-primary">Rp ${amt.toLocaleString('id-ID')}</td>
+                        <td class="p-3 font-bold text-emerald-700">Rp ${fee.toLocaleString('id-ID')}</td>
+                        <td class="p-3">${statusBadge(d.status)}</td>
+                    </tr>`;
+                }).join('');
             }
         }
 
