@@ -83,25 +83,13 @@ const isBerita = currentPath.startsWith('/berita');
             </a>
         </div>
 
-        <!-- Right CTA Button & Mobile Menu Toggle -->
+        <!-- Mobile Menu Toggle Button -->
         <div class="flex items-center gap-3 shrink-0">
-            <!-- Pill Orange Button -->
-            <a 
-                href="/donasi" 
-                class="inline-flex items-center gap-2 bg-[#F28B00] hover:bg-[#df7d00] text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-full font-bold text-sm sm:text-base shadow-sm hover:shadow-md transition-all hover:scale-102 shrink-0"
-            >
-                <!-- Outline Heart Icon -->
-                <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                </svg>
-                <span>Donasi Sekarang</span>
-            </a>
-
             <!-- Mobile Hamburger Toggle -->
             <button 
                 id="mobile-menu-btn" 
                 type="button" 
-                class="lg:hidden p-2 text-slate-700 hover:text-[#008444] rounded-xl hover:bg-slate-100 transition-colors focus:outline-none cursor-pointer"
+                class="lg:hidden p-2.5 text-slate-700 hover:text-[#008444] rounded-xl hover:bg-slate-100 transition-colors focus:outline-none cursor-pointer"
                 aria-label="Buka Menu Navigasi"
             >
                 <span id="menu-icon" class="material-symbols-outlined text-2xl block select-none pointer-events-none">menu</span>
@@ -111,20 +99,12 @@ const isBerita = currentPath.startsWith('/berita');
 
     <!-- Mobile Drawer Menu -->
     <div id="mobile-menu" class="hidden lg:hidden border-t border-slate-100 bg-white px-4 py-4 space-y-2 shadow-lg">
-        <a class="nav-link block text-slate-700 hover:text-[#008444] font-medium py-2.5 border-b border-slate-50" href="/">Beranda</a>
-        <a class="nav-link block text-slate-700 hover:text-[#008444] font-medium py-2.5 border-b border-slate-50" href="/#tentang-kami">Tentang Kami</a>
-        <a class="nav-link block text-slate-700 hover:text-[#008444] font-medium py-2.5 border-b border-slate-50" href="/program">Program</a>
-        <a class="nav-link block text-slate-700 hover:text-[#008444] font-medium py-2.5 border-b border-slate-50" href="/laporan">Laporan Transparansi</a>
-        <a class="nav-link block text-slate-700 hover:text-[#008444] font-medium py-2.5 border-b border-slate-50" href="/berita">Berita &amp; Kegiatan</a>
-        <a class="nav-link block text-slate-700 hover:text-[#008444] font-medium py-2.5 border-b border-slate-50" href="/#kontak">Kontak</a>
-        <div class="pt-2">
-            <a href="/donasi" class="w-full flex items-center justify-center gap-2 bg-[#F28B00] text-white py-3 rounded-full font-bold text-sm shadow-sm">
-                <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                </svg>
-                <span>Donasi Sekarang</span>
-            </a>
-        </div>
+        <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/">Beranda</a>
+        <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/#tentang-kami">Tentang Kami</a>
+        <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/program">Program</a>
+        <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/laporan">Laporan Transparansi</a>
+        <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/berita">Berita &amp; Kegiatan</a>
+        <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5" href="/#kontak">Kontak</a>
     </div>
 </nav>
 
