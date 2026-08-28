@@ -480,13 +480,13 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                                 <input class="sr-only" name="payment_method" onchange="setPayment('QRIS')" type="radio" value="QRIS" checked />
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-3.5">
-                                        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white flex items-center justify-center rounded-2xl text-emerald-700 shadow-xs shrink-0 border border-emerald-200">
-                                            <span class="material-symbols-outlined text-2xl sm:text-3xl">qr_code_scanner</span>
+                                        <div class="w-11 h-11 sm:w-12 sm:h-12 bg-white flex items-center justify-center rounded-xl text-emerald-700 shadow-xs shrink-0 border border-emerald-200">
+                                            <span class="material-symbols-outlined text-2xl">qr_code_scanner</span>
                                         </div>
                                         <div>
                                             <div class="flex items-center gap-2">
                                                 <span class="font-extrabold text-slate-900 text-base sm:text-lg">QRIS (Instan)</span>
-                                                <span class="bg-red-100 text-red-700 text-xs font-extrabold px-2 py-0.5 rounded-full uppercase">Otomatis</span>
+                                                <span class="bg-red-100 text-red-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">Otomatis</span>
                                             </div>
                                             <span class="text-xs sm:text-sm text-slate-600 block mt-0.5">BCA, BSI, Mandiri, GoPay, OVO, DANA</span>
                                         </div>
@@ -500,76 +500,20 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                                 <input class="sr-only" name="payment_method" onchange="setPayment('Bank Transfer')" type="radio" value="Bank Transfer" />
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-3.5">
-                                        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-slate-100 flex items-center justify-center rounded-2xl text-slate-700 shadow-xs shrink-0 border border-slate-200">
-                                            <span class="material-symbols-outlined text-2xl sm:text-3xl">account_balance</span>
+                                        <div class="w-11 h-11 sm:w-12 sm:h-12 bg-slate-100 flex items-center justify-center rounded-xl text-slate-700 shadow-xs shrink-0 border border-slate-200">
+                                            <span class="material-symbols-outlined text-2xl">account_balance</span>
                                         </div>
                                         <div>
                                             <div class="flex items-center gap-2">
                                                 <span class="font-extrabold text-slate-900 text-base sm:text-lg">Transfer Bank</span>
-                                                <span class="bg-emerald-100 text-emerald-800 text-xs font-extrabold px-2 py-0.5 rounded-full uppercase">Syariah</span>
+                                                <span class="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">Syariah</span>
                                             </div>
                                             <span class="text-xs sm:text-sm text-slate-600 block mt-0.5">Bank Syariah Indonesia (BSI)</span>
                                         </div>
                                     </div>
-                                    <span id="check-bank" class="material-symbols-outlined text-emerald-600 text-2xl font-bold hidden">check_circle</span>
+                                    <span id="check-bank" class="material-symbols-outlined text-emerald-600 text-2xl font-bold" style="display: none;">check_circle</span>
                                 </div>
                             </label>
-                        </div>
-
-                        <!-- Inline QRIS Details Box (Always immediately visible when QRIS selected) -->
-                        <div id="inline-qris-details" class="mt-5 p-5 bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-500/40 rounded-2xl space-y-4 shadow-sm text-center">
-                            <div class="flex items-center justify-between border-b border-emerald-200/80 pb-3 text-left">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-3 h-3 rounded-full bg-emerald-600 animate-pulse"></span>
-                                    <span class="font-extrabold text-sm text-emerald-950">Kode QRIS Donasi Resmi (Bebas Biaya Admin)</span>
-                                </div>
-                                <span class="bg-red-100 text-red-700 text-xs font-black px-2.5 py-0.5 rounded-full uppercase">Instan</span>
-                            </div>
-
-                            <div class="inline-block p-3 bg-white rounded-2xl border-2 border-emerald-500/50 shadow-md">
-                                <img id="inline-qris-img" src="/assets/images/qris-code-wiz-babel.png" alt="Kode QRIS WIZ Bangka Belitung" class="w-60 h-60 sm:w-64 sm:h-64 object-contain rounded-xl block mx-auto">
-                            </div>
-
-                            <p class="text-xs sm:text-sm font-extrabold text-emerald-950">
-                                WAHDAH INSPIRASI ZAKAT BABEL
-                            </p>
-                            <p class="text-xs text-slate-600">
-                                Kompatibel dengan seluruh aplikasi: <strong>BCA, BSI, Mandiri, BRI, GoPay, OVO, DANA, ShopeePay, LinkAja</strong>.
-                            </p>
-
-                            <div class="flex flex-col sm:flex-row gap-2.5 pt-1">
-                                <button type="button" onclick="downloadQRISImage()" class="flex-1 bg-white hover:bg-emerald-50 text-emerald-800 border-2 border-emerald-300 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs">
-                                    <span class="material-symbols-outlined text-lg">download</span>
-                                    <span>Unduh Gambar QRIS</span>
-                                </button>
-                                <button type="button" onclick="openQRISModal()" class="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs">
-                                    <span class="material-symbols-outlined text-lg">fullscreen</span>
-                                    <span>Perbesar QRIS / Konfirmasi</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Inline Bank Transfer Details Box -->
-                        <div id="inline-bank-details" class="hidden mt-5 p-5 bg-slate-50 border-2 border-slate-200 rounded-2xl space-y-3.5 shadow-sm">
-                            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-                                <div class="flex items-center gap-2">
-                                    <img src="/assets/images/logo-bsi.jpg" alt="Bank Syariah Indonesia" class="h-8 object-contain" onerror="this.style.display='none'">
-                                    <span class="font-extrabold text-sm text-slate-900">Rekening Transfer Resmi (BSI)</span>
-                                </div>
-                                <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-full">Syariah</span>
-                            </div>
-
-                            <div class="p-4 bg-white rounded-xl border border-slate-300 flex items-center justify-between gap-3">
-                                <div class="space-y-0.5">
-                                    <span class="text-xs text-slate-500 font-bold block">Bank Syariah Indonesia (BSI)</span>
-                                    <span class="font-mono font-black text-xl sm:text-2xl text-slate-900 tracking-wider block" id="inline-bank-acc">7168008001</span>
-                                    <span class="text-xs text-emerald-800 font-bold block">A.n. WIZ Bangka Belitung</span>
-                                </div>
-                                <button type="button" onclick="copyAccount('7168008001')" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold rounded-xl shadow-xs transition-colors flex items-center gap-1 cursor-pointer">
-                                    <span class="material-symbols-outlined text-base">content_copy</span>
-                                    <span>Salin</span>
-                                </button>
-                            </div>
                         </div>
                     </section>
                 </div>
@@ -647,162 +591,136 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
         </form>
 </main>
 
-            <!-- QRIS Payment Display Modal -->
+            <!-- Compact Mobile-Friendly QRIS Payment Display Modal -->
             <div id="qris-modal" class="modal-backdrop" onclick="if(event.target===this) closeQRISModal()">
-                <div class="modal-dialog" onclick="event.stopPropagation()">
-                    <div class="p-5 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl">
+                <div class="modal-dialog max-w-md w-full" onclick="event.stopPropagation()">
+                    <!-- Header -->
+                    <div class="px-4 py-3.5 sm:px-5 sm:py-4 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl">
                         <div class="flex items-center gap-2">
-                            <span class="px-2.5 py-0.5 bg-red-100 text-red-700 font-extrabold text-xs rounded-full uppercase tracking-wider">QRIS Standar</span>
-                            <h3 class="text-lg font-bold text-slate-900">Scan Kode QRIS Donasi</h3>
+                            <span class="px-2 py-0.5 bg-red-100 text-red-700 font-black text-[11px] rounded-full uppercase">QRIS Standar</span>
+                            <h3 class="text-base sm:text-lg font-black text-slate-900">Scan Kode QRIS Donasi</h3>
                         </div>
                         <button type="button" onclick="closeQRISModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center cursor-pointer transition-colors">
                             <span class="material-symbols-outlined text-lg">close</span>
                         </button>
                     </div>
 
-                    <div class="p-5 sm:p-6 space-y-4 text-center">
-                        <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 text-xs flex items-start gap-2.5 text-left shadow-xs">
-                            <span class="material-symbols-outlined text-amber-700 text-xl shrink-0 mt-0.5">hourglass_top</span>
-                            <div>
-                                <span class="font-bold text-amber-900 block" id="qris-admin-target-title">Status: Menunggu Verifikasi Admin</span>
-                                <span class="text-amber-800 text-xs leading-relaxed block mt-0.5" id="qris-admin-target-desc">Transaksi Anda otomatis masuk ke antrean verifikasi Admin WIZ Babel. Silakan lakukan pembayaran dan konfirmasi melalui tombol WhatsApp di bawah.</span>
+                    <div class="p-4 sm:p-5 space-y-3 text-center">
+                        <!-- Compact Total & Donor Badge -->
+                        <div class="bg-emerald-50/90 border border-emerald-200 rounded-xl px-3.5 py-2 flex items-center justify-between">
+                            <div class="text-left">
+                                <span class="text-[10px] text-emerald-800 uppercase font-bold tracking-wider block">Total Donasi:</span>
+                                <h4 id="qris-modal-total" class="text-lg sm:text-xl font-black text-emerald-700 leading-tight">Rp 0</h4>
+                            </div>
+                            <div class="text-right max-w-[55%]">
+                                <span class="text-[10px] text-slate-500 font-bold block">Donatur:</span>
+                                <p id="qris-modal-donor" class="text-xs text-slate-800 font-bold truncate">-</p>
                             </div>
                         </div>
 
-                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-1">
-                            <p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Total Pembayaran Donasi</p>
-                            <h4 id="qris-modal-total" class="text-2xl sm:text-3xl font-extrabold text-emerald-700">Rp 0</h4>
-                            <p id="qris-modal-donor" class="text-xs text-slate-600 font-semibold">-</p>
-                        </div>
-
-                        <div class="bg-white p-4 sm:p-5 rounded-2xl border-2 border-emerald-500/20 shadow-sm flex flex-col items-center space-y-3.5 w-full">
-                            <div class="flex items-center justify-between w-full border-b border-slate-100 pb-2.5">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                    <span class="font-extrabold text-xs text-slate-800 tracking-wide">WAHDAH INSPIRASI ZAKAT BABEL</span>
-                                </div>
-                                <span class="text-[10px] text-red-600 font-extrabold uppercase bg-red-50 border border-red-200 px-2 py-0.5 rounded-md">Semua Bank &amp; e-Wallet</span>
+                        <!-- Main QR Card (Crisp & Scannable) -->
+                        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs flex flex-col items-center space-y-2">
+                            <div class="p-1.5 bg-white rounded-xl border border-emerald-300 shadow-inner inline-block">
+                                <img id="qris-modal-img" src="/assets/images/qris-code-wiz-babel.png" alt="Kode QRIS WIZ Bangka Belitung" class="w-48 h-48 sm:w-52 sm:h-52 object-contain rounded-lg block mx-auto">
+                            </div>
+                            
+                            <div class="space-y-0.5">
+                                <p class="font-black text-xs text-slate-900 tracking-wide">WAHDAH INSPIRASI ZAKAT BABEL</p>
+                                <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium">BCA • Mandiri • BSI • BRI • GoPay • OVO • DANA • ShopeePay</p>
                             </div>
 
-                            <div class="p-2 bg-white rounded-2xl border-2 border-emerald-500/40 shadow-inner flex items-center justify-center">
-                                <img id="qris-modal-img" src="/assets/images/qris-code-wiz-babel.png" alt="Kode QRIS WIZ Bangka Belitung" class="w-64 h-64 sm:w-72 sm:h-72 object-contain rounded-xl block">
-                            </div>
-
-                            <!-- Supported Banks & e-Wallets badges (Professional Box) -->
-                            <div class="w-full bg-slate-50/80 rounded-xl p-3 border border-slate-200/80 text-center">
-                                <p class="text-xs text-slate-600 font-medium leading-relaxed">
-                                    Dapat dipindai menggunakan seluruh aplikasi <strong class="text-slate-800">m-Banking</strong> &amp; <strong class="text-emerald-700">e-Wallet</strong>:
-                                </p>
-                                <div class="flex items-center justify-center gap-1.5 mt-2 flex-wrap text-[11px] font-bold text-slate-600">
-                                    <span class="px-2 py-0.5 bg-white rounded-md border border-slate-200 shadow-2xs">BCA</span>
-                                    <span class="px-2 py-0.5 bg-white rounded-md border border-slate-200 shadow-2xs">Mandiri</span>
-                                    <span class="px-2 py-0.5 bg-white rounded-md border border-slate-200 shadow-2xs">BSI</span>
-                                    <span class="px-2 py-0.5 bg-white rounded-md border border-slate-200 shadow-2xs">BRI</span>
-                                    <span class="px-2 py-0.5 bg-white rounded-md border border-slate-200 shadow-2xs">GoPay</span>
-                                    <span class="px-2 py-0.5 bg-white rounded-md border border-slate-200 shadow-2xs">OVO</span>
-                                    <span class="px-2 py-0.5 bg-white rounded-md border border-slate-200 shadow-2xs">DANA</span>
-                                    <span class="px-2 py-0.5 bg-white rounded-md border border-slate-200 shadow-2xs">ShopeePay</span>
-                                    <span class="px-2 py-0.5 bg-white rounded-md border border-slate-200 shadow-2xs">LinkAja</span>
-                                </div>
-                            </div>
-
-                            <button type="button" onclick="downloadQRISImage()" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 py-3 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs active:scale-[0.99]">
-                                <span class="material-symbols-outlined text-lg">download</span>
-                                <span>Unduh Gambar Kode QRIS</span>
+                            <button type="button" onclick="downloadQRISImage()" class="inline-flex items-center gap-1 text-emerald-700 hover:text-emerald-800 text-xs font-bold bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-3 py-1 rounded-lg transition-colors cursor-pointer">
+                                <span class="material-symbols-outlined text-sm">download</span>
+                                <span>Unduh Gambar QRIS</span>
                             </button>
                         </div>
 
-                        <div class="bg-emerald-50/80 p-3.5 rounded-xl border border-emerald-200 text-left space-y-1.5 text-xs text-emerald-900">
-                            <p class="font-bold flex items-center gap-1.5">
-                                <span class="material-symbols-outlined text-base text-emerald-700">info</span>
-                                Langkah Pembayaran &amp; Konfirmasi:
+                        <!-- Status Notice & Direct WhatsApp Confirmation Button (IMMEDIATELY VISIBLE AT TOP) -->
+                        <div class="space-y-1.5 pt-0.5">
+                            <a id="qris-wa-btn" href="https://wa.me/6282380830808" target="_blank" onclick="confirmQRISToWhatsApp(event)" class="group w-full bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#20ba59] hover:to-[#0f7669] text-white p-3 sm:p-3.5 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-between gap-2.5 cursor-pointer no-underline text-left border border-emerald-400/40">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <div class="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center shrink-0 border border-white/30">
+                                        <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+                                    </div>
+                                    <div class="leading-tight min-w-0">
+                                        <span id="qris-wa-btn-text" class="font-extrabold text-xs sm:text-sm text-white block truncate">Konfirmasi Pembayaran via WhatsApp</span>
+                                        <span id="qris-wa-btn-subtext" class="text-[10px] sm:text-xs text-emerald-100 font-medium block mt-0.5 opacity-90">Kirim bukti scan ke Admin Pangkalpinang</span>
+                                    </div>
+                                </div>
+                                <span class="material-symbols-outlined text-white text-base">arrow_forward</span>
+                            </a>
+                            <p class="text-[11px] text-slate-500 font-medium" id="qris-admin-target-desc">
+                                Selesai scan? Klik tombol WhatsApp hijau di atas untuk kirim bukti ke Admin.
                             </p>
-                            <ol class="list-decimal list-inside space-y-1 text-xs text-emerald-800 leading-relaxed">
-                                <li>Pindai kode QRIS di atas dengan aplikasi m-Banking atau e-Wallet Anda.</li>
-                                <li>Pastikan nama penerima adalah <strong>WAHDAH INSPIRASI ZAKAT BABEL</strong>.</li>
-                                <li>Setelah sukses transfer, klik tombol hijau di bawah untuk konfirmasi bukti transfer via WhatsApp ke admin WIZ.</li>
-                            </ol>
                         </div>
-
-                        <!-- Professional Elevated WhatsApp Confirmation Button -->
-                        <a id="qris-wa-btn" href="https://wa.me/6282380830808" target="_blank" onclick="confirmQRISToWhatsApp(event)" class="group w-full bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#20ba59] hover:to-[#0f7669] text-white p-4 rounded-2xl shadow-lg shadow-emerald-600/20 hover:shadow-xl hover:shadow-emerald-600/30 transition-all duration-200 flex items-center justify-between gap-3 cursor-pointer no-underline text-left border border-emerald-400/40">
-                            <div class="flex items-center gap-3.5 min-w-0">
-                                <div class="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0 border border-white/30 shadow-inner group-hover:scale-105 transition-transform">
-                                    <svg class="w-6 h-6 fill-white drop-shadow-xs" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
-                                </div>
-                                <div class="leading-tight min-w-0">
-                                    <span id="qris-wa-btn-text" class="font-extrabold text-sm sm:text-base text-white block truncate">Konfirmasi Pembayaran via WhatsApp</span>
-                                    <span id="qris-wa-btn-subtext" class="text-xs text-emerald-100 font-medium block mt-0.5 opacity-90">Kirim bukti scan ke Admin Pangkalpinang</span>
-                                </div>
-                            </div>
-                            <div class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center shrink-0 group-hover:translate-x-0.5 transition-transform">
-                                <span class="material-symbols-outlined text-white text-lg">arrow_forward</span>
-                            </div>
-                        </a>
                     </div>
                 </div>
             </div>
 
-            <!-- Bank Transfer Display Modal -->
+            <!-- Compact Bank Transfer Display Modal -->
             <div id="bank-modal" class="modal-backdrop" onclick="if(event.target===this) closeBankModal()">
-                <div class="modal-dialog" onclick="event.stopPropagation()">
-                    <div class="p-5 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl">
-                        <h3 class="text-lg font-bold text-slate-900">Rekening Transfer Bank Syariah</h3>
+                <div class="modal-dialog max-w-md w-full" onclick="event.stopPropagation()">
+                    <!-- Header -->
+                    <div class="px-4 py-3.5 sm:px-5 sm:py-4 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 font-black text-[11px] rounded-full uppercase">Bank Syariah</span>
+                            <h3 class="text-base sm:text-lg font-black text-slate-900">Rekening Transfer Donasi</h3>
+                        </div>
                         <button type="button" onclick="closeBankModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center cursor-pointer transition-colors">
                             <span class="material-symbols-outlined text-lg">close</span>
                         </button>
                     </div>
 
-                    <div class="p-5 sm:p-6 space-y-4">
-                        <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 text-xs flex items-start gap-2.5 text-left shadow-xs">
-                            <span class="material-symbols-outlined text-amber-700 text-xl shrink-0 mt-0.5">hourglass_top</span>
-                            <div>
-                                <span class="font-bold text-amber-900 block" id="bank-admin-target-title">Status: Menunggu Verifikasi Admin</span>
-                                <span class="text-amber-800 text-xs leading-relaxed block mt-0.5" id="bank-admin-target-desc">Transaksi Anda otomatis masuk ke antrean verifikasi Admin WIZ Babel. Silakan transfer dan konfirmasi bukti transfer via WhatsApp agar admin segera menyetujui.</span>
+                    <div class="p-4 sm:p-5 space-y-3 text-center">
+                        <!-- Compact Total & Donor Badge -->
+                        <div class="bg-emerald-50/90 border border-emerald-200 rounded-xl px-3.5 py-2 flex items-center justify-between">
+                            <div class="text-left">
+                                <span class="text-[10px] text-emerald-800 uppercase font-bold tracking-wider block">Total Donasi:</span>
+                                <h4 id="bank-modal-total" class="text-lg sm:text-xl font-black text-emerald-700 leading-tight">Rp 0</h4>
+                            </div>
+                            <div class="text-right max-w-[55%]">
+                                <span class="text-[10px] text-slate-500 font-bold block">Donatur:</span>
+                                <p id="bank-modal-donor" class="text-xs text-slate-800 font-bold truncate">-</p>
                             </div>
                         </div>
 
-                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center space-y-1">
-                            <p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Total Pembayaran Donasi</p>
-                            <h4 id="bank-modal-total" class="text-2xl sm:text-3xl font-extrabold text-emerald-700">Rp 0</h4>
-                            <p id="bank-modal-donor" class="text-xs text-slate-600 font-semibold">-</p>
+                        <!-- Bank Details Card -->
+                        <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-left space-y-2">
+                            <div class="flex items-center justify-between">
+                                <img src="/assets/images/logo-bsi.jpg" alt="Bank Syariah Indonesia" class="h-7 object-contain" onerror="this.style.display='none'">
+                                <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold border border-emerald-300">✅ Rekening Aktif</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-2 pt-1 bg-white p-3 rounded-xl border border-slate-200">
+                                <div class="space-y-0.5">
+                                    <span class="font-bold text-slate-600 text-[11px] block">Bank Syariah Indonesia (BSI)</span>
+                                    <span class="font-mono font-black text-lg sm:text-xl text-slate-900 tracking-wider block" data-site-bank-no="bsi">7168008001</span>
+                                    <span class="text-[10px] text-emerald-800 font-bold block">A.n. WIZ Bangka Belitung</span>
+                                </div>
+                                <button type="button" onclick="copyAccount('7168008001')" class="shrink-0 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs transition-colors flex items-center gap-1 cursor-pointer">
+                                    <span class="material-symbols-outlined text-sm">content_copy</span>
+                                    <span>Salin</span>
+                                </button>
+                            </div>
                         </div>
 
-                        <div id="dynamic-donasi-banks-container" class="space-y-3">
-                            <div class="p-5 bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-500/50 rounded-2xl shadow-sm">
-                                <div class="flex items-center justify-between mb-3">
-                                    <img src="/assets/images/logo-bsi.jpg" alt="Bank Syariah Indonesia" class="h-9 object-contain" onerror="this.style.display='none'">
-                                    <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-extrabold border border-emerald-300">✅ Rekening Aktif</span>
-                                </div>
-                                <div class="flex items-center justify-between gap-3">
-                                    <div class="space-y-0.5">
-                                        <span class="font-bold text-emerald-800 text-sm block" data-site-bank-name="bsi">Bank Syariah Indonesia (BSI)</span>
-                                        <span class="font-mono font-extrabold text-2xl sm:text-3xl text-slate-900 tracking-widest block" data-site-bank-no="bsi">7168008001</span>
-                                        <span class="text-xs text-slate-500 block font-semibold" data-site-bank-holder="bsi">A.n. WIZ Bangka Belitung</span>
+                        <!-- Status Notice & Direct WhatsApp Confirmation Button -->
+                        <div class="space-y-1.5 pt-0.5">
+                            <a id="bank-wa-btn" href="https://wa.me/6282380830808" target="_blank" onclick="confirmBankToWhatsApp(event)" class="group w-full bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#20ba59] hover:to-[#0f7669] text-white p-3 sm:p-3.5 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-between gap-2.5 cursor-pointer no-underline text-left border border-emerald-400/40">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <div class="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center shrink-0 border border-white/30">
+                                        <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
                                     </div>
-                                    <button type="button" onclick="copyAccount('7168008001')" class="shrink-0 px-4 py-2.5 bg-emerald-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-emerald-700 transition-colors flex flex-col items-center gap-0.5 cursor-pointer">
-                                        <span class="material-symbols-outlined text-base">content_copy</span>
-                                        <span>Salin</span>
-                                    </button>
+                                    <div class="leading-tight min-w-0">
+                                        <span id="bank-wa-btn-text" class="font-extrabold text-xs sm:text-sm text-white block truncate">Konfirmasi Pembayaran via WhatsApp</span>
+                                        <span id="bank-wa-btn-subtext" class="text-[10px] sm:text-xs text-emerald-100 font-medium block mt-0.5 opacity-90">Kirim bukti transfer ke Admin Pangkalpinang</span>
+                                    </div>
                                 </div>
-                            </div>
+                                <span class="material-symbols-outlined text-white text-base">arrow_forward</span>
+                            </a>
+                            <p class="text-[11px] text-slate-500 font-medium" id="bank-admin-target-desc">
+                                Selesai transfer? Klik tombol WhatsApp hijau di atas untuk kirim bukti ke Admin.
+                            </p>
                         </div>
-
-                        <!-- Professional Elevated WhatsApp Confirmation Button -->
-                        <a id="bank-wa-btn" href="https://wa.me/6282380830808" target="_blank" onclick="confirmBankToWhatsApp(event)" class="group w-full bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#20ba59] hover:to-[#0f7669] text-white p-4 rounded-2xl shadow-lg shadow-emerald-600/20 hover:shadow-xl hover:shadow-emerald-600/30 transition-all duration-200 flex items-center justify-between gap-3 cursor-pointer no-underline text-left border border-emerald-400/40">
-                            <div class="flex items-center gap-3.5 min-w-0">
-                                <div class="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0 border border-white/30 shadow-inner group-hover:scale-105 transition-transform">
-                                    <svg class="w-6 h-6 fill-white drop-shadow-xs" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
-                                </div>
-                                <div class="leading-tight min-w-0">
-                                    <span id="bank-wa-btn-text" class="font-extrabold text-sm sm:text-base text-white block truncate">Konfirmasi Bukti Transfer via WhatsApp</span>
-                                    <span id="bank-wa-btn-subtext" class="text-xs text-emerald-100 font-medium block mt-0.5 opacity-90">Kirim bukti struk ke Admin Pangkalpinang</span>
-                                </div>
-                            </div>
-                            <div class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center shrink-0 group-hover:translate-x-0.5 transition-transform">
-                                <span class="material-symbols-outlined text-white text-lg">arrow_forward</span>
-                            </div>
-                        </a>
                     </div>
                 </div>
             </div>
@@ -1192,23 +1110,16 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
             const checkBank = document.getElementById('check-bank');
 
             if (cardQris && cardBank) {
-                const inlineQris = document.getElementById('inline-qris-details');
-                const inlineBank = document.getElementById('inline-bank-details');
-
                 if (isQris) {
                     cardQris.className = 'payment-method-card cursor-pointer relative block border-2 border-emerald-600 bg-emerald-50/70 rounded-2xl p-4 sm:p-5 transition-all shadow-sm ring-2 ring-emerald-500/20';
                     cardBank.className = 'payment-method-card cursor-pointer relative block border-2 border-slate-200 bg-white hover:border-emerald-500/50 rounded-2xl p-4 sm:p-5 transition-all shadow-xs';
-                    if (checkQris) { checkQris.classList.remove('hidden', 'opacity-0'); checkQris.classList.add('text-emerald-600'); }
-                    if (checkBank) { checkBank.classList.add('hidden'); }
-                    if (inlineQris) inlineQris.classList.remove('hidden');
-                    if (inlineBank) inlineBank.classList.add('hidden');
+                    if (checkQris) checkQris.style.display = 'block';
+                    if (checkBank) checkBank.style.display = 'none';
                 } else {
                     cardBank.className = 'payment-method-card cursor-pointer relative block border-2 border-emerald-600 bg-emerald-50/70 rounded-2xl p-4 sm:p-5 transition-all shadow-sm ring-2 ring-emerald-500/20';
                     cardQris.className = 'payment-method-card cursor-pointer relative block border-2 border-slate-200 bg-white hover:border-emerald-500/50 rounded-2xl p-4 sm:p-5 transition-all shadow-xs';
-                    if (checkBank) { checkBank.classList.remove('hidden', 'opacity-0'); checkBank.classList.add('text-emerald-600'); }
-                    if (checkQris) { checkQris.classList.add('hidden'); }
-                    if (inlineQris) inlineQris.classList.add('hidden');
-                    if (inlineBank) inlineBank.classList.remove('hidden');
+                    if (checkBank) checkBank.style.display = 'block';
+                    if (checkQris) checkQris.style.display = 'none';
                 }
             }
         }
