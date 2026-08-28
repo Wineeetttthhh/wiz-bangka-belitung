@@ -4,177 +4,194 @@ import MitraLayout from '../layouts/MitraLayout.astro';
 
 <MitraLayout
     title="Portal Member & Pendaftaran Mitra Penghimpunan Kebaikan — WIZ Bangka Belitung"
-    description="Portal resmi Member & Mitra Penghimpunan Perantara Kebaikan Wahdah Inspirasi Zakat (WIZ) Bangka Belitung. Pantau kinerja alokasi insentif 6%, laporan bulanan, dan kelola link penghimpunan program."
-    image="/assets/images/foto-utama-wiz.jpg"
+    description="Daftar sebagai Mitra Penghimpunan Resmi WIZ Bangka Belitung. Dapatkan Kode Referral khusus, bagi link kebaikan dan peroleh hak insentif 6% atas setiap donasi yang Anda himpun."
+    image="/assets/images/default-program-wiz.png"
 >
-    <!-- Dedicated Isolated Portal Fundraising Header / Hero -->
-    <section class="relative bg-gradient-to-br from-emerald-950 via-emerald-900 to-slate-950 text-white py-8 sm:py-12 md:py-16 overflow-hidden w-full">
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-500/20 via-transparent to-transparent pointer-events-none"></div>
-        <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-primary/20 rounded-full filter blur-3xl pointer-events-none"></div>
-        
-        <div class="max-w-5xl mx-auto px-4 text-center space-y-3 sm:space-y-4 relative z-10 w-full">
-            <span class="inline-flex items-center gap-2 bg-emerald-500/20 backdrop-blur-md px-3.5 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-bold text-emerald-300 border border-emerald-400/30 shadow-xs">
-                <span class="material-symbols-outlined text-sm">check_circle</span>
-                <span>Portal Resmi Fundraising WIZ Bangka Belitung</span>
-            </span>
-            <h1 class="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight text-white px-2">
-                Sebarkan Kebaikan, Tingkatkan Penghimpunan
-            </h1>
-            <p class="text-emerald-100/90 text-xs sm:text-base max-w-2xl mx-auto font-medium leading-relaxed px-2">
-                Kelola akun fundraising Anda, bagikan tautan program, dan pantau donasi yang berhasil dihimpun secara transparan.
+    <!-- Header Banner -->
+    <section class="bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white py-10 sm:py-14 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 relative z-10 text-center space-y-3">
+            <div class="inline-flex items-center gap-2 bg-emerald-700/60 border border-emerald-500/40 px-3.5 py-1 rounded-full text-xs font-semibold text-emerald-200">
+                <span class="material-symbols-outlined text-sm">handshake</span>
+                <span>Program Kemitraan Kebaikan &amp; Relawan Fundraiser</span>
+            </div>
+            <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight">Portal Mitra Penghimpunan Kebaikan</h1>
+            <p class="text-xs sm:text-base text-emerald-100 max-w-2xl mx-auto leading-relaxed">
+                Jadilah jembatan kebaikan ummat. Sebarkan link program donasi resmi WIZ Bangka Belitung, raih pahala jariyah tanpa batas, dan peroleh <strong>Hak Insentif 6%</strong> atas setiap donasi yang terhimpun secara transparan!
             </p>
         </div>
     </section>
 
-    <!-- Main Content Container -->
-    <div style="max-width:72rem; margin:0 auto; padding:1.5rem; flex-grow:1;">
+    <!-- Main Container: Guest (Auth) vs Member (Dashboard) -->
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
 
-        <!-- ============================================================ -->
-        <!-- STATE 1: AUTH CONTAINER (VISIBLE ONLY WHEN LOGGED OUT)       -->
-        <!-- ============================================================ -->
-        <div id="auth-state-container" style="max-width:42rem; margin:0 auto; padding:0.5rem 0;">
-            
-            <div class="bg-white rounded-3xl shadow-xl border border-slate-200" style="padding:2rem; width:100%;">
-                
-                <!-- Auth Toggle Tabs: Sign In vs Sign Up -->
-                <div class="bg-slate-100 p-1.5 rounded-2xl flex items-center mb-6 w-full">
-                    <button onclick="toggleAuthTab('signin')" id="btn-auth-signin" class="flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 bg-white text-primary shadow-sm cursor-pointer">
-                        <span class="material-symbols-outlined text-base">login</span>
-                        <span>Sign In (Masuk)</span>
-                    </button>
-                    <button onclick="toggleAuthTab('signup')" id="btn-auth-signup" class="flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-slate-900 cursor-pointer">
-                        <span class="material-symbols-outlined text-base">person_add</span>
-                        <span>Sign Up (Daftar Mitra)</span>
-                    </button>
-                </div>
+        <!-- ======================================================== -->
+        <!-- STATE 1: GUEST AUTH VIEW (Login / Register Tabs)         -->
+        <!-- ======================================================== -->
+        <div id="auth-state-container" class="max-w-xl mx-auto space-y-6">
 
-                <!-- SIGN IN FORM -->
-                <div id="auth-signin-view" class="space-y-5">
-                    <div class="text-center space-y-1">
-                        <h2 class="text-xl font-extrabold text-slate-900">Selamat Datang Mitra Penghimpunan</h2>
-                        <p class="text-xs text-slate-500">Masukkan No. WhatsApp / Kode Mitra dan PIN Anda untuk masuk.</p>
-                    </div>
-
-                    <form id="affiliate-login-form" onsubmit="handleAffiliateLogin(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">No. WhatsApp / Kode Mitra <span class="text-red-500">*</span></label>
-                            <input type="text" id="login-identifier" required placeholder="Contoh: 081234567890 atau WIZ-20260820-001"
-                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none font-mono">
-                        </div>
-
-                        <div>
-                            <div class="flex justify-between items-center mb-1">
-                                <label class="block text-xs font-bold text-slate-700">PIN Login (4-6 Digit) <span class="text-red-500">*</span></label>
-                                <button type="button" onclick="openForgotPinModal()" class="text-xs text-primary font-bold hover:underline cursor-pointer">Lupa PIN / Password?</button>
-                            </div>
-                            <input type="password" id="login-pin" required placeholder="Masukkan PIN 4-6 Digit Anda"
-                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
-                        </div>
-
-                        <button type="submit" id="btn-login-submit"
-                            class="w-full bg-primary hover:bg-emerald-700 text-white font-bold text-sm py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
-                            <span class="material-symbols-outlined text-lg">login</span>
-                            <span>Masuk ke Dashboard Mitra</span>
-                        </button>
-                    </form>
-                </div>
-
-                <!-- SIGN UP FORM (HIDDEN BY DEFAULT) -->
-                <div id="auth-signup-view" class="space-y-5 hidden">
-                    <div class="text-center space-y-1">
-                        <h2 class="text-xl font-extrabold text-slate-900">Pendaftaran Mitra Penghimpunan Baru</h2>
-                        <p class="text-xs text-slate-500">Daftar gratis dalam 1 menit &amp; raih alokasi insentif mitra (hak amil 6%).</p>
-                    </div>
-
-                    <form id="affiliate-reg-form" onsubmit="handleAffiliateRegister(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap / Komunitas <span class="text-red-500">*</span></label>
-                            <input type="text" id="reg-name" required placeholder="Contoh: Ahmad Hidayat"
-                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Nomor WhatsApp / HP Active <span class="text-red-500">*</span></label>
-                            <input type="tel" id="reg-phone" required placeholder="Contoh: 081234567890"
-                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Bank Pencairan</label>
-                                <input type="text" id="reg-bank" placeholder="BSI / Mandiri / BCA"
-                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Rekening</label>
-                                <input type="text" id="reg-acc-no" placeholder="Contoh: 7112223334"
-                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Pemilik Rekening</label>
-                            <input type="text" id="reg-acc-holder" placeholder="Sesuai buku tabungan"
-                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Buat PIN Login (4-6 Digit) <span class="text-red-500">*</span></label>
-                            <input type="password" id="reg-pin" required placeholder="Contoh: 123456"
-                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
-                        </div>
-
-                        <button type="submit" id="btn-reg-submit"
-                            class="w-full bg-[#F7941D] hover:bg-amber-600 text-white font-bold text-sm py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
-                            <span class="material-symbols-outlined text-lg">check_circle</span>
-                            <span>Daftar &amp; Aktifkan Akun Mitra</span>
-                        </button>
-                    </form>
-                </div>
-
+            <!-- Card Switcher Tab -->
+            <div class="bg-slate-200 p-1.5 rounded-2xl flex items-center gap-1 shadow-inner">
+                <button type="button" id="btn-auth-signin" onclick="toggleAuthTab('signin')"
+                    class="flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 bg-white text-primary shadow-sm cursor-pointer">
+                    <span class="material-symbols-outlined text-base">login</span>
+                    <span>Masuk (Login Mitra)</span>
+                </button>
+                <button type="button" id="btn-auth-signup" onclick="toggleAuthTab('signup')"
+                    class="flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-slate-900 cursor-pointer">
+                    <span class="material-symbols-outlined text-base">person_add</span>
+                    <span>Daftar Mitra Baru</span>
+                </button>
             </div>
+
+            <!-- Tab 1: Form Login Mitra -->
+            <div id="auth-signin-view" class="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-md space-y-5">
+                <div class="text-center space-y-1">
+                    <h2 class="text-xl font-bold text-slate-900">Masuk ke Portal Member</h2>
+                    <p class="text-xs text-slate-500">Masukkan No. WhatsApp atau Kode Mitra beserta PIN Anda.</p>
+                </div>
+
+                <form id="affiliate-login-form" onsubmit="handleAffiliateLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">No. WhatsApp / Kode Mitra *</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-lg">smartphone</span>
+                            <input type="text" id="login-identifier" required placeholder="Contoh: 081234567890 atau WIZ-TEST-001"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary focus:bg-white transition-all">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">PIN Login (4-6 Digit) *</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-lg">lock</span>
+                            <input type="password" id="login-pin" required placeholder="Masukkan PIN Akun Anda"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary focus:bg-white transition-all">
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-primary hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 text-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-lg">login</span>
+                        <span>Masuk ke Dashboard Mitra</span>
+                    </button>
+                </form>
+
+                <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-900 space-y-1">
+                    <p class="font-bold flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">info</span>
+                        <span>Akun Uji Coba (Demo):</span>
+                    </p>
+                    <p>• No. WA: <code class="bg-white px-1.5 py-0.5 rounded font-mono font-bold">081234567890</code> | PIN: <code class="bg-white px-1.5 py-0.5 rounded font-mono font-bold">123456</code></p>
+                    <p>• No. WA: <code class="bg-white px-1.5 py-0.5 rounded font-mono font-bold">082180808080</code> | PIN: <code class="bg-white px-1.5 py-0.5 rounded font-mono font-bold">1234</code></p>
+                </div>
+            </div>
+
+            <!-- Tab 2: Form Pendaftaran Mitra Baru -->
+            <div id="auth-signup-view" class="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-md space-y-5 hidden">
+                <div class="text-center space-y-1">
+                    <h2 class="text-xl font-bold text-slate-900">Pendaftaran Mitra Penghimpunan</h2>
+                    <p class="text-xs text-slate-500">Lengkapi data diri Anda untuk mendapatkan Kode Mitra resmi.</p>
+                </div>
+
+                <form id="affiliate-register-form" onsubmit="handleAffiliateRegister(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap / Nama Komunitas *</label>
+                        <input type="text" id="reg-name" required placeholder="Contoh: Ahmad Sahal / Majelis Taklim Al-Ikhlas"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary focus:bg-white transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nomor WhatsApp Aktif *</label>
+                        <input type="tel" id="reg-phone" required placeholder="Contoh: 081271718890"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary focus:bg-white transition-all">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Bank *</label>
+                            <input type="text" id="reg-bank" required placeholder="Contoh: BSI / Mandiri / BCA"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary focus:bg-white transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Rekening *</label>
+                            <input type="text" id="reg-acc-no" required placeholder="Nomor Rekening Bank"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary focus:bg-white transition-all">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nama Pemilik Rekening *</label>
+                        <input type="text" id="reg-acc-holder" required placeholder="Sesuai nama di buku tabungan"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary focus:bg-white transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Buat PIN Login (4-6 Digit Angka) *</label>
+                        <input type="password" id="reg-pin" required placeholder="Contoh: 123456"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary focus:bg-white transition-all">
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-primary hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 text-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-lg">check_circle</span>
+                        <span>Daftar Sebagai Mitra Sekarang</span>
+                    </button>
+                </form>
+            </div>
+
         </div>
 
-        <!-- ============================================================ -->
-        <!-- STATE 2: MEMBER PORTAL DASHBOARD (VISIBLE ONLY WHEN LOGGED IN)-->
-        <!-- ============================================================ -->
-        <div id="member-state-container" class="space-y-6 sm:space-y-8 hidden w-full">
-            
-            <!-- Member Top Header Banner -->
-            <div class="w-full bg-gradient-to-r from-emerald-950 via-primary to-emerald-800 text-white p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl shadow-lg relative overflow-hidden flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
-                <div class="space-y-1 relative z-10 flex items-center gap-3 sm:gap-4">
-                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/20 text-white font-extrabold text-lg sm:text-xl flex items-center justify-center border border-white/30 shrink-0" id="member-avatar">
-                        A
+        <!-- ======================================================== -->
+        <!-- STATE 2: LOGGED-IN MEMBER DASHBOARD VIEW                 -->
+        <!-- ======================================================== -->
+        <div id="member-state-container" class="space-y-6 hidden w-full">
+
+            <!-- Member Header Card -->
+            <div class="bg-gradient-to-r from-emerald-900 to-teal-900 text-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 w-full">
+                <div class="flex items-center gap-3.5">
+                    <div id="member-avatar" class="w-12 h-12 rounded-2xl bg-white text-emerald-900 font-extrabold text-xl flex items-center justify-center shadow-md">
+                        M
                     </div>
-                    <div class="min-w-0">
+                    <div>
                         <div class="flex items-center gap-2 flex-wrap">
-                            <span class="bg-emerald-400/20 text-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border border-emerald-400/30">FUNDRAISER AKTIF</span>
-                            <span id="member-code-badge" class="font-mono bg-white/20 px-2 py-0.5 rounded text-[10px] sm:text-[11px] font-bold text-white truncate max-w-[180px]">WIZ-YYYYMMDD-XXX</span>
+                            <span class="bg-emerald-700/80 text-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Fundraiser Aktif</span>
+                            <span id="member-code-badge" class="bg-white/20 text-white font-mono text-xs font-bold px-2.5 py-0.5 rounded-md border border-white/20">WIZ-000</span>
                         </div>
-                        <h2 id="member-welcome-title" class="text-lg sm:text-2xl font-extrabold text-white mt-1 truncate">Selamat Datang, -</h2>
+                        <h2 id="member-welcome-title" class="text-lg sm:text-2xl font-bold mt-0.5 text-white">Selamat Datang, Mitra Kebaikan!</h2>
                     </div>
                 </div>
 
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 relative z-10 w-full md:w-auto">
-                    <button onclick="copyMemberMainLink()" class="flex-1 sm:flex-initial bg-white text-emerald-950 font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-emerald-50 transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
-                        <span class="material-symbols-outlined text-base">content_copy</span> <span>Salin Link Fundraising</span>
+                <div class="flex items-center gap-2 w-full md:w-auto">
+                    <button onclick="copyFundraisingLink()" type="button" class="flex-1 md:flex-none bg-white text-emerald-900 hover:bg-emerald-50 px-4 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">content_copy</span>
+                        <span>Salin Link Fundraising</span>
                     </button>
-                    <button onclick="handleAffiliateLogout()" class="sm:flex-initial bg-red-500/20 hover:bg-red-500/30 text-white font-bold px-4 py-2.5 rounded-xl text-xs border border-red-300/30 transition-colors flex items-center justify-center gap-1 cursor-pointer">
-                        <span class="material-symbols-outlined text-base">logout</span> <span>Keluar (Logout)</span>
+                    <button onclick="handleAffiliateLogout()" type="button" class="bg-emerald-950/60 hover:bg-red-600/80 text-white border border-white/10 px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1 transition-all cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">logout</span>
+                        <span>Keluar</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Member Sub-Navigation Tabs -->
+            <!-- Member Sub-Navigation Tabs (5 Subtabs) -->
             <div class="w-full bg-white border-b border-slate-200 rounded-2xl shadow-xs overflow-hidden">
                 <div class="flex justify-start gap-1 sm:gap-2 overflow-x-auto p-1.5">
                     <button onclick="switchMemberSubTab('subtab-kpi')" id="btn-subtab-kpi" class="member-nav-btn active shrink-0 whitespace-nowrap px-3.5 sm:px-5 py-2.5 sm:py-3 font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all rounded-xl border-b-2 border-primary text-primary bg-primary/5 cursor-pointer">
                         <span class="material-symbols-outlined text-base sm:text-lg">analytics</span>
                         <span>Penghimpunan</span>
                     </button>
+                    <button onclick="switchMemberSubTab('subtab-news')" id="btn-subtab-news" class="member-nav-btn shrink-0 whitespace-nowrap px-3.5 sm:px-5 py-2.5 sm:py-3 font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all rounded-xl border-b-2 border-transparent text-slate-600 hover:text-slate-900 cursor-pointer">
+                        <span class="material-symbols-outlined text-base sm:text-lg">feed</span>
+                        <span>Kabar Berita &amp; Kegiatan</span>
+                    </button>
                     <button onclick="switchMemberSubTab('subtab-catalog')" id="btn-subtab-catalog" class="member-nav-btn shrink-0 whitespace-nowrap px-3.5 sm:px-5 py-2.5 sm:py-3 font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all rounded-xl border-b-2 border-transparent text-slate-600 hover:text-slate-900 cursor-pointer">
                         <span class="material-symbols-outlined text-base sm:text-lg">grid_view</span>
                         <span>Program &amp; Link</span>
+                    </button>
+                    <button onclick="switchMemberSubTab('subtab-quotes')" id="btn-subtab-quotes" class="member-nav-btn shrink-0 whitespace-nowrap px-3.5 sm:px-5 py-2.5 sm:py-3 font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all rounded-xl border-b-2 border-transparent text-slate-600 hover:text-slate-900 cursor-pointer">
+                        <span class="material-symbols-outlined text-base sm:text-lg">format_quote</span>
+                        <span>Quotes &amp; Flyer</span>
                     </button>
                     <button onclick="switchMemberSubTab('subtab-profile')" id="btn-subtab-profile" class="member-nav-btn shrink-0 whitespace-nowrap px-3.5 sm:px-5 py-2.5 sm:py-3 font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all rounded-xl border-b-2 border-transparent text-slate-600 hover:text-slate-900 cursor-pointer">
                         <span class="material-symbols-outlined text-base sm:text-lg">settings</span>
@@ -236,7 +253,58 @@ import MitraLayout from '../layouts/MitraLayout.astro';
                 </div>
             </div>
 
-            <!-- SUBTAB 2: Catalog & Program Share Link Generator -->
+            <!-- SUBTAB 2: Berita & Artikel Kegiatan Siap Share -->
+            <div id="subtab-news" class="member-subtab space-y-6 hidden w-full">
+                <div class="border-b border-slate-200 pb-4">
+                    <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">Kabar Kegiatan &amp; Berita Siap Bagikan</h2>
+                    <p class="text-xs text-slate-500 mt-1">Bagikan dokumentasi penyaluran resmi WIZ Babel ke WhatsApp atau media sosial. Setiap donasi yang masuk dari link berita Anda otomatis terhubung dengan alokasi <strong>Hak Insentif 6%</strong> Anda!</p>
+                </div>
+
+                <!-- Featured News Card (Latest News Item) -->
+                <div id="affiliate-featured-news" class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-slate-200 shadow-sm flex flex-col md:flex-row items-center gap-4 sm:gap-6 w-full">
+                    <div class="w-full md:w-64 max-w-full aspect-video rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shrink-0 shadow-xs relative">
+                        <img id="aff-featured-news-img" src="/assets/images/default-program-wiz.png" class="w-full h-full object-cover" onerror="this.src='/assets/images/default-program-wiz.png'" alt="Berita Terbaru">
+                        <span id="aff-featured-news-category" class="absolute top-2 left-2 bg-primary text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-xs">Kegiatan</span>
+                    </div>
+                    <div class="flex-1 space-y-3 w-full">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
+                                <span class="material-symbols-outlined text-sm">stars</span> Berita Terbaru (Rekomendasi Share)
+                            </span>
+                            <span id="aff-featured-news-date" class="text-xs text-slate-400 font-mono"></span>
+                        </div>
+                        <h3 id="aff-featured-news-title" class="text-base sm:text-lg font-bold text-slate-900 leading-snug"></h3>
+                        <p id="aff-featured-news-excerpt" class="text-slate-600 text-xs leading-relaxed line-clamp-2"></p>
+                        
+                        <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
+                            <button type="button" id="aff-featured-share-wa-btn" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white px-3.5 sm:px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-transform hover:scale-105 cursor-pointer">
+                                <span class="material-symbols-outlined text-sm">send</span>
+                                <span>Bagikan ke WhatsApp</span>
+                            </button>
+                            <button type="button" id="aff-featured-copy-btn" class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-3 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer" title="Salin Link Penghimpunan Berita">
+                                <span class="material-symbols-outlined text-base">content_copy</span>
+                                <span>Salin Link</span>
+                            </button>
+                            <a id="aff-featured-view-btn" href="#" target="_blank" class="bg-primary/10 hover:bg-primary/20 text-primary px-3 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors">
+                                <span class="material-symbols-outlined text-base">open_in_new</span>
+                                <span>Buka Halaman</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid of All Available Published News -->
+                <div class="space-y-4 pt-2 w-full">
+                    <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">feed</span>
+                        <span>Daftar Seluruh Berita &amp; Kegiatan Siap Share</span>
+                    </h3>
+                    <div id="affiliate-news-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUBTAB 3: Catalog & Program Share Link Generator -->
             <div id="subtab-catalog" class="member-subtab space-y-6 hidden w-full">
                 <div class="border-b border-slate-200 pb-4">
                     <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">Katalog Program Siap Bagikan</h2>
@@ -247,7 +315,32 @@ import MitraLayout from '../layouts/MitraLayout.astro';
                 </div>
             </div>
 
-            <!-- SUBTAB 3: Member Profile & Bank Account Settings -->
+            <!-- SUBTAB 4: Quotes & Flyer Media -->
+            <div id="subtab-quotes" class="member-subtab space-y-6 hidden w-full">
+                <div class="border-b border-slate-200 pb-4">
+                    <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-2xl">format_quote</span>
+                        <span>Quotes &amp; Flyer Dakwah Harian</span>
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">Materi flyer poster dakwah siap dibagikan ke WhatsApp Story, Chat, dan Media Sosial dengan tautan referral Anda!</p>
+                </div>
+
+                <!-- Featured / Today Quote Card -->
+                <div id="affiliate-featured-quote" class="bg-gradient-to-br from-emerald-950 via-emerald-900 to-primary text-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-xl relative overflow-hidden flex flex-col md:flex-row gap-6 items-center w-full">
+                </div>
+
+                <!-- Grid of All Available Quotes -->
+                <div class="space-y-4 pt-2 w-full">
+                    <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">collections</span>
+                        <span>Koleksi Flyer &amp; Kutipan Hadits Siap Share</span>
+                    </h3>
+                    <div id="affiliate-quotes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUBTAB 5: Member Profile & Bank Account Settings -->
             <div id="subtab-profile" class="member-subtab max-w-2xl mx-auto space-y-6 hidden w-full">
                 <div class="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-sm space-y-6 w-full">
                     <div class="border-b border-slate-100 pb-4">
@@ -302,7 +395,7 @@ import MitraLayout from '../layouts/MitraLayout.astro';
 
     </div>
 
-    <!-- Script from affiliate.html -->
+    <!-- Interactive Script for Portal Mitra -->
     <script is:inline>
         let currentLoggedAffiliate = null;
         let currentActiveSubTab = 'subtab-kpi';
@@ -374,8 +467,12 @@ import MitraLayout from '../layouts/MitraLayout.astro';
 
             if (subtabId === 'subtab-kpi') {
                 renderMemberDashboard();
+            } else if (subtabId === 'subtab-news') {
+                renderAffiliateNewsGrid();
             } else if (subtabId === 'subtab-catalog') {
                 renderAffiliateProgramsGrid();
+            } else if (subtabId === 'subtab-quotes') {
+                renderAffiliateQuotesGrid();
             }
         }
 
@@ -389,7 +486,6 @@ import MitraLayout from '../layouts/MitraLayout.astro';
                 return;
             }
 
-            // Direct Test / Demo Account Matcher
             const TEST_MITRA_LIST = [
                 {
                     id: 'ref-test-01',
@@ -461,7 +557,6 @@ import MitraLayout from '../layouts/MitraLayout.astro';
                 }
             }
 
-            // Fallback: check localStorage for any registered referrals
             try {
                 const storedRefs = JSON.parse(localStorage.getItem('wiz_referrals') || '[]');
                 const found = storedRefs.find(r => 
@@ -516,8 +611,9 @@ import MitraLayout from '../layouts/MitraLayout.astro';
         }
 
         function renderMemberDashboard() {
-            if (!currentLoggedAffiliate || !window.wizStore) return;
-            const fullRef = window.wizStore.referrals.getById(currentLoggedAffiliate.id) || currentLoggedAffiliate;
+            if (!currentLoggedAffiliate) return;
+            const refId = currentLoggedAffiliate.id || currentLoggedAffiliate.code;
+            const fullRef = (window.wizStore && window.wizStore.referrals) ? (window.wizStore.referrals.getById(refId) || currentLoggedAffiliate) : currentLoggedAffiliate;
 
             const kpiCount = document.getElementById('kpi-total-count');
             const kpiAmt = document.getElementById('kpi-total-amount');
@@ -531,76 +627,221 @@ import MitraLayout from '../layouts/MitraLayout.astro';
 
             const tbody = document.getElementById('member-donations-tbody');
             if (tbody) {
-                const dons = fullRef.donations || [];
-                if (dons.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400 font-medium">Belum ada donasi dari link penghimpunan Anda.</td></tr>`;
+                const donList = (window.wizStore && window.wizStore.donations) ? window.wizStore.donations.getByReferral(refId) : [];
+                if (donList.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada transaksi donasi melalui link Anda. Bagikan program dan berita untuk mulai menghimpun kebaikan!</td></tr>';
                 } else {
-                    tbody.innerHTML = dons.map(d => {
-                        const fee = Math.round((Number(d.amount) || 0) * 0.06);
-                        return `
+                    tbody.innerHTML = donList.map(d => `
                         <tr class="border-b border-slate-100 hover:bg-slate-50">
-                            <td class="p-3 font-mono text-slate-600">${d.createdAt ? d.createdAt.split('T')[0] : '-'}</td>
-                            <td class="p-3 font-bold text-slate-900">${d.donorName || 'Hamba Allah'}</td>
-                            <td class="p-3 text-slate-700">${d.program || d.type || '-'}</td>
+                            <td class="p-3">${(d.createdAt || '').split('T')[0]}</td>
+                            <td class="p-3 font-semibold">${d.donorName || 'Hamba Allah'}</td>
+                            <td class="p-3">${d.program || d.program_title || 'Umum'}</td>
                             <td class="p-3 font-bold text-primary">Rp ${(Number(d.amount)||0).toLocaleString('id-ID')}</td>
-                            <td class="p-3 font-extrabold text-emerald-800">Rp ${fee.toLocaleString('id-ID')}</td>
-                            <td class="p-3"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Verified</span></td>
-                        </tr>`;
-                    }).join('');
+                            <td class="p-3 font-bold text-emerald-800">Rp ${Math.round((Number(d.amount)||0) * 0.06).toLocaleString('id-ID')}</td>
+                            <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Terverifikasi</span></td>
+                        </tr>
+                    `).join('');
                 }
             }
         }
 
+        function renderAffiliateNewsGrid() {
+            if (!window.wizStore || !window.wizStore.news) return;
+            const published = window.wizStore.news.getPublished();
+            const activeRef = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || 'WIZ';
+
+            const featuredCard = document.getElementById('affiliate-featured-news');
+            const grid = document.getElementById('affiliate-news-grid');
+            if (!published || published.length === 0) {
+                if (featuredCard) featuredCard.style.display = 'none';
+                if (grid) grid.innerHTML = '<div class="col-span-2 p-6 text-center text-slate-400">Belum ada berita yang dipublikasikan.</div>';
+                return;
+            }
+
+            const latest = published[0];
+            const defaultImg = '/assets/images/default-program-wiz.png';
+
+            const fImg = document.getElementById('aff-featured-news-img');
+            const fCat = document.getElementById('aff-featured-news-category');
+            const fDate = document.getElementById('aff-featured-news-date');
+            const fTitle = document.getElementById('aff-featured-news-title');
+            const fExcerpt = document.getElementById('aff-featured-news-excerpt');
+            const fWaBtn = document.getElementById('aff-featured-share-wa-btn');
+            const fCopyBtn = document.getElementById('aff-featured-copy-btn');
+            const fViewBtn = document.getElementById('aff-featured-view-btn');
+
+            if (fImg) { fImg.src = latest.imageUrl || defaultImg; fImg.onerror = () => { fImg.src = defaultImg; }; }
+            if (fCat) fCat.textContent = latest.category || 'Kegiatan & Penyaluran';
+            if (fDate) fDate.textContent = (latest.eventDate || latest.createdAt || '').split('T')[0];
+            if (fTitle) fTitle.textContent = latest.title;
+            if (fExcerpt) fExcerpt.textContent = (latest.content || '').slice(0, 160).replace(/\r?\n/g, ' ') + '...';
+
+            if (fWaBtn) fWaBtn.onclick = () => shareAffiliateNewsWA(latest.id);
+            if (fCopyBtn) fCopyBtn.onclick = () => copyAffiliateNewsLink(latest.id);
+            if (fViewBtn) fViewBtn.href = `/berita/${encodeURIComponent(latest.id)}?ref=${encodeURIComponent(activeRef)}`;
+
+            if (grid) {
+                grid.innerHTML = published.map(n => {
+                    const rawExcerpt = (n.content || '').slice(0, 120).replace(/\r?\n/g, ' ') + '...';
+                    const img = n.imageUrl || defaultImg;
+                    const dateStr = (n.eventDate || n.createdAt || '').split('T')[0];
+                    return `
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition-shadow flex items-start gap-4">
+                        <img src="${img}" class="w-24 h-24 rounded-xl object-cover border border-slate-200 shrink-0 bg-slate-100" onerror="this.src='${defaultImg}'" alt="${n.title}">
+                        <div class="flex-1 space-y-1.5 min-w-0">
+                            <div class="flex items-center justify-between gap-1">
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 truncate">${n.category || 'Kegiatan'}</span>
+                                <span class="text-[10px] text-slate-400 font-mono shrink-0">${dateStr}</span>
+                            </div>
+                            <h4 class="text-xs font-bold text-slate-900 line-clamp-2 leading-snug">${n.title}</h4>
+                            <p class="text-[11px] text-slate-500 line-clamp-1">${rawExcerpt}</p>
+                            <div class="pt-1 flex items-center gap-1.5">
+                                <button type="button" onclick="shareAffiliateNewsWA('${n.id}')" class="flex-1 bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold text-xs py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 shadow-xs transition-colors cursor-pointer" title="Bagikan ke WhatsApp">
+                                    <span class="material-symbols-outlined text-sm">send</span>
+                                    <span>Share WA</span>
+                                </button>
+                                <button type="button" onclick="copyAffiliateNewsLink('${n.id}')" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-xs flex items-center justify-center transition-colors cursor-pointer" title="Salin Link">
+                                    <span class="material-symbols-outlined text-[15px]">content_copy</span>
+                                </button>
+                                <a href="/berita/${encodeURIComponent(n.id)}?ref=${encodeURIComponent(activeRef)}" target="_blank" class="p-1.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg font-bold text-xs flex items-center justify-center transition-colors" title="Buka Halaman Berita">
+                                    <span class="material-symbols-outlined text-[15px]">open_in_new</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+        }
+
+        function shareAffiliateNewsWA(newsId) {
+            const refCode = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || 'WIZ';
+            const n = (window.wizStore && window.wizStore.news) ? window.wizStore.news.getById(newsId) : null;
+            if (!n) return;
+
+            const origin = 'https://www.wizbangkabelitung.or.id';
+            const newsUrlObj = new URL(`${origin}/berita/${encodeURIComponent(n.id)}`);
+            if (refCode) newsUrlObj.searchParams.set('ref', refCode);
+            const newsUrl = newsUrlObj.toString();
+
+            window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(newsUrl), '_blank');
+        }
+
+        function copyAffiliateNewsLink(newsId) {
+            const refCode = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || 'WIZ';
+            const origin = 'https://www.wizbangkabelitung.or.id';
+            const newsUrlObj = new URL(`${origin}/berita/${encodeURIComponent(newsId)}`);
+            if (refCode) newsUrlObj.searchParams.set('ref', refCode);
+            const newsUrl = newsUrlObj.toString();
+
+            navigator.clipboard.writeText(newsUrl).then(() => {
+                alert(`✅ Link Berita dengan Kode Mitra (${refCode}) berhasil disalin:\n\n${newsUrl}`);
+            });
+        }
+
         function renderAffiliateProgramsGrid() {
             const grid = document.getElementById('affiliate-programs-grid');
-            if (!grid || !window.wizStore) return;
+            if (!grid) return;
 
-            const published = (window.wizStore.programs && typeof window.wizStore.programs.getPublished === 'function') 
-                ? window.wizStore.programs.getPublished() 
-                : [];
+            const progs = (window.wizStore && window.wizStore.programs) ? window.wizStore.programs.getPublished() : [];
+            const activeRef = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || 'WIZ';
 
-            const refCode = currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '';
+            if (progs.length === 0) {
+                grid.innerHTML = '<div class="col-span-3 p-6 text-center text-slate-400">Belum ada program yang aktif.</div>';
+                return;
+            }
 
-            grid.innerHTML = published.map(p => {
-                const progUrl = `${window.location.origin}/donasi?program=${encodeURIComponent(p.slug || p.title)}${refCode ? '&ref=' + encodeURIComponent(refCode) : ''}`;
+            grid.innerHTML = progs.map(p => {
+                const slug = p.slug || (p.title ? p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : 'program');
+                const progUrl = `https://www.wizbangkabelitung.or.id/program/${slug}?ref=${encodeURIComponent(activeRef)}`;
+                const dynamicImg = (window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function')
+                    ? window.wizStore.allocationRulesManager.getSpecificProgramImage(p.title, p.pillar)
+                    : (p.imageUrl || '/assets/images/default-program-wiz.png');
+
                 return `
-                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs flex flex-col">
-                    <div class="aspect-video relative bg-slate-900">
-                        <img src="${p.imageUrl || '/assets/images/foto-utama-wiz.jpg'}" class="w-full h-full object-cover" alt="${p.title}">
+                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs hover:shadow-md transition-shadow flex flex-col">
+                    <div class="aspect-video relative overflow-hidden bg-slate-100">
+                        <img src="${dynamicImg}" class="w-full h-full object-cover" alt="${p.title}" onerror="this.src='/assets/images/default-program-wiz.png'">
+                        <span class="absolute top-2 left-2 bg-primary text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">${p.pillar || 'Kebaikan'}</span>
                     </div>
                     <div class="p-4 flex flex-col flex-grow space-y-2">
-                        <h4 class="font-bold text-sm text-slate-900 line-clamp-1">${p.title}</h4>
-                        <p class="text-xs text-slate-600 line-clamp-2">${p.description || ''}</p>
-                        <div class="pt-2 mt-auto border-t border-slate-100 flex items-center gap-2">
-                            <button type="button" onclick="navigator.clipboard.writeText('${progUrl}').then(() => alert('Link program disalin!'))" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer">
-                                Salin Link
+                        <h4 class="text-sm font-bold text-slate-900 line-clamp-1">${p.title}</h4>
+                        <p class="text-xs text-slate-500 line-clamp-2">${p.description || ''}</p>
+                        <div class="pt-3 mt-auto flex items-center gap-2">
+                            <button type="button" onclick="copyProgramShareLink('${progUrl}')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1 transition-colors cursor-pointer">
+                                <span>Salin Link</span>
                             </button>
-                            <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(progUrl)}" target="_blank" class="p-2 bg-[#25D366] text-white rounded-xl flex items-center justify-center cursor-pointer">
-                                <span class="material-symbols-outlined text-sm">share</span>
-                            </a>
+                            <button type="button" onclick="shareProgramWA('${p.title}', '${progUrl}')" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white p-2 rounded-xl flex items-center justify-center transition-colors cursor-pointer" title="Share WhatsApp">
+                                <span class="material-symbols-outlined text-base">send</span>
+                            </button>
                         </div>
                     </div>
                 </div>`;
             }).join('');
         }
 
-        function copyMemberMainLink() {
-            if (!currentLoggedAffiliate) return;
-            const refCode = currentLoggedAffiliate.code || currentLoggedAffiliate.id;
-            const url = `${window.location.origin}/program?ref=${encodeURIComponent(refCode)}`;
+        function copyProgramShareLink(url) {
             navigator.clipboard.writeText(url).then(() => {
-                alert(`✅ Link Fundraising Anda berhasil disalin:\n${url}`);
+                alert(`✅ Link Program berhasil disalin:\n\n${url}\n\nSetiap donasi dari link ini otomatis tersambung ke hak insentif 6% Anda.`);
             });
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const saved = sessionStorage.getItem('wiz_logged_affiliate') || localStorage.getItem('wiz_logged_affiliate');
-            if (saved) {
-                try {
-                    currentLoggedAffiliate = JSON.parse(saved);
-                    activateMemberState(currentLoggedAffiliate);
-                } catch(e) {}
+        function shareProgramWA(title, url) {
+            window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(url), '_blank');
+        }
+
+        function renderAffiliateQuotesGrid() {
+            const grid = document.getElementById('affiliate-quotes-grid');
+            if (!grid) return;
+            grid.innerHTML = '<div class="col-span-3 p-6 text-center text-slate-400">Koleksi flyer dakwah siap dibagikan oleh mitra.</div>';
+        }
+
+        function copyFundraisingLink() {
+            const activeRef = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || 'WIZ';
+            const url = `https://www.wizbangkabelitung.or.id/?ref=${encodeURIComponent(activeRef)}`;
+            navigator.clipboard.writeText(url).then(() => {
+                alert(`✅ Link Website Utama dengan Kode Mitra (${activeRef}) berhasil disalin:\n\n${url}\n\nDonasi apa pun dari link ini otomatis tercatat atas nama Anda.`);
+            });
+        }
+
+        async function handleUpdateProfile(e) {
+            e.preventDefault();
+            if (!currentLoggedAffiliate) return;
+
+            const name = document.getElementById('prof-name').value.trim();
+            const bankName = document.getElementById('prof-bank').value.trim();
+            const accountNumber = document.getElementById('prof-acc-no').value.trim();
+            const accountHolder = document.getElementById('prof-acc-holder').value.trim();
+            const pin = document.getElementById('prof-pin').value.trim();
+
+            const updated = {
+                ...currentLoggedAffiliate,
+                name: name || currentLoggedAffiliate.name,
+                bankName: bankName || currentLoggedAffiliate.bankName,
+                accountNumber: accountNumber || currentLoggedAffiliate.accountNumber,
+                accountHolder: accountHolder || currentLoggedAffiliate.accountHolder
+            };
+            if (pin) updated.pin = pin;
+
+            if (window.wizStore && window.wizStore.referrals) {
+                await window.wizStore.referrals.update(currentLoggedAffiliate.id, updated);
             }
+            currentLoggedAffiliate = updated;
+            sessionStorage.setItem('wiz_logged_affiliate', JSON.stringify(updated));
+            localStorage.setItem('wiz_logged_affiliate', JSON.stringify(updated));
+            alert('✅ Perubahan profil dan data rekening berhasil disimpan!');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const saved = sessionStorage.getItem('wiz_logged_affiliate') || localStorage.getItem('wiz_logged_affiliate');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (parsed && (parsed.id || parsed.code)) {
+                        currentLoggedAffiliate = parsed;
+                        activateMemberState(parsed);
+                    }
+                }
+            } catch(e) {}
         });
     </script>
 </MitraLayout>
