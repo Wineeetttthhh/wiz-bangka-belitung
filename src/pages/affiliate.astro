@@ -1056,9 +1056,250 @@ return;
         }
 
         function renderAffiliateQuotesGrid() {
+            const featuredCard = document.getElementById('affiliate-featured-quote');
             const grid = document.getElementById('affiliate-quotes-grid');
             if (!grid) return;
-            grid.innerHTML = '<div class="col-span-3 p-6 text-center text-slate-400">Koleksi flyer dakwah siap dibagikan oleh mitra.</div>';
+
+            let allQuotes = [];
+            if (window.wizStore && window.wizStore.quotes) {
+                try {
+                    allQuotes = window.wizStore.quotes.getAll() || [];
+                } catch(e) {}
+            }
+            if (allQuotes.length === 0) {
+                try {
+                    allQuotes = JSON.parse(localStorage.getItem('wiz_quotes') || '[]');
+                } catch(e) {}
+            }
+
+            const activeQuotes = allQuotes.filter(q => q && q.status === 'active');
+            const activeRef = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || 'WIZ';
+            const origin = window.location.origin || 'https://www.wizbangkabelitung.or.id';
+            const defaultImg = '/assets/images/foto-utama-wiz.jpg';
+
+            if (activeQuotes.length === 0) {
+                if (featuredCard) {
+                    featuredCard.className = 'bg-slate-50 text-slate-600 rounded-2xl p-6 text-center border border-dashed border-slate-200 w-full block';
+                    featuredCard.innerHTML = `
+                    <div class="max-w-md mx-auto space-y-2 py-4">
+                        <span class="material-symbols-outlined text-4xl text-emerald-600/50">format_quote</span>
+                        <p class="font-bold text-slate-800 text-sm">Belum Ada Quote Harian Aktif</p>
+                        <p class="text-xs text-slate-500">Materi flyer poster dakwah harian akan segera diterbitkan oleh Admin.</p>
+                        <button type="button" onclick="fetchFreshQuotesDirectly()" class="mt-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer">
+                            Cek Quote Terbaru
+                        </button>
+                    </div>`;
+                }
+                grid.innerHTML = '<div class="col-span-3 p-6 text-center text-slate-400 text-xs">Belum ada koleksi quote lainnya yang dipublikasikan.</div>';
+                return;
+            }
+
+            // Restore featuredCard classes
+            if (featuredCard) {
+                featuredCard.className = 'bg-gradient-to-br from-emerald-950 via-emerald-900 to-primary text-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-xl relative overflow-hidden flex flex-col md:flex-row gap-6 items-center w-full';
+            }
+
+            // Determine today's or latest quote
+            const todayStr = new Date().toISOString().split('T')[0];
+            const todayQuote = activeQuotes.find(q => q.date === todayStr) || activeQuotes[0];
+            const otherQuotes = activeQuotes.filter(q => String(q.id) !== String(todayQuote.id));
+
+            // Render Featured Quote
+            if (featuredCard && todayQuote) {
+                const fImg = todayQuote.imageUrl || defaultImg;
+                const fText = (todayQuote.text || '').trim();
+                const fSource = todayQuote.source || 'Wahdah Inspirasi Zakat';
+                const fCat = todayQuote.category || 'Quote & Syiar Harian';
+                const fDate = todayQuote.date || (todayQuote.createdAt || '').split('T')[0] || todayStr;
+                const fQuoteUrl = `${origin}/quote/${encodeURIComponent(todayQuote.id)}?ref=${encodeURIComponent(activeRef)}`;
+
+                featuredCard.innerHTML = `
+                <div class="w-full md:w-5/12 aspect-[4/5] sm:aspect-square rounded-2xl overflow-hidden bg-slate-900 border border-white/20 shrink-0 shadow-lg relative group flex items-center justify-center">
+                    <img src="${fImg}" class="w-full h-full object-contain" alt="Flyer Quote" onerror="this.src='${defaultImg}'">
+                    <span class="absolute top-3 left-3 bg-amber-500 text-slate-950 font-extrabold text-[10px] px-3 py-1 rounded-full shadow-md">
+                        ${fCat}
+                    </span>
+                    <span class="absolute bottom-3 left-3 bg-black/60 backdrop-blur-xs text-white text-[10px] font-mono px-2.5 py-0.5 rounded-md">
+                        📅 ${fDate}
+                    </span>
+                </div>
+
+                <div class="flex-1 space-y-4 text-left w-full">
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-emerald-300 text-xs font-bold border border-white/15">
+                        <span class="material-symbols-outlined text-sm">stars</span>
+                        <span>Flyer / Quote Hari Ini (Materi Utama)</span>
+                    </div>
+
+                    ${fText ? `
+                    <div class="relative bg-white/10 backdrop-blur-xs rounded-2xl p-4 sm:p-5 border border-white/15">
+                        <span class="material-symbols-outlined text-2xl sm:text-3xl text-emerald-300 opacity-60 block mb-1">format_quote</span>
+                        <blockquote class="text-sm sm:text-base font-medium text-white/95 italic leading-relaxed font-serif">
+                            "${fText}"
+                        </blockquote>
+                        <p class="text-xs sm:text-sm font-extrabold text-amber-300 mt-2.5 flex items-center gap-1.5 font-sans">
+                            <span class="material-symbols-outlined text-base">menu_book</span>
+                            <span>${fSource}</span>
+                        </p>
+                    </div>` : `
+                    <div class="bg-white/10 rounded-2xl p-4 border border-white/15">
+                        <p class="text-sm font-bold text-amber-300 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-base">menu_book</span>
+                            <span>${fSource}</span>
+                        </p>
+                        <p class="text-xs text-slate-300 mt-1">Flyer poster dakwah resmi siap dibagikan ke media sosial.</p>
+                    </div>`}
+
+                    <div class="flex flex-wrap items-center gap-2.5 pt-1">
+                        <button type="button" onclick="shareAffiliateQuoteWA('${todayQuote.id}')" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl font-bold text-xs flex items-center gap-2 shadow-sm transition-transform hover:scale-105 cursor-pointer">
+                            <span class="material-symbols-outlined text-sm">send</span>
+                            <span>Bagikan ke WhatsApp</span>
+                        </button>
+                        <button type="button" onclick="copyAffiliateQuoteFull('${todayQuote.id}')" class="bg-white text-emerald-950 hover:bg-emerald-50 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer" title="Salin Teks & Link Lengkap">
+                            <span class="material-symbols-outlined text-base">content_copy</span>
+                            <span>Salin Teks &amp; Link</span>
+                        </button>
+                        <button type="button" onclick="copyAffiliateQuoteLink('${todayQuote.id}')" class="bg-white/10 hover:bg-white/20 text-white px-3 sm:px-3.5 py-2.5 sm:py-3 rounded-xl font-bold text-xs flex items-center gap-1 border border-white/20 transition-colors cursor-pointer" title="Salin Link Saja">
+                            <span class="material-symbols-outlined text-base">link</span>
+                            <span>Salin Link</span>
+                        </button>
+                        <a href="${fQuoteUrl}" target="_blank" class="bg-white/10 hover:bg-white/20 text-white px-3 sm:px-3.5 py-2.5 sm:py-3 rounded-xl font-bold text-xs flex items-center gap-1 border border-white/20 transition-colors">
+                            <span class="material-symbols-outlined text-base">open_in_new</span>
+                            <span>Buka Flyer</span>
+                        </a>
+                    </div>
+                </div>`;
+            }
+
+            // Render other / all quotes grid
+            const listToRender = otherQuotes.length > 0 ? otherQuotes : activeQuotes;
+            grid.innerHTML = listToRender.map(q => {
+                const qImg = q.imageUrl || defaultImg;
+                const qText = (q.text || '').trim();
+                const qSnippet = qText ? (qText.length > 110 ? qText.slice(0, 110) + '...' : qText) : '';
+                const qSource = q.source || 'Wahdah Inspirasi Zakat';
+                const qDate = q.date || (q.createdAt || '').split('T')[0] || '-';
+                const qCat = q.category || 'Quote Dakwah';
+                const qUrl = `${origin}/quote/${encodeURIComponent(q.id)}?ref=${encodeURIComponent(activeRef)}`;
+
+                return `
+                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs hover:shadow-md transition-all flex flex-col">
+                    <div class="aspect-[4/3] relative overflow-hidden bg-slate-900 flex items-center justify-center">
+                        <img src="${qImg}" class="w-full h-full object-contain" alt="Flyer Quote" onerror="this.src='${defaultImg}'">
+                        <span class="absolute top-2 left-2 bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-xs">
+                            ${qCat}
+                        </span>
+                        <span class="absolute bottom-2 right-2 bg-black/60 backdrop-blur-xs text-white text-[10px] font-mono px-2 py-0.5 rounded-md">
+                            ${qDate}
+                        </span>
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow space-y-2.5">
+                        <div class="space-y-1">
+                            <p class="text-xs font-bold text-emerald-800 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">menu_book</span>
+                                <span class="truncate">${qSource}</span>
+                            </p>
+                            ${qSnippet ? `
+                            <p class="text-xs text-slate-600 italic font-serif line-clamp-3 leading-relaxed">
+                                "${qSnippet}"
+                            </p>` : `
+                            <p class="text-[11px] text-slate-400 italic">Flyer dakwah resmi WIZ Babel</p>`}
+                        </div>
+
+                        <div class="pt-2 mt-auto border-t border-slate-100 flex items-center gap-1.5">
+                            <button type="button" onclick="shareAffiliateQuoteWA('${q.id}')" class="flex-1 bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold text-xs py-2 px-2.5 rounded-xl flex items-center justify-center gap-1 shadow-xs transition-colors cursor-pointer" title="Bagikan ke WhatsApp">
+                                <span class="material-symbols-outlined text-sm">send</span>
+                                <span>Share WA</span>
+                            </button>
+                            <button type="button" onclick="copyAffiliateQuoteFull('${q.id}')" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs flex items-center justify-center transition-colors cursor-pointer" title="Salin Teks & Link">
+                                <span class="material-symbols-outlined text-[15px]">content_copy</span>
+                            </button>
+                            <a href="${qUrl}" target="_blank" class="p-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl font-bold text-xs flex items-center justify-center transition-colors" title="Buka Halaman Flyer">
+                                <span class="material-symbols-outlined text-[15px]">open_in_new</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        let isFetchingAffiliateQuotes = false;
+        async function fetchFreshQuotesDirectly() {
+            if (isFetchingAffiliateQuotes) return;
+            isFetchingAffiliateQuotes = true;
+            try {
+                if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                    const res = await window.wizSupabase.select('site_settings', { filter: 'key=eq.quotes' });
+                    if (res && Array.isArray(res.data) && res.data.length > 0 && res.data[0].value) {
+                        const quotesList = Array.isArray(res.data[0].value) ? res.data[0].value : [];
+                        localStorage.setItem('wiz_quotes', JSON.stringify(quotesList));
+                        renderAffiliateQuotesGrid();
+                    }
+                }
+            } catch(e) {
+                console.warn('[Affiliate Sync Quotes Error]', e);
+            } finally {
+                isFetchingAffiliateQuotes = false;
+            }
+        }
+
+        function shareAffiliateQuoteWA(quoteId) {
+            let allQuotes = [];
+            if (window.wizStore && window.wizStore.quotes) {
+                try { allQuotes = window.wizStore.quotes.getAll() || []; } catch(e) {}
+            }
+            if (allQuotes.length === 0) {
+                try { allQuotes = JSON.parse(localStorage.getItem('wiz_quotes') || '[]'); } catch(e) {}
+            }
+            const quote = allQuotes.find(q => String(q.id) === String(quoteId)) || allQuotes[0];
+            const refCode = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || 'WIZ';
+            const origin = window.location.origin || 'https://www.wizbangkabelitung.or.id';
+            const finalShareUrl = `${origin}/quote/${encodeURIComponent(quoteId)}?ref=${encodeURIComponent(refCode)}`;
+
+            let textMsg = '';
+            if (quote && quote.text && quote.text.trim()) {
+                const source = quote.source || 'Wahdah Inspirasi Zakat';
+                textMsg = `*${source}*\n\n"${quote.text.trim()}"\n\n📲 Dapatkan flyer inspirasi & tunaikan sedekah melalui:\n${finalShareUrl}`;
+            } else {
+                textMsg = `*Inspirasi & Syiar Kebaikan WIZ Bangka Belitung*\n\n📲 Simak flyer dakwah & raih pahala jariyah melalui:\n${finalShareUrl}`;
+            }
+
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(textMsg)}`, '_blank');
+        }
+
+        function copyAffiliateQuoteFull(quoteId) {
+            let allQuotes = [];
+            if (window.wizStore && window.wizStore.quotes) {
+                try { allQuotes = window.wizStore.quotes.getAll() || []; } catch(e) {}
+            }
+            if (allQuotes.length === 0) {
+                try { allQuotes = JSON.parse(localStorage.getItem('wiz_quotes') || '[]'); } catch(e) {}
+            }
+            const quote = allQuotes.find(q => String(q.id) === String(quoteId)) || allQuotes[0];
+            const refCode = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || 'WIZ';
+            const origin = window.location.origin || 'https://www.wizbangkabelitung.or.id';
+            const finalShareUrl = `${origin}/quote/${encodeURIComponent(quoteId)}?ref=${encodeURIComponent(refCode)}`;
+
+            let fullText = '';
+            if (quote && quote.text && quote.text.trim()) {
+                const source = quote.source || 'Wahdah Inspirasi Zakat';
+                fullText = `*${source}*\n\n"${quote.text.trim()}"\n\n📲 Mari raih keberkahan dengan berinfak melalui WIZ Bangka Belitung:\n${finalShareUrl}`;
+            } else {
+                fullText = `*Inspirasi WIZ Bangka Belitung*\n\n📲 Buka flyer & salurkan donasi melalui:\n${finalShareUrl}`;
+            }
+
+            navigator.clipboard.writeText(fullText).then(() => {
+                alert(`✅ Teks Quote & Link Referral (${refCode}) berhasil disalin ke clipboard:\n\n${fullText}`);
+            });
+        }
+
+        function copyAffiliateQuoteLink(quoteId) {
+            const refCode = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || 'WIZ';
+            const origin = window.location.origin || 'https://www.wizbangkabelitung.or.id';
+            const finalShareUrl = `${origin}/quote/${encodeURIComponent(quoteId)}?ref=${encodeURIComponent(refCode)}`;
+
+            navigator.clipboard.writeText(finalShareUrl).then(() => {
+                alert(`✅ Link Quote (${refCode}) berhasil disalin:\n\n${finalShareUrl}`);
+            });
         }
 
         function copyFundraisingLink() {
@@ -1112,23 +1353,28 @@ return;
 
             renderAffiliateNewsGrid();
             renderAffiliateProgramsGrid();
+            renderAffiliateQuotesGrid();
 
-            // Synchronize Latest News & Programs from Cloud for all Devices
+            // Synchronize Latest News, Programs & Quotes from Cloud for all Devices
             fetchFreshNewsDirectly();
+            fetchFreshQuotesDirectly();
             if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
                 try {
                     await window.wizStore.syncFromCloud(true);
                 } catch(err) {}
                 renderAffiliateNewsGrid();
                 renderAffiliateProgramsGrid();
+                renderAffiliateQuotesGrid();
             }
         });
 
         window.addEventListener('wiz-sync-complete', () => {
             renderAffiliateNewsGrid();
             renderAffiliateProgramsGrid();
+            renderAffiliateQuotesGrid();
         });
         window.addEventListener('wiz-news-changed', () => renderAffiliateNewsGrid());
         window.addEventListener('wiz-programs-changed', () => renderAffiliateProgramsGrid());
+        window.addEventListener('wiz-quotes-changed', () => renderAffiliateQuotesGrid());
     </script>
 </MitraLayout>

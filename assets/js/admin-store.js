@@ -6322,6 +6322,15 @@
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             broadcastSync('NEW_QUOTE', newQuote);
 
+            // Direct micro-action to /api/sync
+            try {
+                fetch('/api/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'save_quote', quote: newQuote })
+                }).catch(() => {});
+            } catch(e) {}
+
             // Non-blocking concurrent cloud sync in background
             (async () => {
                 try {
@@ -6353,6 +6362,15 @@
             setStore(STORAGE_KEYS.QUOTES, list);
 
             activityLog.add('quote', `Quote harian "${list[idx].source}" diperbarui.`, updates.author || 'Admin');
+
+            // Direct micro-action to /api/sync
+            try {
+                fetch('/api/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'save_quote', quote: list[idx] })
+                }).catch(() => {});
+            } catch(e) {}
 
             // Instant UI events
             window.dispatchEvent(new CustomEvent('wiz-quotes-changed', { detail: list[idx] }));
@@ -6393,6 +6411,15 @@
             if (quote) {
                 activityLog.add('quote', `Quote "${quote.source}" dihapus.`, 'Admin');
             }
+
+            // Direct micro-action to /api/sync
+            try {
+                fetch('/api/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete_quote', id: strId })
+                }).catch(() => {});
+            } catch(e) {}
 
             // Instant UI events
             window.dispatchEvent(new CustomEvent('wiz-quotes-changed'));

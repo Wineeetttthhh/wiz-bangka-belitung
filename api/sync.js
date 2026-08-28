@@ -480,6 +480,77 @@ export default async function handler(req, res) {
                 });
             }
 
+            if (body && (body.action === 'save_quote' || body.action === 'add_quote' || body.action === 'update_quote') && body.quote) {
+                const incomingQuote = body.quote;
+                const quoteId = String(incomingQuote.id || '');
+                if (!quoteId) {
+                    return res.status(400).json({ status: 'error', message: 'Quote id is required' });
+                }
+
+                const fullQuote = {
+                    id: quoteId,
+                    text: (incomingQuote.text || '').trim(),
+                    source: (incomingQuote.source || 'Wahdah Inspirasi Zakat').trim(),
+                    category: incomingQuote.category || 'Motivasi & Doa',
+                    date: incomingQuote.date || new Date().toISOString().split('T')[0],
+                    status: incomingQuote.status || 'active',
+                    imageUrl: (incomingQuote.imageUrl || incomingQuote.image_url || 'assets/images/foto-utama-wiz.jpg').trim(),
+                    author: incomingQuote.author || 'Admin WIZ Babel',
+                    createdAt: incomingQuote.createdAt || incomingQuote.created_at || new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+
+                if (!master.quotes) master.quotes = [];
+                const existIdx = master.quotes.findIndex(q => String(q.id) === quoteId);
+                if (existIdx !== -1) {
+                    master.quotes[existIdx] = fullQuote;
+                } else {
+                    master.quotes.unshift(fullQuote);
+                }
+                master.quotes.sort((a, b) => new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0));
+                master.updatedAt = new Date().toISOString();
+
+                // Save to Supabase site_settings
+                await Promise.allSettled([
+                    fetch(`${SUPABASE_URL}/site_settings`, {
+                        method: 'POST',
+                        headers: supabaseHeaders,
+                        body: JSON.stringify({
+                            key: 'quotes',
+                            value: master.quotes,
+                            updated_at: new Date().toISOString()
+                        })
+                    }),
+                    supabaseSaveMaster(master)
+                ]);
+
+                invalidateCache();
+                return res.status(200).json({ status: 'success', action: 'save_quote', quote: fullQuote });
+            }
+
+            if (body && body.action === 'delete_quote' && body.id) {
+                const targetId = String(body.id);
+                if (!master.quotes) master.quotes = [];
+                master.quotes = master.quotes.filter(q => String(q.id) !== targetId);
+                master.updatedAt = new Date().toISOString();
+
+                await Promise.allSettled([
+                    fetch(`${SUPABASE_URL}/site_settings`, {
+                        method: 'POST',
+                        headers: supabaseHeaders,
+                        body: JSON.stringify({
+                            key: 'quotes',
+                            value: master.quotes,
+                            updated_at: new Date().toISOString()
+                        })
+                    }),
+                    supabaseSaveMaster(master)
+                ]);
+
+                invalidateCache();
+                return res.status(200).json({ status: 'success', action: 'delete_quote', id: targetId });
+            }
+
             const deletedDonationIds = [
                 ...(Array.isArray(incoming.deleted_ids) ? incoming.deleted_ids : []),
                 ...(Array.isArray(incoming.deleted_donation_ids) ? incoming.deleted_donation_ids : [])
