@@ -227,22 +227,6 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                         </div>
                     </section>
 
-                    <!-- Informasi Allocation Infak Umum -->
-                    <div id="infak-umum-notice" class="bg-gradient-to-br from-emerald-50/90 to-teal-50/70 rounded-2xl p-5 border border-emerald-200/80 text-on-surface shadow-xs">
-                        <div class="flex items-start gap-3">
-                            <span class="material-symbols-outlined text-emerald-700 text-2xl shrink-0 mt-0.5">pie_chart</span>
-                            <div class="w-full">
-                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1.5">
-                                    <p class="font-bold text-emerald-950 text-sm sm:text-base" id="infak-umum-title">Alokasi Otomatis Infak Umum — Wilayah Pangkalpinang</p>
-                                    <span class="text-[11px] font-extrabold text-emerald-700 bg-white/80 px-2.5 py-0.5 rounded-full border border-emerald-200 w-fit">100% Transparan</span>
-                                </div>
-                                <p class="text-xs text-slate-600 mb-3.5">Donasi Infak Umum Anda didistribusikan secara proporsional ke 5 pilar program &amp; operasional:</p>
-                                <div id="infak-umum-breakdown" class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs font-semibold">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Conditional Steps for Infak Terikat (Manual Pillar & Program Picker) -->
                     <div class="hidden space-y-6" id="infak-terikat-flow">
                         <!-- Step 3: Program Utama (5 Berkah) -->
@@ -420,6 +404,22 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                             </label>
                         </div>
                     </section>
+
+                    <!-- Informasi Allocation Infak Umum (Ditampilkan setelah Pemilihan Wilayah) -->
+                    <div id="infak-umum-notice" class="bg-gradient-to-br from-emerald-50/90 to-teal-50/70 rounded-2xl p-5 border border-emerald-200/80 text-on-surface shadow-xs transition-all duration-300">
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-emerald-700 text-2xl shrink-0 mt-0.5">pie_chart</span>
+                            <div class="w-full">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1.5">
+                                    <p class="font-bold text-emerald-950 text-sm sm:text-base" id="infak-umum-title">Alokasi Otomatis Infak Umum — Wilayah Pangkalpinang</p>
+                                    <span class="text-[11px] font-extrabold text-emerald-700 bg-white/80 px-2.5 py-0.5 rounded-full border border-emerald-200 w-fit">100% Transparan</span>
+                                </div>
+                                <p class="text-xs text-slate-600 mb-3.5">Donasi Infak Umum Anda didistribusikan secara proporsional ke 5 pilar program &amp; operasional:</p>
+                                <div id="infak-umum-breakdown" class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs font-semibold">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Step Identitas Donatur -->
                     <section id="section-step-identitas" class="bg-white rounded-2xl p-5 sm:p-7 shadow-sm border border-slate-200/80 transition-all hover:shadow-md space-y-4">
