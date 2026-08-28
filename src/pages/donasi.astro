@@ -446,165 +446,165 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                         <div class="pt-4 border-t-2 border-dashed border-slate-200">
                             <div class="flex justify-between items-end mb-4">
                                 <div>
-                                    <span class="text-xs text-slate-500 block uppercase font-bold tracking-wider">Total Donasi</span>
-                                    <span class="text-xs text-emerald-600 font-semibold">Bebas biaya admin</span>
-                                </div>
-                                <span class="text-2xl sm:text-3xl font-extrabold text-emerald-700" id="summary-total">Rp 0</span>
-                            </div>
+                                            <span class="text-xs text-slate-500 block uppercase font-bold tracking-wider">Total Donasi</span>
+                                            <span class="text-xs text-emerald-600 font-semibold">Bebas biaya admin</span>
+                                        </div>
+                                        <span class="text-2xl sm:text-3xl font-extrabold text-emerald-700" id="summary-total">Rp 0</span>
+                                    </div>
 
-                            <button id="checkout-submit-btn" class="w-full bg-gradient-to-r from-[#F7941D] to-[#ea7e00] hover:from-[#ea7e00] hover:to-[#d67200] text-white py-4 rounded-xl font-extrabold text-base shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 transition-all flex justify-center items-center gap-2 cursor-pointer active:scale-[0.99]" type="submit">
-                                <span id="checkout-btn-text">Lanjutkan Pembayaran</span>
-                                <span class="material-symbols-outlined text-xl">arrow_forward</span>
-                            </button>
+                                    <button id="checkout-submit-btn" onclick="handleCheckoutSubmit(event)" class="w-full bg-gradient-to-r from-[#F7941D] to-[#ea7e00] hover:from-[#ea7e00] hover:to-[#d67200] text-white py-4 rounded-xl font-extrabold text-base shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 transition-all flex justify-center items-center gap-2 cursor-pointer active:scale-[0.99]" type="button">
+                                        <span id="checkout-btn-text">Lanjutkan Pembayaran</span>
+                                        <span class="material-symbols-outlined text-xl">arrow_forward</span>
+                                    </button>
 
-                            <div class="mt-4 pt-4 border-t border-slate-100 space-y-2">
-                                <p class="text-xs text-slate-500 text-center flex items-center justify-center gap-1.5 font-medium">
-                                    <span class="material-symbols-outlined text-base text-emerald-600">lock</span>
-                                    <span>Transaksi Aman &amp; Terenkripsi SSL 256-bit</span>
-                                </p>
-                                <div class="flex items-center justify-center gap-4 text-[11px] text-slate-400 font-semibold pt-1">
-                                    <span>✓ Kemenag RI</span>
-                                    <span>•</span>
-                                    <span>✓ BAZNAS</span>
-                                    <span>•</span>
-                                    <span>✓ Syariah</span>
+                                    <div class="mt-4 pt-4 border-t border-slate-100 space-y-2">
+                                        <p class="text-xs text-slate-500 text-center flex items-center justify-center gap-1.5 font-medium">
+                                            <span class="material-symbols-outlined text-base text-emerald-600">lock</span>
+                                            <span>Transaksi Aman &amp; Terenkripsi SSL 256-bit</span>
+                                        </p>
+                                        <div class="flex items-center justify-center gap-4 text-[11px] text-slate-400 font-semibold pt-1">
+                                            <span>✓ Kemenag RI</span>
+                                            <span>•</span>
+                                            <span>✓ BAZNAS</span>
+                                            <span>•</span>
+                                            <span>✓ Syariah</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </form>
+                </form>
 
-        <!-- Mobile Sticky Bottom Action Bar -->
-        <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-3.5 px-4 shadow-2xl z-40 flex items-center justify-between gap-4">
-            <div>
-                <span class="text-[11px] text-slate-500 block font-semibold uppercase tracking-wider">Total Donasi</span>
-                <span class="text-xl font-extrabold text-emerald-700 block" id="mobile-summary-total">Rp 0</span>
-            </div>
-            <button id="mobile-checkout-submit-btn" type="submit" form="donation-checkout-form" class="bg-gradient-to-r from-[#F7941D] to-[#ea7e00] text-white px-6 py-3 rounded-xl text-sm font-extrabold shadow-md hover:opacity-95 transition-opacity flex items-center gap-2 cursor-pointer active:scale-95">
-                <span>Lanjutkan</span>
-                <span class="material-symbols-outlined text-base">arrow_forward</span>
-            </button>
-        </div>
-    </main>
-
-    <!-- QRIS Payment Display Modal -->
-    <div id="qris-modal" class="modal-backdrop" style="display: none;">
-        <div class="modal-dialog">
-            <div class="p-5 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl">
-                <div class="flex items-center gap-2">
-                    <span class="px-2.5 py-0.5 bg-red-100 text-red-700 font-extrabold text-xs rounded-full uppercase tracking-wider">QRIS Standar</span>
-                    <h3 class="text-lg font-bold text-slate-900">Scan Kode QRIS Donasi</h3>
-                </div>
-                <button type="button" onclick="closeQRISModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center cursor-pointer transition-colors">
-                    <span class="material-symbols-outlined text-lg">close</span>
-                </button>
-            </div>
-
-            <div class="p-5 sm:p-6 space-y-4 text-center">
-                <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 text-xs flex items-start gap-2.5 text-left shadow-xs">
-                    <span class="material-symbols-outlined text-amber-700 text-xl shrink-0 mt-0.5">hourglass_top</span>
+                <!-- Mobile Sticky Bottom Action Bar -->
+                <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-3.5 px-4 shadow-2xl z-40 flex items-center justify-between gap-4">
                     <div>
-                        <span class="font-bold text-amber-900 block" id="qris-admin-target-title">Status: Menunggu Verifikasi Admin</span>
-                        <span class="text-amber-800 text-xs leading-relaxed block mt-0.5" id="qris-admin-target-desc">Transaksi Anda otomatis masuk ke antrean verifikasi Admin WIZ Babel. Silakan lakukan pembayaran dan konfirmasi melalui tombol WhatsApp di bawah.</span>
+                        <span class="text-[11px] text-slate-500 block font-semibold uppercase tracking-wider">Total Donasi</span>
+                        <span class="text-xl font-extrabold text-emerald-700 block" id="mobile-summary-total">Rp 0</span>
                     </div>
-                </div>
-
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-1">
-                    <p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Total Pembayaran Donasi</p>
-                    <h4 id="qris-modal-total" class="text-2xl sm:text-3xl font-extrabold text-emerald-700">Rp 0</h4>
-                    <p id="qris-modal-donor" class="text-xs text-slate-600 font-semibold">-</p>
-                </div>
-
-                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center space-y-3">
-                    <div class="flex items-center justify-between w-full border-b border-slate-100 pb-2">
-                        <span class="font-bold text-xs text-slate-700">WAHDAH INSPIRASI ZAKAT BABEL</span>
-                        <span class="text-[10px] text-red-600 font-bold uppercase bg-red-50 px-2 py-0.5 rounded">All e-Wallet &amp; Banking</span>
-                    </div>
-
-                    <img id="qris-modal-img" src="/assets/images/qris-code-wiz-babel.png" alt="Kode QRIS WIZ Bangka Belitung" class="w-64 h-64 sm:w-72 sm:h-72 object-contain rounded-xl border-2 border-emerald-500/30 shadow-md p-2 bg-white">
-
-                    <p class="text-xs text-slate-500 font-medium">Scan menggunakan BCA, Mandiri, BSI, GoPay, OVO, DANA, ShopeePay, LinkAja, atau m-Banking apapun</p>
-
-                    <button type="button" onclick="downloadQRISImage()" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs">
-                        <span class="material-symbols-outlined text-lg">download</span>
-                        <span>Unduh Gambar Kode QRIS</span>
+                    <button id="mobile-checkout-submit-btn" onclick="handleCheckoutSubmit(event)" type="button" class="bg-gradient-to-r from-[#F7941D] to-[#ea7e00] text-white px-6 py-3 rounded-xl text-sm font-extrabold shadow-md hover:opacity-95 transition-opacity flex items-center gap-2 cursor-pointer active:scale-95">
+                        <span>Lanjutkan</span>
+                        <span class="material-symbols-outlined text-base">arrow_forward</span>
                     </button>
                 </div>
+            </main>
 
-                <div class="bg-emerald-50/80 p-3.5 rounded-xl border border-emerald-200 text-left space-y-1.5 text-xs text-emerald-900">
-                    <p class="font-bold flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-base text-emerald-700">info</span>
-                        Langkah Pembayaran &amp; Konfirmasi:
-                    </p>
-                    <ol class="list-decimal list-inside space-y-1 text-xs text-emerald-800 leading-relaxed">
-                        <li>Pindai kode QRIS di atas dengan aplikasi m-Banking atau e-Wallet Anda.</li>
-                        <li>Pastikan nama penerima adalah <strong>WAHDAH INSPIRASI ZAKAT BABEL</strong>.</li>
-                        <li>Setelah sukses transfer, klik tombol hijau di bawah untuk konfirmasi bukti transfer via WhatsApp ke admin WIZ.</li>
-                    </ol>
-                </div>
-
-                <a id="qris-wa-btn" href="https://wa.me/6282380830808" target="_blank" onclick="confirmQRISToWhatsApp(event)" class="w-full bg-[#25D366] hover:bg-[#20ba59] text-white py-3.5 rounded-xl text-sm font-extrabold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer no-underline">
-                    <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
-                    <span id="qris-wa-btn-text">Konfirmasi Pembayaran via WhatsApp</span>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bank Transfer Display Modal -->
-    <div id="bank-modal" class="modal-backdrop" style="display: none;">
-        <div class="modal-dialog">
-            <div class="p-5 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl">
-                <h3 class="text-lg font-bold text-slate-900">Rekening Transfer Bank Syariah</h3>
-                <button type="button" onclick="closeBankModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center cursor-pointer transition-colors">
-                    <span class="material-symbols-outlined text-lg">close</span>
-                </button>
-            </div>
-
-            <div class="p-5 sm:p-6 space-y-4">
-                <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 text-xs flex items-start gap-2.5 text-left shadow-xs">
-                    <span class="material-symbols-outlined text-amber-700 text-xl shrink-0 mt-0.5">hourglass_top</span>
-                    <div>
-                        <span class="font-bold text-amber-900 block" id="bank-admin-target-title">Status: Menunggu Verifikasi Admin</span>
-                        <span class="text-amber-800 text-xs leading-relaxed block mt-0.5" id="bank-admin-target-desc">Transaksi Anda otomatis masuk ke antrean verifikasi Admin WIZ Babel. Silakan transfer dan konfirmasi bukti transfer via WhatsApp agar admin segera menyetujui.</span>
-                    </div>
-                </div>
-
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center space-y-1">
-                    <p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Total Pembayaran Donasi</p>
-                    <h4 id="bank-modal-total" class="text-2xl sm:text-3xl font-extrabold text-emerald-700">Rp 0</h4>
-                    <p id="bank-modal-donor" class="text-xs text-slate-600 font-semibold">-</p>
-                </div>
-
-                <div id="dynamic-donasi-banks-container" class="space-y-3">
-                    <div class="p-5 bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-500/50 rounded-2xl shadow-sm">
-                        <div class="flex items-center justify-between mb-3">
-                            <img src="/assets/images/logo-bsi.jpg" alt="Bank Syariah Indonesia" class="h-9 object-contain" onerror="this.style.display='none'">
-                            <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-extrabold border border-emerald-300">✅ Rekening Aktif</span>
+            <!-- QRIS Payment Display Modal -->
+            <div id="qris-modal" class="modal-backdrop" style="display: none;">
+                <div class="modal-dialog">
+                    <div class="p-5 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 bg-red-100 text-red-700 font-extrabold text-xs rounded-full uppercase tracking-wider">QRIS Standar</span>
+                            <h3 class="text-lg font-bold text-slate-900">Scan Kode QRIS Donasi</h3>
                         </div>
-                        <div class="flex items-center justify-between gap-3">
-                            <div class="space-y-0.5">
-                                <span class="font-bold text-emerald-800 text-sm block" data-site-bank-name="bsi">Bank Syariah Indonesia (BSI)</span>
-                                <span class="font-mono font-extrabold text-2xl sm:text-3xl text-slate-900 tracking-widest block" data-site-bank-no="bsi">7168008001</span>
-                                <span class="text-xs text-slate-500 block font-semibold" data-site-bank-holder="bsi">A.n. WIZ Bangka Belitung</span>
+                        <button type="button" onclick="closeQRISModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center cursor-pointer transition-colors">
+                            <span class="material-symbols-outlined text-lg">close</span>
+                        </button>
+                    </div>
+
+                    <div class="p-5 sm:p-6 space-y-4 text-center">
+                        <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 text-xs flex items-start gap-2.5 text-left shadow-xs">
+                            <span class="material-symbols-outlined text-amber-700 text-xl shrink-0 mt-0.5">hourglass_top</span>
+                            <div>
+                                <span class="font-bold text-amber-900 block" id="qris-admin-target-title">Status: Menunggu Verifikasi Admin</span>
+                                <span class="text-amber-800 text-xs leading-relaxed block mt-0.5" id="qris-admin-target-desc">Transaksi Anda otomatis masuk ke antrean verifikasi Admin WIZ Babel. Silakan lakukan pembayaran dan konfirmasi melalui tombol WhatsApp di bawah.</span>
                             </div>
-                            <button type="button" onclick="copyAccount('7168008001')" class="shrink-0 px-4 py-2.5 bg-emerald-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-emerald-700 transition-colors flex flex-col items-center gap-0.5 cursor-pointer">
-                                <span class="material-symbols-outlined text-base">content_copy</span>
-                                <span>Salin</span>
+                        </div>
+
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-1">
+                            <p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Total Pembayaran Donasi</p>
+                            <h4 id="qris-modal-total" class="text-2xl sm:text-3xl font-extrabold text-emerald-700">Rp 0</h4>
+                            <p id="qris-modal-donor" class="text-xs text-slate-600 font-semibold">-</p>
+                        </div>
+
+                        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center space-y-3">
+                            <div class="flex items-center justify-between w-full border-b border-slate-100 pb-2">
+                                <span class="font-bold text-xs text-slate-700">WAHDAH INSPIRASI ZAKAT BABEL</span>
+                                <span class="text-[10px] text-red-600 font-bold uppercase bg-red-50 px-2 py-0.5 rounded">All e-Wallet &amp; Banking</span>
+                            </div>
+
+                            <img id="qris-modal-img" src="/assets/images/qris-code-wiz-babel.png" alt="Kode QRIS WIZ Bangka Belitung" class="w-64 h-64 sm:w-72 sm:h-72 object-contain rounded-xl border-2 border-emerald-500/30 shadow-md p-2 bg-white">
+
+                            <p class="text-xs text-slate-500 font-medium">Scan menggunakan BCA, Mandiri, BSI, GoPay, OVO, DANA, ShopeePay, LinkAja, atau m-Banking apapun</p>
+
+                            <button type="button" onclick="downloadQRISImage()" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs">
+                                <span class="material-symbols-outlined text-lg">download</span>
+                                <span>Unduh Gambar Kode QRIS</span>
                             </button>
                         </div>
+
+                        <div class="bg-emerald-50/80 p-3.5 rounded-xl border border-emerald-200 text-left space-y-1.5 text-xs text-emerald-900">
+                            <p class="font-bold flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-base text-emerald-700">info</span>
+                                Langkah Pembayaran &amp; Konfirmasi:
+                            </p>
+                            <ol class="list-decimal list-inside space-y-1 text-xs text-emerald-800 leading-relaxed">
+                                <li>Pindai kode QRIS di atas dengan aplikasi m-Banking atau e-Wallet Anda.</li>
+                                <li>Pastikan nama penerima adalah <strong>WAHDAH INSPIRASI ZAKAT BABEL</strong>.</li>
+                                <li>Setelah sukses transfer, klik tombol hijau di bawah untuk konfirmasi bukti transfer via WhatsApp ke admin WIZ.</li>
+                            </ol>
+                        </div>
+
+                        <a id="qris-wa-btn" href="https://wa.me/6282380830808" target="_blank" onclick="confirmQRISToWhatsApp(event)" class="w-full bg-[#25D366] hover:bg-[#20ba59] text-white py-3.5 rounded-xl text-sm font-extrabold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer no-underline">
+                            <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+                            <span id="qris-wa-btn-text">Konfirmasi Pembayaran via WhatsApp</span>
+                        </a>
                     </div>
                 </div>
-
-                <a id="bank-wa-btn" href="https://wa.me/6282380830808" target="_blank" onclick="confirmBankToWhatsApp(event)" class="w-full bg-[#25D366] hover:bg-[#20ba59] text-white py-3.5 rounded-xl text-sm font-extrabold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer no-underline">
-                    <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
-                    <span id="bank-wa-btn-text">Konfirmasi Bukti Transfer via WhatsApp</span>
-                </a>
             </div>
-        </div>
-    </div>
+
+            <!-- Bank Transfer Display Modal -->
+            <div id="bank-modal" class="modal-backdrop" style="display: none;">
+                <div class="modal-dialog">
+                    <div class="p-5 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl">
+                        <h3 class="text-lg font-bold text-slate-900">Rekening Transfer Bank Syariah</h3>
+                        <button type="button" onclick="closeBankModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center cursor-pointer transition-colors">
+                            <span class="material-symbols-outlined text-lg">close</span>
+                        </button>
+                    </div>
+
+                    <div class="p-5 sm:p-6 space-y-4">
+                        <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 text-xs flex items-start gap-2.5 text-left shadow-xs">
+                            <span class="material-symbols-outlined text-amber-700 text-xl shrink-0 mt-0.5">hourglass_top</span>
+                            <div>
+                                <span class="font-bold text-amber-900 block" id="bank-admin-target-title">Status: Menunggu Verifikasi Admin</span>
+                                <span class="text-amber-800 text-xs leading-relaxed block mt-0.5" id="bank-admin-target-desc">Transaksi Anda otomatis masuk ke antrean verifikasi Admin WIZ Babel. Silakan transfer dan konfirmasi bukti transfer via WhatsApp agar admin segera menyetujui.</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center space-y-1">
+                            <p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Total Pembayaran Donasi</p>
+                            <h4 id="bank-modal-total" class="text-2xl sm:text-3xl font-extrabold text-emerald-700">Rp 0</h4>
+                            <p id="bank-modal-donor" class="text-xs text-slate-600 font-semibold">-</p>
+                        </div>
+
+                        <div id="dynamic-donasi-banks-container" class="space-y-3">
+                            <div class="p-5 bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-500/50 rounded-2xl shadow-sm">
+                                <div class="flex items-center justify-between mb-3">
+                                    <img src="/assets/images/logo-bsi.jpg" alt="Bank Syariah Indonesia" class="h-9 object-contain" onerror="this.style.display='none'">
+                                    <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-extrabold border border-emerald-300">✅ Rekening Aktif</span>
+                                </div>
+                                <div class="flex items-center justify-between gap-3">
+                                    <div class="space-y-0.5">
+                                        <span class="font-bold text-emerald-800 text-sm block" data-site-bank-name="bsi">Bank Syariah Indonesia (BSI)</span>
+                                        <span class="font-mono font-extrabold text-2xl sm:text-3xl text-slate-900 tracking-widest block" data-site-bank-no="bsi">7168008001</span>
+                                        <span class="text-xs text-slate-500 block font-semibold" data-site-bank-holder="bsi">A.n. WIZ Bangka Belitung</span>
+                                    </div>
+                                    <button type="button" onclick="copyAccount('7168008001')" class="shrink-0 px-4 py-2.5 bg-emerald-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-emerald-700 transition-colors flex flex-col items-center gap-0.5 cursor-pointer">
+                                        <span class="material-symbols-outlined text-base">content_copy</span>
+                                        <span>Salin</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <a id="bank-wa-btn" href="https://wa.me/6282380830808" target="_blank" onclick="confirmBankToWhatsApp(event)" class="w-full bg-[#25D366] hover:bg-[#20ba59] text-white py-3.5 rounded-xl text-sm font-extrabold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer no-underline">
+                            <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+                            <span id="bank-wa-btn-text">Konfirmasi Bukti Transfer via WhatsApp</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
 
     <!-- Embedded High Priority Modal & Card CSS -->
     <style>
@@ -707,8 +707,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             wilayah: 'Pangkalpinang',
             category: '-',
             program: '-',
-            nominal: 0,
-            totalDonasi: 0,
+            nominal: 50000,
+            totalDonasi: 50000,
             method: 'QRIS',
             donorName: '',
             donorPhone: '',
@@ -914,6 +914,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
             updateSummary();
         }
+        window.setNominal = setNominal;
 
         function updateNominal(val) {
             const num = Number(val) || 0;
@@ -929,6 +930,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             });
             updateSummary();
         }
+        window.updateNominal = updateNominal;
 
         function toggleAnonymousDonor(checked) {
             const donorInput = document.getElementById('donor-name');
@@ -951,6 +953,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             updateRadioVisuals();
             updateSummary();
         }
+        window.setPayment = setPayment;
 
         function updateSummary() {
             const sumType = document.getElementById('summary-type');
@@ -996,28 +999,52 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         }
 
         function handleCheckoutSubmit(e) {
-            if (e) e.preventDefault();
-            if (state.isSubmitting) return;
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
 
             const nameEl = document.getElementById('donor-name');
             const phoneEl = document.getElementById('donor-phone');
             const msgEl = document.getElementById('donor-message');
+            const nominalInput = document.getElementById('custom_nominal');
 
-            state.donorName = nameEl?.value?.trim() || 'Hamba Allah';
+            const isAnon = document.getElementById('is-anonymous-donor')?.checked;
+            state.donorName = isAnon ? 'Hamba Allah' : (nameEl?.value?.trim() || 'Hamba Allah');
             state.donorPhone = phoneEl?.value?.trim() || '';
             state.donorMessage = msgEl?.value?.trim() || '';
 
-            if (!state.nominal || state.nominal < 1000) {
-                alert('Silakan pilih atau masukkan nominal donasi yang valid (minimal Rp 1.000).');
-                return;
+            // Nominal handling
+            let currentNominal = Number(state.nominal) || 0;
+            if (currentNominal < 1000) {
+                const inputVal = Number(nominalInput?.value) || 0;
+                if (inputVal >= 1000) {
+                    currentNominal = inputVal;
+                } else {
+                    currentNominal = 50000; // Fallback default Rp 50.000
+                }
+            }
+            state.nominal = currentNominal;
+            state.totalDonasi = currentNominal;
+
+            // Direct check on radio
+            const checkedMethod = document.querySelector('input[name="payment_method"]:checked');
+            if (checkedMethod) state.method = checkedMethod.value;
+
+            const checkedType = document.querySelector('input[name="donation_type"]:checked');
+            if (checkedType) state.type = checkedType.value;
+
+            const checkedWilayah = document.querySelector('input[name="wilayah"]:checked');
+            if (checkedWilayah) state.wilayah = checkedWilayah.value;
+
+            // 🚀 Open Payment Modal IMMEDIATELY
+            if (state.method === 'QRIS') {
+                openQRISModal();
+            } else {
+                openBankModal();
             }
 
-            state.isSubmitting = true;
-            const submitBtn = document.getElementById('checkout-submit-btn');
-            const btnText = document.getElementById('checkout-btn-text');
-            if (btnText) btnText.textContent = 'Memproses...';
-
-            // Save donation record to store and Supabase
+            // Save donation record to store and Supabase in background
             try {
                 if (window.wizStore && window.wizStore.donations) {
                     const activeRef = (typeof getActiveAffiliateRef === 'function') ? getActiveAffiliateRef() : (sessionStorage.getItem('wiz_active_ref_id') || localStorage.getItem('wiz_ref_code') || '');
@@ -1033,22 +1060,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                         wilayah: state.wilayah,
                         message: state.donorMessage,
                         referralCode: activeRef || undefined
-                    });
+                    }).catch(err => console.warn('Background save note:', err));
                 }
             } catch(err) {
-                console.error('Error saving donation:', err);
+                console.warn('Background save note:', err);
             }
-
-            setTimeout(() => {
-                state.isSubmitting = false;
-                if (btnText) btnText.textContent = 'Lanjutkan Pembayaran';
-                if (state.method === 'QRIS') {
-                    openQRISModal();
-                } else {
-                    openBankModal();
-                }
-            }, 200);
         }
+        window.handleCheckoutSubmit = handleCheckoutSubmit;
 
         function openQRISModal() {
             let progText = `${state.type} (${state.wilayah})`;
@@ -1057,27 +1075,29 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             }
 
             const totalEl = document.getElementById('qris-modal-total');
-            if (totalEl) totalEl.textContent = formatRupiah(state.nominal);
+            if (totalEl) totalEl.textContent = formatRupiah(state.nominal || 50000);
 
             const donorEl = document.getElementById('qris-modal-donor');
-            if (donorEl) donorEl.textContent = `Donatur: ${state.donorName} (${progText})`;
+            if (donorEl) donorEl.textContent = `Donatur: ${state.donorName || 'Hamba Allah'} (${progText})`;
 
             const qrisModal = document.getElementById('qris-modal');
             if (qrisModal) {
-                qrisModal.style.display = 'flex';
+                qrisModal.style.setProperty('display', 'flex', 'important');
                 qrisModal.classList.add('show');
                 document.body.style.overflow = 'hidden';
             }
         }
+        window.openQRISModal = openQRISModal;
 
         function closeQRISModal() {
             const qrisModal = document.getElementById('qris-modal');
             if (qrisModal) {
-                qrisModal.style.display = 'none';
+                qrisModal.style.setProperty('display', 'none', 'important');
                 qrisModal.classList.remove('show');
                 document.body.style.overflow = '';
             }
         }
+        window.closeQRISModal = closeQRISModal;
 
         function openBankModal() {
             let progText = `${state.type} (${state.wilayah})`;
@@ -1086,27 +1106,29 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             }
 
             const totalEl = document.getElementById('bank-modal-total');
-            if (totalEl) totalEl.textContent = formatRupiah(state.nominal);
+            if (totalEl) totalEl.textContent = formatRupiah(state.nominal || 50000);
 
             const donorEl = document.getElementById('bank-modal-donor');
-            if (donorEl) donorEl.textContent = `Donatur: ${state.donorName} (${progText})`;
+            if (donorEl) donorEl.textContent = `Donatur: ${state.donorName || 'Hamba Allah'} (${progText})`;
 
             const bankModal = document.getElementById('bank-modal');
             if (bankModal) {
-                bankModal.style.display = 'flex';
+                bankModal.style.setProperty('display', 'flex', 'important');
                 bankModal.classList.add('show');
                 document.body.style.overflow = 'hidden';
             }
         }
+        window.openBankModal = openBankModal;
 
         function closeBankModal() {
             const bankModal = document.getElementById('bank-modal');
             if (bankModal) {
-                bankModal.style.display = 'none';
+                bankModal.style.setProperty('display', 'none', 'important');
                 bankModal.classList.remove('show');
                 document.body.style.overflow = '';
             }
         }
+        window.closeBankModal = closeBankModal;
 
         function copyAccount(accNum) {
             const clean = String(accNum || '').trim();
@@ -1120,6 +1142,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 alert(`✅ Nomor rekening ${clean} berhasil disalin!`);
             }
         }
+        window.copyAccount = copyAccount;
 
         function generateWhatsAppMessage(method) {
             let progText = `*Jenis*: ${state.type} (${state.wilayah})`;
