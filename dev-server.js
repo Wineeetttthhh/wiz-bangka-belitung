@@ -12,7 +12,8 @@ console.log('   🚀 MEMULAI WIZ DEV SERVER & AUTO-PUSH WATCHER...');
 console.log('========================================================\n');
 
 // 1. Jalankan Local Web Server (Port 3000 dengan Live Reload)
-require('./server.js');
+import './server.js';
 
 // 2. Jalankan Auto Push Watcher (Git add + commit + push)
-require('./auto-push.js');
+import './auto-push.js';
+
