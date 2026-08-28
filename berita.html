@@ -396,16 +396,16 @@
     </script>
 
     <!-- Scripts: Store & Supabase Sync -->
-    <script src="assets/js/supabase-client.js?v=20260826_v14"></script>
-    <script src="assets/js/admin-store.js?v=20260826_v14"></script>
-    <script src="assets/js/main.js?v=20260827_noshare"></script>
-    <script src="assets/js/nav-active.js?v=20260825_menu"></script>
+    <script src="assets/js/supabase-client.js?v=20260828_1787893082733"></script>
+    <script src="assets/js/admin-store.js?v=20260828_1787893082733"></script>
+    <script src="assets/js/main.js?v=20260828_1787893082733"></script>
+    <script src="assets/js/nav-active.js?v=20260828_1787893082733"></script>
 
     <script>
         let currentCategory = 'Semua';
         let currentSearchQuery = '';
         let currentPage = 1;
-        const ITEMS_PER_PAGE = 9;
+        const ITEMS_PER_PAGE = 12;
         let currentModalArticle = null;
 
         function getFilteredNews() {
@@ -478,6 +478,7 @@
                 isFetchingPublicNews = false;
             }
         }
+        fetchFreshArchiveNews();
 
         function renderArchive() {
             const grid = document.getElementById('news-grid');
