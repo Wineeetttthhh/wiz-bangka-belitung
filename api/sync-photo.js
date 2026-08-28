@@ -13,6 +13,8 @@
  * ============================================================
  */
 
+import { invalidateCache } from './sync.js';
+
 const SUPABASE_RAW_URL = process.env.SUPABASE_URL || 'https://ccmulazswlmjyfjdtlti.supabase.co';
 const SUPABASE_URL = SUPABASE_RAW_URL.endsWith('/rest/v1') ? SUPABASE_RAW_URL : `${SUPABASE_RAW_URL.replace(/\/$/, '')}/rest/v1`;
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || 'sb_publishable_hEmZHHQyc0EeHXQI2caacQ_InnfPXa5';
@@ -24,7 +26,7 @@ const supabaseHeaders = {
     'Prefer': 'resolution=merge-duplicates'
 };
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -175,9 +177,8 @@ module.exports = async function handler(req, res) {
         } catch(e) {}
 
         try {
-            const syncApi = require('./sync.js');
-            if (syncApi && typeof syncApi.invalidateCache === 'function') {
-                syncApi.invalidateCache();
+            if (typeof invalidateCache === 'function') {
+                invalidateCache();
             }
         } catch(e) {}
 

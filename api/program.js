@@ -11,8 +11,9 @@
  * ============================================================
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { processToOgJpeg } from './og-image.js';
 
 const SUPABASE_RAW_URL = process.env.SUPABASE_URL || 'https://ccmulazswlmjyfjdtlti.supabase.co';
 const SUPABASE_URL = SUPABASE_RAW_URL.endsWith('/rest/v1') ? SUPABASE_RAW_URL : `${SUPABASE_RAW_URL.replace(/\/$/, '')}/rest/v1`;
@@ -451,7 +452,7 @@ async function getLiveCloudMetadata() {
     return null;
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
     const origin = 'https://www.wizbangkabelitung.or.id';
     const urlObj = new URL(req.url, `http://${req.headers.host || 'www.wizbangkabelitung.or.id'}`);
     let progQuery = (req.query && (req.query.slug || req.query.program || req.query.name || req.query.id)) ||

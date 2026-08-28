@@ -11,9 +11,9 @@
  * ============================================================
  */
 
-const fs = require('fs');
-const path = require('path');
-const { processToOgJpeg } = require('./og-image.js');
+import fs from 'fs';
+import path from 'path';
+import { processToOgJpeg } from './og-image.js';
 
 // Supabase Configuration
 const SUPABASE_RAW_URL = process.env.SUPABASE_URL || 'https://ccmulazswlmjyfjdtlti.supabase.co';
@@ -112,7 +112,7 @@ function formatDateIndo(isoStr) {
     }
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
     const origin = 'https://www.wizbangkabelitung.or.id';
     const urlObj = new URL(req.url, `http://${req.headers.host || 'www.wizbangkabelitung.or.id'}`);
     let newsId = (req.query && req.query.id) || urlObj.searchParams.get('id') || urlObj.searchParams.get('newsId');

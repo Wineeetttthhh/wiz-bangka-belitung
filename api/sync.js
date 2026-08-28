@@ -8,8 +8,8 @@
  * ============================================================
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 // Supabase Configuration
 const SUPABASE_RAW_URL = process.env.SUPABASE_URL || 'https://ccmulazswlmjyfjdtlti.supabase.co';
@@ -244,7 +244,7 @@ function mergeArrays(existingArr = [], incomingArr = [], deletedIds = []) {
     return Array.from(map.values());
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
@@ -841,4 +841,4 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ status: 'error', message: 'Method not allowed' });
 };
 
-module.exports.invalidateCache = invalidateCache;
+export { invalidateCache };

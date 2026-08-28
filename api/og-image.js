@@ -11,9 +11,9 @@
  * ============================================================
  */
 
-const fs = require('fs');
-const path = require('path');
-const { Jimp } = require('jimp');
+import fs from 'fs';
+import path from 'path';
+import { Jimp } from 'jimp';
 
 const SUPABASE_RAW_URL = process.env.SUPABASE_URL || 'https://ccmulazswlmjyfjdtlti.supabase.co';
 const SUPABASE_URL = SUPABASE_RAW_URL.endsWith('/rest/v1') ? SUPABASE_RAW_URL : `${SUPABASE_RAW_URL.replace(/\/$/, '')}/rest/v1`;
@@ -408,7 +408,7 @@ async function resolveProgramRaw(slug) {
 }
 
 // ─── Main Handler ─────────────────────────────────────────────
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
     const urlObj = new URL(req.url || '/', 'https://www.wizbangkabelitung.or.id');
     const type = (urlObj.searchParams.get('type') || (req.query && req.query.type) || '').toLowerCase().trim();
     const id = String(urlObj.searchParams.get('id') || (req.query && req.query.id) || '').replace(/\.(jpe?g|png|webp|gif)$/i, '').trim();
@@ -454,5 +454,6 @@ module.exports = async function handler(req, res) {
     // Safe error response
     res.writeHead(500, { 'Content-Type': 'text/plain' });
     res.end('Failed to generate Open Graph image');
-};
-module.exports.processToOgJpeg = processToOgJpeg;
+}
+
+export { processToOgJpeg };
