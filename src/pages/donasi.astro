@@ -596,35 +596,38 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     <!-- Embedded High Priority Modal & Card CSS -->
     <style is:global>
-        .modal-backdrop {
-            display: none !important;
+        #qris-modal, #bank-modal, .modal-backdrop {
             position: fixed !important;
+            inset: 0 !important;
             top: 0 !important;
             left: 0 !important;
             right: 0 !important;
             bottom: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            background: rgba(0, 0, 0, 0.8) !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: rgba(0, 0, 0, 0.85) !important;
             backdrop-filter: blur(8px) !important;
             -webkit-backdrop-filter: blur(8px) !important;
-            z-index: 9999999 !important;
+            z-index: 2147483647 !important;
             align-items: center !important;
             justify-content: center !important;
             padding: 1rem !important;
             overflow-y: auto !important;
+            display: none !important;
             opacity: 0 !important;
             visibility: hidden !important;
             pointer-events: none !important;
-            transition: opacity 0.2s ease, visibility 0.2s ease !important;
         }
-        .modal-backdrop.show,
-        .modal-backdrop.active {
+        #qris-modal.show, #qris-modal.active,
+        #bank-modal.show, #bank-modal.active,
+        .modal-backdrop.show, .modal-backdrop.active {
             display: flex !important;
             opacity: 1 !important;
             visibility: visible !important;
             pointer-events: auto !important;
         }
+        #qris-modal .modal-dialog,
+        #bank-modal .modal-dialog,
         .modal-backdrop .modal-dialog {
             background: #ffffff !important;
             border-radius: 1.5rem !important;
@@ -632,10 +635,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             max-width: 32rem !important;
             max-height: 90vh !important;
             overflow-y: auto !important;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45) !important;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5) !important;
             margin: auto !important;
             position: relative !important;
-            z-index: 10000000 !important;
+            z-index: 2147483647 !important;
             opacity: 1 !important;
             visibility: visible !important;
             transform: translateY(0) !important;
@@ -1134,24 +1137,40 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         window.updateWhatsAppButtons = updateWhatsAppButtons;
 
         function openQRISModal() {
-            let progText = `${state.type} (${state.wilayah})`;
-            if (state.type === 'Infak Terikat' && state.program !== '-') {
-                progText = `${state.program} — ${state.wilayah}`;
-            }
+            try {
+                let progText = `${state.type} (${state.wilayah})`;
+                if (state.type === 'Infak Terikat' && state.program !== '-') {
+                    progText = `${state.program} — ${state.wilayah}`;
+                }
 
-            const totalEl = document.getElementById('qris-modal-total');
-            if (totalEl) totalEl.textContent = formatRupiah(state.nominal || 50000);
+                const totalEl = document.getElementById('qris-modal-total');
+                if (totalEl) totalEl.textContent = formatRupiah(state.nominal || 50000);
 
-            const donorEl = document.getElementById('qris-modal-donor');
-            if (donorEl) donorEl.textContent = `Donatur: ${state.donorName || 'Hamba Allah'} (${progText})`;
+                const donorEl = document.getElementById('qris-modal-donor');
+                if (donorEl) donorEl.textContent = `Donatur: ${state.donorName || 'Hamba Allah'} (${progText})`;
 
-            updateWhatsAppButtons();
+                if (typeof updateWhatsAppButtons === 'function') {
+                    updateWhatsAppButtons();
+                }
 
-            const qrisModal = document.getElementById('qris-modal');
-            if (qrisModal) {
-                qrisModal.classList.add('show', 'active');
-                qrisModal.style.cssText = 'display: flex !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; z-index: 9999999 !important;';
-                document.body.style.overflow = 'hidden';
+                const qrisModal = document.getElementById('qris-modal');
+                if (qrisModal) {
+                    if (document.body && typeof document.body.appendChild === 'function' && qrisModal.parentNode !== document.body) {
+                        document.body.appendChild(qrisModal);
+                    }
+                    qrisModal.classList.add('show', 'active');
+                    qrisModal.style.setProperty('display', 'flex', 'important');
+                    qrisModal.style.setProperty('opacity', '1', 'important');
+                    qrisModal.style.setProperty('visibility', 'visible', 'important');
+                    qrisModal.style.setProperty('pointer-events', 'auto', 'important');
+                    qrisModal.style.setProperty('z-index', '2147483647', 'important');
+                    document.body.style.overflow = 'hidden';
+
+                    const dialog = qrisModal.querySelector ? qrisModal.querySelector('.modal-dialog') : null;
+                    if (dialog) dialog.scrollTop = 0;
+                }
+            } catch (err) {
+                console.error('Error opening QRIS modal:', err);
             }
         }
         window.openQRISModal = openQRISModal;
@@ -1160,31 +1179,50 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             const qrisModal = document.getElementById('qris-modal');
             if (qrisModal) {
                 qrisModal.classList.remove('show', 'active');
-                qrisModal.style.cssText = 'display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;';
+                qrisModal.style.setProperty('display', 'none', 'important');
+                qrisModal.style.setProperty('opacity', '0', 'important');
+                qrisModal.style.setProperty('visibility', 'hidden', 'important');
+                qrisModal.style.setProperty('pointer-events', 'none', 'important');
                 document.body.style.overflow = '';
             }
         }
         window.closeQRISModal = closeQRISModal;
 
         function openBankModal() {
-            let progText = `${state.type} (${state.wilayah})`;
-            if (state.type === 'Infak Terikat' && state.program !== '-') {
-                progText = `${state.program} — ${state.wilayah}`;
-            }
+            try {
+                let progText = `${state.type} (${state.wilayah})`;
+                if (state.type === 'Infak Terikat' && state.program !== '-') {
+                    progText = `${state.program} — ${state.wilayah}`;
+                }
 
-            const totalEl = document.getElementById('bank-modal-total');
-            if (totalEl) totalEl.textContent = formatRupiah(state.nominal || 50000);
+                const totalEl = document.getElementById('bank-modal-total');
+                if (totalEl) totalEl.textContent = formatRupiah(state.nominal || 50000);
 
-            const donorEl = document.getElementById('bank-modal-donor');
-            if (donorEl) donorEl.textContent = `Donatur: ${state.donorName || 'Hamba Allah'} (${progText})`;
+                const donorEl = document.getElementById('bank-modal-donor');
+                if (donorEl) donorEl.textContent = `Donatur: ${state.donorName || 'Hamba Allah'} (${progText})`;
 
-            updateWhatsAppButtons();
+                if (typeof updateWhatsAppButtons === 'function') {
+                    updateWhatsAppButtons();
+                }
 
-            const bankModal = document.getElementById('bank-modal');
-            if (bankModal) {
-                bankModal.classList.add('show', 'active');
-                bankModal.style.cssText = 'display: flex !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; z-index: 9999999 !important;';
-                document.body.style.overflow = 'hidden';
+                const bankModal = document.getElementById('bank-modal');
+                if (bankModal) {
+                    if (document.body && typeof document.body.appendChild === 'function' && bankModal.parentNode !== document.body) {
+                        document.body.appendChild(bankModal);
+                    }
+                    bankModal.classList.add('show', 'active');
+                    bankModal.style.setProperty('display', 'flex', 'important');
+                    bankModal.style.setProperty('opacity', '1', 'important');
+                    bankModal.style.setProperty('visibility', 'visible', 'important');
+                    bankModal.style.setProperty('pointer-events', 'auto', 'important');
+                    bankModal.style.setProperty('z-index', '2147483647', 'important');
+                    document.body.style.overflow = 'hidden';
+
+                    const dialog = bankModal.querySelector ? bankModal.querySelector('.modal-dialog') : null;
+                    if (dialog) dialog.scrollTop = 0;
+                }
+            } catch (err) {
+                console.error('Error opening Bank modal:', err);
             }
         }
         window.openBankModal = openBankModal;
@@ -1193,7 +1231,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             const bankModal = document.getElementById('bank-modal');
             if (bankModal) {
                 bankModal.classList.remove('show', 'active');
-                bankModal.style.cssText = 'display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;';
+                bankModal.style.setProperty('display', 'none', 'important');
+                bankModal.style.setProperty('opacity', '0', 'important');
+                bankModal.style.setProperty('visibility', 'hidden', 'important');
+                bankModal.style.setProperty('pointer-events', 'none', 'important');
                 document.body.style.overflow = '';
             }
         }
@@ -1229,19 +1270,23 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         }
 
         function confirmQRISToWhatsApp(e) {
-            if (e) e.preventDefault();
             const branch = getTargetWhatsAppConfig(state.wilayah);
             const text = generateWhatsAppMessage('QRIS (Otomatis & Instan)');
-            window.open(`https://wa.me/${branch.waNumber}?text=${text}`, '_blank');
-            closeQRISModal();
+            const targetUrl = `https://wa.me/${branch.waNumber}?text=${text}`;
+            const qrisBtn = document.getElementById('qris-wa-btn');
+            if (qrisBtn) {
+                qrisBtn.href = targetUrl;
+            }
         }
 
         function confirmBankToWhatsApp(e) {
-            if (e) e.preventDefault();
             const branch = getTargetWhatsAppConfig(state.wilayah);
             const text = generateWhatsAppMessage('Transfer Bank Manual');
-            window.open(`https://wa.me/${branch.waNumber}?text=${text}`, '_blank');
-            closeBankModal();
+            const targetUrl = `https://wa.me/${branch.waNumber}?text=${text}`;
+            const bankBtn = document.getElementById('bank-wa-btn');
+            if (bankBtn) {
+                bankBtn.href = targetUrl;
+            }
         }
 
         async function downloadQRISImage() {
@@ -1270,12 +1315,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         }
         window.downloadQRISImage = downloadQRISImage;
 
-        // Close modal on backdrop click
+        // Close modal strictly on backdrop click only
         window.addEventListener('click', (e) => {
-            const qrisModal = document.getElementById('qris-modal');
-            const bankModal = document.getElementById('bank-modal');
-            if (e.target === qrisModal) closeQRISModal();
-            if (e.target === bankModal) closeBankModal();
+            if (e.target && e.target.id === 'qris-modal') closeQRISModal();
+            if (e.target && e.target.id === 'bank-modal') closeBankModal();
         });
 
         document.addEventListener('DOMContentLoaded', () => {
