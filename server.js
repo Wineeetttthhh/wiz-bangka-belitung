@@ -255,8 +255,12 @@ const server = http.createServer((req, res) => {
             filePath = tryDistAstro;
         }
     } else if (reqUrl === '/donasi' || reqUrl === '/donasi/' || reqUrl === '/donasi.html') {
+        // Priority: root donasi.html (has all fixes) > dist/donasi/index.html
+        const tryRootDonasi = path.join(__dirname, 'donasi.html');
         const tryDistDonasi = path.join(__dirname, 'dist', 'donasi', 'index.html');
-        if (fs.existsSync(tryDistDonasi)) {
+        if (fs.existsSync(tryRootDonasi)) {
+            filePath = tryRootDonasi; // Use root donasi.html (has modal fix scripts)
+        } else if (fs.existsSync(tryDistDonasi)) {
             filePath = tryDistDonasi;
         }
     } else if (!path.extname(reqUrl)) {
