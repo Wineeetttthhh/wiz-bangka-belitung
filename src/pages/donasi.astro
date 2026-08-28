@@ -8,6 +8,30 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
     description="Selesaikan donasi Zakat, Infak, dan Sedekah Anda secara aman, cepat, dan transparan bersama Wahdah Inspirasi Zakat (WIZ) Bangka Belitung."
     image="/assets/images/sedekah-beras-dhuafa.jpg"
 >
+    <!-- CRITICAL INSTANT PROGRAM LOCKING ENGINE (0ms Delay) -->
+    <script is:inline define:vars={{ masterPrograms: MASTER_PROGRAMS }}>
+        window.STATIC_MASTER_PROGRAMS = masterPrograms || [];
+        (function() {
+            try {
+                var sp = new URLSearchParams(window.location.search);
+                var prog = sp.get('program') || sp.get('p') || sp.get('title') || sp.get('slug');
+                if (prog && prog.trim()) {
+                    document.documentElement.classList.add('has-locked-program');
+                }
+            } catch(e) {}
+        })();
+    </script>
+    <style is:global>
+        html.has-locked-program #section-step-jenis,
+        html.has-locked-program #infak-terikat-flow,
+        html.has-locked-program #infak-umum-notice {
+            display: none !important;
+        }
+        html.has-locked-program #locked-program-card {
+            display: block !important;
+        }
+    </style>
+
     <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 pb-28 lg:pb-16">
         <!-- Hero Banner Header -->
         <div class="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#004d26] via-[#006834] to-[#004225] text-white p-6 sm:p-10 mb-8 shadow-xl border border-emerald-600/30">
@@ -81,6 +105,46 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                             </div>
                         </div>
                     </div>
+
+                    <!-- Instant Synchronous Population Script (Executes inline with 0ms delay) -->
+                    <script is:inline>
+                    (function() {
+                        try {
+                            var sp = new URLSearchParams(window.location.search);
+                            var progParam = sp.get('program') || sp.get('p') || sp.get('title') || sp.get('slug');
+                            if (progParam) {
+                                var raw = decodeURIComponent(progParam).trim();
+                                var slugified = raw.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+                                var spacified = raw.toLowerCase().replace(/-/g, ' ').replace(/\s+/g, ' ');
+                                var titleEl = document.getElementById('locked-program-title');
+                                var pillarEl = document.getElementById('locked-pillar-badge');
+                                var imgEl = document.getElementById('locked-program-img');
+                                var descEl = document.getElementById('locked-program-desc');
+                                var locEl = document.getElementById('locked-program-location');
+                                var benEl = document.getElementById('locked-program-beneficiary');
+                                
+                                var staticList = window.STATIC_MASTER_PROGRAMS || [];
+                                var found = staticList.find(function(p) {
+                                    var pSlug = (p.slug || '').toLowerCase();
+                                    var pTitle = (p.title || '').toLowerCase();
+                                    return pSlug === slugified || pTitle === spacified || pSlug.includes(slugified) || pTitle.includes(spacified);
+                                });
+                                
+                                if (found) {
+                                    if (titleEl) titleEl.textContent = found.title;
+                                    if (pillarEl) pillarEl.textContent = (found.pillar || found.category || 'BERKAH HIDAYAH').toUpperCase();
+                                    if (imgEl && found.imageUrl) imgEl.src = found.imageUrl;
+                                    if (descEl) descEl.textContent = found.description || found.fullDescription || 'Salurkan donasi terbaik Anda untuk program kebaikan ini.';
+                                    if (locEl) locEl.textContent = 'Lokasi: ' + (found.location || 'Kepulauan Bangka Belitung');
+                                    if (benEl) benEl.textContent = found.beneficiaries || 'Mustahik & Santri';
+                                } else {
+                                    var formatted = raw.includes('-') ? raw.split('-').map(function(w){ return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ') : raw;
+                                    if (titleEl) titleEl.textContent = formatted;
+                                }
+                            }
+                        } catch(e) {}
+                    })();
+                    </script>
 
                     <!-- Step 1: Jenis Donasi (Hidden when program is locked) -->
                     <section id="section-step-jenis" class="bg-white rounded-2xl p-5 sm:p-7 shadow-sm border border-slate-200/80 transition-all hover:shadow-md">
@@ -790,39 +854,39 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
             if (!inputName) return null;
             const clean = decodeURIComponent(inputName).trim();
             const lower = clean.toLowerCase();
+            const slugified = lower.replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+            const spacified = lower.replace(/-/g, ' ').replace(/\s+/g, ' ');
             
             const staticList = (typeof window.STATIC_MASTER_PROGRAMS !== 'undefined' && Array.isArray(window.STATIC_MASTER_PROGRAMS))
                 ? window.STATIC_MASTER_PROGRAMS
                 : [];
             
             // 1. Check exact slug or title match in MASTER_PROGRAMS
-            let match = staticList.find(p => 
-                (p.slug && p.slug.toLowerCase() === lower) ||
-                (p.title && p.title.toLowerCase() === lower)
-            );
+            let match = staticList.find(p => {
+                const pSlug = (p.slug || '').toLowerCase();
+                const pTitle = (p.title || '').toLowerCase();
+                const pTitleSlug = pTitle.replace(/[^a-z0-9]/g, '-');
+                return pSlug === lower || pSlug === slugified || pTitle === lower || pTitle === spacified || pTitleSlug === slugified;
+            });
             if (match) return match;
 
             // 2. Check partial contains match in MASTER_PROGRAMS
-            match = staticList.find(p => 
-                (p.slug && (p.slug.toLowerCase().includes(lower) || lower.includes(p.slug.toLowerCase()))) ||
-                (p.title && (p.title.toLowerCase().includes(lower) || lower.includes(p.title.toLowerCase())))
-            );
+            match = staticList.find(p => {
+                const pSlug = (p.slug || '').toLowerCase();
+                const pTitle = (p.title || '').toLowerCase();
+                return pSlug.includes(slugified) || slugified.includes(pSlug) || pTitle.includes(spacified) || spacified.includes(pTitle);
+            });
             if (match) return match;
 
             // 3. Check published programs in local wizStore
             try {
                 if (window.wizStore && window.wizStore.programs && typeof window.wizStore.programs.getAll === 'function') {
                     const all = window.wizStore.programs.getAll();
-                    let storeMatch = all.find(p => 
-                        (p.slug && p.slug.toLowerCase() === lower) ||
-                        (p.title && p.title.toLowerCase() === lower)
-                    );
-                    if (storeMatch) return storeMatch;
-
-                    storeMatch = all.find(p => 
-                        (p.slug && (p.slug.toLowerCase().includes(lower) || lower.includes(p.slug.toLowerCase()))) ||
-                        (p.title && (p.title.toLowerCase().includes(lower) || lower.includes(p.title.toLowerCase())))
-                    );
+                    let storeMatch = all.find(p => {
+                        const pSlug = (p.slug || '').toLowerCase();
+                        const pTitle = (p.title || '').toLowerCase();
+                        return pSlug === lower || pSlug === slugified || pTitle === lower || pTitle === spacified;
+                    });
                     if (storeMatch) return storeMatch;
                 }
             } catch(e) {}
@@ -831,7 +895,9 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
             const map = getProgramMap();
             for (const [cat, progs] of Object.entries(map)) {
                 for (const p of progs) {
-                    if (p.toLowerCase() === lower || p.toLowerCase().includes(lower) || lower.includes(p.toLowerCase())) {
+                    const pLower = p.toLowerCase();
+                    const pSlug = pLower.replace(/[^a-z0-9]/g, '-');
+                    if (pLower === lower || pLower === spacified || pSlug === slugified || pLower.includes(spacified) || spacified.includes(pLower)) {
                         return {
                             title: p,
                             pillar: cat,
@@ -845,12 +911,16 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                 }
             }
 
-            // Fallback object
+            // Fallback object: format readable title from slug
+            const formatted = clean.includes('-')
+                ? clean.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+                : clean;
+
             return {
-                title: clean,
-                pillar: 'Berkah Peduli',
-                category: 'Sosial & Kemanusiaan',
-                description: `Penyaluran donasi khusus program ${clean} melalui Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.`,
+                title: formatted,
+                pillar: 'Berkah Hidayah',
+                category: 'Dakwah & Syiar',
+                description: `Penyaluran donasi khusus program ${formatted} melalui Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.`,
                 imageUrl: '/assets/images/foto-utama-wiz.jpg',
                 location: 'Kepulauan Bangka Belitung',
                 beneficiaries: 'Mustahik di Bangka Belitung'
@@ -887,6 +957,9 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
             state.category = prog.pillar || prog.category || 'Berkah Peduli';
             state.type = 'Infak Terikat';
             state.lockedProgramData = prog;
+
+            // Mark document root class
+            document.documentElement.classList.add('has-locked-program');
 
             // Hide Step 1 Jenis Donasi & Manual Infak Terikat Flow / Notice
             const secJenis = document.getElementById('section-step-jenis');
@@ -938,6 +1011,9 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
             state.category = '-';
             state.type = 'Infak Umum';
             state.lockedProgramData = null;
+
+            // Remove locked root class
+            document.documentElement.classList.remove('has-locked-program');
 
             // Show Step 1 Jenis Donasi
             const secJenis = document.getElementById('section-step-jenis');
