@@ -873,8 +873,9 @@ return;
             const featuredCard = document.getElementById('affiliate-featured-news');
             const grid = document.getElementById('affiliate-news-grid');
             if (!published || published.length === 0) {
+                fetchFreshNewsDirectly();
                 if (featuredCard) featuredCard.style.display = 'none';
-                if (grid) grid.innerHTML = '<div class="col-span-2 p-6 text-center text-slate-400">Belum ada berita yang dipublikasikan.</div>';
+                if (grid) grid.innerHTML = '<div class="col-span-2 p-6 text-center text-slate-400">Memuat berita & kegiatan penyaluran...</div>';
                 return;
             }
 
@@ -883,6 +884,9 @@ return;
 
             const fImg = document.getElementById('aff-featured-news-img');
             const fCat = document.getElementById('aff-featured-news-category');
+            const fDate = document.getElementById('aff-featured-news-date');
+            const fTitle = document.getElementById('aff-featured-news-title');
+            const fExcerpt = document.getElementById('aff-featured-news-excerpt');
             const fWaBtn = document.getElementById('aff-featured-share-wa-btn');
             const fCopyBtn = document.getElementById('aff-featured-copy-btn');
             const fViewBtn = document.getElementById('aff-featured-view-btn');
@@ -930,37 +934,64 @@ return;
             }
         }
 
+        let isFetchingAffiliateNews = false;
+        async function fetchFreshNewsDirectly() {
+            if (isFetchingAffiliateNews) return;
+            isFetchingAffiliateNews = true;
+            try {
+                if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                    const res = await window.wizSupabase.select('news', { select: 'id,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at', order: 'created_at.desc' });
+                    if (res && Array.isArray(res.data) && res.data.length > 0) {
+                        const mapped = res.data.map(n => {
+                            const mainImg = (n.image_url || (Array.isArray(n.gallery) && n.gallery.length > 0 ? n.gallery[0] : '') || n.imageUrl || '').trim();
+                            return {
+                                id: String(n.id),
+                                title: n.title,
+                                category: n.category || 'Kegiatan & Penyaluran',
+                                content: n.content,
+                                imageUrl: mainImg,
+                                image_url: mainImg,
+                                gallery: Array.isArray(n.gallery) ? n.gallery : [],
+                                eventDate: n.event_date || n.eventDate || n.created_at,
+                                event_date: n.event_date || n.eventDate || n.created_at,
+                                status: n.status || 'published',
+                                author: n.author || 'Admin WIZ Babel',
+                                createdAt: n.created_at || n.createdAt || new Date().toISOString(),
+                                created_at: n.created_at || n.createdAt || new Date().toISOString(),
+                                updatedAt: n.updated_at || n.updatedAt || new Date().toISOString(),
+                                updated_at: n.updated_at || n.updatedAt || new Date().toISOString()
+                            };
+                        });
+                        mapped.sort((a, b) => {
+                            const timeA = new Date(a.createdAt || a.created_at || a.updatedAt || a.updated_at || a.eventDate || a.event_date || 0).getTime();
+                            const timeB = new Date(b.createdAt || b.created_at || b.updatedAt || b.updated_at || b.eventDate || b.event_date || 0).getTime();
+                            return timeB - timeA;
+                        });
+                        localStorage.setItem('wiz_news', JSON.stringify(mapped));
+                        renderAffiliateNewsGrid();
+                    }
+                }
+            } catch(e) {
+                console.warn('[Affiliate Sync News Error]', e);
+            } finally {
+                isFetchingAffiliateNews = false;
+            }
+        }
+
         function escapeJsString(str) {
             return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, ' ');
         }
 
         function shareAffiliateNewsWA(newsId) {
             const refCode = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || 'WIZ';
-            const n = (window.wizStore && window.wizStore.news) ? window.wizStore.news.getById(newsId) : null;
-            if (!n) return;
-
-            const origin = 'https://www.wizbangkabelitung.or.id';
-            const newsUrlObj = new URL(`${origin}/berita/${encodeURIComponent(n.id)}`);
-            if (refCode) newsUrlObj.searchParams.set('ref', refCode);
-            const newsUrl = newsUrlObj.toString();
-
-            const titleText = (n.title || 'BERITA KEGIATAN WIZ BABEL').trim();
-            const waText = `*${titleText.toUpperCase()}*\n\n${newsUrl}`;
-            const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(waText);
-
-            try {
-                const win = window.open(waUrl, '_blank');
-                if (!win || win.closed || typeof win.closed === 'undefined') {
-                    window.location.href = waUrl;
-                }
-            } catch(e) {
-                window.location.href = waUrl;
-            }
+            const origin = window.location.origin || 'https://www.wizbangkabelitung.or.id';
+            const finalShareUrl = `${origin}/berita/${encodeURIComponent(newsId)}?ref=${encodeURIComponent(refCode)}`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(finalShareUrl)}`, '_blank');
         }
 
         function copyAffiliateNewsLink(newsId) {
             const refCode = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || 'WIZ';
-            const origin = 'https://www.wizbangkabelitung.or.id';
+            const origin = window.location.origin || 'https://www.wizbangkabelitung.or.id';
             const newsUrlObj = new URL(`${origin}/berita/${encodeURIComponent(newsId)}`);
             if (refCode) newsUrlObj.searchParams.set('ref', refCode);
             const newsUrl = newsUrlObj.toString();
@@ -982,9 +1013,10 @@ return;
                 return;
             }
 
+            const origin = window.location.origin || 'https://www.wizbangkabelitung.or.id';
             grid.innerHTML = progs.map(p => {
                 const slug = p.slug || (p.title ? p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : 'program');
-                const progUrl = `https://www.wizbangkabelitung.or.id/program/${slug}?ref=${encodeURIComponent(activeRef)}`;
+                const progUrl = `${origin}/program/${slug}?ref=${encodeURIComponent(activeRef)}`;
                 const dynamicImg = (window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function')
                     ? window.wizStore.allocationRulesManager.getSpecificProgramImage(p.title, p.pillar)
                     : (p.imageUrl || '/assets/images/default-program-wiz.png');
@@ -1020,18 +1052,7 @@ return;
         }
 
         function shareProgramWA(title, url) {
-            const cleanTitle = (title || 'Program Donasi WIZ Babel').trim();
-            const waText = `*PROGRAM KEBAIKAN WIZ BANGKA BELITUNG*\n*${cleanTitle.toUpperCase()}*\n\n${url}`;
-            const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(waText);
-
-            try {
-                const win = window.open(waUrl, '_blank');
-                if (!win || win.closed || typeof win.closed === 'undefined') {
-                    window.location.href = waUrl;
-                }
-            } catch(e) {
-                window.location.href = waUrl;
-            }
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(url)}`, '_blank');
         }
 
         function renderAffiliateQuotesGrid() {
@@ -1042,7 +1063,8 @@ return;
 
         function copyFundraisingLink() {
             const activeRef = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || 'WIZ';
-            const url = `https://www.wizbangkabelitung.or.id/?ref=${encodeURIComponent(activeRef)}`;
+            const origin = window.location.origin || 'https://www.wizbangkabelitung.or.id';
+            const url = `${origin}/?ref=${encodeURIComponent(activeRef)}`;
             navigator.clipboard.writeText(url).then(() => {
                 alert(`✅ Link Website Utama dengan Kode Mitra (${activeRef}) berhasil disalin:\n\n${url}\n\nDonasi apa pun dari link ini otomatis tercatat atas nama Anda.`);
             });
@@ -1088,7 +1110,11 @@ return;
                 }
             } catch(e) {}
 
+            renderAffiliateNewsGrid();
+            renderAffiliateProgramsGrid();
+
             // Synchronize Latest News & Programs from Cloud for all Devices
+            fetchFreshNewsDirectly();
             if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
                 try {
                     await window.wizStore.syncFromCloud(true);
