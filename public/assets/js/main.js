@@ -1505,6 +1505,25 @@ Mohon dapat diverifikasi dan dikirimkan konfirmasi/bukti resi donasinya. Terima 
  * Global QRIS Lightbox / Viewer Helper
  */
 window.openQRISModal = function() {
+    const qrisModal = document.getElementById('qris-modal');
+    if (qrisModal) {
+        if (qrisModal.parentElement !== document.body) {
+            document.body.appendChild(qrisModal);
+        }
+        const imgEl = document.getElementById('qris-modal-img');
+        if (imgEl) {
+            imgEl.src = '/assets/images/qris-code-wiz-babel.png';
+            imgEl.style.display = 'block';
+        }
+        if (typeof updateWhatsAppButtons === 'function') {
+            try { updateWhatsAppButtons(); } catch(e) {}
+        }
+        qrisModal.style.cssText = 'position: fixed !important; inset: 0 !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important; height: 100% !important; background: rgba(0, 0, 0, 0.85) !important; -webkit-backdrop-filter: blur(8px) !important; backdrop-filter: blur(8px) !important; z-index: 2147483647 !important; display: flex !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; align-items: center !important; justify-content: center !important; padding: 1rem !important; overflow-y: auto !important;';
+        qrisModal.classList.add('show', 'active');
+        document.body.style.overflow = 'hidden';
+        return;
+    }
+
     const lightbox = document.getElementById('image-lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
     const lightboxIcon = document.getElementById('lightbox-icon');
@@ -1513,7 +1532,7 @@ window.openQRISModal = function() {
     if (!lightbox) return;
 
     if (lightboxImg) {
-        lightboxImg.src = 'assets/images/qris-wiz-babel.jpg';
+        lightboxImg.src = '/assets/images/qris-code-wiz-babel.png';
         lightboxImg.style.display = 'block';
     }
     if (lightboxIcon) lightboxIcon.style.display = 'none';

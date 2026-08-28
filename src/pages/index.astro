@@ -672,17 +672,19 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
         function handleDonationSubmit(event) {
             event.preventDefault();
-            const nominalInput = document.getElementById('nominal-input');
-            const nominal = nominalInput ? nominalInput.value : '50000';
-            const name = document.getElementById('donor-name')?.value || 'Hamba Allah';
-            const phone = document.getElementById('donor-phone')?.value || '';
-            const msg = document.getElementById('donor-message')?.value || '';
+            const nominalInput = document.getElementById('shared-nominal-input') || document.getElementById('nominal-input');
+            const nominal = nominalInput ? (nominalInput.value || '50000') : '50000';
+            const name = document.getElementById('shared-donor-name')?.value || document.getElementById('donor-name')?.value || 'Hamba Allah';
+            const phone = document.getElementById('shared-donor-phone')?.value || document.getElementById('donor-phone')?.value || '';
+            const msg = document.getElementById('shared-donor-message')?.value || document.getElementById('donor-message')?.value || '';
             const modalTitle = document.getElementById('modal-program-title');
             const prog = modalTitle ? modalTitle.textContent : 'Donasi';
 
-            const text = `Bismillah, saya *${name}* (%2B${phone}) ingin berdonasi untuk *${prog}* sebesar *Rp ${Number(nominal).toLocaleString('id-ID')}*.%0A%0ANiat/Doa: ${msg || '-'}`;
-            window.open(`https://wa.me/6282380830808?text=${text}`, '_blank');
+            const cleanProg = prog.replace('Formulir Donasi', '').replace('Donasi Program:', '').trim() || 'Infak Umum';
+            const targetUrl = `/donasi?program=${encodeURIComponent(cleanProg)}&nominal=${encodeURIComponent(nominal)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&msg=${encodeURIComponent(msg)}`;
+            
             closeDonationModal();
+            window.location.href = targetUrl;
         }
 
         function calculateZakat() {
