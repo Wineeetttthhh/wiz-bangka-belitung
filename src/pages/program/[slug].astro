@@ -188,7 +188,7 @@ const nominalPresets = [20000, 50000, 100000, 250000, 500000, 1000000];
 
                         <!-- Direct Donate Checkout Button -->
                         <a
-                            href={`/donasi?program=${program.slug}&amount=50000`}
+                            href={`/donasi?program=${program.slug}`}
                             id="checkout-donate-btn"
                             class="w-full py-4 rounded-2xl bg-[#006834] hover:bg-[#008444] text-white font-black text-center text-base shadow-lg shadow-emerald-900/10 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                         >
@@ -212,7 +212,7 @@ const nominalPresets = [20000, 50000, 100000, 250000, 500000, 1000000];
     import { getActiveAffiliate } from '../../lib/affiliate-tracker';
 
     // Nominal Selection Logic
-    let selectedAmount = 50000;
+    let selectedAmount = 0;
     const programSlug = document.getElementById('checkout-donate-btn')?.getAttribute('href')?.split('program=')[1]?.split('&')[0] || '';
     const checkoutBtn = document.getElementById('checkout-donate-btn') as HTMLAnchorElement;
     const nominalBtns = document.querySelectorAll('.nominal-btn');
@@ -220,14 +220,18 @@ const nominalPresets = [20000, 50000, 100000, 250000, 500000, 1000000];
 
     function updateCheckoutUrl() {
         if (checkoutBtn) {
-            checkoutBtn.href = `/donasi?program=${programSlug}&amount=${selectedAmount}`;
+            if (selectedAmount > 0) {
+                checkoutBtn.href = `/donasi?program=${programSlug}&amount=${selectedAmount}`;
+            } else {
+                checkoutBtn.href = `/donasi?program=${programSlug}`;
+            }
         }
     }
 
     nominalBtns.forEach((btn) => {
         btn.addEventListener('click', (e) => {
             const target = e.currentTarget as HTMLButtonElement;
-            const amt = Number(target.getAttribute('data-amount')) || 50000;
+            const amt = Number(target.getAttribute('data-amount')) || 0;
             selectedAmount = amt;
 
             nominalBtns.forEach((b) => {
@@ -235,8 +239,10 @@ const nominalPresets = [20000, 50000, 100000, 250000, 500000, 1000000];
                 b.classList.add('border-slate-200', 'text-slate-700');
             });
 
-            target.classList.add('border-emerald-600', 'bg-emerald-50', 'text-emerald-800');
-            target.classList.remove('border-slate-200', 'text-slate-700');
+            if (amt > 0) {
+                target.classList.add('border-emerald-600', 'bg-emerald-50', 'text-emerald-800');
+                target.classList.remove('border-slate-200', 'text-slate-700');
+            }
 
             if (customInput) customInput.value = '';
             updateCheckoutUrl();
@@ -246,14 +252,12 @@ const nominalPresets = [20000, 50000, 100000, 250000, 500000, 1000000];
     if (customInput) {
         customInput.addEventListener('input', () => {
             const val = Number(customInput.value) || 0;
-            if (val > 0) {
-                selectedAmount = val;
-                nominalBtns.forEach((b) => {
-                    b.classList.remove('border-emerald-600', 'bg-emerald-50', 'text-emerald-800');
-                    b.classList.add('border-slate-200', 'text-slate-700');
-                });
-                updateCheckoutUrl();
-            }
+            selectedAmount = val;
+            nominalBtns.forEach((b) => {
+                b.classList.remove('border-emerald-600', 'bg-emerald-50', 'text-emerald-800');
+                b.classList.add('border-slate-200', 'text-slate-700');
+            });
+            updateCheckoutUrl();
         });
     }
 
