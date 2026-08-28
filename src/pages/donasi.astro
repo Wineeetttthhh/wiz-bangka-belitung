@@ -1459,4 +1459,135 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             }
         });
     </script>
+
+    <!-- WIZ MODAL OVERRIDE: Runs LAST, tidak bisa ditimpa script manapun -->
+    <script is:inline>
+    (function() {
+        'use strict';
+        function _fmt(n) {
+            return new Intl.NumberFormat('id-ID', {style:'currency',currency:'IDR',minimumFractionDigits:0}).format(Number(n)||0);
+        }
+        function _showModal(id) {
+            var m = document.getElementById(id);
+            if (!m) { console.error('[WIZ] Modal tidak ditemukan:', id); return; }
+            if (m.parentNode !== document.body) document.body.appendChild(m);
+            m.style.cssText = [
+                'display:flex','position:fixed','inset:0','top:0','left:0','right:0','bottom:0',
+                'width:100%','height:100%','z-index:2147483647',
+                'background:rgba(0,0,0,0.85)',
+                'align-items:center','justify-content:center',
+                'padding:1rem','overflow-y:auto',
+                'opacity:1','visibility:visible','pointer-events:auto'
+            ].join('!important;') + '!important';
+            m.classList.add('show','active');
+            document.body.style.overflow = 'hidden';
+            var d = m.querySelector('.modal-dialog');
+            if (d) d.style.cssText = [
+                'display:block','position:relative','z-index:2147483647',
+                'opacity:1','visibility:visible','max-height:90vh',
+                'overflow-y:auto','margin:auto','transform:translateY(0)',
+                'background:#fff','border-radius:1.5rem','width:100%',
+                'max-width:32rem','box-shadow:0 25px 60px rgba(0,0,0,0.5)'
+            ].join('!important;') + '!important';
+            console.log('[WIZ] Modal terbuka:', id);
+        }
+        function _hideModal(id) {
+            var m = document.getElementById(id);
+            if (m) { m.style.cssText = 'display:none!important;'; m.classList.remove('show','active'); document.body.style.overflow = ''; }
+        }
+
+        window.openQRISModal = function() {
+            var s = window.donationState || {};
+            var n = Number(s.nominal || s.totalDonasi) || 50000;
+            var el;
+            el = document.getElementById('qris-modal-total'); if(el) el.textContent = _fmt(n);
+            el = document.getElementById('qris-modal-donor'); if(el) el.textContent = 'Donatur: '+(s.donorName||'Hamba Allah')+' ('+(s.type||'Infak Umum')+')';
+            el = document.getElementById('qris-modal-img'); if(el) { el.src = '/assets/images/qris-code-wiz-babel.png'; el.onerror = null; }
+            if (typeof updateWhatsAppButtons === 'function') { try { updateWhatsAppButtons(); } catch(e) {} }
+            _showModal('qris-modal');
+        };
+        window.closeQRISModal = function() { _hideModal('qris-modal'); };
+
+        window.openBankModal = function() {
+            var s = window.donationState || {};
+            var n = Number(s.nominal || s.totalDonasi) || 50000;
+            var el;
+            el = document.getElementById('bank-modal-total'); if(el) el.textContent = _fmt(n);
+            el = document.getElementById('bank-modal-donor'); if(el) el.textContent = 'Donatur: '+(s.donorName||'Hamba Allah')+' ('+(s.type||'Infak Umum')+')';
+            if (typeof updateWhatsAppButtons === 'function') { try { updateWhatsAppButtons(); } catch(e) {} }
+            _showModal('bank-modal');
+        };
+        window.closeBankModal = function() { _hideModal('bank-modal'); };
+
+        window.handleCheckoutSubmit = function(e) {
+            if (e) { if(e.preventDefault) e.preventDefault(); if(e.stopPropagation) e.stopPropagation(); }
+            var s = window.donationState;
+            if (!s) { s = {method:'QRIS',nominal:50000,type:'Infak Umum',wilayah:'Pangkalpinang',donorName:'',donorPhone:'',donorMessage:'',category:'-',program:'-'}; window.donationState = s; }
+
+            var el;
+            el = document.getElementById('is-anonymous-donor');
+            var isAnon = el && el.checked;
+            el = document.getElementById('donor-name');
+            s.donorName = isAnon ? 'Hamba Allah' : ((el && el.value.trim()) || 'Hamba Allah');
+            el = document.getElementById('donor-phone'); if(el) s.donorPhone = el.value.trim();
+            el = document.getElementById('donor-message'); if(el) s.donorMessage = el.value.trim();
+
+            var nom = Number(s.nominal) || 0;
+            if (nom < 1000) { el = document.getElementById('custom_nominal'); nom = el ? (Number(el.value)||50000) : 50000; }
+            if (nom < 1000) nom = 50000;
+            s.nominal = nom; s.totalDonasi = nom;
+
+            var r;
+            r = document.querySelector('input[name="payment_method"]:checked'); if(r) s.method = r.value;
+            r = document.querySelector('input[name="wilayah"]:checked'); if(r) s.wilayah = r.value;
+            r = document.querySelector('input[name="donation_type"]:checked'); if(r) s.type = r.value;
+
+            var ms = (s.method||'').toUpperCase();
+            var isQris = ms.includes('QRIS') || (!ms.includes('BANK') && !ms.includes('TRANSFER'));
+            console.log('[WIZ] Submit: method='+s.method+' isQris='+isQris+' nominal='+nom);
+
+            if (isQris) { window.openQRISModal(); } else { window.openBankModal(); }
+
+            try {
+                if (window.wizStore && window.wizStore.donations && window.wizStore.donations.add) {
+                    window.wizStore.donations.add({
+                        donorName:s.donorName, donorPhone:s.donorPhone, amount:nom,
+                        program:(s.type==='Infak Terikat'&&s.program!=='-')?s.program:s.type,
+                        pillar:(s.category&&s.category!=='-')?s.category:'Berkah Peduli',
+                        type:s.type, method:isQris?'QRIS':'Transfer Bank (BSI)',
+                        wilayah:s.wilayah||'Pangkalpinang', message:s.donorMessage
+                    }).catch(function(){});
+                }
+            } catch(err) {}
+            return false;
+        };
+
+        // Pasang ke tombol menggunakan capture phase - tidak bisa diblokir event lain
+        function _attachBtn() {
+            var btn = document.getElementById('checkout-submit-btn');
+            if (btn) {
+                var fresh = btn.cloneNode(true);
+                btn.parentNode.replaceChild(fresh, btn);
+                fresh.addEventListener('click', function(ev) {
+                    ev.preventDefault();
+                    ev.stopImmediatePropagation();
+                    window.handleCheckoutSubmit(ev);
+                    return false;
+                }, true);
+                console.log('[WIZ] Tombol checkout override terpasang ✓');
+            }
+            document.addEventListener('keydown', function(ev) {
+                if (ev.key === 'Escape') { window.closeQRISModal(); window.closeBankModal(); }
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', _attachBtn);
+        } else {
+            _attachBtn();
+        }
+
+        console.log('[WIZ] Override script aktif ✓');
+    })();
+    </script>
 </BaseLayout>
