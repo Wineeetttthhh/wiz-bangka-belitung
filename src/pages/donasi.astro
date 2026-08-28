@@ -1179,7 +1179,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         }
         window.updateWhatsAppButtons = updateWhatsAppButtons;
 
+        let _lastModalOpenTime = 0;
+
         function openQRISModal() {
+            _lastModalOpenTime = Date.now();
             try {
                 let progText = `${state.type} (${state.wilayah})`;
                 if (state.type === 'Infak Terikat' && state.program !== '-') {
@@ -1210,7 +1213,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                     document.body.style.overflow = 'hidden';
 
                     const dialog = qrisModal.querySelector ? qrisModal.querySelector('.modal-dialog') : null;
-                    if (dialog) dialog.scrollTop = 0;
+                    if (dialog) {
+                        dialog.scrollTop = 0;
+                        dialog.style.setProperty('opacity', '1', 'important');
+                        dialog.style.setProperty('visibility', 'visible', 'important');
+                        dialog.style.setProperty('z-index', '2147483647', 'important');
+                    }
+                } else {
+                    console.error('qris-modal element not found!');
                 }
             } catch (err) {
                 console.error('Error opening QRIS modal:', err);
@@ -1232,6 +1242,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         window.closeQRISModal = closeQRISModal;
 
         function openBankModal() {
+            _lastModalOpenTime = Date.now();
             try {
                 let progText = `${state.type} (${state.wilayah})`;
                 if (state.type === 'Infak Terikat' && state.program !== '-') {
@@ -1262,7 +1273,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                     document.body.style.overflow = 'hidden';
 
                     const dialog = bankModal.querySelector ? bankModal.querySelector('.modal-dialog') : null;
-                    if (dialog) dialog.scrollTop = 0;
+                    if (dialog) {
+                        dialog.scrollTop = 0;
+                        dialog.style.setProperty('opacity', '1', 'important');
+                        dialog.style.setProperty('visibility', 'visible', 'important');
+                        dialog.style.setProperty('z-index', '2147483647', 'important');
+                    }
+                } else {
+                    console.error('bank-modal element not found!');
                 }
             } catch (err) {
                 console.error('Error opening Bank modal:', err);
@@ -1358,8 +1376,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         }
         window.downloadQRISImage = downloadQRISImage;
 
-        // Close modal strictly on backdrop click only
+        // Close modal strictly on backdrop click only (with debounce protection)
         window.addEventListener('click', (e) => {
+            if (Date.now() - _lastModalOpenTime < 450) return; // Prevent instant close from opening event trigger
             if (e.target && e.target.id === 'qris-modal') closeQRISModal();
             if (e.target && e.target.id === 'bank-modal') closeBankModal();
         });

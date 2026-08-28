@@ -1737,8 +1737,51 @@
                     qrisModal.style.setProperty('z-index', '2147483647', 'important');
                     document.body.style.overflow = 'hidden';
 
+        let _lastModalOpenTime = 0;
+
+        function openQRISModal() {
+            _lastModalOpenTime = Date.now();
+            try {
+                let progText = `${state.type} (${state.wilayah})`;
+                if (state.type === 'Infak Terikat' && state.program !== '-') {
+                    progText = `${state.program} — ${state.wilayah}`;
+                }
+
+                const totalEl = document.getElementById('qris-modal-total');
+                if (totalEl) totalEl.textContent = formatRupiah(state.nominal || 50000);
+
+                const donorEl = document.getElementById('qris-modal-donor');
+                if (donorEl) donorEl.textContent = `Donatur: ${state.donorName || 'Hamba Allah'} (${progText})`;
+
+                const imgEl = document.getElementById('qris-modal-img');
+                if (imgEl) imgEl.src = 'assets/images/qris-code-wiz-babel.png';
+
+                if (typeof updateWhatsAppButtons === 'function') {
+                    updateWhatsAppButtons();
+                }
+
+                const qrisModal = document.getElementById('qris-modal');
+                if (qrisModal) {
+                    if (document.body && typeof document.body.appendChild === 'function' && qrisModal.parentNode !== document.body) {
+                        document.body.appendChild(qrisModal);
+                    }
+                    qrisModal.classList.add('show', 'active');
+                    qrisModal.style.setProperty('display', 'flex', 'important');
+                    qrisModal.style.setProperty('opacity', '1', 'important');
+                    qrisModal.style.setProperty('visibility', 'visible', 'important');
+                    qrisModal.style.setProperty('pointer-events', 'auto', 'important');
+                    qrisModal.style.setProperty('z-index', '2147483647', 'important');
+                    document.body.style.overflow = 'hidden';
+
                     const dialog = qrisModal.querySelector ? qrisModal.querySelector('.modal-dialog') : null;
-                    if (dialog) dialog.scrollTop = 0;
+                    if (dialog) {
+                        dialog.scrollTop = 0;
+                        dialog.style.setProperty('opacity', '1', 'important');
+                        dialog.style.setProperty('visibility', 'visible', 'important');
+                        dialog.style.setProperty('z-index', '2147483647', 'important');
+                    }
+                } else {
+                    console.error('qris-modal element not found!');
                 }
             } catch (err) {
                 console.error('Error opening QRIS modal:', err);
@@ -1799,6 +1842,7 @@
 
         // Bank Modal Logic
         function openBankModal() {
+            _lastModalOpenTime = Date.now();
             try {
                 if (typeof window.applySiteSettings === 'function') {
                     window.applySiteSettings();
@@ -1833,7 +1877,14 @@
                     document.body.style.overflow = 'hidden';
 
                     const dialog = bankModal.querySelector ? bankModal.querySelector('.modal-dialog') : null;
-                    if (dialog) dialog.scrollTop = 0;
+                    if (dialog) {
+                        dialog.scrollTop = 0;
+                        dialog.style.setProperty('opacity', '1', 'important');
+                        dialog.style.setProperty('visibility', 'visible', 'important');
+                        dialog.style.setProperty('z-index', '2147483647', 'important');
+                    }
+                } else {
+                    console.error('bank-modal element not found!');
                 }
             } catch (err) {
                 console.error('Error opening Bank modal:', err);
@@ -1867,8 +1918,9 @@
             }
         }
 
-        // Close modal strictly on backdrop click only
+        // Close modal strictly on backdrop click only (with debounce protection)
         window.addEventListener('click', (e) => {
+            if (Date.now() - _lastModalOpenTime < 450) return; // Prevent instant close from opening event trigger
             if (e.target && e.target.id === 'qris-modal') closeQRISModal();
             if (e.target && e.target.id === 'bank-modal') closeBankModal();
         });
