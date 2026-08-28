@@ -75,7 +75,18 @@ try {
     fs.watch(WATCH_DIR, { recursive: true }, (eventType, filename) => {
         if (!filename) return;
         const normalized = filename.replace(/\\/g, '/');
-        if (normalized.includes('.git') || normalized.includes('.gemini') || normalized.includes('node_modules')) return;
+        if (
+            normalized.includes('.git') ||
+            normalized.includes('.gemini') ||
+            normalized.includes('node_modules') ||
+            normalized.includes('scratch') ||
+            normalized.includes('dist') ||
+            normalized.includes('.vercel') ||
+            normalized.includes('.tempmediaStorage') ||
+            normalized.endsWith('.log') ||
+            normalized.endsWith('.png') ||
+            normalized.endsWith('.webp')
+        ) return;
         notifyClients();
     });
 } catch (e) {

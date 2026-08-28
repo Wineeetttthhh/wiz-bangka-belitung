@@ -661,7 +661,7 @@
                                 <span class="text-2xl sm:text-3xl font-extrabold text-emerald-700" id="summary-total">Rp 0</span>
                             </div>
 
-                            <button id="checkout-submit-btn" class="w-full bg-gradient-to-r from-[#F7941D] to-[#ea7e00] hover:from-[#ea7e00] hover:to-[#d67200] text-white py-4 rounded-xl font-extrabold text-base shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 transition-all flex justify-center items-center gap-2 cursor-pointer active:scale-[0.99]" type="submit">
+                            <button id="checkout-submit-btn" onclick="handleCheckoutSubmit(event)" class="w-full bg-gradient-to-r from-[#F7941D] to-[#ea7e00] hover:from-[#ea7e00] hover:to-[#d67200] text-white py-4 rounded-xl font-extrabold text-base shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 transition-all flex justify-center items-center gap-2 cursor-pointer active:scale-[0.99]" type="button">
                                 <span id="checkout-btn-text">Lanjutkan Pembayaran</span>
                                 <span class="material-symbols-outlined text-xl">arrow_forward</span>
                             </button>
@@ -1724,6 +1724,85 @@
             }
         }
 
+        function handleCheckoutSubmit(e) {
+            if (e) {
+                if (typeof e.preventDefault === 'function') e.preventDefault();
+                if (typeof e.stopPropagation === 'function') e.stopPropagation();
+            }
+
+            const nameEl = document.getElementById('donor-name');
+            const phoneEl = document.getElementById('donor-phone');
+            const msgEl = document.getElementById('donor-message');
+            const nominalInput = document.getElementById('custom_nominal');
+
+            const isAnon = document.getElementById('is-anonymous-donor')?.checked;
+            state.donorName = isAnon ? 'Hamba Allah' : (nameEl?.value?.trim() || 'Hamba Allah');
+            state.donorPhone = phoneEl?.value?.trim() || '';
+            state.donorMessage = msgEl?.value?.trim() || '';
+
+            // Nominal handling
+            let currentNominal = Number(state.nominal) || 0;
+            if (currentNominal < 1000) {
+                const inputVal = Number(nominalInput?.value) || 0;
+                if (inputVal >= 1000) {
+                    currentNominal = inputVal;
+                } else {
+                    currentNominal = 50000; // Fallback default Rp 50.000
+                }
+            }
+            state.nominal = currentNominal;
+            state.totalDonasi = currentNominal;
+
+            // Direct check on radio
+            const checkedMethod = document.querySelector('input[name="payment_method"]:checked');
+            if (checkedMethod && checkedMethod.value) {
+                state.method = checkedMethod.value;
+            } else if (!state.method) {
+                state.method = 'QRIS';
+            }
+
+            const checkedType = document.querySelector('input[name="donation_type"]:checked');
+            if (checkedType && checkedType.value) state.type = checkedType.value;
+
+            const checkedWilayah = document.querySelector('input[name="wilayah"]:checked');
+            if (checkedWilayah && checkedWilayah.value) state.wilayah = checkedWilayah.value;
+
+            // 🚀 Determine Payment Method (QRIS vs Bank)
+            const methodStr = String(state.method || '').toUpperCase();
+            const isQris = methodStr.includes('QRIS') || (!methodStr.includes('BANK') && !methodStr.includes('TRANSFER'));
+
+            console.log('[Donasi] Submitting checkout: method=', state.method, 'isQris=', isQris, 'nominal=', state.nominal);
+
+            if (isQris) {
+                openQRISModal();
+            } else {
+                openBankModal();
+            }
+
+            // Save donation record to store and Supabase in background
+            try {
+                if (window.wizStore && window.wizStore.donations) {
+                    const activeRef = (typeof getActiveAffiliateRef === 'function') ? getActiveAffiliateRef() : (sessionStorage.getItem('wiz_active_ref_id') || localStorage.getItem('wiz_ref_code') || '');
+                    const progName = (state.type === 'Infak Terikat' && state.program !== '-') ? state.program : state.type;
+                    window.wizStore.donations.add({
+                        donorName: state.donorName,
+                        donorPhone: state.donorPhone,
+                        amount: state.nominal,
+                        program: progName,
+                        pillar: state.category !== '-' ? state.category : 'Berkah Peduli',
+                        type: state.type,
+                        method: isQris ? 'QRIS' : 'Transfer Bank (BSI)',
+                        wilayah: state.wilayah,
+                        message: state.donorMessage,
+                        referralCode: activeRef || undefined
+                    }).catch(err => console.warn('Background save note:', err));
+                }
+            } catch(err) {
+                console.warn('Background save note:', err);
+            }
+        }
+        window.handleCheckoutSubmit = handleCheckoutSubmit;
+
         // QRIS Modal Logic
         function openQRISModal() {
             try {
@@ -2085,6 +2164,22 @@
 
             updateSummary();
             if (window.applySiteSettings) window.applySiteSettings();
+
+            const checkoutBtn = document.getElementById('checkout-submit-btn');
+            if (checkoutBtn) {
+                checkoutBtn.addEventListener('click', (e) => {
+                    handleCheckoutSubmit(e);
+                });
+            }
+
+            const checkoutForm = document.getElementById('donation-checkout-form');
+            if (checkoutForm) {
+                checkoutForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    handleCheckoutSubmit(e);
+                    return false;
+                });
+            }
 
             // 4. Background cloud sync without disturbing form inputs
             if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
