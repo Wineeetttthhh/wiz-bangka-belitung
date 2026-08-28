@@ -17,14 +17,15 @@ if (!program) {
 }
 
 const percentage = Math.min(100, Math.round((program.collected / program.target) * 100));
-
 const nominalPresets = [20000, 50000, 100000, 250000, 500000, 1000000];
+const canonicalUrl = `https://www.wizbangkabelitung.or.id/program/${program.slug}`;
 ---
 
 <BaseLayout
     title={`${program.title} | WIZ Bangka Belitung`}
     description={program.description}
-    image={program.imageUrl}
+    image={program.imageUrl || '/assets/images/default-program-wiz.png'}
+    url={canonicalUrl}
     type="article"
 >
     <!-- Breadcrumb -->

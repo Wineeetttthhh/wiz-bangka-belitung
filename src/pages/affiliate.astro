@@ -1011,6 +1011,10 @@ return;
             }
         }
 
+        function escapeJsString(str) {
+            return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, ' ');
+        }
+
         function shareAffiliateNewsWA(newsId) {
             const refCode = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || 'WIZ';
             const n = (window.wizStore && window.wizStore.news) ? window.wizStore.news.getById(newsId) : null;
@@ -1021,7 +1025,13 @@ return;
             if (refCode) newsUrlObj.searchParams.set('ref', refCode);
             const newsUrl = newsUrlObj.toString();
 
-            window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(newsUrl), '_blank');
+            const rawExcerpt = (n.summary || n.content || '').replace(/<[^>]*>/g, '').trim();
+            const cleanExcerpt = rawExcerpt ? (rawExcerpt.slice(0, 140) + '...') : '';
+            const descText = cleanExcerpt ? `\n\n${cleanExcerpt}` : '';
+
+            const waText = `*${(n.title || 'BERITA KEGIATAN WIZ BABEL').toUpperCase()}*${descText}\n\nBaca selengkapnya & dukung program kebaikan WIZ Bangka Belitung melalui link resmi:\n${newsUrl}`;
+
+            window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(waText), '_blank');
         }
 
         function copyAffiliateNewsLink(newsId) {
@@ -1054,6 +1064,7 @@ return;
                 const dynamicImg = (window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function')
                     ? window.wizStore.allocationRulesManager.getSpecificProgramImage(p.title, p.pillar)
                     : (p.imageUrl || '/assets/images/default-program-wiz.png');
+                const descSnippet = (p.description || p.story || '').replace(/<[^>]*>/g, '').trim().slice(0, 100);
 
                 return `
                 <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs hover:shadow-md transition-shadow flex flex-col">
@@ -1063,13 +1074,14 @@ return;
                     </div>
                     <div class="p-4 flex flex-col flex-grow space-y-2">
                         <h4 class="text-sm font-bold text-slate-900 line-clamp-1">${p.title}</h4>
-                        <p class="text-xs text-slate-500 line-clamp-2">${p.description || ''}</p>
+                        <p class="text-xs text-slate-500 line-clamp-2">${descSnippet}...</p>
                         <div class="pt-3 mt-auto flex items-center gap-2">
                             <button type="button" onclick="copyProgramShareLink('${progUrl}')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1 transition-colors cursor-pointer">
                                 <span>Salin Link</span>
                             </button>
-                            <button type="button" onclick="shareProgramWA('${p.title}', '${progUrl}')" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white p-2 rounded-xl flex items-center justify-center transition-colors cursor-pointer" title="Share WhatsApp">
+                            <button type="button" onclick="shareProgramWA('${escapeJsString(p.title)}', '${progUrl}', '${escapeJsString(descSnippet)}')" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white py-2 px-3 rounded-xl flex items-center justify-center gap-1 font-bold text-xs transition-colors cursor-pointer" title="Share WhatsApp">
                                 <span class="material-symbols-outlined text-base">send</span>
+                                <span>Share WA</span>
                             </button>
                         </div>
                     </div>
@@ -1083,8 +1095,12 @@ return;
             });
         }
 
-        function shareProgramWA(title, url) {
-            window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(url), '_blank');
+        function shareProgramWA(title, url, description) {
+            const cleanDesc = (description || '').replace(/<[^>]*>/g, '').trim();
+            const descSnippet = cleanDesc ? `\n\n${cleanDesc.slice(0, 140)}...` : '';
+            const waText = `*PROGRAM KEBAIKAN WIZ BANGKA BELITUNG*\n*${(title || 'Donasi').toUpperCase()}*${descSnippet}\n\nSalurkan infak/donasi terbaik Anda melalui link resmi WIZ Babel:\n${url}`;
+
+            window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(waText), '_blank');
         }
 
         function renderAffiliateQuotesGrid() {
@@ -1129,7 +1145,7 @@ return;
             alert('✅ Perubahan profil dan data rekening berhasil disimpan!');
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             try {
                 const saved = sessionStorage.getItem('wiz_logged_affiliate') || localStorage.getItem('wiz_logged_affiliate');
                 if (saved) {
@@ -1140,6 +1156,22 @@ return;
                     }
                 }
             } catch(e) {}
+
+            // Synchronize Latest News & Programs from Cloud for all Devices
+            if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
+                try {
+                    await window.wizStore.syncFromCloud(true);
+                } catch(err) {}
+                renderAffiliateNewsGrid();
+                renderAffiliateProgramsGrid();
+            }
         });
+
+        window.addEventListener('wiz-sync-complete', () => {
+            renderAffiliateNewsGrid();
+            renderAffiliateProgramsGrid();
+        });
+        window.addEventListener('wiz-news-changed', () => renderAffiliateNewsGrid());
+        window.addEventListener('wiz-programs-changed', () => renderAffiliateProgramsGrid());
     </script>
 </MitraLayout>

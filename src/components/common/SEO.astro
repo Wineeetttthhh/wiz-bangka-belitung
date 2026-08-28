@@ -18,7 +18,8 @@ const {
 } = Astro.props;
 
 const siteTitle = title.includes('WIZ') ? title : `${title} | WIZ Bangka Belitung`;
-const fullImageUrl = image.startsWith('http') ? image : `https://www.wizbangkabelitung.or.id${image}`;
+const cleanImgPath = image ? (image.startsWith('/') ? image : `/${image}`) : '/assets/images/foto-utama-wiz.jpg';
+const fullImageUrl = image.startsWith('http') ? image : `https://www.wizbangkabelitung.or.id${cleanImgPath}`;
 ---
 
 <!-- Global Metadata -->

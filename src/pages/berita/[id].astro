@@ -18,12 +18,14 @@ if (!news) {
 
 const otherNews = MASTER_NEWS.filter((n) => n.id !== news.id).slice(0, 3);
 const relatedPrograms = MASTER_PROGRAMS.slice(0, 2);
+const canonicalUrl = `https://www.wizbangkabelitung.or.id/berita/${news.id}`;
 ---
 
 <BaseLayout
     title={`${news.title} | WIZ Bangka Belitung`}
     description={news.summary}
-    image={news.imageUrl}
+    image={news.imageUrl || '/assets/images/default-program-wiz.png'}
+    url={canonicalUrl}
     type="article"
 >
     <!-- Breadcrumb -->
