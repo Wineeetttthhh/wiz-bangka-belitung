@@ -131,33 +131,49 @@
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  z-index: 1000;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 999999;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 1rem;
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
-.modal-backdrop.show {
-  opacity: 1;
-  pointer-events: auto;
+.modal-backdrop.show,
+.modal-backdrop.active {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
 }
 
 .modal-dialog {
-  background: #fff;
-  border-radius: 20px;
-  width: 94%;
-  max-width: 720px;
+  background: #ffffff;
+  border-radius: 1.5rem;
+  width: 100%;
+  max-width: 32rem;
   max-height: 90vh;
   overflow-y: auto;
-  transform: translateY(24px);
-  transition: transform 0.3s ease;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+  transform: translateY(16px);
+  transition: transform 0.25s ease;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+  margin: auto;
+  position: relative;
+  z-index: 1000000;
 }
 
-.modal-backdrop.show .modal-dialog {
-  transform: translateY(0);
+.modal-backdrop.show .modal-dialog,
+.modal-backdrop.active .modal-dialog {
+  transform: translateY(0) !important;
 }

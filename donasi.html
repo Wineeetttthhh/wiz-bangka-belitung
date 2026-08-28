@@ -689,7 +689,7 @@
     </main>
 
     <!-- QRIS Payment Display Modal -->
-    <div id="qris-modal" class="modal-backdrop" style="display: none;">
+    <div id="qris-modal" class="modal-backdrop">
         <div class="modal-dialog">
             <div class="p-5 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl">
                 <div class="flex items-center gap-2">
@@ -753,7 +753,7 @@
     </div>
 
     <!-- Bank Transfer Display Modal -->
-    <div id="bank-modal" class="modal-backdrop" style="display: none;">
+    <div id="bank-modal" class="modal-backdrop">
         <div class="modal-dialog">
             <div class="p-5 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl">
                 <h3 class="text-lg font-bold text-slate-900">Rekening Transfer Bank Syariah</h3>
@@ -1671,8 +1671,8 @@
 
             const qrisModal = document.getElementById('qris-modal');
             if (qrisModal) {
-                qrisModal.style.display = 'flex';
-                qrisModal.classList.add('show');
+                qrisModal.classList.add('show', 'active');
+                qrisModal.style.cssText = 'display: flex !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; z-index: 9999999 !important;';
                 document.body.style.overflow = 'hidden';
             }
         }
@@ -1680,8 +1680,8 @@
         function closeQRISModal() {
             const qrisModal = document.getElementById('qris-modal');
             if (qrisModal) {
-                qrisModal.style.display = 'none';
-                qrisModal.classList.remove('show');
+                qrisModal.classList.remove('show', 'active');
+                qrisModal.style.cssText = 'display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;';
                 document.body.style.overflow = '';
             }
         }
@@ -1751,8 +1751,8 @@
 
             const bankModal = document.getElementById('bank-modal');
             if (bankModal) {
-                bankModal.style.display = 'flex';
-                bankModal.classList.add('show');
+                bankModal.classList.add('show', 'active');
+                bankModal.style.cssText = 'display: flex !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; z-index: 9999999 !important;';
                 document.body.style.overflow = 'hidden';
             }
         }
@@ -1760,8 +1760,8 @@
         function closeBankModal() {
             const bankModal = document.getElementById('bank-modal');
             if (bankModal) {
-                bankModal.style.display = 'none';
-                bankModal.classList.remove('show');
+                bankModal.classList.remove('show', 'active');
+                bankModal.style.cssText = 'display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;';
                 document.body.style.overflow = '';
             }
         }

@@ -478,7 +478,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 </main>
 
             <!-- QRIS Payment Display Modal -->
-            <div id="qris-modal" class="modal-backdrop" style="display: none;">
+            <div id="qris-modal" class="modal-backdrop">
                 <div class="modal-dialog">
                     <div class="p-5 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl">
                         <div class="flex items-center gap-2">
@@ -542,7 +542,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             </div>
 
             <!-- Bank Transfer Display Modal -->
-            <div id="bank-modal" class="modal-backdrop" style="display: none;">
+            <div id="bank-modal" class="modal-backdrop">
                 <div class="modal-dialog">
                     <div class="p-5 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl">
                         <h3 class="text-lg font-bold text-slate-900">Rekening Transfer Bank Syariah</h3>
@@ -595,39 +595,50 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             </div>
 
     <!-- Embedded High Priority Modal & Card CSS -->
-    <style>
+    <style is:global>
         .modal-backdrop {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            z-index: 999999;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            overflow-y: auto;
+            display: none !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            background: rgba(0, 0, 0, 0.8) !important;
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
+            z-index: 9999999 !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 1rem !important;
+            overflow-y: auto !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+            transition: opacity 0.2s ease, visibility 0.2s ease !important;
         }
-        .modal-backdrop.show {
+        .modal-backdrop.show,
+        .modal-backdrop.active {
             display: flex !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
         }
-        .modal-dialog {
-            background: #ffffff;
-            border-radius: 1.5rem;
-            width: 100%;
-            max-width: 32rem;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
-            margin: auto;
-            position: relative;
-            z-index: 1000000;
+        .modal-backdrop .modal-dialog {
+            background: #ffffff !important;
+            border-radius: 1.5rem !important;
+            width: 100% !important;
+            max-width: 32rem !important;
+            max-height: 90vh !important;
+            overflow-y: auto !important;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45) !important;
+            margin: auto !important;
+            position: relative !important;
+            z-index: 10000000 !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: translateY(0) !important;
         }
     </style>
 
@@ -1138,9 +1149,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
             const qrisModal = document.getElementById('qris-modal');
             if (qrisModal) {
-                qrisModal.style.removeProperty('display');
-                qrisModal.style.setProperty('display', 'flex', 'important');
-                qrisModal.classList.add('show');
+                qrisModal.classList.add('show', 'active');
+                qrisModal.style.cssText = 'display: flex !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; z-index: 9999999 !important;';
                 document.body.style.overflow = 'hidden';
             }
         }
@@ -1149,8 +1159,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         function closeQRISModal() {
             const qrisModal = document.getElementById('qris-modal');
             if (qrisModal) {
-                qrisModal.style.setProperty('display', 'none', 'important');
-                qrisModal.classList.remove('show');
+                qrisModal.classList.remove('show', 'active');
+                qrisModal.style.cssText = 'display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;';
                 document.body.style.overflow = '';
             }
         }
@@ -1172,9 +1182,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
             const bankModal = document.getElementById('bank-modal');
             if (bankModal) {
-                bankModal.style.removeProperty('display');
-                bankModal.style.setProperty('display', 'flex', 'important');
-                bankModal.classList.add('show');
+                bankModal.classList.add('show', 'active');
+                bankModal.style.cssText = 'display: flex !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; z-index: 9999999 !important;';
                 document.body.style.overflow = 'hidden';
             }
         }
@@ -1183,8 +1192,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         function closeBankModal() {
             const bankModal = document.getElementById('bank-modal');
             if (bankModal) {
-                bankModal.style.setProperty('display', 'none', 'important');
-                bankModal.classList.remove('show');
+                bankModal.classList.remove('show', 'active');
+                bankModal.style.cssText = 'display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;';
                 document.body.style.overflow = '';
             }
         }
