@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ============================================================
  * WAHDAH INSPIRASI ZAKAT (WIZ) BANGKA BELITUNG
  * Admin Store — Dual-layer Data Manager (Firebase + localStorage)
@@ -3597,7 +3597,7 @@
             return list.slice(0, limit).map(d => {
                 const isInfakUmum = d.type === 'Infak Umum' || (!d.programSpesifik && d.program === 'Infak Umum');
                 const progDisplay = isInfakUmum
-                    ? 'Infak Umum (Kebaikan Semua Program)'
+                    ? 'Infak Umum'
                     : (d.programSpesifik || d.program || d.programUtama || 'Donasi Kebaikan');
                 
                 const rawName = (d.donorName || 'Hamba Allah').trim();
