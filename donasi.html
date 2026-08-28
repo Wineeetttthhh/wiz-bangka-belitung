@@ -1705,15 +1705,29 @@
             closeQRISModal();
         }
 
-        function downloadQRISImage() {
+        async function downloadQRISImage() {
             const imgEl = document.getElementById('qris-modal-img');
-            const src = (imgEl && imgEl.src) ? imgEl.src : 'assets/images/qris-code-wiz-babel.png';
-            const a = document.createElement('a');
-            a.href = src;
-            a.download = 'QRIS-Donasi-WIZ-Bangka-Belitung.png';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            const src = (imgEl && imgEl.src) ? imgEl.src : '/assets/images/qris-code-wiz-babel.png';
+            try {
+                const response = await fetch(src);
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = 'QRIS-Donasi-WIZ-Bangka-Belitung.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+            } catch (err) {
+                const a = document.createElement('a');
+                a.href = src;
+                a.download = 'QRIS-Donasi-WIZ-Bangka-Belitung.png';
+                a.target = '_blank';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
         }
 
         // Bank Modal Logic

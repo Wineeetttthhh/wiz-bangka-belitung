@@ -1056,6 +1056,72 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         }
         window.handleCheckoutSubmit = handleCheckoutSubmit;
 
+        // Branch Configuration for WhatsApp Admins
+        const WA_ADMIN_BRANCH_MAP = {
+            'pangkalpinang': {
+                name: 'Admin Pangkalpinang',
+                city: 'Kota Pangkalpinang',
+                phone: '+62 823-8083-0808',
+                waNumber: '6282380830808'
+            },
+            'sungailiat': {
+                name: 'Admin Sungailiat',
+                city: 'Sungailiat (Kab. Bangka)',
+                phone: '+62 887-1528-889',
+                waNumber: '628871528889'
+            }
+        };
+
+        function getTargetWhatsAppConfig(wilayah) {
+            const clean = String(wilayah || state.wilayah || '').toLowerCase().replace(/[\s\-_]/g, '');
+            if (clean.includes('sungailiat') || clean.includes('liat') || clean.includes('bangka')) {
+                return WA_ADMIN_BRANCH_MAP['sungailiat'];
+            }
+            return WA_ADMIN_BRANCH_MAP['pangkalpinang'];
+        }
+        window.getTargetWhatsAppConfig = getTargetWhatsAppConfig;
+
+        function updateWhatsAppButtons() {
+            const branch = getTargetWhatsAppConfig(state.wilayah);
+
+            // 1. QRIS Modal Info & Button
+            const qrisNotice = document.getElementById('qris-admin-target-desc');
+            const qrisTitle = document.getElementById('qris-admin-target-title');
+            const qrisBtn = document.getElementById('qris-wa-btn');
+            const qrisBtnText = document.getElementById('qris-wa-btn-text');
+
+            if (qrisTitle) qrisTitle.textContent = `Status: Menunggu Verifikasi ${branch.name}`;
+            if (qrisNotice) {
+                qrisNotice.innerHTML = `Donasi Anda untuk wilayah <strong>${branch.city}</strong> diarahkan konfirmasi ke <strong>${branch.name} (${branch.phone})</strong>. Silakan scan QRIS lalu klik tombol WhatsApp di bawah.`;
+            }
+            if (qrisBtn) {
+                const qrisText = generateWhatsAppMessage('QRIS (Otomatis & Instan)');
+                qrisBtn.href = `https://wa.me/${branch.waNumber}?text=${qrisText}`;
+            }
+            if (qrisBtnText) {
+                qrisBtnText.textContent = `Konfirmasi Pembayaran via WhatsApp (${branch.name})`;
+            }
+
+            // 2. Bank Modal Info & Button
+            const bankNotice = document.getElementById('bank-admin-target-desc');
+            const bankTitle = document.getElementById('bank-admin-target-title');
+            const bankBtn = document.getElementById('bank-wa-btn');
+            const bankBtnText = document.getElementById('bank-wa-btn-text');
+
+            if (bankTitle) bankTitle.textContent = `Status: Menunggu Verifikasi ${branch.name}`;
+            if (bankNotice) {
+                bankNotice.innerHTML = `Donasi Anda untuk wilayah <strong>${branch.city}</strong> diarahkan konfirmasi ke <strong>${branch.name} (${branch.phone})</strong>. Silakan transfer ke rekening di bawah dan kirim bukti transfer via WhatsApp.`;
+            }
+            if (bankBtn) {
+                const bankText = generateWhatsAppMessage('Transfer Bank Manual');
+                bankBtn.href = `https://wa.me/${branch.waNumber}?text=${bankText}`;
+            }
+            if (bankBtnText) {
+                bankBtnText.textContent = `Konfirmasi Bukti Transfer via WhatsApp (${branch.name})`;
+            }
+        }
+        window.updateWhatsAppButtons = updateWhatsAppButtons;
+
         function openQRISModal() {
             let progText = `${state.type} (${state.wilayah})`;
             if (state.type === 'Infak Terikat' && state.program !== '-') {
@@ -1068,8 +1134,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             const donorEl = document.getElementById('qris-modal-donor');
             if (donorEl) donorEl.textContent = `Donatur: ${state.donorName || 'Hamba Allah'} (${progText})`;
 
+            updateWhatsAppButtons();
+
             const qrisModal = document.getElementById('qris-modal');
             if (qrisModal) {
+                qrisModal.style.removeProperty('display');
                 qrisModal.style.setProperty('display', 'flex', 'important');
                 qrisModal.classList.add('show');
                 document.body.style.overflow = 'hidden';
@@ -1099,8 +1168,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             const donorEl = document.getElementById('bank-modal-donor');
             if (donorEl) donorEl.textContent = `Donatur: ${state.donorName || 'Hamba Allah'} (${progText})`;
 
+            updateWhatsAppButtons();
+
             const bankModal = document.getElementById('bank-modal');
             if (bankModal) {
+                bankModal.style.removeProperty('display');
                 bankModal.style.setProperty('display', 'flex', 'important');
                 bankModal.classList.add('show');
                 document.body.style.overflow = 'hidden';
@@ -1133,38 +1205,61 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         window.copyAccount = copyAccount;
 
         function generateWhatsAppMessage(method) {
-            let progText = `*Jenis*: ${state.type} (${state.wilayah})`;
+            let progText = `• *Jenis*: ${state.type}%0A• *Wilayah*: ${state.wilayah}`;
             if (state.type === 'Infak Terikat' && state.program !== '-') {
-                progText = `*Program*: ${state.program}%0A• *Pilar*: ${state.category} (${state.wilayah})`;
+                progText = `• *Jenis*: Infak Terikat%0A• *Program*: ${state.program}%0A• *Pilar*: ${state.category}%0A• *Wilayah*: ${state.wilayah}`;
             }
 
-            return `Bismillah, saya *${state.donorName || 'Hamba Allah'}* (${state.donorPhone || '-'}) ingin mengonfirmasi *${method}*:%0A%0A• *Lembaga*: WIZ Bangka Belitung%0A• ${progText}%0A• *Nominal*: ${formatRupiah(state.nominal)}%0A• *Metode*: ${method}%0A• *Doa/Pesan*: ${state.donorMessage || '-'}`;
+            const activeRef = (typeof getActiveAffiliateRef === 'function') ? getActiveAffiliateRef() : (sessionStorage.getItem('wiz_active_ref_id') || localStorage.getItem('wiz_ref_code') || '');
+            let refText = '';
+            if (activeRef) {
+                refText = `%0A• *ID Mitra*: ${activeRef}`;
+            }
+
+            return `Bismillah, saya *${state.donorName || 'Hamba Allah'}* (${state.donorPhone || '-'}) ingin mengonfirmasi *${method}*:%0A%0A• *Lembaga*: WIZ Bangka Belitung%0A${progText}%0A• *Nominal*: ${formatRupiah(state.nominal)}${refText}%0A• *Metode*: ${method}%0A• *Doa/Pesan*: ${state.donorMessage || '-'}`;
         }
 
         function confirmQRISToWhatsApp(e) {
             if (e) e.preventDefault();
+            const branch = getTargetWhatsAppConfig(state.wilayah);
             const text = generateWhatsAppMessage('QRIS (Otomatis & Instan)');
-            window.open(`https://wa.me/6282380830808?text=${text}`, '_blank');
+            window.open(`https://wa.me/${branch.waNumber}?text=${text}`, '_blank');
             closeQRISModal();
         }
 
         function confirmBankToWhatsApp(e) {
             if (e) e.preventDefault();
+            const branch = getTargetWhatsAppConfig(state.wilayah);
             const text = generateWhatsAppMessage('Transfer Bank Manual');
-            window.open(`https://wa.me/6282380830808?text=${text}`, '_blank');
+            window.open(`https://wa.me/${branch.waNumber}?text=${text}`, '_blank');
             closeBankModal();
         }
 
-        function downloadQRISImage() {
+        async function downloadQRISImage() {
             const imgEl = document.getElementById('qris-modal-img');
             const src = imgEl ? imgEl.src : '/assets/images/qris-code-wiz-babel.png';
-            const a = document.createElement('a');
-            a.href = src;
-            a.download = 'QRIS-Donasi-WIZ-Bangka-Belitung.png';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            try {
+                const response = await fetch(src);
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = 'QRIS-Donasi-WIZ-Bangka-Belitung.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+            } catch (err) {
+                const a = document.createElement('a');
+                a.href = src;
+                a.download = 'QRIS-Donasi-WIZ-Bangka-Belitung.png';
+                a.target = '_blank';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
         }
+        window.downloadQRISImage = downloadQRISImage;
 
         // Close modal on backdrop click
         window.addEventListener('click', (e) => {
