@@ -59,47 +59,47 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
 
                     <!-- 🔒 Program Terpilih & Terkunci Banner (Shown only when program is locked) -->
                     <div id="locked-program-card" class="hidden bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 border-2 border-emerald-500/40 shadow-md space-y-4 transition-all duration-300 relative overflow-hidden">
-                        <div class="absolute -right-10 -bottom-10 w-36 h-36 bg-emerald-100/50 rounded-full blur-2xl pointer-events-none"></div>
+                        <div class="absolute -right-10 -bottom-10 w-44 h-44 bg-emerald-100/50 rounded-full blur-2xl pointer-events-none"></div>
                         
-                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                            <div class="flex items-center gap-2">
-                                <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs shadow-2xs border border-emerald-200">
+                        <div class="flex flex-wrap items-center justify-between gap-2.5 border-b border-slate-100 pb-3.5">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm shadow-2xs border border-emerald-200">
                                     <span class="material-symbols-outlined text-base">lock</span>
                                 </span>
                                 <span class="text-xs sm:text-sm font-extrabold text-emerald-950 uppercase tracking-wide">Program Kebaikan Terpilih</span>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <span id="locked-pillar-badge" class="bg-emerald-600 text-white text-[11px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow-2xs">
+                            <div class="flex items-center gap-2.5">
+                                <span id="locked-pillar-badge" class="bg-emerald-600 text-white text-xs sm:text-sm font-extrabold px-3.5 py-1 rounded-full uppercase tracking-wider shadow-2xs">
                                     BERKAH HIDAYAH
                                 </span>
-                                <button type="button" onclick="unlockProgramSelection()" class="text-xs font-bold text-slate-500 hover:text-emerald-700 underline flex items-center gap-1 cursor-pointer transition-colors" title="Pilih program lain atau jenis donasi umum">
-                                    <span class="material-symbols-outlined text-sm">swap_horiz</span> Ganti Program
+                                <button type="button" onclick="unlockProgramSelection()" class="text-xs sm:text-sm font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-3 py-1 rounded-lg border border-emerald-200 flex items-center gap-1 cursor-pointer transition-colors" title="Pilih program lain atau jenis donasi umum">
+                                    <span class="material-symbols-outlined text-base">swap_horiz</span> Ganti Program
                                 </button>
                             </div>
                         </div>
 
-                        <div class="flex flex-col sm:flex-row gap-4 sm:gap-5 items-start">
-                            <div class="relative w-full sm:w-44 h-32 rounded-2xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200 shadow-2xs">
+                        <div class="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
+                            <div class="relative w-full sm:w-52 h-44 sm:h-36 rounded-2xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200 shadow-2xs">
                                 <img id="locked-program-img" src="/assets/images/foto-utama-wiz.jpg" onerror="this.onerror=null; this.src='/assets/images/foto-utama-wiz.jpg';" alt="Foto Program" class="w-full h-full object-cover">
                                 <div class="absolute inset-0 bg-gradient-to-t from-slate-900/30 via-transparent to-transparent"></div>
                             </div>
-                            <div class="flex-1 space-y-2 min-w-0 w-full">
-                                <h3 id="locked-program-title" class="text-lg sm:text-xl font-extrabold text-slate-900 leading-snug">
+                            <div class="flex-1 space-y-2.5 min-w-0 w-full">
+                                <h3 id="locked-program-title" class="text-xl sm:text-2xl font-extrabold text-slate-900 leading-snug">
                                     Nama Program Kebaikan
                                 </h3>
                                 
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <div class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200/80 px-2.5 py-0.5 rounded-lg text-xs font-semibold">
-                                        <span class="material-symbols-outlined text-sm text-emerald-700">pin_drop</span>
+                                    <div class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200/80 px-3 py-1 rounded-lg text-xs sm:text-sm font-semibold">
+                                        <span class="material-symbols-outlined text-base text-emerald-700">pin_drop</span>
                                         <span id="locked-program-location">Lokasi: Kepulauan Bangka Belitung</span>
                                     </div>
-                                    <div id="locked-program-beneficiary-wrap" class="inline-flex items-center gap-1.5 bg-blue-50 text-blue-800 border border-blue-200/80 px-2.5 py-0.5 rounded-lg text-xs font-semibold">
-                                        <span class="material-symbols-outlined text-sm text-blue-700">group</span>
+                                    <div id="locked-program-beneficiary-wrap" class="inline-flex items-center gap-1.5 bg-blue-50 text-blue-800 border border-blue-200/80 px-3 py-1 rounded-lg text-xs sm:text-sm font-semibold">
+                                        <span class="material-symbols-outlined text-base text-blue-700">group</span>
                                         <span id="locked-program-beneficiary">Mustahik &amp; Santri</span>
                                     </div>
                                 </div>
 
-                                <p id="locked-program-desc" class="text-xs sm:text-sm text-slate-600 leading-relaxed line-clamp-3 font-medium">
+                                <p id="locked-program-desc" class="text-sm sm:text-base text-slate-700 leading-relaxed line-clamp-3 font-normal">
                                     Deskripsi program kebaikan...
                                 </p>
                             </div>
@@ -148,28 +148,28 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
 
                     <!-- Step 1: Jenis Donasi (Hidden when program is locked) -->
                     <section id="section-step-jenis" class="bg-white rounded-2xl p-5 sm:p-7 shadow-sm border border-slate-200/80 transition-all hover:shadow-md">
-                        <div class="flex items-center gap-3 mb-5 pb-3 border-b border-slate-100">
-                            <span id="step-num-jenis" class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm border border-emerald-300">1</span>
+                        <div class="flex items-center gap-3.5 mb-5 pb-3.5 border-b border-slate-100">
+                            <span id="step-num-jenis" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm sm:text-base border border-emerald-300">1</span>
                             <div>
-                                <h2 class="text-base sm:text-lg font-bold text-slate-900">Pilih Jenis Donasi</h2>
-                                <p class="text-xs text-slate-500">Tentukan akad dan peruntukan donasi yang ingin Anda tunaikan</p>
+                                <h2 class="text-lg sm:text-xl font-bold text-slate-900">Pilih Jenis Donasi</h2>
+                                <p class="text-xs sm:text-sm text-slate-500">Tentukan akad dan peruntukan donasi yang ingin Anda tunaikan</p>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-3.5" id="donation-types-grid">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5" id="donation-types-grid">
                             <!-- Infak Umum -->
                             <label class="option-card cursor-pointer relative block group">
                                 <input class="peer sr-only" name="donation_type" onchange="handleTypeChange(this)" type="radio" value="Infak Umum" checked />
-                                <div class="option-card-inner border-2 border-emerald-600 bg-emerald-50/70 ring-2 ring-emerald-500/20 shadow-sm rounded-xl p-4 transition-all duration-200 h-full flex flex-col justify-between">
-                                    <div class="flex justify-between items-start mb-2.5">
-                                        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 border border-emerald-200">
-                                            <span class="material-symbols-outlined text-xl">volunteer_activism</span>
+                                <div class="option-card-inner border-2 border-emerald-600 bg-emerald-50/70 ring-2 ring-emerald-500/20 shadow-sm rounded-2xl p-4 sm:p-5 transition-all duration-200 h-full flex flex-col justify-between">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 border border-emerald-200">
+                                            <span class="material-symbols-outlined text-2xl">volunteer_activism</span>
                                         </div>
                                         <span class="material-symbols-outlined icon-check text-emerald-600 opacity-100 transition-all text-2xl font-bold">check_circle</span>
                                     </div>
                                     <div>
-                                        <span class="font-extrabold text-slate-900 block text-sm sm:text-base mb-1">Infak Umum</span>
-                                        <p class="text-xs text-slate-600 leading-relaxed">Dana umum fleksibel untuk operasional dakwah &amp; sosial.</p>
+                                        <span class="font-extrabold text-slate-900 block text-base sm:text-lg mb-1">Infak Umum</span>
+                                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">Dana umum fleksibel untuk operasional dakwah &amp; sosial.</p>
                                     </div>
                                 </div>
                             </label>
@@ -177,16 +177,16 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                             <!-- Infak Terikat -->
                             <label class="option-card cursor-pointer relative block group">
                                 <input class="peer sr-only" name="donation_type" onchange="handleTypeChange(this)" type="radio" value="Infak Terikat" />
-                                <div class="option-card-inner border-2 border-slate-200 bg-white hover:border-emerald-500/60 rounded-xl p-4 transition-all duration-200 h-full flex flex-col justify-between">
-                                    <div class="flex justify-between items-start mb-2.5">
-                                        <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0 border border-blue-100">
-                                            <span class="material-symbols-outlined text-xl">handshake</span>
+                                <div class="option-card-inner border-2 border-slate-200 bg-white hover:border-emerald-500/60 rounded-2xl p-4 sm:p-5 transition-all duration-200 h-full flex flex-col justify-between">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0 border border-blue-100">
+                                            <span class="material-symbols-outlined text-2xl">handshake</span>
                                         </div>
                                         <span class="material-symbols-outlined icon-check text-slate-300 opacity-0 transition-all text-2xl font-bold">check_circle</span>
                                     </div>
                                     <div>
-                                        <span class="font-extrabold text-slate-900 block text-sm sm:text-base mb-1">Infak Terikat</span>
-                                        <p class="text-xs text-slate-600 leading-relaxed">Donasi khusus program tertentu (5 Berkah WIZ).</p>
+                                        <span class="font-extrabold text-slate-900 block text-base sm:text-lg mb-1">Infak Terikat</span>
+                                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">Donasi khusus program tertentu (5 Berkah WIZ).</p>
                                     </div>
                                 </div>
                             </label>
@@ -194,16 +194,16 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                             <!-- Zakat -->
                             <label class="option-card cursor-pointer relative block group">
                                 <input class="peer sr-only" name="donation_type" onchange="handleTypeChange(this)" type="radio" value="Zakat" />
-                                <div class="option-card-inner border-2 border-slate-200 bg-white hover:border-emerald-500/60 rounded-xl p-4 transition-all duration-200 h-full flex flex-col justify-between">
-                                    <div class="flex justify-between items-start mb-2.5">
-                                        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 border border-amber-100">
-                                            <span class="material-symbols-outlined text-xl">calculate</span>
+                                <div class="option-card-inner border-2 border-slate-200 bg-white hover:border-emerald-500/60 rounded-2xl p-4 sm:p-5 transition-all duration-200 h-full flex flex-col justify-between">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 border border-amber-100">
+                                            <span class="material-symbols-outlined text-2xl">calculate</span>
                                         </div>
                                         <span class="material-symbols-outlined icon-check text-slate-300 opacity-0 transition-all text-2xl font-bold">check_circle</span>
                                     </div>
                                     <div>
-                                        <span class="font-extrabold text-slate-900 block text-sm sm:text-base mb-1">Zakat</span>
-                                        <p class="text-xs text-slate-600 leading-relaxed">Zakat Maal, Zakat Penghasilan / Profesi, Fitrah.</p>
+                                        <span class="font-extrabold text-slate-900 block text-base sm:text-lg mb-1">Zakat</span>
+                                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">Zakat Maal, Zakat Penghasilan / Profesi, Fitrah.</p>
                                     </div>
                                 </div>
                             </label>
@@ -211,16 +211,16 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                             <!-- Sedekah Jariyah -->
                             <label class="option-card cursor-pointer relative block group">
                                 <input class="peer sr-only" name="donation_type" onchange="handleTypeChange(this)" type="radio" value="Sedekah" />
-                                <div class="option-card-inner border-2 border-slate-200 bg-white hover:border-emerald-500/60 rounded-xl p-4 transition-all duration-200 h-full flex flex-col justify-between">
-                                    <div class="flex justify-between items-start mb-2.5">
-                                        <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center shrink-0 border border-teal-100">
-                                            <span class="material-symbols-outlined text-xl">water_drop</span>
+                                <div class="option-card-inner border-2 border-slate-200 bg-white hover:border-emerald-500/60 rounded-2xl p-4 sm:p-5 transition-all duration-200 h-full flex flex-col justify-between">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div class="w-11 h-11 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center shrink-0 border border-teal-100">
+                                            <span class="material-symbols-outlined text-2xl">water_drop</span>
                                         </div>
                                         <span class="material-symbols-outlined icon-check text-slate-300 opacity-0 transition-all text-2xl font-bold">check_circle</span>
                                     </div>
                                     <div>
-                                        <span class="font-extrabold text-slate-900 block text-sm sm:text-base mb-1">Sedekah Jariyah</span>
-                                        <p class="text-xs text-slate-600 leading-relaxed">Sedekah air bersih, wakaf Qur'an, yatim dhuafa.</p>
+                                        <span class="font-extrabold text-slate-900 block text-base sm:text-lg mb-1">Sedekah Jariyah</span>
+                                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">Sedekah air bersih, wakaf Qur'an, yatim dhuafa.</p>
                                     </div>
                                 </div>
                             </label>
@@ -231,65 +231,65 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                     <div class="hidden space-y-6" id="infak-terikat-flow">
                         <!-- Step 3: Program Utama (5 Berkah) -->
                         <section class="bg-white rounded-2xl p-5 sm:p-7 shadow-sm border border-slate-200/80">
-                            <div class="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100">
-                                <span class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm border border-emerald-300">3</span>
+                            <div class="flex items-center gap-3.5 mb-4 pb-3.5 border-b border-slate-100">
+                                <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm sm:text-base border border-emerald-300">3</span>
                                 <div>
-                                    <h2 class="text-base sm:text-lg font-bold text-slate-900">Pilih Pilar Program Utama</h2>
-                                    <p class="text-xs text-slate-500">Pilih salah satu dari 5 pilar kebaikan WIZ</p>
+                                    <h2 class="text-lg sm:text-xl font-bold text-slate-900">Pilih Pilar Program Utama</h2>
+                                    <p class="text-xs sm:text-sm text-slate-500">Pilih salah satu dari 5 pilar kebaikan WIZ</p>
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5" id="program-utama-buttons">
-                                <button type="button" class="cat-btn p-3 border-2 border-slate-200 rounded-xl text-slate-700 hover:border-emerald-600 hover:bg-emerald-50/50 transition-all font-bold text-center flex flex-col items-center gap-1.5 cursor-pointer" onclick="setProgramUtama('Berkah Hidayah', this)">
+                            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3" id="program-utama-buttons">
+                                <button type="button" class="cat-btn p-3.5 border-2 border-slate-200 rounded-xl text-slate-700 hover:border-emerald-600 hover:bg-emerald-50/50 transition-all font-bold text-center flex flex-col items-center gap-2 cursor-pointer" onclick="setProgramUtama('Berkah Hidayah', this)">
                                     <span class="material-symbols-outlined text-primary text-2xl">auto_stories</span>
-                                    <span class="text-xs font-extrabold block">BERKAH HIDAYAH</span>
-                                    <span class="text-[10px] font-normal text-slate-500">Dakwah</span>
+                                    <span class="text-xs sm:text-sm font-extrabold block">BERKAH HIDAYAH</span>
+                                    <span class="text-xs text-slate-500">Dakwah</span>
                                 </button>
-                                <button type="button" class="cat-btn p-3 border-2 border-slate-200 rounded-xl text-slate-700 hover:border-emerald-600 hover:bg-emerald-50/50 transition-all font-bold text-center flex flex-col items-center gap-1.5 cursor-pointer" onclick="setProgramUtama('Berkah Peduli', this)">
+                                <button type="button" class="cat-btn p-3.5 border-2 border-slate-200 rounded-xl text-slate-700 hover:border-emerald-600 hover:bg-emerald-50/50 transition-all font-bold text-center flex flex-col items-center gap-2 cursor-pointer" onclick="setProgramUtama('Berkah Peduli', this)">
                                     <span class="material-symbols-outlined text-primary text-2xl">favorite</span>
-                                    <span class="text-xs font-extrabold block">BERKAH PEDULI</span>
-                                    <span class="text-[10px] font-normal text-slate-500">Sosial</span>
+                                    <span class="text-xs sm:text-sm font-extrabold block">BERKAH PEDULI</span>
+                                    <span class="text-xs text-slate-500">Sosial</span>
                                 </button>
-                                <button type="button" class="cat-btn p-3 border-2 border-slate-200 rounded-xl text-slate-700 hover:border-emerald-600 hover:bg-emerald-50/50 transition-all font-bold text-center flex flex-col items-center gap-1.5 cursor-pointer" onclick="setProgramUtama('Berkah Juara', this)">
+                                <button type="button" class="cat-btn p-3.5 border-2 border-slate-200 rounded-xl text-slate-700 hover:border-emerald-600 hover:bg-emerald-50/50 transition-all font-bold text-center flex flex-col items-center gap-2 cursor-pointer" onclick="setProgramUtama('Berkah Juara', this)">
                                     <span class="material-symbols-outlined text-primary text-2xl">school</span>
-                                    <span class="text-xs font-extrabold block">BERKAH JUARA</span>
-                                    <span class="text-[10px] font-normal text-slate-500">Pendidikan</span>
+                                    <span class="text-xs sm:text-sm font-extrabold block">BERKAH JUARA</span>
+                                    <span class="text-xs text-slate-500">Pendidikan</span>
                                 </button>
-                                <button type="button" class="cat-btn p-3 border-2 border-slate-200 rounded-xl text-slate-700 hover:border-emerald-600 hover:bg-emerald-50/50 transition-all font-bold text-center flex flex-col items-center gap-1.5 cursor-pointer" onclick="setProgramUtama('Berkah Sehat', this)">
+                                <button type="button" class="cat-btn p-3.5 border-2 border-slate-200 rounded-xl text-slate-700 hover:border-emerald-600 hover:bg-emerald-50/50 transition-all font-bold text-center flex flex-col items-center gap-2 cursor-pointer" onclick="setProgramUtama('Berkah Sehat', this)">
                                     <span class="material-symbols-outlined text-primary text-2xl">medical_services</span>
-                                    <span class="text-xs font-extrabold block">BERKAH SEHAT</span>
-                                    <span class="text-[10px] font-normal text-slate-500">Kesehatan</span>
+                                    <span class="text-xs sm:text-sm font-extrabold block">BERKAH SEHAT</span>
+                                    <span class="text-xs text-slate-500">Kesehatan</span>
                                 </button>
-                                <button type="button" class="cat-btn p-3 border-2 border-slate-200 rounded-xl text-slate-700 hover:border-emerald-600 hover:bg-emerald-50/50 transition-all font-bold text-center flex flex-col items-center gap-1.5 cursor-pointer" onclick="setProgramUtama('Berkah Mandiri', this)">
+                                <button type="button" class="cat-btn p-3.5 border-2 border-slate-200 rounded-xl text-slate-700 hover:border-emerald-600 hover:bg-emerald-50/50 transition-all font-bold text-center flex flex-col items-center gap-2 cursor-pointer" onclick="setProgramUtama('Berkah Mandiri', this)">
                                     <span class="material-symbols-outlined text-primary text-2xl">storefront</span>
-                                    <span class="text-xs font-extrabold block">BERKAH MANDIRI</span>
-                                    <span class="text-[10px] font-normal text-slate-500">Ekonomi</span>
+                                    <span class="text-xs sm:text-sm font-extrabold block">BERKAH MANDIRI</span>
+                                    <span class="text-xs text-slate-500">Ekonomi</span>
                                 </button>
                             </div>
                         </section>
 
                         <!-- Step 4: Program Spesifik -->
                         <section class="bg-white rounded-2xl p-5 sm:p-7 shadow-sm border border-slate-200/80">
-                            <div class="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100">
-                                <span class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm border border-emerald-300">4</span>
+                            <div class="flex items-center gap-3.5 mb-4 pb-3.5 border-b border-slate-100">
+                                <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm sm:text-base border border-emerald-300">4</span>
                                 <div>
-                                    <h2 class="text-base sm:text-lg font-bold text-slate-900">Pilih Program Spesifik</h2>
-                                    <p class="text-xs text-slate-500">Tentukan program kebaikan spesifik yang ingin Anda bantu</p>
+                                    <h2 class="text-lg sm:text-xl font-bold text-slate-900">Pilih Program Spesifik</h2>
+                                    <p class="text-xs sm:text-sm text-slate-500">Tentukan program kebaikan spesifik yang ingin Anda bantu</p>
                                 </div>
                             </div>
-                            <select id="program-spesifik-select" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-sm sm:text-base text-slate-900 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 outline-none font-bold cursor-pointer transition-all" onchange="setProgramSpesifik(this.value)">
+                            <select id="program-spesifik-select" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3.5 text-base sm:text-lg text-slate-900 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 outline-none font-bold cursor-pointer transition-all" onchange="setProgramSpesifik(this.value)">
                                 <option value="">-- Pilih Program Utama Terlebih Dahulu --</option>
                             </select>
                         </section>
 
                         <!-- Program Detail Card (For general Infak Terikat picker) -->
                         <div id="program-detail-card" class="hidden bg-white rounded-2xl p-5 sm:p-6 border-2 border-emerald-500/30 shadow-md space-y-4 transition-all duration-300">
-                            <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                                 <div class="flex items-center gap-2">
                                     <span class="material-symbols-outlined text-emerald-700 text-xl">verified</span>
-                                    <span class="text-xs sm:text-sm font-bold text-slate-900">Detail &amp; Lokasi Penyaluran Program</span>
+                                    <span class="text-sm sm:text-base font-bold text-slate-900">Detail &amp; Lokasi Penyaluran Program</span>
                                 </div>
-                                <span id="detail-card-pillar" class="bg-emerald-600 text-white text-[11px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">BERKAH PEDULI</span>
+                                <span id="detail-card-pillar" class="bg-emerald-600 text-white text-xs sm:text-sm font-extrabold px-3.5 py-1 rounded-full uppercase tracking-wider">BERKAH PEDULI</span>
                             </div>
 
                             <div class="flex flex-col sm:flex-row gap-4 sm:gap-5 items-start">
@@ -297,21 +297,21 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                                     <img id="detail-card-img" src="/assets/images/foto-utama-wiz.jpg" onerror="this.onerror=null; this.src='/assets/images/foto-utama-wiz.jpg';" alt="Foto Program" class="w-full h-full object-cover">
                                 </div>
                                 <div class="flex-1 space-y-2.5 min-w-0 w-full">
-                                    <h3 id="detail-card-title" class="text-base sm:text-lg font-extrabold text-slate-900 leading-snug">Nama Program Kebaikan</h3>
+                                    <h3 id="detail-card-title" class="text-lg sm:text-xl font-extrabold text-slate-900 leading-snug">Nama Program Kebaikan</h3>
                                     
                                     <div class="flex flex-wrap items-center gap-2">
-                                        <div class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1 rounded-lg text-xs font-semibold">
-                                            <span class="material-symbols-outlined text-sm text-emerald-700">pin_drop</span>
+                                        <div class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1 rounded-lg text-xs sm:text-sm font-semibold">
+                                            <span class="material-symbols-outlined text-base text-emerald-700">pin_drop</span>
                                             <span id="detail-card-location">Lokasi: Kepulauan Bangka Belitung</span>
                                         </div>
-                                        <div id="detail-card-beneficiary-wrap" class="hidden inline-flex items-center gap-1.5 bg-blue-50 text-blue-800 border border-blue-200 px-3 py-1 rounded-lg text-xs font-semibold">
-                                            <span class="material-symbols-outlined text-sm text-blue-700">group</span>
+                                        <div id="detail-card-beneficiary-wrap" class="hidden inline-flex items-center gap-1.5 bg-blue-50 text-blue-800 border border-blue-200 px-3 py-1 rounded-lg text-xs sm:text-sm font-semibold">
+                                            <span class="material-symbols-outlined text-base text-blue-700">group</span>
                                             <span id="detail-card-beneficiary">Mustahik &amp; Santri</span>
                                         </div>
                                     </div>
 
-                                    <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200 text-xs text-slate-700 leading-relaxed">
-                                        <p id="detail-card-desc" class="whitespace-pre-line font-medium text-slate-800">Deskripsi lengkap program...</p>
+                                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 text-sm text-slate-700 leading-relaxed">
+                                        <p id="detail-card-desc" class="whitespace-pre-line font-normal text-slate-800">Deskripsi lengkap program...</p>
                                     </div>
                                 </div>
                             </div>
@@ -319,11 +319,11 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
 
                         <!-- Transparency Notice 12.5% for Infak Terikat -->
                         <div class="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-4 sm:p-5 text-emerald-900 shadow-xs">
-                            <div class="flex items-start gap-3">
+                            <div class="flex items-start gap-3.5">
                                 <span class="material-symbols-outlined text-emerald-700 text-2xl shrink-0 mt-0.5">verified_user</span>
                                 <div>
-                                    <p class="font-bold text-emerald-950 text-sm mb-1">Catatan Transparansi Pengelolaan Dana</p>
-                                    <p class="text-xs text-emerald-800 leading-relaxed">
+                                    <p class="font-bold text-emerald-950 text-sm sm:text-base mb-1">Catatan Transparansi Pengelolaan Dana</p>
+                                    <p class="text-xs sm:text-sm text-emerald-800 leading-relaxed">
                                         Dana Infak Terikat memiliki alokasi operasional amil sebesar <strong>12,5% (sesuai syariat &amp; regulasi BAZNAS)</strong> untuk mendukung operasional penyaluran dan pelayanan mustahik.
                                     </p>
                                 </div>
@@ -333,38 +333,38 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
 
                     <!-- Step Nominal Donasi -->
                     <section id="section-step-nominal" class="bg-white rounded-2xl p-5 sm:p-7 shadow-sm border border-slate-200/80 transition-all hover:shadow-md">
-                        <div class="flex items-center gap-3 mb-5 pb-3 border-b border-slate-100">
-                            <span id="step-num-nominal" class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm border border-emerald-300">2</span>
+                        <div class="flex items-center gap-3.5 mb-5 pb-3.5 border-b border-slate-100">
+                            <span id="step-num-nominal" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm sm:text-base border border-emerald-300">2</span>
                             <div>
-                                <h2 class="text-base sm:text-lg font-bold text-slate-900">Nominal Donasi</h2>
-                                <p class="text-xs text-slate-500">Pilih nominal cepat atau masukkan jumlah sesuai kerelaan hati Anda</p>
+                                <h2 class="text-lg sm:text-xl font-bold text-slate-900">Nominal Donasi</h2>
+                                <p class="text-xs sm:text-sm text-slate-500">Pilih nominal cepat atau masukkan jumlah sesuai kerelaan hati Anda</p>
                             </div>
                         </div>
 
                         <!-- Quick Nominal Chips -->
-                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 mb-4" id="nominal-chips-wrap">
-                            <button type="button" class="chip-nominal py-3 px-2 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 hover:border-emerald-600 hover:bg-emerald-50/40 transition-all text-center cursor-pointer" data-nominal="25000" onclick="setNominal(25000)">Rp 25.000</button>
-                            <button type="button" class="chip-nominal py-3 px-2 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 hover:border-emerald-600 hover:bg-emerald-50/40 transition-all text-center cursor-pointer" data-nominal="50000" onclick="setNominal(50000)">Rp 50.000</button>
-                            <button type="button" class="chip-nominal py-3 px-2 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 hover:border-emerald-600 hover:bg-emerald-50/40 transition-all text-center cursor-pointer" data-nominal="100000" onclick="setNominal(100000)">Rp 100.000</button>
-                            <button type="button" class="chip-nominal py-3 px-2 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 hover:border-emerald-600 hover:bg-emerald-50/40 transition-all text-center cursor-pointer" data-nominal="250000" onclick="setNominal(250000)">Rp 250.000</button>
-                            <button type="button" class="chip-nominal py-3 px-2 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 hover:border-emerald-600 hover:bg-emerald-50/40 transition-all text-center cursor-pointer" data-nominal="500000" onclick="setNominal(500000)">Rp 500.000</button>
-                            <button type="button" class="chip-nominal py-3 px-2 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 hover:border-emerald-600 hover:bg-emerald-50/40 transition-all text-center cursor-pointer" data-nominal="1000000" onclick="setNominal(1000000)">Rp 1.000.000</button>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3 mb-4" id="nominal-chips-wrap">
+                            <button type="button" class="chip-nominal py-3.5 px-2.5 border-2 border-slate-200 rounded-xl text-sm sm:text-base font-bold text-slate-800 hover:border-emerald-600 hover:bg-emerald-50/40 transition-all text-center cursor-pointer" data-nominal="25000" onclick="setNominal(25000)">Rp 25.000</button>
+                            <button type="button" class="chip-nominal py-3.5 px-2.5 border-2 border-slate-200 rounded-xl text-sm sm:text-base font-bold text-slate-800 hover:border-emerald-600 hover:bg-emerald-50/40 transition-all text-center cursor-pointer" data-nominal="50000" onclick="setNominal(50000)">Rp 50.000</button>
+                            <button type="button" class="chip-nominal py-3.5 px-2.5 border-2 border-slate-200 rounded-xl text-sm sm:text-base font-bold text-slate-800 hover:border-emerald-600 hover:bg-emerald-50/40 transition-all text-center cursor-pointer" data-nominal="100000" onclick="setNominal(100000)">Rp 100.000</button>
+                            <button type="button" class="chip-nominal py-3.5 px-2.5 border-2 border-slate-200 rounded-xl text-sm sm:text-base font-bold text-slate-800 hover:border-emerald-600 hover:bg-emerald-50/40 transition-all text-center cursor-pointer" data-nominal="250000" onclick="setNominal(250000)">Rp 250.000</button>
+                            <button type="button" class="chip-nominal py-3.5 px-2.5 border-2 border-slate-200 rounded-xl text-sm sm:text-base font-bold text-slate-800 hover:border-emerald-600 hover:bg-emerald-50/40 transition-all text-center cursor-pointer" data-nominal="500000" onclick="setNominal(500000)">Rp 500.000</button>
+                            <button type="button" class="chip-nominal py-3.5 px-2.5 border-2 border-slate-200 rounded-xl text-sm sm:text-base font-bold text-slate-800 hover:border-emerald-600 hover:bg-emerald-50/40 transition-all text-center cursor-pointer" data-nominal="1000000" onclick="setNominal(1000000)">Rp 1.000.000</button>
                         </div>
 
                         <!-- Custom Nominal Input -->
                         <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 font-extrabold text-emerald-700 text-lg select-none pointer-events-none">Rp</span>
-                            <input class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl pl-14 pr-4 py-3.5 text-lg sm:text-xl font-bold text-slate-900 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-400 placeholder:text-sm sm:placeholder:text-base placeholder:font-normal" id="custom_nominal" name="custom_nominal" oninput="updateNominal(this.value)" onkeyup="updateNominal(this.value)" onchange="updateNominal(this.value)" placeholder="Atau masukkan nominal lainnya (Bebas / Tanpa Minimal)" type="number" min="1" autocomplete="off" />
+                            <span class="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 font-extrabold text-emerald-700 text-lg sm:text-xl select-none pointer-events-none">Rp</span>
+                            <input class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl pl-14 sm:pl-16 pr-4 py-3.5 sm:py-4 text-xl sm:text-2xl font-bold text-slate-900 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all placeholder:text-slate-400 placeholder:text-sm sm:placeholder:text-base placeholder:font-normal" id="custom_nominal" name="custom_nominal" oninput="updateNominal(this.value)" onkeyup="updateNominal(this.value)" onchange="updateNominal(this.value)" placeholder="Atau masukkan nominal donasi bebas (tanpa minimal)..." type="number" min="1" autocomplete="off" />
                         </div>
                     </section>
 
                     <!-- Step Wilayah Penyaluran -->
                     <section id="section-step-wilayah" class="bg-white rounded-2xl p-5 sm:p-7 shadow-sm border border-slate-200/80 transition-all hover:shadow-md">
-                        <div class="flex items-center gap-3 mb-5 pb-3 border-b border-slate-100">
-                            <span id="step-num-wilayah" class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm border border-emerald-300">3</span>
+                        <div class="flex items-center gap-3.5 mb-5 pb-3.5 border-b border-slate-100">
+                            <span id="step-num-wilayah" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm sm:text-base border border-emerald-300">3</span>
                             <div>
-                                <h2 class="text-base sm:text-lg font-bold text-slate-900">Pilih Wilayah Penyaluran</h2>
-                                <p class="text-xs text-slate-500">Pencatatan kas dan kebermanfaatan akan dialokasikan ke cabang pilihan Anda</p>
+                                <h2 class="text-lg sm:text-xl font-bold text-slate-900">Pilih Wilayah Penyaluran</h2>
+                                <p class="text-xs sm:text-sm text-slate-500">Pencatatan kas dan kebermanfaatan akan dialokasikan ke cabang pilihan Anda</p>
                             </div>
                         </div>
 
@@ -372,14 +372,14 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                             <!-- Pangkalpinang -->
                             <label class="option-card cursor-pointer relative block">
                                 <input class="peer sr-only" name="wilayah" onchange="handleWilayahChange(this)" type="radio" value="Pangkalpinang" checked />
-                                <div class="option-card-inner border-2 border-emerald-600 bg-emerald-50/70 ring-2 ring-emerald-500/20 shadow-sm rounded-xl p-4 transition-all duration-200 h-full flex items-center justify-between">
+                                <div class="option-card-inner border-2 border-emerald-600 bg-emerald-50/70 ring-2 ring-emerald-500/20 shadow-sm rounded-2xl p-4 sm:p-5 transition-all duration-200 h-full flex items-center justify-between">
                                     <div class="flex items-center gap-3.5">
-                                        <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 border border-emerald-200">
-                                            <span class="material-symbols-outlined text-2xl">location_city</span>
+                                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 border border-emerald-200">
+                                            <span class="material-symbols-outlined text-2xl sm:text-3xl">location_city</span>
                                         </div>
                                         <div>
-                                            <span class="font-extrabold text-slate-900 block text-base">Pangkalpinang</span>
-                                            <span class="text-xs text-slate-600 block">Kota Pangkalpinang &amp; Sekitarnya</span>
+                                            <span class="font-extrabold text-slate-900 block text-base sm:text-lg">Pangkalpinang</span>
+                                            <span class="text-xs sm:text-sm text-slate-600 block">Kota Pangkalpinang &amp; Sekitarnya</span>
                                         </div>
                                     </div>
                                     <span class="material-symbols-outlined icon-check text-emerald-600 opacity-100 transition-all text-2xl font-bold">check_circle</span>
@@ -389,14 +389,14 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                             <!-- Sungailiat -->
                             <label class="option-card cursor-pointer relative block">
                                 <input class="peer sr-only" name="wilayah" onchange="handleWilayahChange(this)" type="radio" value="Sungailiat" />
-                                <div class="option-card-inner border-2 border-slate-200 bg-white hover:border-emerald-500/60 rounded-xl p-4 transition-all duration-200 h-full flex items-center justify-between">
+                                <div class="option-card-inner border-2 border-slate-200 bg-white hover:border-emerald-500/60 rounded-2xl p-4 sm:p-5 transition-all duration-200 h-full flex items-center justify-between">
                                     <div class="flex items-center gap-3.5">
-                                        <div class="w-12 h-12 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center shrink-0 border border-teal-200">
-                                            <span class="material-symbols-outlined text-2xl">apartment</span>
+                                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-teal-100 text-teal-800 flex items-center justify-center shrink-0 border border-teal-200">
+                                            <span class="material-symbols-outlined text-2xl sm:text-3xl">apartment</span>
                                         </div>
                                         <div>
-                                            <span class="font-extrabold text-slate-900 block text-base">Sungailiat</span>
-                                            <span class="text-xs text-slate-600 block">Kabupaten Bangka &amp; Sekitarnya</span>
+                                            <span class="font-extrabold text-slate-900 block text-base sm:text-lg">Sungailiat</span>
+                                            <span class="text-xs sm:text-sm text-slate-600 block">Kabupaten Bangka &amp; Sekitarnya</span>
                                         </div>
                                     </div>
                                     <span class="material-symbols-outlined icon-check text-slate-300 opacity-0 transition-all text-2xl font-bold">check_circle</span>
@@ -406,16 +406,16 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                     </section>
 
                     <!-- Informasi Allocation Infak Umum (Ditampilkan setelah Pemilihan Wilayah) -->
-                    <div id="infak-umum-notice" class="bg-gradient-to-br from-emerald-50/90 to-teal-50/70 rounded-2xl p-5 border border-emerald-200/80 text-on-surface shadow-xs transition-all duration-300">
-                        <div class="flex items-start gap-3">
-                            <span class="material-symbols-outlined text-emerald-700 text-2xl shrink-0 mt-0.5">pie_chart</span>
+                    <div id="infak-umum-notice" class="bg-gradient-to-br from-emerald-50/90 to-teal-50/70 rounded-2xl p-5 sm:p-6 border border-emerald-200/80 text-on-surface shadow-xs transition-all duration-300">
+                        <div class="flex items-start gap-3.5">
+                            <span class="material-symbols-outlined text-emerald-700 text-2xl sm:text-3xl shrink-0 mt-0.5">pie_chart</span>
                             <div class="w-full">
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1.5">
-                                    <p class="font-bold text-emerald-950 text-sm sm:text-base" id="infak-umum-title">Alokasi Otomatis Infak Umum — Wilayah Pangkalpinang</p>
-                                    <span class="text-[11px] font-extrabold text-emerald-700 bg-white/80 px-2.5 py-0.5 rounded-full border border-emerald-200 w-fit">100% Transparan</span>
+                                    <p class="font-bold text-emerald-950 text-base sm:text-lg" id="infak-umum-title">Alokasi Otomatis Infak Umum — Wilayah Pangkalpinang</p>
+                                    <span class="text-xs font-extrabold text-emerald-700 bg-white/80 px-3 py-1 rounded-full border border-emerald-200 w-fit">100% Transparan</span>
                                 </div>
-                                <p class="text-xs text-slate-600 mb-3.5">Donasi Infak Umum Anda didistribusikan secara proporsional ke 5 pilar program &amp; operasional:</p>
-                                <div id="infak-umum-breakdown" class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs font-semibold">
+                                <p class="text-xs sm:text-sm text-slate-600 mb-3.5">Donasi Infak Umum Anda didistribusikan secara proporsional ke 5 pilar program &amp; operasional:</p>
+                                <div id="infak-umum-breakdown" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs sm:text-sm font-semibold">
                                 </div>
                             </div>
                         </div>
@@ -423,33 +423,33 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
 
                     <!-- Step Identitas Donatur -->
                     <section id="section-step-identitas" class="bg-white rounded-2xl p-5 sm:p-7 shadow-sm border border-slate-200/80 transition-all hover:shadow-md space-y-4">
-                        <div class="flex items-center gap-3 mb-2 pb-3 border-b border-slate-100">
-                            <span id="step-num-identitas" class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm border border-emerald-300">4</span>
+                        <div class="flex items-center gap-3.5 mb-2 pb-3.5 border-b border-slate-100">
+                            <span id="step-num-identitas" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm sm:text-base border border-emerald-300">4</span>
                             <div>
-                                <h2 class="text-base sm:text-lg font-bold text-slate-900">Identitas &amp; Doa Kebaikan</h2>
-                                <p class="text-xs text-slate-500">Lengkapi nama donatur atau pilih opsi Hamba Allah (Anonim)</p>
+                                <h2 class="text-lg sm:text-xl font-bold text-slate-900">Identitas &amp; Doa Kebaikan</h2>
+                                <p class="text-xs sm:text-sm text-slate-500">Lengkapi nama donatur atau pilih opsi Hamba Allah (Anonim)</p>
                             </div>
                         </div>
 
                         <div>
                             <div class="flex justify-between items-center mb-1.5">
-                                <label class="block text-sm font-bold text-slate-900">Nama Lengkap Donatur <span class="text-red-500">*</span></label>
-                                <label class="flex items-center gap-2 cursor-pointer text-xs text-emerald-800 font-bold bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 hover:bg-emerald-100 transition-colors">
+                                <label class="block text-sm sm:text-base font-bold text-slate-900">Nama Lengkap Donatur <span class="text-red-500">*</span></label>
+                                <label class="flex items-center gap-2 cursor-pointer text-xs sm:text-sm text-emerald-800 font-bold bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200 hover:bg-emerald-100 transition-colors">
                                     <input type="checkbox" id="is-anonymous-donor" onchange="toggleAnonymousDonor(this.checked)" class="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 cursor-pointer">
                                     <span>Hamba Allah (Anonim)</span>
                                 </label>
                             </div>
-                            <input type="text" id="donor-name" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-sm sm:text-base text-slate-900 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all font-semibold" placeholder="Masukkan nama Anda..." />
+                            <input type="text" id="donor-name" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3.5 text-base sm:text-lg text-slate-900 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all font-semibold" placeholder="Masukkan nama Anda..." />
                         </div>
 
                         <div>
-                            <label class="block text-sm font-bold text-slate-900 mb-1.5">Nomor WhatsApp / HP (Opsional)</label>
-                            <input type="tel" id="donor-phone" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-sm sm:text-base text-slate-900 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all font-semibold" placeholder="08xxxxxxxxxx (untuk konfirmasi &amp; kuitansi donasi)" />
+                            <label class="block text-sm sm:text-base font-bold text-slate-900 mb-1.5">Nomor WhatsApp / HP (Opsional)</label>
+                            <input type="tel" id="donor-phone" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3.5 text-base sm:text-lg text-slate-900 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all font-semibold" placeholder="08xxxxxxxxxx (untuk konfirmasi &amp; kuitansi donasi)" />
                         </div>
 
                         <div>
-                            <label class="block text-sm font-bold text-slate-900 mb-1.5">Doa &amp; Pesan Kebaikan (Opsional)</label>
-                            <textarea id="donor-message" rows="3" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-sm sm:text-base text-slate-900 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all font-medium" placeholder="Tuliskan doa atau hajat kebaikan Anda agar dapat diaminkan bersama..."></textarea>
+                            <label class="block text-sm sm:text-base font-bold text-slate-900 mb-1.5">Doa &amp; Pesan Kebaikan (Opsional)</label>
+                            <textarea id="donor-message" rows="3" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3.5 text-base sm:text-lg text-slate-900 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all font-medium" placeholder="Tuliskan doa atau hajat kebaikan Anda agar dapat diaminkan bersama..."></textarea>
                         </div>
 
                         <!-- Recurring Donor Option -->
@@ -458,7 +458,7 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                                 <input type="checkbox" id="is-recurring-donor" class="mt-1 w-5 h-5 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500 shrink-0 cursor-pointer">
                                 <div>
                                     <span class="text-sm sm:text-base font-extrabold text-slate-900 block">Jadikan Donasi Rutin / Donatur Tetap Bulanan</span>
-                                    <span class="text-xs text-slate-600 block mt-0.5">Dapatkan laporan progres penyaluran rutin dan pengingat amal berkala melalui WhatsApp setiap bulan.</span>
+                                    <span class="text-xs sm:text-sm text-slate-600 block mt-0.5">Dapatkan laporan progres penyaluran rutin dan pengingat amal berkala melalui WhatsApp setiap bulan.</span>
                                 </div>
                             </label>
                         </div>
@@ -466,11 +466,11 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
 
                     <!-- Step Metode Pembayaran -->
                     <section id="section-step-metode" class="bg-white rounded-2xl p-5 sm:p-7 shadow-sm border border-slate-200/80 transition-all hover:shadow-md space-y-4">
-                        <div class="flex items-center gap-3 mb-2 pb-3 border-b border-slate-100">
-                            <span id="step-num-metode" class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm border border-emerald-300">5</span>
+                        <div class="flex items-center gap-3.5 mb-2 pb-3.5 border-b border-slate-100">
+                            <span id="step-num-metode" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm sm:text-base border border-emerald-300">5</span>
                             <div>
-                                <h2 class="text-base sm:text-lg font-bold text-slate-900">Metode Pembayaran</h2>
-                                <p class="text-xs text-slate-500">Pilih salah satu metode pembayaran di bawah ini</p>
+                                <h2 class="text-lg sm:text-xl font-bold text-slate-900">Metode Pembayaran</h2>
+                                <p class="text-xs sm:text-sm text-slate-500">Pilih salah satu metode pembayaran di bawah ini</p>
                             </div>
                         </div>
                         
@@ -480,15 +480,15 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                                 <input class="sr-only" name="payment_method" onchange="setPayment('QRIS')" type="radio" value="QRIS" checked />
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-3.5">
-                                        <div class="w-12 h-12 bg-white flex items-center justify-center rounded-xl text-emerald-700 shadow-xs shrink-0 border border-emerald-200">
-                                            <span class="material-symbols-outlined text-2xl">qr_code_scanner</span>
+                                        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white flex items-center justify-center rounded-2xl text-emerald-700 shadow-xs shrink-0 border border-emerald-200">
+                                            <span class="material-symbols-outlined text-2xl sm:text-3xl">qr_code_scanner</span>
                                         </div>
                                         <div>
                                             <div class="flex items-center gap-2">
-                                                <span class="font-extrabold text-slate-900 text-sm sm:text-base">QRIS (Instan)</span>
-                                                <span class="bg-red-100 text-red-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">Otomatis</span>
+                                                <span class="font-extrabold text-slate-900 text-base sm:text-lg">QRIS (Instan)</span>
+                                                <span class="bg-red-100 text-red-700 text-xs font-extrabold px-2 py-0.5 rounded-full uppercase">Otomatis</span>
                                             </div>
-                                            <span class="text-xs text-slate-500 block mt-0.5">BCA, BSI, Mandiri, GoPay, OVO, DANA</span>
+                                            <span class="text-xs sm:text-sm text-slate-600 block mt-0.5">BCA, BSI, Mandiri, GoPay, OVO, DANA</span>
                                         </div>
                                     </div>
                                     <span id="check-qris" class="material-symbols-outlined text-emerald-600 text-2xl font-bold">check_circle</span>
@@ -500,15 +500,15 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                                 <input class="sr-only" name="payment_method" onchange="setPayment('Bank Transfer')" type="radio" value="Bank Transfer" />
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-3.5">
-                                        <div class="w-12 h-12 bg-slate-100 flex items-center justify-center rounded-xl text-slate-700 shadow-xs shrink-0 border border-slate-200">
-                                            <span class="material-symbols-outlined text-2xl">account_balance</span>
+                                        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-slate-100 flex items-center justify-center rounded-2xl text-slate-700 shadow-xs shrink-0 border border-slate-200">
+                                            <span class="material-symbols-outlined text-2xl sm:text-3xl">account_balance</span>
                                         </div>
                                         <div>
                                             <div class="flex items-center gap-2">
-                                                <span class="font-extrabold text-slate-900 text-sm sm:text-base">Transfer Bank</span>
-                                                <span class="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">Syariah</span>
+                                                <span class="font-extrabold text-slate-900 text-base sm:text-lg">Transfer Bank</span>
+                                                <span class="bg-emerald-100 text-emerald-800 text-xs font-extrabold px-2 py-0.5 rounded-full uppercase">Syariah</span>
                                             </div>
-                                            <span class="text-xs text-slate-500 block mt-0.5">Bank Syariah Indonesia (BSI)</span>
+                                            <span class="text-xs sm:text-sm text-slate-600 block mt-0.5">Bank Syariah Indonesia (BSI)</span>
                                         </div>
                                     </div>
                                     <span id="check-bank" class="material-symbols-outlined text-emerald-600 text-2xl font-bold hidden">check_circle</span>
@@ -522,11 +522,11 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                 <div class="lg:col-span-4">
                     <div class="sticky top-24 bg-white rounded-3xl p-6 sm:p-7 shadow-lg border-2 border-slate-200/90 space-y-5">
                         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-                            <h3 class="text-lg font-extrabold text-slate-900">Ringkasan Donasi</h3>
-                            <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">WIZ Babel</span>
+                            <h3 class="text-lg sm:text-xl font-extrabold text-slate-900">Ringkasan Donasi</h3>
+                            <span class="text-xs sm:text-sm font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">WIZ Babel</span>
                         </div>
 
-                        <ul class="space-y-3 text-sm">
+                        <ul class="space-y-3.5 text-sm sm:text-base">
                             <li class="flex justify-between items-start">
                                 <span class="text-slate-500">Lembaga Penyalur</span>
                                 <span class="text-slate-900 font-bold text-right">WIZ Bangka Belitung</span>
@@ -549,46 +549,46 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                             </li>
                             <li class="flex justify-between items-start">
                                 <span class="text-slate-500">Metode</span>
-                                <span class="text-slate-900 font-bold text-right" id="summary-method">QRIS</span>
+                                <span class="text-slate-900 font-bold text-right" id="summary-method">QRIS (Instan)</span>
                             </li>
-                            <li class="hidden mt-2 p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs text-slate-700" id="summary-ref-row">
+                            <li class="hidden mt-2 p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs sm:text-sm text-slate-700" id="summary-ref-row">
                                 <span class="font-bold text-slate-500 uppercase tracking-wide">ID Mitra:</span>
-                                <span class="font-mono font-extrabold text-emerald-700 text-xs" id="summary-ref-name">-</span>
+                                <span class="font-mono font-extrabold text-emerald-700 text-xs sm:text-sm" id="summary-ref-name">-</span>
                             </li>
                         </ul>
 
                         <div class="pt-4 border-t-2 border-dashed border-slate-200">
                             <div class="flex justify-between items-end mb-4">
                                 <div>
-                                            <span class="text-xs text-slate-500 block uppercase font-bold tracking-wider">Total Donasi</span>
-                                            <span class="text-xs text-emerald-600 font-semibold">Bebas biaya admin</span>
-                                        </div>
-                                        <span class="text-2xl sm:text-3xl font-extrabold text-emerald-700" id="summary-total">Rp 0</span>
-                                    </div>
+                                    <span class="text-xs sm:text-sm text-slate-500 block uppercase font-bold tracking-wider">Total Donasi</span>
+                                    <span class="text-xs sm:text-sm text-emerald-600 font-semibold">Bebas biaya admin</span>
+                                </div>
+                                <span class="text-2xl sm:text-3xl font-black text-emerald-700" id="summary-total">Rp 0</span>
+                            </div>
 
-                                    <button id="checkout-submit-btn" onclick="handleCheckoutSubmit(event)" class="w-full bg-gradient-to-r from-[#F7941D] to-[#ea7e00] hover:from-[#ea7e00] hover:to-[#d67200] text-white py-4 rounded-xl font-extrabold text-base shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 transition-all flex justify-center items-center gap-2 cursor-pointer active:scale-[0.99]" type="button">
-                                        <span id="checkout-btn-text">Lanjutkan Pembayaran</span>
-                                        <span class="material-symbols-outlined text-xl">arrow_forward</span>
-                                    </button>
+                            <button id="checkout-submit-btn" onclick="handleCheckoutSubmit(event)" class="w-full bg-gradient-to-r from-[#F7941D] to-[#ea7e00] hover:from-[#ea7e00] hover:to-[#d67200] text-white py-4 rounded-xl font-extrabold text-base sm:text-lg shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 transition-all flex justify-center items-center gap-2 cursor-pointer active:scale-[0.99]" type="button">
+                                <span id="checkout-btn-text">Lanjutkan Pembayaran</span>
+                                <span class="material-symbols-outlined text-xl">arrow_forward</span>
+                            </button>
 
-                                    <div class="mt-4 pt-4 border-t border-slate-100 space-y-2">
-                                        <p class="text-xs text-slate-500 text-center flex items-center justify-center gap-1.5 font-medium">
-                                            <span class="material-symbols-outlined text-base text-emerald-600">lock</span>
-                                            <span>Transaksi Aman &amp; Terenkripsi SSL 256-bit</span>
-                                        </p>
-                                        <div class="flex items-center justify-center gap-4 text-[11px] text-slate-400 font-semibold pt-1">
-                                            <span>✓ Kemenag RI</span>
-                                            <span>•</span>
-                                            <span>✓ BAZNAS</span>
-                                            <span>•</span>
-                                            <span>✓ Syariah</span>
-                                        </div>
-                                    </div>
+                            <div class="mt-4 pt-4 border-t border-slate-100 space-y-2">
+                                <p class="text-xs sm:text-sm text-slate-500 text-center flex items-center justify-center gap-1.5 font-medium">
+                                    <span class="material-symbols-outlined text-base text-emerald-600">lock</span>
+                                    <span>Transaksi Aman &amp; Terenkripsi SSL 256-bit</span>
+                                </p>
+                                <div class="flex items-center justify-center gap-4 text-xs text-slate-400 font-semibold pt-1">
+                                    <span>✓ Kemenag RI</span>
+                                    <span>•</span>
+                                    <span>✓ BAZNAS</span>
+                                    <span>•</span>
+                                    <span>✓ Syariah</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </form>
+                </div>
+            </div>
+        </form>
 </main>
 
             <!-- QRIS Payment Display Modal -->
