@@ -52,7 +52,7 @@ const {
                 </button>
             </div>
 
-            <form id="donation-form" class="p-lg space-y-md" onsubmit="handleDonationSubmit(event)">
+            <form id="shared-donation-form" class="p-lg space-y-md" onsubmit="handleDonationSubmit(event)">
                 <div>
                     <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Pilih Nominal Donasi</label>
                     <div class="grid grid-cols-3 gap-xs mb-sm">
@@ -65,23 +65,23 @@ const {
                     </div>
                     <div class="relative">
                         <span class="absolute left-md top-1/2 -translate-y-1/2 font-bold text-primary">Rp</span>
-                        <input type="number" id="nominal-input" required min="1" class="w-full pl-xl pr-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary" placeholder="Masukkan nominal donasi (Bebas / Tanpa Minimal)"/>
+                        <input type="number" id="shared-nominal-input" min="1" class="w-full pl-xl pr-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary" placeholder="Masukkan nominal donasi (Bebas / Tanpa Minimal)"/>
                     </div>
                 </div>
 
                 <div>
                     <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Nama Lengkap Donatur</label>
-                    <input type="text" id="donor-name" required class="w-full px-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary" placeholder="Nama Anda atau hamba Allah"/>
+                    <input type="text" id="shared-donor-name" class="w-full px-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary" placeholder="Nama Anda atau hamba Allah"/>
                 </div>
 
                 <div>
                     <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Nomor WhatsApp / HP</label>
-                    <input type="tel" id="donor-phone" required class="w-full px-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary" placeholder="08xxxxxxxxxx"/>
+                    <input type="tel" id="shared-donor-phone" class="w-full px-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary" placeholder="08xxxxxxxxxx"/>
                 </div>
 
                 <div>
                     <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Doa / Pesan Kebaikan (Opsional)</label>
-                    <textarea id="donor-message" rows="2" class="w-full px-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary" placeholder="Tuliskan doa atau niat donasi Anda..."></textarea>
+                    <textarea id="shared-donor-message" rows="2" class="w-full px-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary" placeholder="Tuliskan doa atau niat donasi Anda..."></textarea>
                 </div>
 
                 <button type="submit" class="w-full bg-[#F7941D] text-white font-label-md text-label-md py-md rounded-lg hover:opacity-90 transition-opacity font-bold shadow-md text-center cursor-pointer">
@@ -165,10 +165,10 @@ const {
         </div>
     </div>
 
-    <!-- Core Scripts with Cache Buster -->
-    <script is:inline src="/assets/js/supabase-client.js?v=20260828_1787893082733"></script>
-    <script is:inline src="/assets/js/admin-store.js?v=20260828_1787893082733"></script>
-    <script is:inline src="/assets/js/main.js?v=20260828_1787893082733"></script>
-    <script is:inline src="/assets/js/nav-active.js?v=20260828_1787893082733"></script>
+    <!-- Core Scripts with Dynamic Cache Buster -->
+    <script is:inline src={`/assets/js/supabase-client.js?v=${Date.now()}`}></script>
+    <script is:inline src={`/assets/js/admin-store.js?v=${Date.now()}`}></script>
+    <script is:inline src={`/assets/js/main.js?v=${Date.now()}`}></script>
+    <script is:inline src={`/assets/js/nav-active.js?v=${Date.now()}`}></script>
 </body>
 </html>
