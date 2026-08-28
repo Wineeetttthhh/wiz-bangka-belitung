@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ─── 40-DAY AFFILIATE & NEWS REFERRAL TRACKING ENGINE ─────────────────────────
 const AFFILIATE_TRACKING = {
-    DAYS: 40, // Masa aktif klik 40 hari pasca-klik
+    EXPIRY_DAYS: 365,
     COOKIE_KEY: 'wiz_ref_code',
     EXP_KEY: 'wiz_ref_exp'
 };
@@ -30,18 +30,18 @@ function setAffiliateRef(refCode) {
     try {
         const cleanRef = String(refCode).trim();
         if (!cleanRef) return;
-        const expiryMs = Date.now() + (AFFILIATE_TRACKING.DAYS * 24 * 60 * 60 * 1000);
+        const expiryMs = Date.now() + (AFFILIATE_TRACKING.EXPIRY_DAYS * 24 * 60 * 60 * 1000);
 
-        // 1. Session storage (instant)
+        // 1. Session Storage (Immediate active session)
         sessionStorage.setItem('wiz_active_ref_id', cleanRef);
 
-        // 2. Local storage (persisted across restarts for 40 days)
+        // 2. LocalStorage (365-day attribution persistence)
         localStorage.setItem(AFFILIATE_TRACKING.COOKIE_KEY, cleanRef);
         localStorage.setItem(AFFILIATE_TRACKING.EXP_KEY, String(expiryMs));
 
-        // 3. Document Cookie (40-day max-age: 3,456,000 seconds)
-        document.cookie = `wiz_ref=${encodeURIComponent(cleanRef)}; path=/; max-age=3456000; SameSite=Lax`;
-        console.log('[WIZ Referral Tracker] Affiliate code recorded (40-day attribution):', cleanRef);
+        // 3. Document Cookie (365-day max-age: 31,536,000 seconds)
+        document.cookie = `wiz_ref=${encodeURIComponent(cleanRef)}; path=/; max-age=31536000; SameSite=Lax`;
+        console.log('[WIZ Referral Tracker] Affiliate code recorded (365-day attribution):', cleanRef);
     } catch(e) {
         console.warn('[WIZ Referral Tracker] Error storing ref:', e);
     }
@@ -49,9 +49,9 @@ function setAffiliateRef(refCode) {
 
 function getActiveAffiliateRef() {
     try {
-        // 1. URL parameter takes immediate priority & refreshes 30-day timer
+        // 1. URL parameter takes immediate priority & refreshes 365-day timer
         const urlParams = new URLSearchParams(window.location.search);
-        const urlRef = urlParams.get('ref') || urlParams.get('affiliate') || urlParams.get('perantara');
+        const urlRef = urlParams.get('ref') || urlParams.get('mitra') || urlParams.get('affiliate') || urlParams.get('perantara');
         if (urlRef) {
             setAffiliateRef(urlRef);
             return urlRef.trim();

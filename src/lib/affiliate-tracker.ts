@@ -3,7 +3,7 @@
  */
 
 export const AFFILIATE_CONFIG = {
-    DAYS: 40,
+    DAYS: 365,
     STORAGE_KEY: 'wiz_ref_code',
     EXP_KEY: 'wiz_ref_exp',
     COOKIE_KEY: 'wiz_ref'
@@ -19,8 +19,8 @@ export function recordAffiliateRef(refCode: string): void {
         sessionStorage.setItem('wiz_active_ref_id', cleanRef);
         localStorage.setItem(AFFILIATE_CONFIG.STORAGE_KEY, cleanRef);
         localStorage.setItem(AFFILIATE_CONFIG.EXP_KEY, String(expiryMs));
-        document.cookie = `${AFFILIATE_CONFIG.COOKIE_KEY}=${encodeURIComponent(cleanRef)}; path=/; max-age=3456000; SameSite=Lax`;
-        console.log('[WIZ Referral] Registered affiliate code:', cleanRef);
+        document.cookie = `${AFFILIATE_CONFIG.COOKIE_KEY}=${encodeURIComponent(cleanRef)}; path=/; max-age=31536000; SameSite=Lax`;
+        console.log('[WIZ Referral] Registered affiliate code (365-day attribution):', cleanRef);
     } catch (e) {
         console.warn('[WIZ Referral] Error saving affiliate ref:', e);
     }
