@@ -576,12 +576,12 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                                     <span class="material-symbols-outlined text-base text-emerald-600">lock</span>
                                     <span>Transaksi Aman &amp; Terenkripsi SSL 256-bit</span>
                                 </p>
-                                <div class="flex items-center justify-center gap-4 text-xs text-slate-400 font-semibold pt-1">
-                                    <span>✓ Kemenag RI</span>
+                                <div class="flex items-center justify-center gap-3 text-xs text-emerald-800 font-bold pt-1">
+                                    <span>✨ Amanah</span>
                                     <span>•</span>
-                                    <span>✓ BAZNAS</span>
+                                    <span>✨ Profesional</span>
                                     <span>•</span>
-                                    <span>✓ Syariah</span>
+                                    <span>✨ Transparan</span>
                                 </div>
                             </div>
                         </div>
@@ -1802,9 +1802,27 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
             if (m) { m.style.cssText = 'display:none!important;'; m.classList.remove('show','active'); document.body.style.overflow = ''; }
         }
 
+        function _resolveNominal(s) {
+            var n = Number(s.nominal || s.totalDonasi) || 0;
+            if (n <= 0) {
+                var cEl = document.getElementById('custom_nominal');
+                if (cEl && Number(cEl.value) >= 1000) n = Number(cEl.value);
+            }
+            if (n <= 0) {
+                var sumEl = document.getElementById('summary-total');
+                if (sumEl) {
+                    var cleanNom = Number(sumEl.textContent.replace(/[^0-9]/g, ''));
+                    if (cleanNom >= 1000) n = cleanNom;
+                }
+            }
+            if (n <= 0) n = 25000;
+            s.nominal = n; s.totalDonasi = n;
+            return n;
+        }
+
         window.openQRISModal = function() {
             var s = window.donationState || {};
-            var n = Number(s.nominal || s.totalDonasi) || 0;
+            var n = _resolveNominal(s);
             var el;
             el = document.getElementById('qris-modal-total'); if(el) el.textContent = _fmt(n);
             var progLabel = (s.isProgramLocked || (s.type==='Infak Terikat' && s.program!=='-')) ? s.program : (s.type || 'Infak Umum');
@@ -1817,7 +1835,7 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
 
         window.openBankModal = function() {
             var s = window.donationState || {};
-            var n = Number(s.nominal || s.totalDonasi) || 0;
+            var n = _resolveNominal(s);
             var el;
             el = document.getElementById('bank-modal-total'); if(el) el.textContent = _fmt(n);
             var progLabel = (s.isProgramLocked || (s.type==='Infak Terikat' && s.program!=='-')) ? s.program : (s.type || 'Infak Umum');
@@ -1846,6 +1864,14 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
             if (customVal > 0) nom = customVal;
 
             if (nom < 1000) {
+                var sumEl = document.getElementById('summary-total');
+                if (sumEl) {
+                    var cleanNom = Number(sumEl.textContent.replace(/[^0-9]/g, ''));
+                    if (cleanNom >= 1000) nom = cleanNom;
+                }
+            }
+
+            if (nom < 1000) {
                 alert('⚠️ Mohon masukkan atau pilih nominal donasi terlebih dahulu.');
                 if (el) {
                     el.focus();
@@ -1872,14 +1898,43 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
             if (isQris) { window.openQRISModal(); } else { window.openBankModal(); }
 
             try {
+                var activeRef = (typeof getActiveAffiliateRef === 'function') ? getActiveAffiliateRef() : (sessionStorage.getItem('wiz_active_ref_id') || localStorage.getItem('wiz_ref_code') || localStorage.getItem('wiz_active_ref_id') || '');
+                var finalProg = (s.isProgramLocked || (s.type==='Infak Terikat'&&s.program!=='-')) ? s.program : s.type;
+                var refRate = 6;
+                var refFee = activeRef ? Math.round(nom * (refRate / 100)) : 0;
+
+                if (window.wizSupabase && typeof window.wizSupabase.saveDonation === 'function') {
+                    window.wizSupabase.saveDonation({
+                        donor_name: s.donorName,
+                        donor_phone: s.donorPhone,
+                        program_title: finalProg,
+                        program_spesifik: finalProg,
+                        donation_type: s.type,
+                        amount: nom,
+                        payment_method: isQris ? 'QRIS' : 'Transfer Bank (BSI)',
+                        notes: s.donorMessage,
+                        referral_id: activeRef || null,
+                        referral_code: activeRef || null,
+                        referral_rate: refRate,
+                        referral_fee: refFee,
+                        status: 'pending',
+                        wilayah: s.wilayah || 'Pangkalpinang'
+                    }).catch(function(err){ console.warn('[WIZ] Supabase save note:', err); });
+                }
+
                 if (window.wizStore && window.wizStore.donations && window.wizStore.donations.add) {
-                    var finalProg = (s.isProgramLocked || (s.type==='Infak Terikat'&&s.program!=='-')) ? s.program : s.type;
                     window.wizStore.donations.add({
-                        donorName:s.donorName, donorPhone:s.donorPhone, amount:nom,
-                        program:finalProg,
-                        pillar:(s.category&&s.category!=='-')?s.category:'Berkah Peduli',
-                        type:s.type, method:isQris?'QRIS':'Transfer Bank (BSI)',
-                        wilayah:s.wilayah||'Pangkalpinang', message:s.donorMessage
+                        donorName: s.donorName, donorPhone: s.donorPhone, amount: nom,
+                        program: finalProg,
+                        pillar: (s.category && s.category !== '-') ? s.category : 'Berkah Peduli',
+                        type: s.type, method: isQris ? 'QRIS' : 'Transfer Bank (BSI)',
+                        wilayah: s.wilayah || 'Pangkalpinang', message: s.donorMessage,
+                        referralId: activeRef || null,
+                        referralCode: activeRef || null,
+                        referral_code: activeRef || null,
+                        referralRate: refRate,
+                        referralFee: refFee,
+                        status: 'pending'
                     }).catch(function(){});
                 }
             } catch(err) {}
