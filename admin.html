@@ -88,6 +88,17 @@
             }
         }
     </script>
+    <!-- Synchronous Immediate Admin Authentication Guard (Prevents Layout Flash Before Login) -->
+    <script>
+        (function() {
+            var isAuth = false;
+            try { isAuth = sessionStorage.getItem('wiz_admin_authenticated') === 'true'; } catch(e){}
+            if (!isAuth) {
+                document.documentElement.classList.add('admin-locked');
+                document.write('<style>html.admin-locked body > aside, html.admin-locked body > main, html.admin-locked body > #sidebar-overlay { display: none !important; } html.admin-locked #admin-login-modal { display: flex !important; visibility: visible !important; opacity: 1 !important; z-index: 999999 !important; }</style>');
+            }
+        })();
+    </script>
     <style>
         .glass-panel {
             background: rgba(255, 255, 255, 0.7);
@@ -158,17 +169,23 @@
             // SECURITY: Only use sessionStorage (expires when browser/tab is closed)
             // Never use localStorage for admin auth — it persists permanently
             const isAuth = sessionStorage.getItem('wiz_admin_authenticated') === 'true';
+            if (isAuth) {
+                document.documentElement.classList.remove('admin-locked');
+            } else {
+                document.documentElement.classList.add('admin-locked');
+                localStorage.removeItem('wiz_admin_authenticated');
+                localStorage.removeItem('wiz_admin_user');
+                localStorage.removeItem('wiz_admin_role');
+                localStorage.removeItem('wiz_admin_name');
+            }
             document.addEventListener('DOMContentLoaded', function() {
                 const m = document.getElementById('admin-login-modal');
                 if (m) {
                     if (isAuth) {
+                        m.style.display = 'none';
                         m.remove();
+                        document.documentElement.classList.remove('admin-locked');
                     } else {
-                        // Force show login — clear any stale localStorage tokens
-                        localStorage.removeItem('wiz_admin_authenticated');
-                        localStorage.removeItem('wiz_admin_user');
-                        localStorage.removeItem('wiz_admin_role');
-                        localStorage.removeItem('wiz_admin_name');
                         m.style.display = 'flex';
                         m.style.visibility = 'visible';
                         m.style.pointerEvents = 'auto';
@@ -179,8 +196,7 @@
     </script>
 
     <!-- Admin Login Modal Overlay -->
-    <!-- IMPORTANT: style='display:none' hides this until JS checks auth. This is inline style = highest priority. -->
-    <div id="admin-login-modal" class="fixed inset-0 bg-inverse-surface/80 backdrop-blur-md flex items-center justify-center p-md overflow-y-auto" style="display:none; z-index: 99999;">
+    <div id="admin-login-modal" class="fixed inset-0 bg-inverse-surface/80 backdrop-blur-md flex items-center justify-center p-md overflow-y-auto" style="display:flex; z-index: 99999;">
         <div class="bg-surface rounded-2xl shadow-2xl border border-outline-variant/30 w-full max-w-md overflow-hidden transform transition-all my-auto">
             <div class="bg-primary/10 p-lg text-center border-b border-outline-variant/20 flex flex-col items-center gap-xs">
                 <img src="assets/images/logo-wiz-babel.png" alt="WIZ Babel Logo" class="h-14 w-auto object-contain mb-xs" onerror="this.classList.add('hidden');">
@@ -221,7 +237,12 @@
                 </div>
 
                 <div class="space-y-xs">
-                    <label for="login-password" class="block font-label-md text-caption font-bold text-on-surface">Password *</label>
+                    <div class="flex items-center justify-between">
+                        <label for="login-password" class="block font-label-md text-caption font-bold text-on-surface">Password *</label>
+                        <button type="button" onclick="showForgotPasswordModal()" class="font-caption text-caption font-bold text-primary hover:underline cursor-pointer">
+                            Lupa Password?
+                        </button>
+                    </div>
                     <div class="relative flex items-center">
                         <span class="material-symbols-outlined absolute left-3 text-outline text-sm">key</span>
                         <input type="password" id="login-password" required placeholder="Masukkan password" value=""
@@ -308,7 +329,40 @@
                     <span class="material-symbols-outlined text-sm">person_add</span>
                     <span>Kirim Pendaftaran Admin</span>
                 </button>
-            </form>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal Overlay -->
+    <div id="forgot-password-modal" class="fixed inset-0 bg-inverse-surface/80 backdrop-blur-md items-center justify-center p-md overflow-y-auto" style="display:none; z-index: 999999;" onclick="if(event.target===this) closeForgotPasswordModal()">
+        <div class="bg-surface rounded-2xl shadow-2xl border border-outline-variant/30 w-full max-w-md p-lg overflow-hidden transform transition-all my-auto space-y-md text-left" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between border-b pb-sm border-outline-variant/30">
+                <div class="flex items-center gap-xs text-primary font-bold">
+                    <span class="material-symbols-outlined text-xl">lock_reset</span>
+                    <h3 class="font-headline-md text-headline-md font-bold text-on-surface">Lupa Password Admin</h3>
+                </div>
+                <button type="button" onclick="closeForgotPasswordModal()" class="w-8 h-8 rounded-full bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant flex items-center justify-center cursor-pointer transition-colors">
+                    <span class="material-symbols-outlined text-sm">close</span>
+                </button>
+            </div>
+            
+            <div class="space-y-sm">
+                <p class="font-body-md text-caption text-on-surface-variant leading-relaxed">
+                    Demi keamanan data amil dan transparansi WIZ Babel, pengajuan perbaikan / reset kata sandi dikonfirmasi langsung oleh <strong>Super Admin WIZ Bangka Belitung</strong>.
+                </p>
+                
+                <div class="p-md bg-primary/10 border border-primary/20 rounded-xl space-y-xs">
+                    <label for="forgot-user-input" class="block font-label-md text-caption font-bold text-on-surface">Masukkan Username / No. WhatsApp Akun Admin Anda *</label>
+                    <input type="text" id="forgot-user-input" placeholder="Contoh: amil_pangkalpinang / 08123456789" class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant/60 rounded-xl font-body-md text-on-surface focus:outline-none focus:border-primary text-xs font-semibold">
+                </div>
+
+                <div class="pt-xs space-y-xs">
+                    <button type="button" onclick="submitForgotPasswordWA()" class="w-full bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md py-md rounded-xl shadow-md font-bold flex items-center justify-center gap-xs cursor-pointer transition-colors">
+                        <svg class="w-4 h-4 fill-white" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+                        <span>Kirim Permintaan Reset ke Super Admin</span>
+                    </button>
+                    <p class="font-caption text-[11px] text-on-surface-variant text-center">Super Admin WIZ Babel (+62 823-8083-0808) akan mengirimkan password baru via WA.</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -8437,6 +8491,39 @@
                 refreshAll();
             }
         });
+
+        // 🚀 Forgot Password Handlers
+        function showForgotPasswordModal() {
+            const modal = document.getElementById('forgot-password-modal');
+            if (modal) {
+                modal.style.cssText = 'position: fixed !important; inset: 0 !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important; height: 100% !important; background: rgba(15, 23, 42, 0.8) !important; -webkit-backdrop-filter: blur(8px) !important; backdrop-filter: blur(8px) !important; z-index: 999999 !important; display: flex !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; align-items: center !important; justify-content: center !important; padding: 1rem !important;';
+                modal.classList.add('active', 'show');
+            }
+        }
+        window.showForgotPasswordModal = showForgotPasswordModal;
+
+        function closeForgotPasswordModal() {
+            const modal = document.getElementById('forgot-password-modal');
+            if (modal) {
+                modal.classList.remove('active', 'show');
+                modal.style.cssText = 'display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;';
+            }
+        }
+        window.closeForgotPasswordModal = closeForgotPasswordModal;
+
+        function submitForgotPasswordWA() {
+            const input = document.getElementById('forgot-user-input');
+            const val = input ? input.value.trim() : '';
+            if (!val) {
+                alert('⚠️ Mohon masukkan username atau nomor WhatsApp akun Anda.');
+                if (input) input.focus();
+                return;
+            }
+            const msg = `Bismillah, saya ingin mengajukan Reset Password Akun Admin WIZ Bangka Belitung:%0A%0A• *Username / No. WA*: ${encodeURIComponent(val)}%0A• *Waktu Pengajuan*: ${encodeURIComponent(new Date().toLocaleString('id-ID'))}%0A%0AMohon bantuan Super Admin untuk memverifikasi dan mereset kata sandi akun saya. Terima kasih.`;
+            window.open(`https://wa.me/6282380830808?text=${msg}`, '_blank');
+            closeForgotPasswordModal();
+        }
+        window.submitForgotPasswordWA = submitForgotPasswordWA;
     </script>
 </body>
 
