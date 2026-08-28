@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ============================================================
  * WAHDAH INSPIRASI ZAKAT (WIZ) BANGKA BELITUNG
  * Admin Store — Dual-layer Data Manager (Firebase + localStorage)
@@ -6485,10 +6485,11 @@
     // Full authoritative sync on startup:
     async function initSync() {
         try {
-            // Jika local store kosong (misal fresh browser/cache reset), segera isi dari canonical snapshot dulu
+            // Jika local store kosong atau data berita kurang dari snapshot, segera isi dari canonical snapshot dulu
             const curDons = getStore(STORAGE_KEYS.DONATIONS) || [];
             const curRefs = getStore(STORAGE_KEYS.REFERRALS) || [];
-            if (curDons.length === 0 || curRefs.length === 0) {
+            const curNews = getStore(STORAGE_KEYS.NEWS) || [];
+            if (curDons.length === 0 || curRefs.length === 0 || curNews.length < 9) {
                 try {
                     const cRes = await fetch('assets/data/canonical-store.json', { cache: 'no-cache' });
                     if (cRes.ok) {
