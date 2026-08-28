@@ -716,17 +716,38 @@
                     <p id="qris-modal-donor" class="text-xs text-slate-600 font-semibold">-</p>
                 </div>
 
-                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center space-y-3">
-                    <div class="flex items-center justify-between w-full border-b border-slate-100 pb-2">
-                        <span class="font-bold text-xs text-slate-700">WAHDAH INSPIRASI ZAKAT BABEL</span>
-                        <span class="text-[10px] text-red-600 font-bold uppercase bg-red-50 px-2 py-0.5 rounded">All e-Wallet &amp; Banking</span>
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border-2 border-emerald-500/20 shadow-sm flex flex-col items-center space-y-3.5 w-full">
+                    <div class="flex items-center justify-between w-full border-b border-slate-100 pb-2.5">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span class="font-extrabold text-xs text-slate-800 tracking-wide">WAHDAH INSPIRASI ZAKAT BABEL</span>
+                        </div>
+                        <span class="text-[10px] text-red-600 font-extrabold uppercase bg-red-50 border border-red-200 px-2 py-0.5 rounded-md">Semua Bank &amp; e-Wallet</span>
                     </div>
 
-                    <img id="qris-modal-img" src="assets/images/qris-code-wiz-babel.png" alt="Kode QRIS WIZ Bangka Belitung" class="w-64 h-64 sm:w-72 sm:h-72 object-contain rounded-xl border-2 border-emerald-500/30 shadow-md p-2 bg-white">
+                    <div class="p-2 bg-white rounded-2xl border-2 border-emerald-500/40 shadow-inner flex items-center justify-center">
+                        <img id="qris-modal-img" src="assets/images/qris-code-wiz-babel.png" alt="Kode QRIS WIZ Bangka Belitung" class="w-64 h-64 sm:w-72 sm:h-72 object-contain rounded-xl block">
+                    </div>
 
-                    <p class="text-xs text-slate-500 font-medium">Scan menggunakan BCA, Mandiri, BSI, GoPay, OVO, DANA, ShopeePay, LinkAja, atau m-Banking apapun</p>
+                    <!-- Supported Banks & e-Wallets badges (Professional Box) -->
+                    <div class="w-full bg-slate-50/80 rounded-xl p-3 border border-slate-200/80 text-center">
+                        <p class="text-xs text-slate-600 font-medium leading-relaxed">
+                            Dapat dipindai menggunakan seluruh aplikasi <strong class="text-slate-800">m-Banking</strong> &amp; <strong class="text-emerald-700">e-Wallet</strong>:
+                        </p>
+                        <div class="flex items-center justify-center gap-1.5 mt-2 flex-wrap text-[11px] font-bold text-slate-600">
+                            <span class="px-2 py-0.5 bg-white rounded-md border border-slate-200 shadow-2xs">BCA</span>
+                            <span class="px-2 py-0.5 bg-white rounded-md border border-slate-200 shadow-2xs">Mandiri</span>
+                            <span class="px-2 py-0.5 bg-white rounded-md border border-slate-200 shadow-2xs">BSI</span>
+                            <span class="px-2 py-0.5 bg-white rounded-md border border-slate-200 shadow-2xs">BRI</span>
+                            <span class="px-2 py-0.5 bg-white rounded-md border border-slate-200 shadow-2xs">GoPay</span>
+                            <span class="px-2 py-0.5 bg-white rounded-md border border-slate-200 shadow-2xs">OVO</span>
+                            <span class="px-2 py-0.5 bg-white rounded-md border border-slate-200 shadow-2xs">DANA</span>
+                            <span class="px-2 py-0.5 bg-white rounded-md border border-slate-200 shadow-2xs">ShopeePay</span>
+                            <span class="px-2 py-0.5 bg-white rounded-md border border-slate-200 shadow-2xs">LinkAja</span>
+                        </div>
+                    </div>
 
-                    <button type="button" onclick="downloadQRISImage()" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs">
+                    <button type="button" onclick="downloadQRISImage()" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 py-3 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs active:scale-[0.99]">
                         <span class="material-symbols-outlined text-lg">download</span>
                         <span>Unduh Gambar Kode QRIS</span>
                     </button>
