@@ -158,8 +158,35 @@ import MitraLayout from '../layouts/MitraLayout.astro';
                                 <span class="material-symbols-outlined text-xl">login</span>
                                 <span>Masuk ke Dashboard</span>
                             </button>
+
+                            <!-- Lupa PIN Link -->
+                            <div class="text-center pt-1">
+                                <button type="button" onclick="toggleForgotPin()" class="text-xs text-slate-400 hover:text-emerald-700 font-semibold transition-colors cursor-pointer underline underline-offset-2">
+                                    Lupa PIN? Minta reset via WhatsApp
+                                </button>
+                            </div>
                         </form>
 
+                        <!-- Lupa PIN Panel (hidden by default) -->
+                        <div id="forgot-pin-panel" class="hidden mt-4 p-5 bg-emerald-50 rounded-2xl border border-emerald-200">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="material-symbols-outlined text-emerald-700 text-xl">lock_reset</span>
+                                <h4 class="font-extrabold text-emerald-900 text-sm">Reset PIN via WhatsApp</h4>
+                            </div>
+                            <p class="text-emerald-800 text-xs leading-relaxed mb-4">Masukkan nomor WhatsApp yang terdaftar sebagai Mitra. Admin WIZ akan mengirimkan PIN baru ke nomor tersebut.</p>
+                            <div class="space-y-3">
+                                <div class="relative">
+                                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none">whatsapp</span>
+                                    <input type="tel" id="forgot-pin-phone" placeholder="Contoh: 081234567890"
+                                        class="w-full bg-white border-2 border-emerald-200 rounded-xl pl-10 pr-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400">
+                                </div>
+                                <button type="button" onclick="sendForgotPinWA()" class="w-full bg-green-600 hover:bg-green-500 text-white font-extrabold py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-sm cursor-pointer shadow-md shadow-green-600/20">
+                                    <span class="material-symbols-outlined text-lg">send</span>
+                                    <span>Kirim Permintaan Reset PIN ke Admin</span>
+                                </button>
+                                <button type="button" onclick="toggleForgotPin()" class="w-full text-xs text-slate-400 hover:text-slate-600 font-semibold py-1.5 cursor-pointer transition-colors">Batal</button>
+                            </div>
+                        </div>
 
                     </div>
 
@@ -483,14 +510,63 @@ import MitraLayout from '../layouts/MitraLayout.astro';
             if (tab === 'signin') {
                 signinView.classList.remove('hidden');
                 signupView.classList.add('hidden');
-                btnSignin.className = 'flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 bg-white text-primary shadow-sm cursor-pointer';
-                btnSignup.className = 'flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-slate-900 cursor-pointer';
+                btnSignin.className = 'flex-1 py-3 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 bg-emerald-700 text-white shadow-md cursor-pointer';
+                btnSignup.className = 'flex-1 py-3 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-slate-500 hover:text-slate-800 hover:bg-white/80 cursor-pointer';
+                // Tutup panel lupa PIN saat ganti tab
+                const panel = document.getElementById('forgot-pin-panel');
+                if (panel) panel.classList.add('hidden');
             } else {
                 signupView.classList.remove('hidden');
                 signinView.classList.add('hidden');
-                btnSignup.className = 'flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 bg-white text-[#F7941D] shadow-sm cursor-pointer';
-                btnSignin.className = 'flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-slate-900 cursor-pointer';
+                btnSignup.className = 'flex-1 py-3 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 bg-emerald-700 text-white shadow-md cursor-pointer';
+                btnSignin.className = 'flex-1 py-3 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-slate-500 hover:text-slate-800 hover:bg-white/80 cursor-pointer';
             }
+        }
+
+        function toggleForgotPin() {
+            const panel = document.getElementById('forgot-pin-panel');
+            if (!panel) return;
+            panel.classList.toggle('hidden');
+            if (!panel.classList.contains('hidden')) {
+                // Isi otomatis dari field identifier jika ada
+                const identifier = document.getElementById('login-identifier');
+                const phoneInput = document.getElementById('forgot-pin-phone');
+                if (identifier && phoneInput && identifier.value.trim()) {
+                    const val = identifier.value.trim();
+                    // Hanya isi jika berupa nomor HP (bukan kode mitra)
+                    if (/^\d/.test(val)) phoneInput.value = val;
+                }
+                const phoneInput2 = document.getElementById('forgot-pin-phone');
+                if (phoneInput2) phoneInput2.focus();
+            }
+        }
+
+        function sendForgotPinWA() {
+            const phoneInput = document.getElementById('forgot-pin-phone');
+            const phone = phoneInput ? phoneInput.value.trim() : '';
+
+            if (!phone || phone.length < 8) {
+                alert('Mohon masukkan nomor WhatsApp yang terdaftar terlebih dahulu.');
+                if (phoneInput) phoneInput.focus();
+                return;
+            }
+
+            // Format nomor: hapus leading 0, tambah 62
+            let formatted = phone.replace(/\D/g, '');
+            if (formatted.startsWith('0')) formatted = '62' + formatted.substring(1);
+            if (!formatted.startsWith('62')) formatted = '62' + formatted;
+
+            const adminWA = '6282380830808'; // Admin WIZ Babel Pangkalpinang
+            const message = encodeURIComponent(
+                'Assalamu\'alaikum Admin WIZ Babel,\n\n' +
+                'Saya lupa PIN login Portal Mitra saya.\n' +
+                '• No. WhatsApp terdaftar: *' + phone + '*\n\n' +
+                'Mohon bantuan reset PIN atau kirimkan PIN baru ke nomor saya.\n\n' +
+                'Terima kasih, Jazakallahu Khayran. 🙏'
+            );
+
+            const url = 'https://wa.me/' + adminWA + '?text=' + message;
+            window.open(url, '_blank');
         }
 
         function activateMemberState(ref) {
