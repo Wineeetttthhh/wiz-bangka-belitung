@@ -505,17 +505,24 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                             <p id="qris-modal-donor" class="text-xs text-slate-600 font-semibold">-</p>
                         </div>
 
-                        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center space-y-3">
-                            <div class="flex items-center justify-between w-full border-b border-slate-100 pb-2">
-                                <span class="font-bold text-xs text-slate-700">WAHDAH INSPIRASI ZAKAT BABEL</span>
-                                <span class="text-[10px] text-red-600 font-bold uppercase bg-red-50 px-2 py-0.5 rounded">All e-Wallet &amp; Banking</span>
+                        <div class="bg-white p-4 sm:p-5 rounded-2xl border-2 border-emerald-500/20 shadow-sm flex flex-col items-center space-y-3.5">
+                            <div class="flex items-center justify-between w-full border-b border-slate-100 pb-2.5">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    <span class="font-extrabold text-xs text-slate-800 tracking-wide">WAHDAH INSPIRASI ZAKAT BABEL</span>
+                                </div>
+                                <span class="text-[10px] text-red-600 font-extrabold uppercase bg-red-50 border border-red-200 px-2 py-0.5 rounded-md">Semua Bank &amp; e-Wallet</span>
                             </div>
 
-                            <img id="qris-modal-img" src="/assets/images/qris-code-wiz-babel.png" alt="Kode QRIS WIZ Bangka Belitung" class="w-64 h-64 sm:w-72 sm:h-72 object-contain rounded-xl border-2 border-emerald-500/30 shadow-md p-2 bg-white">
+                            <div class="p-2 bg-white rounded-2xl border-2 border-emerald-500/40 shadow-inner flex items-center justify-center">
+                                <img id="qris-modal-img" src="/assets/images/qris-code-wiz-babel.png" alt="Kode QRIS WIZ Bangka Belitung" class="w-64 h-64 sm:w-72 sm:h-72 object-contain rounded-xl">
+                            </div>
 
-                            <p class="text-xs text-slate-500 font-medium">Scan menggunakan BCA, Mandiri, BSI, GoPay, OVO, DANA, ShopeePay, LinkAja, atau m-Banking apapun</p>
+                            <p class="text-xs text-slate-500 font-medium text-center max-w-xs leading-relaxed">
+                                Scan menggunakan BCA, Mandiri, BSI, BRI, GoPay, OVO, DANA, ShopeePay, LinkAja, atau m-Banking apapun
+                            </p>
 
-                            <button type="button" onclick="downloadQRISImage()" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs">
+                            <button type="button" onclick="downloadQRISImage()" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 py-3 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs active:scale-[0.99]">
                                 <span class="material-symbols-outlined text-lg">download</span>
                                 <span>Unduh Gambar Kode QRIS</span>
                             </button>
@@ -533,9 +540,20 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                             </ol>
                         </div>
 
-                        <a id="qris-wa-btn" href="https://wa.me/6282380830808" target="_blank" onclick="confirmQRISToWhatsApp(event)" class="w-full bg-[#25D366] hover:bg-[#20ba59] text-white py-3.5 rounded-xl text-sm font-extrabold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer no-underline">
-                            <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
-                            <span id="qris-wa-btn-text">Konfirmasi Pembayaran via WhatsApp</span>
+                        <!-- Professional Elevated WhatsApp Confirmation Button -->
+                        <a id="qris-wa-btn" href="https://wa.me/6282380830808" target="_blank" onclick="confirmQRISToWhatsApp(event)" class="group w-full bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#20ba59] hover:to-[#0f7669] text-white p-4 rounded-2xl shadow-lg shadow-emerald-600/20 hover:shadow-xl hover:shadow-emerald-600/30 transition-all duration-200 flex items-center justify-between gap-3 cursor-pointer no-underline text-left border border-emerald-400/40">
+                            <div class="flex items-center gap-3.5 min-w-0">
+                                <div class="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0 border border-white/30 shadow-inner group-hover:scale-105 transition-transform">
+                                    <svg class="w-6 h-6 fill-white drop-shadow-xs" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+                                </div>
+                                <div class="leading-tight min-w-0">
+                                    <span id="qris-wa-btn-text" class="font-extrabold text-sm sm:text-base text-white block truncate">Konfirmasi Pembayaran via WhatsApp</span>
+                                    <span id="qris-wa-btn-subtext" class="text-xs text-emerald-100 font-medium block mt-0.5 opacity-90">Kirim bukti scan ke Admin Pangkalpinang</span>
+                                </div>
+                            </div>
+                            <div class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center shrink-0 group-hover:translate-x-0.5 transition-transform">
+                                <span class="material-symbols-outlined text-white text-lg">arrow_forward</span>
+                            </div>
                         </a>
                     </div>
                 </div>
@@ -586,9 +604,20 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                             </div>
                         </div>
 
-                        <a id="bank-wa-btn" href="https://wa.me/6282380830808" target="_blank" onclick="confirmBankToWhatsApp(event)" class="w-full bg-[#25D366] hover:bg-[#20ba59] text-white py-3.5 rounded-xl text-sm font-extrabold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer no-underline">
-                            <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
-                            <span id="bank-wa-btn-text">Konfirmasi Bukti Transfer via WhatsApp</span>
+                        <!-- Professional Elevated WhatsApp Confirmation Button -->
+                        <a id="bank-wa-btn" href="https://wa.me/6282380830808" target="_blank" onclick="confirmBankToWhatsApp(event)" class="group w-full bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#20ba59] hover:to-[#0f7669] text-white p-4 rounded-2xl shadow-lg shadow-emerald-600/20 hover:shadow-xl hover:shadow-emerald-600/30 transition-all duration-200 flex items-center justify-between gap-3 cursor-pointer no-underline text-left border border-emerald-400/40">
+                            <div class="flex items-center gap-3.5 min-w-0">
+                                <div class="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0 border border-white/30 shadow-inner group-hover:scale-105 transition-transform">
+                                    <svg class="w-6 h-6 fill-white drop-shadow-xs" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+                                </div>
+                                <div class="leading-tight min-w-0">
+                                    <span id="bank-wa-btn-text" class="font-extrabold text-sm sm:text-base text-white block truncate">Konfirmasi Bukti Transfer via WhatsApp</span>
+                                    <span id="bank-wa-btn-subtext" class="text-xs text-emerald-100 font-medium block mt-0.5 opacity-90">Kirim bukti struk ke Admin Pangkalpinang</span>
+                                </div>
+                            </div>
+                            <div class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center shrink-0 group-hover:translate-x-0.5 transition-transform">
+                                <span class="material-symbols-outlined text-white text-lg">arrow_forward</span>
+                            </div>
                         </a>
                     </div>
                 </div>
@@ -1028,10 +1057,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             }
             state.nominal = currentNominal;
             state.totalDonasi = currentNominal;
-
             // Direct check on radio
             const checkedMethod = document.querySelector('input[name="payment_method"]:checked');
-            if (checkedMethod) state.method = checkedMethod.value;
+            if (checkedMethod) {
+                state.method = checkedMethod.value;
+            }
 
             const checkedType = document.querySelector('input[name="donation_type"]:checked');
             if (checkedType) state.type = checkedType.value;
@@ -1040,7 +1070,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             if (checkedWilayah) state.wilayah = checkedWilayah.value;
 
             // 🚀 Open Payment Modal IMMEDIATELY
-            if (state.method === 'QRIS') {
+            const isQris = String(state.method || '').toUpperCase().includes('QRIS');
+            if (isQris) {
                 openQRISModal();
             } else {
                 openBankModal();
@@ -1058,7 +1089,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                         program: progName,
                         pillar: state.category !== '-' ? state.category : 'Berkah Peduli',
                         type: state.type,
-                        method: state.method === 'QRIS' ? 'QRIS' : 'Transfer Bank (BSI)',
+                        method: isQris ? 'QRIS' : 'Transfer Bank (BSI)',
                         wilayah: state.wilayah,
                         message: state.donorMessage,
                         referralCode: activeRef || undefined
@@ -1074,15 +1105,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         const WA_ADMIN_BRANCH_MAP = {
             'pangkalpinang': {
                 name: 'Admin Pangkalpinang',
-                city: 'Kota Pangkalpinang',
                 phone: '+62 823-8083-0808',
-                waNumber: '6282380830808'
+                waNumber: '6282380830808',
+                city: 'Kota Pangkalpinang'
             },
             'sungailiat': {
                 name: 'Admin Sungailiat',
-                city: 'Sungailiat (Kab. Bangka)',
                 phone: '+62 887-1528-889',
-                waNumber: '628871528889'
+                waNumber: '628871528889',
+                city: 'Kabupaten Bangka'
             }
         };
 
@@ -1096,42 +1127,54 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         window.getTargetWhatsAppConfig = getTargetWhatsAppConfig;
 
         function updateWhatsAppButtons() {
-            const branch = getTargetWhatsAppConfig(state.wilayah);
+            try {
+                const branch = getTargetWhatsAppConfig(state.wilayah);
 
-            // 1. QRIS Modal Info & Button
-            const qrisNotice = document.getElementById('qris-admin-target-desc');
-            const qrisTitle = document.getElementById('qris-admin-target-title');
-            const qrisBtn = document.getElementById('qris-wa-btn');
-            const qrisBtnText = document.getElementById('qris-wa-btn-text');
+                // 1. QRIS Modal Info & Button
+                const qrisNotice = document.getElementById('qris-admin-target-desc');
+                const qrisTitle = document.getElementById('qris-admin-target-title');
+                const qrisBtn = document.getElementById('qris-wa-btn');
+                const qrisBtnText = document.getElementById('qris-wa-btn-text');
+                const qrisBtnSub = document.getElementById('qris-wa-btn-subtext');
 
-            if (qrisTitle) qrisTitle.textContent = `Status: Menunggu Verifikasi ${branch.name}`;
-            if (qrisNotice) {
-                qrisNotice.innerHTML = `Donasi Anda untuk wilayah <strong>${branch.city}</strong> diarahkan konfirmasi ke <strong>${branch.name} (${branch.phone})</strong>. Silakan scan QRIS lalu klik tombol WhatsApp di bawah.`;
-            }
-            if (qrisBtn) {
-                const qrisText = generateWhatsAppMessage('QRIS (Otomatis & Instan)');
-                qrisBtn.href = `https://wa.me/${branch.waNumber}?text=${qrisText}`;
-            }
-            if (qrisBtnText) {
-                qrisBtnText.textContent = `Konfirmasi Pembayaran via WhatsApp (${branch.name})`;
-            }
+                if (qrisTitle) qrisTitle.textContent = `Status: Menunggu Verifikasi ${branch.name}`;
+                if (qrisNotice) {
+                    qrisNotice.innerHTML = `Donasi Anda untuk wilayah <strong>${branch.city}</strong> diarahkan konfirmasi ke <strong>${branch.name} (${branch.phone})</strong>. Silakan scan QRIS lalu klik tombol WhatsApp di bawah.`;
+                }
+                if (qrisBtn) {
+                    const qrisText = generateWhatsAppMessage('QRIS (Otomatis & Instan)');
+                    qrisBtn.href = `https://wa.me/${branch.waNumber}?text=${qrisText}`;
+                }
+                if (qrisBtnText) {
+                    qrisBtnText.textContent = `Konfirmasi Pembayaran via WhatsApp`;
+                }
+                if (qrisBtnSub) {
+                    qrisBtnSub.textContent = `Kirim bukti scan ke ${branch.name} (${branch.phone})`;
+                }
 
-            // 2. Bank Modal Info & Button
-            const bankNotice = document.getElementById('bank-admin-target-desc');
-            const bankTitle = document.getElementById('bank-admin-target-title');
-            const bankBtn = document.getElementById('bank-wa-btn');
-            const bankBtnText = document.getElementById('bank-wa-btn-text');
+                // 2. Bank Modal Info & Button
+                const bankNotice = document.getElementById('bank-admin-target-desc');
+                const bankTitle = document.getElementById('bank-admin-target-title');
+                const bankBtn = document.getElementById('bank-wa-btn');
+                const bankBtnText = document.getElementById('bank-wa-btn-text');
+                const bankBtnSub = document.getElementById('bank-wa-btn-subtext');
 
-            if (bankTitle) bankTitle.textContent = `Status: Menunggu Verifikasi ${branch.name}`;
-            if (bankNotice) {
-                bankNotice.innerHTML = `Donasi Anda untuk wilayah <strong>${branch.city}</strong> diarahkan konfirmasi ke <strong>${branch.name} (${branch.phone})</strong>. Silakan transfer ke rekening di bawah dan kirim bukti transfer via WhatsApp.`;
-            }
-            if (bankBtn) {
-                const bankText = generateWhatsAppMessage('Transfer Bank Manual');
-                bankBtn.href = `https://wa.me/${branch.waNumber}?text=${bankText}`;
-            }
-            if (bankBtnText) {
-                bankBtnText.textContent = `Konfirmasi Bukti Transfer via WhatsApp (${branch.name})`;
+                if (bankTitle) bankTitle.textContent = `Status: Menunggu Verifikasi ${branch.name}`;
+                if (bankNotice) {
+                    bankNotice.innerHTML = `Donasi Anda untuk wilayah <strong>${branch.city}</strong> diarahkan konfirmasi ke <strong>${branch.name} (${branch.phone})</strong>. Silakan transfer ke rekening di bawah dan kirim bukti transfer via WhatsApp.`;
+                }
+                if (bankBtn) {
+                    const bankText = generateWhatsAppMessage('Transfer Bank Manual');
+                    bankBtn.href = `https://wa.me/${branch.waNumber}?text=${bankText}`;
+                }
+                if (bankBtnText) {
+                    bankBtnText.textContent = `Konfirmasi Bukti Transfer via WhatsApp`;
+                }
+                if (bankBtnSub) {
+                    bankBtnSub.textContent = `Kirim bukti transfer ke ${branch.name} (${branch.phone})`;
+                }
+            } catch (err) {
+                console.error('Error updating WhatsApp buttons:', err);
             }
         }
         window.updateWhatsAppButtons = updateWhatsAppButtons;

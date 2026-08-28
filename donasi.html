@@ -744,9 +744,20 @@
                     </ol>
                 </div>
 
-                <a id="qris-wa-btn" href="https://wa.me/6282380830808" target="_blank" onclick="confirmQRISToWhatsApp(event)" class="w-full bg-[#25D366] hover:bg-[#20ba59] text-white py-3.5 rounded-xl text-sm font-extrabold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer no-underline">
-                    <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
-                    <span id="qris-wa-btn-text">Konfirmasi Pembayaran via WhatsApp</span>
+                <!-- Professional Elevated WhatsApp Confirmation Button -->
+                <a id="qris-wa-btn" href="https://wa.me/6282380830808" target="_blank" onclick="confirmQRISToWhatsApp(event)" class="group w-full bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#20ba59] hover:to-[#0f7669] text-white p-4 rounded-2xl shadow-lg shadow-emerald-600/20 hover:shadow-xl hover:shadow-emerald-600/30 transition-all duration-200 flex items-center justify-between gap-3 cursor-pointer no-underline text-left border border-emerald-400/40">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <div class="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0 border border-white/30 shadow-inner group-hover:scale-105 transition-transform">
+                            <svg class="w-6 h-6 fill-white drop-shadow-xs" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+                        </div>
+                        <div class="leading-tight min-w-0">
+                            <span id="qris-wa-btn-text" class="font-extrabold text-sm sm:text-base text-white block truncate">Konfirmasi Pembayaran via WhatsApp</span>
+                            <span id="qris-wa-btn-subtext" class="text-xs text-emerald-100 font-medium block mt-0.5 opacity-90">Kirim bukti scan ke Admin Pangkalpinang</span>
+                        </div>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center shrink-0 group-hover:translate-x-0.5 transition-transform">
+                        <span class="material-symbols-outlined text-white text-lg">arrow_forward</span>
+                    </div>
                 </a>
             </div>
         </div>
@@ -797,9 +808,20 @@
                     </div>
                 </div>
 
-                <a id="bank-wa-btn" href="https://wa.me/6282380830808" target="_blank" onclick="confirmBankToWhatsApp(event)" class="w-full bg-[#25D366] hover:bg-[#20ba59] text-white py-3.5 rounded-xl text-sm font-extrabold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer no-underline">
-                    <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
-                    <span id="bank-wa-btn-text">Konfirmasi Bukti Transfer via WhatsApp</span>
+                <!-- Professional Elevated WhatsApp Confirmation Button -->
+                <a id="bank-wa-btn" href="https://wa.me/6282380830808" target="_blank" onclick="confirmBankToWhatsApp(event)" class="group w-full bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#20ba59] hover:to-[#0f7669] text-white p-4 rounded-2xl shadow-lg shadow-emerald-600/20 hover:shadow-xl hover:shadow-emerald-600/30 transition-all duration-200 flex items-center justify-between gap-3 cursor-pointer no-underline text-left border border-emerald-400/40">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <div class="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0 border border-white/30 shadow-inner group-hover:scale-105 transition-transform">
+                            <svg class="w-6 h-6 fill-white drop-shadow-xs" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+                        </div>
+                        <div class="leading-tight min-w-0">
+                            <span id="bank-wa-btn-text" class="font-extrabold text-sm sm:text-base text-white block truncate">Konfirmasi Bukti Transfer via WhatsApp</span>
+                            <span id="bank-wa-btn-subtext" class="text-xs text-emerald-100 font-medium block mt-0.5 opacity-90">Kirim bukti struk ke Admin Pangkalpinang</span>
+                        </div>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center shrink-0 group-hover:translate-x-0.5 transition-transform">
+                        <span class="material-symbols-outlined text-white text-lg">arrow_forward</span>
+                    </div>
                 </a>
             </div>
         </div>
@@ -1626,42 +1648,58 @@
 
         // Sinkronkan Tombol WhatsApp & Teks Dinamis Berdasarkan Lokasi / Cabang
         function updateWhatsAppButtons() {
-            const branch = getTargetWhatsAppConfig(state.wilayah);
+            try {
+                const branch = getTargetWhatsAppConfig(state.wilayah);
 
-            // 1. QRIS Button & Info Notice
-            const qrisMsg = generateWhatsAppDonationMessage('QRIS');
-            const qrisUrl = `https://wa.me/${branch.waNumber}?text=${qrisMsg}`;
-            const qrisBtn = document.getElementById('qris-wa-btn');
-            const qrisBtnText = document.getElementById('qris-wa-btn-text');
-            const qrisNotice = document.getElementById('qris-admin-target-desc');
+                // 1. QRIS Button & Info Notice
+                const qrisMsg = generateWhatsAppDonationMessage('QRIS');
+                const qrisUrl = `https://wa.me/${branch.waNumber}?text=${qrisMsg}`;
+                const qrisBtn = document.getElementById('qris-wa-btn');
+                const qrisBtnText = document.getElementById('qris-wa-btn-text');
+                const qrisBtnSub = document.getElementById('qris-wa-btn-subtext');
+                const qrisNotice = document.getElementById('qris-admin-target-desc');
+                const qrisTitle = document.getElementById('qris-admin-target-title');
 
-            if (qrisBtn) {
-                qrisBtn.href = qrisUrl;
-                qrisBtn.setAttribute('data-target-phone', branch.waNumber);
-            }
-            if (qrisBtnText) {
-                qrisBtnText.textContent = `Konfirmasi Pembayaran via WhatsApp (${branch.name})`;
-            }
-            if (qrisNotice) {
-                qrisNotice.innerHTML = `Donasi Anda untuk wilayah <strong>${branch.city}</strong> otomatis diarahkan konfirmasi ke <strong>${branch.name} (${branch.phone})</strong>.`;
-            }
+                if (qrisTitle) qrisTitle.textContent = `Status: Menunggu Verifikasi ${branch.name}`;
+                if (qrisBtn) {
+                    qrisBtn.href = qrisUrl;
+                    qrisBtn.setAttribute('data-target-phone', branch.waNumber);
+                }
+                if (qrisBtnText) {
+                    qrisBtnText.textContent = `Konfirmasi Pembayaran via WhatsApp`;
+                }
+                if (qrisBtnSub) {
+                    qrisBtnSub.textContent = `Kirim bukti scan ke ${branch.name} (${branch.phone})`;
+                }
+                if (qrisNotice) {
+                    qrisNotice.innerHTML = `Donasi Anda untuk wilayah <strong>${branch.city}</strong> otomatis diarahkan konfirmasi ke <strong>${branch.name} (${branch.phone})</strong>.`;
+                }
 
-            // 2. Bank Transfer Button & Info Notice
-            const bankMsg = generateWhatsAppDonationMessage('Bank');
-            const bankUrl = `https://wa.me/${branch.waNumber}?text=${bankMsg}`;
-            const bankBtn = document.getElementById('bank-wa-btn');
-            const bankBtnText = document.getElementById('bank-wa-btn-text');
-            const bankNotice = document.getElementById('bank-admin-target-desc');
+                // 2. Bank Transfer Button & Info Notice
+                const bankMsg = generateWhatsAppDonationMessage('Bank');
+                const bankUrl = `https://wa.me/${branch.waNumber}?text=${bankMsg}`;
+                const bankBtn = document.getElementById('bank-wa-btn');
+                const bankBtnText = document.getElementById('bank-wa-btn-text');
+                const bankBtnSub = document.getElementById('bank-wa-btn-subtext');
+                const bankNotice = document.getElementById('bank-admin-target-desc');
+                const bankTitle = document.getElementById('bank-admin-target-title');
 
-            if (bankBtn) {
-                bankBtn.href = bankUrl;
-                bankBtn.setAttribute('data-target-phone', branch.waNumber);
-            }
-            if (bankBtnText) {
-                bankBtnText.textContent = `Konfirmasi Bukti Transfer via WhatsApp (${branch.name})`;
-            }
-            if (bankNotice) {
-                bankNotice.innerHTML = `Donasi Anda untuk wilayah <strong>${branch.city}</strong> otomatis diarahkan konfirmasi ke <strong>${branch.name} (${branch.phone})</strong>.`;
+                if (bankTitle) bankTitle.textContent = `Status: Menunggu Verifikasi ${branch.name}`;
+                if (bankBtn) {
+                    bankBtn.href = bankUrl;
+                    bankBtn.setAttribute('data-target-phone', branch.waNumber);
+                }
+                if (bankBtnText) {
+                    bankBtnText.textContent = `Konfirmasi Bukti Transfer via WhatsApp`;
+                }
+                if (bankBtnSub) {
+                    bankBtnSub.textContent = `Kirim bukti transfer ke ${branch.name} (${branch.phone})`;
+                }
+                if (bankNotice) {
+                    bankNotice.innerHTML = `Donasi Anda untuk wilayah <strong>${branch.city}</strong> otomatis diarahkan konfirmasi ke <strong>${branch.name} (${branch.phone})</strong>.`;
+                }
+            } catch(e) {
+                console.error('Error in updateWhatsAppButtons:', e);
             }
         }
 
