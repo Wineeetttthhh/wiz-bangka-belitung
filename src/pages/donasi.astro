@@ -1009,13 +1009,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             updateSummary();
         }
 
-        function setPayment(method) {
-            state.method = method;
-            updateRadioVisuals();
-            updateSummary();
-        }
-        window.setPayment = setPayment;
-
         function updateSummary() {
             const sumType = document.getElementById('summary-type');
             const sumCat = document.getElementById('summary-cat');
