@@ -1515,6 +1515,40 @@ window.openQRISModal = function() {
             imgEl.src = '/assets/images/qris-code-wiz-babel.png';
             imgEl.style.display = 'block';
         }
+
+        // Extract active nominal
+        let nominal = 0;
+        if (window.donationState && window.donationState.nominal) {
+            nominal = Number(window.donationState.nominal) || 0;
+        }
+        if (nominal <= 0) {
+            const customEl = document.getElementById('custom_nominal');
+            if (customEl && Number(customEl.value) >= 1000) {
+                nominal = Number(customEl.value);
+            }
+        }
+        if (nominal <= 0) {
+            const sumTotalEl = document.getElementById('summary-total');
+            if (sumTotalEl) {
+                const rawText = sumTotalEl.textContent.replace(/[^0-9]/g, '');
+                if (Number(rawText) >= 1000) nominal = Number(rawText);
+            }
+        }
+        if (nominal <= 0) nominal = 25000;
+
+        const totalEl = document.getElementById('qris-modal-total');
+        if (totalEl) {
+            totalEl.textContent = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(nominal);
+        }
+
+        const donorEl = document.getElementById('qris-modal-donor');
+        if (donorEl) {
+            const s = window.donationState || {};
+            const dName = s.donorName || (document.getElementById('donor-name')?.value?.trim()) || 'Hamba Allah';
+            const prog = (s.isProgramLocked || (s.type === 'Infak Terikat' && s.program !== '-')) ? s.program : (s.type || 'Infak Umum');
+            donorEl.textContent = `Donatur: ${dName} (${prog})`;
+        }
+
         if (typeof updateWhatsAppButtons === 'function') {
             try { updateWhatsAppButtons(); } catch(e) {}
         }
