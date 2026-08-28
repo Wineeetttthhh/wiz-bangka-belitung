@@ -28,31 +28,37 @@ import MitraLayout from '../layouts/MitraLayout.astro';
         <!-- ======================================================== -->
         <!-- STATE 1: GUEST AUTH VIEW (Login / Register Form)         -->
         <!-- ======================================================== -->
-        <div id="auth-state-container" class="w-full">
+        <div id="auth-state-container" class="w-full flex justify-center py-2 sm:py-4">
 
-            <!-- Clean Centered Auth Form Box -->
-            <div class="w-full max-w-xl mx-auto bg-white rounded-2xl sm:rounded-3xl shadow-xl overflow-hidden border border-slate-200 p-5 sm:p-8 flex flex-col">
-
-                    <!-- Tab Switcher -->
-                    <div class="flex bg-slate-100 p-1.5 rounded-2xl gap-1.5 mb-8">
-                        <button type="button" id="btn-auth-signin" onclick="toggleAuthTab('signin')"
-                            class="flex-1 py-3 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 bg-emerald-700 text-white shadow-md cursor-pointer">
-                            <span class="material-symbols-outlined text-base">login</span>
-                            <span>Masuk</span>
-                        </button>
-                        <button type="button" id="btn-auth-signup" onclick="toggleAuthTab('signup')"
-                            class="flex-1 py-3 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-slate-500 hover:text-slate-800 hover:bg-white/80 cursor-pointer">
-                            <span class="material-symbols-outlined text-base">person_add</span>
-                            <span>Daftar Mitra</span>
-                        </button>
+            <!-- Premium Professional Auth Form Box -->
+            <div class="w-full bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-slate-200/80 p-5 sm:p-8" style="width: 100% !important; max-width: 520px !important; margin: 0 auto !important; box-sizing: border-box !important;">
+                
+                <!-- Card Header -->
+                <div class="text-center mb-6 space-y-2">
+                    <div class="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3.5 py-1 rounded-full text-xs font-bold text-emerald-800">
+                        <span class="material-symbols-outlined text-sm">handshake</span>
+                        <span>Portal Resmi Mitra WIZ Babel</span>
                     </div>
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">Kemitraan Penghimpunan Kebaikan</h2>
+                    <p class="text-slate-500 text-xs sm:text-sm">Silakan masuk atau mendaftar akun baru untuk memantau insentif &amp; link donasi.</p>
+                </div>
 
-                    <!-- Tab 1: Login Form -->
-                    <div id="auth-signin-view" class="flex-1 flex flex-col">
-                        <div class="mb-7">
-                            <h3 class="text-2xl font-extrabold text-slate-900">Masuk ke Portal Mitra</h3>
-                            <p class="text-slate-500 text-sm mt-1.5">Gunakan No. WhatsApp atau Kode Mitra beserta PIN Anda.</p>
-                        </div>
+                <!-- Tab Switcher -->
+                <div class="flex bg-slate-100 p-1.5 rounded-2xl gap-1.5 mb-6">
+                    <button type="button" id="btn-auth-signin" onclick="toggleAuthTab('signin')"
+                        class="flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 bg-emerald-700 text-white shadow-md cursor-pointer">
+                        <span class="material-symbols-outlined text-base">login</span>
+                        <span>Masuk Mitra</span>
+                    </button>
+                    <button type="button" id="btn-auth-signup" onclick="toggleAuthTab('signup')"
+                        class="flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-slate-500 hover:text-slate-800 hover:bg-white/80 cursor-pointer">
+                        <span class="material-symbols-outlined text-base">person_add</span>
+                        <span>Daftar Baru</span>
+                    </button>
+                </div>
+
+                <!-- Tab 1: Login Form -->
+                <div id="auth-signin-view" class="w-full space-y-4">
 
                         <form id="affiliate-login-form" onsubmit="handleAffiliateLogin(event)" class="space-y-4 flex-1">
                             <div>
