@@ -487,6 +487,27 @@ export default async function handler(req, res) {
                 });
             }
 
+            if (body && body.action === 'clear_all_news') {
+                // 1. Delete all from Supabase news table
+                await fetch(`${SUPABASE_URL}/news`, {
+                    method: 'DELETE',
+                    headers: supabaseHeaders
+                }).catch(e => console.error('[Micro-Action clear_all_news Error]', e));
+
+                // 2. Clear master news state
+                master.news = [];
+                master.updatedAt = new Date().toISOString();
+                supabaseSaveMaster(master).catch(() => {});
+
+                // 3. Invalidate caches
+                invalidateCache();
+
+                return res.status(200).json({
+                    status: 'success',
+                    action: 'clear_all_news'
+                });
+            }
+
             if (body && (body.action === 'save_quote' || body.action === 'add_quote' || body.action === 'update_quote') && body.quote) {
                 const incomingQuote = body.quote;
                 const quoteId = String(incomingQuote.id || '');
@@ -579,7 +600,9 @@ export default async function handler(req, res) {
             if (deletedQuoteIds.length > 0 && Array.isArray(master.quotes)) {
                 master.quotes = master.quotes.filter(q => q && q.id && !deletedQuoteIds.includes(String(q.id)));
             }
-            // Supabase news table is authoritative; do not filter out live published news by stale client arrays
+            if (deletedNewsIds.length > 0 && Array.isArray(master.news)) {
+                master.news = master.news.filter(n => n && n.id && !deletedNewsIds.includes(String(n.id)));
+            }
             if (deletedProgramIds.length > 0 && Array.isArray(master.programs)) {
                 master.programs = master.programs.filter(p => p && p.id && !deletedProgramIds.includes(String(p.id)));
             }

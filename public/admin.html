@@ -884,6 +884,10 @@
                     <p class="font-caption text-caption text-on-surface-variant">Tulis artikel, laporan penyaluran, dan upload foto dokumentasi kegiatan. Berita <strong>Published</strong> otomatis tayang realtime di Website Utama.</p>
                 </div>
                 <div class="flex items-center gap-sm shrink-0 w-full sm:w-auto flex-wrap">
+                    <button id="btn-clear-all-news" type="button" onclick="handleClearAllNews()" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 px-md py-sm rounded-xl font-label-md text-label-md font-bold transition-all shadow-xs cursor-pointer" title="Hapus dan bersihkan semua berita lama untuk menulis ulang dari awal">
+                        <span class="material-symbols-outlined text-sm">delete_sweep</span>
+                        <span>Bersihkan Semua Berita</span>
+                    </button>
                     <button id="btn-pull-news-cloud" type="button" onclick="handlePullNewsCloud()" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 border border-outline-variant bg-surface text-on-surface hover:text-primary px-md py-sm rounded-xl font-label-md text-label-md font-bold transition-all shadow-xs cursor-pointer hover:bg-surface-container-low" title="Ambil data berita terbaru langsung dari Supabase">
                         <span class="material-symbols-outlined text-sm">cloud_download</span>
                         <span>Tarik Data Supabase</span>
@@ -4217,37 +4221,11 @@
         // ─── News & Dokumentasi Handlers ───────────────────
         let activeNewsGallery = [];
 
-        let isFetchingNewsFallback = false;
         function renderNewsList() {
             if (!wizStore || !wizStore.news) return;
             const allNews = wizStore.news.getAll();
             const container = document.getElementById('news-list');
             if (!container) return;
-
-            // Auto fallback fetch if empty on first view
-            if (allNews.length === 0 && !isFetchingNewsFallback && window.wizSupabase && window.wizSupabase.isConfigured()) {
-                isFetchingNewsFallback = true;
-                window.wizSupabase.select('news').then(res => {
-                    isFetchingNewsFallback = false;
-                    if (res && Array.isArray(res.data) && res.data.length > 0) {
-                        const mapped = res.data.map(n => ({
-                            id: n.id,
-                            title: n.title,
-                            category: n.category || 'Kegiatan & Penyaluran',
-                            content: n.content,
-                            imageUrl: n.image_url || n.imageUrl || '',
-                            gallery: Array.isArray(n.gallery) ? n.gallery : [],
-                            eventDate: n.event_date || n.eventDate || n.created_at,
-                            status: n.status || 'published',
-                            author: n.author || 'Admin WIZ Babel',
-                            createdAt: n.created_at,
-                            updatedAt: n.updated_at
-                        }));
-                        localStorage.setItem('wiz_news', JSON.stringify(mapped));
-                        renderNewsList();
-                    }
-                }).catch(() => { isFetchingNewsFallback = false; });
-            }
 
             // Update stats badges
             const totalCount = allNews.length;
@@ -4937,8 +4915,33 @@
         async function deleteNews(id) {
             if (!confirm('Apakah Anda yakin ingin menghapus berita ini? Tindakan ini tidak dapat dibatalkan.')) return;
             await wizStore.news.delete(id);
+            renderNewsList();
             refreshAll();
             alert('✅ Berita berhasil dihapus.');
+        }
+
+        async function handleClearAllNews() {
+            if (!confirm('⚠️ PERINGATAN:\n\nApakah Anda yakin ingin MENGHAPUS SEMUA BERITA untuk menulis ulang dari awal?\n\nSeluruh berita di website dan cloud database akan dibersihkan.')) return;
+            const btn = document.getElementById('btn-clear-all-news');
+            let origHtml = '';
+            if (btn) {
+                origHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">refresh</span> Membersihkan...';
+            }
+            try {
+                await wizStore.news.clearAll();
+                renderNewsList();
+                refreshAll();
+                alert('✅ Seluruh berita telah berhasil dibersihkan! Anda sekarang dapat menulis berita baru.');
+            } catch(e) {
+                alert('⚠️ Gagal membersihkan berita: ' + e.message);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = origHtml;
+                }
+            }
         }
 
         function renderDisbursementTable() {
@@ -8248,27 +8251,6 @@
                 }
             } else if (section === 'news') {
                 try { if (typeof renderNewsList === 'function') renderNewsList(); } catch(e) { console.error(e); }
-                if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                    window.wizSupabase.select('news').then(res => {
-                        if (res && Array.isArray(res.data) && res.data.length > 0) {
-                            const mapped = res.data.map(n => ({
-                                id: n.id,
-                                title: n.title,
-                                category: n.category || 'Kegiatan & Penyaluran',
-                                content: n.content,
-                                imageUrl: n.image_url || n.imageUrl || '',
-                                gallery: Array.isArray(n.gallery) ? n.gallery : [],
-                                eventDate: n.event_date || n.eventDate || n.created_at,
-                                status: n.status || 'published',
-                                author: n.author || 'Admin WIZ Babel',
-                                createdAt: n.created_at,
-                                updatedAt: n.updated_at
-                            }));
-                            localStorage.setItem('wiz_news', JSON.stringify(mapped));
-                            if (typeof renderNewsList === 'function') renderNewsList();
-                        }
-                    }).catch(() => {});
-                }
             } else if (section === 'programs' || section === 'programs-cms') {
                 try { if (typeof renderProgramsCMSSection === 'function') renderProgramsCMSSection(); } catch(e) { console.error(e); }
             } else if (section === 'quotes') {
