@@ -190,8 +190,19 @@
                         m.style.display = 'flex';
                         m.style.visibility = 'visible';
                         m.style.pointerEvents = 'auto';
+
+                        // SECURITY: Always clear login form fields on display
+                        setTimeout(function() {
+                            const u = document.getElementById('login-username');
+                            const p = document.getElementById('login-password');
+                            if (u) { u.value = ''; u.setAttribute('value', ''); }
+                            if (p) { p.value = ''; p.setAttribute('value', ''); }
+                        }, 50);
                     }
                 }
+
+                // SECURITY: Always remove stale localStorage auth tokens
+                localStorage.removeItem('wiz_admin_authenticated');
             });
         })();
     </script>
@@ -221,7 +232,7 @@
             </div>
             
             <!-- Login Form -->
-            <form id="admin-login-form" onsubmit="handleAdminLogin(event); return false;" class="p-lg space-y-md">
+            <form id="admin-login-form" onsubmit="handleAdminLogin(event); return false;" class="p-lg space-y-md" autocomplete="off">
                 <div id="login-error-alert" class="hidden bg-error-container text-on-error-container p-md rounded-xl font-caption text-caption font-semibold flex items-start gap-xs">
                     <span class="material-symbols-outlined text-sm shrink-0">error</span>
                     <span id="login-error-text">Username atau Password salah!</span>
@@ -232,7 +243,7 @@
                     <div class="relative flex items-center">
                         <span class="material-symbols-outlined absolute left-3 text-outline text-sm">person</span>
                         <input type="text" id="login-username" required placeholder="Masukkan username admin" value=""
-                            autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="username"
+                            autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off"
                             class="w-full pl-10 pr-md py-sm bg-surface-container-low border border-outline-variant/60 rounded-xl font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
                     </div>
                 </div>
@@ -247,7 +258,7 @@
                     <div class="relative flex items-center">
                         <span class="material-symbols-outlined absolute left-3 text-outline text-sm">key</span>
                         <input type="password" id="login-password" required placeholder="Masukkan password" value=""
-                            autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="current-password"
+                            autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="new-password"
                             class="w-full pl-10 pr-10 py-sm bg-surface-container-low border border-outline-variant/60 rounded-xl font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
                         <button type="button" onclick="togglePasswordVisibility('login-password', this)" class="absolute right-3 text-outline hover:text-primary transition-colors cursor-pointer" title="Tampilkan/Sembunyikan password">
                             <span class="material-symbols-outlined text-sm">visibility</span>
@@ -8309,7 +8320,9 @@
 
         function checkAdminAuth() {
             const auth = getAdminAuthInfo();
-            const isAuth = sessionStorage.getItem('wiz_admin_authenticated') === 'true' || localStorage.getItem('wiz_admin_authenticated') === 'true';
+            // SECURITY: ONLY use sessionStorage — never localStorage for auth (expires when tab closes)
+            localStorage.removeItem('wiz_admin_authenticated');
+            const isAuth = sessionStorage.getItem('wiz_admin_authenticated') === 'true';
             const savedName = sessionStorage.getItem('wiz_admin_name') || localStorage.getItem('wiz_admin_name');
             if (savedName) ADMIN_NAME = savedName;
             
