@@ -2,48 +2,7 @@
   "version": 2,
   "cleanUrls": true,
   "trailingSlash": false,
-  "redirects": [
-    {
-      "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "(?<subdomain>.*)\\.vercel\\.app"
-        }
-      ],
-      "destination": "https://www.wizbangkabelitung.or.id/$1",
-      "permanent": true
-    },
-    {
-      "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "wizbangkabelitung.or.id"
-        }
-      ],
-      "destination": "https://www.wizbangkabelitung.or.id/$1",
-      "permanent": true
-    }
-  ],
   "headers": [
-    {
-      "source": "/(api/og-image|berita-image/.*|program-image/.*|flyer-image/.*|quote-image/.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=86400, s-maxage=86400"
-        },
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Content-Type",
-          "value": "image/jpeg"
-        }
-      ]
-    },
     {
       "source": "/(.*)",
       "headers": [
@@ -62,167 +21,34 @@
         {
           "key": "X-XSS-Protection",
           "value": "1; mode=block"
-        }
-      ]
-    },
-    {
-      "source": "/(.*)\\.html",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
-        }
-      ]
-    },
-    {
-      "source": "/assets/js/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
-        }
-      ]
-    },
-    {
-      "source": "/admin(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
-        }
-      ]
-    },
-    {
-      "source": "/api/(berita|quote|program|sync)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
-        }
-      ]
-    },
-    {
-      "source": "/assets/images/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=3600, s-maxage=3600"
         },
         {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
         }
       ]
     }
   ],
   "rewrites": [
     {
-      "source": "/api/og-image",
-      "destination": "/api/og-image"
+      "source": "/admin(.*)",
+      "destination": "/admin.html"
     },
     {
-      "source": "/flyer-image/:id.jpg",
-      "destination": "/api/quote?id=:id&img=1"
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
     },
     {
-      "source": "/flyer-image/:id.png",
-      "destination": "/api/quote?id=:id&img=1"
+      "source": "/assets/(.*)",
+      "destination": "/assets/$1"
     },
     {
-      "source": "/flyer-image/:id.webp",
-      "destination": "/api/quote?id=:id&img=1"
+      "source": "/robots.txt",
+      "destination": "/robots.txt"
     },
     {
-      "source": "/flyer-image/:id",
-      "destination": "/api/quote?id=:id&img=1"
-    },
-    {
-      "source": "/flyer-img/:id.jpg",
-      "destination": "/api/quote?id=:id&img=1"
-    },
-    {
-      "source": "/flyer-img/:id.png",
-      "destination": "/api/quote?id=:id&img=1"
-    },
-    {
-      "source": "/flyer-img/:id",
-      "destination": "/api/quote?id=:id&img=1"
-    },
-    {
-      "source": "/quote-image/:id.jpg",
-      "destination": "/api/quote?id=:id&img=1"
-    },
-    {
-      "source": "/quote-image/:id.png",
-      "destination": "/api/quote?id=:id&img=1"
-    },
-    {
-      "source": "/quote-image/:id.webp",
-      "destination": "/api/quote?id=:id&img=1"
-    },
-    {
-      "source": "/quote-image/:id",
-      "destination": "/api/quote?id=:id&img=1"
-    },
-    {
-      "source": "/quote-img/:id.jpg",
-      "destination": "/api/quote?id=:id&img=1"
-    },
-    {
-      "source": "/quote-img/:id.png",
-      "destination": "/api/quote?id=:id&img=1"
-    },
-    {
-      "source": "/quote-img/:id",
-      "destination": "/api/quote?id=:id&img=1"
-    },
-    {
-      "source": "/berita-image/:id.jpg",
-      "destination": "/api/og-image?type=news&id=:id"
-    },
-    {
-      "source": "/berita-image/:id",
-      "destination": "/api/og-image?type=news&id=:id"
-    },
-    {
-      "source": "/program-image/:slug.jpg",
-      "destination": "/api/program?slug=:slug&img=1"
-    },
-    {
-      "source": "/program-image/:slug",
-      "destination": "/api/program?slug=:slug&img=1"
-    },
-    {
-      "source": "/program/:slug",
-      "destination": "/api/program?slug=:slug"
-    },
-    {
-      "source": "/program",
-      "destination": "/api/program"
-    },
-    {
-      "source": "/flyer/:id",
-      "destination": "/api/quote?id=:id"
-    },
-    {
-      "source": "/flyer",
-      "destination": "/api/quote"
-    },
-    {
-      "source": "/quote/:id",
-      "destination": "/api/quote?id=:id"
-    },
-    {
-      "source": "/quote",
-      "destination": "/api/quote"
-    },
-    {
-      "source": "/berita/:id",
-      "destination": "/api/berita?id=:id"
-    },
-    {
-      "source": "/berita",
-      "destination": "/berita.html"
+      "source": "/(.*)",
+      "destination": "/maintenance.html"
     }
   ]
 }
