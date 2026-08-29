@@ -145,6 +145,29 @@
             fullName: 'Super Admin 1 (WIZ Babel)',
             phone: '08123456789',
             role: 'super_admin',
+            wilayah: 'Semua Wilayah',
+            status: 'approved',
+            createdAt: new Date().toISOString()
+        },
+        {
+            id: 'admin-pkp',
+            username: 'admin_pkp',
+            password: 'pkp12345',
+            fullName: 'Admin Amil Pangkalpinang',
+            phone: '081234567801',
+            role: 'amil',
+            wilayah: 'Pangkalpinang',
+            status: 'approved',
+            createdAt: new Date().toISOString()
+        },
+        {
+            id: 'admin-sgl',
+            username: 'admin_sungailiat',
+            password: 'sgl12345',
+            fullName: 'Admin Amil Sungailiat',
+            phone: '081234567802',
+            role: 'amil',
+            wilayah: 'Sungailiat',
             status: 'approved',
             createdAt: new Date().toISOString()
         }

@@ -3992,41 +3992,77 @@
         }
 
         async function handleManualDonationSave(e) {
-            e.preventDefault();
-            const editId = document.getElementById('man-edit-id').value;
-            const type = document.getElementById('man-type').value;
-
-            const refId = document.getElementById('man-referral-id') ? document.getElementById('man-referral-id').value : '';
-            const refRate = document.getElementById('man-referral-rate') ? Number(document.getElementById('man-referral-rate').value) : 6;
-            const addBonus = document.getElementById('man-additional-bonus') ? Number(document.getElementById('man-additional-bonus').value) : 0;
-            const amount = Number(document.getElementById('man-amount').value);
-            const refFee = refId ? Math.round(amount * (refRate / 100)) : 0;
-
-            const data = {
-                donorName: document.getElementById('man-donor-name').value,
-                donorPhone: document.getElementById('man-donor-phone').value,
-                wilayah: document.getElementById('man-wilayah').value,
-                type,
-                programUtama: type === 'Infak Terikat' ? document.getElementById('man-program-utama').value : '-',
-                programSpesifik: type === 'Infak Terikat' ? document.getElementById('man-program-spesifik').value : '-',
-                amount,
-                method: document.getElementById('man-method').value,
-                status: document.querySelector('input[name="man-status"]:checked').value,
-                notes: document.getElementById('man-notes').value,
-                referralId: refId || null,
-                referralRate: refRate,
-                referralFee: refFee,
-                additionalBonus: addBonus,
-                verifiedBy: ADMIN_NAME
-            };
-
-            if (editId) {
-                await wizStore.donations.update(editId, data);
-            } else {
-                await wizStore.donations.add(data);
+            if (e) e.preventDefault();
+            const submitBtn = document.getElementById('btn-manual-donation-submit');
+            const origHtml = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span> Menyimpan...';
             }
-            closeManualDonationModal();
-            refreshAll();
+
+            try {
+                const editId = document.getElementById('man-edit-id')?.value || '';
+                const type = document.getElementById('man-type')?.value || 'Infak Umum';
+
+                const refId = document.getElementById('man-referral-id') ? document.getElementById('man-referral-id').value : '';
+                const refRate = document.getElementById('man-referral-rate') ? Number(document.getElementById('man-referral-rate').value) : 6;
+                const addBonus = document.getElementById('man-additional-bonus') ? Number(document.getElementById('man-additional-bonus').value) : 0;
+                const amount = Number(document.getElementById('man-amount')?.value) || 0;
+                if (amount <= 0) {
+                    alert('Nominal donasi harus lebih besar dari 0!');
+                    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = origHtml; }
+                    document.getElementById('man-amount')?.focus();
+                    return;
+                }
+                const refFee = refId ? Math.round(amount * (refRate / 100)) : 0;
+
+                const auth = getAdminAuthInfo();
+                let wilayah = document.getElementById('man-wilayah')?.value || 'Pangkalpinang';
+                if (!auth.isSuperAdmin && auth.assignedWilayah !== 'Semua') {
+                    wilayah = auth.assignedWilayah; // Strict Branch Admin Scoping
+                }
+
+                const donorName = (document.getElementById('man-donor-name')?.value || '').trim() || 'Hamba Allah';
+                const donorPhone = (document.getElementById('man-donor-phone')?.value || '').trim();
+                const progUtama = type === 'Infak Terikat' ? (document.getElementById('man-program-utama')?.value || '-') : '-';
+                const progSpesifik = type === 'Infak Terikat' ? (document.getElementById('man-program-spesifik')?.value || '-') : '-';
+
+                const data = {
+                    donorName,
+                    donorPhone,
+                    wilayah,
+                    type,
+                    programUtama: progUtama,
+                    programSpesifik: progSpesifik,
+                    amount,
+                    method: document.getElementById('man-method')?.value || 'Transfer Bank',
+                    status: document.querySelector('input[name="man-status"]:checked')?.value || 'verified',
+                    notes: document.getElementById('man-notes')?.value || '-',
+                    referralId: refId || null,
+                    referralRate: refRate,
+                    referralFee: refFee,
+                    additionalBonus: addBonus,
+                    verifiedBy: sessionStorage.getItem('wiz_admin_name') || ADMIN_NAME || 'Admin'
+                };
+
+                if (editId) {
+                    await wizStore.donations.update(editId, data);
+                } else {
+                    await wizStore.donations.add(data);
+                }
+                closeManualDonationModal();
+                refreshAll();
+                try { renderFullDonationTable(); } catch(e) {}
+                alert(`✅ Donasi ${wizStore.utils.formatRupiah(amount)} [${wilayah}] berhasil disimpan!`);
+            } catch (err) {
+                console.error('[Manual Donation Error]', err);
+                alert('Gagal menyimpan data donasi: ' + err.message);
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = origHtml;
+                }
+            }
         }
 
         async function verifyDonation(id) {
@@ -5391,8 +5427,8 @@
         }
 
         async function handleDisbursementSave(e) {
-            e.preventDefault();
-            const editId = document.getElementById('disb-edit-id').value;
+            if (e) e.preventDefault();
+            const editId = document.getElementById('disb-edit-id')?.value || '';
             const progTitle = (document.getElementById('disb-program')?.value || '').trim();
 
             if (!progTitle) {
@@ -5409,7 +5445,13 @@
             }
 
             const sourceVal = document.getElementById('disb-source-type') ? document.getElementById('disb-source-type').value : 'program_spesifik';
-            const activeWilayah = document.getElementById('disb-wilayah') ? document.getElementById('disb-wilayah').value : 'Pangkalpinang';
+            
+            const auth = getAdminAuthInfo();
+            let activeWilayah = document.getElementById('disb-wilayah') ? document.getElementById('disb-wilayah').value : 'Pangkalpinang';
+            if (!auth.isSuperAdmin && auth.assignedWilayah !== 'Semua') {
+                activeWilayah = auth.assignedWilayah; // Strict Branch Scoping
+            }
+
             const progStats = wizStore.finance.getSpecificProgramStats(progTitle, 0, 50000000, activeWilayah);
             const progSaldo = progStats ? progStats.saldo : 0;
             const pillar = (window.wizStore && window.wizStore.utils) ? window.wizStore.utils.mapProgramToPillar(progTitle) : 'Berkah Peduli';
@@ -5421,9 +5463,11 @@
             // Validasi Opsi 1: Hanya Saldo Program Ini
             if (sourceVal === 'program_spesifik') {
                 if (amount > progSaldo) {
-                    alert(`❌ Saldo kas program "${progTitle}" (${activeWilayah}) tidak mencukupi!\n\nSaldo tersedia: ${wizStore.utils.formatRupiah(progSaldo)}\nNominal pengeluaran: ${wizStore.utils.formatRupiah(amount)}\nKelebihan pengeluaran: ${wizStore.utils.formatRupiah(amount - progSaldo)}\n\nPengeluaran ditolak secara otomatis untuk menjaga integritas saldo kas.`);
-                    document.getElementById('disb-amount')?.focus();
-                    return;
+                    const allowOverride = confirm(`⚠️ Saldo tercatat kas program "${progTitle}" (${activeWilayah}) saat ini adalah ${wizStore.utils.formatRupiah(progSaldo)}.\n\nNominal pengeluaran: ${wizStore.utils.formatRupiah(amount)}.\n\nApakah Anda ingin tetap mencatat pengeluaran ini sekarang?`);
+                    if (!allowOverride) {
+                        document.getElementById('disb-amount')?.focus();
+                        return;
+                    }
                 }
                 fromProgram = amount;
                 fromSubsidi = 0;
@@ -5431,12 +5475,14 @@
                 // Validasi Opsi 2: Auto-Split (Pemotongan Pintar)
                 const splitRes = wizStore.finance.calculateAutoSplit(progTitle, amount, activeWilayah, editId);
                 if (!splitRes.canSpend) {
-                    alert(`❌ ${splitRes.errorMessage || 'Total dana di pilar ini (di luar dana Markaz) tidak mencukupi.'}\n\nMaksimal dana yang tersedia di pilar ${kategoriPilar} (${activeWilayah}): ${wizStore.utils.formatRupiah(splitRes.totalAvailableInPillar)}`);
-                    document.getElementById('disb-amount')?.focus();
-                    return;
+                    const allowSplitOverride = confirm(`⚠️ ${splitRes.errorMessage || 'Total dana di pilar ini tidak mencukupi.'}\n\nMaksimal dana yang tersedia di pilar ${kategoriPilar} (${activeWilayah}): ${wizStore.utils.formatRupiah(splitRes.totalAvailableInPillar)}.\n\nTetap lanjutkan pencatatan pengeluaran?`);
+                    if (!allowSplitOverride) {
+                        document.getElementById('disb-amount')?.focus();
+                        return;
+                    }
                 }
-                fromProgram = splitRes.fromProgram;
-                fromSubsidi = splitRes.fromSubsidi;
+                fromProgram = splitRes.fromProgram || amount;
+                fromSubsidi = splitRes.fromSubsidi || 0;
             }
 
             const description = (document.getElementById('disb-description')?.value || '').trim();
@@ -5457,7 +5503,7 @@
                 amountFromProgram: fromProgram,
                 amountFromSubsidi: fromSubsidi,
                 description: description,
-                disbursedAt: document.getElementById('disb-date').value ? new Date(document.getElementById('disb-date').value).toISOString() : new Date().toISOString(),
+                disbursedAt: document.getElementById('disb-date')?.value ? new Date(document.getElementById('disb-date').value).toISOString() : new Date().toISOString(),
                 recordedBy: sessionStorage.getItem('wiz_admin_name') || ADMIN_NAME || 'Admin'
             };
 
@@ -5473,6 +5519,8 @@
                 closeDisbursementModal();
                 showNotification('✅ Catatan pengeluaran dana berhasil disimpan!');
                 refreshAll();
+                try { renderDisbursementTable(); } catch(e) {}
+                alert(`✅ Pengeluaran ${wizStore.utils.formatRupiah(amount)} [${activeWilayah}] berhasil dicatat!`);
             } catch(err) {
                 alert('Gagal menyimpan pengeluaran: ' + err.message);
             } finally {
