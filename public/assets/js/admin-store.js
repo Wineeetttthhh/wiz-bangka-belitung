@@ -188,51 +188,163 @@
     ];
 
         const DEFAULT_NEWS = [
-        {
-            id: '5842fbbf-a163-4402-9427-840831d5604c',
-            title: 'Komitmen Dukung Pendidikan, WIZ Bangka Belitung Salurkan Beasiswa untuk Siswa Baru Sekolah Dasar',
-            category: 'Dakwah & Pendidikan',
-            content: 'PANGKALPINANG – Lembaga Amil Zakat Wahdah Inspirasi Zakat (WIZ) Bangka Belitung kembali mewujudkan komitmennya di bidang pendidikan dengan menyalurkan program Beasiswa Pendidikan. Kegiatan penyerahan bantuan ini telah dilaksanakan pada hari Rabu, 07 Juli 2026.\nPenyaluran beasiswa kali ini secara khusus diberikan kepada anak yang baru saja masuk bangku Sekolah Dasar (SD). Bantuan ini bertujuan untuk memberikan motivasi pada langkah pertamanya di dunia pendidikan formal, sekaligus membantu meringankan beban orang tua dalam menyiapkan berbagai kebutuhan awal masuk sekolah, seperti seragam, sepatu, dan perlengkapan belajar lainnya.\nWIZ Bangka Belitung meyakini bahwa masa awal masuk sekolah dasar merupakan momen krusial, sehingga dukungan yang diberikan pada fase ini diharapkan mampu menumbuhkan semangat belajar yang tinggi bagi sang anak.\nSenyum ceria dan antusiasme tampak dari wajah penerima manfaat saat mendapatkan bantuan tersebut. Melalui program ini, pihak penyelenggara menyampaikan rasa syukur dan ucapan terima kasih yang sebesar-besarnya kepada seluruh muzakki, donatur, serta para dermawan atas kepercayaan yang telah diberikan kepada lembaga.\nKegiatan berbagi ini sekaligus menjadi pengingat akan keutamaan bersedekah, sebagaimana termaktub dalam firman Allah pada Al-Qur\'an Surah Saba\' ayat 39 yang berbunyi, "...Dan apa saja yang kamu infakkan, Allah akan menggantinya dan Dialah pemberi rezeki yang terbaik."\nWIZ Bangka Belitung memanjatkan doa agar setiap zakat, infak, dan sedekah yang telah ditunaikan dapat menjadi amal jariyah yang pahalanya terus mengalir bagi para muhsinin. Masyarakat luas juga terus diajak untuk berpartisipasi mengawal langkah awal pendidikan anak-anak di Bangka Belitung melalui program-program kebaikan selanjutnya.\nINFORMASI LAYANAN & DONASI WIZ BANGKA BELITUNG\nMari terus hadirkan manfaat dan dukung langkah awal pendidikan anak-anak kita. Salurkan kepedulian Anda melalui:\n•\t💳 Rekening Sedekah: Bank Syariah Indonesia (BSI) 716-800-800-1 a.n. WIZ Bangka Belitung\n•\t📱 Informasi & Konfirmasi Donasi (WhatsApp): 082380830808\n•\t🌐 Website Resmi: www.wizbangkabelitung.or.id',
-            imageUrl: 'assets/images/foto-utama-wiz.jpg',
-            image_url: 'assets/images/foto-utama-wiz.jpg',
-            gallery: [],
-            eventDate: '2026-07-07T00:00:00.000Z',
-            event_date: '2026-07-07T00:00:00.000Z',
-            status: 'published',
-            author: 'Super Admin 1 (WIZ Babel)',
-            createdAt: '2026-07-07T08:00:00.000Z'
-        },
-        {
-            id: 'news-tebar-iftar-2026',
-            title: 'Penyaluran Tebar Ifthar Nusantara WIZ Bangka Belitung Jangkau Ratusan Penerima Manfaat',
-            category: 'Kegiatan & Penyaluran',
-            content: 'PANGKALPINANG - Lembaga Amil Zakat Wahdah Inspirasi Zakat (WIZ) Bangka Belitung sukses menyalurkan paket Ifthar Nusantara ke berbagai titik di Pulau Bangka. Program ini menyasar kaum dhuafa, santri tahfidz, dan masyarakat prasejahtera.',
-            imageUrl: 'assets/images/tebar-iftar.jpg',
-            image_url: 'assets/images/tebar-iftar.jpg',
-            gallery: [],
-            eventDate: '2026-04-10T00:00:00.000Z',
-            event_date: '2026-04-10T00:00:00.000Z',
-            status: 'published',
-            author: 'Super Admin 1 (WIZ Babel)',
-            createdAt: '2026-04-10T08:00:00.000Z'
-        },
-        {
-            id: 'news-sedekah-beras-2026',
-            title: 'WIZ Babel Salurkan Sedekah Beras untuk Dai dan Guru Ngaji Pedalaman',
-            category: 'Dakwah & Pendidikan',
-            content: 'BANGKA - Sebagai wujud apresiasi dan dukungan terhadap perjuangan para dai di pelosok, WIZ Bangka Belitung mendistribusikan beras berkualitas untuk para dai dan guru ngaji yang mengabdi tanpa pamrih.',
-            imageUrl: 'assets/images/sedekah-beras-dai.jpg',
-            image_url: 'assets/images/sedekah-beras-dai.jpg',
-            gallery: [],
-            eventDate: '2026-05-15T00:00:00.000Z',
-            event_date: '2026-05-15T00:00:00.000Z',
-            status: 'published',
-            author: 'Super Admin 1 (WIZ Babel)',
-            createdAt: '2026-05-15T08:00:00.000Z'
-        }
-    ];
-
-    const DEFAULT_QUOTES = [];
+    {
+        "id": "5842fbbf-a163-4402-9427-840831d5604c",
+        "title": "Komitmen Dukung Pendidikan, WIZ Bangka Belitung Salurkan Beasiswa untuk Siswa Baru Sekolah Dasar",
+        "category": "Dakwah & Pendidikan",
+        "content": "PANGKALPINANG – Lembaga Amil Zakat Wahdah Inspirasi Zakat (WIZ) Bangka Belitung kembali mewujudkan komitmennya di bidang pendidikan dengan menyalurkan program Beasiswa Pendidikan. Kegiatan penyerahan bantuan ini telah dilaksanakan pada hari Rabu, 07 Juli 2026.\nPenyaluran beasiswa kali ini secara khusus diberikan kepada anak yang baru saja masuk bangku Sekolah Dasar (SD). Bantuan ini bertujuan untuk memberikan motivasi pada langkah pertamanya di dunia pendidikan formal, sekaligus membantu meringankan beban orang tua dalam menyiapkan berbagai kebutuhan awal masuk sekolah, seperti seragam, sepatu, dan perlengkapan belajar lainnya.\nWIZ Bangka Belitung meyakini bahwa masa awal masuk sekolah dasar merupakan momen krusial, sehingga dukungan yang diberikan pada fase ini diharapkan mampu menumbuhkan semangat belajar yang tinggi bagi sang anak.\nSenyum ceria dan antusiasme tampak dari wajah penerima manfaat saat mendapatkan bantuan tersebut. Melalui program ini, pihak penyelenggara menyampaikan rasa syukur dan ucapan terima kasih yang sebesar-besarnya kepada seluruh muzakki, donatur, serta para dermawan atas kepercayaan yang telah diberikan kepada lembaga.\nKegiatan berbagi ini sekaligus menjadi pengingat akan keutamaan bersedekah, sebagaimana termaktub dalam firman Allah pada Al-Qur'an Surah Saba' ayat 39 yang berbunyi, \"...Dan apa saja yang kamu infakkan, Allah akan menggantinya dan Dialah pemberi rezeki yang terbaik.\"\nWIZ Bangka Belitung memanjatkan doa agar setiap zakat, infak, dan sedekah yang telah ditunaikan dapat menjadi amal jariyah yang pahalanya terus mengalir bagi para muhsinin. Masyarakat luas juga terus diajak untuk berpartisipasi mengawal langkah awal pendidikan anak-anak di Bangka Belitung melalui program-program kebaikan selanjutnya.\nINFORMASI LAYANAN & DONASI WIZ BANGKA BELITUNG\nMari terus hadirkan manfaat dan dukung langkah awal pendidikan anak-anak kita. Salurkan kepedulian Anda melalui:\n•\t💳 Rekening Sedekah: Bank Syariah Indonesia (BSI) 716-800-800-1 a.n. WIZ Bangka Belitung\n•\t📱 Informasi & Konfirmasi Donasi (WhatsApp): 082380830808\n•\t🌐 Website Resmi: www.wizbangkabelitung.or.id",
+        "imageUrl": "/assets/images/foto-utama-wiz.jpg",
+        "gallery": [],
+        "eventDate": "2026-07-07T00:00:00+00:00",
+        "status": "published",
+        "author": "Super Admin 1 (WIZ Babel)",
+        "createdAt": "2026-08-26T13:36:55.41+00:00",
+        "updatedAt": "2026-08-26T13:46:36.884+00:00"
+    },
+    {
+        "id": "02c6a870-b039-442b-8b2c-00c12ae826a7",
+        "title": "Ringankan Beban Pasien Jantung, WIZ Bangka Belitung Salurkan Bantuan Kesehatan di Pangkalpinang",
+        "category": "Kegiatan & Penyaluran",
+        "content": "PANGKALPINANG – Lembaga Amil Zakat Wahdah Inspirasi Zakat (WIZ) Bangka Belitung kembali mewujudkan kepeduliannya terhadap masyarakat melalui program Penyaluran Bantuan Kesehatan. Kegiatan penyerahan bantuan sosial ini dilaksanakan secara langsung pada hari Sabtu, 23 Mei 2026, di wilayah Kota Pangkalpinang.\nBantuan kesehatan kali ini diserahkan kepada salah satu warga yang saat ini tengah berjuang menjalani pengobatan akibat penyakit jantung. Penyaluran bantuan ini tidak hanya sekadar penyerahan materi, tetapi juga menjadi ikhtiar untuk meringankan beban biaya pengobatan yang harus ditanggung oleh penerima manfaat. Selain itu, kehadiran tim relawan di kediaman warga tersebut bertujuan untuk memberikan dukungan moral dan suntikan semangat agar pasien tetap optimis dalam menjalani seluruh proses pemulihannya.\nPenyaluran bantuan ini dapat terlaksana berkat amanah dari para muhsinin yang telah mempercayakan sebagian rezekinya melalui program-program kebaikan yang dikelola oleh WIZ Bangka Belitung. Pihak lembaga menyampaikan rasa syukur dan mengucapkan jazakumullahu khairan kepada seluruh donatur yang telah berpartisipasi serta mengambil bagian dalam ikhtiar mulia membantu sesama.\nSetiap kontribusi yang diberikan oleh para donatur merupakan wujud nyata dari kepedulian sosial yang teramat penting. Kepedulian tersebut berhasil menghadirkan harapan baru bagi mereka yang sedang menghadapi ujian kehidupan yang berat, selaras dengan semangat saling tolong-menolong di tengah masyarakat.\nINFORMASI LAYANAN & DONASI WIZ BANGKA BELITUNG\nMari bersama wujudkan lebih banyak kebaikan untuk saudara-saudara kita di Kepulauan Bangka Belitung. Salurkan zakat, infak, dan sedekah Anda melalui:\n💳 Rekening Donasi: Bank Syariah Indonesia (BSI) 7168008001 a.n Wahdah Inspirasi Zakat\n📱 Konfirmasi Donasi (WhatsApp): 0823-8083-0808\n🌐 Donasi Praktis via Website: www.wizbangkabelitung.or.id",
+        "imageUrl": "/assets/images/foto-utama-wiz.jpg",
+        "gallery": [],
+        "eventDate": "2026-05-23T00:00:00+00:00",
+        "status": "published",
+        "author": "Super Admin 1 (WIZ Babel)",
+        "createdAt": "2026-08-26T13:35:07.104+00:00",
+        "updatedAt": "2026-08-27T04:54:38.503+00:00"
+    },
+    {
+        "id": "a8bd223a-5846-4bdf-b21b-18e575c2ade8",
+        "title": "Wujudkan Kepedulian Pangan, WIZ Bangka Belitung Salurkan Program Sedekah Beras Dhuafa",
+        "category": "Kegiatan & Penyaluran",
+        "content": "PANGKALPINANG – Lembaga Amil Zakat Nasional (Laznas) Wahdah Inspirasi Zakat (WIZ) Bangka Belitung kembali menebar kebaikan melalui penyaluran Program Sedekah Beras Dhuafa. Kegiatan distribusi bantuan pangan ini dilaksanakan pada hari Ahad, 17 Mei 2026, dengan menyasar masyarakat yang membutuhkan di wilayah Bangka Belitung.\nProgram penyaluran beras ini merupakan bentuk nyata kepedulian lembaga terhadap pemenuhan kebutuhan pangan pokok harian bagi kaum dhuafa. Langkah ini juga menjadi bagian dari ikhtiar berkelanjutan WIZ Bangka Belitung untuk terus menghadirkan manfaat serta keberkahan yang lebih luas di tengah masyarakat. Mengusung pesan kepedulian bahwa \"Sedikit bagi kita, sangat berarti bagi mereka\", program ini diharapkan dapat meringankan beban ekonomi keluarga prasejahtera dalam memenuhi kebutuhan dasarnya.\nPihak penyelenggara menyampaikan rasa syukur dan ucapan jazakumullahu khairan katsiran kepada seluruh donatur serta semua pihak yang telah berpartisipasi dan mendukung terlaksananya program ini. Teriring doa, semoga Allah Subhanahu wa Ta'ala membalas setiap sedekah yang ditunaikan dengan pahala terbaik, serta melimpahkan keberkahan pada harta dan keluarga para muhsinin. WIZ Bangka Belitung terus mengajak masyarakat untuk menghadirkan kepedulian terhadap sesama melalui sedekah terbaik.\nINFORMASI LAYANAN & DONASI WIZ BANGKA BELITUNG\nMari bersama wujudkan lebih banyak kebaikan untuk saudara-saudara kita di Kepulauan Bangka Belitung. Salurkan zakat, infak, dan sedekah Anda melalui:\t\n💳 Rekening Donasi: Bank Syariah Indonesia (BSI) 7168008001 a.n Wahdah Inspirasi Zakat\n📱 Konfirmasi Donasi (WhatsApp): 0823-8083-0808\n🌐 Donasi Praktis via Website: www.wizbangkabelitung.or.id",
+        "imageUrl": "/assets/images/foto-utama-wiz.jpg",
+        "gallery": [],
+        "eventDate": "2026-05-17T00:00:00+00:00",
+        "status": "published",
+        "author": "Super Admin 1 (WIZ Babel)",
+        "createdAt": "2026-08-26T13:32:51.715+00:00",
+        "updatedAt": "2026-08-27T04:54:39.383+00:00"
+    },
+    {
+        "id": "b67ff71a-f19b-4739-b37c-fd080722870b",
+        "title": "Wujudkan Amanah Donatur, WIZ Bangka Belitung Salurkan Beasiswa Pendidikan",
+        "category": "Kegiatan & Penyaluran",
+        "content": "PANGKALPINANG – Lembaga Amil Zakat Wahdah Inspirasi Zakat (WIZ) Bangka Belitung menyelenggarakan program penyaluran Beasiswa Pendidikan yang diperuntukkan bagi generasi muda. Program kepedulian di bidang pendidikan.\nPenyaluran beasiswa ini merupakan salah satu wujud nyata dari dukungan WIZ untuk memastikan lahirnya generasi penerus bangsa yang tidak hanya berilmu, tetapi juga memiliki akhlak yang mulia. Dokumen penyerahan beasiswa tersebut diserahkan secara langsung kepada para pelajar yang menjadi penerima manfaat program ini.\nMelalui program ini, pihak penyelenggara menyampaikan apresiasi dan rasa terima kasih yang mendalam kepada para donatur yang telah menitipkan amanah hartanya. Kegiatan ini sekaligus menjadi pengingat akan janji Allah yang termaktub dalam Al-Qur'an Surah Saba' ayat 39 yang berbunyi: \"...Dan apa saja yang kamu infakkan, Allah akan menggantinya dan Dialah pemberi rezeki yang terbaik.\".\nWIZ Bangka Belitung memanjatkan doa agar setiap kebaikan yang telah diberikan oleh para donatur senantiasa menjadi amal jariyah yang pahalanya terus mengalir. Lembaga ini juga mengajak seluruh lapisan masyarakat untuk terus bersinergi dan menebarkan kebaikan bagi kemajuan pendidikan umat.\nINFORMASI LAYANAN & DONASI WIZ BANGKA BELITUNG\nMari bersama wujudkan lebih banyak kebaikan untuk saudara-saudara kita di Kepulauan Bangka Belitung. Salurkan zakat, infak, dan sedekah Anda melalui:\n•\t💳 Rekening Donasi: Bank Syariah Indonesia (BSI) 7168008001 a.n Wahdah Inspirasi Zakat\n•\t📱 Konfirmasi Donasi (WhatsApp): 0823-8083-0808\n•\t🌐 Donasi Praktis via Website: www.wizbangkabelitung.or.id",
+        "imageUrl": "/assets/images/foto-utama-wiz.jpg",
+        "gallery": [],
+        "eventDate": "2026-04-17T00:00:00+00:00",
+        "status": "published",
+        "author": "Super Admin 1 (WIZ Babel)",
+        "createdAt": "2026-08-26T13:30:22.029+00:00",
+        "updatedAt": "2026-08-26T15:43:31.854206+00:00"
+    },
+    {
+        "id": "94503b2e-d0be-47be-bcb3-e4b2edd2dc3c",
+        "title": "Dari Muzakki untuk Mustahik: WIZ Bangka Belitung Salurkan Zakat Fitrah Jelang Idul Fitri",
+        "category": "Kegiatan & Penyaluran",
+        "content": "PANGKALPINANG – Lembaga Amil Zakat Wahdah Inspirasi Zakat (WIZ) Bangka Belitung menyalurkan amanah zakat fitrah kepada para mustahik yang berada di wilayah Kota Pangkalpinang dan Kabupaten Bangka. Kegiatan pendistribusian ini dilaksanakan pada tanggal 19 Maret 2026.\nZakat fitrah tersebut disalurkan secara langsung kepada para penerima yang berhak dalam bentuk beras. Penyaluran ini bertujuan untuk membantu meringankan dan memenuhi kebutuhan pokok masyarakat menjelang perayaan Hari Raya Idul Fitri.\nPihak penyelenggara menyampaikan ucapan terima kasih kepada para muzakki yang telah mempercayakan penyaluran zakatnya melalui WIZ Bangka Belitung. Penyaluran amanah ini diharapkan dapat menjadi amal ibadah yang diterima dan senantiasa membawa keberkahan bagi semua pihak.\nINFORMASI LAYANAN & DONASI WIZ BANGKA BELITUNG\nMari terus bersama menebar manfaat dan menghadirkan kebahagiaan untuk saudara-saudara kita di Kepulauan Bangka Belitung. Salurkan zakat, infak, dan sedekah Anda melalui:\n•\t💳 Rekening Donasi: Bank Syariah Indonesia (BSI) 7168008001 a.n Wahdah Inspirasi Zakat\n•\t📱 Konfirmasi Donasi (WhatsApp): 0823-8083-0808\n•\t🌐 Donasi Praktis via Website: www.wizbangkabelitung.or.id",
+        "imageUrl": "/assets/images/foto-utama-wiz.jpg",
+        "gallery": [],
+        "eventDate": "2026-03-19T00:00:00+00:00",
+        "status": "published",
+        "author": "Super Admin 1 (WIZ Babel)",
+        "createdAt": "2026-08-26T13:27:50.104+00:00",
+        "updatedAt": "2026-08-27T04:54:44.838+00:00"
+    },
+    {
+        "id": "1ee6dbe4-ffab-47de-b338-1a81be393ca7",
+        "title": "Semarakkan Ramadan, WIZ Bangka Belitung Gelar Santunan Anak Yatim dan Tebar Al-Qur'an di Desa Tanjung Gunung",
+        "category": "Kegiatan & Penyaluran",
+        "content": "BANGKA TENGAH – Menjelang akhir bulan suci Ramadan, Wahdah Inspirasi Zakat (WIZ) Bangka Belitung menyelenggarakan kegiatan \"Santunan Anak Yatim dan Tebar Al-Qur'an Nusantara\" dengan mengusung tema \"Ramadan Makin Bahagia 1447 H\". Kegiatan kepedulian sosial ini dilaksanakan pada hari Sabtu, 14 Maret 2026 M, yang bertepatan dengan 24 Ramadan 1447 H.\nRangkaian acara khidmat ini dibuka dengan pembacaan ayat suci Al-Qur'an. Setelah itu, agenda dilanjutkan dengan penyampaian sambutan dari perwakilan Ketua DPW Wahdah Islamiyah Bangka Belitung, serta sambutan dari Ketua RT 11 Desa Tanjung Gunung sebagai perwakilan wilayah setempat.\nUntuk menambah keberkahan acara, kegiatan ini turut dirangkaikan dengan penyampaian tausiyah singkat oleh Dai Wahdah Islamiyah, Muhammad Farhan, S.H.. Dalam tausiyah tersebut, beliau memberikan pesan spiritual yang mengingatkan seluruh hadirin mengenai pentingnya menghidupkan malam Lailatul Qadar, memupuk kepedulian terhadap sesama, serta keutamaan memuliakan anak yatim di bulan yang penuh rahmat.\nSebagai agenda utama, acara ditutup dengan prosesi penyerahan santunan kepada anak-anak yatim yang hadir, disusul dengan pembagian mushaf Al-Qur'an kepada para penerima. Melalui inisiatif program ini, pihak penyelenggara berharap mushaf Al-Qur'an yang dibagikan dapat menjadi cahaya petunjuk dan sumber keberkahan bagi para penerimanya. Selain itu, doa kebaikan juga dipanjatkan agar setiap dukungan yang diberikan menjadi amal jariyah yang pahalanya terus mengalir bagi para donatur yang telah berpartisipasi menyukseskan kegiatan ini.\nINFORMASI LAYANAN & DONASI WIZ BANGKA BELITUNG\nMari terus bersama menebar manfaat dan menghadirkan kebahagiaan untuk saudara-saudara kita di Kepulauan Bangka Belitung. Salurkan zakat, infak, dan sedekah Anda melalui:\n•\t💳 Rekening Donasi: Bank Syariah Indonesia (BSI) 7168008001 a.n Wahdah Inspirasi Zakat\n•\t📱 Konfirmasi Donasi (WhatsApp): 0823-8083-0808\n•\t🌐 Donasi Praktis via Website: www.wizbangkabelitung.or.id",
+        "imageUrl": "/assets/images/foto-utama-wiz.jpg",
+        "gallery": [],
+        "eventDate": "2026-03-14T00:00:00+00:00",
+        "status": "published",
+        "author": "Super Admin 1 (WIZ Babel)",
+        "createdAt": "2026-08-26T13:17:50.267+00:00",
+        "updatedAt": "2026-08-27T04:54:47.254+00:00"
+    },
+    {
+        "id": "7df8d964-704e-4301-b015-8b6bf01dcfa7",
+        "title": "Sinergi WIZ Bangka Belitung dan Pertamina Patra Niaga Salurkan 65 Paket Iftar di Kota Pangkalpinang",
+        "category": "Kegiatan & Penyaluran",
+        "content": "PANGKALPINANG – Dalam rangka menyemarakkan bulan suci dengan tema \"Ramadan Makin Bahagia 1447 H\", Wahdah Inspirasi Zakat (WIZ) Bangka Belitung melaksanakan kegiatan sosial Tebar Iftar Nusantara. Kegiatan pembagian paket berbuka puasa ini dilaksanakan pada hari Sabtu, 7 Maret 2026 M yang bertepatan dengan 17 Ramadan 1447 H. Penyaluran ini merupakan wujud nyata kepedulian serta upaya berbagi kebahagiaan kepada masyarakat yang sedang menjalankan ibadah puasa.\nDalam pelaksanaannya, WIZ Bangka Belitung telah mendistribusikan sebanyak 65 paket iftar yang difokuskan pada beberapa masjid di wilayah Kota Pangkalpinang. Rincian penyaluran paket berbuka puasa tersebut meliputi:\n•\tMasjid Al-Huda, Melintang, Kecamatan Rangkui sebanyak 10 paket.\n•\tMasjid At-Ta'lim, Semabung Baru, Kecamatan Girimaya sebanyak 15 paket.\n•\tMasjid Al-Ikhlas Gandaria sebanyak 40 paket.\nProgram kebaikan ini dapat terlaksana dengan lancar berkat dukungan penuh dari para donatur serta kerja sama strategis dengan Pertamina Patra Niaga yang bertindak sebagai sponsor utama kegiatan. Sinergi positif ini turut berkontribusi besar dalam menghadirkan kebahagiaan bagi para jamaah dan masyarakat sekitar yang berbuka puasa bersama di masjid.\nPihak penyelenggara menyampaikan apresiasi dan ucapan terima kasih yang sebesar-besarnya kepada pihak Pertamina Patra Niaga, para donatur, relawan, panitia, serta seluruh pihak yang telah bahu-membahu mendukung terselenggaranya kegiatan ini. Diharapkan, setiap kebaikan yang disalurkan dapat bernilai amal jariyah dan senantiasa membawa keberkahan bagi semua. Melalui inisiatif ini, WIZ Bangka Belitung mengajak seluruh elemen masyarakat untuk terus bersama-sama menebar manfaat di bulan Ramadan.\nINFORMASI LAYANAN & DONASI WIZ BANGKA BELITUNG\nMari bersama wujudkan lebih banyak kebaikan untuk saudara-saudara kita di Kepulauan Bangka Belitung. Salurkan zakat, infak, dan sedekah Anda melalui:\n•\t💳 Rekening Donasi: Bank Syariah Indonesia (BSI) 7168008001 a.n Wahdah Inspirasi Zakat\n•\t📱 Konfirmasi Donasi (WhatsApp): 0823-8083-0808\n•\t🌐 Donasi Praktis via Website: www.wizbangkabelitung.or.id",
+        "imageUrl": "/assets/images/foto-utama-wiz.jpg",
+        "gallery": [],
+        "eventDate": "2026-03-07T00:00:00+00:00",
+        "status": "published",
+        "author": "Super Admin 1 (WIZ Babel)",
+        "createdAt": "2026-08-26T13:13:38.913+00:00",
+        "updatedAt": "2026-08-26T13:26:01.965+00:00"
+    },
+    {
+        "id": "d9373da2-5559-4d63-ac89-2ede426165d2",
+        "title": "Sambut Bulan Suci, WIZ Bangka Belitung Salurkan 40 Paket Sembako di Desa Penyamun",
+        "category": "Kegiatan & Penyaluran",
+        "content": "BANGKA – Menjelang datangnya bulan suci Ramadan 1447 H, Wahdah Inspirasi Zakat (WIZ) Bangka Belitung menyelenggarakan program Tebar Sembako Nusantara. Kegiatan sosial berupa penyaluran paket sembako kepada masyarakat yang membutuhkan ini dilaksanakan pada hari Kamis, 12 Februari 2026 M atau bertepatan dengan 24 Sya'ban 1447 H.\nDalam pelaksanaannya, WIZ Bangka Belitung mendistribusikan sebanyak 40 paket sembako yang diserahkan langsung kepada masyarakat di Dusun Sinar Panca, Desa Penyamun. Program ini digulirkan dengan harapan dapat membantu meringankan beban masyarakat dalam memenuhi kebutuhan pokok mereka menjelang ibadah di bulan Ramadan.\nSelain kegiatan penyaluran bantuan sosial, agenda ini juga dirangkaikan dengan majelis ilmu berupa kajian keislaman. Kajian tersebut disampaikan oleh Ustaz Suryadi, S.Pd.I., yang memfokuskan materi pada persiapan spiritual menyambut bulan suci. Pesan yang ditekankan adalah agar masyarakat dapat menjalani Ramadan dengan penuh keimanan, kesungguhan dalam beribadah, serta memupuk semangat berbagi kepada sesama.\nKegiatan ini turut dihadiri oleh sejumlah tamu undangan dan tokoh penting, di antaranya:\n•\tPerwakilan Pemerintah Provinsi Kepulauan Bangka Belitung.\n•\tPerwakilan Kantor Wilayah Kementerian Agama Kepulauan Bangka Belitung.\n•\tPerwakilan Kementerian Agama Kabupaten Bangka.\n•\tKepala Desa Penyamun.\n•\tTokoh agama serta tokoh masyarakat setempat.\nSebagai penutup, penyelenggara menyampaikan ucapan terima kasih yang sebesar-besarnya kepada para donatur, relawan, panitia, serta seluruh pihak yang telah berkontribusi menyukseskan terlaksananya kegiatan ini. Kebaikan yang telah ditunaikan diharapkan dapat menjadi amal jariyah dan senantiasa membawa keberkahan bagi semua.\nINFORMASI LAYANAN & DONASI WIZ BANGKA BELITUNG\nMari bersama wujudkan lebih banyak kebaikan untuk saudara-saudara kita di Kepulauan Bangka Belitung. Salurkan zakat, infak, dan sedekah Anda melalui:\n•\t💳 Rekening Donasi: Bank Syariah Indonesia (BSI) 7168008001 a.n Wahdah Inspirasi Zakat\n•\t📱 Konfirmasi Donasi (WhatsApp): 0823-8083-0808\n•\t🌐 Donasi Praktis via Website: www.wizbangkabelitung.or.id",
+        "imageUrl": "/assets/images/foto-utama-wiz.jpg",
+        "gallery": [],
+        "eventDate": "2026-02-12T00:00:00+00:00",
+        "status": "published",
+        "author": "Super Admin 1 (WIZ Babel)",
+        "createdAt": "2026-08-26T13:07:40.136+00:00",
+        "updatedAt": "2026-08-27T04:54:53.212+00:00"
+    },
+    {
+        "id": "a101a638-41a1-4a36-987d-7eb269dbed3d",
+        "title": "Dukung Keberlangsungan Dakwah, WIZ Bangka Belitung Salurkan Sedekah Beras untuk Dai di Koba",
+        "category": "Dakwah & Pendidikan",
+        "content": "KOBA, BANGKA TENGAH – Wahdah Inspirasi Zakat (WIZ) Kepulauan Bangka Belitung kembali menunaikan amanah kebaikan umat melalui penyaluran Program Sedekah Beras Dai. Bantuan kebutuhan pokok ini disalurkan sebagai bentuk dukungan kepada para dai yang terus berkhidmat mendampingi dan membina masyarakat di wilayah Koba, Kabupaten Bangka Tengah, pada Selasa (27/1/2026).\nProgram ini merupakan bagian dari upaya WIZ dalam mendukung para pejuang dakwah yang menjalankan tugas pembinaan umat di tengah masyarakat, khususnya dalam pemenuhan kebutuhan pokok sehari-hari.\nMelalui penyaluran tersebut, WIZ memberikan bantuan beras sebagai wujud kepedulian dan dukungan terhadap keberlangsungan aktivitas dakwah di lapangan. Sering kali, para dai di daerah mengorbankan waktu dan tenaga mereka demi mengajarkan nilai-nilai kebaikan kepada masyarakat. Oleh karena itu, dukungan material seperti pemenuhan pangan menjadi sangat krusial agar mereka dapat lebih fokus dan tenang dalam menjalankan amanah pembinaan umat.\nKe depannya, Program Sedekah Beras Dai ini diharapkan dapat semakin memperkuat peran dai dalam membina umat, serta menghadirkan manfaat nyata dan keberkahan bagi para pejuang dakwah, masyarakat sekitar, maupun para donatur yang telah berkontribusi.\nWIZ Bangka Belitung senantiasa membuka pintu kebaikan bagi para muhsinin yang ingin turut serta berkontribusi dalam mendukung perjuangan para dai di pelosok Negeri Serumpun Sebalai melalui program-program pemberdayaan selanjutnya.\nINFORMASI LAYANAN & DONASI WIZ BANGKA BELITUNG\nMari bersama wujudkan lebih banyak kebaikan untuk saudara-saudara kita di Kepulauan Bangka Belitung. Salurkan zakat, infak, dan sedekah Anda melalui:\n•\t💳 Rekening Donasi: Bank Syariah Indonesia (BSI) 7168008001 a.n WIZ Bangka Belitung\n•\t📱 Konfirmasi Donasi (WhatsApp): 0823-8083-0808\n•\t🌐 Donasi Praktis via Website: www.wizbangkabelitung.or.id",
+        "imageUrl": "/assets/images/foto-utama-wiz.jpg",
+        "gallery": [],
+        "eventDate": "2026-01-27T00:00:00+00:00",
+        "status": "published",
+        "author": "Super Admin 1 (WIZ Babel)",
+        "createdAt": "2026-08-26T13:03:27.987+00:00",
+        "updatedAt": "2026-08-26T13:08:57.207+00:00"
+    },
+    {
+        "id": "mt11ggm30p4qxc",
+        "title": "Bantu Penuhi Kebutuhan Pangan Pokok, WIZ Babel Salurkan Sedekah Beras untuk Kaum Dhuafa",
+        "category": "Kegiatan & Penyaluran",
+        "content": "PANGKALPINANG (wizbangkabelitung.or.id) — Dalam ikhtiar menghadirkan manfaat berkelanjutan dan menjaga ketahanan pangan masyarakat yang membutuhkan, Lembaga Amil Zakat Nasional Wahdah Inspirasi Zakat (LAZNAS WIZ) Kepulauan Bangka Belitung kembali menyalurkan program Sedekah Beras Dhuafa pada Ahad (17/05/2026).\n\nPenyaluran bantuan beras ini dilakukan secara door-to-door oleh tim relawan WIZ Babel langsung ke kediaman para penerima manfaat di wilayah Pangkalpinang dan sekitarnya. Skema ini diterapkan untuk memastikan bantuan kebutuhan pokok dapat diterima secara langsung dan tepat sasaran oleh lansia, janda dhuafa, serta keluarga prasejahtera.\n\nProgram Sedekah Beras Dhuafa merupakan bagian dari komitmen pilar Kemanusiaan WIZ Babel dalam merespons kebutuhan mendasar masyarakat. Bantuan bahan pangan utama ini diharapkan dapat meringankan beban ekonomi harian serta memberikan ketenangan bagi keluarga penerima manfaat.\n\nManajemen WIZ Bangka Belitung menyampaikan apresiasi dan ucapan Jazakumullahu khairan katsiran kepada seluruh donatur dan dermawan yang senantiasa konsisten mengamanahkan Zakat, Infak, dan Sedekahnya. Semoga setiap butir beras yang disalurkan menjadi pemicu keberkahan harta serta dibalas dengan kebaikan yang berlipat ganda oleh Allah Subhanahu wa Ta'ala.\n\nMari Terus Hadirkan Kepedulian untuk Sesama. Salurkan Sedekah Terbaik Anda Melalui Website Resmi WIZ Bangka Belitung:\n\nWebsite: wizbangkabelitung.or.id\nProgram: Sedekah Beras Dhuafa\nRekening Sedekah: BSI 721-2089-022 a.n. Wahdah Islamiyah Babel\nKonfirmasi & Informasi: 0823-8083-0808",
+        "imageUrl": "/assets/images/foto-utama-wiz.jpg",
+        "gallery": [],
+        "eventDate": "2026-05-18T00:00:00+00:00",
+        "status": "published",
+        "author": "Super Admin 1 (WIZ Babel)",
+        "createdAt": "2026-08-16T04:46:51.675+00:00",
+        "updatedAt": "2026-08-21T18:38:13.088+00:00"
+    },
+    {
+        "id": "mt10ynjgqaizhw",
+        "title": "Sambut Ramadan 1447 H, WIZ Babel Salurkan 40 Paket Sembako Nusantara dan Gelar Kajian Keislaman di Desa Penyamun",
+        "category": "Kegiatan & Penyaluran",
+        "content": "BANGKA — Wahdah Inspirasi Zakat (WIZ) Bangka Belitung menyelenggarakan program Tebar Sembako Nusantara di Dusun Sinar Panca, Desa Penyamun, Kabupaten Bangka, pada Kamis (12/02/2026 M / 24 Sya'ban 1447 H). Kegiatan sosial ini merupakan bagian dari rangkaian program menjelang bulan suci Ramadan 1447 H.\n\nDalam agenda ini, WIZ Bangka Belitung menyalurkan sebanyak 40 paket sembako kepada warga yang membutuhkan. Penyaluran bantuan bertujuan untuk meringankan beban ekonomi serta membantu memenuhi kebutuhan pangan pokok masyarakat setempat di akhir bulan Sya'ban.\n\nSelain pembagian sembako, rangkaian kegiatan juga diisi dengan kajian keislaman bertema persiapan menyambut bulan suci Ramadan yang disampaikan oleh Ust. Suryadi, S.Pd.I. Materi kajian berfokus pada penguatan spiritual, peningkatan keimanan, kesungguhan beribadah, serta pentingnya semangat berbagi kepada sesama.\n\nAcara ini dihadiri oleh jajaran tamu undangan serta tokoh masyarakat setempat, di antaranya: Kepala Desa Penyamun, Perwakilan Kementerian Agama Kabupaten Bangka, Perwakilan Kantor Wilayah Kementerian Agama Provinsi Kepulauan Bangka Belitung, Perwakilan Pemerintah Provinsi Kepulauan Bangka Belitung, Tokoh agama dan tokoh masyarakat Dusun Sinar Panca\n\nRangkaian kegiatan ditutup dengan doa bersama dan penyerahan simbolis paket sembako kepada para penerima manfaat. Pihak WIZ Bangka Belitung menyampaikan apresiasi dan terima kasih kepada para donatur, relawan, panitia, serta seluruh elemen masyarakat yang telah mendukung suksesnya program ini.\n\nSalurkan Donasi Melalui Website Resmi WIZ Bangka Belitung:\nWebsite: wizbangkabelitung.or.id\nProgram: Tebar Sembako Nusantara / Ramadan\nRekening Sedekah: BSI 716-800-800-1 a.n. WIZ Bangka Belitung\nKonfirmasi & Informasi: 0823-8083-0808",
+        "imageUrl": "/assets/images/foto-utama-wiz.jpg",
+        "gallery": [],
+        "eventDate": "2026-02-12T00:00:00+00:00",
+        "status": "published",
+        "author": "Super Admin 1 (WIZ Babel)",
+        "createdAt": "2026-08-16T04:33:00.844+00:00",
+        "updatedAt": "2026-08-21T11:51:26.158+00:00"
+    },
+    {
+        "id": "msoubkqzytgjpb",
+        "title": "Santunan Anak Yatim dan Tebar Al-Qur'an Nusantara Ramadan Makin Bahagia 1447 H",
+        "category": "Kegiatan & Event",
+        "content": "Sabtu, 14 Maret 2026 M/24 Ramadan 1447 H, WIZ Bangka Belitung melaksanakan kegiatan santunan anak yatim dan tebar Al-Qur'an Nusantara di Desa Tanjung Gunung, Kabupaten Bangka Tengah. Kegiatan ini dibuka dengan pembacaan ayat suci Al-Qur'an kemudian dilanjutkan dengan sambutan dari ketua DPW WI Babel atau yang mewakili, dan juga sambutan dari ketua RT 11 Desa Tanjung Gunung. \nKegiatan ini juga dirangkaikan dengan tausiah singkat yang disampaikan oleh Dai Wahdah Islamiyah, Muhammad Farhan, S.H. yang mengingatkan pentingnya menghidupkan malam lailatulkadar, berbagi kepedulian terhadap sesama, serta memuliakan anak yatim.\nAcara kemudian dilanjutkan dengan penyerahan santunan kepada anak-anak yatim serta pembagian mushaf Al-Qur'an kepada para penerima. Semoga Al-Qur'an yang dibagikan menjadi cahaya dan sumber keberkahan bagi para penerima, serta menjadi amal jariah bagi para donatur yang telah berpartisipasi dalam kegiatan ini.",
+        "imageUrl": "/assets/images/foto-utama-wiz.jpg",
+        "gallery": [],
+        "eventDate": "2026-03-14T00:00:00+00:00",
+        "status": "published",
+        "author": "Admin 1",
+        "createdAt": "2026-08-11T15:53:52.331+00:00",
+        "updatedAt": "2026-08-23T11:21:36.3+00:00"
+    }
+];
 
     // ─── Helpers ───────────────────────────────────────────
     function generateId() {

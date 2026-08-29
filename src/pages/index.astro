@@ -145,21 +145,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                     Program Unggulan WIZ
                 </span>
                 <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">5 Berkah WIZ Bangka Belitung</h2>
-                <p class="text-xs sm:text-base text-slate-600 font-medium">1 Program Unggulan mewakili masing-masing dari 5 Pilar Berkah WIZ untuk kemaslahatan masyarakat Babel.</p>
+                <p class="text-xs sm:text-base text-slate-600 font-medium">Pilar program penyaluran zakat, infak, dan sedekah tepat sasaran untuk masyarakat Babel.</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6" id="home-featured-programs-grid">
-                <!-- 1. Berkah Hidayah (Dakwah) -->
-                <article data-title="Keberangkatan & Kepulangan Dai" class="program-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-slate-200 flex flex-col group">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8" id="home-featured-programs-grid">
+                <!-- 1. Berkah Hidayah (Dakwah) - Pembangunan Markaz -->
+                <article data-title="Pembangunan Markaz" class="program-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-slate-200 flex flex-col group">
                     <div class="relative aspect-video overflow-hidden bg-slate-100">
-                        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="/assets/images/keberangkatan-kepulangan-dai.jpg" onerror="this.onerror=null; this.src='/assets/images/foto-utama-wiz.jpg';" alt="Berkah Hidayah - Dakwah"/>
+                        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="/assets/images/foto-utama-wiz.jpg" onerror="this.onerror=null; this.src='/assets/images/default-program-wiz.jpg';" alt="Pembangunan Markaz Dakwah"/>
                         <span class="absolute top-2.5 left-2.5 bg-emerald-700 text-white text-[11px] px-2.5 py-0.5 rounded-full font-bold shadow-xs flex items-center gap-1">
                             <span>Berkah Hidayah</span>
                         </span>
                     </div>
                     <div class="p-4 sm:p-5 flex flex-col flex-grow space-y-2.5">
-                        <h3 class="text-base font-black text-slate-900 line-clamp-1 group-hover:text-emerald-700 transition-colors" title="Tebar Dai & Pembinaan Dakwah">Tebar Dai &amp; Dakwah</h3>
-                        <p class="text-xs text-slate-600 flex-grow line-clamp-2 leading-relaxed">Dukungan operasional dakwah dai dan guru ngaji di pelosok Babel.</p>
+                        <h3 class="text-base sm:text-lg font-black text-slate-900 line-clamp-1 group-hover:text-emerald-700 transition-colors" title="Pembangunan Markaz Dakwah">Pembangunan Markaz Dakwah</h3>
+                        <p class="text-xs sm:text-sm text-slate-600 flex-grow line-clamp-2 leading-relaxed">Pembangunan pusat markaz dakwah dan sarana pembinaan Al-Qur'an untuk umat di Bangka Belitung.</p>
                         <div class="space-y-1 pt-1">
                             <div class="flex justify-between text-xs text-slate-600 font-semibold">
                                 <span>Terkumpul: <strong class="text-slate-900">Rp 0</strong></span>
@@ -169,21 +169,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                                 <div class="bg-emerald-700 h-2 rounded-full" style="width: 0%"></div>
                             </div>
                         </div>
-                        <a href="/donasi?program=keberangkatan-kepulangan-dai" class="w-full block bg-[#F7941D] hover:bg-[#ea7e00] text-white py-2.5 rounded-xl hover:opacity-95 transition-opacity font-extrabold text-xs text-center cursor-pointer shadow-xs active:scale-98">Donasi Sekarang</a>
+                        <a href="/donasi?program=pembangunan-markaz" class="w-full block bg-[#F7941D] hover:bg-[#ea7e00] text-white py-2.5 sm:py-3 rounded-xl hover:opacity-95 transition-opacity font-extrabold text-xs sm:text-sm text-center cursor-pointer shadow-xs active:scale-98">Donasi Sekarang</a>
                     </div>
                 </article>
 
-                <!-- 2. Berkah Peduli (Sosial) -->
+                <!-- 2. Berkah Peduli (Sosial) - Sedekah Beras Dhuafa -->
                 <article data-title="Sedekah Beras Dhuafa" class="program-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-slate-200 flex flex-col group">
                     <div class="relative aspect-video overflow-hidden bg-slate-100">
-                        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="/assets/images/sedekah-beras-dhuafa.jpg" onerror="this.onerror=null; this.src='/assets/images/tebar-sembako.jpg';" alt="Berkah Peduli - Sosial"/>
+                        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="/assets/images/sedekah-beras-dhuafa.jpg" onerror="this.onerror=null; this.src='/assets/images/tebar-sembako.jpg';" alt="Sedekah Beras Dhuafa"/>
                         <span class="absolute top-2.5 left-2.5 bg-amber-600 text-white text-[11px] px-2.5 py-0.5 rounded-full font-bold shadow-xs flex items-center gap-1">
                             <span>Berkah Peduli</span>
                         </span>
                     </div>
                     <div class="p-4 sm:p-5 flex flex-col flex-grow space-y-2.5">
-                        <h3 class="text-base font-black text-slate-900 line-clamp-1 group-hover:text-emerald-700 transition-colors" title="Sedekah Beras & Sembako Dhuafa">Sedekah Beras Dhuafa</h3>
-                        <p class="text-xs text-slate-600 flex-grow line-clamp-2 leading-relaxed">Bantuan pangan beras dan sembako untuk lansia &amp; keluarga dhuafa.</p>
+                        <h3 class="text-base sm:text-lg font-black text-slate-900 line-clamp-1 group-hover:text-emerald-700 transition-colors" title="Sedekah Beras Dhuafa">Sedekah Beras Dhuafa</h3>
+                        <p class="text-xs sm:text-sm text-slate-600 flex-grow line-clamp-2 leading-relaxed">Bantuan pangan beras dan sembako untuk lansia dhuafa serta keluarga pra-sejahtera.</p>
                         <div class="space-y-1 pt-1">
                             <div class="flex justify-between text-xs text-slate-600 font-semibold">
                                 <span>Terkumpul: <strong class="text-slate-900">Rp 0</strong></span>
@@ -193,21 +193,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                                 <div class="bg-amber-600 h-2 rounded-full" style="width: 0%"></div>
                             </div>
                         </div>
-                        <a href="/donasi?program=sedekah-beras-dhuafa" class="w-full block bg-[#F7941D] hover:bg-[#ea7e00] text-white py-2.5 rounded-xl hover:opacity-95 transition-opacity font-extrabold text-xs text-center cursor-pointer shadow-xs active:scale-98">Donasi Sekarang</a>
+                        <a href="/donasi?program=sedekah-beras-dhuafa" class="w-full block bg-[#F7941D] hover:bg-[#ea7e00] text-white py-2.5 sm:py-3 rounded-xl hover:opacity-95 transition-opacity font-extrabold text-xs sm:text-sm text-center cursor-pointer shadow-xs active:scale-98">Donasi Sekarang</a>
                     </div>
                 </article>
 
-                <!-- 3. Berkah Juara (Pendidikan) -->
+                <!-- 3. Berkah Juara (Pendidikan) - Beasiswa Pendidikan Juara -->
                 <article data-title="Beasiswa Pendidikan Juara" class="program-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-slate-200 flex flex-col group">
                     <div class="relative aspect-video overflow-hidden bg-slate-100">
-                        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="/assets/images/beasiswa-pendidikan-juara.jpg" onerror="this.onerror=null; this.src='/assets/images/beasiswa-tahfidz.jpg';" alt="Berkah Juara - Pendidikan"/>
+                        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="/assets/images/beasiswa-pendidikan-juara.jpg" onerror="this.onerror=null; this.src='/assets/images/beasiswa-tahfidz.jpg';" alt="Beasiswa Pendidikan Juara"/>
                         <span class="absolute top-2.5 left-2.5 bg-blue-600 text-white text-[11px] px-2.5 py-0.5 rounded-full font-bold shadow-xs flex items-center gap-1">
                             <span>Berkah Juara</span>
                         </span>
                     </div>
                     <div class="p-4 sm:p-5 flex flex-col flex-grow space-y-2.5">
-                        <h3 class="text-base font-black text-slate-900 line-clamp-1 group-hover:text-emerald-700 transition-colors" title="Beasiswa Pendidikan Juara">Beasiswa Juara</h3>
-                        <p class="text-xs text-slate-600 flex-grow line-clamp-2 leading-relaxed">Bantuan biaya sekolah dan perlengkapan belajar anak yatim &amp; dhuafa.</p>
+                        <h3 class="text-base sm:text-lg font-black text-slate-900 line-clamp-1 group-hover:text-emerald-700 transition-colors" title="Beasiswa Pendidikan Juara">Beasiswa Pendidikan Juara</h3>
+                        <p class="text-xs sm:text-sm text-slate-600 flex-grow line-clamp-2 leading-relaxed">Bantuan biaya sekolah, SPP, dan perlengkapan belajar bagi anak-anak yatim &amp; dhuafa berprestasi.</p>
                         <div class="space-y-1 pt-1">
                             <div class="flex justify-between text-xs text-slate-600 font-semibold">
                                 <span>Terkumpul: <strong class="text-slate-900">Rp 0</strong></span>
@@ -217,21 +217,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                                 <div class="bg-blue-600 h-2 rounded-full" style="width: 0%"></div>
                             </div>
                         </div>
-                        <a href="/donasi?program=beasiswa-pendidikan-juara" class="w-full block bg-[#F7941D] hover:bg-[#ea7e00] text-white py-2.5 rounded-xl hover:opacity-95 transition-opacity font-extrabold text-xs text-center cursor-pointer shadow-xs active:scale-98">Donasi Sekarang</a>
+                        <a href="/donasi?program=beasiswa-pendidikan-juara" class="w-full block bg-[#F7941D] hover:bg-[#ea7e00] text-white py-2.5 sm:py-3 rounded-xl hover:opacity-95 transition-opacity font-extrabold text-xs sm:text-sm text-center cursor-pointer shadow-xs active:scale-98">Donasi Sekarang</a>
                     </div>
                 </article>
 
-                <!-- 4. Berkah Sehat (Kesehatan) -->
-                <article data-title="Ambulance Gratis Ummat" class="program-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-slate-200 flex flex-col group">
+                <!-- 4. Berkah Sehat (Kesehatan) - Khitanan Massal Dhuafa -->
+                <article data-title="Khitanan Massal Dhuafa" class="program-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-slate-200 flex flex-col group">
                     <div class="relative aspect-video overflow-hidden bg-slate-100">
-                        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="/assets/images/ambulance-gratis-ummat.jpg" onerror="this.onerror=null; this.src='/assets/images/khitanan-massal-dhuafa.jpg';" alt="Berkah Sehat - Kesehatan"/>
+                        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="/assets/images/khitanan-massal-dhuafa.jpg" onerror="this.onerror=null; this.src='/assets/images/khitanan-massal.jpg';" alt="Khitanan Massal Dhuafa"/>
                         <span class="absolute top-2.5 left-2.5 bg-rose-600 text-white text-[11px] px-2.5 py-0.5 rounded-full font-bold shadow-xs flex items-center gap-1">
                             <span>Berkah Sehat</span>
                         </span>
                     </div>
                     <div class="p-4 sm:p-5 flex flex-col flex-grow space-y-2.5">
-                        <h3 class="text-base font-black text-slate-900 line-clamp-1 group-hover:text-emerald-700 transition-colors" title="Ambulance Gratis Ummat">Ambulance Gratis</h3>
-                        <p class="text-xs text-slate-600 flex-grow line-clamp-2 leading-relaxed">Layanan mobil ambulance &amp; antar pasien dhuafa 24 jam gratis di Babel.</p>
+                        <h3 class="text-base sm:text-lg font-black text-slate-900 line-clamp-1 group-hover:text-emerald-700 transition-colors" title="Khitanan Massal Dhuafa">Khitanan Massal Dhuafa</h3>
+                        <p class="text-xs sm:text-sm text-slate-600 flex-grow line-clamp-2 leading-relaxed">Layanan khitanan massal medis dan bingkisan berkah cuma-cuma bagi anak-anak dhuafa.</p>
                         <div class="space-y-1 pt-1">
                             <div class="flex justify-between text-xs text-slate-600 font-semibold">
                                 <span>Terkumpul: <strong class="text-slate-900">Rp 0</strong></span>
@@ -241,21 +241,45 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                                 <div class="bg-rose-600 h-2 rounded-full" style="width: 0%"></div>
                             </div>
                         </div>
-                        <a href="/donasi?program=ambulance-gratis-ummat" class="w-full block bg-[#F7941D] hover:bg-[#ea7e00] text-white py-2.5 rounded-xl hover:opacity-95 transition-opacity font-extrabold text-xs text-center cursor-pointer shadow-xs active:scale-98">Donasi Sekarang</a>
+                        <a href="/donasi?program=khitanan-massal-dhuafa" class="w-full block bg-[#F7941D] hover:bg-[#ea7e00] text-white py-2.5 sm:py-3 rounded-xl hover:opacity-95 transition-opacity font-extrabold text-xs sm:text-sm text-center cursor-pointer shadow-xs active:scale-98">Donasi Sekarang</a>
                     </div>
                 </article>
 
-                <!-- 5. Berkah Mandiri (Ekonomi) -->
+                <!-- 5. Berkah Sehat (Kesehatan) - Layanan Pengobatan Gratis -->
+                <article data-title="Layanan Pengobatan Gratis" class="program-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-slate-200 flex flex-col group">
+                    <div class="relative aspect-video overflow-hidden bg-slate-100">
+                        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="/assets/images/bantuan-pengobatan.jpg" onerror="this.onerror=null; this.src='/assets/images/ambulance-gratis-ummat.jpg';" alt="Bantuan Kesehatan Dhuafa"/>
+                        <span class="absolute top-2.5 left-2.5 bg-rose-600 text-white text-[11px] px-2.5 py-0.5 rounded-full font-bold shadow-xs flex items-center gap-1">
+                            <span>Berkah Sehat</span>
+                        </span>
+                    </div>
+                    <div class="p-4 sm:p-5 flex flex-col flex-grow space-y-2.5">
+                        <h3 class="text-base sm:text-lg font-black text-slate-900 line-clamp-1 group-hover:text-emerald-700 transition-colors" title="Bantuan Kesehatan Dhuafa">Bantuan Kesehatan Dhuafa</h3>
+                        <p class="text-xs sm:text-sm text-slate-600 flex-grow line-clamp-2 leading-relaxed">Bantuan biaya pengobatan medis dan pendampingan kesehatan bagi pasien dhuafa.</p>
+                        <div class="space-y-1 pt-1">
+                            <div class="flex justify-between text-xs text-slate-600 font-semibold">
+                                <span>Terkumpul: <strong class="text-slate-900">Rp 0</strong></span>
+                                <span class="font-bold text-rose-600">0%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                                <div class="bg-rose-600 h-2 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <a href="/donasi?program=layanan-pengobatan-gratis" class="w-full block bg-[#F7941D] hover:bg-[#ea7e00] text-white py-2.5 sm:py-3 rounded-xl hover:opacity-95 transition-opacity font-extrabold text-xs sm:text-sm text-center cursor-pointer shadow-xs active:scale-98">Donasi Sekarang</a>
+                    </div>
+                </article>
+
+                <!-- 6. Berkah Mandiri (Ekonomi) - Modal Usaha Dhuafa -->
                 <article data-title="Modal Usaha Dhuafa" class="program-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-slate-200 flex flex-col group">
                     <div class="relative aspect-video overflow-hidden bg-slate-100">
-                        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="/assets/images/modal-usaha-dhuafa.jpg" onerror="this.onerror=null; this.src='/assets/images/pelatihan-keterampilan-wirausaha.jpg';" alt="Berkah Mandiri - Ekonomi"/>
+                        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="/assets/images/modal-usaha-dhuafa.jpg" onerror="this.onerror=null; this.src='/assets/images/pelatihan-keterampilan-wirausaha.jpg';" alt="Modal Usaha Dhuafa"/>
                         <span class="absolute top-2.5 left-2.5 bg-purple-600 text-white text-[11px] px-2.5 py-0.5 rounded-full font-bold shadow-xs flex items-center gap-1">
                             <span>Berkah Mandiri</span>
                         </span>
                     </div>
                     <div class="p-4 sm:p-5 flex flex-col flex-grow space-y-2.5">
-                        <h3 class="text-base font-black text-slate-900 line-clamp-1 group-hover:text-emerald-700 transition-colors" title="Modal Usaha Dhuafa">Modal Usaha Dhuafa</h3>
-                        <p class="text-xs text-slate-600 flex-grow line-clamp-2 leading-relaxed">Bantuan sarana gerobak usaha &amp; modal kerja tanpa riba bagi mustahik.</p>
+                        <h3 class="text-base sm:text-lg font-black text-slate-900 line-clamp-1 group-hover:text-emerald-700 transition-colors" title="Modal Usaha Dhuafa">Modal Usaha Dhuafa</h3>
+                        <p class="text-xs sm:text-sm text-slate-600 flex-grow line-clamp-2 leading-relaxed">Bantuan sarana gerobak usaha &amp; modal kerja halal tanpa riba bagi mustahik mandiri.</p>
                         <div class="space-y-1 pt-1">
                             <div class="flex justify-between text-xs text-slate-600 font-semibold">
                                 <span>Terkumpul: <strong class="text-slate-900">Rp 0</strong></span>
@@ -265,7 +289,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                                 <div class="bg-purple-600 h-2 rounded-full" style="width: 0%"></div>
                             </div>
                         </div>
-                        <a href="/donasi?program=modal-usaha-dhuafa" class="w-full block bg-[#F7941D] hover:bg-[#ea7e00] text-white py-2.5 rounded-xl hover:opacity-95 transition-opacity font-extrabold text-xs text-center cursor-pointer shadow-xs active:scale-98">Donasi Sekarang</a>
+                        <a href="/donasi?program=modal-usaha-dhuafa" class="w-full block bg-[#F7941D] hover:bg-[#ea7e00] text-white py-2.5 sm:py-3 rounded-xl hover:opacity-95 transition-opacity font-extrabold text-xs sm:text-sm text-center cursor-pointer shadow-xs active:scale-98">Donasi Sekarang</a>
                     </div>
                 </article>
             </div>
@@ -483,40 +507,66 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             if (isFetchingHomeNews) return;
             isFetchingHomeNews = true;
             try {
+                let fetchedNews = null;
+
+                // 1. Try Supabase REST query
                 if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                    const res = await window.wizSupabase.select('news', { select: 'id,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at', order: 'created_at.desc' });
-                    if (res && Array.isArray(res.data) && res.data.length > 0) {
-                        const mapped = res.data.map(n => {
-                            const mainImg = (n.image_url || (Array.isArray(n.gallery) && n.gallery.length > 0 ? n.gallery[0] : '') || n.imageUrl || '').trim();
-                            return {
-                                id: String(n.id),
-                                title: n.title,
-                                category: n.category || 'Kegiatan & Penyaluran',
-                                content: n.content,
-                                imageUrl: mainImg,
-                                image_url: mainImg,
-                                gallery: Array.isArray(n.gallery) ? n.gallery : [],
-                                eventDate: n.event_date || n.eventDate || n.created_at,
-                                event_date: n.event_date || n.eventDate || n.created_at,
-                                status: n.status || 'published',
-                                author: n.author || 'Admin WIZ Babel',
-                                createdAt: n.created_at || n.createdAt || new Date().toISOString(),
-                                created_at: n.created_at || n.createdAt || new Date().toISOString(),
-                                updatedAt: n.updated_at || n.updatedAt || new Date().toISOString(),
-                                updated_at: n.updated_at || n.updatedAt || new Date().toISOString()
-                            };
-                        });
-                        mapped.sort((a, b) => {
-                            const timeA = new Date(a.createdAt || a.created_at || a.updatedAt || a.updated_at || a.eventDate || a.event_date || 0).getTime();
-                            const timeB = new Date(b.createdAt || b.created_at || b.updatedAt || b.updated_at || b.eventDate || b.event_date || 0).getTime();
-                            return timeB - timeA;
-                        });
-                        localStorage.setItem('wiz_news', JSON.stringify(mapped));
+                    try {
+                        const res = await window.wizSupabase.select('news', { select: 'id,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at', order: 'created_at.desc' });
+                        if (res && Array.isArray(res.data) && res.data.length > 0) {
+                            fetchedNews = res.data;
+                        }
+                    } catch(e) {}
+                }
+
+                // 2. Fallback to /api/sync if Supabase was empty
+                if (!fetchedNews) {
+                    try {
+                        const syncRes = await fetch('/api/sync', { cache: 'no-cache' });
+                        if (syncRes.ok) {
+                            const json = await syncRes.json();
+                            const newsArr = json.data ? json.data.news : json.news;
+                            if (Array.isArray(newsArr) && newsArr.length > 0) {
+                                fetchedNews = newsArr;
+                            }
+                        }
+                    } catch(e) {}
+                }
+
+                if (Array.isArray(fetchedNews) && fetchedNews.length > 0) {
+                    const mapped = fetchedNews.map(n => {
+                        const mainImg = (n.image_url || (Array.isArray(n.gallery) && n.gallery.length > 0 ? n.gallery[0] : '') || n.imageUrl || '').trim();
+                        return {
+                            id: String(n.id),
+                            title: n.title,
+                            category: n.category || 'Kegiatan & Penyaluran',
+                            content: n.content,
+                            imageUrl: mainImg,
+                            image_url: mainImg,
+                            gallery: Array.isArray(n.gallery) ? n.gallery : [],
+                            eventDate: n.event_date || n.eventDate || n.created_at || n.createdAt,
+                            event_date: n.event_date || n.eventDate || n.created_at || n.createdAt,
+                            status: n.status || 'published',
+                            author: n.author || 'Super Admin 1 (WIZ Babel)',
+                            createdAt: n.created_at || n.createdAt || new Date().toISOString(),
+                            created_at: n.created_at || n.createdAt || new Date().toISOString(),
+                            updatedAt: n.updated_at || n.updatedAt || new Date().toISOString(),
+                            updated_at: n.updated_at || n.updatedAt || new Date().toISOString()
+                        };
+                    });
+                    mapped.sort((a, b) => {
+                        const timeA = new Date(a.eventDate || a.event_date || a.createdAt || a.created_at || 0).getTime();
+                        const timeB = new Date(b.eventDate || b.event_date || b.createdAt || b.created_at || 0).getTime();
+                        return timeB - timeA;
+                    });
+                    localStorage.setItem('wiz_news', JSON.stringify(mapped));
+                    if (window.wizStore && window.wizStore.news) {
                         renderPublicNews();
                     }
                 }
-            } catch(e) {}
-            finally {
+            } catch(e) {
+                console.warn('[News Sync Warning]', e);
+            } finally {
                 isFetchingHomeNews = false;
             }
         }
