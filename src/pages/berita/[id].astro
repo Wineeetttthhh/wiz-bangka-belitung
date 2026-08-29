@@ -1,33 +1,56 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import { MASTER_NEWS } from '../../lib/news-data';
-import { MASTER_PROGRAMS } from '../../lib/programs-data';
+// SSR: Always fetch fresh from Supabase — never use stale build-time data
+export const prerender = false;
 
-export function getStaticPaths() {
-    return MASTER_NEWS.map((news) => ({
-        params: { id: news.id },
-        props: { news }
-    }));
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { fetchNewsById, fetchAllNews } from '../../lib/fetch-news';
+
+const { id } = Astro.params;
+
+if (!id) {
+    return Astro.redirect('/berita');
 }
 
-const { news } = Astro.props;
+// Fetch this article fresh from Supabase (no cache)
+const news = await fetchNewsById(id);
 
 if (!news) {
     return Astro.redirect('/berita');
 }
 
-const otherNews = MASTER_NEWS.filter((n) => n.id !== news.id).slice(0, 3);
-const relatedPrograms = MASTER_PROGRAMS.slice(0, 2);
+// Fetch other news for sidebar (no cache)
+const allNews = await fetchAllNews();
+const otherNews = allNews.filter((n) => n.id !== news.id).slice(0, 3);
+
 const canonicalUrl = `https://www.wizbangkabelitung.or.id/berita/${news.id}`;
+
+// Format date for display
+function formatDate(dateStr: string) {
+    try {
+        return new Date(dateStr).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+    } catch (_) {
+        return dateStr || '';
+    }
+}
+
+const displayDate = formatDate(news.eventDate || news.createdAt);
 ---
 
 <BaseLayout
     title={`${news.title} | WIZ Bangka Belitung`}
-    description={news.summary}
+    description={news.content ? news.content.replace(/<[^>]*>/g, '').substring(0, 160) : ''}
     image={news.imageUrl || '/assets/images/default-program-wiz.png'}
     url={canonicalUrl}
     type="article"
 >
+    <!-- No-cache header for this SSR page -->
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+
     <!-- Breadcrumb -->
     <div class="bg-slate-100 py-3 border-b border-slate-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-xs text-slate-500 flex items-center gap-2">
@@ -61,40 +84,47 @@ const canonicalUrl = `https://www.wizbangkabelitung.or.id/berita/${news.id}`;
                         <span>•</span>
                         <span class="flex items-center gap-1">
                             <span class="material-symbols-outlined text-[16px]">calendar_today</span>
-                            {news.date}
-                        </span>
-                        <span>•</span>
-                        <span class="flex items-center gap-1">
-                            <span class="material-symbols-outlined text-[16px]">schedule</span>
-                            {news.readTime}
+                            {displayDate}
                         </span>
                     </div>
                 </div>
 
                 <!-- Featured Image -->
-                <div class="relative aspect-video rounded-2xl overflow-hidden bg-slate-900 shadow-md">
-                    <img
-                        src={news.imageUrl}
-                        alt={news.title}
-                        class="w-full h-full object-cover"
-                        onerror="this.src='/assets/images/foto-utama-wiz.jpg'"
-                    />
-                </div>
+                {news.imageUrl && (
+                    <div class="relative aspect-video rounded-2xl overflow-hidden bg-slate-900 shadow-md">
+                        <img
+                            src={news.imageUrl}
+                            alt={news.title}
+                            class="w-full h-full object-cover"
+                            onerror="this.src='/assets/images/foto-utama-wiz.jpg'"
+                        />
+                    </div>
+                )}
+
+                <!-- Gallery -->
+                {news.gallery && news.gallery.length > 0 && (
+                    <div class="space-y-3">
+                        <h3 class="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-base">photo_library</span>
+                            Galeri Foto ({news.gallery.length} foto)
+                        </h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            {news.gallery.map((imgUrl) => (
+                                <div class="aspect-video rounded-xl overflow-hidden bg-slate-100">
+                                    <img
+                                        src={imgUrl}
+                                        alt={`Galeri ${news.title}`}
+                                        class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                        onerror="this.parentElement.remove()"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 <!-- Article Body -->
                 <div class="prose prose-slate max-w-none text-slate-700 leading-relaxed text-sm sm:text-base" set:html={news.content}></div>
-
-                <!-- Tags -->
-                {news.tags && news.tags.length > 0 && (
-                    <div class="pt-6 border-t border-slate-100 flex flex-wrap items-center gap-2">
-                        <span class="text-xs font-bold text-slate-400">Tags:</span>
-                        {news.tags.map((tag) => (
-                            <span class="text-xs px-3 py-1 bg-slate-100 text-slate-600 rounded-full font-medium">
-                                #{tag}
-                            </span>
-                        ))}
-                    </div>
-                )}
 
                 <!-- WhatsApp Share Card -->
                 <div class="p-6 bg-slate-900 text-white rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -135,23 +165,30 @@ const canonicalUrl = `https://www.wizbangkabelitung.or.id/berita/${news.id}`;
                 </div>
 
                 <!-- Related News -->
-                <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
-                    <h3 class="font-bold text-slate-900 text-base pb-3 border-b border-slate-100 flex items-center gap-2">
-                        <span class="material-symbols-outlined text-emerald-600">newspaper</span>
-                        Berita Lainnya
-                    </h3>
-
-                    <div class="space-y-3">
-                        {otherNews.map((item) => (
-                            <a href={`/berita/${item.id}`} class="group block space-y-1 hover:bg-slate-50 p-2 rounded-xl transition-colors">
-                                <span class="text-[11px] text-emerald-700 font-bold">{item.category} • {item.date}</span>
-                                <h4 class="text-xs font-bold text-slate-800 line-clamp-2 group-hover:text-emerald-800 transition-colors">
-                                    {item.title}
-                                </h4>
-                            </a>
-                        ))}
+                {otherNews.length > 0 && (
+                    <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
+                        <h3 class="font-bold text-slate-900 text-base pb-3 border-b border-slate-100 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-emerald-600">newspaper</span>
+                            Berita Lainnya
+                        </h3>
+                        <div class="space-y-3">
+                            {otherNews.map((item) => (
+                                <a href={`/berita/${item.id}`} class="group block space-y-1 hover:bg-slate-50 p-2 rounded-xl transition-colors">
+                                    <span class="text-[11px] text-emerald-700 font-bold">{item.category} • {formatDate(item.eventDate || item.createdAt)}</span>
+                                    <h4 class="text-xs font-bold text-slate-800 line-clamp-2 group-hover:text-emerald-800 transition-colors">
+                                        {item.title}
+                                    </h4>
+                                </a>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
+
+                {otherNews.length === 0 && (
+                    <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm text-center text-xs text-slate-400">
+                        Belum ada berita lain yang dipublikasikan.
+                    </div>
+                )}
 
             </aside>
 
@@ -165,16 +202,10 @@ const canonicalUrl = `https://www.wizbangkabelitung.or.id/berita/${news.id}`;
     const shareBtn = document.getElementById('share-news-wa-btn');
     if (shareBtn) {
         shareBtn.addEventListener('click', () => {
-            const newsId = shareBtn.getAttribute('data-id') || '1';
+            const newsId = shareBtn.getAttribute('data-id') || '';
             const ref = getActiveAffiliate();
             const baseUrl = window.location.origin || 'https://www.wizbangkabelitung.or.id';
             const shareUrl = `${baseUrl}/berita/${newsId}${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`;
-
-            if (window.showWhatsAppToast) {
-                window.showWhatsAppToast();
-            }
-
-            // Pure URL sharing so WhatsApp reliably renders the OpenGraph card preview (thumbnail, title, link card)
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareUrl)}`, '_blank');
         });
     }

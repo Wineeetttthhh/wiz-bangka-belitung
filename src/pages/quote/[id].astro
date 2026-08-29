@@ -2,6 +2,8 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { MASTER_QUOTES } from '../../lib/quotes-data';
 
+export const prerender = true; // static — quote data is code-defined
+
 export function getStaticPaths() {
     return MASTER_QUOTES.map((quote) => ({
         params: { id: quote.id },

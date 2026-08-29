@@ -1,8 +1,9 @@
 ---
-import { MASTER_NEWS } from '../../lib/news-data';
-import NewsCard from '../cards/NewsCard.astro';
-
-const recentNews = MASTER_NEWS.slice(0, 3);
+/**
+ * LatestNews — Homepage section
+ * Renders an empty shell on the server; news cards are populated
+ * client-side via wizStore.news (which fetches live from Supabase).
+ */
 ---
 
 <section class="py-16 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -28,10 +29,130 @@ const recentNews = MASTER_NEWS.slice(0, 3);
         </a>
     </div>
 
-    <!-- Grid of News Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-        {recentNews.map((news) => (
-            <NewsCard news={news} />
-        ))}
+    <!-- Grid populated by client-side wizStore -->
+    <div id="home-news-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+        <!-- Skeleton loaders while data loads -->
+        <div class="bg-white rounded-3xl overflow-hidden shadow-xs border border-slate-200 animate-pulse">
+            <div class="aspect-video bg-slate-200"></div>
+            <div class="p-5 space-y-3">
+                <div class="h-3 bg-slate-200 rounded-full w-1/3"></div>
+                <div class="h-4 bg-slate-200 rounded-full w-full"></div>
+                <div class="h-4 bg-slate-200 rounded-full w-4/5"></div>
+                <div class="h-3 bg-slate-200 rounded-full w-2/3"></div>
+            </div>
+        </div>
+        <div class="bg-white rounded-3xl overflow-hidden shadow-xs border border-slate-200 animate-pulse hidden md:block">
+            <div class="aspect-video bg-slate-200"></div>
+            <div class="p-5 space-y-3">
+                <div class="h-3 bg-slate-200 rounded-full w-1/3"></div>
+                <div class="h-4 bg-slate-200 rounded-full w-full"></div>
+                <div class="h-4 bg-slate-200 rounded-full w-4/5"></div>
+                <div class="h-3 bg-slate-200 rounded-full w-2/3"></div>
+            </div>
+        </div>
+        <div class="bg-white rounded-3xl overflow-hidden shadow-xs border border-slate-200 animate-pulse hidden md:block">
+            <div class="aspect-video bg-slate-200"></div>
+            <div class="p-5 space-y-3">
+                <div class="h-3 bg-slate-200 rounded-full w-1/3"></div>
+                <div class="h-4 bg-slate-200 rounded-full w-full"></div>
+                <div class="h-4 bg-slate-200 rounded-full w-4/5"></div>
+                <div class="h-3 bg-slate-200 rounded-full w-2/3"></div>
+            </div>
+        </div>
     </div>
 </section>
+
+<script is:inline>
+(function() {
+    const defaultImg = '/assets/images/sedekah-beras-dhuafa.jpg';
+
+    function formatDate(dateStr) {
+        try {
+            return new Date(dateStr).toLocaleDateString('id-ID', {
+                day: 'numeric', month: 'long', year: 'numeric'
+            });
+        } catch(_) { return dateStr || ''; }
+    }
+
+    function renderHomeNews(newsList) {
+        const grid = document.getElementById('home-news-grid');
+        if (!grid) return;
+
+        const published = (newsList || []).filter(n => n && n.status === 'published').slice(0, 3);
+
+        if (published.length === 0) {
+            grid.innerHTML = `
+            <div class="col-span-1 md:col-span-3 text-center py-12 text-slate-400 text-sm">
+                <span class="material-symbols-outlined text-3xl block mb-2">newspaper</span>
+                Belum ada berita yang dipublikasikan.
+            </div>`;
+            return;
+        }
+
+        grid.innerHTML = published.map(n => {
+            const img = (n.imageUrl || n.image_url || '').trim() || defaultImg;
+            const date = formatDate(n.eventDate || n.event_date || n.createdAt || n.created_at);
+            return `
+            <article class="bg-white rounded-3xl overflow-hidden shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-200 flex flex-col group">
+                <a href="/berita/${n.id}" class="relative aspect-video overflow-hidden bg-slate-900 block">
+                    <img src="${img}" onerror="this.src='${defaultImg}'" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="${n.title}" loading="lazy">
+                    <span class="absolute top-3 left-3 bg-emerald-600 text-white text-[11px] px-3 py-1 rounded-full font-bold shadow">${n.category || 'Kegiatan'}</span>
+                </a>
+                <div class="p-4 sm:p-5 flex flex-col flex-grow space-y-2">
+                    <div class="flex items-center text-emerald-700 text-xs font-semibold gap-1.5">
+                        <span class="material-symbols-outlined text-sm">event</span>
+                        <span>${date}</span>
+                    </div>
+                    <h3 class="text-sm sm:text-base font-bold text-slate-900 group-hover:text-emerald-700 transition-colors line-clamp-2 leading-snug">
+                        <a href="/berita/${n.id}">${n.title}</a>
+                    </h3>
+                    <p class="text-xs text-slate-600 line-clamp-2 flex-grow leading-relaxed">${n.content || ''}</p>
+                    <div class="pt-2.5 border-t border-slate-100">
+                        <a href="/berita/${n.id}" class="text-emerald-700 font-bold text-xs flex items-center gap-1 hover:underline">
+                            <span>Baca Selengkapnya</span>
+                            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </article>`;
+        }).join('');
+    }
+
+    // Try to load news from wizStore (client-side, fetches from Supabase)
+    function tryLoadNews() {
+        if (window.wizStore && window.wizStore.news) {
+            const news = window.wizStore.news.getAll ? window.wizStore.news.getAll() : [];
+            renderHomeNews(news);
+            return true;
+        }
+        return false;
+    }
+
+    // Also try fetching directly from Supabase as fallback
+    async function fetchDirectNews() {
+        try {
+            const res = await fetch('/api/berita', { cache: 'no-store' });
+            if (res.ok) {
+                const json = await res.json();
+                if (json.success && Array.isArray(json.data)) {
+                    renderHomeNews(json.data);
+                }
+            }
+        } catch(_) {}
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (!tryLoadNews()) {
+            // Fallback: fetch directly from API
+            fetchDirectNews();
+        }
+        // Also sync from cloud if wizStore is available
+        if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
+            window.wizStore.syncFromCloud(true).then(() => tryLoadNews()).catch(() => {});
+        }
+    });
+
+    window.addEventListener('wiz-news-changed', function() { tryLoadNews(); });
+    window.addEventListener('wiz-sync-complete', function() { tryLoadNews(); });
+})();
+</script>

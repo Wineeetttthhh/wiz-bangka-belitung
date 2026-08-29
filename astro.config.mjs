@@ -5,7 +5,7 @@ import vercel from '@astrojs/vercel';
 
 // https://astro.build/config
 export default defineConfig({
-  output: 'static',
+  output: 'server', // Full SSR — static pages opt-out with prerender=true
   adapter: vercel({
     webAnalytics: { enabled: true }
   }),

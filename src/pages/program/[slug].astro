@@ -3,6 +3,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { MASTER_PROGRAMS } from '../../lib/programs-data';
 import { formatRupiah } from '../../lib/affiliate-tracker';
 
+export const prerender = true; // static — program data is code-defined
+
 export function getStaticPaths() {
     return MASTER_PROGRAMS.map((program) => ({
         params: { slug: program.slug },
