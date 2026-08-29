@@ -821,7 +821,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 }
 
                 const customImg = (progObj && progObj.imageUrl) ? progObj.imageUrl : ((wizStore.allocationRulesManager) ? wizStore.allocationRulesManager.getSpecificProgramImage(progTitle) : '');
-                if (customImg && !customImg.includes('placeholder')) {
+                if (customImg && !customImg.includes('placeholder') && !customImg.includes('default-program-wiz')) {
                     const imgEl = card.querySelector('img');
                     if (imgEl) {
                         imgEl.src = customImg;
@@ -1011,56 +1011,72 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             const grid = document.getElementById('home-featured-programs-grid');
             if (!grid || !window.wizStore) return;
 
-            const FIVE_PILLARS = [
+            const EXACT_6_PROGRAMS = [
                 {
-                    key: 'Berkah Hidayah',
-                    label: 'Dakwah',
+                    title: 'Pembangunan Markaz',
+                    displayTitle: 'Pembangunan Markaz Dakwah',
+                    slug: 'pembangunan-markaz',
+                    pillar: 'Berkah Hidayah',
                     badgeColor: 'bg-emerald-700 text-white',
                     barColor: 'bg-emerald-700',
-                    defaultTitle: 'Tebar Dai & Dakwah',
-                    defaultSlug: 'keberangkatan-kepulangan-dai',
-                    defaultDesc: 'Dukungan operasional dakwah dai dan guru ngaji di pelosok Babel.',
-                    defaultImg: '/assets/images/keberangkatan-kepulangan-dai.jpg'
+                    desc: "Pembangunan pusat markaz dakwah dan sarana pembinaan Al-Qur'an untuk umat di Bangka Belitung.",
+                    img: '/assets/images/foto-utama-wiz.jpg',
+                    targetAmount: 100000000
                 },
                 {
-                    key: 'Berkah Peduli',
-                    label: 'Sosial',
+                    title: 'Sedekah Beras Dhuafa',
+                    displayTitle: 'Sedekah Beras Dhuafa',
+                    slug: 'sedekah-beras-dhuafa',
+                    pillar: 'Berkah Peduli',
                     badgeColor: 'bg-amber-600 text-white',
                     barColor: 'bg-amber-600',
-                    defaultTitle: 'Sedekah Beras Dhuafa',
-                    defaultSlug: 'sedekah-beras-dhuafa',
-                    defaultDesc: 'Bantuan pangan beras dan sembako untuk lansia & keluarga dhuafa.',
-                    defaultImg: '/assets/images/sedekah-beras-dhuafa.jpg'
+                    desc: 'Bantuan pangan beras dan sembako untuk lansia dhuafa serta keluarga pra-sejahtera.',
+                    img: '/assets/images/sedekah-beras-dhuafa.jpg',
+                    targetAmount: 30000000
                 },
                 {
-                    key: 'Berkah Juara',
-                    label: 'Pendidikan',
+                    title: 'Beasiswa Pendidikan Juara',
+                    displayTitle: 'Beasiswa Pendidikan Juara',
+                    slug: 'beasiswa-pendidikan-juara',
+                    pillar: 'Berkah Juara',
                     badgeColor: 'bg-blue-600 text-white',
                     barColor: 'bg-blue-600',
-                    defaultTitle: 'Beasiswa Juara',
-                    defaultSlug: 'beasiswa-pendidikan-juara',
-                    defaultDesc: 'Bantuan biaya sekolah dan perlengkapan belajar anak yatim & dhuafa.',
-                    defaultImg: '/assets/images/beasiswa-pendidikan-juara.jpg'
+                    desc: 'Bantuan biaya sekolah, SPP, dan perlengkapan belajar bagi anak-anak yatim & dhuafa berprestasi.',
+                    img: '/assets/images/beasiswa-pendidikan-juara.jpg',
+                    targetAmount: 40000000
                 },
                 {
-                    key: 'Berkah Sehat',
-                    label: 'Kesehatan',
+                    title: 'Khitanan Massal Dhuafa',
+                    displayTitle: 'Khitanan Massal Dhuafa',
+                    slug: 'khitanan-massal-dhuafa',
+                    pillar: 'Berkah Sehat',
                     badgeColor: 'bg-rose-600 text-white',
                     barColor: 'bg-rose-600',
-                    defaultTitle: 'Ambulance Gratis',
-                    defaultSlug: 'ambulance-gratis-ummat',
-                    defaultDesc: 'Layanan mobil ambulance & antar pasien dhuafa 24 jam gratis di Babel.',
-                    defaultImg: '/assets/images/ambulance-gratis-ummat.jpg'
+                    desc: 'Layanan khitanan massal medis dan bingkisan berkah cuma-cuma bagi anak-anak dhuafa.',
+                    img: '/assets/images/khitanan-massal-dhuafa.jpg',
+                    targetAmount: 25000000
                 },
                 {
-                    key: 'Berkah Mandiri',
-                    label: 'Ekonomi',
+                    title: 'Layanan Pengobatan Gratis',
+                    displayTitle: 'Bantuan Kesehatan Dhuafa',
+                    slug: 'layanan-pengobatan-gratis',
+                    pillar: 'Berkah Sehat',
+                    badgeColor: 'bg-rose-600 text-white',
+                    barColor: 'bg-rose-600',
+                    desc: 'Bantuan biaya pengobatan medis dan pendampingan kesehatan bagi pasien dhuafa.',
+                    img: '/assets/images/bantuan-pengobatan.jpg',
+                    targetAmount: 35000000
+                },
+                {
+                    title: 'Modal Usaha Dhuafa',
+                    displayTitle: 'Modal Usaha Dhuafa',
+                    slug: 'modal-usaha-dhuafa',
+                    pillar: 'Berkah Mandiri',
                     badgeColor: 'bg-purple-600 text-white',
                     barColor: 'bg-purple-600',
-                    defaultTitle: 'Modal Usaha Dhuafa',
-                    defaultSlug: 'modal-usaha-dhuafa',
-                    defaultDesc: 'Bantuan sarana gerobak usaha & modal kerja tanpa riba bagi mustahik.',
-                    defaultImg: '/assets/images/modal-usaha-dhuafa.jpg'
+                    desc: 'Bantuan sarana gerobak usaha & modal kerja halal tanpa riba bagi mustahik mandiri.',
+                    img: '/assets/images/modal-usaha-dhuafa.jpg',
+                    targetAmount: 25000000
                 }
             ];
 
@@ -1068,43 +1084,35 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 ? window.wizStore.programs.getPublished()
                 : [];
 
-            const displayList = FIVE_PILLARS.map(pilar => {
+            const displayList = EXACT_6_PROGRAMS.map(def => {
                 const found = allPublished.find(p => {
-                    const pPillar = (p.pillar || p.category || '').toLowerCase();
-                    const targetKey = pilar.key.toLowerCase();
-                    const targetLabel = pilar.label.toLowerCase();
-                    return pPillar.includes(targetKey) || pPillar.includes(targetLabel) || (p.kategori_pilar && p.kategori_pilar.toLowerCase().includes(targetLabel));
+                    const matchTitle = (p.title || '').toLowerCase().trim();
+                    const targetTitle = def.title.toLowerCase().trim();
+                    const targetSlug = def.slug.toLowerCase().trim();
+                    return matchTitle === targetTitle || matchTitle.includes(targetTitle) || (p.slug && p.slug.toLowerCase() === targetSlug);
                 });
 
                 if (found) {
                     let img = found.imageUrl;
-                    if (!img || img.includes('default-program-wiz') || img.includes('foto-utama-wiz')) {
-                        img = pilar.defaultImg;
+                    if (!img || img.includes('default-program-wiz')) {
+                        img = def.img;
                     }
                     if (!img.startsWith('http') && !img.startsWith('/')) img = '/' + img;
 
                     return {
-                        title: found.title,
-                        slug: found.slug || found.id || pilar.defaultSlug,
-                        pillar: pilar.key,
-                        badgeColor: pilar.badgeColor,
-                        barColor: pilar.barColor,
-                        desc: found.description || pilar.defaultDesc,
+                        title: found.title || def.title,
+                        displayTitle: def.displayTitle,
+                        slug: found.slug || def.slug,
+                        pillar: found.pillar || def.pillar,
+                        badgeColor: def.badgeColor,
+                        barColor: def.barColor,
+                        desc: found.description || def.desc,
                         img: img,
-                        targetAmount: found.targetAmount || 50000000
+                        targetAmount: found.targetAmount || def.targetAmount
                     };
                 }
 
-                return {
-                    title: pilar.defaultTitle,
-                    slug: pilar.defaultSlug,
-                    pillar: pilar.key,
-                    badgeColor: pilar.badgeColor,
-                    barColor: pilar.barColor,
-                    desc: pilar.defaultDesc,
-                    img: pilar.defaultImg,
-                    targetAmount: 50000000
-                };
+                return def;
             });
 
             const fmt = (window.wizStore && window.wizStore.utils) 
@@ -1121,14 +1129,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 return `
                 <article data-title="${escapeHtml(item.title)}" class="program-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-slate-200 flex flex-col group">
                     <div class="relative aspect-video overflow-hidden bg-slate-100">
-                        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="${escapeHtml(item.img)}" onerror="this.onerror=null; this.src='/assets/images/foto-utama-wiz.jpg';" alt="${escapeHtml(item.title)}"/>
+                        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="${escapeHtml(item.img)}" onerror="this.onerror=null; this.src='/assets/images/foto-utama-wiz.jpg';" alt="${escapeHtml(item.displayTitle || item.title)}"/>
                         <span class="absolute top-2.5 left-2.5 ${item.badgeColor} text-[11px] px-2.5 py-0.5 rounded-full font-bold shadow-xs flex items-center gap-1">
                             <span>${escapeHtml(item.pillar)}</span>
                         </span>
                     </div>
                     <div class="p-4 sm:p-5 flex flex-col flex-grow space-y-2.5">
-                        <h3 class="text-base font-black text-slate-900 line-clamp-1 group-hover:text-emerald-700 transition-colors" title="${escapeHtml(item.title)}">${escapeHtml(item.title)}</h3>
-                        <p class="text-xs text-slate-600 flex-grow line-clamp-2 leading-relaxed">${escapeHtml(item.desc)}</p>
+                        <h3 class="text-base sm:text-lg font-black text-slate-900 line-clamp-1 group-hover:text-emerald-700 transition-colors" title="${escapeHtml(item.displayTitle || item.title)}">${escapeHtml(item.displayTitle || item.title)}</h3>
+                        <p class="text-xs sm:text-sm text-slate-600 flex-grow line-clamp-2 leading-relaxed">${escapeHtml(item.desc)}</p>
                         <div class="space-y-1 pt-1">
                             <div class="flex justify-between text-xs text-slate-600 font-semibold">
                                 <span>Terkumpul: <strong class="text-slate-900">${fmt(stats.terkumpul || stats.saldo || 0)}</strong></span>
@@ -1138,7 +1146,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                                 <div class="${item.barColor} h-2 rounded-full transition-all duration-500" style="width: ${Math.min(100, stats.percent || 0)}%"></div>
                             </div>
                         </div>
-                        <a href="${donasiUrl}" class="w-full block bg-[#F7941D] hover:bg-[#ea7e00] text-white py-2.5 rounded-xl hover:opacity-95 transition-opacity font-extrabold text-xs text-center cursor-pointer shadow-xs active:scale-98">Donasi Sekarang</a>
+                        <a href="${donasiUrl}" class="w-full block bg-[#F7941D] hover:bg-[#ea7e00] text-white py-2.5 sm:py-3 rounded-xl hover:opacity-95 transition-opacity font-extrabold text-xs sm:text-sm text-center cursor-pointer shadow-xs active:scale-98">Donasi Sekarang</a>
                     </div>
                 </article>`;
             }).join('');
