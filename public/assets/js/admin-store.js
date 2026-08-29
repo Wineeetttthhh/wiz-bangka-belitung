@@ -190,72 +190,11 @@
     const DEFAULT_NEWS = [];
 
     // ─── Helpers ───────────────────────────────────────────
-        function getDeletedQuoteIds() {
-        try {
-            return new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.DELETED_QUOTE_IDS) || '[]'));
-        } catch { return new Set(); }
-    }
-
-    function getDeletedIds() {
-        try {
-            return new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.DELETED_IDS) || '[]'));
-        } catch { return new Set(); }
-    }
-
-    function addDeletedId(id) {
-        if (!id) return;
-        const set = getDeletedIds();
-        set.add(String(id));
-        setStore(STORAGE_KEYS.DELETED_IDS, Array.from(set));
-    }
-
-    function getDeletedNewsIds() {
-        try {
-            return new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.DELETED_NEWS_IDS) || '[]'));
-        } catch { return new Set(); }
-    }
-
-    function addDeletedNewsId(id) {
-        if (!id) return;
-        const set = getDeletedNewsIds();
-        set.add(String(id));
-        setStore(STORAGE_KEYS.DELETED_NEWS_IDS, Array.from(set));
-    }
-
-    function getDeletedDisbIds() {
-        try {
-            return new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.DELETED_DISB_IDS) || '[]'));
-        } catch { return new Set(); }
-    }
-
-    function addDeletedDisbId(id) {
-        if (!id) return;
-        const set = getDeletedDisbIds();
-        set.add(String(id));
-        setStore(STORAGE_KEYS.DELETED_DISB_IDS, Array.from(set));
-    }
-
-    function getDeletedRefIds() {
-        try {
-            return new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.DELETED_REF_IDS) || '[]'));
-        } catch { return new Set(); }
-    }
-
-    function addDeletedRefId(id) {
-        if (!id) return;
-        const set = getDeletedRefIds();
-        set.add(String(id));
-        setStore(STORAGE_KEYS.DELETED_REF_IDS, Array.from(set));
-    }
-
-
     function getDeletedQuoteIds() {
         try {
             return new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.DELETED_QUOTE_IDS) || '[]'));
         } catch { return new Set(); }
-        baseTersalurkan: 0,
-        baseDonatur: 0
-    };
+    }
 
     // ═══════════════════════════════════════════════════════
     // ALLOCATION RULES — INFAK UMUM PER WILAYAH
