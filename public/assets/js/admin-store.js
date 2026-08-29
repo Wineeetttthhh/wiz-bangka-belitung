@@ -190,9 +190,171 @@
     const DEFAULT_NEWS = [];
 
     // ─── Helpers ───────────────────────────────────────────
-    function generateId() {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
+    function getDeletedQuoteIds() {
+        try {
+            return new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.DELETED_QUOTE_IDS) || '[]'));
+        } catch { return new Set(); }
     }
+
+    function addDeletedQuoteId(id) {
+        if (!id) return;
+        const set = getDeletedQuoteIds();
+        set.add(String(id));
+        setStore(STORAGE_KEYS.DELETED_QUOTE_IDS, Array.from(set));
+    }
+
+    function getDeletedProgramIds() {
+        try {
+            return new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.DELETED_PROGRAM_IDS) || '[]'));
+        } catch { return new Set(); }
+    }
+
+    function addDeletedProgramId(id) {
+        if (!id) return;
+        const set = getDeletedProgramIds();
+        set.add(String(id));
+        setStore(STORAGE_KEYS.DELETED_PROGRAM_IDS, Array.from(set));
+    }
+
+    function getDeletedAdminIds() {
+        try {
+            return new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.DELETED_ADMIN_IDS) || '[]'));
+        } catch { return new Set(); }
+    }
+
+    function addDeletedAdminId(id) {
+        if (!id) return;
+        const set = getDeletedAdminIds();
+        set.add(String(id));
+        setStore(STORAGE_KEYS.DELETED_ADMIN_IDS, Array.from(set));
+    }
+
+    function generateUUID() {
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+            return crypto.randomUUID();
+        }
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
+    function generateId() {
+        return generateUUID();
+    }
+
+    const memoryStoreFallback = new Map();
+
+    function cleanStorageQuota() {
+        try {
+            const tempKeys = ['wiz_preview_cache', 'wiz_backup_temp', 'wiz_last_export', 'wiz_temp_log'];
+            tempKeys.forEach(k => {
+                try { localStorage.removeItem(k); } catch(e) {}
+            });
+            const acts = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACTIVITY) || '[]');
+            if (acts.length > 20) {
+                try { localStorage.setItem(STORAGE_KEYS.ACTIVITY, JSON.stringify(acts.slice(-20))); } catch(e) {}
+            }
+        } catch(e) {}
+    }
+
+    function initStore() {
+        try {
+            if (typeof localStorage === 'undefined') return;
+
+            // One-time Auto-Purge of Old Mock News on Client Browsers
+            if (localStorage.getItem('wiz_news_purged_reset_v3') !== 'true') {
+                localStorage.setItem(STORAGE_KEYS.NEWS, '[]');
+                memoryStoreFallback.set(STORAGE_KEYS.NEWS, []);
+                localStorage.setItem('wiz_news_purged_reset_v3', 'true');
+            }
+        } catch(e) {}
+    }
+
+    initStore();
+
+    function getStore(key) {
+        try {
+            const item = localStorage.getItem(key);
+            if (item) {
+                let parsed = JSON.parse(item);
+                if (key === STORAGE_KEYS.NEWS) {
+                    if (Array.isArray(parsed)) return parsed;
+                    return [];
+                }
+                if (key === STORAGE_KEYS.PROGRAMS && Array.isArray(parsed)) {
+                    let cleaned = false;
+                    parsed.forEach(p => {
+                        if (p && p.imageUrl && (p.imageUrl.includes('unsplash.com') || p.imageUrl.includes('placeholder'))) {
+                            p.imageUrl = DEFAULT_SPECIFIC_PROGRAM_IMAGES[p.title] || 'assets/images/default-program-wiz.jpg';
+                            cleaned = true;
+                        }
+                    });
+                    if (cleaned) {
+                        localStorage.setItem(key, JSON.stringify(parsed));
+                    }
+                }
+                return parsed;
+            }
+        } catch (e) {
+            console.warn("[WIZ Store] Gagal baca localStorage, fallback memory:", key);
+        }
+        if (key === STORAGE_KEYS.NEWS) return [];
+        return memoryStoreFallback.get(key) || null;
+    }
+
+    function setStore(key, data) {
+        memoryStoreFallback.set(key, data);
+        try {
+            localStorage.setItem(key, JSON.stringify(data));
+        } catch (e) {
+            if (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014) {
+                cleanStorageQuota();
+                try {
+                    localStorage.setItem(key, JSON.stringify(data));
+                } catch (retryErr) {
+                    console.warn('[WIZ Store] Data preserved in memory buffer.');
+                }
+            } else {
+                console.warn('[WIZ Store] setStore warning:', key, e.message);
+            }
+        }
+    }
+
+    function formatRupiahCompact(num) {
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num || 0);
+    }
+
+    function formatDate(isoString) {
+        if (!isoString) return '-';
+        const d = new Date(isoString);
+        return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    function formatDateTime(isoString) {
+        if (!isoString) return '-';
+        const d = new Date(isoString);
+        return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) + ', ' +
+            d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+    }
+
+    function timeAgo(isoString) {
+        if (!isoString) return 'Baru saja';
+        const diff = Date.now() - new Date(isoString).getTime();
+        const mins = Math.floor(diff / 60000);
+        if (mins < 1) return 'Baru saja';
+        if (mins < 60) return `${mins} menit yang lalu`;
+        const hours = Math.floor(mins / 60);
+        if (hours < 24) return `${hours} jam yang lalu`;
+        const days = Math.floor(hours / 24);
+        return `${days} hari yang lalu`;
+    }
+
+    const DEFAULT_BASELINES = {
+        baseMasuk: 0,
+        baseTersalurkan: 0,
+        baseDonatur: 0
+    };
 
     function getDeletedIds() {
         try {
@@ -251,340 +413,6 @@
         try {
             return new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.DELETED_QUOTE_IDS) || '[]'));
         } catch { return new Set(); }
-    }
-
-    function addDeletedQuoteId(id) {
-        if (!id) return;
-        const set = getDeletedQuoteIds();
-        set.add(String(id));
-        setStore(STORAGE_KEYS.DELETED_QUOTE_IDS, Array.from(set));
-    }
-
-    function getDeletedProgramIds() {
-        try {
-            return new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.DELETED_PROGRAM_IDS) || '[]'));
-        } catch { return new Set(); }
-    }
-
-    function addDeletedProgramId(id) {
-        if (!id) return;
-        const set = getDeletedProgramIds();
-        set.add(String(id));
-        setStore(STORAGE_KEYS.DELETED_PROGRAM_IDS, Array.from(set));
-    }
-
-    function getDeletedAdminIds() {
-        try {
-            return new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.DELETED_ADMIN_IDS) || '[]'));
-        } catch { return new Set(); }
-    }
-
-    function addDeletedAdminId(id) {
-        if (!id) return;
-        const set = getDeletedAdminIds();
-        set.add(String(id));
-        setStore(STORAGE_KEYS.DELETED_ADMIN_IDS, Array.from(set));
-    }
-
-    function generateUUID() {
-        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-            return crypto.randomUUID();
-        }
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
-    }
-
-    function generateId() {
-        return generateUUID();
-    }
-
-    const memoryStoreFallback = new Map();
-
-    function cleanStorageQuota() {
-        try {
-            // 1. Clear temporary and non-essential caches
-            const tempKeys = ['wiz_preview_cache', 'wiz_backup_temp', 'wiz_last_export', 'wiz_temp_log'];
-            tempKeys.forEach(k => {
-                try { localStorage.removeItem(k); } catch(e) {}
-            });
-
-            // 2. Trim activity logs to top 20
-            const acts = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACTIVITY) || '[]');
-            if (acts.length > 20) {
-                try { localStorage.setItem(STORAGE_KEYS.ACTIVITY, JSON.stringify(acts.slice(-20))); } catch(e) {}
-            }
-
-            // 3. Strip duplicate base64 from allocation_rules
-            const rawRules = localStorage.getItem(STORAGE_KEYS.ALLOCATION_RULES);
-            if (rawRules) {
-                try {
-                    let rules = JSON.parse(rawRules);
-                    if (rules && typeof rules === 'object') {
-                        let modified = false;
-                        for (const wData of Object.values(rules)) {
-                            if (wData && wData.subAllocation) {
-                                for (const sub of Object.values(wData.subAllocation)) {
-                                    if (sub && Array.isArray(sub.items)) {
-                                        sub.items.forEach(it => {
-                                            if (it && it.image && it.image.startsWith('data:image')) {
-                                                delete it.image;
-                                                modified = true;
-                                            }
-                                        });
-                                    }
-                                }
-                            }
-                        }
-                        if (modified) localStorage.setItem(STORAGE_KEYS.ALLOCATION_RULES, JSON.stringify(rules));
-                    }
-                } catch(e) {}
-            }
-
-            // 4. Clear old deleted tracking sets if oversized
-            ['wiz_deleted_ids', 'wiz_deleted_news_ids', 'wiz_deleted_disb_ids', 'wiz_deleted_ref_ids', 'wiz_deleted_quote_ids', 'wiz_deleted_program_ids', 'wiz_deleted_admin_ids'].forEach(k => {
-                try {
-                    const arr = JSON.parse(localStorage.getItem(k) || '[]');
-                    if (arr.length > 40) {
-                        localStorage.setItem(k, JSON.stringify(arr.slice(-40)));
-                    }
-                } catch(e) {}
-            });
-        } catch(e) {}
-    }
-
-    function sanitizeLegacyImages() {
-        try {
-            if (typeof localStorage === 'undefined') return;
-
-            // 1. Sanitize wiz_programs
-            const rawProgs = localStorage.getItem(STORAGE_KEYS.PROGRAMS);
-            if (rawProgs) {
-                let progs = JSON.parse(rawProgs);
-                if (Array.isArray(progs)) {
-                    let changed = false;
-                    progs.forEach(p => {
-                        if (p && p.imageUrl && (p.imageUrl.includes('unsplash.com') || p.imageUrl.includes('placeholder'))) {
-                            p.imageUrl = DEFAULT_SPECIFIC_PROGRAM_IMAGES[p.title] || 'assets/images/default-program-wiz.jpg';
-                            changed = true;
-                        }
-                    });
-                    if (changed) {
-                        localStorage.setItem(STORAGE_KEYS.PROGRAMS, JSON.stringify(progs));
-                        memoryStoreFallback.set(STORAGE_KEYS.PROGRAMS, progs);
-                    }
-                }
-            }
-
-            // 2. Sanitize wiz_specific_prog_imgs
-            const rawSpec = localStorage.getItem('wiz_specific_prog_imgs');
-            if (rawSpec) {
-                let spec = JSON.parse(rawSpec);
-                if (spec && typeof spec === 'object') {
-                    let changed = false;
-                    for (const [k, v] of Object.entries(spec)) {
-                        if (v && (v.includes('unsplash.com') || v.includes('placeholder'))) {
-                            spec[k] = DEFAULT_SPECIFIC_PROGRAM_IMAGES[k] || 'assets/images/default-program-wiz.jpg';
-                            changed = true;
-                        }
-                    }
-                    if (changed) localStorage.setItem('wiz_specific_prog_imgs', JSON.stringify(spec));
-                }
-            }
-
-            // 3. Sanitize wiz_allocation_rules
-            const rawRules = localStorage.getItem(STORAGE_KEYS.ALLOCATION_RULES);
-            if (rawRules) {
-                let rules = JSON.parse(rawRules);
-                if (rules && typeof rules === 'object') {
-                    let changed = false;
-                    for (const wData of Object.values(rules)) {
-                        if (wData && wData.subAllocation) {
-                            for (const sub of Object.values(wData.subAllocation)) {
-                                if (sub && Array.isArray(sub.items)) {
-                                    sub.items.forEach(item => {
-                                        if (item && item.image && (item.image.includes('unsplash.com') || item.image.includes('placeholder'))) {
-                                            item.image = DEFAULT_SPECIFIC_PROGRAM_IMAGES[item.key] || 'assets/images/default-program-wiz.jpg';
-                                            changed = true;
-                                        }
-                                    });
-                                }
-                            }
-                        }
-                    }
-                    if (changed) {
-                        localStorage.setItem(STORAGE_KEYS.ALLOCATION_RULES, JSON.stringify(rules));
-                        memoryStoreFallback.set(STORAGE_KEYS.ALLOCATION_RULES, rules);
-                    }
-                }
-            }
-
-            // 4. Sanitize wiz_site_images
-            const rawSiteImgs = localStorage.getItem(STORAGE_KEYS.SITE_IMAGES);
-            if (rawSiteImgs) {
-                let siteImgs = JSON.parse(rawSiteImgs);
-                if (siteImgs && typeof siteImgs === 'object') {
-                    let changed = false;
-                    for (const [k, v] of Object.entries(siteImgs)) {
-                        if (v && (v.includes('unsplash.com') || v.includes('placeholder'))) {
-                            siteImgs[k] = DEFAULT_SITE_IMAGES[k] || 'assets/images/default-program-wiz.jpg';
-                            changed = true;
-                        }
-                    }
-                    if (changed) {
-                        localStorage.setItem(STORAGE_KEYS.SITE_IMAGES, JSON.stringify(siteImgs));
-                        memoryStoreFallback.set(STORAGE_KEYS.SITE_IMAGES, siteImgs);
-                    }
-                }
-            }
-
-            // 5. Sanitize wiz_news: normalize imageUrl / image_url and purge tiny corrupted base64
-            const rawNews = localStorage.getItem(STORAGE_KEYS.NEWS);
-            if (rawNews) {
-                let newsList = JSON.parse(rawNews);
-                if (Array.isArray(newsList)) {
-                    let changed = false;
-                    newsList.forEach(n => {
-                        if (n) {
-                            if (!n.imageUrl && n.image_url) {
-                                n.imageUrl = n.image_url;
-                                changed = true;
-                            }
-                            if (!n.image_url && n.imageUrl) {
-                                n.image_url = n.imageUrl;
-                                changed = true;
-                            }
-                            if (n.imageUrl && typeof n.imageUrl === 'string' && n.imageUrl.includes('AARCAAKAtAD')) {
-                                n.imageUrl = 'assets/images/bantuan-pengobatan.jpg';
-                                n.image_url = 'assets/images/bantuan-pengobatan.jpg';
-                                changed = true;
-                            }
-                        }
-                    });
-                    if (changed) {
-                        localStorage.setItem(STORAGE_KEYS.NEWS, JSON.stringify(newsList));
-                        memoryStoreFallback.set(STORAGE_KEYS.NEWS, newsList);
-                    }
-                }
-            }
-        } catch(e) {}
-    }
-
-    // Run immediate purge upon loading
-    sanitizeLegacyImages();
-
-    function getStore(key) {
-        try {
-            const item = localStorage.getItem(key);
-            if (item) {
-                let parsed = JSON.parse(item);
-                if (key === STORAGE_KEYS.NEWS) {
-                    if (Array.isArray(parsed)) return parsed;
-                    return [];
-                }
-                if (key === STORAGE_KEYS.PROGRAMS && Array.isArray(parsed)) {
-                    let cleaned = false;
-                    parsed.forEach(p => {
-                        if (p && p.imageUrl && (p.imageUrl.includes('unsplash.com') || p.imageUrl.includes('placeholder'))) {
-                            p.imageUrl = DEFAULT_SPECIFIC_PROGRAM_IMAGES[p.title] || 'assets/images/default-program-wiz.jpg';
-                            cleaned = true;
-                        }
-                    });
-                    if (cleaned) {
-                        localStorage.setItem(key, JSON.stringify(parsed));
-                    }
-                }
-                return parsed;
-            }
-        } catch (e) {
-            console.warn("[WIZ Store] Gagal baca localStorage, fallback memory:", key);
-        }
-        if (key === STORAGE_KEYS.NEWS) return [];
-        return memoryStoreFallback.get(key) || null;
-    }
-
-    function cleanStorageQuota() {
-        try {
-            const nonEssentialKeys = [
-                'wiz_temp_upload', 'wiz_debug_logs', 'wiz_chart_cache',
-                'wiz_preview_cache', 'wiz_backup_temp'
-            ];
-            nonEssentialKeys.forEach(k => {
-                try { localStorage.removeItem(k); } catch(e) {}
-            });
-
-            // Compress or fallback oversized base64 stored in localStorage
-            const rawProgs = localStorage.getItem(STORAGE_KEYS.PROGRAMS);
-            if (rawProgs) {
-                try {
-                    let progs = JSON.parse(rawProgs);
-                    if (Array.isArray(progs)) {
-                        progs.forEach(p => {
-                            if (p && p.imageUrl && p.imageUrl.startsWith('data:image') && p.imageUrl.length > 200000) {
-                                p.imageUrl = DEFAULT_SPECIFIC_PROGRAM_IMAGES[p.title] || 'assets/images/default-program-wiz.jpg';
-                            }
-                        });
-                        localStorage.setItem(STORAGE_KEYS.PROGRAMS, JSON.stringify(progs));
-                    }
-                } catch(e) {}
-            }
-        } catch(e) {
-            console.warn('[WIZ Store] Storage cleanup error:', e.message);
-        }
-    }
-
-    function setStore(key, data) {
-        memoryStoreFallback.set(key, data);
-        try {
-            localStorage.setItem(key, JSON.stringify(data));
-        } catch (e) {
-            if (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014) {
-                console.warn('[WIZ Store] localStorage quota reached. Running auto-cleanup...');
-                cleanStorageQuota();
-                try {
-                    localStorage.setItem(key, JSON.stringify(data));
-                } catch (retryErr) {
-                    console.warn('[WIZ Store] Safe fallback: Data preserved in memory buffer.');
-                }
-            } else {
-                console.warn('[WIZ Store] setStore warning:', key, e.message);
-            }
-        }
-    }
-
-    function formatRupiahCompact(num) {
-        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num || 0);
-    }
-
-    function formatDate(isoString) {
-        if (!isoString) return '-';
-        const d = new Date(isoString);
-        return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-    }
-
-    function formatDateTime(isoString) {
-        if (!isoString) return '-';
-        const d = new Date(isoString);
-        return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) + ', ' +
-            d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
-    }
-
-    function timeAgo(isoString) {
-        if (!isoString) return 'Baru saja';
-        const diff = Date.now() - new Date(isoString).getTime();
-        const mins = Math.floor(diff / 60000);
-        if (mins < 1) return 'Baru saja';
-        if (mins < 60) return `${mins} menit yang lalu`;
-        const hours = Math.floor(mins / 60);
-        if (hours < 24) return `${hours} jam yang lalu`;
-        const days = Math.floor(hours / 24);
-        return `${days} hari yang lalu`;
-    }
-
-    // ─── Default Baseline Settings (Pure 0 base for real data integration) ──
-    const DEFAULT_BASELINES = {
-        baseMasuk: 0,
         baseTersalurkan: 0,
         baseDonatur: 0
     };
