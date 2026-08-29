@@ -2521,20 +2521,11 @@
                 window.dispatchEvent(new CustomEvent('wiz-donations-changed'));
             }
 
-            // Sync News: Supabase news table is authoritative
+            // Sync News: Filter out any locally-deleted news from Supabase results
             if (directSbNews !== null && Array.isArray(directSbNews)) {
-                // Clear any obsolete deleted ID flags for items currently active in Supabase
                 const deletedSet = getDeletedNewsIds();
-                let hasDeletedChanges = false;
-                directSbNews.forEach(n => {
-                    if (n && n.id && deletedSet.has(String(n.id))) {
-                        deletedSet.delete(String(n.id));
-                        hasDeletedChanges = true;
-                    }
-                });
-                if (hasDeletedChanges) {
-                    setStore(STORAGE_KEYS.DELETED_NEWS_IDS, Array.from(deletedSet));
-                }
+                // NEVER restore deleted news — filter them OUT from Supabase data
+                directSbNews = directSbNews.filter(n => n && n.id && !deletedSet.has(String(n.id)));
 
                 const mappedNews = directSbNews.map(rawN => {
                     const img = (rawN.imageUrl || rawN.image_url || (Array.isArray(rawN.gallery) && rawN.gallery.length > 0 ? rawN.gallery[0] : '') || '').trim();

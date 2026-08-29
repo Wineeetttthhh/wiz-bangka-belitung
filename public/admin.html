@@ -4930,10 +4930,53 @@
                 btn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">refresh</span> Membersihkan...';
             }
             try {
-                await wizStore.news.clearAll();
+                // Step 1: Clear from localStorage and memory immediately
+                localStorage.setItem('wiz_news', '[]');
+                localStorage.setItem('wiz_deleted_news_ids', '[]');
+                localStorage.setItem('wiz_news_purged_reset_v3', 'true');
+
+                // Step 2: Delete ALL from Supabase directly via REST API
+                if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                    const SBURL = 'https://ccmulazswlmjyfjdtlti.supabase.co/rest/v1';
+                    const SBKEY = 'sb_publishable_hEmZHHQyc0EeHXQI2caacQ_InnfPXa5';
+                    const hdr = {
+                        'apikey': SBKEY,
+                        'Authorization': 'Bearer ' + SBKEY,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    };
+
+                    // Get all news IDs first
+                    try {
+                        const listRes = await fetch(SBURL + '/news?select=id', { headers: hdr });
+                        if (listRes.ok) {
+                            const newsList = await listRes.json();
+                            if (Array.isArray(newsList) && newsList.length > 0) {
+                                // Delete each one
+                                for (const n of newsList) {
+                                    try {
+                                        await fetch(SBURL + '/news?id=eq.' + encodeURIComponent(n.id), {
+                                            method: 'DELETE',
+                                            headers: hdr
+                                        });
+                                    } catch(delErr) {}
+                                }
+                            }
+                        }
+                    } catch(sbErr) {
+                        console.warn('[ClearNews] Supabase delete error:', sbErr.message);
+                    }
+                }
+
+                // Step 3: Clear via wizStore
+                if (wizStore && wizStore.news && wizStore.news.clearAll) {
+                    try { await wizStore.news.clearAll(); } catch(e) {}
+                }
+
+                // Step 4: Force refresh UI
                 renderNewsList();
                 refreshAll();
-                alert('✅ Seluruh berita telah berhasil dibersihkan! Anda sekarang dapat menulis berita baru.');
+                alert('✅ Seluruh berita telah berhasil dibersihkan!\n\nAnda sekarang dapat menulis berita baru dengan menekan tombol "+ Tulis Berita Baru".');
             } catch(e) {
                 alert('⚠️ Gagal membersihkan berita: ' + e.message);
             } finally {
@@ -4943,6 +4986,7 @@
                 }
             }
         }
+
 
         function renderDisbursementTable() {
             const filterWilayah = getEffectiveWilayah();
@@ -8633,7 +8677,49 @@
             checkAdminAuth();
             refreshAll();
             handleInitialUrlRouting();
-            
+
+            // One-time auto-purge of ALL old mock news from Supabase on first admin load
+            const purgeKey = 'wiz_supabase_news_purged_v1';
+            if (localStorage.getItem(purgeKey) !== 'true') {
+                // Clear localStorage immediately
+                localStorage.setItem('wiz_news', '[]');
+                localStorage.setItem('wiz_deleted_news_ids', '[]');
+                localStorage.setItem('wiz_news_purged_reset_v3', 'true');
+
+                // Delete all from Supabase in background
+                (async () => {
+                    try {
+                        const SBURL = 'https://ccmulazswlmjyfjdtlti.supabase.co/rest/v1';
+                        const SBKEY = 'sb_publishable_hEmZHHQyc0EeHXQI2caacQ_InnfPXa5';
+                        const hdr = {
+                            'apikey': SBKEY,
+                            'Authorization': 'Bearer ' + SBKEY,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal'
+                        };
+                        const listRes = await fetch(SBURL + '/news?select=id', { headers: hdr });
+                        if (listRes.ok) {
+                            const newsList = await listRes.json();
+                            if (Array.isArray(newsList) && newsList.length > 0) {
+                                for (const n of newsList) {
+                                    try {
+                                        await fetch(SBURL + '/news?id=eq.' + encodeURIComponent(n.id), {
+                                            method: 'DELETE',
+                                            headers: hdr
+                                        });
+                                    } catch(e) {}
+                                }
+                                console.log('[WIZ] Auto-purged', newsList.length, 'old mock news from Supabase.');
+                            }
+                        }
+                        localStorage.setItem(purgeKey, 'true');
+                        if (typeof renderNewsList === 'function') renderNewsList();
+                    } catch(e) {
+                        console.warn('[WIZ] Auto-purge news error:', e.message);
+                    }
+                })();
+            }
+
             // Asynchronous non-blocking Cloud Fetch on startup
             if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
                 window.wizStore.syncFromCloud(true).then(() => {
