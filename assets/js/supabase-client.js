@@ -70,11 +70,13 @@ const SUPABASE_CONFIG = {
         if (params.length > 0) url += '?' + params.join('&');
 
         try {
-            const res = await fetch(url, {
+            const fetchOpts = {
                 method: 'GET',
                 headers: headers({ 'Accept': 'application/json' }),
                 cache: 'no-store'
-            });
+            };
+            if (options.signal) fetchOpts.signal = options.signal;
+            const res = await fetch(url, fetchOpts);
             if (!res.ok) {
                 const err = await res.text();
                 return { data: null, error: err };

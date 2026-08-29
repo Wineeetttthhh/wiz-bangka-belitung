@@ -302,6 +302,13 @@ export default async function handler(req, res) {
             if (!master) master = loadCanonicalSeed();
 
             // ─── HIGH-SPEED TARGETED MICRO-ACTIONS (<100ms) ─────────
+            if (body && body.action === 'verify_admin_user' && body.username) {
+                const cleanUser = (body.username || '').toLowerCase().trim();
+                const users = Array.isArray(master.admin_users) ? master.admin_users : [];
+                const found = users.find(u => u && u.username && u.username.toLowerCase() === cleanUser);
+                return res.status(200).json({ status: 'success', action: 'verify_admin_user', user: found || null });
+            }
+
             if (body && body.action === 'register_admin_user' && body.user) {
                 const incomingUser = body.user;
                 if (!master.admin_users) master.admin_users = [];

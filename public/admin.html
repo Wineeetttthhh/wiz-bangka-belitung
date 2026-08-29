@@ -177,6 +177,7 @@
                 localStorage.removeItem('wiz_admin_user');
                 localStorage.removeItem('wiz_admin_role');
                 localStorage.removeItem('wiz_admin_name');
+                localStorage.removeItem('wiz_admin_wilayah');
             }
             document.addEventListener('DOMContentLoaded', function() {
                 const m = document.getElementById('admin-login-modal');
@@ -2926,6 +2927,104 @@
         let CURRENT_ROLE = 'SUPER_ADMIN'; // SUPER_ADMIN | ADMIN_PANGKALPINANG | ADMIN_SUNGAILIAT
         let currentDonationTab = 'pending';
 
+        // ─── Admin Role & Wilayah Scope Authority ─────────
+        function getAdminAuthInfo() {
+            const user = sessionStorage.getItem('wiz_admin_user') || localStorage.getItem('wiz_admin_user') || '';
+            const role = sessionStorage.getItem('wiz_admin_role') || localStorage.getItem('wiz_admin_role') || '';
+            const wilayah = sessionStorage.getItem('wiz_admin_wilayah') || localStorage.getItem('wiz_admin_wilayah') || '';
+            
+            const isSuperAdmin = user === 'admin' || role === 'super_admin' || wilayah === 'Semua Wilayah';
+            let assignedWilayah = 'Semua';
+            if (!isSuperAdmin) {
+                if (wilayah === 'Pangkalpinang' || CURRENT_ROLE === 'ADMIN_PANGKALPINANG') assignedWilayah = 'Pangkalpinang';
+                else if (wilayah === 'Sungailiat' || CURRENT_ROLE === 'ADMIN_SUNGAILIAT') assignedWilayah = 'Sungailiat';
+            }
+            return { user, role, wilayah, isSuperAdmin, assignedWilayah };
+        }
+
+        function getEffectiveWilayah(defaultVal = 'Semua') {
+            const auth = getAdminAuthInfo();
+            if (!auth.isSuperAdmin && auth.assignedWilayah !== 'Semua') {
+                return auth.assignedWilayah;
+            }
+            if (CURRENT_ROLE === 'ADMIN_PANGKALPINANG') return 'Pangkalpinang';
+            if (CURRENT_ROLE === 'ADMIN_SUNGAILIAT') return 'Sungailiat';
+            
+            const filterW = document.getElementById('filter-wilayah');
+            if (filterW && filterW.value && filterW.value !== 'Semua') {
+                return filterW.value;
+            }
+            return defaultVal;
+        }
+
+        function applyAdminRoleUI() {
+            const auth = getAdminAuthInfo();
+            const roleSelect = document.getElementById('admin-role-select');
+            const navAdminUsers = document.getElementById('nav-admin-users');
+            const navSiteSettings = document.getElementById('nav-site-settings');
+            
+            const filterW = document.getElementById('filter-wilayah');
+            const disbFilterW = document.getElementById('disb-filter-wilayah');
+            const finFilterW = document.getElementById('finance-wilayah-filter');
+
+            if (auth.isSuperAdmin) {
+                if (navAdminUsers) navAdminUsers.style.display = '';
+                if (navSiteSettings) navSiteSettings.style.display = '';
+                if (roleSelect) {
+                    roleSelect.disabled = false;
+                    if (CURRENT_ROLE === 'ADMIN_PANGKALPINANG') roleSelect.value = 'ADMIN_PANGKALPINANG';
+                    else if (CURRENT_ROLE === 'ADMIN_SUNGAILIAT') roleSelect.value = 'ADMIN_SUNGAILIAT';
+                    else roleSelect.value = 'SUPER_ADMIN';
+                }
+                if (filterW) filterW.disabled = false;
+                if (disbFilterW) disbFilterW.disabled = false;
+                if (finFilterW) finFilterW.disabled = false;
+            } else {
+                // Admin Cabang (Amil Pangkalpinang atau Sungailiat)
+                if (navAdminUsers) navAdminUsers.style.display = 'none';
+                if (navSiteSettings) navSiteSettings.style.display = 'none';
+                if (roleSelect) {
+                    roleSelect.value = auth.assignedWilayah === 'Pangkalpinang' ? 'ADMIN_PANGKALPINANG' : 'ADMIN_SUNGAILIAT';
+                    roleSelect.disabled = true;
+                }
+                
+                if (filterW) {
+                    filterW.value = auth.assignedWilayah;
+                    filterW.disabled = true;
+                }
+                if (disbFilterW) {
+                    disbFilterW.value = auth.assignedWilayah;
+                    disbFilterW.disabled = true;
+                }
+                if (finFilterW) {
+                    finFilterW.value = auth.assignedWilayah;
+                    finFilterW.disabled = true;
+                }
+            }
+        }
+
+        function handleRoleChange(role) {
+            CURRENT_ROLE = role;
+            const filterW = document.getElementById('filter-wilayah');
+            const disbFilterW = document.getElementById('disb-filter-wilayah');
+            const finFilterW = document.getElementById('finance-wilayah-filter');
+            
+            if (role === 'ADMIN_PANGKALPINANG') {
+                if (filterW) filterW.value = 'Pangkalpinang';
+                if (disbFilterW) disbFilterW.value = 'Pangkalpinang';
+                if (finFilterW) finFilterW.value = 'Pangkalpinang';
+            } else if (role === 'ADMIN_SUNGAILIAT') {
+                if (filterW) filterW.value = 'Sungailiat';
+                if (disbFilterW) disbFilterW.value = 'Sungailiat';
+                if (finFilterW) finFilterW.value = 'Sungailiat';
+            } else {
+                if (filterW) filterW.value = 'Semua';
+                if (disbFilterW) disbFilterW.value = 'Semua';
+                if (finFilterW) finFilterW.value = 'Semua';
+            }
+            refreshAll();
+        }
+
         function fmt(n) {
             return (window.wizStore && window.wizStore.utils && typeof window.wizStore.utils.formatRupiah === 'function')
                 ? window.wizStore.utils.formatRupiah(n)
@@ -2945,9 +3044,6 @@
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#039;');
         }
-
-
-
 
         function clearNewsPhoto() {
             document.getElementById('news-image-url').value = '';
@@ -2972,21 +3068,6 @@
             } else if (!val) {
                 if (previewImg.parentElement) previewImg.parentElement.classList.add('hidden');
             }
-        }
-
-        function handleRoleChange(role) {
-            CURRENT_ROLE = role;
-            const filterW = document.getElementById('filter-wilayah');
-            if (role === 'ADMIN_PANGKALPINANG') {
-                filterW.value = 'Pangkalpinang';
-                filterW.disabled = true;
-            } else if (role === 'ADMIN_SUNGAILIAT') {
-                filterW.value = 'Sungailiat';
-                filterW.disabled = true;
-            } else {
-                filterW.disabled = false;
-            }
-            refreshAll();
         }
 
         function showNotification(message, type = 'success') {
@@ -3135,7 +3216,7 @@
 
         // ─── KPI Cards Render ────────────────────────────
         function renderKPI(containerId) {
-            const activeWilayah = document.getElementById('filter-wilayah') ? document.getElementById('filter-wilayah').value : 'Semua';
+            const activeWilayah = getEffectiveWilayah();
             const stats = wizStore.finance.getOverviewStats(activeWilayah);
             const fmt = wizStore.utils.formatRupiahCompact;
             const container = document.getElementById(containerId);
@@ -3178,9 +3259,9 @@
 
         // ─── Dashboard Donation Table ────────────────────
         function renderDashboardDonations() {
-            const activeWilayah = document.getElementById('filter-wilayah') ? document.getElementById('filter-wilayah').value : 'Semua';
+            const activeWilayah = getEffectiveWilayah();
             let pending = wizStore.donations.getPending();
-            if (activeWilayah !== 'Semua') pending = pending.filter(d => d.wilayah === activeWilayah);
+            if (activeWilayah !== 'Semua') pending = pending.filter(d => (d.wilayah || 'Pangkalpinang') === activeWilayah);
             pending = pending.slice(0, 5);
 
             const fmt = wizStore.utils.formatRupiahCompact;
@@ -3244,7 +3325,7 @@
 
         // ─── Progress 5 Berkah ───────────────────────────
         function renderProgress5Berkah() {
-            const activeWilayah = document.getElementById('filter-wilayah') ? document.getElementById('filter-wilayah').value : 'Semua';
+            const activeWilayah = getEffectiveWilayah();
             const programs = wizStore.finance.getPerProgram(activeWilayah);
             const fmt = wizStore.utils.formatRupiahCompact;
             const container = document.getElementById('progress-5berkah');
@@ -3270,11 +3351,14 @@
 
         function renderFullDonationTable() {
             const fmt = wizStore.utils.formatRupiahCompact;
-            const filterWilayah = document.getElementById('filter-wilayah') ? document.getElementById('filter-wilayah').value : 'Semua';
+            const filterWilayah = getEffectiveWilayah();
             const filterJenis = document.getElementById('filter-jenis') ? document.getElementById('filter-jenis').value : 'Semua';
             const filterProgramUtama = document.getElementById('filter-program-utama') ? document.getElementById('filter-program-utama').value : 'Semua';
 
-            const allList = wizStore.donations.getAll();
+            let allList = wizStore.donations.getAll();
+            if (filterWilayah !== 'Semua') {
+                allList = allList.filter(d => (d.wilayah || 'Pangkalpinang') === filterWilayah);
+            }
             const pendingCount = allList.filter(d => d.status === 'pending').length;
             const verifiedCount = allList.filter(d => d.status === 'verified').length;
 
@@ -3821,6 +3905,19 @@
                 document.getElementById('man-additional-bonus').value = '0';
                 handleAdminTypeChange('Infak Umum');
             }
+
+            // Lock branch selection if logged-in admin is assigned to a specific branch
+            const auth = getAdminAuthInfo();
+            const manWilayahEl = document.getElementById('man-wilayah');
+            if (manWilayahEl) {
+                if (!auth.isSuperAdmin && auth.assignedWilayah !== 'Semua') {
+                    manWilayahEl.value = auth.assignedWilayah;
+                    manWilayahEl.disabled = true;
+                } else {
+                    manWilayahEl.disabled = false;
+                }
+            }
+
             updateReferralCalc();
             showModal('manual-donation-modal');
         }
@@ -4829,8 +4926,7 @@
         }
 
         function renderDisbursementTable() {
-            let list = wizStore.disbursements.getAll();
-            const filterWilayah = document.getElementById('disb-filter-wilayah') ? document.getElementById('disb-filter-wilayah').value : 'Semua';
+            const filterWilayah = getEffectiveWilayah();
             if (filterWilayah && filterWilayah !== 'Semua') {
                 list = list.filter(d => (d.wilayah || 'Pangkalpinang') === filterWilayah);
             }
@@ -5184,18 +5280,25 @@
         }
 
 
-        function openDisbursementModal(editId) {
+                function openDisbursementModal(editId) {
+            populateDisbProgramSelect();
+            const auth = getAdminAuthInfo();
+            const activeW = (!auth.isSuperAdmin && auth.assignedWilayah !== 'Semua') ? auth.assignedWilayah : (document.getElementById('disb-filter-wilayah') ? document.getElementById('disb-filter-wilayah').value : 'Pangkalpinang');
+            const disbWilayahEl = document.getElementById('disb-wilayah');
+            if (disbWilayahEl) {
+                disbWilayahEl.value = activeW !== 'Semua' ? activeW : 'Pangkalpinang';
+                if (!auth.isSuperAdmin && auth.assignedWilayah !== 'Semua') {
+                    disbWilayahEl.disabled = true;
+                } else {
+                    disbWilayahEl.disabled = false;
+                }
+            }
             document.getElementById('disb-edit-id').value = editId || '';
-            document.getElementById('disbursement-modal-title').textContent = editId ? 'Edit Catatan Pengeluaran' : 'Catat Pengeluaran Dana Baru';
-            
+            document.getElementById('disbursement-modal-title').textContent = editId ? 'Edit Data Pengeluaran / Penyaluran' : 'Catat Pengeluaran Program';
             if (!editId) {
                 document.getElementById('disbursement-form').reset();
-                populateDisbursementPrograms('');
-                document.getElementById('disb-date').value = new Date().toISOString().split('T')[0];
-                const activeW = document.getElementById('disb-filter-wilayah') ? document.getElementById('disb-filter-wilayah').value : 'Pangkalpinang';
-                if (document.getElementById('disb-wilayah')) {
-                    document.getElementById('disb-wilayah').value = activeW !== 'Semua' ? activeW : 'Pangkalpinang';
-                }
+                document.getElementById('disb-category').value = 'program_execution';
+                handleDisbCategoryChange('program_execution');
                 handleDisbProgramSelect('');
             }
             showModal('disbursement-modal');
@@ -5339,7 +5442,7 @@
 
         function renderFinanceSection() {
             renderKPI('finance-kpi-grid');
-            const activeWilayah = document.getElementById('filter-wilayah') ? document.getElementById('filter-wilayah').value : 'Semua';
+            const activeWilayah = getEffectiveWilayah();
             const programs = wizStore.finance.getPerProgram(activeWilayah);
             const specificProgs = wizStore.finance.getPerSpecificProgram(activeWilayah);
             const fmt = wizStore.utils.formatRupiahCompact;
@@ -5423,15 +5526,44 @@
         }
 
         function updateBadges() {
-            const pendingCount = wizStore.donations ? wizStore.donations.countPending() : 0;
+            const auth = getAdminAuthInfo();
+            const targetWilayah = (!auth.isSuperAdmin && auth.assignedWilayah !== 'Semua') ? auth.assignedWilayah : getEffectiveWilayah();
+            
+            // Calculate pending donations for this admin's scope
+            let pendingDons = wizStore.donations ? wizStore.donations.getPending() : [];
+            if (targetWilayah !== 'Semua') {
+                pendingDons = pendingDons.filter(d => (d.wilayah || 'Pangkalpinang') === targetWilayah);
+            }
+            const pendingCount = pendingDons.length;
+            
+            // 🚀 Update sidebar orange badge for Pemasukan / Donasi
+            const donBadge = document.getElementById('pending-donations-badge');
+            if (donBadge) {
+                if (pendingCount > 0) {
+                    donBadge.textContent = pendingCount;
+                    donBadge.classList.remove('hidden');
+                } else {
+                    donBadge.classList.add('hidden');
+                }
+            }
+            
+            // Update dashboard action card badge
             const el = document.getElementById('pending-count-badge');
-            if (el) el.textContent = `${pendingCount} pending`;
+            if (el) {
+                el.textContent = `${pendingCount} pending`;
+                if (pendingCount > 0) {
+                    el.className = 'font-caption text-caption font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 shadow-xs animate-pulse';
+                } else {
+                    el.className = 'font-caption text-caption text-on-surface-variant';
+                }
+            }
 
+            // Update admin approval badge (Super admin only)
             if (wizStore.adminUsers) {
                 const pendingAdmins = wizStore.adminUsers.getPending();
                 const adminBadge = document.getElementById('pending-admins-badge');
                 if (adminBadge) {
-                    if (pendingAdmins.length > 0) {
+                    if (auth.isSuperAdmin && pendingAdmins.length > 0) {
                         adminBadge.textContent = pendingAdmins.length;
                         adminBadge.classList.remove('hidden');
                     } else {
@@ -7465,9 +7597,8 @@
         function renderFinanceSection() {
             if (!window.wizStore || !wizStore.finance) return;
 
-            const filterWilayah = document.getElementById('finance-wilayah-filter') ? document.getElementById('finance-wilayah-filter').value : 'Semua';
+            const filterWilayah = getEffectiveWilayah();
             const fmt = wizStore.utils.formatRupiahCompact;
-
             // Render Finance KPI Grid
             renderKPI('finance-kpi-grid');
 
@@ -8041,16 +8172,7 @@
 
         function refreshAll() {
             if (!window.wizStore) return;
-
-            // Role-based nav visibility
-            const currentUser = sessionStorage.getItem('wiz_admin_user') || '';
-            const currentRole = sessionStorage.getItem('wiz_admin_role') || '';
-            const isSuperAdmin = currentUser === 'admin' || currentRole === 'super_admin';
-            const navAdminUsers = document.getElementById('nav-admin-users');
-            const navSiteSettings = document.getElementById('nav-site-settings');
-            if (navAdminUsers) navAdminUsers.style.display = '';
-            if (navSiteSettings) navSiteSettings.style.display = '';
-
+            applyAdminRoleUI();
             const section = getActiveSection();
 
             // Always lightweight: KPI badges only
@@ -8118,17 +8240,31 @@
         }
 
         function checkAdminAuth() {
+            const auth = getAdminAuthInfo();
             const isAuth = sessionStorage.getItem('wiz_admin_authenticated') === 'true' || localStorage.getItem('wiz_admin_authenticated') === 'true';
             const savedName = sessionStorage.getItem('wiz_admin_name') || localStorage.getItem('wiz_admin_name');
             if (savedName) ADMIN_NAME = savedName;
+            
+            if (isAuth) {
+                if (!auth.isSuperAdmin) {
+                    CURRENT_ROLE = auth.assignedWilayah === 'Pangkalpinang' ? 'ADMIN_PANGKALPINANG' : 'ADMIN_SUNGAILIAT';
+                }
+                applyAdminRoleUI();
+            }
 
             const loginModal = document.getElementById('admin-login-modal');
             if (isAuth) {
+                document.documentElement.classList.remove('admin-locked');
                 if (loginModal) {
                     loginModal.style.setProperty('display', 'none', 'important');
                     loginModal.remove();
                 }
+                const asideEl = document.querySelector('body > aside');
+                const mainEl = document.querySelector('body > main');
+                if (asideEl) asideEl.style.display = '';
+                if (mainEl) mainEl.style.display = '';
             } else {
+                document.documentElement.classList.add('admin-locked');
                 if (loginModal) {
                     loginModal.style.display = 'flex';
                     loginModal.style.visibility = 'visible';
@@ -8286,7 +8422,7 @@
             const errAlert = document.getElementById('login-error-alert');
             const errText = document.getElementById('login-error-text');
 
-            // SECURITY: Reject empty username or password — no auto-login bypass allowed
+            // SECURITY: Reject empty username or password
             if (!rawUser || !rawPass) {
                 if (errAlert && errText) {
                     errAlert.classList.remove('hidden');
@@ -8300,7 +8436,7 @@
 
             let authResult = null;
 
-            // Submit button loading indicator during online verification
+            // Submit button loading indicator during verification
             const submitBtn = document.getElementById('btn-admin-login-submit') || (event && event.target && event.target.tagName === 'BUTTON' ? event.target : document.querySelector('#admin-login-form button[type="submit"]'));
             const origBtnHtml = submitBtn ? submitBtn.innerHTML : '';
             if (submitBtn) {
@@ -8309,7 +8445,7 @@
             }
 
             try {
-                // SECURITY: Exact match required for built-in super admin — no partial/empty match
+                // SECURITY: Exact match for built-in super admin (instant 0ms execution)
                 if (user === 'admin' && pass === 'wizbabel2026') {
                     authResult = {
                         success: true,
@@ -8322,7 +8458,7 @@
                         }
                     };
                 } else if (window.wizStore && window.wizStore.adminUsers) {
-                    // Try registered admin users (requires exact credentials) with real-time cloud verification
+                    // Try registered admin users with local-first and fast cloud verification
                     authResult = await window.wizStore.adminUsers.login(rawUser, rawPass);
                 } else {
                     authResult = { success: false, message: 'Username atau Password salah!' };
@@ -8337,14 +8473,17 @@
             }
 
             if (authResult && authResult.success) {
-                // SECURITY: Only use sessionStorage — expires when browser/tab is closed
-                // Never persist auth to localStorage
+                // 🚀 Instant DOM unlock & state transition
+                document.documentElement.classList.remove('admin-locked');
+
+                // SECURITY: Only use sessionStorage
                 sessionStorage.setItem('wiz_admin_authenticated', 'true');
                 sessionStorage.setItem('wiz_admin_user', authResult.user.username);
                 sessionStorage.setItem('wiz_admin_role', authResult.user.role || 'super_admin');
                 sessionStorage.setItem('wiz_admin_name', authResult.user.fullName || authResult.user.username);
+                sessionStorage.setItem('wiz_admin_wilayah', authResult.user.wilayah || 'Semua Wilayah');
 
-                // Ensure localStorage has NO auth tokens (belt-and-suspenders cleanup)
+                // Ensure localStorage has NO auth tokens
                 localStorage.removeItem('wiz_admin_authenticated');
                 localStorage.removeItem('wiz_admin_user');
                 localStorage.removeItem('wiz_admin_role');
@@ -8353,18 +8492,35 @@
                 ADMIN_NAME = authResult.user.fullName || authResult.user.username;
                 if (errAlert) errAlert.classList.add('hidden');
 
+                // Smooth instant removal of login modal
                 const loginModal = document.getElementById('admin-login-modal');
                 if (loginModal) {
                     loginModal.style.setProperty('display', 'none', 'important');
-                    loginModal.remove();
+                    loginModal.style.opacity = '0';
+                    loginModal.style.pointerEvents = 'none';
+                    try { loginModal.remove(); } catch(e) {}
                 }
+
+                // Explicitly ensure sidebar & main dashboard containers are displayed
+                const asideEl = document.querySelector('body > aside');
+                const mainEl = document.querySelector('body > main');
+                if (asideEl) asideEl.style.display = '';
+                if (mainEl) mainEl.style.display = '';
 
                 if (window.location.search) {
                     try { window.history.replaceState({}, '', window.location.pathname); } catch(e) {}
                 }
 
+                // Instant UI render from local cache
                 refreshAll();
                 handleInitialUrlRouting();
+
+                // Non-blocking background cloud sync
+                if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
+                    window.wizStore.syncFromCloud().then(() => {
+                        refreshAll();
+                    }).catch(() => {});
+                }
             } else {
                 if (errAlert && errText) {
                     errAlert.classList.remove('hidden');
@@ -8381,10 +8537,12 @@
                 sessionStorage.removeItem('wiz_admin_user');
                 sessionStorage.removeItem('wiz_admin_role');
                 sessionStorage.removeItem('wiz_admin_name');
+                sessionStorage.removeItem('wiz_admin_wilayah');
                 localStorage.removeItem('wiz_admin_authenticated');
                 localStorage.removeItem('wiz_admin_user');
                 localStorage.removeItem('wiz_admin_role');
                 localStorage.removeItem('wiz_admin_name');
+                localStorage.removeItem('wiz_admin_wilayah');
                 // Redirect to login page
                 window.location.href = 'admin.html';
             }
@@ -8444,7 +8602,7 @@
             }
         });
 
-        document.addEventListener('DOMContentLoaded', async () => {
+        document.addEventListener('DOMContentLoaded', () => {
             if (typeof window.populateMonthFilterOptions === 'function') {
                 window.populateMonthFilterOptions('referral-month-filter');
             }
@@ -8452,13 +8610,12 @@
             refreshAll();
             handleInitialUrlRouting();
             
-            // Authoritative Cloud Fetch on startup (pull latest and update UI)
+            // Asynchronous non-blocking Cloud Fetch on startup
             if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
-                try {
-                    await window.wizStore.syncFromCloud(true);
-                } catch(e) {}
-                refreshAll();
-                handleInitialUrlRouting();
+                window.wizStore.syncFromCloud(true).then(() => {
+                    refreshAll();
+                    handleInitialUrlRouting();
+                }).catch(() => {});
             }
         });
 
