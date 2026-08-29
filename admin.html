@@ -108,39 +108,49 @@
         }
 
         /* === MODAL SYSTEM === */
-        /* All modals are hidden by default using display:none */
         .modal-backdrop {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.65);
-            z-index: 9999;
+            background: rgba(0, 0, 0, 0.75);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            z-index: 999999;
             align-items: center;
             justify-content: center;
             opacity: 0;
-            transition: opacity 0.2s ease;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
         }
 
         /* When modal is open, display:flex is set by JS */
-        .modal-backdrop.active {
-            display: flex;
-            opacity: 1;
+        .modal-backdrop.active,
+        .modal-backdrop.show {
+            display: flex !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+            z-index: 999999 !important;
         }
 
         .modal-dialog {
             background: #fff;
-            border-radius: 16px;
+            border-radius: 20px;
             width: 94%;
             max-width: 680px;
             max-height: 90vh;
             overflow-y: auto;
             transform: translateY(20px);
             transition: transform 0.25s ease;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1000000;
         }
 
-        .modal-backdrop.active .modal-dialog {
-            transform: translateY(0);
+        .modal-backdrop.active .modal-dialog,
+        .modal-backdrop.show .modal-dialog {
+            transform: translateY(0) !important;
         }
 
         .sidebar-link.active {
@@ -3215,9 +3225,14 @@
             try {
                 const modal = document.getElementById(modalId);
                 if (!modal) { console.warn('[WIZ] Modal not found:', modalId); return; }
-                modal.classList.remove('hidden', 'show');
-                modal.classList.add('active');
-                modal.style.display = 'flex';
+                modal.classList.remove('hidden');
+                modal.classList.add('active', 'show');
+                modal.style.setProperty('display', 'flex', 'important');
+                modal.style.setProperty('opacity', '1', 'important');
+                modal.style.setProperty('visibility', 'visible', 'important');
+                modal.style.setProperty('pointer-events', 'auto', 'important');
+                modal.style.setProperty('z-index', '999999', 'important');
+                document.body.style.overflow = 'hidden';
             } catch (err) {
                 console.error('[WIZ Admin] Error showing modal:', modalId, err);
             }
@@ -3228,7 +3243,11 @@
                 const modal = document.getElementById(modalId);
                 if (!modal) return;
                 modal.classList.remove('active', 'show');
-                modal.style.display = 'none';
+                modal.style.setProperty('display', 'none', 'important');
+                modal.style.setProperty('opacity', '0', 'important');
+                modal.style.setProperty('visibility', 'hidden', 'important');
+                modal.style.setProperty('pointer-events', 'none', 'important');
+                document.body.style.overflow = '';
             } catch (err) {
                 console.error('[WIZ Admin] Error hiding modal:', modalId, err);
             }
@@ -3926,30 +3945,39 @@
         }
 
         function openManualDonationModal(editId) {
-            populateReferralSelects();
-            document.getElementById('man-edit-id').value = editId || '';
-            document.getElementById('manual-donation-modal-title').textContent = editId ? 'Edit Data Donasi / Pemasukan' : 'Input Donasi / Pemasukan Manual';
-            if (!editId) {
-                document.getElementById('manual-donation-form').reset();
-                document.getElementById('man-referral-id').value = '';
-                document.getElementById('man-referral-rate').value = '6';
-                document.getElementById('man-additional-bonus').value = '0';
-                handleAdminTypeChange('Infak Umum');
-            }
-
-            // Lock branch selection if logged-in admin is assigned to a specific branch
-            const auth = getAdminAuthInfo();
-            const manWilayahEl = document.getElementById('man-wilayah');
-            if (manWilayahEl) {
-                if (!auth.isSuperAdmin && auth.assignedWilayah !== 'Semua') {
-                    manWilayahEl.value = auth.assignedWilayah;
-                    manWilayahEl.disabled = true;
-                } else {
-                    manWilayahEl.disabled = false;
+            try {
+                if (typeof populateReferralSelects === 'function') populateReferralSelects();
+                const editIdEl = document.getElementById('man-edit-id');
+                if (editIdEl) editIdEl.value = editId || '';
+                const titleEl = document.getElementById('manual-donation-modal-title');
+                if (titleEl) titleEl.textContent = editId ? 'Edit Data Donasi / Pemasukan' : 'Input Donasi / Pemasukan Manual';
+                
+                const formEl = document.getElementById('manual-donation-form');
+                if (!editId && formEl) {
+                    formEl.reset();
+                    if (document.getElementById('man-referral-id')) document.getElementById('man-referral-id').value = '';
+                    if (document.getElementById('man-referral-rate')) document.getElementById('man-referral-rate').value = '6';
+                    if (document.getElementById('man-additional-bonus')) document.getElementById('man-additional-bonus').value = '0';
+                    if (typeof handleAdminTypeChange === 'function') handleAdminTypeChange('Infak Umum');
                 }
-            }
 
-            updateReferralCalc();
+                // Lock branch selection if logged-in admin is assigned to a specific branch
+                const auth = getAdminAuthInfo();
+                const manWilayahEl = document.getElementById('man-wilayah');
+                if (manWilayahEl) {
+                    if (!auth.isSuperAdmin && auth.assignedWilayah !== 'Semua') {
+                        manWilayahEl.value = auth.assignedWilayah;
+                        manWilayahEl.disabled = true;
+                    } else {
+                        manWilayahEl.disabled = false;
+                        if (!editId) manWilayahEl.value = 'Pangkalpinang';
+                    }
+                }
+
+                if (typeof updateReferralCalc === 'function') updateReferralCalc();
+            } catch (err) {
+                console.error('[openManualDonationModal Error]', err);
+            }
             showModal('manual-donation-modal');
         }
 
@@ -5109,6 +5137,7 @@
         }
 
         function populateDisbursementPrograms(selectedVal) {
+            window.populateDisbProgramSelect = populateDisbursementPrograms;
             const select = document.getElementById('disb-program');
             if (!select || !window.wizStore) return;
 
@@ -5390,26 +5419,40 @@
         }
 
 
-                function openDisbursementModal(editId) {
-            populateDisbProgramSelect();
-            const auth = getAdminAuthInfo();
-            const activeW = (!auth.isSuperAdmin && auth.assignedWilayah !== 'Semua') ? auth.assignedWilayah : (document.getElementById('disb-filter-wilayah') ? document.getElementById('disb-filter-wilayah').value : 'Pangkalpinang');
-            const disbWilayahEl = document.getElementById('disb-wilayah');
-            if (disbWilayahEl) {
-                disbWilayahEl.value = activeW !== 'Semua' ? activeW : 'Pangkalpinang';
-                if (!auth.isSuperAdmin && auth.assignedWilayah !== 'Semua') {
-                    disbWilayahEl.disabled = true;
-                } else {
-                    disbWilayahEl.disabled = false;
+        function openDisbursementModal(editId) {
+            try {
+                if (typeof populateDisbursementPrograms === 'function') {
+                    populateDisbursementPrograms();
+                } else if (typeof populateDisbProgramSelect === 'function') {
+                    populateDisbProgramSelect();
                 }
-            }
-            document.getElementById('disb-edit-id').value = editId || '';
-            document.getElementById('disbursement-modal-title').textContent = editId ? 'Edit Data Pengeluaran / Penyaluran' : 'Catat Pengeluaran Program';
-            if (!editId) {
-                document.getElementById('disbursement-form').reset();
-                document.getElementById('disb-category').value = 'program_execution';
-                handleDisbCategoryChange('program_execution');
-                handleDisbProgramSelect('');
+                const auth = getAdminAuthInfo();
+                const activeW = (!auth.isSuperAdmin && auth.assignedWilayah !== 'Semua') ? auth.assignedWilayah : (document.getElementById('disb-filter-wilayah') ? document.getElementById('disb-filter-wilayah').value : 'Pangkalpinang');
+                const disbWilayahEl = document.getElementById('disb-wilayah');
+                if (disbWilayahEl) {
+                    disbWilayahEl.value = activeW !== 'Semua' ? activeW : 'Pangkalpinang';
+                    if (!auth.isSuperAdmin && auth.assignedWilayah !== 'Semua') {
+                        disbWilayahEl.disabled = true;
+                    } else {
+                        disbWilayahEl.disabled = false;
+                    }
+                }
+                const editIdEl = document.getElementById('disb-edit-id');
+                if (editIdEl) editIdEl.value = editId || '';
+                const titleEl = document.getElementById('disbursement-modal-title');
+                if (titleEl) titleEl.textContent = editId ? 'Edit Data Pengeluaran / Penyaluran' : 'Catat Pengeluaran Program';
+                
+                const formEl = document.getElementById('disbursement-form');
+                if (!editId && formEl) {
+                    formEl.reset();
+                    if (document.getElementById('disb-category')) {
+                        document.getElementById('disb-category').value = 'program_execution';
+                        if (typeof handleDisbCategoryChange === 'function') handleDisbCategoryChange('program_execution');
+                    }
+                    if (typeof handleDisbProgramSelect === 'function') handleDisbProgramSelect('');
+                }
+            } catch (err) {
+                console.error('[openDisbursementModal Error]', err);
             }
             showModal('disbursement-modal');
         }
