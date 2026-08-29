@@ -1,17 +1,15 @@
 /**
  * ============================================================
  * WAHDAH INSPIRASI ZAKAT (WIZ) BANGKA BELITUNG
- * Localhost Web Server with Live-Reload & SSE
+ * Localhost Web Server with Live-Reload & Dynamic Styles
  * ============================================================
  */
 
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import { createRequire } from 'module';
+import { fileURLToPath, pathToFileURL } from 'url';
 
-const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -57,6 +55,31 @@ const LIVE_RELOAD_SCRIPT = `
 </script>
 `;
 
+const TAILWIND_TAG = `
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link rel="stylesheet" href="/assets/css/styles.css">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary: '#006834',
+          'primary-container': '#008444',
+          'on-primary': '#ffffff',
+          surface: '#ffffff',
+          'on-surface': '#0f172a',
+          'on-surface-variant': '#475569',
+          'surface-container-lowest': '#ffffff',
+          'surface-container-low': '#f8fafc',
+          'surface-container': '#f1f5f9',
+          'outline-variant': '#cbd5e1'
+        }
+      }
+    }
+  }
+</script>
+`;
+
 // File watcher for Live Reload
 let watchDebounce = null;
 function notifyClients() {
@@ -82,93 +105,16 @@ try {
             normalized.includes('scratch') ||
             normalized.includes('dist') ||
             normalized.includes('.vercel') ||
-            normalized.includes('.tempmediaStorage') ||
-            normalized.endsWith('.log') ||
-            normalized.endsWith('.png') ||
-            normalized.endsWith('.webp')
+            normalized.endsWith('.log')
         ) return;
         notifyClients();
     });
-} catch (e) {
-    // fs.watch fallback if recursive is not supported
-}
+} catch (e) {}
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
     let reqUrl = req.url.split('?')[0];
 
-    // Dynamic Specific Program Open Graph Route (/program/:slug or /program?name=...)
-    if (reqUrl.startsWith('/program/') || (reqUrl === '/program' && req.url.includes('?'))) {
-        const apiFilePath = path.join(__dirname, 'api', 'program.js');
-        if (fs.existsSync(apiFilePath)) {
-            try {
-                res.status = function(code) { this.statusCode = code; return this; };
-                res.send = function(content) {
-                    if (!this.getHeader('Content-Type')) {
-                        this.setHeader('Content-Type', 'text/html; charset=utf-8');
-                    }
-                    this.writeHead(this.statusCode || 200);
-                    this.end(content);
-                    return this;
-                };
-                delete require.cache[require.resolve(apiFilePath)];
-                const handler = require(apiFilePath);
-                handler(req, res);
-                return;
-            } catch (err) {
-                console.error('[Program Dev Router Error]', err);
-            }
-        }
-    }
-
-    // Dynamic Quote & Inspirasi / Flyer Open Graph Route (/quote/:id, /flyer/:id, etc.)
-    if (reqUrl.startsWith('/quote') || reqUrl.startsWith('/flyer')) {
-        const apiFilePath = path.join(__dirname, 'api', 'quote.js');
-        if (fs.existsSync(apiFilePath)) {
-            try {
-                res.status = function(code) { this.statusCode = code; return this; };
-                res.send = function(content) {
-                    if (!this.getHeader('Content-Type')) {
-                        this.setHeader('Content-Type', 'text/html; charset=utf-8');
-                    }
-                    this.writeHead(this.statusCode || 200);
-                    this.end(content);
-                    return this;
-                };
-                delete require.cache[require.resolve(apiFilePath)];
-                const handler = require(apiFilePath);
-                handler(req, res);
-                return;
-            } catch (err) {
-                console.error('[Quote Dev Router Error]', err);
-            }
-        }
-    }
-
-    // Dynamic News / Berita Open Graph Route (/berita/:id or /berita?id=:id or /berita-image/:id)
-    if (reqUrl.startsWith('/berita/') || reqUrl.startsWith('/berita-image') || (reqUrl === '/berita' && (req.url.includes('?id=') || req.url.includes('?newsId=')))) {
-        const apiFilePath = path.join(__dirname, 'api', 'berita.js');
-        if (fs.existsSync(apiFilePath)) {
-            try {
-                res.status = function(code) { this.statusCode = code; return this; };
-                res.send = function(content) {
-                    if (!this.getHeader('Content-Type')) {
-                        this.setHeader('Content-Type', 'text/html; charset=utf-8');
-                    }
-                    this.writeHead(this.statusCode || 200);
-                    this.end(content);
-                    return this;
-                };
-                delete require.cache[require.resolve(apiFilePath)];
-                const handler = require(apiFilePath);
-                handler(req, res);
-                return;
-            } catch (err) {
-                console.error('[Berita Dev Router Error]', err);
-            }
-        }
-    }
-
-    // Serverless API Router (/api/sync, etc.)
+    // Serverless API Router (/api/*)
     if (reqUrl.startsWith('/api/')) {
         const apiName = reqUrl.replace('/api/', '').replace(/\.js$/, '');
         const apiFilePath = path.join(__dirname, 'api', `${apiName}.js`);
@@ -178,41 +124,40 @@ const server = http.createServer((req, res) => {
                 let body = '';
                 req.on('data', chunk => { body += chunk; });
                 req.on('end', async () => {
-                    req.body = body;
-                    // Parse query parameters
                     try {
-                        const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-                        req.query = Object.fromEntries(parsedUrl.searchParams.entries());
-                    } catch (e) {
-                        req.query = {};
-                    }
-
-                    // Custom res helper for express/serverless style
-                    res.status = function(code) {
-                        this.statusCode = code;
-                        return this;
-                    };
-                    res.json = function(data) {
-                        this.writeHead(this.statusCode || 200, {
-                            'Content-Type': 'application/json; charset=utf-8',
-                            'Access-Control-Allow-Origin': '*'
-                        });
-                        this.end(JSON.stringify(data));
-                        return this;
-                    };
-                    res.send = function(content) {
-                        if (!this.getHeader('Content-Type')) {
-                            this.setHeader('Content-Type', 'text/html; charset=utf-8');
+                        if (body && (req.headers['content-type'] || '').includes('application/json')) {
+                            try { req.body = JSON.parse(body); } catch (_) { req.body = body; }
+                        } else {
+                            req.body = body;
                         }
-                        this.writeHead(this.statusCode || 200);
-                        this.end(content);
-                        return this;
-                    };
 
-                    try {
-                        delete require.cache[require.resolve(apiFilePath)];
-                        const handler = require(apiFilePath);
-                        await handler(req, res);
+                        res.status = function(code) { this.statusCode = code; return this; };
+                        res.json = function(data) {
+                            this.writeHead(this.statusCode || 200, {
+                                'Content-Type': 'application/json; charset=utf-8',
+                                'Access-Control-Allow-Origin': '*'
+                            });
+                            this.end(JSON.stringify(data));
+                            return this;
+                        };
+                        res.send = function(content) {
+                            if (!this.getHeader('Content-Type')) {
+                                this.setHeader('Content-Type', 'text/html; charset=utf-8');
+                            }
+                            this.writeHead(this.statusCode || 200);
+                            this.end(content);
+                            return this;
+                        };
+
+                        const fileUrl = pathToFileURL(apiFilePath).href + '?t=' + Date.now();
+                        const mod = await import(fileUrl);
+                        const handler = mod.default || mod.GET || mod.POST || mod.handler;
+                        if (typeof handler === 'function') {
+                            await handler(req, res);
+                        } else {
+                            res.writeHead(200, { 'Content-Type': 'application/json' });
+                            res.end(JSON.stringify({ status: 'ok' }));
+                        }
                     } catch (err) {
                         console.error('[Dev API Error]', err);
                         res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -233,10 +178,9 @@ const server = http.createServer((req, res) => {
         res.writeHead(200, {
             'Content-Type': 'text/event-stream',
             'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive',
-            'Access-Control-Allow-Origin': '*'
+            'Connection': 'keep-alive'
         });
-        res.write('retry: 1000\n\n');
+        res.write('data: connected\n\n');
         sseClients.add(res);
 
         req.on('close', () => {
@@ -255,20 +199,20 @@ const server = http.createServer((req, res) => {
             filePath = tryDistAstro;
         }
     } else if (reqUrl === '/donasi' || reqUrl === '/donasi/' || reqUrl === '/donasi.html') {
-        // Priority: root donasi.html (has all fixes) > dist/donasi/index.html
-        const tryRootDonasi = path.join(__dirname, 'donasi.html');
-        const tryDistDonasi = path.join(__dirname, 'dist', 'donasi', 'index.html');
-        if (fs.existsSync(tryRootDonasi)) {
-            filePath = tryRootDonasi; // Use root donasi.html (has modal fix scripts)
-        } else if (fs.existsSync(tryDistDonasi)) {
-            filePath = tryDistDonasi;
-        }
+        filePath = path.join(__dirname, 'donasi.html');
+    } else if (reqUrl === '/admin' || reqUrl === '/admin/' || reqUrl === '/admin.html') {
+        filePath = path.join(__dirname, 'admin.html');
+    } else if (reqUrl === '/berita' || reqUrl === '/berita/' || reqUrl === '/berita.html') {
+        filePath = path.join(__dirname, 'berita.html');
+    } else if (reqUrl === '/program' || reqUrl === '/program/' || reqUrl === '/program.html') {
+        filePath = path.join(__dirname, 'program.html');
+    } else if (reqUrl === '/laporan' || reqUrl === '/laporan/' || reqUrl === '/laporan.html') {
+        filePath = path.join(__dirname, 'laporan.html');
+    } else if (reqUrl === '/affiliate' || reqUrl === '/affiliate/' || reqUrl === '/affiliate.html') {
+        filePath = path.join(__dirname, 'affiliate.html');
     } else if (!path.extname(reqUrl)) {
         const tryHtml = path.join(__dirname, reqUrl + '.html');
-        const tryDistHtml = path.join(__dirname, 'dist', reqUrl, 'index.html');
-        if (fs.existsSync(tryDistHtml)) {
-            filePath = tryDistHtml;
-        } else if (fs.existsSync(tryHtml)) {
+        if (fs.existsSync(tryHtml)) {
             filePath = tryHtml;
         }
     }
@@ -297,10 +241,14 @@ const server = http.createServer((req, res) => {
                     res.end('Internal Server Error');
                     return;
                 }
-                // Inject live reload script before </body>
+                // Inject Tailwind CSS and styles
                 let injected = content;
-                if (content.includes('</body>')) {
-                    injected = content.replace('</body>', `${LIVE_RELOAD_SCRIPT}\n</body>`);
+                if (injected.includes('<head>')) {
+                    injected = injected.replace('<head>', `<head>\n${TAILWIND_TAG}`);
+                }
+                // Inject live reload script before </body>
+                if (injected.includes('</body>')) {
+                    injected = injected.replace('</body>', `${LIVE_RELOAD_SCRIPT}\n</body>`);
                 } else {
                     injected += LIVE_RELOAD_SCRIPT;
                 }
@@ -314,15 +262,17 @@ const server = http.createServer((req, res) => {
     });
 });
 
-server.listen(PORT, () => {
-    console.log(`\n========================================================`);
-    console.log(`  SERVER LOCALHOST WIZ BANGKA BELITUNG BERJALAN!`);
-    console.log(`  --------------------------------------------------`);
-    console.log(`  Akses di Browser: http://localhost:${PORT}`);
-    console.log(`  Live-Reload:      Aktif ⚡ (Otomatis Refresh Lokal)`);
-    console.log(`  Halaman Utama:    http://localhost:${PORT}/index.html`);
-    console.log(`  Halaman Admin:    http://localhost:${PORT}/admin.html`);
-    console.log(`  Halaman Donasi:   http://localhost:${PORT}/donasi.html`);
-    console.log(`  --------------------------------------------------`);
-    console.log(`========================================================\n`);
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`
+========================================================
+  SERVER LOCALHOST WIZ BANGKA BELITUNG BERJALAN!
+  --------------------------------------------------
+  Akses di Browser: http://localhost:${PORT}
+  Live-Reload:      Aktif ⚡ (Otomatis Refresh Lokal)
+  Halaman Utama:    http://localhost:${PORT}/index.html
+  Halaman Admin:    http://localhost:${PORT}/admin.html
+  Halaman Donasi:   http://localhost:${PORT}/donasi.html
+  --------------------------------------------------
+========================================================
+`);
 });
