@@ -390,9 +390,12 @@
                 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
                 Dashboard
             </a>
-            <a class="sidebar-link flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors"
-                href="#" data-section="donations" onclick="showSection('donations', this)">
-                <span class="material-symbols-outlined">volunteer_activism</span> Pemasukan / Donasi
+            <a class="sidebar-link flex items-center justify-between gap-sm px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors"
+                href="#" id="nav-donations" data-section="donations" onclick="showSection('donations', this)">
+                <span class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined">volunteer_activism</span> Pemasukan / Donasi
+                </span>
+                <span id="pending-donations-badge" class="hidden bg-amber-500 text-white px-2 py-0.5 rounded-full text-xs font-bold animate-pulse">0</span>
             </a>
             <a class="sidebar-link flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors"
                 href="#" data-section="disbursements" onclick="showSection('disbursements', this)">
@@ -471,6 +474,13 @@
                 </div>
             </div>
             <div class="flex items-center gap-md">
+                <!-- Pending Donations Notification Badge -->
+                <button id="header-pending-donations-badge" type="button" onclick="showSection('donations', document.querySelector('[data-section=donations]')); switchDonationTab('pending', document.getElementById('tab-donations-pending-btn'));"
+                    class="hidden flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer animate-pulse" title="Ada donasi masuk yang menunggu verifikasi">
+                    <span class="material-symbols-outlined text-[16px]">pending_actions</span>
+                    <span id="header-pending-donations-count">0</span>
+                    <span class="hidden sm:inline">Menunggu Verifikasi</span>
+                </button>
                 <!-- Sync Button -->
                 <button id="sync-data-btn" onclick="handleManualSync()" title="Sinkronkan data lokal dengan database Supabase Cloud secara 2 arah"
                     class="flex items-center gap-1.5 bg-primary text-on-primary px-md py-xs rounded-lg font-caption text-caption font-bold hover:bg-primary-container transition-colors shadow-sm cursor-pointer">
@@ -3284,8 +3294,11 @@
                     <button type="button" onclick="event.stopPropagation(); verifyDonation('${d.id}')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-on-primary hover:bg-primary/90 font-label-md text-label-md transition-colors font-bold mr-1 cursor-pointer">
                         <span class="material-symbols-outlined size-[16px]">check_circle</span> Verifikasi
                     </button>
-                    <button type="button" onclick="event.stopPropagation(); showDonationDetail('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary font-label-md text-caption font-semibold cursor-pointer">
+                    <button type="button" onclick="event.stopPropagation(); showDonationDetail('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-outline-variant text-on-surface-variant hover:text-primary font-label-md text-caption font-semibold mr-1 cursor-pointer">
                         <span class="material-symbols-outlined size-[14px]">visibility</span> Detail
+                    </button>
+                    <button type="button" onclick="event.stopPropagation(); deleteDonation('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-error/30 text-error hover:bg-error/5 font-label-md text-caption font-semibold cursor-pointer" title="Hapus donasi ini">
+                        <span class="material-symbols-outlined size-[14px]">delete</span> Hapus
                     </button>
                 </td>
             </tr>`).join('');
@@ -3414,14 +3427,17 @@
                 let actionButtons = '';
                 if (d.status === 'pending') {
                     actionButtons = `
-                        <button onclick="verifyDonation('${d.id}')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-label-md text-caption font-bold shadow-xs cursor-pointer mr-1">
+                        <button onclick="verifyDonation('${d.id}')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-label-md text-caption font-bold shadow-xs cursor-pointer mr-1" title="Setujui donasi ini">
                             <span class="material-symbols-outlined text-[15px]">check_circle</span> Setujui
                         </button>
-                        <button onclick="rejectDonation('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 font-label-md text-caption font-bold shadow-xs cursor-pointer mr-1">
+                        <button onclick="rejectDonation('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 font-label-md text-caption font-bold shadow-xs cursor-pointer mr-1" title="Tolak donasi ini">
                             <span class="material-symbols-outlined text-[15px]">cancel</span> Tolak
                         </button>
-                        <button onclick="showDonationDetail('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-300 text-slate-700 hover:text-primary font-label-md text-caption font-semibold cursor-pointer">
+                        <button onclick="showDonationDetail('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-300 text-slate-700 hover:text-primary font-label-md text-caption font-semibold cursor-pointer mr-1">
                             <span class="material-symbols-outlined text-[15px]">visibility</span> Detail &amp; Bukti
+                        </button>
+                        <button onclick="deleteDonation('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-error/30 text-error hover:bg-error/5 font-label-md text-caption font-semibold cursor-pointer" title="Hapus transaksi donasi ini">
+                            <span class="material-symbols-outlined text-[15px]">delete</span> Hapus
                         </button>
                     `;
                 } else if (d.status === 'verified') {
@@ -5545,6 +5561,32 @@
                 } else {
                     donBadge.classList.add('hidden');
                 }
+            }
+            
+            // 🚀 Update header alert pill button for pending donations
+            const headerDonBadge = document.getElementById('header-pending-donations-badge');
+            const headerDonCount = document.getElementById('header-pending-donations-count');
+            if (headerDonBadge) {
+                if (pendingCount > 0) {
+                    if (headerDonCount) headerDonCount.textContent = pendingCount;
+                    headerDonBadge.classList.remove('hidden');
+                } else {
+                    headerDonBadge.classList.add('hidden');
+                }
+            }
+
+            // 🚀 Update tab badges in section-donations
+            if (wizStore.donations) {
+                let allList = wizStore.donations.getAll();
+                if (targetWilayah !== 'Semua') {
+                    allList = allList.filter(d => (d.wilayah || 'Pangkalpinang') === targetWilayah);
+                }
+                const badgePending = document.getElementById('badge-tab-pending');
+                const badgeVerified = document.getElementById('badge-tab-verified');
+                const badgeAll = document.getElementById('badge-tab-all');
+                if (badgePending) badgePending.textContent = allList.filter(d => d.status === 'pending').length;
+                if (badgeVerified) badgeVerified.textContent = allList.filter(d => d.status === 'verified').length;
+                if (badgeAll) badgeAll.textContent = allList.length;
             }
             
             // Update dashboard action card badge
