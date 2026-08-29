@@ -12,9 +12,9 @@ import fs from 'fs';
 import path from 'path';
 
 // Supabase Configuration
-const SUPABASE_RAW_URL = process.env.SUPABASE_URL || 'https://ccmulazswlmjyfjdtlti.supabase.co';
+const SUPABASE_RAW_URL = process.env.SUPABASE_URL || 'https://otrkikmrloaonabylgxi.supabase.co';
 const SUPABASE_URL = SUPABASE_RAW_URL.endsWith('/rest/v1') ? SUPABASE_RAW_URL : `${SUPABASE_RAW_URL.replace(/\/$/, '')}/rest/v1`;
-const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || 'sb_publishable_hEmZHHQyc0EeHXQI2caacQ_InnfPXa5';
+const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || 'sb_publishable_hc0jJ9VUJYSEglP9hQvWFw_MbzT2rAh';
 
 const supabaseHeaders = {
     'apikey': SUPABASE_KEY,

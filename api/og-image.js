@@ -15,9 +15,9 @@ import fs from 'fs';
 import path from 'path';
 import { Jimp } from 'jimp';
 
-const SUPABASE_RAW_URL = process.env.SUPABASE_URL || 'https://ccmulazswlmjyfjdtlti.supabase.co';
+const SUPABASE_RAW_URL = process.env.SUPABASE_URL || 'https://otrkikmrloaonabylgxi.supabase.co';
 const SUPABASE_URL = SUPABASE_RAW_URL.endsWith('/rest/v1') ? SUPABASE_RAW_URL : `${SUPABASE_RAW_URL.replace(/\/$/, '')}/rest/v1`;
-const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || 'sb_publishable_hEmZHHQyc0EeHXQI2caacQ_InnfPXa5';
+const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || 'sb_publishable_hc0jJ9VUJYSEglP9hQvWFw_MbzT2rAh';
 
 // ─── In-Memory Cache for Sub-10ms Serverless Response ────────
 const imageCache = new Map(); // key → { buf, ts }

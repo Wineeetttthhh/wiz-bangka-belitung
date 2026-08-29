@@ -4,8 +4,8 @@
  * Used by SSR pages and API endpoints.
  */
 
-const SUPABASE_URL = 'https://ccmulazswlmjyfjdtlti.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_hEmZHHQyc0EeHXQI2caacQ_InnfPXa5';
+const SUPABASE_URL = 'https://otrkikmrloaonabylgxi.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_hc0jJ9VUJYSEglP9hQvWFw_MbzT2rAh';
 
 const BASE_HEADERS = {
     'apikey': SUPABASE_KEY,
