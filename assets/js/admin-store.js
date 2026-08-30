@@ -2508,19 +2508,28 @@
             // ─── Authoritative Supabase Cloud SSOT Sync ────────────────
             // Sync Donations: Supabase is Single Source of Truth
             if (directSbDonations !== null && Array.isArray(directSbDonations)) {
-                // Retain only very recent (last 2 mins) pending local donations that haven't synced to cloud yet
+                // Filter out any locally deleted donations
+                const filteredSbDonations = directSbDonations.filter(d => d && d.id && !deletedSet.has(String(d.id)));
+                // Retain recent local donations (last 5 mins) that haven't synced to cloud yet
                 const local = getStore(STORAGE_KEYS.DONATIONS) || [];
-                const recentLocalPending = local.filter(d => {
-                    if (!d || d.status !== 'pending') return false;
+                const recentLocal = local.filter(d => {
+                    if (!d || !d.id || deletedSet.has(String(d.id))) return false;
                     const age = Date.now() - new Date(d.createdAt || 0).getTime();
-                    return age < 120000 && !directSbDonations.some(sd => String(sd.id) === String(d.id));
+                    return age < 300000 && !filteredSbDonations.some(sd => String(sd.id) === String(d.id));
                 });
-                const finalDonations = [...recentLocalPending, ...directSbDonations];
+                // If there are unsynced recent local items, trigger async save to Supabase
+                if (recentLocal.length > 0 && window.wizSupabase && window.wizSupabase.isConfigured()) {
+                    recentLocal.forEach(item => {
+                        window.wizSupabase.saveDonation(item).catch(() => {});
+                    });
+                }
+                const finalDonations = [...recentLocal, ...filteredSbDonations];
                 finalDonations.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 setStore(STORAGE_KEYS.DONATIONS, finalDonations);
                 window.dispatchEvent(new CustomEvent('wiz-donations-changed'));
             } else if (masterData && Array.isArray(masterData.donations)) {
-                setStore(STORAGE_KEYS.DONATIONS, masterData.donations);
+                const filteredMaster = masterData.donations.filter(d => d && d.id && !deletedSet.has(String(d.id)));
+                setStore(STORAGE_KEYS.DONATIONS, filteredMaster);
                 window.dispatchEvent(new CustomEvent('wiz-donations-changed'));
             }
 
@@ -3170,7 +3179,9 @@
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                 try {
                     const sbRes = await window.wizSupabase.update('donations', String(donationId), {
-                        status: 'verified'
+                        status: 'verified',
+                        verified_at: list[idx].verifiedAt,
+                        verified_by: list[idx].verifiedBy
                     });
                     if (sbRes.error) {
                         console.warn('[Supabase Verify Error]:', sbRes.error);

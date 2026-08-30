@@ -213,21 +213,20 @@ const SUPABASE_CONFIG = {
         // Helpers for entities
         saveDonation: async (data) => {
             if (!data) return { data: null, error: 'No data' };
-            const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(data.id || ''));
             
-            const rawProg = data.program_title || data.programSpesifik || data.program || data.programUtama || data.type || 'Infak Umum';
-            const wilayahStr = (data.wilayah && data.wilayah !== '-') ? ` [${data.wilayah}]` : '';
-            const programTitleFormatted = rawProg.includes('[') ? rawProg : `${rawProg}${wilayahStr}`;
+            const rawProg = data.program_spesifik || data.programSpesifik || data.program || data.program_title || data.programUtama || data.type || 'Infak Umum';
+            const progUtama = data.program_utama || data.programUtama || data.category || '-';
 
             const extraMeta = [];
             if (data.wilayah && data.wilayah !== '-') extraMeta.push(`Wilayah: ${data.wilayah}`);
-            if (data.program_utama || data.programUtama) extraMeta.push(`Kategori: ${data.program_utama || data.programUtama}`);
-            if (data.program_spesifik || data.programSpesifik) extraMeta.push(`Program: ${data.program_spesifik || data.programSpesifik}`);
+            if (progUtama && progUtama !== '-') extraMeta.push(`Kategori: ${progUtama}`);
+            if (rawProg && rawProg !== '-') extraMeta.push(`Program: ${rawProg}`);
             if (data.referral_id || data.referralId || data.referral_code || data.referralCode) {
                 const refCode = data.referral_code || data.referralCode || data.referral_id || data.referralId;
                 const refRate = data.referral_rate !== undefined ? data.referral_rate : (data.referralRate !== undefined ? data.referralRate : 6);
                 const refFee = data.referral_fee !== undefined ? data.referral_fee : (data.referralFee !== undefined ? data.referralFee : 0);
-                extraMeta.push(`Mitra: ${refCode} (${refRate}% - Rp ${refFee})`);
+                const addBonus = Number(data.additional_bonus || data.additionalBonus || 0);
+                extraMeta.push(`Mitra: ${refCode} (${refRate}% - Rp ${refFee}${addBonus > 0 ? ' + Bonus Rp ' + addBonus : ''})`);
             }
             if (data.isRecurringDonor || data.is_recurring_donor) extraMeta.push('Donatur Tetap Mitra');
 
@@ -235,35 +234,36 @@ const SUPABASE_CONFIG = {
             const metaTag = extraMeta.length > 0 ? ` [Meta: ${extraMeta.join(' | ')}]` : '';
             const finalNotes = baseNotes ? (baseNotes === '-' ? metaTag.trim() : `${baseNotes}${metaTag}`) : (metaTag.trim() || '-');
 
+            const donationType = data.donation_type || data.type || 'Infak Terikat';
+            const payMethod = data.payment_method || data.method || 'Transfer Bank';
+            const statusVal = data.status || 'pending';
+            const verifiedAtVal = data.verified_at || data.verifiedAt || (statusVal === 'verified' ? new Date().toISOString() : null);
+            const verifiedByVal = data.verified_by || data.verifiedBy || (statusVal === 'verified' ? 'Admin' : null);
+
             const payload = {
                 id: String(data.id || generateUUID()),
                 donor_name: String(data.donor_name || data.donorName || 'Hamba Allah'),
                 donor_phone: String(data.donor_phone || data.donorPhone || '-'),
                 donor_email: String(data.donor_email || data.donorEmail || ''),
                 wilayah: String(data.wilayah || 'Pangkalpinang'),
-                program: String(data.programSpesifik || data.program || data.program_spesifik || '-'),
-                program_spesifik: String(data.programSpesifik || data.program || data.program_spesifik || '-'),
-                program_utama: String(data.programUtama || data.category || data.program_utama || '-'),
-                program_title: programTitleFormatted,
-                category: String(data.programUtama || data.category || data.program_utama || '-'),
-                type: String(data.type || data.donation_type || 'Infak Terikat'),
-                donation_type: String(data.type || data.donation_type || 'Infak Terikat'),
+                donation_type: String(donationType),
+                program_utama: String(progUtama),
+                program_spesifik: String(rawProg),
+                program: String(rawProg),
+                category: String(progUtama),
                 amount: Number(data.amount) || 0,
-                alokasi_operasional: Number(data.alokasiOperasional || data.alokasi_operasional || 0),
-                alokasi_program: Number(data.alokasiProgram || data.alokasi_program || 0),
-                payment_method: String(data.payment_method || data.method || 'Transfer Bank'),
-                method: String(data.method || data.payment_method || 'Transfer Bank'),
-                notes: finalNotes,
-                status: String(data.status || 'pending'),
+                alokasi_operasional: Number(data.alokasi_operasional !== undefined ? data.alokasi_operasional : (data.alokasiOperasional || 0)),
+                alokasi_program: Number(data.alokasi_program !== undefined ? data.alokasi_program : (data.alokasiProgram || 0)),
+                payment_method: String(payMethod),
                 referral_id: data.referralId || data.referral_id || null,
                 referral_code: data.referralCode || data.referral_code || data.referralId || data.referral_id || null,
                 referral_name: data.referralName || data.referral_name || null,
-                referral_rate: data.referralRate !== undefined ? Number(data.referralRate) : (data.referral_rate !== undefined ? Number(data.referral_rate) : 6),
                 referral_fee: data.referralFee !== undefined ? Number(data.referralFee) : (data.referral_fee !== undefined ? Number(data.referral_fee) : 0),
-                additional_bonus: Number(data.additionalBonus || data.additional_bonus || 0),
-                is_recurring_donor: Boolean(data.isRecurringDonor || data.is_recurring_donor || false),
-                created_at: data.created_at || data.createdAt || new Date().toISOString(),
-                updated_at: new Date().toISOString()
+                notes: finalNotes,
+                status: String(statusVal),
+                verified_at: verifiedAtVal,
+                verified_by: verifiedByVal,
+                created_at: data.created_at || data.createdAt || new Date().toISOString()
             };
             return await upsert('donations', payload);
         },
