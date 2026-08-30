@@ -2922,8 +2922,8 @@
         </div>
     </div>
 
-    <script src="assets/js/supabase-client.js?v=20260830_202000"></script>
-    <script src="assets/js/admin-store.js?v=20260830_202000"></script>
+    <script src="assets/js/supabase-client.js?v=20260830_202500"></script>
+    <script src="assets/js/admin-store.js?v=20260830_202500"></script>
 
     <script>
         const SPECIFIC_PROGRAMS_MAP = {
@@ -5087,7 +5087,9 @@
 
 
         function renderDisbursementTable() {
-            const filterWilayah = getEffectiveWilayah();
+            let list = (window.wizStore && wizStore.disbursements) ? wizStore.disbursements.getAll() : [];
+            const filterWilayahEl = document.getElementById('disb-filter-wilayah');
+            const filterWilayah = filterWilayahEl ? filterWilayahEl.value : getEffectiveWilayah();
             if (filterWilayah && filterWilayah !== 'Semua') {
                 list = list.filter(d => (d.wilayah || 'Pangkalpinang') === filterWilayah);
             }
@@ -5100,6 +5102,17 @@
                 container.innerHTML = `<div class="p-xl text-center text-on-surface-variant font-body-md">Belum ada pencatatan pengeluaran dana${filterWilayah !== 'Semua' ? ' untuk wilayah ' + filterWilayah : ''}.</div>`;
                 return;
             }
+
+            const formatDateSafe = (dateStr) => {
+                try {
+                    if (window.wizStore && wizStore.utils && typeof wizStore.utils.formatDate === 'function') {
+                        return wizStore.utils.formatDate(dateStr);
+                    }
+                    return (dateStr || '').substring(0, 10);
+                } catch(e) {
+                    return (dateStr || '').substring(0, 10);
+                }
+            };
 
             const rows = list.map(d => {
                 const sType = d.sourceType || (d.program && (d.program.toLowerCase().includes('global') || d.program.toLowerCase().includes('alih fungsi')) ? 'infak_umum' : 'program_spesifik');
@@ -5130,14 +5143,14 @@
 
                 return `
                 <tr class="hover:bg-surface-container-low transition-colors">
-                    <td class="p-md text-on-surface-variant whitespace-nowrap">${wizStore.utils.formatDate(d.disbursedAt)}</td>
+                    <td class="p-md text-on-surface-variant whitespace-nowrap">${formatDateSafe(d.disbursedAt)}</td>
                     <td class="p-md text-center"><span class="px-2 py-0.5 text-xs font-bold rounded bg-emerald-100 text-emerald-800">${d.wilayah || 'Pangkalpinang'}</span></td>
                     <td class="p-md">
                         <div class="font-semibold text-on-surface text-xs">${d.program || 'Infak Umum (Alih Fungsi Dana)'}</div>
                         <div class="mt-1">${sourceBadge}</div>
                     </td>
                     <td class="p-md font-bold text-tertiary-container whitespace-nowrap">${fmt(d.amount)}</td>
-                    <td class="p-md text-on-surface-variant text-xs">${d.description}</td>
+                    <td class="p-md text-on-surface-variant text-xs">${d.description || '-'}</td>
                     <td class="p-md text-on-surface-variant text-caption">${d.recordedBy || 'Admin'}</td>
                     <td class="p-md text-right whitespace-nowrap">
                         <button onclick="editDisbursement('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded border border-outline-variant text-caption font-semibold cursor-pointer">Edit</button>
