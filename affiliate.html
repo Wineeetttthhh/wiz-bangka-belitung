@@ -221,58 +221,7 @@
                 return;
             }
 
-            const TEST_MITRA_LIST = [
-                {
-                    id: 'ref-test-01',
-                    code: 'WIZ-TEST-001',
-                    name: 'Mitra Test WIZ',
-                    phone: '081234567890',
-                    bankName: 'BSI (Bank Syariah Indonesia)',
-                    accountNumber: '7168008001',
-                    accountHolder: 'Mitra Test WIZ Babel',
-                    pin: '123456',
-                    defaultRate: 6,
-                    status: 'approved',
-                    totalDonationAmount: 0,
-                    donationsCount: 0,
-                    totalEarned: 0,
-                    pendingBalance: 0
-                },
-                {
-                    id: 'ref-relawan-01',
-                    code: 'WIZ-20260828-001',
-                    name: 'Relawan Mitra Kebaikan',
-                    phone: '082180808080',
-                    bankName: 'BSI',
-                    accountNumber: '7112233445',
-                    accountHolder: 'Relawan Mitra Kebaikan',
-                    pin: '1234',
-                    defaultRate: 6,
-                    status: 'approved',
-                    totalDonationAmount: 0,
-                    donationsCount: 0,
-                    totalEarned: 0,
-                    pendingBalance: 0
-                }
-            ];
 
-            const cleanId = identifier.toLowerCase().replace(/[^a-z0-9]/g, '');
-            const testMatch = TEST_MITRA_LIST.find(m => 
-                (m.code && m.code.toLowerCase().replace(/[^a-z0-9]/g, '') === cleanId) ||
-                (m.phone && m.phone.replace(/[^0-9]/g, '') === identifier.replace(/[^0-9]/g, ''))
-            );
-
-            if (testMatch) {
-                if (pin && testMatch.pin && pin !== testMatch.pin) {
-                    alert('⚠️ PIN yang Anda masukkan salah. Gunakan PIN: ' + testMatch.pin);
-                    return;
-                }
-                currentLoggedAffiliate = testMatch;
-                sessionStorage.setItem('wiz_logged_affiliate', JSON.stringify(testMatch));
-                localStorage.setItem('wiz_logged_affiliate', JSON.stringify(testMatch));
-                activateMemberState(testMatch);
-                return;
-            }
 
             if (window.wizStore && window.wizStore.referrals) {
                 try {

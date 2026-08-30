@@ -13,6 +13,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+    <script>
+        // Global Formatter Shim (Guaranteed availability)
+        window.formatRupiah = function(num) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(Number(num) || 0);
+        };
+        window.formatRupiahCompact = window.formatRupiah;
+        window.wizStore = window.wizStore || {};
+        window.wizStore.utils = window.wizStore.utils || {};
+        window.wizStore.utils.formatRupiah = window.formatRupiah;
+        window.wizStore.utils.formatRupiahCompact = window.formatRupiah;
+    </script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script id="tailwind-config">
         tailwind.config = {
@@ -2911,8 +2922,8 @@
         </div>
     </div>
 
-    <script src="assets/js/supabase-client.js?v=20260829_233000"></script>
-    <script src="assets/js/admin-store.js?v=20260829_233000"></script>
+    <script src="assets/js/supabase-client.js?v=20260830_200000"></script>
+    <script src="assets/js/admin-store.js?v=20260830_200000"></script>
 
     <script>
         const SPECIFIC_PROGRAMS_MAP = {
@@ -3061,14 +3072,26 @@
         }
 
         function fmt(n) {
-            return (window.wizStore && window.wizStore.utils && typeof window.wizStore.utils.formatRupiah === 'function')
-                ? window.wizStore.utils.formatRupiah(n)
-                : 'Rp ' + Number(n || 0).toLocaleString('id-ID');
+            try {
+                if (window.wizStore && window.wizStore.utils && typeof window.wizStore.utils.formatRupiah === 'function') {
+                    return window.wizStore.utils.formatRupiah(n);
+                }
+                if (typeof window.formatRupiah === 'function') {
+                    return window.formatRupiah(n);
+                }
+            } catch(e) {}
+            return 'Rp ' + Number(n || 0).toLocaleString('id-ID');
         }
         function fmtCompact(n) {
-            return (window.wizStore && window.wizStore.utils && typeof window.wizStore.utils.formatRupiahCompact === 'function')
-                ? window.wizStore.utils.formatRupiahCompact(n)
-                : 'Rp ' + Number(n || 0).toLocaleString('id-ID');
+            try {
+                if (window.wizStore && window.wizStore.utils && typeof window.wizStore.utils.formatRupiahCompact === 'function') {
+                    return window.wizStore.utils.formatRupiahCompact(n);
+                }
+                if (typeof window.formatRupiahCompact === 'function') {
+                    return window.formatRupiahCompact(n);
+                }
+            } catch(e) {}
+            return fmt(n);
         }
         function escapeHtml(str) {
             if (!str) return '';
@@ -3262,7 +3285,7 @@
         function renderKPI(containerId) {
             const activeWilayah = getEffectiveWilayah();
             const stats = wizStore.finance.getOverviewStats(activeWilayah);
-            const fmt = wizStore.utils.formatRupiahCompact;
+            const fmt = fmtCompact;
             const container = document.getElementById(containerId);
             if (!container) return;
 
@@ -3308,7 +3331,7 @@
             if (activeWilayah !== 'Semua') pending = pending.filter(d => (d.wilayah || 'Pangkalpinang') === activeWilayah);
             pending = pending.slice(0, 5);
 
-            const fmt = wizStore.utils.formatRupiahCompact;
+            const fmt = fmtCompact;
             const container = document.getElementById('dashboard-donation-table');
             if (!container) return;
 
@@ -3374,7 +3397,7 @@
         function renderProgress5Berkah() {
             const activeWilayah = getEffectiveWilayah();
             const programs = wizStore.finance.getPerProgram(activeWilayah);
-            const fmt = wizStore.utils.formatRupiahCompact;
+            const fmt = fmtCompact;
             const container = document.getElementById('progress-5berkah');
             if (!container) return;
 
@@ -3397,7 +3420,7 @@
         // ─── Full Donation Table (Pemasukan) ─────────────
 
         function renderFullDonationTable() {
-            const fmt = wizStore.utils.formatRupiahCompact;
+            const fmt = fmtCompact;
             const filterWilayah = getEffectiveWilayah();
             const filterJenis = document.getElementById('filter-jenis') ? document.getElementById('filter-jenis').value : 'Semua';
             const filterProgramUtama = document.getElementById('filter-program-utama') ? document.getElementById('filter-program-utama').value : 'Semua';
@@ -3935,9 +3958,9 @@
 
             if (typeVal === 'Infak Terikat' && amountVal > 0) {
                 const alloc = wizStore.calcInfakTerikatAllocation(amountVal);
-                document.getElementById('man-calc-total').textContent = wizStore.utils.formatRupiahCompact(amountVal);
-                document.getElementById('man-calc-ops').textContent = wizStore.utils.formatRupiahCompact(alloc.alokasiOperasional);
-                document.getElementById('man-calc-prog').textContent = wizStore.utils.formatRupiahCompact(alloc.alokasiProgram);
+                document.getElementById('man-calc-total').textContent = fmtCompact(amountVal);
+                document.getElementById('man-calc-ops').textContent = fmtCompact(alloc.alokasiOperasional);
+                document.getElementById('man-calc-prog').textContent = fmtCompact(alloc.alokasiProgram);
                 calcBox.classList.remove('hidden');
             } else {
                 calcBox.classList.add('hidden');
@@ -4081,7 +4104,7 @@
                 closeManualDonationModal();
                 refreshAll();
                 try { renderFullDonationTable(); } catch(e) {}
-                alert(`✅ Donasi ${wizStore.utils.formatRupiah(amount)} [${wilayah}] berhasil disimpan!`);
+                alert(`✅ Donasi ${fmt(amount)} [${wilayah}] berhasil disimpan!`);
             } catch (err) {
                 console.error('[Manual Donation Error]', err);
                 alert('Gagal menyimpan data donasi: ' + err.message);
@@ -4097,7 +4120,7 @@
             const d = wizStore.donations.getById(id);
             if (!d) return;
             const progName = d.programSpesifik || d.program || d.programUtama || 'Donasi';
-            const fmt = wizStore.utils.formatRupiahCompact;
+            const fmt = fmtCompact;
             if (!confirm(`Verifikasi dan setujui donasi sebesar ${fmt(d.amount)} dari ${d.donorName} untuk program "${progName}"?\n\nSetelah disetujui, status di Supabase otomatis menjadi VERIFIED dan dana langsung live terakumulasi pada website utama.`)) return;
 
             const adminUser = sessionStorage.getItem('wiz_admin_user') || 'Admin 1';
@@ -4117,7 +4140,7 @@
         async function rejectDonation(id) {
             const d = wizStore.donations.getById(id);
             if (!d) return;
-            const fmt = wizStore.utils.formatRupiahCompact;
+            const fmt = fmtCompact;
             if (!confirm(`Tolak transaksi donasi sebesar ${fmt(d.amount)} dari ${d.donorName}?\n\nDonasi yang ditolak TIDAK AKAN dihitung masuk ke web utama.`)) return;
 
             const adminUser = sessionStorage.getItem('wiz_admin_user') || 'Admin 1';
@@ -4143,7 +4166,7 @@
         function showDonationDetail(id) {
             const d = wizStore.donations.getById(id);
             if (!d) return;
-            const fmt = wizStore.utils.formatRupiahCompact;
+            const fmt = fmtCompact;
 
             const isTerikat = d.type === 'Infak Terikat';
             const opsAmount = d.alokasiOperasional || (isTerikat ? Math.round(d.amount * 0.125) : 0);
@@ -5012,8 +5035,8 @@
 
                 // Step 2: Delete ALL from Supabase directly via REST API
                 if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                    const SBURL = 'https://otrkikmrloaonabylgxi.supabase.co/rest/v1';
-                    const SBKEY = 'sb_publishable_hc0jJ9VUJYSEglP9hQvWFw_MbzT2rAh';
+                    const SBURL = 'https://kmpwdqremvltgglmoxgx.supabase.co/rest/v1';
+                    const SBKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttcHdkcXJlbXZsdGdnbG1veGd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMjEyMTksImV4cCI6MjEwMzU5NzIxOX0.MhNqr36yvqRAgiVsLil608P-DyYBLJ6WBWxXMbfvbH8';
                     const hdr = {
                         'apikey': SBKEY,
                         'Authorization': 'Bearer ' + SBKEY,
@@ -5069,7 +5092,7 @@
                 list = list.filter(d => (d.wilayah || 'Pangkalpinang') === filterWilayah);
             }
 
-            const fmt = wizStore.utils.formatRupiahCompact;
+            const fmt = fmtCompact;
             const container = document.getElementById('disbursement-table');
             if (!container) return;
 
@@ -5239,7 +5262,6 @@
             const progSaldo = progStats ? progStats.saldo : 0;
             const isSpecialBucket = progTitle.includes('Operasional') || progTitle.includes('Saving');
             const pillarPool = isSpecialBucket ? progSaldo : wizStore.finance.getPillarAvailableSubsidiPool(pillar, activeWilayah, editId);
-            const fmt = wizStore.utils.formatRupiah;
 
             if (detectedText) detectedText.textContent = `${pillar} (Pilar ${kat}) — [${activeWilayah}]`;
             if (saldoText) saldoText.textContent = fmt(progSaldo);
@@ -5320,7 +5342,6 @@
                 return;
             }
 
-            const fmt = wizStore.utils.formatRupiah;
             const activeWilayah = document.getElementById('disb-wilayah') ? document.getElementById('disb-wilayah').value : 'Pangkalpinang';
             const editId = document.getElementById('disb-edit-id')?.value || null;
             const progStats = wizStore.finance.getSpecificProgramStats(progTitle, 0, 50000000, activeWilayah);
@@ -5506,7 +5527,7 @@
             // Validasi Opsi 1: Hanya Saldo Program Ini
             if (sourceVal === 'program_spesifik') {
                 if (amount > progSaldo) {
-                    const allowOverride = confirm(`⚠️ Saldo tercatat kas program "${progTitle}" (${activeWilayah}) saat ini adalah ${wizStore.utils.formatRupiah(progSaldo)}.\n\nNominal pengeluaran: ${wizStore.utils.formatRupiah(amount)}.\n\nApakah Anda ingin tetap mencatat pengeluaran ini sekarang?`);
+                    const allowOverride = confirm(`⚠️ Saldo tercatat kas program "${progTitle}" (${activeWilayah}) saat ini adalah ${fmt(progSaldo)}.\n\nNominal pengeluaran: ${fmt(amount)}.\n\nApakah Anda ingin tetap mencatat pengeluaran ini sekarang?`);
                     if (!allowOverride) {
                         document.getElementById('disb-amount')?.focus();
                         return;
@@ -5518,7 +5539,7 @@
                 // Validasi Opsi 2: Auto-Split (Pemotongan Pintar)
                 const splitRes = wizStore.finance.calculateAutoSplit(progTitle, amount, activeWilayah, editId);
                 if (!splitRes.canSpend) {
-                    const allowSplitOverride = confirm(`⚠️ ${splitRes.errorMessage || 'Total dana di pilar ini tidak mencukupi.'}\n\nMaksimal dana yang tersedia di pilar ${kategoriPilar} (${activeWilayah}): ${wizStore.utils.formatRupiah(splitRes.totalAvailableInPillar)}.\n\nTetap lanjutkan pencatatan pengeluaran?`);
+                    const allowSplitOverride = confirm(`⚠️ ${splitRes.errorMessage || 'Total dana di pilar ini tidak mencukupi.'}\n\nMaksimal dana yang tersedia di pilar ${kategoriPilar} (${activeWilayah}): ${fmt(splitRes.totalAvailableInPillar)}.\n\nTetap lanjutkan pencatatan pengeluaran?`);
                     if (!allowSplitOverride) {
                         document.getElementById('disb-amount')?.focus();
                         return;
@@ -5563,7 +5584,7 @@
                 showNotification('✅ Catatan pengeluaran dana berhasil disimpan!');
                 refreshAll();
                 try { renderDisbursementTable(); } catch(e) {}
-                alert(`✅ Pengeluaran ${wizStore.utils.formatRupiah(amount)} [${activeWilayah}] berhasil dicatat!`);
+                alert(`✅ Pengeluaran ${fmt(amount)} [${activeWilayah}] berhasil dicatat!`);
             } catch(err) {
                 alert('Gagal menyimpan pengeluaran: ' + err.message);
             } finally {
@@ -5610,7 +5631,7 @@
             const activeWilayah = getEffectiveWilayah();
             const programs = wizStore.finance.getPerProgram(activeWilayah);
             const specificProgs = wizStore.finance.getPerSpecificProgram(activeWilayah);
-            const fmt = wizStore.utils.formatRupiahCompact;
+            const fmt = fmtCompact;
             const container = document.getElementById('finance-program-table');
             if (!container) return;
 
@@ -5893,18 +5914,31 @@
         function setSpecificProgramPresetPhoto(url) {
             const imgEl = document.getElementById('spec-prog-main-preview');
             const urlInput = document.getElementById('spec-prog-img-url');
-            if (imgEl) imgEl.src = url;
-            if (urlInput) urlInput.value = url;
+            if (imgEl) {
+                imgEl.src = url;
+                imgEl.dataset.fullSrc = url;
+            }
+            if (urlInput) {
+                if (url && url.startsWith('data:image')) {
+                    urlInput.value = '[Foto Unggahan Baru Terpasang]';
+                    urlInput.dataset.base64 = url;
+                } else {
+                    urlInput.value = url || '';
+                    delete urlInput.dataset.base64;
+                }
+            }
         }
 
         function clearModalProgramPhoto() {
+            const urlInput = document.getElementById('spec-prog-img-url');
+            if (urlInput) delete urlInput.dataset.base64;
             setSpecificProgramPresetPhoto('assets/images/default-program-wiz.jpg');
         }
 
         function handleModalProgramPhotoSelect(event) {
             const file = event.target.files && event.target.files[0];
             if (!file) return;
-            compressImageFile(file, 1280, 0.85).then(compressed => {
+            compressImageFile(file, 800, 0.75).then(compressed => {
                 if (compressed) {
                     setSpecificProgramPresetPhoto(compressed);
                 }
@@ -5985,7 +6019,8 @@
             const beneficiaries = document.getElementById('spec-prog-beneficiaries').value.trim();
             const desc = document.getElementById('spec-prog-desc').value.trim();
             const imgEl = document.getElementById('spec-prog-main-preview');
-            const imgUrl = (imgEl && imgEl.src) ? imgEl.src : (document.getElementById('spec-prog-img-url').value || 'assets/images/default-program-wiz.jpg');
+            const urlInput = document.getElementById('spec-prog-img-url');
+            const imgUrl = (imgEl && imgEl.dataset.fullSrc) ? imgEl.dataset.fullSrc : ((urlInput && urlInput.dataset.base64) ? urlInput.dataset.base64 : (urlInput ? urlInput.value : 'assets/images/default-program-wiz.jpg'));
 
             let status = 'published';
             const statusRadios = document.getElementsByName('spec-prog-status');
@@ -7436,7 +7471,7 @@
             if (payoutSelect) {
                 const curVal = payoutSelect.value;
                 payoutSelect.innerHTML = '<option value="">-- Pilih Mitra Penghimpunan --</option>' +
-                    wizStore.referrals.getAll().map(r => `<option value="${r.id}">${r.name} (Sisa Pending: ${wizStore.utils.formatRupiahCompact(r.pendingBalance)})</option>`).join('');
+                    wizStore.referrals.getAll().map(r => `<option value="${r.id}">${r.name} (Sisa Pending: ${fmtCompact(r.pendingBalance)})</option>`).join('');
                 payoutSelect.value = curVal;
             }
         }
@@ -7481,7 +7516,7 @@
 
             const fee = Math.round(amount * (rate / 100));
             const total = fee + bonus;
-            const fmt = wizStore.utils.formatRupiahCompact;
+            const fmt = fmtCompact;
 
             document.getElementById('ref-calc-fee').textContent = fmt(fee);
             document.getElementById('ref-calc-bonus').textContent = fmt(bonus);
@@ -7495,7 +7530,7 @@
                 populateReferralSelects();
 
                 let allRefs = wizStore.referrals.getAll() || [];
-                const fmt = wizStore.utils.formatRupiahCompact;
+                const fmt = fmtCompact;
                 const searchInput = document.getElementById('referral-search');
                 const searchVal = (searchInput ? searchInput.value : '').toLowerCase().trim();
 
@@ -7741,7 +7776,7 @@
             const ref = wizStore.referrals.getById(refId);
             if (!ref) return;
 
-            const fmt = wizStore.utils.formatRupiahCompact;
+            const fmt = fmtCompact;
             document.getElementById('payout-info-earned').textContent = fmt(ref.totalEarned);
             document.getElementById('payout-info-paid').textContent = fmt(ref.totalPaid);
             document.getElementById('payout-info-pending').textContent = fmt(ref.pendingBalance);
@@ -7789,7 +7824,7 @@
             if (!window.wizStore || !wizStore.finance) return;
 
             const filterWilayah = getEffectiveWilayah();
-            const fmt = wizStore.utils.formatRupiahCompact;
+            const fmt = fmtCompact;
             // Render Finance KPI Grid
             renderKPI('finance-kpi-grid');
 
@@ -7896,7 +7931,7 @@
             const ref = wizStore.referrals.getById(refId);
             if (!ref) return;
 
-            const fmt = wizStore.utils.formatRupiahCompact;
+            const fmt = fmtCompact;
             document.getElementById('ref-detail-subtitle').textContent = `${ref.name} (${ref.phone}) • ${ref.bankName} ${ref.accountNumber} (a.n ${ref.accountHolder})`;
 
             document.getElementById('ref-detail-summary').innerHTML = `
@@ -7926,7 +7961,7 @@
             const ref = wizStore.referrals.getById(currentDetailRefId);
             if (!ref) return;
 
-            const fmt = wizStore.utils.formatRupiahCompact;
+            const fmt = fmtCompact;
 
             if (tab === 'donations') {
                 btnDon.className = 'pb-2 text-xs font-bold border-b-2 border-primary text-primary cursor-pointer';
@@ -8793,8 +8828,8 @@
                 // Delete all from Supabase in background
                 (async () => {
                     try {
-                        const SBURL = 'https://otrkikmrloaonabylgxi.supabase.co/rest/v1';
-                        const SBKEY = 'sb_publishable_hc0jJ9VUJYSEglP9hQvWFw_MbzT2rAh';
+                        const SBURL = 'https://kmpwdqremvltgglmoxgx.supabase.co/rest/v1';
+                        const SBKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttcHdkcXJlbXZsdGdnbG1veGd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMjEyMTksImV4cCI6MjEwMzU5NzIxOX0.MhNqr36yvqRAgiVsLil608P-DyYBLJ6WBWxXMbfvbH8';
                         const hdr = {
                             'apikey': SBKEY,
                             'Authorization': 'Bearer ' + SBKEY,

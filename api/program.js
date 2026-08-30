@@ -15,9 +15,9 @@ import fs from 'fs';
 import path from 'path';
 import { processToOgJpeg } from './og-image.js';
 
-const SUPABASE_RAW_URL = process.env.SUPABASE_URL || 'https://otrkikmrloaonabylgxi.supabase.co';
+const SUPABASE_RAW_URL = process.env.SUPABASE_URL || 'https://kmpwdqremvltgglmoxgx.supabase.co';
 const SUPABASE_URL = SUPABASE_RAW_URL.endsWith('/rest/v1') ? SUPABASE_RAW_URL : `${SUPABASE_RAW_URL.replace(/\/$/, '')}/rest/v1`;
-const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || 'sb_publishable_hc0jJ9VUJYSEglP9hQvWFw_MbzT2rAh';
+const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttcHdkcXJlbXZsdGdnbG1veGd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMjEyMTksImV4cCI6MjEwMzU5NzIxOX0.MhNqr36yvqRAgiVsLil608P-DyYBLJ6WBWxXMbfvbH8';
 
 const DEFAULT_FALLBACK_IMAGE = 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg';
 

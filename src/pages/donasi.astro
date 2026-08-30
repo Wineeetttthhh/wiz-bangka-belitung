@@ -619,9 +619,9 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                         </div>
 
                         <!-- Main QR Card (Crisp & Scannable) -->
-                        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs flex flex-col items-center space-y-2">
-                            <div class="p-1.5 bg-white rounded-xl border border-emerald-300 shadow-inner inline-block">
-                                <img id="qris-modal-img" src="/assets/images/qris-code-wiz-babel.png" alt="Kode QRIS WIZ Bangka Belitung" class="w-48 h-48 sm:w-52 sm:h-52 object-contain rounded-lg block mx-auto">
+                        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs flex flex-col items-center space-y-2.5">
+                            <div class="p-2 bg-white rounded-xl border border-emerald-300 shadow-inner inline-block">
+                                <img id="qris-modal-img" src="/assets/images/qris.jpeg" onerror="this.onerror=null; this.src='/assets/images/qris-code-wiz-babel.png';" alt="Kode QRIS WIZ Bangka Belitung" class="w-56 h-auto max-h-80 object-contain rounded-lg block mx-auto">
                             </div>
                             
                             <div class="space-y-0.5">
@@ -1508,7 +1508,12 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                 if (donorEl) donorEl.textContent = `Donatur: ${state.donorName || 'Hamba Allah'} (${progText})`;
 
                 const imgEl = document.getElementById('qris-modal-img');
-                if (imgEl) imgEl.src = '/assets/images/qris-code-wiz-babel.png';
+                if (imgEl) {
+                    imgEl.src = '/assets/images/qris.jpeg';
+                    imgEl.onerror = function() {
+                        this.src = '/assets/images/qris-code-wiz-babel.png';
+                    };
+                }
 
                 if (typeof updateWhatsAppButtons === 'function') {
                     updateWhatsAppButtons();

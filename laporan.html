@@ -152,40 +152,40 @@
 <body class="bg-surface text-on-surface font-body-md antialiased min-h-screen flex flex-col">
 
 <!-- TopNavBar Component -->
-<nav class="bg-surface/95 dark:bg-surface-dim/95 backdrop-blur-md sticky top-0 z-50 border-b border-outline-variant/30 shadow-sm w-full">
-    <div class="flex justify-between items-center w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto h-20 sm:h-24 gap-4">
-        <a href="index.html" class="flex items-center group py-2 shrink-0 max-w-xs">
-            <img src="assets/images/logo-wiz-babel.png" alt="WIZ Babel" loading="eager" fetchpriority="high" class="object-contain transition-transform group-hover:scale-105 h-12 sm:h-14 w-auto max-w-[160px] block">
+<nav id="site-header" class="bg-white/95 backdrop-blur-md fixed top-0 inset-x-0 z-50 border-b border-slate-100 shadow-sm transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 sm:h-24 flex items-center justify-between gap-4">
+        <a href="/" class="flex items-center group py-2 shrink-0">
+            <img src="/assets/images/logo-wiz-babel.png" alt="WIZ Wahdah Inspirasi Zakat Bangka Belitung" loading="eager" fetchpriority="high" class="object-contain transition-transform group-hover:scale-102 h-12 sm:h-14 w-auto block">
         </a>
-        <div class="hidden lg:flex gap-6 xl:gap-8 items-center text-sm font-semibold text-on-surface-variant">
-            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1 whitespace-nowrap" href="index.html">Beranda</a>
-            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1 whitespace-nowrap" href="index.html#tentang-kami">Tentang Kami</a>
-            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1 whitespace-nowrap" href="program.html">Program</a>
-            <a class="nav-link font-label-md text-label-md text-primary font-bold transition-all border-b-2 border-primary pb-1 whitespace-nowrap" href="laporan.html">Laporan Transparansi</a>
-            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1 whitespace-nowrap" href="berita.html">Berita &amp; Kegiatan</a>
-            <a class="nav-link font-label-md text-label-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all border-b-2 border-transparent pb-1 whitespace-nowrap" href="index.html#kontak">Kontak</a>
+        <div class="hidden lg:flex items-center gap-6 xl:gap-8 text-[15px] font-medium text-slate-700">
+            <a class="nav-link pb-1 text-slate-700 hover:text-[#008444] transition-all border-b-2 border-transparent whitespace-nowrap" href="/">Beranda</a>
+            <a class="nav-link pb-1 text-slate-700 hover:text-[#008444] transition-all border-b-2 border-transparent whitespace-nowrap" href="/#tentang-kami">Tentang Kami</a>
+            <a class="nav-link pb-1 text-slate-700 hover:text-[#008444] transition-all border-b-2 border-transparent whitespace-nowrap" href="/program">Program</a>
+            <a class="nav-link pb-1 transition-all border-b-2 whitespace-nowrap text-[#008444] font-bold border-[#008444]" href="/laporan">Laporan Transparansi</a>
+            <a class="nav-link pb-1 text-slate-700 hover:text-[#008444] transition-all border-b-2 border-transparent whitespace-nowrap" href="/berita">Berita &amp; Kegiatan</a>
+            <a class="nav-link pb-1 text-slate-700 hover:text-[#008444] transition-all border-b-2 border-transparent whitespace-nowrap" href="/#kontak">Kontak</a>
         </div>
         <div class="flex items-center gap-3 shrink-0">
-            <a href="donasi.html" class="hidden sm:inline-flex bg-[#F7941D] hover:bg-[#e08416] text-white px-6 py-2.5 rounded-full font-label-md text-label-md font-bold hover:opacity-95 transition-all shadow-sm items-center gap-1.5 whitespace-nowrap shrink-0">
-                <span class="material-symbols-outlined text-sm">favorite</span>
+            <a href="/donasi" class="hidden sm:inline-flex bg-[#F7941D] hover:bg-[#ea7e00] text-white px-5 sm:px-6 py-2.5 rounded-full text-sm font-extrabold shadow-md shadow-orange-500/20 hover:shadow-orange-500/30 transition-all items-center gap-1.5 whitespace-nowrap shrink-0 active:scale-98">
+                <span class="material-symbols-outlined text-[18px]">favorite</span>
                 <span>Donasi Sekarang</span>
             </a>
-            <button id="mobile-menu-btn" onclick="toggleMobileMenu()" type="button" class="lg:hidden p-2.5 text-on-surface-variant hover:text-primary active:scale-95 transition-all focus:outline-none cursor-pointer rounded-xl hover:bg-surface-container relative z-50 pointer-events-auto select-none touch-manipulation" aria-label="Buka Menu" aria-expanded="false" aria-controls="mobile-menu">
-                <span class="material-symbols-outlined text-2xl select-none pointer-events-none block" id="menu-icon">menu</span>
+            <button id="mobile-menu-btn" type="button" class="lg:hidden p-2.5 text-slate-700 hover:text-[#008444] rounded-xl hover:bg-slate-100 transition-colors focus:outline-none cursor-pointer" aria-label="Buka Menu Navigasi">
+                <span id="menu-icon" class="material-symbols-outlined text-2xl block select-none pointer-events-none">menu</span>
             </button>
         </div>
     </div>
 
     <!-- Mobile Navigation Menu -->
-    <div id="mobile-menu" class="hidden lg:hidden border-t border-outline-variant/30 bg-surface px-4 py-4 space-y-2 shadow-lg">
-        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-2 border-b border-outline-variant/10" href="index.html">Beranda</a>
-        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-2 border-b border-outline-variant/10" href="index.html#tentang-kami">Tentang Kami</a>
-        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-2 border-b border-outline-variant/10" href="program.html">Program</a>
-        <a class="nav-link block font-label-md text-label-md text-primary font-bold py-2 border-b border-outline-variant/10" href="laporan.html">Laporan Transparansi</a>
-        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-2 border-b border-outline-variant/10" href="berita.html">Berita &amp; Kegiatan</a>
-        <a class="nav-link block font-label-md text-label-md text-on-surface-variant hover:text-primary py-2 border-b border-outline-variant/10" href="index.html#kontak">Kontak</a>
-        <a href="donasi.html" class="w-full bg-[#F7941D] text-white px-6 py-2.5 rounded-xl font-label-md text-label-md font-bold hover:opacity-90 transition-opacity shadow-sm flex items-center justify-center gap-1.5 mt-3">
-            <span class="material-symbols-outlined text-sm">favorite</span>
+    <div id="mobile-menu" class="hidden lg:hidden border-t border-slate-100 bg-white px-4 py-4 space-y-2 shadow-lg">
+        <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/">Beranda</a>
+        <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/#tentang-kami">Tentang Kami</a>
+        <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/program">Program</a>
+        <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/laporan">Laporan Transparansi</a>
+        <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/berita">Berita &amp; Kegiatan</a>
+        <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/#kontak">Kontak</a>
+        <a href="/donasi" class="w-full bg-[#F7941D] hover:bg-[#ea7e00] text-white px-6 py-3 rounded-xl font-bold text-sm shadow-md flex items-center justify-center gap-2 mt-3">
+            <span class="material-symbols-outlined text-[18px]">favorite</span>
             <span>Donasi Sekarang</span>
         </a>
     </div>

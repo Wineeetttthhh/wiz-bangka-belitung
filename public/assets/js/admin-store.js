@@ -148,67 +148,10 @@
             wilayah: 'Semua Wilayah',
             status: 'approved',
             createdAt: new Date().toISOString()
-        },
-        {
-            id: 'admin-pkp',
-            username: 'admin_pkp',
-            password: 'pkp12345',
-            fullName: 'Admin Amil Pangkalpinang',
-            phone: '081234567801',
-            role: 'amil',
-            wilayah: 'Pangkalpinang',
-            status: 'approved',
-            createdAt: new Date().toISOString()
-        },
-        {
-            id: 'admin-sgl',
-            username: 'admin_sungailiat',
-            password: 'sgl12345',
-            fullName: 'Admin Amil Sungailiat',
-            phone: '081234567802',
-            role: 'amil',
-            wilayah: 'Sungailiat',
-            status: 'approved',
-            createdAt: new Date().toISOString()
         }
     ];
 
-        const DEFAULT_REFERRALS = [
-        {
-            id: 'ref-test-01',
-            code: 'WIZ-TEST-001',
-            name: 'Mitra Test WIZ',
-            phone: '081234567890',
-            bankName: 'BSI (Bank Syariah Indonesia)',
-            accountNumber: '7168008001',
-            accountHolder: 'Mitra Test WIZ Babel',
-            pin: '123456',
-            defaultRate: 6,
-            status: 'approved',
-            createdAt: '2026-08-28T00:00:00.000Z',
-            totalDonationAmount: 0,
-            donationsCount: 0,
-            totalEarned: 0,
-            pendingBalance: 0
-        },
-        {
-            id: 'ref-relawan-01',
-            code: 'WIZ-20260828-001',
-            name: 'Relawan Mitra Kebaikan',
-            phone: '082180808080',
-            bankName: 'BSI',
-            accountNumber: '7112233445',
-            accountHolder: 'Relawan Mitra Kebaikan',
-            pin: '1234',
-            defaultRate: 6,
-            status: 'approved',
-            createdAt: '2026-08-28T00:00:00.000Z',
-            totalDonationAmount: 0,
-            donationsCount: 0,
-            totalEarned: 0,
-            pendingBalance: 0
-        }
-    ];
+    const DEFAULT_REFERRALS = [];
 
     const DEFAULT_NEWS = [];
 
@@ -285,11 +228,37 @@
         try {
             if (typeof localStorage === 'undefined') return;
 
-            // One-time Auto-Purge of Old Mock News on Client Browsers
-            if (localStorage.getItem('wiz_news_purged_reset_v3') !== 'true') {
+            // One-time Auto-Purge of All Mock/Old Data (Admins, Mitra, Donasi, Penyaluran, Berita, Quote, Log)
+            if (localStorage.getItem('wiz_full_data_purge_2026') !== 'true') {
+                localStorage.setItem(STORAGE_KEYS.DONATIONS, '[]');
+                localStorage.setItem(STORAGE_KEYS.DISBURSEMENTS, '[]');
+                localStorage.setItem(STORAGE_KEYS.REFERRALS, '[]');
+                localStorage.setItem(STORAGE_KEYS.REFERRAL_PAYOUTS, '[]');
+                localStorage.setItem(STORAGE_KEYS.DONOR_ATTRIBUTIONS, '[]');
                 localStorage.setItem(STORAGE_KEYS.NEWS, '[]');
+                localStorage.setItem(STORAGE_KEYS.QUOTES, '[]');
+                localStorage.setItem(STORAGE_KEYS.ACTIVITY, '[]');
+                localStorage.setItem(STORAGE_KEYS.ADMIN_USERS, JSON.stringify(DEFAULT_ADMIN_USERS));
+                localStorage.setItem(STORAGE_KEYS.DELETED_IDS, '[]');
+                localStorage.setItem(STORAGE_KEYS.DELETED_NEWS_IDS, '[]');
+                localStorage.setItem(STORAGE_KEYS.DELETED_DISB_IDS, '[]');
+                localStorage.setItem(STORAGE_KEYS.DELETED_REF_IDS, '[]');
+                localStorage.setItem(STORAGE_KEYS.DELETED_QUOTE_IDS, '[]');
+                localStorage.setItem(STORAGE_KEYS.DELETED_PROGRAM_IDS, '[]');
+                localStorage.setItem(STORAGE_KEYS.DELETED_ADMIN_IDS, '[]');
+                localStorage.setItem(STORAGE_KEYS.BASELINES, JSON.stringify(DEFAULT_BASELINES));
+
+                memoryStoreFallback.set(STORAGE_KEYS.DONATIONS, []);
+                memoryStoreFallback.set(STORAGE_KEYS.DISBURSEMENTS, []);
+                memoryStoreFallback.set(STORAGE_KEYS.REFERRALS, []);
+                memoryStoreFallback.set(STORAGE_KEYS.REFERRAL_PAYOUTS, []);
+                memoryStoreFallback.set(STORAGE_KEYS.DONOR_ATTRIBUTIONS, []);
                 memoryStoreFallback.set(STORAGE_KEYS.NEWS, []);
-                localStorage.setItem('wiz_news_purged_reset_v3', 'true');
+                memoryStoreFallback.set(STORAGE_KEYS.QUOTES, []);
+                memoryStoreFallback.set(STORAGE_KEYS.ACTIVITY, []);
+                memoryStoreFallback.set(STORAGE_KEYS.ADMIN_USERS, DEFAULT_ADMIN_USERS);
+
+                localStorage.setItem('wiz_full_data_purge_2026', 'true');
             }
         } catch(e) {}
     }
@@ -344,8 +313,21 @@
         }
     }
 
-    function formatRupiahCompact(num) {
+    function formatRupiah(num) {
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num || 0);
+    }
+
+    function formatRupiahCompact(num) {
+        return formatRupiah(num);
+    }
+
+    if (typeof window !== 'undefined') {
+        window.formatRupiah = formatRupiah;
+        window.formatRupiahCompact = formatRupiahCompact;
+        window.wizStore = window.wizStore || {};
+        window.wizStore.utils = window.wizStore.utils || {};
+        window.wizStore.utils.formatRupiah = formatRupiah;
+        window.wizStore.utils.formatRupiahCompact = formatRupiahCompact;
     }
 
     function formatDate(isoString) {
@@ -6289,7 +6271,7 @@
         pushToCloud,
         fullBidirectionalSync,
         broadcastSync,
-        utils: { formatRupiahCompact, formatDate, formatDateTime, timeAgo, generateId, mapProgramToPillar, mapPillarToKategori, mapKategoriToPillar, getProgramPillarKey, getProgramKategoriPilar, escapeHtml, isLockedPriorityProgram, normalizeProgramKey, isProgramMatching }
+        utils: { formatRupiah, formatRupiahCompact, formatDate, formatDateTime, timeAgo, generateId, mapProgramToPillar, mapPillarToKategori, mapKategoriToPillar, getProgramPillarKey, getProgramKategoriPilar, escapeHtml, isLockedPriorityProgram, normalizeProgramKey, isProgramMatching }
     };
 
     console.log('[WIZ Store] Initialized with real-time cloud sync & 10s auto-polling. Collections ready.');
