@@ -30,6 +30,27 @@
 	</script></head><body class="antialiased min-h-screen flex flex-col bg-slate-50"><!-- Mitra Portal Header --><header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm"><div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between"><!-- Logo + MITRA badge --><a href="/" class="flex items-center gap-2.5 group"><img src="/assets/images/logo-wiz-babel.png" alt="WIZ Bangka Belitung" class="h-9 w-auto object-contain"><div class="flex flex-col leading-none"><span class="font-extrabold text-sm text-slate-900 group-hover:text-emerald-700 transition-colors">WIZ Babel</span><span class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">MITRA</span></div></a><!-- Back to Main Site --><a href="/" class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-lg transition-colors border border-slate-200"><span class="material-symbols-outlined" style="font-size:16px;">home</span><span>Ke Website Utama</span></a></div></header>
 <main class="flex-grow">
 
+    <style is:global>
+        #member-periode-filter option {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+        }
+        #member-kpi-activity-container {
+            width: 100% !important;
+            display: block !important;
+        }
+        #member-kpi-activity-container p {
+            display: block !important;
+            width: 100% !important;
+            max-width: 650px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            text-align: center !important;
+            white-space: normal !important;
+            word-break: normal !important;
+        }
+    </style>
+
     <!-- Header Banner -->
     <section class="bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white py-10 sm:py-14 relative overflow-hidden">
         <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
@@ -1177,13 +1198,13 @@
                     activityContainer.innerHTML = tableHtml;
                 } else {
                     activityContainer.innerHTML = `
-                    <div class="bg-slate-50/80 rounded-2xl p-6 sm:p-8 text-center border border-dashed border-slate-200 w-full flex flex-col items-center justify-center">
-                        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
+                    <div class="bg-slate-50/80 rounded-2xl p-6 sm:p-8 text-center border border-dashed border-slate-200 w-full block">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3">
                             <span class="material-symbols-outlined text-2xl">fact_check</span>
                         </div>
-                        <h4 class="text-sm font-bold text-slate-800 mb-1">Belum Ada Catatan Aktivitas untuk Periode ${targetPeriod}</h4>
-                        <p class="text-xs text-slate-500 max-w-lg text-center leading-relaxed mx-auto">
-                            Aktivitas operasional Anda (rapat, administrasi, desain, video, dan penyaluran lapangan) akan diverifikasi dan diinput oleh pengurus wilayah.
+                        <h4 class="text-sm sm:text-base font-bold text-slate-800 mb-1.5 block w-full text-center">Belum Ada Catatan Aktivitas untuk Periode ${targetPeriod}</h4>
+                        <p class="text-xs sm:text-sm text-slate-500 max-w-2xl mx-auto text-center leading-relaxed block w-full" style="display: block !important; width: 100% !important; max-width: 650px !important; margin-left: auto !important; margin-right: auto !important; word-break: normal !important; white-space: normal !important; text-align: center !important;">
+                            Aktivitas operasional Anda (rapat, administrasi, desain flyer, video, dan penyaluran lapangan) akan diverifikasi dan dicatat oleh Pengurus Wilayah.
                         </p>
                     </div>`;
                 }
