@@ -12,19 +12,27 @@ import MitraLayout from '../layouts/MitraLayout.astro';
             background-color: #ffffff !important;
             color: #0f172a !important;
         }
-        #member-kpi-activity-container {
+        #member-qr-modal > div {
             width: 100% !important;
-            display: block !important;
+            max-width: 440px !important;
+            min-width: 320px !important;
+            margin: auto !important;
+            box-sizing: border-box !important;
         }
+        #member-qr-modal p,
+        #affiliate-featured-quote p,
         #member-kpi-activity-container p {
             display: block !important;
             width: 100% !important;
-            max-width: 650px !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
             text-align: center !important;
             white-space: normal !important;
             word-break: normal !important;
+        }
+        #affiliate-featured-quote,
+        #member-kpi-activity-container {
+            width: 100% !important;
+            display: block !important;
+            box-sizing: border-box !important;
         }
     </style>
 
@@ -536,30 +544,30 @@ import MitraLayout from '../layouts/MitraLayout.astro';
     </div>
 
     <!-- Modal: QR Code Donasi Mitra -->
-    <div id="member-qr-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl border border-slate-200 text-center space-y-4 relative">
+    <div id="member-qr-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden" style="position: fixed; inset: 0; z-index: 9999; display: none; align-items: center; justify-content: center; padding: 1rem; box-sizing: border-box;">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 text-center space-y-4 relative w-full" style="width: 100% !important; max-width: 440px !important; min-width: 320px !important; margin: auto !important; box-sizing: border-box !important; display: block !important;">
             <button type="button" onclick="toggleMemberQrModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 p-1 rounded-full hover:bg-slate-100 transition-colors cursor-pointer">
                 <span class="material-symbols-outlined">close</span>
             </button>
 
-            <div class="inline-flex p-3 rounded-2xl bg-emerald-50 text-emerald-800">
+            <div class="inline-flex p-3 rounded-2xl bg-emerald-50 text-emerald-800 mx-auto">
                 <span class="material-symbols-outlined text-3xl">qr_code_scanner</span>
             </div>
 
-            <div>
-                <h3 class="text-lg font-black text-slate-900" id="qr-modal-mitra-name">QR Code Donasi Mitra</h3>
-                <p class="text-xs text-slate-500 font-mono font-bold text-primary mt-0.5" id="qr-modal-mitra-code">WIZ-000</p>
+            <div class="w-full text-center">
+                <h3 class="text-lg font-black text-slate-900 block w-full" id="qr-modal-mitra-name">QR Code Donasi Mitra</h3>
+                <p class="text-xs text-slate-500 font-mono font-bold text-primary mt-0.5 block w-full" id="qr-modal-mitra-code">WIZ-000</p>
             </div>
 
-            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex justify-center items-center">
-                <img id="member-qr-img" src="" alt="QR Code Donasi" class="w-56 h-56 object-contain rounded-xl shadow-xs">
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex justify-center items-center mx-auto" style="width: 100% !important; max-width: 280px !important; min-height: 240px !important; margin: 0 auto !important;">
+                <img id="member-qr-img" src="" alt="QR Code Donasi" class="w-56 h-56 object-contain rounded-xl shadow-xs mx-auto" style="width: 224px !important; height: 224px !important; display: block !important; margin: 0 auto !important;">
             </div>
 
-            <p class="text-xs text-slate-500 leading-relaxed">
+            <p class="text-xs text-slate-500 leading-relaxed block w-full text-center" style="display: block !important; width: 100% !important; word-break: normal !important; white-space: normal !important; text-align: center !important;">
                 Tunjukkan QR Code ini kepada calon donatur untuk berdonasi langsung melalui website resmi WIZ Bangka Belitung.
             </p>
 
-            <div class="flex gap-2 pt-1">
+            <div class="flex gap-2 pt-1 w-full" style="width: 100% !important; display: flex !important;">
                 <button type="button" onclick="copyFundraisingLink()" class="flex-1 bg-primary hover:bg-emerald-700 text-white font-bold text-xs py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
                     <span class="material-symbols-outlined text-sm">content_copy</span>
                     <span>Salin Tautan</span>
@@ -724,7 +732,7 @@ import MitraLayout from '../layouts/MitraLayout.astro';
         function toggleMemberQrModal() {
             const modal = document.getElementById('member-qr-modal');
             if (!modal) return;
-            const isHidden = modal.classList.contains('hidden');
+            const isHidden = modal.classList.contains('hidden') || modal.style.display === 'none';
             if (isHidden) {
                 if (!currentLoggedAffiliate) return;
                 const mitra = currentLoggedAffiliate;
@@ -739,8 +747,10 @@ import MitraLayout from '../layouts/MitraLayout.astro';
                 const qrImg = document.getElementById('member-qr-img');
                 if (qrImg) qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=10&data=${encodeURIComponent(donationLink)}`;
 
+                modal.style.display = 'flex';
                 modal.classList.remove('hidden');
             } else {
+                modal.style.display = 'none';
                 modal.classList.add('hidden');
             }
         }
@@ -1455,18 +1465,24 @@ import MitraLayout from '../layouts/MitraLayout.astro';
 
             if (activeQuotes.length === 0) {
                 if (featuredCard) {
-                    featuredCard.className = 'bg-slate-50 text-slate-600 rounded-2xl p-6 text-center border border-dashed border-slate-200 w-full block';
+                    featuredCard.className = 'bg-slate-50 text-slate-600 rounded-2xl p-6 sm:p-8 text-center border border-dashed border-slate-200 w-full block';
+                    featuredCard.setAttribute('style', 'width: 100% !important; display: block !important; box-sizing: border-box !important;');
                     featuredCard.innerHTML = `
-                    <div class="max-w-md mx-auto space-y-2 py-4">
-                        <span class="material-symbols-outlined text-4xl text-emerald-600/50">format_quote</span>
-                        <p class="font-bold text-slate-800 text-sm">Belum Ada Quote Harian Aktif</p>
-                        <p class="text-xs text-slate-500">Materi flyer poster dakwah harian akan segera diterbitkan oleh Admin.</p>
-                        <button type="button" onclick="fetchFreshQuotesDirectly()" class="mt-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer">
-                            Cek Quote Terbaru
-                        </button>
+                    <div class="max-w-2xl mx-auto space-y-2 py-4 block w-full text-center" style="width: 100% !important; max-width: 650px !important; margin: 0 auto !important; display: block !important;">
+                        <span class="material-symbols-outlined text-4xl text-emerald-600/50 block mx-auto mb-2">format_quote</span>
+                        <h4 class="font-bold text-slate-800 text-sm sm:text-base block w-full text-center" style="white-space: normal !important; word-break: normal !important; width: 100% !important;">Belum Ada Quote Harian Aktif</h4>
+                        <p class="text-xs sm:text-sm text-slate-500 leading-relaxed block w-full text-center" style="white-space: normal !important; word-break: normal !important; width: 100% !important; max-width: 500px !important; margin: 0 auto !important;">
+                            Materi flyer poster dakwah harian akan segera diterbitkan oleh Admin.
+                        </p>
+                        <div class="pt-3 flex justify-center w-full">
+                            <button type="button" onclick="fetchFreshQuotesDirectly()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer inline-flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-sm">refresh</span>
+                                <span>Cek Quote Terbaru</span>
+                            </button>
+                        </div>
                     </div>`;
                 }
-                grid.innerHTML = '<div class="col-span-3 p-6 text-center text-slate-400 text-xs">Belum ada koleksi quote lainnya yang dipublikasikan.</div>';
+                grid.innerHTML = '<div class="col-span-1 sm:col-span-2 lg:col-span-3 p-6 text-center text-slate-400 text-xs w-full block" style="width: 100% !important; display: block !important;">Belum ada koleksi quote lainnya yang dipublikasikan.</div>';
                 return;
             }
 
