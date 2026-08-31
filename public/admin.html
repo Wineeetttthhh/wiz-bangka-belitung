@@ -1175,6 +1175,10 @@
                     <p class="font-caption text-caption text-on-surface-variant">Pusat pengelolaan profil Mitra Penghimpunan / relawan fundraiser, pemantauan target KPI donatur, dan pencatatan insentif penghimpunan.</p>
                 </div>
                 <div class="flex items-center gap-sm flex-wrap">
+                    <button onclick="openKpiModal()" class="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-lg py-2.5 rounded-xl font-bold text-sm transition-all shadow-md cursor-pointer border border-blue-500">
+                        <span class="material-symbols-outlined text-base">fact_check</span>
+                        <span>+ Input Aktivitas (KPI)</span>
+                    </button>
                     <button onclick="openReferralModal()" class="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-lg py-2.5 rounded-xl font-bold text-sm transition-all shadow-md cursor-pointer border border-emerald-500">
                         <span class="material-symbols-outlined text-base">person_add</span>
                         <span>+ Tambah Mitra Penghimpunan Baru</span>
@@ -1203,7 +1207,7 @@
                         <span class="material-symbols-outlined text-2xl">savings</span>
                     </div>
                     <div>
-                        <p class="font-caption text-caption text-on-surface-variant font-semibold">Total Hak Insentif (6%) Terakumulasi</p>
+                        <p class="font-caption text-caption text-on-surface-variant font-semibold">Total Hak Insentif (6%) Periode Ini</p>
                         <h3 id="kpi-ref-fee-total" class="font-headline-md text-headline-md font-bold text-emerald-700">Rp 0</h3>
                     </div>
                 </div>
@@ -1213,7 +1217,7 @@
                         <span class="material-symbols-outlined text-2xl">workspace_premium</span>
                     </div>
                     <div>
-                        <p class="font-caption text-caption text-on-surface-variant font-semibold">Insentif Tambahan Operasional</p>
+                        <p class="font-caption text-caption text-on-surface-variant font-semibold">Dana Pool Operasional (7%)</p>
                         <h3 id="kpi-ref-bonus-total" class="font-headline-md text-headline-md font-bold text-purple-700">Rp 0</h3>
                     </div>
                 </div>
@@ -1237,7 +1241,7 @@
                             <span class="material-symbols-outlined text-primary">badge</span>
                             <span>Daftar Mitra Penghimpunan &amp; Relawan Fundraiser</span>
                         </h3>
-                        <p class="font-caption text-caption text-on-surface-variant">Admin dapat mengedit data mitra, mengubah % alokasi insentif default, atau menambah insentif operasional.</p>
+                        <p class="font-caption text-caption text-on-surface-variant">Admin dapat mengedit data mitra, mencatat aktivitas KPI bulanan, dan memantau insentif 6% fix + alokasi 7% pool operasional.</p>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto">
                         <select id="referral-month-filter" onchange="renderReferralsSection()" class="text-xs bg-surface border border-outline-variant rounded-lg px-3 py-1.5 font-bold outline-none focus:border-primary">
@@ -1250,6 +1254,68 @@
                 </div>
                 <div class="overflow-x-auto" id="referrals-table-container">
                     <!-- Rendered dynamically -->
+                </div>
+            </div>
+
+            <!-- Card: Evaluasi Dana Operasional Brankas Wilayah & Finalisasi -->
+            <div class="bg-gradient-to-br from-indigo-950 via-slate-900 to-emerald-950 text-white rounded-2xl p-lg md:p-xl shadow-lg border border-indigo-500/30 relative overflow-hidden">
+                <div class="absolute -top-12 -right-12 w-48 h-48 bg-primary/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-12 -left-12 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-lg">
+                    <div class="space-y-sm max-w-2xl">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-bold uppercase tracking-wider">
+                            <span class="material-symbols-outlined text-sm">account_balance_wallet</span>
+                            <span>Evaluasi Dana Operasional Wilayah (Brankas Wilayah)</span>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-black text-white flex items-center gap-2 flex-wrap">
+                            <span>Distribusi Insentif Terpusat &amp; Brankas Wilayah</span>
+                            <span id="kpi-pool-period-badge" class="text-xs font-bold px-2.5 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Periode ...</span>
+                        </h3>
+                        <p class="text-slate-300 text-xs md:text-sm leading-relaxed">
+                            Alokasi operasional amil: <strong>Pangkalpinang (6% Fix + 7% Pool)</strong> dan <strong>Sungailiat (6% Fix + 8% Pool)</strong> digabung ke <strong>Brankas Wilayah</strong> lalu dibagikan secara proporsional kepada seluruh mitra berdasarkan akumulasi perolehan poin KPI bulanan.
+                        </p>
+                    </div>
+
+                    <div class="shrink-0 w-full lg:w-auto">
+                        <button onclick="finalizeMonthlyPool()" class="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-xl py-3.5 rounded-xl font-black text-sm transition-all shadow-lg hover:shadow-emerald-500/25 border border-emerald-400/40 cursor-pointer">
+                            <span class="material-symbols-outlined text-lg">lock_clock</span>
+                            <span>Kunci &amp; Finalisasi Insentif Bulan Ini</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Breakdown Grid in Pool Card (5 Cards) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-md mt-lg pt-lg border-t border-white/10 relative z-10">
+                    <div class="bg-white/5 backdrop-blur-sm p-md rounded-xl border border-white/10">
+                        <p class="text-xs text-slate-300 font-medium">Pool Pangkalpinang (7%)</p>
+                        <h4 id="kpi-pool-pkp" class="text-lg md:text-xl font-black text-white mt-1">Rp 0</h4>
+                        <p class="text-[11px] text-slate-400 mt-0.5" id="kpi-donations-pkp">Donasi: Rp 0</p>
+                    </div>
+
+                    <div class="bg-white/5 backdrop-blur-sm p-md rounded-xl border border-white/10">
+                        <p class="text-xs text-slate-300 font-medium">Pool Sungailiat (8%)</p>
+                        <h4 id="kpi-pool-sungailiat" class="text-lg md:text-xl font-black text-white mt-1">Rp 0</h4>
+                        <p class="text-[11px] text-slate-400 mt-0.5" id="kpi-donations-sungailiat">Donasi: Rp 0</p>
+                    </div>
+
+                    <div class="bg-emerald-500/10 backdrop-blur-sm p-md rounded-xl border border-emerald-500/20">
+                        <p class="text-xs text-emerald-300 font-medium">Total Brankas Wilayah</p>
+                        <h4 id="kpi-pool-total-fund" class="text-lg md:text-xl font-black text-emerald-400 mt-1">Rp 0</h4>
+                        <p class="text-[11px] text-emerald-200/70 mt-0.5" id="kpi-pool-donations-count">Total donasi gabungan</p>
+                    </div>
+
+                    <div class="bg-blue-500/10 backdrop-blur-sm p-md rounded-xl border border-blue-500/20">
+                        <p class="text-xs text-blue-300 font-medium">Total Poin Global KPI</p>
+                        <h4 id="kpi-pool-total-points" class="text-lg md:text-xl font-black text-blue-300 mt-1">0 Poin</h4>
+                        <p class="text-[11px] text-blue-200/70 mt-0.5" id="kpi-pool-mitra-count">0 mitra berpartisipasi</p>
+                    </div>
+
+                    <div class="bg-purple-500/10 backdrop-blur-sm p-md rounded-xl border border-purple-500/20">
+                        <p class="text-xs text-purple-300 font-medium">Konversi per 1 Poin</p>
+                        <h4 id="kpi-pool-point-rate" class="text-lg md:text-xl font-black text-purple-300 mt-1">Rp 0 / Poin</h4>
+                        <p class="text-[11px] text-purple-200/70 mt-0.5">Brankas Wilayah / Poin</p>
+                    </div>
                 </div>
             </div>
 
@@ -1916,9 +1982,19 @@
             <form id="referral-form" class="p-lg space-y-md" onsubmit="handleReferralSave(event)">
                 <input type="hidden" id="ref-edit-id" value="">
 
-                <div>
-                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Nama Lengkap Mitra Penghimpunan *</label>
-                    <input type="text" id="ref-name" required class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none" placeholder="Contoh: Ustadz Ahmad Hidayat">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Nama Lengkap Mitra Penghimpunan *</label>
+                        <input type="text" id="ref-name" required class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none" placeholder="Contoh: Ustadz Ahmad Hidayat">
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Cabang Penugasan *</label>
+                        <select id="ref-cabang" required class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none font-bold text-primary">
+                            <option value="Pangkalpinang">Cabang Pangkalpinang</option>
+                            <option value="Sungailiat">Cabang Sungailiat</option>
+                            <option value="Wilayah">Kantor Wilayah Bangka Belitung</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
@@ -1971,6 +2047,183 @@
                 <div class="flex gap-md pt-sm">
                     <button type="submit" class="flex-1 bg-primary text-on-primary py-3 rounded-lg font-label-md text-label-md font-bold hover:bg-primary-container transition-colors">Simpan Data Mitra Penghimpunan</button>
                     <button type="button" onclick="closeReferralModal()" class="px-lg py-3 border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- MODAL: INPUT AKTIVITAS (KPI & FREQUENCY MULTIPLIER)  -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div id="kpi-activity-modal" class="modal-backdrop">
+        <div class="modal-dialog max-w-2xl">
+            <div class="p-lg border-b border-surface-variant flex justify-between items-center sticky top-0 bg-surface z-20">
+                <div>
+                    <h3 id="kpi-modal-title" class="font-headline-md text-body-lg font-bold text-primary flex items-center gap-xs">
+                        <span class="material-symbols-outlined text-primary">fact_check</span>
+                        <span>Form Input Aktivitas &amp; KPI Mitra Penghimpunan</span>
+                    </h3>
+                    <p class="font-caption text-xs text-on-surface-variant mt-0.5">Catat frekuensi kegiatan operasional mitra untuk pembagian proporsional Pool 7%.</p>
+                </div>
+                <button type="button" onclick="closeKpiModal()" class="text-outline hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            
+            <form id="kpi-activity-form" class="p-lg space-y-md" onsubmit="handleKpiSave(event)">
+                <input type="hidden" id="kpi-edit-id" value="">
+
+                <!-- Row 1: Select Mitra & Periode Bulan -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                    <div>
+                        <label class="block font-label-md text-xs text-on-surface font-bold mb-xs">Pilih Mitra Penghimpunan *</label>
+                        <select id="kpi-mitra-select" required onchange="handleKpiMitraOrPeriodChange()" class="w-full bg-surface border border-outline-variant rounded-xl px-3.5 py-2.5 font-body-md text-sm text-on-surface focus:border-primary outline-none font-semibold">
+                            <option value="">-- Pilih Mitra --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-xs text-on-surface font-bold mb-xs">Periode Bulan &amp; Tahun *</label>
+                        <input type="month" id="kpi-periode-month" required onchange="handleKpiMitraOrPeriodChange()" class="w-full bg-surface border border-outline-variant rounded-xl px-3.5 py-2.5 font-body-md text-sm text-on-surface focus:border-primary outline-none font-bold text-primary">
+                    </div>
+                </div>
+
+                <!-- Section: Checklist Aktivitas Standar (Checkbox + Stepper) -->
+                <div class="bg-surface-container-low p-md rounded-2xl border border-outline-variant/30 space-y-3">
+                    <div class="flex justify-between items-center border-b border-outline-variant/20 pb-2">
+                        <span class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-base text-primary">checklist</span>
+                            <span>Daftar Aktivitas Standar (Pilih &amp; Atur Frekuensi)</span>
+                        </span>
+                        <span class="text-[11px] text-on-surface-variant font-medium">Satuan: Kali Kegiatan</span>
+                    </div>
+
+                    <!-- Item 1: Rapat (Weight: 5) -->
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-surface border border-outline-variant/20 hover:border-primary/40 transition-all gap-2">
+                        <label class="flex items-center gap-2.5 cursor-pointer flex-1 select-none">
+                            <input type="checkbox" id="kpi-chk-rapat" onchange="toggleKpiRow('rapat')" class="w-4 h-4 text-primary rounded focus:ring-primary">
+                            <div>
+                                <span class="font-bold text-xs text-on-surface block">Hadir Rapat / Evaluasi</span>
+                                <span class="text-[10px] text-on-surface-variant">Rapat koordinasi rutin / evaluasi fundraiser</span>
+                            </div>
+                        </label>
+                        <div id="kpi-stepper-rapat-box" class="flex items-center gap-1.5 opacity-40 pointer-events-none transition-opacity">
+                            <button type="button" onclick="adjustKpiQty('rapat', -1)" class="w-7 h-7 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-bold text-sm flex items-center justify-center cursor-pointer border border-outline-variant/30">-</button>
+                            <input type="number" id="kpi-qty-rapat" min="1" max="999" value="1" oninput="updateKpiPointsPreview()" class="w-12 text-center text-xs font-bold bg-surface border border-outline-variant/30 rounded-lg py-1 outline-none focus:border-primary">
+                            <button type="button" onclick="adjustKpiQty('rapat', 1)" class="w-7 h-7 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-bold text-sm flex items-center justify-center cursor-pointer border border-outline-variant/30">+</button>
+                            <span class="text-[11px] text-on-surface-variant font-medium ml-0.5">kali</span>
+                        </div>
+                    </div>
+
+                    <!-- Item 2: Administrasi / Pelaporan (Weight: 20) -->
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-surface border border-outline-variant/20 hover:border-primary/40 transition-all gap-2">
+                        <label class="flex items-center gap-2.5 cursor-pointer flex-1 select-none">
+                            <input type="checkbox" id="kpi-chk-admin" onchange="toggleKpiRow('admin')" class="w-4 h-4 text-primary rounded focus:ring-primary">
+                            <div>
+                                <span class="font-bold text-xs text-on-surface block">Administrasi / Pelaporan</span>
+                                <span class="text-[10px] text-on-surface-variant">Input data donatur, rekapitulasi, &amp; pelaporan</span>
+                            </div>
+                        </label>
+                        <div id="kpi-stepper-admin-box" class="flex items-center gap-1.5 opacity-40 pointer-events-none transition-opacity">
+                            <button type="button" onclick="adjustKpiQty('admin', -1)" class="w-7 h-7 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-bold text-sm flex items-center justify-center cursor-pointer border border-outline-variant/30">-</button>
+                            <input type="number" id="kpi-qty-admin" min="1" max="999" value="1" oninput="updateKpiPointsPreview()" class="w-12 text-center text-xs font-bold bg-surface border border-outline-variant/30 rounded-lg py-1 outline-none focus:border-primary">
+                            <button type="button" onclick="adjustKpiQty('admin', 1)" class="w-7 h-7 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-bold text-sm flex items-center justify-center cursor-pointer border border-outline-variant/30">+</button>
+                            <span class="text-[11px] text-on-surface-variant font-medium ml-0.5">kali</span>
+                        </div>
+                    </div>
+
+                    <!-- Item 3: Desain Grafis (Weight: 35) -->
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-surface border border-outline-variant/20 hover:border-primary/40 transition-all gap-2">
+                        <label class="flex items-center gap-2.5 cursor-pointer flex-1 select-none">
+                            <input type="checkbox" id="kpi-chk-desain" onchange="toggleKpiRow('desain')" class="w-4 h-4 text-primary rounded focus:ring-primary">
+                            <div>
+                                <span class="font-bold text-xs text-on-surface block">Desain Grafis (Flyer)</span>
+                                <span class="text-[10px] text-on-surface-variant">Pembuatan flyer dakwah, program, &amp; ajakan sedekah</span>
+                            </div>
+                        </label>
+                        <div id="kpi-stepper-desain-box" class="flex items-center gap-1.5 opacity-40 pointer-events-none transition-opacity">
+                            <button type="button" onclick="adjustKpiQty('desain', -1)" class="w-7 h-7 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-bold text-sm flex items-center justify-center cursor-pointer border border-outline-variant/30">-</button>
+                            <input type="number" id="kpi-qty-desain" min="1" max="999" value="1" oninput="updateKpiPointsPreview()" class="w-12 text-center text-xs font-bold bg-surface border border-outline-variant/30 rounded-lg py-1 outline-none focus:border-primary">
+                            <button type="button" onclick="adjustKpiQty('desain', 1)" class="w-7 h-7 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-bold text-sm flex items-center justify-center cursor-pointer border border-outline-variant/30">+</button>
+                            <span class="text-[11px] text-on-surface-variant font-medium ml-0.5">kali</span>
+                        </div>
+                    </div>
+
+                    <!-- Item 4: Edit Video Dokumentasi (Weight: 50) -->
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-surface border border-outline-variant/20 hover:border-primary/40 transition-all gap-2">
+                        <label class="flex items-center gap-2.5 cursor-pointer flex-1 select-none">
+                            <input type="checkbox" id="kpi-chk-video" onchange="toggleKpiRow('video')" class="w-4 h-4 text-primary rounded focus:ring-primary">
+                            <div>
+                                <span class="font-bold text-xs text-on-surface block">Edit Video Dokumentasi</span>
+                                <span class="text-[10px] text-on-surface-variant">Editing video reel, penyaluran, liputan kegiatan</span>
+                            </div>
+                        </label>
+                        <div id="kpi-stepper-video-box" class="flex items-center gap-1.5 opacity-40 pointer-events-none transition-opacity">
+                            <button type="button" onclick="adjustKpiQty('video', -1)" class="w-7 h-7 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-bold text-sm flex items-center justify-center cursor-pointer border border-outline-variant/30">-</button>
+                            <input type="number" id="kpi-qty-video" min="1" max="999" value="1" oninput="updateKpiPointsPreview()" class="w-12 text-center text-xs font-bold bg-surface border border-outline-variant/30 rounded-lg py-1 outline-none focus:border-primary">
+                            <button type="button" onclick="adjustKpiQty('video', 1)" class="w-7 h-7 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-bold text-sm flex items-center justify-center cursor-pointer border border-outline-variant/30">+</button>
+                            <span class="text-[11px] text-on-surface-variant font-medium ml-0.5">kali</span>
+                        </div>
+                    </div>
+
+                    <!-- Item 5: Turun Penyaluran Lapangan (Weight: 60) -->
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-surface border border-outline-variant/20 hover:border-primary/40 transition-all gap-2">
+                        <label class="flex items-center gap-2.5 cursor-pointer flex-1 select-none">
+                            <input type="checkbox" id="kpi-chk-lapangan" onchange="toggleKpiRow('lapangan')" class="w-4 h-4 text-primary rounded focus:ring-primary">
+                            <div>
+                                <span class="font-bold text-xs text-on-surface block">Turun Penyaluran Lapangan</span>
+                                <span class="text-[10px] text-on-surface-variant">Distribusi bantuan, aksi kemanusiaan, survei dhuafa</span>
+                            </div>
+                        </label>
+                        <div id="kpi-stepper-lapangan-box" class="flex items-center gap-1.5 opacity-40 pointer-events-none transition-opacity">
+                            <button type="button" onclick="adjustKpiQty('lapangan', -1)" class="w-7 h-7 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-bold text-sm flex items-center justify-center cursor-pointer border border-outline-variant/30">-</button>
+                            <input type="number" id="kpi-qty-lapangan" min="1" max="999" value="1" oninput="updateKpiPointsPreview()" class="w-12 text-center text-xs font-bold bg-surface border border-outline-variant/30 rounded-lg py-1 outline-none focus:border-primary">
+                            <button type="button" onclick="adjustKpiQty('lapangan', 1)" class="w-7 h-7 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-bold text-sm flex items-center justify-center cursor-pointer border border-outline-variant/30">+</button>
+                            <span class="text-[11px] text-on-surface-variant font-medium ml-0.5">kali</span>
+                        </div>
+                    </div>
+
+                    <!-- Slot Kustom: Aktivitas Lainnya (Custom) -->
+                    <div class="p-2.5 rounded-xl bg-surface border border-outline-variant/20 space-y-2">
+                        <label class="flex items-center gap-2.5 cursor-pointer select-none">
+                            <input type="checkbox" id="kpi-chk-lainnya" onchange="toggleKpiRow('lainnya')" class="w-4 h-4 text-primary rounded focus:ring-primary">
+                            <div>
+                                <span class="font-bold text-xs text-on-surface block">Aktivitas Lainnya (Custom)</span>
+                                <span class="text-[10px] text-on-surface-variant">Kegiatan di luar 5 aktivitas standar di atas</span>
+                            </div>
+                        </label>
+                        
+                        <div id="kpi-custom-inputs-box" class="grid grid-cols-1 sm:grid-cols-3 gap-2 pl-6 pt-1 hidden">
+                            <div class="sm:col-span-2">
+                                <label class="block text-[10px] text-on-surface-variant font-semibold mb-0.5">Nama Kegiatan / Keterangan</label>
+                                <input type="text" id="kpi-keterangan-lainnya" placeholder="Contoh: Mengisi Khutbah / Event Tabligh Akbar" class="w-full text-xs bg-surface border border-outline-variant rounded-lg px-3 py-1.5 outline-none focus:border-primary">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-on-surface-variant font-semibold mb-0.5">Bobot Poin Manual</label>
+                                <input type="number" id="kpi-poin-lainnya" min="0" value="0" oninput="updateKpiPointsPreview()" placeholder="0" class="w-full text-xs bg-surface border border-outline-variant rounded-lg px-3 py-1.5 outline-none focus:border-primary font-bold text-purple-700">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Preview Bar: Total Points Generated -->
+                <div class="p-md rounded-xl bg-gradient-to-r from-primary/10 via-emerald-50 to-teal-50 border border-primary/20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-sm">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-primary/20 text-primary flex items-center justify-center font-bold text-base">
+                            <span class="material-symbols-outlined text-lg">workspace_premium</span>
+                        </div>
+                        <div>
+                            <span class="text-[11px] text-on-surface-variant font-semibold block">Total Akumulasi Poin KPI</span>
+                            <span id="kpi-preview-breakdown" class="text-[10px] text-outline">Pilih aktivitas di atas</span>
+                        </div>
+                    </div>
+                    <div class="text-right flex items-baseline gap-1.5 self-end sm:self-auto">
+                        <span id="kpi-preview-total" class="text-2xl font-black text-primary">0</span>
+                        <span class="text-xs font-bold text-primary">Poin</span>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex gap-md pt-sm">
+                    <button type="submit" class="flex-1 bg-primary text-on-primary py-3 rounded-xl font-label-md text-label-md font-bold hover:bg-primary-container transition-all shadow-md cursor-pointer">Simpan Poin KPI Mitra</button>
+                    <button type="button" onclick="closeKpiModal()" class="px-lg py-3 border border-outline-variant rounded-xl font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors cursor-pointer">Batal</button>
                 </div>
             </form>
         </div>
@@ -7547,9 +7800,36 @@
                 const searchInput = document.getElementById('referral-search');
                 const searchVal = (searchInput ? searchInput.value : '').toLowerCase().trim();
 
+                const monthSelect = document.getElementById('referral-month-filter');
+                if (monthSelect && monthSelect.options.length <= 3) {
+                    if (typeof window.generatePeriods === 'function' || (wizStore.utils && typeof wizStore.utils.generatePeriods === 'function')) {
+                        const periodsFn = window.generatePeriods || wizStore.utils.generatePeriods;
+                        const periods = periodsFn(12);
+                        let optsHtml = periods.map(p => `<option value="${p.value}" ${p.isCurrent ? 'selected' : ''}>${p.label}</option>`).join('');
+                        optsHtml += '<option value="Semua">Semua Periode</option>';
+                        monthSelect.innerHTML = optsHtml;
+                    } else if (typeof window.populateMonthFilterOptions === 'function') {
+                        window.populateMonthFilterOptions('referral-month-filter');
+                    }
+                }
+
+                const curMonthDefault = (wizStore.utils && typeof wizStore.utils.getCurrentPeriod === 'function')
+                    ? wizStore.utils.getCurrentPeriod()
+                    : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+                const selectedMonth = monthSelect ? (monthSelect.value || curMonthDefault) : curMonthDefault;
+
+                // 1. Get Brankas Wilayah Pool Summary for selectedMonth (7% PKP + 8% Sungailiat)
+                const poolSummary = (wizStore.kpiMitra && typeof wizStore.kpiMitra.getPoolSummary === 'function')
+                    ? wizStore.kpiMitra.getPoolSummary(selectedMonth)
+                    : { totalVerifiedDonations: 0, totalPoolWilayah: 0, totalPool7Percent: 0, donationsPKP: 0, donationsSungailiat: 0, poolPKP: 0, poolSungailiat: 0, totalGlobalPoints: 0, pointValue: 0, donationCount: 0, kpiCount: 0 };
+
+                // 2. Top Summary KPI Cards
                 const activeCount = allRefs.filter(r => r && r.status === 'active').length;
-                const totalFee6Percent = allRefs.reduce((s, r) => s + (Number(r.totalFee6Percent) || 0), 0);
-                const totalBonus = allRefs.reduce((s, r) => s + (Number(r.totalAdditionalBonus) || 0), 0);
+                const totalFee6Percent = allRefs.reduce((s, r) => {
+                    const mKpi = wizStore.referrals.getMonthlyKPI(r.id, selectedMonth);
+                    return s + (mKpi ? (Number(mKpi.monthEarnedFee) || 0) : (Number(r.totalFee6Percent) || 0));
+                }, 0);
+                const totalPoolFund = poolSummary.totalPoolWilayah !== undefined ? poolSummary.totalPoolWilayah : (poolSummary.totalPool7Percent || 0);
                 const totalPending = allRefs.reduce((s, r) => s + (Number(r.pendingBalance) || 0), 0);
 
                 const kpiCount = document.getElementById('kpi-ref-count');
@@ -7559,18 +7839,39 @@
 
                 if (kpiCount) kpiCount.textContent = `${activeCount} Orang`;
                 if (kpiFee) kpiFee.textContent = fmt(totalFee6Percent);
-                if (kpiBonus) kpiBonus.textContent = fmt(totalBonus);
+                if (kpiBonus) kpiBonus.textContent = fmt(totalPoolFund);
                 if (kpiPending) kpiPending.textContent = fmt(totalPending);
 
-                const monthSelect = document.getElementById('referral-month-filter');
-                if (monthSelect && monthSelect.options.length <= 3 && typeof window.populateMonthFilterOptions === 'function') {
-                    window.populateMonthFilterOptions('referral-month-filter');
-                }
-                const now = new Date();
-                const defaultCurMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-                const selectedMonth = monthSelect ? (monthSelect.value || defaultCurMonth) : defaultCurMonth;
+                // 3. Update Brankas Wilayah Evaluation Card
+                const poolPeriodBadge = document.getElementById('kpi-pool-period-badge');
+                const poolPkpEl = document.getElementById('kpi-pool-pkp');
+                const donPkpEl = document.getElementById('kpi-donations-pkp');
+                const poolSungailiatEl = document.getElementById('kpi-pool-sungailiat');
+                const donSungailiatEl = document.getElementById('kpi-donations-sungailiat');
+                const poolFundEl = document.getElementById('kpi-pool-total-fund');
+                const poolDonCountEl = document.getElementById('kpi-pool-donations-count');
+                const poolPointsEl = document.getElementById('kpi-pool-total-points');
+                const poolMitraCountEl = document.getElementById('kpi-pool-mitra-count');
+                const poolRateEl = document.getElementById('kpi-pool-point-rate');
 
-                const filteredRefs = allRefs.filter(r => r && (!searchVal || (r.name && r.name.toLowerCase().includes(searchVal)) || (r.phone && r.phone.includes(searchVal)) || (r.code && r.code.toLowerCase().includes(searchVal)) || (r.bankName && r.bankName.toLowerCase().includes(searchVal))));
+                if (poolPeriodBadge) {
+                    poolPeriodBadge.textContent = selectedMonth === 'Semua' ? 'Semua Periode' : `Periode ${selectedMonth}`;
+                }
+                if (poolPkpEl) poolPkpEl.textContent = fmt(poolSummary.poolPKP || 0);
+                if (donPkpEl) donPkpEl.textContent = `Donasi: ${fmt(poolSummary.donationsPKP || 0)} (${poolSummary.countPKP || 0}x)`;
+                if (poolSungailiatEl) poolSungailiatEl.textContent = fmt(poolSummary.poolSungailiat || 0);
+                if (donSungailiatEl) donSungailiatEl.textContent = `Donasi: ${fmt(poolSummary.donationsSungailiat || 0)} (${poolSummary.countSungailiat || 0}x)`;
+                if (poolFundEl) poolFundEl.textContent = fmt(totalPoolFund);
+                if (poolDonCountEl) poolDonCountEl.textContent = `Total: ${fmt(poolSummary.totalVerifiedDonations || 0)} (${poolSummary.donationCount || 0} donasi)`;
+                if (poolPointsEl) poolPointsEl.textContent = `${(poolSummary.totalGlobalPoints || 0).toLocaleString('id-ID')} Poin`;
+                if (poolMitraCountEl) poolMitraCountEl.textContent = `${poolSummary.kpiCount || 0} mitra tercatat KPI`;
+                if (poolRateEl) {
+                    const rateVal = poolSummary.totalGlobalPoints > 0 ? Math.round(poolSummary.pointValue) : 0;
+                    poolRateEl.textContent = `${fmt(rateVal)} / Poin`;
+                }
+
+                // 4. Render Master Referrals Table
+                const filteredRefs = allRefs.filter(r => r && (!searchVal || (r.name && r.name.toLowerCase().includes(searchVal)) || (r.phone && r.phone.includes(searchVal)) || (r.code && r.code.toLowerCase().includes(searchVal)) || (r.cabang && r.cabang.toLowerCase().includes(searchVal)) || (r.bankName && r.bankName.toLowerCase().includes(searchVal))));
 
                 const refContainer = document.getElementById('referrals-table-container');
                 if (refContainer) {
@@ -7581,33 +7882,68 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-surface-container-low border-b border-outline-variant/30 font-label-md text-caption text-on-surface-variant">
-                                    <th class="p-sm">Nama &amp; Kode Mitra</th>
+                                    <th class="p-sm">Nama, Kode &amp; Cabang</th>
                                     <th class="p-sm">Evaluasi Bulanan</th>
+                                    <th class="p-sm text-center">Poin KPI</th>
                                     <th class="p-sm">Kontak &amp; Rekening</th>
                                     <th class="p-sm text-center">% Default</th>
                                     <th class="p-sm text-right">Donasi Dihimpun</th>
-                                    <th class="p-sm text-right">Hak Insentif (6%)</th>
+                                    <th class="p-sm text-right">Hak Fix (6%)</th>
                                     <th class="p-sm text-right">Insentif Tambahan</th>
                                     <th class="p-sm text-right">Total Insentif Diterima</th>
-                                    <th class="p-sm text-right">Sudah Dicairkan</th>
                                     <th class="p-sm text-right">Sisa Pending</th>
                                     <th class="p-sm text-right">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-outline-variant/20 font-body-md text-xs">
                                 ${filteredRefs.map(r => {
-                                    const mKpi = wizStore.referrals.getMonthlyKPI(r.id, selectedMonth);
-                                    const tierBadge = mKpi ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${mKpi.tierClass}">${mKpi.performanceTier}</span>` : '';
+                                    const mKpi = wizStore.referrals.getMonthlyKPI(r.id, selectedMonth) || {};
+                                    const tierBadge = mKpi.tierClass ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${mKpi.tierClass}">${mKpi.performanceTier}</span>` : '';
+                                    const kpiRecord = mKpi.kpiRecord;
+                                    const kpiPoints = mKpi.kpiPoints || 0;
+                                    const additionalPoolIncentive = mKpi.additionalIncentive || 0;
+                                    const totalEarnedMonth = mKpi.totalEarnedMonth !== undefined ? mKpi.totalEarnedMonth : (mKpi.monthEarnedFee || 0);
+
+                                    let breakdownText = 'Belum ada input aktivitas';
+                                    if (kpiRecord) {
+                                        const bParts = [];
+                                        if (kpiRecord.qtyRapat > 0 || kpiRecord.qty_rapat > 0) bParts.push(`Rapat: ${kpiRecord.qtyRapat || kpiRecord.qty_rapat}x`);
+                                        if (kpiRecord.qtyAdmin > 0 || kpiRecord.qty_admin > 0) bParts.push(`Admin: ${kpiRecord.qtyAdmin || kpiRecord.qty_admin}x`);
+                                        if (kpiRecord.qtyDesain > 0 || kpiRecord.qty_desain > 0) bParts.push(`Desain: ${kpiRecord.qtyDesain || kpiRecord.qty_desain}x`);
+                                        if (kpiRecord.qtyVideo > 0 || kpiRecord.qty_video > 0) bParts.push(`Video: ${kpiRecord.qtyVideo || kpiRecord.qty_video}x`);
+                                        if (kpiRecord.qtyLapangan > 0 || kpiRecord.qty_lapangan > 0) bParts.push(`Lapangan: ${kpiRecord.qtyLapangan || kpiRecord.qty_lapangan}x`);
+                                        if (kpiRecord.poinLainnya > 0 || kpiRecord.poin_lainnya > 0) bParts.push(`Custom: ${kpiRecord.poinLainnya || kpiRecord.poin_lainnya}pt`);
+                                        if (bParts.length > 0) breakdownText = bParts.join(', ');
+                                    }
+
+                                    const cabangBadge = r.cabang === 'Sungailiat' 
+                                        ? '<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">Sungailiat</span>' 
+                                        : (r.cabang === 'Wilayah' 
+                                            ? '<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200">Wilayah</span>' 
+                                            : '<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Pangkalpinang</span>');
+
                                     return `
                                 <tr class="hover:bg-surface-container-lowest/60 transition-colors">
                                     <td class="p-sm">
                                         <div class="font-bold text-on-surface text-sm">${r.name || 'Mitra Penghimpunan'}</div>
                                         <div class="font-mono text-[11px] font-bold text-primary">Kode: ${r.code || r.id}</div>
-                                        <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${r.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'}">${r.status === 'active' ? 'Aktif' : 'Non-Aktif'}</span>
+                                        <div class="flex items-center gap-1 mt-1 flex-wrap">
+                                            ${cabangBadge}
+                                            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${r.status === 'active' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-700'}">${r.status === 'active' ? 'Aktif' : 'Non-Aktif'}</span>
+                                        </div>
                                     </td>
                                     <td class="p-sm">
                                         ${tierBadge}
-                                        <div class="text-[10px] text-on-surface-variant font-semibold mt-1">Donasi: ${mKpi ? mKpi.monthDonationCount : 0} | Hak: Rp ${(mKpi ? mKpi.monthEarnedFee : 0).toLocaleString('id-ID')}</div>
+                                        <div class="text-[10px] text-on-surface-variant font-semibold mt-1">Donasi: ${mKpi.monthDonationCount || 0} (${fmt(mKpi.monthTotalAmount || 0)})</div>
+                                    </td>
+                                    <td class="p-sm text-center">
+                                        <div class="inline-flex flex-col items-center">
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-black ${kpiPoints > 0 ? 'bg-blue-100 text-blue-800 border border-blue-300 shadow-2xs' : 'bg-slate-100 text-slate-500'}" title="${breakdownText}">
+                                                <span class="material-symbols-outlined text-[13px]">workspace_premium</span>
+                                                <span>${kpiPoints} Pts</span>
+                                            </span>
+                                            <span class="text-[9px] text-outline mt-0.5 max-w-[120px] truncate" title="${breakdownText}">${breakdownText}</span>
+                                        </div>
                                     </td>
                                     <td class="p-sm">
                                         <div class="font-mono text-[11px]">${r.phone || '-'}</div>
@@ -7615,20 +7951,25 @@
                                         ${r.accountHolder ? `<div class="text-[10px] text-outline">a.n ${r.accountHolder}</div>` : ''}
                                     </td>
                                     <td class="p-sm text-center font-bold text-primary">${r.defaultRate || 6}%</td>
-                                    <td class="p-sm text-right font-bold text-on-surface">${fmt(r.totalDonationAmount || 0)} <div class="text-[10px] text-outline font-normal">(${r.donationsCount || 0} donasi)</div></td>
-                                    <td class="p-sm text-right font-bold text-emerald-700">${fmt(r.totalFee6Percent || 0)}</td>
-                                    <td class="p-sm text-right font-bold text-purple-700">${fmt(r.totalAdditionalBonus || 0)}</td>
-                                    <td class="p-sm text-right font-bold text-primary text-sm">${fmt(r.totalEarned || 0)}</td>
-                                    <td class="p-sm text-right font-semibold text-blue-700">${fmt(r.totalPaid || 0)}</td>
+                                    <td class="p-sm text-right font-bold text-on-surface">${fmt(mKpi.monthTotalAmount || 0)} <div class="text-[10px] text-outline font-normal">(${mKpi.monthDonationCount || 0} donasi)</div></td>
+                                    <td class="p-sm text-right font-bold text-emerald-700">${fmt(mKpi.monthEarnedFee || 0)}</td>
+                                    <td class="p-sm text-right font-bold text-purple-700">
+                                        <div>${fmt(additionalPoolIncentive)}</div>
+                                        ${poolSummary.totalGlobalPoints > 0 && kpiPoints > 0 ? `<div class="text-[10px] text-purple-600 font-normal">(${((kpiPoints / poolSummary.totalGlobalPoints) * 100).toFixed(1)}% pool)</div>` : ''}
+                                    </td>
+                                    <td class="p-sm text-right font-bold text-on-surface text-sm">${fmt(totalEarnedMonth)}</td>
                                     <td class="p-sm text-right">
                                         <span class="font-bold text-sm ${(r.pendingBalance || 0) > 0 ? 'text-amber-800 bg-amber-50 px-2 py-1 rounded-lg border border-amber-200' : 'text-slate-400'}">${fmt(r.pendingBalance || 0)}</span>
                                     </td>
                                     <td class="p-sm text-right space-x-1 whitespace-nowrap">
-                                        <button onclick="openReferralDetailModal('${r.id}')" class="px-2 py-1 bg-primary/10 text-primary hover:bg-primary/20 rounded font-bold transition-colors">Detail</button>
-                                        <button onclick="openReferralPayoutModal('${r.id}')" class="px-2 py-1 bg-amber-600 text-white hover:bg-amber-700 rounded font-bold transition-colors">Cairkan</button>
-                                        <button onclick="editReferral('${r.id}')" class="px-2 py-1 border border-outline-variant text-on-surface-variant hover:text-primary rounded font-semibold transition-colors">Edit</button>
+                                        <button onclick="openKpiModal('${r.id}')" class="px-2 py-1 bg-blue-600 text-white hover:bg-blue-700 rounded font-bold transition-colors text-[11px] shadow-xs cursor-pointer inline-flex items-center gap-0.5" title="Input aktivitas KPI mitra ini">
+                                            <span class="material-symbols-outlined text-[13px]">add_task</span> KPI
+                                        </button>
+                                        <button onclick="openReferralDetailModal('${r.id}')" class="px-2 py-1 bg-primary/10 text-primary hover:bg-primary/20 rounded font-bold transition-colors cursor-pointer">Detail</button>
+                                        <button onclick="openReferralPayoutModal('${r.id}')" class="px-2 py-1 bg-amber-600 text-white hover:bg-amber-700 rounded font-bold transition-colors cursor-pointer">Cairkan</button>
+                                        <button onclick="editReferral('${r.id}')" class="px-2 py-1 border border-outline-variant text-on-surface-variant hover:text-primary rounded font-semibold transition-colors cursor-pointer">Edit</button>
                                         <button onclick="deleteReferral('${r.id}')" class="inline-flex items-center gap-0.5 px-2 py-1 border border-error/40 text-error bg-error/5 hover:bg-error/15 rounded font-bold text-xs transition-colors cursor-pointer" title="Hapus mitra dari sistem & Supabase">
-                                            <span class="material-symbols-outlined text-[13px]">delete</span> Hapus
+                                            <span class="material-symbols-outlined text-[13px]">delete</span>
                                         </button>
                                     </td>
                                 </tr>`;
@@ -7681,12 +8022,305 @@
             }
         }
 
+        // ─── KPI Activity & Pool UI Handlers ──────────────────
+        function openKpiModal(mitraId) {
+            populateReferralSelects();
+            const selectEl = document.getElementById('kpi-mitra-select');
+            if (selectEl && wizStore.referrals) {
+                selectEl.innerHTML = '<option value="">-- Pilih Mitra Penghimpunan --</option>';
+                const allRefs = wizStore.referrals.getAll() || [];
+                allRefs.filter(r => r.status === 'active').forEach(r => {
+                    const opt = document.createElement('option');
+                    opt.value = r.id;
+                    opt.textContent = `${r.name} (${r.cabang || 'PKP'} - ${r.code || r.id})`;
+                    selectEl.appendChild(opt);
+                });
+            }
+
+            const monthSelect = document.getElementById('referral-month-filter');
+            const defaultCurMonth = (wizStore.utils && typeof wizStore.utils.getCurrentPeriod === 'function')
+                ? wizStore.utils.getCurrentPeriod()
+                : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+            const targetMonth = (monthSelect && monthSelect.value && monthSelect.value !== 'Semua') ? monthSelect.value : defaultCurMonth;
+            
+            document.getElementById('kpi-periode-month').value = targetMonth;
+            
+            if (mitraId && selectEl) {
+                selectEl.value = mitraId;
+            }
+
+            handleKpiMitraOrPeriodChange();
+            showModal('kpi-activity-modal');
+        }
+
+        function closeKpiModal() {
+            hideModal('kpi-activity-modal');
+        }
+
+        function handleKpiMitraOrPeriodChange() {
+            const mId = document.getElementById('kpi-mitra-select').value;
+            const pMonth = document.getElementById('kpi-periode-month').value;
+
+            // Reset all rows
+            ['rapat', 'admin', 'desain', 'video', 'lapangan'].forEach(type => {
+                const chk = document.getElementById(`kpi-chk-${type}`);
+                const qtyInput = document.getElementById(`kpi-qty-${type}`);
+                const stepperBox = document.getElementById(`kpi-stepper-${type}-box`);
+                if (chk) chk.checked = false;
+                if (qtyInput) qtyInput.value = 1;
+                if (stepperBox) {
+                    stepperBox.classList.add('opacity-40', 'pointer-events-none');
+                }
+            });
+
+            const chkLain = document.getElementById('kpi-chk-lainnya');
+            const customBox = document.getElementById('kpi-custom-inputs-box');
+            const ketLain = document.getElementById('kpi-keterangan-lainnya');
+            const poinLain = document.getElementById('kpi-poin-lainnya');
+            if (chkLain) chkLain.checked = false;
+            if (customBox) customBox.classList.add('hidden');
+            if (ketLain) ketLain.value = '';
+            if (poinLain) poinLain.value = 0;
+            document.getElementById('kpi-edit-id').value = '';
+
+            if (mId && pMonth && wizStore.kpiMitra) {
+                const existing = wizStore.kpiMitra.getByMitraAndPeriod(mId, pMonth);
+                if (existing) {
+                    document.getElementById('kpi-edit-id').value = existing.id || '';
+                    
+                    const fields = [
+                        { type: 'rapat', qty: existing.qtyRapat || existing.qty_rapat },
+                        { type: 'admin', qty: existing.qtyAdmin || existing.qty_admin },
+                        { type: 'desain', qty: existing.qtyDesain || existing.qty_desain },
+                        { type: 'video', qty: existing.qtyVideo || existing.qty_video },
+                        { type: 'lapangan', qty: existing.qtyLapangan || existing.qty_lapangan }
+                    ];
+
+                    fields.forEach(f => {
+                        if (f.qty > 0) {
+                            const chk = document.getElementById(`kpi-chk-${f.type}`);
+                            const qtyInput = document.getElementById(`kpi-qty-${f.type}`);
+                            const stepperBox = document.getElementById(`kpi-stepper-${f.type}-box`);
+                            if (chk) chk.checked = true;
+                            if (qtyInput) qtyInput.value = f.qty;
+                            if (stepperBox) stepperBox.classList.remove('opacity-40', 'pointer-events-none');
+                        }
+                    });
+
+                    const pLainnyaVal = Number(existing.poinLainnya || existing.poin_lainnya || 0);
+                    const ketLainVal = existing.keteranganLainnya || existing.keterangan_lainnya || '';
+                    if (pLainnyaVal > 0 || ketLainVal) {
+                        if (chkLain) chkLain.checked = true;
+                        if (customBox) customBox.classList.remove('hidden');
+                        if (ketLain) ketLain.value = ketLainVal;
+                        if (poinLain) poinLain.value = pLainnyaVal;
+                    }
+                }
+            }
+
+            updateKpiPointsPreview();
+        }
+
+        function toggleKpiRow(type) {
+            if (type === 'lainnya') {
+                const chk = document.getElementById('kpi-chk-lainnya');
+                const customBox = document.getElementById('kpi-custom-inputs-box');
+                if (chk && customBox) {
+                    if (chk.checked) {
+                        customBox.classList.remove('hidden');
+                    } else {
+                        customBox.classList.add('hidden');
+                    }
+                }
+            } else {
+                const chk = document.getElementById(`kpi-chk-${type}`);
+                const stepperBox = document.getElementById(`kpi-stepper-${type}-box`);
+                const qtyInput = document.getElementById(`kpi-qty-${type}`);
+                if (chk && stepperBox && qtyInput) {
+                    if (chk.checked) {
+                        stepperBox.classList.remove('opacity-40', 'pointer-events-none');
+                        if (!qtyInput.value || Number(qtyInput.value) <= 0) {
+                            qtyInput.value = 1;
+                        }
+                    } else {
+                        stepperBox.classList.add('opacity-40', 'pointer-events-none');
+                    }
+                }
+            }
+            updateKpiPointsPreview();
+        }
+
+        function adjustKpiQty(type, delta) {
+            const chk = document.getElementById(`kpi-chk-${type}`);
+            const qtyInput = document.getElementById(`kpi-qty-${type}`);
+            const stepperBox = document.getElementById(`kpi-stepper-${type}-box`);
+            if (!qtyInput) return;
+
+            let cur = Number(qtyInput.value) || 0;
+            let next = Math.max(0, cur + delta);
+            qtyInput.value = next;
+
+            if (next <= 0) {
+                if (chk) chk.checked = false;
+                if (stepperBox) stepperBox.classList.add('opacity-40', 'pointer-events-none');
+            } else {
+                if (chk && !chk.checked) {
+                    chk.checked = true;
+                    if (stepperBox) stepperBox.classList.remove('opacity-40', 'pointer-events-none');
+                }
+            }
+
+            updateKpiPointsPreview();
+        }
+
+        function updateKpiPointsPreview() {
+            const weights = { rapat: 5, admin: 20, desain: 35, video: 50, lapangan: 60 };
+            let total = 0;
+            const parts = [];
+
+            ['rapat', 'admin', 'desain', 'video', 'lapangan'].forEach(t => {
+                const chk = document.getElementById(`kpi-chk-${t}`);
+                const qtyInput = document.getElementById(`kpi-qty-${t}`);
+                if (chk && chk.checked && qtyInput) {
+                    const q = Number(qtyInput.value) || 0;
+                    if (q > 0) {
+                        const pts = q * weights[t];
+                        total += pts;
+                        parts.push(`${t.charAt(0).toUpperCase() + t.slice(1)}: ${q}x (${pts} pt)`);
+                    }
+                }
+            });
+
+            const chkLain = document.getElementById('kpi-chk-lainnya');
+            const poinLainInput = document.getElementById('kpi-poin-lainnya');
+            if (chkLain && chkLain.checked && poinLainInput) {
+                const customPts = Number(poinLainInput.value) || 0;
+                if (customPts > 0) {
+                    total += customPts;
+                    parts.push(`Custom: ${customPts} pt`);
+                }
+            }
+
+            const totalEl = document.getElementById('kpi-preview-total');
+            const breakdownEl = document.getElementById('kpi-preview-breakdown');
+            if (totalEl) totalEl.textContent = total;
+            if (breakdownEl) breakdownEl.textContent = parts.length > 0 ? parts.join(' | ') : 'Pilih aktivitas di atas';
+        }
+
+        async function handleKpiSave(e) {
+            e.preventDefault();
+            const editId = document.getElementById('kpi-edit-id').value;
+            const mitraId = document.getElementById('kpi-mitra-select').value;
+            const periodeBulan = document.getElementById('kpi-periode-month').value;
+
+            if (!mitraId || !periodeBulan) {
+                alert('Silakan pilih Mitra dan Periode Bulan.');
+                return;
+            }
+
+            const getQty = (type) => {
+                const chk = document.getElementById(`kpi-chk-${type}`);
+                const input = document.getElementById(`kpi-qty-${type}`);
+                return (chk && chk.checked && input) ? (Number(input.value) || 0) : 0;
+            };
+
+            const chkLain = document.getElementById('kpi-chk-lainnya');
+            const ketLain = document.getElementById('kpi-keterangan-lainnya');
+            const poinLain = document.getElementById('kpi-poin-lainnya');
+
+            const payload = {
+                id: editId || undefined,
+                mitraId,
+                periodeBulan,
+                qtyRapat: getQty('rapat'),
+                qtyAdmin: getQty('admin'),
+                qtyDesain: getQty('desain'),
+                qtyVideo: getQty('video'),
+                qtyLapangan: getQty('lapangan'),
+                keteranganLainnya: (chkLain && chkLain.checked && ketLain) ? ketLain.value.trim() : '',
+                poinLainnya: (chkLain && chkLain.checked && poinLain) ? (Number(poinLain.value) || 0) : 0,
+                createdBy: ADMIN_NAME,
+                updatedBy: ADMIN_NAME
+            };
+
+            try {
+                const saved = await wizStore.kpiMitra.save(payload);
+                closeKpiModal();
+                if (typeof refreshAll === 'function') refreshAll();
+                renderReferralsSection();
+                
+                const ref = wizStore.referrals.getById(mitraId);
+                const refName = ref ? ref.name : 'Mitra';
+                alert(`✅ KPI Aktivitas untuk "${refName}" periode ${periodeBulan} berhasil disimpan!\n\nTotal Poin KPI: ${saved.totalPoin} Poin.`);
+            } catch(err) {
+                alert('⚠️ Gagal menyimpan KPI Mitra: ' + err.message);
+            }
+        }
+
+        async function finalizeMonthlyPool() {
+            const monthSelect = document.getElementById('referral-month-filter');
+            const defaultCurMonth = (wizStore.utils && typeof wizStore.utils.getCurrentPeriod === 'function')
+                ? wizStore.utils.getCurrentPeriod()
+                : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+            const selectedMonth = (monthSelect && monthSelect.value && monthSelect.value !== 'Semua') ? monthSelect.value : defaultCurMonth;
+
+            const poolSummary = (wizStore.kpiMitra && typeof wizStore.kpiMitra.getPoolSummary === 'function')
+                ? wizStore.kpiMitra.getPoolSummary(selectedMonth)
+                : null;
+
+            if (!poolSummary || poolSummary.totalVerifiedDonations === 0) {
+                alert(`⚠️ Belum ada donasi terverifikasi pada periode ${selectedMonth} untuk pembagian Brankas Wilayah.`);
+                return;
+            }
+
+            if (poolSummary.totalGlobalPoints === 0) {
+                alert(`⚠️ Belum ada poin KPI mitra yang tercatat pada periode ${selectedMonth}. Silakan input aktivitas KPI mitra terlebih dahulu.`);
+                return;
+            }
+
+            const confirmMsg = `KUNCI & FINALISASI BRANKAS WILAYAH BULAN INI?\n\n` +
+                `• Periode: ${selectedMonth}\n` +
+                `• Total Donasi Terverifikasi: Rp ${poolSummary.totalVerifiedDonations.toLocaleString('id-ID')}\n` +
+                `• Pool Pangkalpinang (7%): Rp ${poolSummary.poolPKP.toLocaleString('id-ID')}\n` +
+                `• Pool Sungailiat (8%): Rp ${poolSummary.poolSungailiat.toLocaleString('id-ID')}\n` +
+                `• Total Brankas Wilayah: Rp ${poolSummary.totalPoolWilayah.toLocaleString('id-ID')}\n` +
+                `• Total Poin Global: ${poolSummary.totalGlobalPoints} Poin\n` +
+                `• Nilai Konversi per 1 Poin: Rp ${Math.round(poolSummary.pointValue).toLocaleString('id-ID')} / Poin\n\n` +
+                `Apakah Anda yakin ingin memfinalisasi dan mencatat distribusi insentif pool Brankas Wilayah untuk seluruh mitra aktif?`;
+
+            if (!confirm(confirmMsg)) return;
+
+            try {
+                if (wizStore.activity && typeof wizStore.activity.add === 'function') {
+                    wizStore.activity.add('kpi_finalisasi', `Finalisasi Distribusi Brankas Wilayah Periode ${selectedMonth}: Total Brankas Rp ${fmtCompact(poolSummary.totalPoolWilayah)}, Poin Global ${poolSummary.totalGlobalPoints} Poin.`, ADMIN_NAME);
+                }
+
+                if (typeof wizStore.pushToCloud === 'function') {
+                    await wizStore.pushToCloud();
+                }
+
+                alert(`🎉 SUKSES!\n\nInsentif Brankas Wilayah periode ${selectedMonth} berhasil dikunci dan difinalisasi.\n\n` +
+                    `• Pool Pangkalpinang (7%): Rp ${poolSummary.poolPKP.toLocaleString('id-ID')}\n` +
+                    `• Pool Sungailiat (8%): Rp ${poolSummary.poolSungailiat.toLocaleString('id-ID')}\n` +
+                    `• Total Brankas Wilayah: Rp ${poolSummary.totalPoolWilayah.toLocaleString('id-ID')}\n` +
+                    `• Total Poin Global: ${poolSummary.totalGlobalPoints} Poin\n` +
+                    `• Nilai per 1 Poin: Rp ${Math.round(poolSummary.pointValue).toLocaleString('id-ID')}\n\n` +
+                    `Seluruh data telah disinkronkan ke Supabase Cloud.`);
+
+                renderReferralsSection();
+            } catch(e) {
+                console.error('[Finalize Monthly Pool Error]', e);
+                alert('⚠️ Terjadi kendala saat finalisasi: ' + e.message);
+            }
+        }
+
         // Referral CRUD Modal Handlers
         function openReferralModal(editId) {
             document.getElementById('ref-edit-id').value = editId || '';
             document.getElementById('referral-modal-title').innerHTML = editId ? '<span class="material-symbols-outlined text-primary">edit_square</span><span>Edit Mitra Penghimpunan</span>' : '<span class="material-symbols-outlined text-primary">person_add</span><span>Tambah Mitra Penghimpunan Baru</span>';
             if (!editId) {
                 document.getElementById('referral-form').reset();
+                document.getElementById('ref-cabang').value = 'Pangkalpinang';
                 document.getElementById('ref-default-rate').value = '6';
                 document.getElementById('ref-status').value = 'active';
             }
@@ -7703,6 +8337,7 @@
             if (!r) return;
             document.getElementById('ref-edit-id').value = r.id;
             document.getElementById('ref-name').value = r.name;
+            document.getElementById('ref-cabang').value = r.cabang || 'Pangkalpinang';
             document.getElementById('ref-phone').value = r.phone || '';
             document.getElementById('ref-default-rate').value = r.defaultRate || 6;
             document.getElementById('ref-bank-name').value = r.bankName || '';
@@ -7718,6 +8353,7 @@
             const editId = document.getElementById('ref-edit-id').value;
             const data = {
                 name: document.getElementById('ref-name').value.trim(),
+                cabang: document.getElementById('ref-cabang').value || 'Pangkalpinang',
                 phone: document.getElementById('ref-phone').value.trim(),
                 defaultRate: Number(document.getElementById('ref-default-rate').value),
                 bankName: document.getElementById('ref-bank-name').value.trim(),

@@ -346,6 +346,64 @@ const SUPABASE_CONFIG = {
             });
             return { data: mappedList, error: null };
         },
+        saveKpiMitra: async (data) => {
+            if (!data || (!data.mitra_id && !data.mitraId) || (!data.periode_bulan && !data.periodeBulan)) {
+                return { data: null, error: 'Mitra ID dan Periode Bulan wajib diisi' };
+            }
+            const payload = {
+                id: data.id || generateUUID(),
+                mitra_id: String(data.mitra_id || data.mitraId),
+                periode_bulan: String(data.periode_bulan || data.periodeBulan),
+                qty_rapat: Number(data.qty_rapat !== undefined ? data.qty_rapat : (data.qtyRapat || 0)),
+                qty_admin: Number(data.qty_admin !== undefined ? data.qty_admin : (data.qtyAdmin || 0)),
+                qty_desain: Number(data.qty_desain !== undefined ? data.qty_desain : (data.qtyDesain || 0)),
+                qty_video: Number(data.qty_video !== undefined ? data.qty_video : (data.qtyVideo || 0)),
+                qty_lapangan: Number(data.qty_lapangan !== undefined ? data.qty_lapangan : (data.qtyLapangan || 0)),
+                keterangan_lainnya: data.keterangan_lainnya !== undefined ? (data.keterangan_lainnya || '') : (data.keteranganLainnya || ''),
+                poin_lainnya: Number(data.poin_lainnya !== undefined ? data.poin_lainnya : (data.poinLainnya || 0)),
+                total_poin: Number(data.total_poin !== undefined ? data.total_poin : (data.totalPoin || 0)),
+                created_at: data.created_at || data.createdAt || new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+            return await upsert('kpi_mitra', payload);
+        },
+        getKpiMitra: async (periodeBulan = null) => {
+            const opts = { order: 'created_at.desc' };
+            if (periodeBulan && periodeBulan !== 'Semua') {
+                opts.filter = `periode_bulan=eq.${periodeBulan}`;
+            }
+            const res = await select('kpi_mitra', opts);
+            if (res.error || !Array.isArray(res.data)) return res;
+            const mapped = res.data.map(k => ({
+                id: k.id,
+                mitraId: k.mitra_id,
+                mitra_id: k.mitra_id,
+                periodeBulan: k.periode_bulan,
+                periode_bulan: k.periode_bulan,
+                qtyRapat: Number(k.qty_rapat) || 0,
+                qty_rapat: Number(k.qty_rapat) || 0,
+                qtyAdmin: Number(k.qty_admin) || 0,
+                qty_admin: Number(k.qty_admin) || 0,
+                qtyDesain: Number(k.qty_desain) || 0,
+                qty_desain: Number(k.qty_desain) || 0,
+                qtyVideo: Number(k.qty_video) || 0,
+                qty_video: Number(k.qty_video) || 0,
+                qtyLapangan: Number(k.qty_lapangan) || 0,
+                qty_lapangan: Number(k.qty_lapangan) || 0,
+                keteranganLainnya: k.keterangan_lainnya || '',
+                keterangan_lainnya: k.keterangan_lainnya || '',
+                poinLainnya: Number(k.poin_lainnya) || 0,
+                poin_lainnya: Number(k.poin_lainnya) || 0,
+                totalPoin: Number(k.total_poin) || 0,
+                total_poin: Number(k.total_poin) || 0,
+                createdAt: k.created_at,
+                updatedAt: k.updated_at
+            }));
+            return { data: mapped, error: null };
+        },
+        deleteKpiMitra: async (id) => {
+            return await remove('kpi_mitra', id);
+        },
         saveSiteSettings: async (settings) => {
             if (!settings) return { data: null, error: 'No data' };
             const res1 = await upsert('site_settings', {

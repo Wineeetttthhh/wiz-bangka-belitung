@@ -54,6 +54,7 @@ CREATE TABLE IF NOT EXISTS public.referrals (
     bank_name TEXT,
     account_number TEXT,
     account_holder TEXT,
+    cabang TEXT DEFAULT 'Pangkalpinang', -- 'Pangkalpinang' | 'Sungailiat' | 'Wilayah'
     default_rate NUMERIC DEFAULT 6,
     status TEXT DEFAULT 'active',
     notes TEXT,
@@ -143,6 +144,24 @@ CREATE TABLE IF NOT EXISTS public.photo_bank (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+-- 12. Table: KPI Mitra & Frequency Multiplier (6% Fix + 7% Pool)
+CREATE TABLE IF NOT EXISTS public.kpi_mitra (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    mitra_id TEXT NOT NULL REFERENCES public.referrals(id) ON DELETE CASCADE,
+    periode_bulan VARCHAR(7) NOT NULL, -- format 'YYYY-MM'
+    qty_rapat INT NOT NULL DEFAULT 0,
+    qty_admin INT NOT NULL DEFAULT 0,
+    qty_desain INT NOT NULL DEFAULT 0,
+    qty_video INT NOT NULL DEFAULT 0,
+    qty_lapangan INT NOT NULL DEFAULT 0,
+    keterangan_lainnya TEXT,
+    poin_lainnya INT NOT NULL DEFAULT 0,
+    total_poin INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    CONSTRAINT kpi_mitra_unique_mitra_periode UNIQUE (mitra_id, periode_bulan)
+);
+
 -- Enable Row Level Security (RLS)
 ALTER TABLE public.donations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.news ENABLE ROW LEVEL SECURITY;
@@ -155,6 +174,7 @@ ALTER TABLE public.branch_config ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.activity_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.custom_quotes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.photo_bank ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.kpi_mitra ENABLE ROW LEVEL SECURITY;
 
 -- Create Open Access Policies for Public & Admin
 CREATE POLICY "Public full access donations" ON public.donations FOR ALL USING (true) WITH CHECK (true);
@@ -168,3 +188,4 @@ CREATE POLICY "Public full access branch_config" ON public.branch_config FOR ALL
 CREATE POLICY "Public full access activity_logs" ON public.activity_logs FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Public full access custom_quotes" ON public.custom_quotes FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Public full access photo_bank" ON public.photo_bank FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Public full access kpi_mitra" ON public.kpi_mitra FOR ALL USING (true) WITH CHECK (true);

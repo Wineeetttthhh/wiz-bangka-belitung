@@ -27,7 +27,559 @@
 		script.src = '/_vercel/insights/script.js';
 		var head = document.querySelector('head');
 		head.appendChild(script);
-	</script></head><body class="antialiased min-h-screen flex flex-col bg-slate-50"><!-- Mitra Portal Header --><header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm"><div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between"><!-- Logo + MITRA badge --><a href="/" class="flex items-center gap-2.5 group"><img src="/assets/images/logo-wiz-babel.png" alt="WIZ Bangka Belitung" class="h-9 w-auto object-contain"><div class="flex flex-col leading-none"><span class="font-extrabold text-sm text-slate-900 group-hover:text-emerald-700 transition-colors">WIZ Babel</span><span class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">MITRA</span></div></a><!-- Back to Main Site --><a href="/" class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-lg transition-colors border border-slate-200"><span class="material-symbols-outlined" style="font-size:16px;">home</span><span>Ke Website Utama</span></a></div></header><main class="flex-grow"><section class="bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white py-10 sm:py-14 relative overflow-hidden"><div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div><div class="max-w-6xl mx-auto px-4 sm:px-6 relative z-10 text-center space-y-3"><div class="inline-flex items-center gap-2 bg-emerald-700/60 border border-emerald-500/40 px-3.5 py-1 rounded-full text-xs font-semibold text-emerald-200"><span class="material-symbols-outlined text-sm">handshake</span><span>Program Kemitraan Kebaikan &amp; Relawan Fundraiser</span></div><h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight">Portal Mitra Penghimpunan Kebaikan</h1><p class="text-xs sm:text-base text-emerald-100 max-w-2xl mx-auto leading-relaxed">Jadilah jembatan kebaikan ummat. Sebarkan link program donasi resmi WIZ Bangka Belitung, raih pahala jariyah tanpa batas, dan peroleh <strong>Hak Insentif 6%</strong> atas setiap donasi yang terhimpun secara transparan!</p></div></section><div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12"><!-- ======================================================== --><!-- STATE 1: GUEST AUTH VIEW (Login / Register Form)         --><!-- ======================================================== --><div id="auth-state-container" class="w-full flex justify-center py-2 sm:py-4"><!-- Premium Professional Auth Form Box --><div class="w-full bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-slate-200/80 p-5 sm:p-8" style="width: 100% !important; max-width: 520px !important; margin: 0 auto !important; box-sizing: border-box !important;"><!-- Card Header --><div class="text-center mb-6 space-y-2"><div class="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3.5 py-1 rounded-full text-xs font-bold text-emerald-800"><span class="material-symbols-outlined text-sm">handshake</span><span>Portal Resmi Mitra WIZ Babel</span></div><h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">Kemitraan Penghimpunan Kebaikan</h2><p class="text-slate-500 text-xs sm:text-sm">Silakan masuk atau mendaftar akun baru untuk memantau insentif &amp; link donasi.</p></div><!-- Tab Switcher --><div class="flex bg-slate-100 p-1.5 rounded-2xl gap-1.5 mb-6"><button type="button" id="btn-auth-signin" onclick="toggleAuthTab('signin')" class="flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 bg-emerald-700 text-white shadow-md cursor-pointer"><span class="material-symbols-outlined text-base">login</span><span>Masuk Mitra</span></button><button type="button" id="btn-auth-signup" onclick="toggleAuthTab('signup')" class="flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-slate-500 hover:text-slate-800 hover:bg-white/80 cursor-pointer"><span class="material-symbols-outlined text-base">person_add</span><span>Daftar Baru</span></button></div><!-- Tab 1: Login Form --><div id="auth-signin-view" class="w-full space-y-4"><form id="affiliate-login-form" onsubmit="handleAffiliateLogin(event)" class="space-y-4 flex-1"><div><label class="block text-xs font-extrabold text-slate-600 mb-2 uppercase tracking-widest">No. WhatsApp / Kode Mitra</label><div class="relative"><span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl pointer-events-none">smartphone</span><input type="text" id="login-identifier" required placeholder="081234567890 atau WIZ-ABC-001" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl pl-12 pr-4 py-4 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400"></div></div><div><label class="block text-xs font-extrabold text-slate-600 mb-2 uppercase tracking-widest">PIN Login (4–6 Digit)</label><div class="relative"><span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl pointer-events-none">lock</span><input type="password" id="login-pin" required placeholder="••••••" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl pl-12 pr-4 py-4 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400"></div></div><button type="submit" class="w-full bg-gradient-to-r from-emerald-700 to-emerald-600 hover:from-emerald-600 hover:to-emerald-500 text-white font-extrabold py-4 rounded-xl shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2.5 cursor-pointer active:scale-[0.99] mt-1"><span class="material-symbols-outlined text-xl">login</span><span>Masuk ke Dashboard</span></button><!-- Lupa PIN Link --><div class="text-center pt-1"><button type="button" onclick="toggleForgotPin()" class="text-xs text-slate-400 hover:text-emerald-700 font-semibold transition-colors cursor-pointer underline underline-offset-2">Lupa PIN? Minta reset via WhatsApp</button></div></form><!-- Lupa PIN Panel (hidden by default) --><div id="forgot-pin-panel" class="hidden mt-4 p-5 bg-slate-50 rounded-2xl border border-slate-200"><div class="flex items-center gap-2 mb-3"><span class="material-symbols-outlined text-emerald-700 text-xl">lock_reset</span><h4 class="font-extrabold text-slate-900 text-sm">Reset PIN Sendiri</h4></div><p class="text-slate-500 text-xs leading-relaxed mb-4">Masukkan nomor WhatsApp yang terdaftar dan buat PIN baru. Sistem akan memverifikasi bahwa nomor tersebut terdaftar sebagai Mitra.</p><div class="space-y-3"><div class="relative"><span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none">smartphone</span><input type="tel" id="forgot-pin-phone" placeholder="No. WhatsApp terdaftar" class="w-full bg-white border-2 border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400"></div><div class="relative"><span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none">lock</span><input type="password" id="forgot-pin-new" placeholder="PIN baru (4–6 digit angka)" maxlength="6" class="w-full bg-white border-2 border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400"></div><div class="relative"><span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none">lock_clock</span><input type="password" id="forgot-pin-confirm" placeholder="Konfirmasi PIN baru" maxlength="6" class="w-full bg-white border-2 border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400"></div><button type="button" onclick="doResetPin()" class="w-full bg-gradient-to-r from-emerald-700 to-emerald-600 hover:from-emerald-600 hover:to-emerald-500 text-white font-extrabold py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-sm cursor-pointer shadow-md"><span class="material-symbols-outlined text-lg">lock_reset</span><span>Reset PIN Sekarang</span></button><button type="button" onclick="toggleForgotPin()" class="w-full text-xs text-slate-400 hover:text-slate-600 font-semibold py-1.5 cursor-pointer transition-colors">Batal</button></div></div></div><!-- Tab 2: Register Form --><div id="auth-signup-view" class="hidden flex-1 flex flex-col"><div class="mb-7"><h3 class="text-2xl font-extrabold text-slate-900">Daftar Mitra Penghimpunan</h3><p class="text-slate-500 text-sm mt-1.5">Lengkapi data diri untuk mendapatkan Kode Mitra resmi WIZ Babel.</p></div><form id="affiliate-register-form" onsubmit="handleAffiliateRegister(event)" class="space-y-4 flex-1"><div><label class="block text-xs font-extrabold text-slate-600 mb-2 uppercase tracking-widest">Nama Lengkap / Nama Komunitas *</label><input type="text" id="reg-name" required placeholder="Ahmad Sahal / Majelis Taklim Al-Ikhlas" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-4 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400"></div><div><label class="block text-xs font-extrabold text-slate-600 mb-2 uppercase tracking-widest">Nomor WhatsApp Aktif *</label><input type="tel" id="reg-phone" required placeholder="Contoh: 081271718890" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-4 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400"></div><div class="grid grid-cols-2 gap-3"><div><label class="block text-xs font-extrabold text-slate-600 mb-2 uppercase tracking-widest">Nama Bank *</label><input type="text" id="reg-bank" required placeholder="BSI / BCA / Mandiri" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-4 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400"></div><div><label class="block text-xs font-extrabold text-slate-600 mb-2 uppercase tracking-widest">No. Rekening *</label><input type="text" id="reg-acc-no" required placeholder="Nomor Rekening Bank" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-4 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400"></div></div><div><label class="block text-xs font-extrabold text-slate-600 mb-2 uppercase tracking-widest">Nama Pemilik Rekening *</label><input type="text" id="reg-acc-holder" required placeholder="Sesuai nama di buku tabungan" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-4 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400"></div><div><label class="block text-xs font-extrabold text-slate-600 mb-2 uppercase tracking-widest">Buat PIN Login (4–6 Digit) *</label><input type="password" id="reg-pin" required placeholder="Contoh: 123456" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-4 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400"></div><button type="submit" class="w-full bg-gradient-to-r from-emerald-700 to-emerald-600 hover:from-emerald-600 hover:to-emerald-500 text-white font-extrabold py-4 rounded-xl shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2.5 cursor-pointer active:scale-[0.99]"><span class="material-symbols-outlined text-xl">check_circle</span><span>Daftar Sebagai Mitra Sekarang</span></button></form></div></div></div><!-- ======================================================== --><!-- STATE 2: LOGGED-IN MEMBER DASHBOARD VIEW                 --><!-- ======================================================== --><div id="member-state-container" class="space-y-6 hidden w-full"><!-- Member Header Card --><div class="bg-gradient-to-r from-emerald-900 to-teal-900 text-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 w-full"><div class="flex items-center gap-3.5"><div id="member-avatar" class="w-12 h-12 rounded-2xl bg-white text-emerald-900 font-extrabold text-xl flex items-center justify-center shadow-md">M</div><div><div class="flex items-center gap-2 flex-wrap"><span class="bg-emerald-700/80 text-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Fundraiser Aktif</span><span id="member-code-badge" class="bg-white/20 text-white font-mono text-xs font-bold px-2.5 py-0.5 rounded-md border border-white/20">WIZ-000</span></div><h2 id="member-welcome-title" class="text-lg sm:text-2xl font-bold mt-0.5 text-white">Selamat Datang, Mitra Kebaikan!</h2></div></div><div class="flex items-center gap-2 w-full md:w-auto"><button onclick="copyFundraisingLink()" type="button" class="flex-1 md:flex-none bg-white text-emerald-900 hover:bg-emerald-50 px-4 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer"><span class="material-symbols-outlined text-sm">content_copy</span><span>Salin Link Fundraising</span></button><button onclick="handleAffiliateLogout()" type="button" class="bg-emerald-950/60 hover:bg-red-600/80 text-white border border-white/10 px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1 transition-all cursor-pointer"><span class="material-symbols-outlined text-sm">logout</span><span>Keluar</span></button></div></div><!-- Member Sub-Navigation Tabs (5 Subtabs) --><div class="w-full bg-white border-b border-slate-200 rounded-2xl shadow-xs overflow-hidden"><div class="flex justify-start gap-1 sm:gap-2 overflow-x-auto p-1.5"><button onclick="switchMemberSubTab('subtab-kpi')" id="btn-subtab-kpi" class="member-nav-btn active shrink-0 whitespace-nowrap px-3.5 sm:px-5 py-2.5 sm:py-3 font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all rounded-xl border-b-2 border-primary text-primary bg-primary/5 cursor-pointer"><span class="material-symbols-outlined text-base sm:text-lg">analytics</span><span>Penghimpunan</span></button><button onclick="switchMemberSubTab('subtab-news')" id="btn-subtab-news" class="member-nav-btn shrink-0 whitespace-nowrap px-3.5 sm:px-5 py-2.5 sm:py-3 font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all rounded-xl border-b-2 border-transparent text-slate-600 hover:text-slate-900 cursor-pointer"><span class="material-symbols-outlined text-base sm:text-lg">feed</span><span>Kabar Berita &amp; Kegiatan</span></button><button onclick="switchMemberSubTab('subtab-catalog')" id="btn-subtab-catalog" class="member-nav-btn shrink-0 whitespace-nowrap px-3.5 sm:px-5 py-2.5 sm:py-3 font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all rounded-xl border-b-2 border-transparent text-slate-600 hover:text-slate-900 cursor-pointer"><span class="material-symbols-outlined text-base sm:text-lg">grid_view</span><span>Program &amp; Link</span></button><button onclick="switchMemberSubTab('subtab-quotes')" id="btn-subtab-quotes" class="member-nav-btn shrink-0 whitespace-nowrap px-3.5 sm:px-5 py-2.5 sm:py-3 font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all rounded-xl border-b-2 border-transparent text-slate-600 hover:text-slate-900 cursor-pointer"><span class="material-symbols-outlined text-base sm:text-lg">format_quote</span><span>Quotes &amp; Flyer</span></button><button onclick="switchMemberSubTab('subtab-profile')" id="btn-subtab-profile" class="member-nav-btn shrink-0 whitespace-nowrap px-3.5 sm:px-5 py-2.5 sm:py-3 font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all rounded-xl border-b-2 border-transparent text-slate-600 hover:text-slate-900 cursor-pointer"><span class="material-symbols-outlined text-base sm:text-lg">settings</span><span>Pengaturan Rekening</span></button></div></div><!-- SUBTAB 1: Performance Dashboard & KPI --><div id="subtab-kpi" class="member-subtab space-y-6 sm:space-y-8 w-full"><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full"><div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1"><span class="text-[11px] text-slate-500 font-semibold block uppercase tracking-wider">Total Donasi Dihimpun</span><div class="flex items-baseline justify-between"><span id="kpi-total-count" class="text-2xl font-extrabold text-slate-900">0</span><span class="text-xs text-slate-400 font-semibold">Transaksi</span></div></div><div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1"><span class="text-[11px] text-slate-500 font-semibold block uppercase tracking-wider">Nominal Terkumpul</span><span id="kpi-total-amount" class="text-2xl font-extrabold text-primary">Rp 0</span></div><div class="bg-emerald-50 p-4 sm:p-5 rounded-2xl border border-emerald-200 shadow-xs space-y-1"><span class="text-[11px] text-emerald-800 font-semibold block uppercase tracking-wider">Total Insentif Diperoleh (6%)</span><span id="kpi-total-earned" class="text-2xl font-extrabold text-emerald-900">Rp 0</span></div><div class="bg-amber-50 p-4 sm:p-5 rounded-2xl border border-amber-200 shadow-xs space-y-1"><span class="text-[11px] text-amber-800 font-semibold block uppercase tracking-wider">Saldo Belum Dicairkan</span><span id="kpi-pending-balance" class="text-2xl font-extrabold text-amber-900">Rp 0</span></div></div><!-- Detailed Transactions Table --><div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200 shadow-sm space-y-4 w-full"><h3 class="font-bold text-slate-900 text-base sm:text-lg flex items-center gap-2"><span class="material-symbols-outlined text-primary">format_list_bulleted</span><span>Riwayat Donasi dari Link Penghimpunan Anda</span></h3><div class="w-full overflow-x-auto rounded-xl border border-slate-100"><table class="w-full min-w-[540px] text-left text-xs border-collapse"><thead><tr class="bg-slate-50 text-slate-600 border-b border-slate-200"><th class="p-3 font-bold">Tanggal</th><th class="p-3 font-bold">Donatur</th><th class="p-3 font-bold">Program</th><th class="p-3 font-bold">Nominal</th><th class="p-3 font-bold">Hak Insentif (6%)</th><th class="p-3 font-bold">Status</th></tr></thead><tbody id="member-donations-tbody"></tbody></table></div></div></div><!-- SUBTAB 2: Berita & Artikel Kegiatan Siap Share --><div id="subtab-news" class="member-subtab space-y-6 hidden w-full"><div class="border-b border-slate-200 pb-4"><h2 class="text-lg sm:text-xl font-extrabold text-slate-900">Kabar Kegiatan &amp; Berita Siap Bagikan</h2><p class="text-xs text-slate-500 mt-1">Bagikan dokumentasi penyaluran resmi WIZ Babel ke WhatsApp atau media sosial. Setiap donasi yang masuk dari link berita Anda otomatis terhubung dengan alokasi <strong>Hak Insentif 6%</strong> Anda!</p></div><!-- Featured News Card (Latest News Item) --><div id="affiliate-featured-news" class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-slate-200 shadow-sm flex flex-col md:flex-row items-center gap-4 sm:gap-6 w-full"><div class="w-full md:w-64 max-w-full aspect-video rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shrink-0 shadow-xs relative"><img id="aff-featured-news-img" src="/assets/images/default-program-wiz.png" class="w-full h-full object-cover" onerror="this.src='/assets/images/default-program-wiz.png'" alt="Berita Terbaru"><span id="aff-featured-news-category" class="absolute top-2 left-2 bg-primary text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-xs">Kegiatan</span></div><div class="flex-1 space-y-3 w-full"><div class="flex items-center justify-between flex-wrap gap-2"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold"><span class="material-symbols-outlined text-sm">stars</span> Berita Terbaru (Rekomendasi Share)</span><span id="aff-featured-news-date" class="text-xs text-slate-400 font-mono"></span></div><h3 id="aff-featured-news-title" class="text-base sm:text-lg font-bold text-slate-900 leading-snug"></h3><p id="aff-featured-news-excerpt" class="text-slate-600 text-xs leading-relaxed line-clamp-2"></p><div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100"><button type="button" id="aff-featured-share-wa-btn" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white px-3.5 sm:px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-transform hover:scale-105 cursor-pointer"><span class="material-symbols-outlined text-sm">send</span><span>Bagikan ke WhatsApp</span></button><button type="button" id="aff-featured-copy-btn" class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-3 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer" title="Salin Link Penghimpunan Berita"><span class="material-symbols-outlined text-base">content_copy</span><span>Salin Link</span></button><a id="aff-featured-view-btn" href="#" target="_blank" class="bg-primary/10 hover:bg-primary/20 text-primary px-3 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors"><span class="material-symbols-outlined text-base">open_in_new</span><span>Buka Halaman</span></a></div></div></div><!-- Grid of All Available Published News --><div class="space-y-4 pt-2 w-full"><h3 class="font-bold text-slate-900 text-base flex items-center gap-2"><span class="material-symbols-outlined text-primary">feed</span><span>Daftar Seluruh Berita &amp; Kegiatan Siap Share</span></h3><div id="affiliate-news-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full"></div></div></div><!-- SUBTAB 3: Catalog & Program Share Link Generator --><div id="subtab-catalog" class="member-subtab space-y-6 hidden w-full"><div class="border-b border-slate-200 pb-4"><h2 class="text-lg sm:text-xl font-extrabold text-slate-900">Katalog Program Siap Bagikan</h2><p class="text-xs text-slate-500 mt-1">Pilih program di bawah untuk langsung membagikan link donasi publik dengan Kode Mitra Anda!</p></div><div id="affiliate-programs-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full"></div></div><!-- SUBTAB 4: Quotes & Flyer Media --><div id="subtab-quotes" class="member-subtab space-y-6 hidden w-full"><div class="border-b border-slate-200 pb-4"><h2 class="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2"><span class="material-symbols-outlined text-primary text-2xl">format_quote</span><span>Quotes &amp; Flyer Dakwah Harian</span></h2><p class="text-xs text-slate-500 mt-1">Materi flyer poster dakwah siap dibagikan ke WhatsApp Story, Chat, dan Media Sosial dengan tautan referral Anda!</p></div><!-- Featured / Today Quote Card --><div id="affiliate-featured-quote" class="bg-gradient-to-br from-emerald-950 via-emerald-900 to-primary text-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-xl relative overflow-hidden flex flex-col md:flex-row gap-6 items-center w-full"></div><!-- Grid of All Available Quotes --><div class="space-y-4 pt-2 w-full"><h3 class="font-bold text-slate-900 text-base flex items-center gap-2"><span class="material-symbols-outlined text-primary">collections</span><span>Koleksi Flyer &amp; Kutipan Hadits Siap Share</span></h3><div id="affiliate-quotes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full"></div></div></div><!-- SUBTAB 5: Member Profile & Bank Account Settings --><div id="subtab-profile" class="member-subtab max-w-2xl mx-auto space-y-6 hidden w-full"><div class="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-sm space-y-6 w-full"><div class="border-b border-slate-100 pb-4"><h3 class="text-lg font-bold text-slate-900 flex items-center gap-2"><span class="material-symbols-outlined text-primary">account_balance</span><span>Pengaturan Rekening &amp; Keamanan Akun</span></h3><p class="text-xs text-slate-500 mt-1">Perbarui nomor rekening pencairan bonus &amp; PIN login Anda.</p></div><form id="member-profile-form" onsubmit="handleUpdateProfile(event)" class="space-y-4"><div><label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap / Komunitas</label><input type="text" id="prof-name" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary"></div><div><label class="block text-xs font-bold text-slate-700 mb-1">No. WhatsApp</label><input type="text" id="prof-phone" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-500 font-mono outline-none"></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><div><label class="block text-xs font-bold text-slate-700 mb-1">Nama Bank Pencairan</label><input type="text" id="prof-bank" placeholder="BSI / Mandiri / BCA" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary"></div><div><label class="block text-xs font-bold text-slate-700 mb-1">Nomor Rekening</label><input type="text" id="prof-acc-no" placeholder="Contoh: 7112223334" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary"></div></div><div><label class="block text-xs font-bold text-slate-700 mb-1">Nama Pemilik Rekening</label><input type="text" id="prof-acc-holder" placeholder="Sesuai buku tabungan" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary"></div><div><label class="block text-xs font-bold text-slate-700 mb-1">PIN Login Baru (4-6 Digit)</label><input type="password" id="prof-pin" placeholder="Biarkan kosong jika tidak ingin mengubah PIN" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary"></div><button type="submit" class="w-full sm:w-auto bg-primary hover:bg-emerald-700 text-white font-bold text-xs px-6 py-3 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"><span class="material-symbols-outlined text-base">save</span><span>Simpan Perubahan Profile</span></button></form></div></div></div></div><script>
+	</script></head><body class="antialiased min-h-screen flex flex-col bg-slate-50"><!-- Mitra Portal Header --><header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm"><div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between"><!-- Logo + MITRA badge --><a href="/" class="flex items-center gap-2.5 group"><img src="/assets/images/logo-wiz-babel.png" alt="WIZ Bangka Belitung" class="h-9 w-auto object-contain"><div class="flex flex-col leading-none"><span class="font-extrabold text-sm text-slate-900 group-hover:text-emerald-700 transition-colors">WIZ Babel</span><span class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">MITRA</span></div></a><!-- Back to Main Site --><a href="/" class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-lg transition-colors border border-slate-200"><span class="material-symbols-outlined" style="font-size:16px;">home</span><span>Ke Website Utama</span></a></div></header>
+<main class="flex-grow">
+
+    <!-- Header Banner -->
+    <section class="bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white py-10 sm:py-14 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 relative z-10 text-center space-y-3">
+            <div class="inline-flex items-center gap-2 bg-emerald-700/60 border border-emerald-500/40 px-3.5 py-1 rounded-full text-xs font-semibold text-emerald-200">
+                <span class="material-symbols-outlined text-sm">handshake</span>
+                <span>Program Kemitraan Kebaikan &amp; Relawan Fundraiser</span>
+            </div>
+            <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight">Portal Mitra Penghimpunan Kebaikan</h1>
+            <p class="text-xs sm:text-base text-emerald-100 max-w-2xl mx-auto leading-relaxed">
+                Jadilah jembatan kebaikan ummat. Sebarkan link program donasi resmi WIZ Bangka Belitung, raih pahala jariyah tanpa batas, dan peroleh <strong>Hak Insentif 6%</strong> atas setiap donasi yang terhimpun secara transparan!
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Container: Guest (Auth) vs Member (Dashboard) -->
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+
+        <!-- ======================================================== -->
+        <!-- STATE 1: GUEST AUTH VIEW (Login / Register Form)         -->
+        <!-- ======================================================== -->
+        <div id="auth-state-container" class="w-full flex justify-center py-2 sm:py-4">
+
+            <!-- Premium Professional Auth Form Box -->
+            <div class="w-full bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-slate-200/80 p-5 sm:p-8" style="width: 100% !important; max-width: 520px !important; margin: 0 auto !important; box-sizing: border-box !important;">
+                
+                <!-- Card Header -->
+                <div class="text-center mb-6 space-y-2">
+                    <div class="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3.5 py-1 rounded-full text-xs font-bold text-emerald-800">
+                        <span class="material-symbols-outlined text-sm">handshake</span>
+                        <span>Portal Resmi Mitra WIZ Babel</span>
+                    </div>
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">Kemitraan Penghimpunan Kebaikan</h2>
+                    <p class="text-slate-500 text-xs sm:text-sm">Silakan masuk atau mendaftar akun baru untuk memantau insentif &amp; link donasi.</p>
+                </div>
+
+                <!-- Tab Switcher -->
+                <div class="flex bg-slate-100 p-1.5 rounded-2xl gap-1.5 mb-6">
+                    <button type="button" id="btn-auth-signin" onclick="toggleAuthTab('signin')"
+                        class="flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 bg-emerald-700 text-white shadow-md cursor-pointer">
+                        <span class="material-symbols-outlined text-base">login</span>
+                        <span>Masuk Mitra</span>
+                    </button>
+                    <button type="button" id="btn-auth-signup" onclick="toggleAuthTab('signup')"
+                        class="flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-slate-500 hover:text-slate-800 hover:bg-white/80 cursor-pointer">
+                        <span class="material-symbols-outlined text-base">person_add</span>
+                        <span>Daftar Baru</span>
+                    </button>
+                </div>
+
+                <!-- Tab 1: Login Form -->
+                <div id="auth-signin-view" class="w-full space-y-4">
+
+                        <form id="affiliate-login-form" onsubmit="handleAffiliateLogin(event)" class="space-y-4 flex-1">
+                            <div>
+                                <label class="block text-xs font-extrabold text-slate-600 mb-2 uppercase tracking-widest">No. WhatsApp / Kode Mitra</label>
+                                <div class="relative">
+                                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl pointer-events-none">smartphone</span>
+                                    <input type="text" id="login-identifier" required placeholder="081234567890 atau WIZ-ABC-001"
+                                        class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl pl-12 pr-4 py-4 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-extrabold text-slate-600 mb-2 uppercase tracking-widest">PIN Login (4–6 Digit)</label>
+                                <div class="relative">
+                                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl pointer-events-none">lock</span>
+                                    <input type="password" id="login-pin" required placeholder="••••••"
+                                        class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl pl-12 pr-4 py-4 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400">
+                                </div>
+                            </div>
+                            <button type="submit"
+                                class="w-full bg-gradient-to-r from-emerald-700 to-emerald-600 hover:from-emerald-600 hover:to-emerald-500 text-white font-extrabold py-4 rounded-xl shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2.5 cursor-pointer active:scale-[0.99] mt-1">
+                                <span class="material-symbols-outlined text-xl">login</span>
+                                <span>Masuk ke Dashboard</span>
+                            </button>
+
+                            <!-- Lupa PIN Link -->
+                            <div class="text-center pt-1">
+                                <button type="button" onclick="toggleForgotPin()" class="text-xs text-slate-400 hover:text-emerald-700 font-semibold transition-colors cursor-pointer underline underline-offset-2">
+                                    Lupa PIN? Minta reset via WhatsApp
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Lupa PIN Panel (hidden by default) -->
+                        <div id="forgot-pin-panel" class="hidden mt-4 p-5 bg-slate-50 rounded-2xl border border-slate-200">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="material-symbols-outlined text-emerald-700 text-xl">lock_reset</span>
+                                <h4 class="font-extrabold text-slate-900 text-sm">Reset PIN Sendiri</h4>
+                            </div>
+                            <p class="text-slate-500 text-xs leading-relaxed mb-4">Masukkan nomor WhatsApp yang terdaftar dan buat PIN baru. Sistem akan memverifikasi bahwa nomor tersebut terdaftar sebagai Mitra.</p>
+                            <div class="space-y-3">
+                                <div class="relative">
+                                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none">smartphone</span>
+                                    <input type="tel" id="forgot-pin-phone" placeholder="No. WhatsApp terdaftar"
+                                        class="w-full bg-white border-2 border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400">
+                                </div>
+                                <div class="relative">
+                                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none">lock</span>
+                                    <input type="password" id="forgot-pin-new" placeholder="PIN baru (4–6 digit angka)" maxlength="6"
+                                        class="w-full bg-white border-2 border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400">
+                                </div>
+                                <div class="relative">
+                                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none">lock_clock</span>
+                                    <input type="password" id="forgot-pin-confirm" placeholder="Konfirmasi PIN baru" maxlength="6"
+                                        class="w-full bg-white border-2 border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400">
+                                </div>
+                                <button type="button" onclick="doResetPin()" class="w-full bg-gradient-to-r from-emerald-700 to-emerald-600 hover:from-emerald-600 hover:to-emerald-500 text-white font-extrabold py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-sm cursor-pointer shadow-md">
+                                    <span class="material-symbols-outlined text-lg">lock_reset</span>
+                                    <span>Reset PIN Sekarang</span>
+                                </button>
+                                <button type="button" onclick="toggleForgotPin()" class="w-full text-xs text-slate-400 hover:text-slate-600 font-semibold py-1.5 cursor-pointer transition-colors">Batal</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Tab 2: Register Form -->
+                    <div id="auth-signup-view" class="hidden flex-1 flex flex-col">
+                        <div class="mb-7">
+                            <h3 class="text-2xl font-extrabold text-slate-900">Daftar Mitra Penghimpunan</h3>
+                            <p class="text-slate-500 text-sm mt-1.5">Lengkapi data diri untuk mendapatkan Kode Mitra resmi WIZ Babel.</p>
+                        </div>
+
+                        <form id="affiliate-register-form" onsubmit="handleAffiliateRegister(event)" class="space-y-4 flex-1">
+                            <div>
+                                <label class="block text-xs font-extrabold text-slate-600 mb-2 uppercase tracking-widest">Nama Lengkap / Nama Komunitas *</label>
+                                <input type="text" id="reg-name" required placeholder="Ahmad Sahal / Majelis Taklim Al-Ikhlas"
+                                    class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-4 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-extrabold text-slate-600 mb-2 uppercase tracking-widest">Nomor WhatsApp Aktif *</label>
+                                <input type="tel" id="reg-phone" required placeholder="Contoh: 081271718890"
+                                    class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-4 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-extrabold text-slate-600 mb-2 uppercase tracking-widest">Nama Bank *</label>
+                                    <input type="text" id="reg-bank" required placeholder="BSI / BCA / Mandiri"
+                                        class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-4 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-extrabold text-slate-600 mb-2 uppercase tracking-widest">No. Rekening *</label>
+                                    <input type="text" id="reg-acc-no" required placeholder="Nomor Rekening Bank"
+                                        class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-4 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-extrabold text-slate-600 mb-2 uppercase tracking-widest">Nama Pemilik Rekening *</label>
+                                <input type="text" id="reg-acc-holder" required placeholder="Sesuai nama di buku tabungan"
+                                    class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-4 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-extrabold text-slate-600 mb-2 uppercase tracking-widest">Buat PIN Login (4–6 Digit) *</label>
+                                <input type="password" id="reg-pin" required placeholder="Contoh: 123456"
+                                    class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-4 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:font-normal placeholder:text-slate-400">
+                            </div>
+                            <button type="submit"
+                                class="w-full bg-gradient-to-r from-emerald-700 to-emerald-600 hover:from-emerald-600 hover:to-emerald-500 text-white font-extrabold py-4 rounded-xl shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2.5 cursor-pointer active:scale-[0.99]">
+                                <span class="material-symbols-outlined text-xl">check_circle</span>
+                                <span>Daftar Sebagai Mitra Sekarang</span>
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+
+        <!-- ======================================================== -->
+        <!-- STATE 2: LOGGED-IN MEMBER DASHBOARD VIEW                 -->
+        <!-- ======================================================== -->
+        <!-- STATE 2: LOGGED-IN MEMBER DASHBOARD VIEW                 -->
+        <!-- ======================================================== -->
+        <div id="member-state-container" class="space-y-6 hidden w-full">
+
+            <!-- Member Header Card -->
+            <div class="bg-gradient-to-r from-emerald-950 via-emerald-900 to-teal-950 text-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-xl border border-emerald-500/30 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5 w-full relative overflow-hidden">
+                <div class="absolute -top-12 -right-12 w-48 h-48 bg-primary/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-12 -left-12 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="relative z-10 flex items-center gap-4">
+                    <div id="member-avatar" class="w-14 h-14 rounded-2xl bg-white text-emerald-900 font-extrabold text-2xl flex items-center justify-center shadow-lg ring-4 ring-white/10 shrink-0">
+                        M
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap mb-1">
+                            <span id="member-cabang-badge" class="bg-emerald-500/25 border border-emerald-400/40 text-emerald-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                                Cabang Pangkalpinang
+                            </span>
+                            <span id="member-status-badge" class="bg-emerald-700/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">
+                                Fundraiser Aktif
+                            </span>
+                            <span id="member-code-badge" class="bg-white/20 text-white font-mono text-xs font-bold px-2.5 py-0.5 rounded-md border border-white/20">
+                                WIZ-000
+                            </span>
+                        </div>
+                        <h2 id="member-welcome-title" class="text-xl sm:text-2xl font-black text-white">Selamat Datang, Mitra Kebaikan!</h2>
+                        <p class="text-xs text-emerald-200/80 mt-0.5">Jembatan kebaikan ummat Bangka Belitung • WIZ Babel</p>
+                    </div>
+                </div>
+
+                <!-- Right Header Actions (Link Bar + Period Filter + QR Code + Logout) -->
+                <div class="relative z-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto">
+                    <!-- Period Filter Selector -->
+                    <div class="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/20">
+                        <span class="material-symbols-outlined text-base text-emerald-300">calendar_month</span>
+                        <select id="member-periode-filter" onchange="renderMemberDashboard()" class="bg-transparent text-white font-bold text-xs outline-none cursor-pointer">
+                            <!-- Populated dynamically by generatePeriods() -->
+                        </select>
+                    </div>
+
+                    <!-- Readonly Link + Copy Button -->
+                    <div class="flex items-center gap-1 bg-white/10 backdrop-blur-md p-1 rounded-xl border border-white/20 flex-1 sm:flex-none">
+                        <input type="text" id="member-referral-link-input" readonly onclick="this.select()" class="bg-transparent text-white font-mono text-xs px-2 py-1 w-full sm:w-44 outline-none truncate select-all" value="" title="Tautan Donasi Anda">
+                        <button onclick="copyFundraisingLink()" type="button" class="bg-white text-emerald-900 hover:bg-emerald-50 px-3 py-1.5 rounded-lg font-bold text-xs flex items-center justify-center gap-1 shadow-xs transition-all cursor-pointer whitespace-nowrap" title="Salin Tautan">
+                            <span class="material-symbols-outlined text-sm">content_copy</span>
+                            <span>Salin</span>
+                        </button>
+                    </div>
+
+                    <button onclick="toggleMemberQrModal()" type="button" class="bg-emerald-800/80 hover:bg-emerald-700 text-white border border-emerald-400/30 px-3 py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1 transition-all cursor-pointer shadow-xs whitespace-nowrap" title="Tampilkan QR Code Donasi">
+                        <span class="material-symbols-outlined text-base">qr_code_2</span>
+                        <span class="hidden sm:inline">QR Code</span>
+                    </button>
+
+                    <button onclick="handleAffiliateLogout()" type="button" class="bg-red-500/20 hover:bg-red-600 text-white border border-red-400/30 px-3 py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1 transition-all cursor-pointer shadow-xs" title="Keluar dari Akun">
+                        <span class="material-symbols-outlined text-base">logout</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Member Sub-Navigation Tabs (5 Subtabs) -->
+            <div class="w-full bg-white border-b border-slate-200 rounded-2xl shadow-xs overflow-hidden">
+                <div class="flex justify-start gap-1 sm:gap-2 overflow-x-auto p-1.5">
+                    <button onclick="switchMemberSubTab('subtab-kpi')" id="btn-subtab-kpi" class="member-nav-btn active shrink-0 whitespace-nowrap px-3.5 sm:px-5 py-2.5 sm:py-3 font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all rounded-xl border-b-2 border-primary text-primary bg-primary/5 cursor-pointer">
+                        <span class="material-symbols-outlined text-base sm:text-lg">analytics</span>
+                        <span>Penghimpunan &amp; KPI</span>
+                    </button>
+                    <button onclick="switchMemberSubTab('subtab-news')" id="btn-subtab-news" class="member-nav-btn shrink-0 whitespace-nowrap px-3.5 sm:px-5 py-2.5 sm:py-3 font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all rounded-xl border-b-2 border-transparent text-slate-600 hover:text-slate-900 cursor-pointer">
+                        <span class="material-symbols-outlined text-base sm:text-lg">feed</span>
+                        <span>Kabar Berita &amp; Kegiatan</span>
+                    </button>
+                    <button onclick="switchMemberSubTab('subtab-catalog')" id="btn-subtab-catalog" class="member-nav-btn shrink-0 whitespace-nowrap px-3.5 sm:px-5 py-2.5 sm:py-3 font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all rounded-xl border-b-2 border-transparent text-slate-600 hover:text-slate-900 cursor-pointer">
+                        <span class="material-symbols-outlined text-base sm:text-lg">grid_view</span>
+                        <span>Program &amp; Link</span>
+                    </button>
+                    <button onclick="switchMemberSubTab('subtab-quotes')" id="btn-subtab-quotes" class="member-nav-btn shrink-0 whitespace-nowrap px-3.5 sm:px-5 py-2.5 sm:py-3 font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all rounded-xl border-b-2 border-transparent text-slate-600 hover:text-slate-900 cursor-pointer">
+                        <span class="material-symbols-outlined text-base sm:text-lg">format_quote</span>
+                        <span>Quotes &amp; Flyer</span>
+                    </button>
+                    <button onclick="switchMemberSubTab('subtab-profile')" id="btn-subtab-profile" class="member-nav-btn shrink-0 whitespace-nowrap px-3.5 sm:px-5 py-2.5 sm:py-3 font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all rounded-xl border-b-2 border-transparent text-slate-600 hover:text-slate-900 cursor-pointer">
+                        <span class="material-symbols-outlined text-base sm:text-lg">settings</span>
+                        <span>Pengaturan Rekening</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- SUBTAB 1: Performance Dashboard & KPI -->
+            <div id="subtab-kpi" class="member-subtab space-y-6 sm:space-y-8 w-full">
+                <!-- 4 Dashboard Metric Cards (Dynamic Reactivity with Period Dropdown) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full">
+                    <!-- Card 1: Total Donasi Dibawa -->
+                    <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Donasi Dihimpun</span>
+                            <span id="kpi-tier-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">Mitra Aktif</span>
+                        </div>
+                        <div>
+                            <span id="kpi-total-amount" class="text-2xl sm:text-3xl font-black text-slate-900 block">Rp 0</span>
+                            <p class="text-xs font-semibold text-emerald-700 mt-1" id="kpi-fix-fee-info">Hak Fix (6%): Rp 0</p>
+                        </div>
+                        <p class="text-[11px] text-slate-400 font-medium border-t border-slate-100 pt-1.5" id="kpi-donation-count-info">0 transaksi donasi</p>
+                    </div>
+
+                    <!-- Card 2: Akumulasi Poin KPI -->
+                    <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Poin KPI Anda</span>
+                            <span class="material-symbols-outlined text-blue-600 text-lg">workspace_premium</span>
+                        </div>
+                        <div>
+                            <span id="kpi-total-points" class="text-2xl sm:text-3xl font-black text-blue-600 block">0 Pts</span>
+                            <p class="text-xs font-semibold text-blue-800 mt-1 truncate" id="kpi-points-breakdown">Belum ada catatan aktivitas</p>
+                        </div>
+                        <p class="text-[11px] text-slate-400 font-medium border-t border-slate-100 pt-1.5" id="kpi-pool-share-info">0% dari Poin Global</p>
+                    </div>
+
+                    <!-- Card 3: Insentif Tambahan (Alokasi Pool Kinerja Wilayah) -->
+                    <div class="bg-gradient-to-br from-purple-50 to-indigo-50 p-4 sm:p-5 rounded-2xl border border-purple-200/80 shadow-xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] text-purple-900 font-bold uppercase tracking-wider">Insentif Tambahan</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-200 text-purple-900">⏳ Distribusi Akhir Bulan</span>
+                        </div>
+                        <div>
+                            <span id="kpi-pool-incentive" class="text-2xl sm:text-3xl font-black text-purple-900 block">Rp 0</span>
+                            <p class="text-xs font-semibold text-purple-700 mt-1" id="kpi-pool-wilayah-info">Alokasi Pool Wilayah: Rp 0</p>
+                        </div>
+                        <p class="text-[11px] text-purple-600/70 font-medium border-t border-purple-200/40 pt-1.5">Insentif proporsional berbasis poin KPI</p>
+                    </div>
+
+                    <!-- Card 4: Total Hak Insentif & Status Saldo -->
+                    <div class="bg-gradient-to-br from-emerald-50 to-teal-50 p-4 sm:p-5 rounded-2xl border border-emerald-200 shadow-xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] text-emerald-900 font-bold uppercase tracking-wider">Total Hak Insentif</span>
+                            <span class="material-symbols-outlined text-emerald-700 text-lg">account_balance_wallet</span>
+                        </div>
+                        <div>
+                            <span id="kpi-total-earned" class="text-2xl sm:text-3xl font-black text-emerald-900 block">Rp 0</span>
+                            <p class="text-xs font-semibold text-amber-800 mt-1" id="kpi-pending-info">Sisa Pending: Rp 0</p>
+                        </div>
+                        <p class="text-[11px] text-emerald-700/70 font-medium border-t border-emerald-200/40 pt-1.5">Hak Fix (6%) + Insentif Tambahan Kinerja</p>
+                    </div>
+                </div>
+
+                <!-- Table 1: Rincian Log Aktivitas & Poin KPI Bulan Ini -->
+                <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200 shadow-sm space-y-4 w-full">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 pb-3">
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-base sm:text-lg flex items-center gap-2">
+                                <span class="material-symbols-outlined text-blue-600">fact_check</span>
+                                <span>Rincian Log Aktivitas Operasional &amp; Poin KPI</span>
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-0.5" id="kpi-activity-period-label">Catatan evaluasi kinerja aktivitas Anda untuk periode bulan terpilih.</p>
+                        </div>
+                        <span id="kpi-activity-total-badge" class="px-3 py-1 bg-blue-100 text-blue-800 font-bold text-xs rounded-xl border border-blue-200">
+                            0 Poin Terkumpul
+                        </span>
+                    </div>
+
+                    <div id="member-kpi-activity-container" class="w-full">
+                        <!-- Rendered dynamically (Table if exists, or Empty State Card) -->
+                    </div>
+                </div>
+
+                <!-- Table 2: Detailed Transactions Table -->
+                <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200 shadow-sm space-y-4 w-full">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 pb-3">
+                        <h3 class="font-bold text-slate-900 text-base sm:text-lg flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">format_list_bulleted</span>
+                            <span>Riwayat Donasi dari Link Penghimpunan Anda</span>
+                        </h3>
+                        <span class="text-xs font-semibold text-slate-500" id="member-donations-period-label">
+                            Menampilkan transaksi periode terpilih
+                        </span>
+                    </div>
+
+                    <div class="w-full overflow-x-auto rounded-xl border border-slate-100">
+                        <table class="w-full min-w-[540px] text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                                    <th class="p-3 font-bold">Tanggal</th>
+                                    <th class="p-3 font-bold">Donatur</th>
+                                    <th class="p-3 font-bold">Program</th>
+                                    <th class="p-3 font-bold text-right">Nominal</th>
+                                    <th class="p-3 font-bold text-right">Hak Fix (6%)</th>
+                                    <th class="p-3 font-bold text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="member-donations-tbody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUBTAB 2: Berita & Artikel Kegiatan Siap Share -->
+            <div id="subtab-news" class="member-subtab space-y-6 hidden w-full">
+                <div class="border-b border-slate-200 pb-4">
+                    <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">Kabar Kegiatan &amp; Berita Siap Bagikan</h2>
+                    <p class="text-xs text-slate-500 mt-1">Bagikan dokumentasi penyaluran resmi WIZ Babel ke WhatsApp atau media sosial. Setiap donasi yang masuk dari link berita Anda otomatis terhubung dengan alokasi <strong>Hak Insentif 6%</strong> Anda!</p>
+                </div>
+
+                <!-- Featured News Card (Latest News Item) -->
+                <div id="affiliate-featured-news" class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-slate-200 shadow-sm flex flex-col md:flex-row items-center gap-4 sm:gap-6 w-full">
+                    <div class="w-full md:w-64 max-w-full aspect-video rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shrink-0 shadow-xs relative">
+                        <img id="aff-featured-news-img" src="/assets/images/default-program-wiz.png" class="w-full h-full object-cover" onerror="this.src='/assets/images/default-program-wiz.png'" alt="Berita Terbaru">
+                        <span id="aff-featured-news-category" class="absolute top-2 left-2 bg-primary text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-xs">Kegiatan</span>
+                    </div>
+                    <div class="flex-1 space-y-3 w-full">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
+                                <span class="material-symbols-outlined text-sm">stars</span> Berita Terbaru (Rekomendasi Share)
+                            </span>
+                            <span id="aff-featured-news-date" class="text-xs text-slate-400 font-mono"></span>
+                        </div>
+                        <h3 id="aff-featured-news-title" class="text-base sm:text-lg font-bold text-slate-900 leading-snug"></h3>
+                        <p id="aff-featured-news-excerpt" class="text-slate-600 text-xs leading-relaxed line-clamp-2"></p>
+                        
+                        <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
+                            <button type="button" id="aff-featured-share-wa-btn" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white px-3.5 sm:px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-transform hover:scale-105 cursor-pointer">
+                                <span class="material-symbols-outlined text-sm">send</span>
+                                <span>Bagikan ke WhatsApp</span>
+                            </button>
+                            <button type="button" id="aff-featured-copy-btn" class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-3 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer" title="Salin Link Penghimpunan Berita">
+                                <span class="material-symbols-outlined text-base">content_copy</span>
+                                <span>Salin Link</span>
+                            </button>
+                            <a id="aff-featured-view-btn" href="#" target="_blank" class="bg-primary/10 hover:bg-primary/20 text-primary px-3 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors">
+                                <span class="material-symbols-outlined text-base">open_in_new</span>
+                                <span>Buka Halaman</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid of All Available Published News -->
+                <div class="space-y-4 pt-2 w-full">
+                    <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">feed</span>
+                        <span>Daftar Seluruh Berita &amp; Kegiatan Siap Share</span>
+                    </h3>
+                    <div id="affiliate-news-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUBTAB 3: Catalog & Program Share Link Generator -->
+            <div id="subtab-catalog" class="member-subtab space-y-6 hidden w-full">
+                <div class="border-b border-slate-200 pb-4">
+                    <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">Katalog Program Siap Bagikan</h2>
+                    <p class="text-xs text-slate-500 mt-1">Pilih program di bawah untuk langsung membagikan link donasi publik dengan Kode Mitra Anda!</p>
+                </div>
+
+                <div id="affiliate-programs-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full">
+                </div>
+            </div>
+
+            <!-- SUBTAB 4: Quotes & Flyer Media -->
+            <div id="subtab-quotes" class="member-subtab space-y-6 hidden w-full">
+                <div class="border-b border-slate-200 pb-4">
+                    <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-2xl">format_quote</span>
+                        <span>Quotes &amp; Flyer Dakwah Harian</span>
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">Materi flyer poster dakwah siap dibagikan ke WhatsApp Story, Chat, dan Media Sosial dengan tautan referral Anda!</p>
+                </div>
+
+                <!-- Featured / Today Quote Card -->
+                <div id="affiliate-featured-quote" class="bg-gradient-to-br from-emerald-950 via-emerald-900 to-primary text-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-xl relative overflow-hidden flex flex-col md:flex-row gap-6 items-center w-full">
+                </div>
+
+                <!-- Grid of All Available Quotes -->
+                <div class="space-y-4 pt-2 w-full">
+                    <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">collections</span>
+                        <span>Koleksi Flyer &amp; Kutipan Hadits Siap Share</span>
+                    </h3>
+                    <div id="affiliate-quotes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUBTAB 5: Member Profile & Bank Account Settings -->
+            <div id="subtab-profile" class="member-subtab max-w-2xl mx-auto space-y-6 hidden w-full">
+                <div class="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-sm space-y-6 w-full">
+                    <div class="border-b border-slate-100 pb-4">
+                        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">account_balance</span>
+                            <span>Pengaturan Rekening &amp; Keamanan Akun</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">Perbarui nomor rekening pencairan bonus &amp; PIN login Anda.</p>
+                    </div>
+
+                    <form id="member-profile-form" onsubmit="handleUpdateProfile(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap / Komunitas</label>
+                            <input type="text" id="prof-name" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">No. WhatsApp</label>
+                            <input type="text" id="prof-phone" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-500 font-mono outline-none">
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Bank Pencairan</label>
+                                <input type="text" id="prof-bank" placeholder="BSI / Mandiri / BCA" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Rekening</label>
+                                <input type="text" id="prof-acc-no" placeholder="Contoh: 7112223334" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Pemilik Rekening</label>
+                            <input type="text" id="prof-acc-holder" placeholder="Sesuai buku tabungan" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">PIN Login Baru (4-6 Digit)</label>
+                            <input type="password" id="prof-pin" placeholder="Biarkan kosong jika tidak ingin mengubah PIN" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-primary">
+                        </div>
+
+                        <button type="submit" class="w-full sm:w-auto bg-primary hover:bg-emerald-700 text-white font-bold text-xs px-6 py-3 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
+                            <span class="material-symbols-outlined text-base">save</span>
+                            <span>Simpan Perubahan Profile</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Modal: QR Code Donasi Mitra -->
+    <div id="member-qr-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl border border-slate-200 text-center space-y-4 relative">
+            <button type="button" onclick="toggleMemberQrModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 p-1 rounded-full hover:bg-slate-100 transition-colors cursor-pointer">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+
+            <div class="inline-flex p-3 rounded-2xl bg-emerald-50 text-emerald-800">
+                <span class="material-symbols-outlined text-3xl">qr_code_scanner</span>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-black text-slate-900" id="qr-modal-mitra-name">QR Code Donasi Mitra</h3>
+                <p class="text-xs text-slate-500 font-mono font-bold text-primary mt-0.5" id="qr-modal-mitra-code">WIZ-000</p>
+            </div>
+
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex justify-center items-center">
+                <img id="member-qr-img" src="" alt="QR Code Donasi" class="w-56 h-56 object-contain rounded-xl shadow-xs">
+            </div>
+
+            <p class="text-xs text-slate-500 leading-relaxed">
+                Tunjukkan QR Code ini kepada calon donatur untuk berdonasi langsung melalui website resmi WIZ Bangka Belitung.
+            </p>
+
+            <div class="flex gap-2 pt-1">
+                <button type="button" onclick="copyFundraisingLink()" class="flex-1 bg-primary hover:bg-emerald-700 text-white font-bold text-xs py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">content_copy</span>
+                    <span>Salin Tautan</span>
+                </button>
+                <button type="button" onclick="toggleMemberQrModal()" class="px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2.5 rounded-xl transition-all cursor-pointer">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/supabase-client.js"></script>
+    <script src="/assets/js/admin-store.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/nav-active.js"></script>
+
+</main>
+<script>
         let currentLoggedAffiliate = null;
         let currentActiveSubTab = 'subtab-kpi';
 
@@ -154,9 +706,57 @@
             }
         }
 
+        function populateMemberPeriodFilter() {
+            const sel = document.getElementById('member-periode-filter');
+            if (!sel) return;
+            const currentVal = sel.value;
+            const periods = (typeof generatePeriods === 'function') 
+                ? generatePeriods(12) 
+                : (window.wizStore && typeof window.wizStore.utils?.generatePeriods === 'function' ? window.wizStore.utils.generatePeriods(12) : []);
+            
+            const curMonth = (typeof getCurrentPeriod === 'function')
+                ? getCurrentPeriod()
+                : (window.wizStore && typeof window.wizStore.utils?.getCurrentPeriod === 'function' ? window.wizStore.utils.getCurrentPeriod() : new Date().toISOString().slice(0, 7));
+
+            let html = `<option value="ALL">Semua Periode</option>`;
+            periods.forEach(p => {
+                html += `<option value="${p.value}" ${p.value === curMonth ? 'selected' : ''}>${p.label} ${p.isCurrent ? '(Bulan Ini)' : ''}</option>`;
+            });
+            sel.innerHTML = html;
+            if (currentVal && Array.from(sel.options).some(o => o.value === currentVal)) {
+                sel.value = currentVal;
+            }
+        }
+
+        function toggleMemberQrModal() {
+            const modal = document.getElementById('member-qr-modal');
+            if (!modal) return;
+            const isHidden = modal.classList.contains('hidden');
+            if (isHidden) {
+                if (!currentLoggedAffiliate) return;
+                const mitra = currentLoggedAffiliate;
+                const activeRefCode = mitra.code || mitra.id || 'WIZ';
+                const origin = window.location.origin || 'https://www.wizbangkabelitung.or.id';
+                const donationLink = `${origin}/?ref=${encodeURIComponent(activeRefCode)}`;
+                
+                const nameEl = document.getElementById('qr-modal-mitra-name');
+                if (nameEl) nameEl.textContent = mitra.name || 'Mitra WIZ Babel';
+                const codeEl = document.getElementById('qr-modal-mitra-code');
+                if (codeEl) codeEl.textContent = `Kode Mitra: ${activeRefCode}`;
+                const qrImg = document.getElementById('member-qr-img');
+                if (qrImg) qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=10&data=${encodeURIComponent(donationLink)}`;
+
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
         function activateMemberState(ref) {
             document.getElementById('auth-state-container').classList.add('hidden');
             document.getElementById('member-state-container').classList.remove('hidden');
+
+            populateMemberPeriodFilter();
 
             const initial = (ref.name || 'A').charAt(0).toUpperCase();
             const avatarEl = document.getElementById('member-avatar');
@@ -167,6 +767,27 @@
 
             const codeEl = document.getElementById('member-code-badge');
             if (codeEl) codeEl.textContent = ref.code || ref.id;
+
+            const cabangBadge = document.getElementById('member-cabang-badge');
+            if (cabangBadge) {
+                const cb = ref.cabang || 'Pangkalpinang';
+                if (cb === 'Sungailiat') {
+                    cabangBadge.textContent = 'Cabang Sungailiat';
+                    cabangBadge.className = 'bg-teal-500/25 border border-teal-400/40 text-teal-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider';
+                } else if (cb === 'Wilayah') {
+                    cabangBadge.textContent = 'Kantor Wilayah Bangka Belitung';
+                    cabangBadge.className = 'bg-indigo-500/25 border border-indigo-400/40 text-indigo-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider';
+                } else {
+                    cabangBadge.textContent = 'Cabang Pangkalpinang';
+                    cabangBadge.className = 'bg-emerald-500/25 border border-emerald-400/40 text-emerald-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider';
+                }
+            }
+
+            const origin = window.location.origin || 'https://www.wizbangkabelitung.or.id';
+            const activeRefCode = ref.code || ref.id || 'WIZ';
+            const donationLink = `${origin}/?ref=${encodeURIComponent(activeRefCode)}`;
+            const linkInput = document.getElementById('member-referral-link-input');
+            if (linkInput) linkInput.value = donationLink;
 
             if (document.getElementById('prof-name')) document.getElementById('prof-name').value = ref.name || '';
             if (document.getElementById('prof-phone')) document.getElementById('prof-phone').value = ref.phone || '';
@@ -221,8 +842,6 @@
                 return;
             }
 
-
-
             if (window.wizStore && window.wizStore.referrals) {
                 try {
                     const res = await window.wizStore.referrals.login({ identifier, pin });
@@ -232,8 +851,6 @@
                         localStorage.setItem('wiz_logged_affiliate', JSON.stringify(res.referral));
                         activateMemberState(res.referral);
                         return;
-                    } else {
-return;
                     }
                 } catch(err) {
                     console.warn('Login error:', err);
@@ -284,6 +901,7 @@ return;
                             code: aff.code || aff.id,
                             name: aff.name,
                             phone: aff.phone,
+                            cabang: aff.cabang || 'Pangkalpinang',
                             bankName: aff.bankName || aff.bank_name || '',
                             accountNumber: aff.accountNumber || aff.account_number || '',
                             accountHolder: aff.accountHolder || aff.account_holder || aff.name,
@@ -318,7 +936,7 @@ return;
             const pin = document.getElementById('reg-pin').value.trim();
 
             if (window.wizStore && window.wizStore.referrals) {
-                const res = await window.wizStore.referrals.registerPublic({ name, phone, bankName, accountNumber, accountHolder, pin });
+                const res = await window.wizStore.referrals.registerPublic({ name, phone, bankName, accountNumber, accountHolder, pin, cabang: 'Pangkalpinang' });
                 if (res.success) {
                     currentLoggedAffiliate = res.referral;
                     sessionStorage.setItem('wiz_logged_affiliate', JSON.stringify(res.referral));
@@ -338,77 +956,285 @@ return;
             alert('Anda telah keluar dari Portal Member Mitra Penghimpunan.');
         }
 
-        function renderMemberDashboard() {
+        async function renderMemberDashboard() {
             if (!currentLoggedAffiliate) return;
             const mitra = currentLoggedAffiliate;
             const mitraId   = (mitra.id   || '').toLowerCase();
             const mitraCode = (mitra.code || '').toLowerCase();
             const mitraPhone = (mitra.phone || '').replace(/\D/g, '');
 
-            // Ambil semua donasi dari store (sama persis dengan admin)
+            // Period filter
+            const periodSel = document.getElementById('member-periode-filter');
+            if (periodSel && periodSel.options.length <= 1) {
+                populateMemberPeriodFilter();
+            }
+            const selectedPeriod = periodSel ? periodSel.value : 'ALL';
+            const curPeriod = (typeof getCurrentPeriod === 'function') 
+                ? getCurrentPeriod() 
+                : (window.wizStore && typeof window.wizStore.utils?.getCurrentPeriod === 'function' ? window.wizStore.utils.getCurrentPeriod() : new Date().toISOString().slice(0, 7));
+            const targetPeriod = (selectedPeriod === 'ALL') ? curPeriod : selectedPeriod;
+
+            // 1. Get Monthly KPI calculation from wizStore.referrals
+            let mKpi = null;
+            if (window.wizStore && window.wizStore.referrals && typeof window.wizStore.referrals.getMonthlyKPI === 'function') {
+                try {
+                    mKpi = await window.wizStore.referrals.getMonthlyKPI(mitra.id, targetPeriod);
+                } catch(e) {
+                    console.warn('[Mitra Portal] getMonthlyKPI error:', e);
+                }
+            }
+
+            // 2. Get Pool Summary from wizStore.kpiMitra
+            let poolSummary = { poolPKP: 0, poolSungailiat: 0, totalPoolWilayah: 0, totalGlobalPoints: 0, pointConversionRate: 0 };
+            if (window.wizStore && window.wizStore.kpiMitra && typeof window.wizStore.kpiMitra.getPoolSummary === 'function') {
+                try {
+                    poolSummary = await window.wizStore.kpiMitra.getPoolSummary(targetPeriod);
+                } catch(e) {
+                    console.warn('[Mitra Portal] getPoolSummary error:', e);
+                }
+            }
+
+            // Fallback if mKpi is null
+            if (!mKpi) {
+                mKpi = {
+                    mitraId: mitra.id,
+                    targetMonth: targetPeriod,
+                    cabang: mitra.cabang || 'Pangkalpinang',
+                    monthDonationCount: 0,
+                    monthTotalAmount: 0,
+                    fixRatePercent: 6,
+                    monthEarnedFee: 0,
+                    kpiPoints: 0,
+                    kpiRecord: null,
+                    poolPortionPercent: 0,
+                    additionalIncentive: 0,
+                    totalEarnedMonth: 0,
+                    performanceTier: 'Pejuang Kebaikan'
+                };
+            }
+
+            // Update Header Elements
+            const avatarEl = document.getElementById('member-avatar');
+            if (avatarEl) avatarEl.textContent = (mitra.name || 'M').charAt(0).toUpperCase();
+
+            const welcomeTitle = document.getElementById('member-welcome-title');
+            if (welcomeTitle) welcomeTitle.textContent = `Selamat Datang, ${mitra.name}!`;
+
+            const codeBadge = document.getElementById('member-code-badge');
+            if (codeBadge) codeBadge.textContent = mitra.code || mitra.id;
+
+            const cabangBadge = document.getElementById('member-cabang-badge');
+            if (cabangBadge) {
+                const cb = mitra.cabang || 'Pangkalpinang';
+                if (cb === 'Sungailiat') {
+                    cabangBadge.textContent = 'Cabang Sungailiat';
+                    cabangBadge.className = 'bg-teal-500/25 border border-teal-400/40 text-teal-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider';
+                } else if (cb === 'Wilayah') {
+                    cabangBadge.textContent = 'Kantor Wilayah Bangka Belitung';
+                    cabangBadge.className = 'bg-indigo-500/25 border border-indigo-400/40 text-indigo-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider';
+                } else {
+                    cabangBadge.textContent = 'Cabang Pangkalpinang';
+                    cabangBadge.className = 'bg-emerald-500/25 border border-emerald-400/40 text-emerald-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider';
+                }
+            }
+
+            // Update referral link input
+            const origin = window.location.origin || 'https://www.wizbangkabelitung.or.id';
+            const activeRefCode = mitra.code || mitra.id || 'WIZ';
+            const donationLink = `${origin}/?ref=${encodeURIComponent(activeRefCode)}`;
+            const linkInput = document.getElementById('member-referral-link-input');
+            if (linkInput) linkInput.value = donationLink;
+
+            // 3. Update Metric Cards
+            const kpiAmt = document.getElementById('kpi-total-amount');
+            const kpiFixInfo = document.getElementById('kpi-fix-fee-info');
+            const kpiDonCount = document.getElementById('kpi-donation-count-info');
+            const kpiTierBadge = document.getElementById('kpi-tier-badge');
+
+            if (kpiAmt) kpiAmt.textContent = `Rp ${mKpi.monthTotalAmount.toLocaleString('id-ID')}`;
+            if (kpiFixInfo) kpiFixInfo.textContent = `Hak Fix (${mKpi.fixRatePercent}%): Rp ${mKpi.monthEarnedFee.toLocaleString('id-ID')}`;
+            if (kpiDonCount) kpiDonCount.textContent = `${mKpi.monthDonationCount} transaksi donasi terverifikasi`;
+            if (kpiTierBadge) kpiTierBadge.textContent = mKpi.performanceTier || 'Pejuang Kebaikan';
+
+            const kpiPointsEl = document.getElementById('kpi-total-points');
+            const kpiPtsBreakdown = document.getElementById('kpi-points-breakdown');
+            const kpiPoolShare = document.getElementById('kpi-pool-share-info');
+
+            if (kpiPointsEl) kpiPointsEl.textContent = `${mKpi.kpiPoints} Pts`;
+            if (kpiPtsBreakdown) {
+                if (mKpi.kpiRecord) {
+                    const kr = mKpi.kpiRecord;
+                    const items = [];
+                    if (kr.qty_rapat) items.push(`Rapat: ${kr.qty_rapat}x`);
+                    if (kr.qty_admin) items.push(`Admin: ${kr.qty_admin}x`);
+                    if (kr.qty_desain) items.push(`Desain: ${kr.qty_desain}x`);
+                    if (kr.qty_video) items.push(`Video: ${kr.qty_video}x`);
+                    if (kr.qty_lapangan) items.push(`Penyaluran: ${kr.qty_lapangan}x`);
+                    if (kr.poin_lainnya) items.push(`Lainnya: ${kr.poin_lainnya} pt`);
+                    kpiPtsBreakdown.textContent = items.length > 0 ? items.join(', ') : 'Belum ada rincian aktivitas';
+                } else {
+                    kpiPtsBreakdown.textContent = 'Belum ada catatan aktivitas';
+                }
+            }
+            if (kpiPoolShare) {
+                kpiPoolShare.textContent = `${mKpi.poolPortionPercent}% dari Poin Global (${poolSummary.totalGlobalPoints} Pts)`;
+            }
+
+            const kpiPoolIncentive = document.getElementById('kpi-pool-incentive');
+            const kpiPoolWilayahInfo = document.getElementById('kpi-pool-wilayah-info');
+            if (kpiPoolIncentive) kpiPoolIncentive.textContent = `Rp ${mKpi.additionalIncentive.toLocaleString('id-ID')}`;
+            if (kpiPoolWilayahInfo) kpiPoolWilayahInfo.textContent = `Alokasi Pool Wilayah: Rp ${poolSummary.totalPoolWilayah.toLocaleString('id-ID')}`;
+
+            const kpiTotalEarned = document.getElementById('kpi-total-earned');
+            const kpiPendingInfo = document.getElementById('kpi-pending-info');
+            if (kpiTotalEarned) kpiTotalEarned.textContent = `Rp ${mKpi.totalEarnedMonth.toLocaleString('id-ID')}`;
+            if (kpiPendingInfo) {
+                const pendingBal = mitra.pendingBalance || (mKpi.monthEarnedFee + mKpi.additionalIncentive);
+                kpiPendingInfo.textContent = `Sisa Pending: Rp ${pendingBal.toLocaleString('id-ID')}`;
+            }
+
+            // 4. Render Table 1: Rincian Log Aktivitas & Poin KPI
+            const activityContainer = document.getElementById('member-kpi-activity-container');
+            const activityTotalBadge = document.getElementById('kpi-activity-total-badge');
+            const activityPeriodLabel = document.getElementById('kpi-activity-period-label');
+
+            if (activityTotalBadge) activityTotalBadge.textContent = `${mKpi.kpiPoints} Poin Terkumpul`;
+            if (activityPeriodLabel) activityPeriodLabel.textContent = `Catatan evaluasi kinerja aktivitas Anda untuk periode ${targetPeriod}.`;
+
+            if (activityContainer) {
+                if (mKpi.kpiRecord && mKpi.kpiPoints > 0) {
+                    const kr = mKpi.kpiRecord;
+                    const rows = [
+                        { act: 'Hadir Rapat Koordinasi / Evaluasi Bulanan', cat: 'Operasional & Rapat', weight: 5, qty: kr.qty_rapat || 0 },
+                        { act: 'Administrasi & Pelaporan Program Penyaluran', cat: 'Administrasi', weight: 20, qty: kr.qty_admin || 0 },
+                        { act: 'Desain Grafis / Flyer Dakwah & Publikasi', cat: 'Media & Syiar', weight: 35, qty: kr.qty_desain || 0 },
+                        { act: 'Editing Video Dokumentasi / Reels Penyaluran', cat: 'Media & Syiar', weight: 50, qty: kr.qty_video || 0 },
+                        { act: 'Turun Penyaluran Lapangan / Aksi Tanggap', cat: 'Penyaluran Lapangan', weight: 60, qty: kr.qty_lapangan || 0 }
+                    ];
+
+                    let tableHtml = `
+                    <div class="w-full overflow-x-auto rounded-xl border border-slate-200">
+                        <table class="w-full min-w-[600px] text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-700 border-b border-slate-200">
+                                    <th class="p-3 font-bold">Nama Aktivitas / Kegiatan</th>
+                                    <th class="p-3 font-bold">Kategori</th>
+                                    <th class="p-3 font-bold text-center">Bobot</th>
+                                    <th class="p-3 font-bold text-center">Frekuensi (Qty)</th>
+                                    <th class="p-3 font-bold text-right">Poin Didapat</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">`;
+
+                    rows.forEach(r => {
+                        if (r.qty > 0) {
+                            const pts = r.qty * r.weight;
+                            tableHtml += `
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-3 font-semibold text-slate-800">${r.act}</td>
+                                <td class="p-3 text-slate-500"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">${r.cat}</span></td>
+                                <td class="p-3 text-center text-slate-500 font-mono">${r.weight} pt</td>
+                                <td class="p-3 text-center font-bold text-slate-800">${r.qty}x</td>
+                                <td class="p-3 text-right font-extrabold text-blue-600">+${pts} Pts</td>
+                            </tr>`;
+                        }
+                    });
+
+                    if (kr.poin_lainnya > 0 || kr.keterangan_lainnya) {
+                        tableHtml += `
+                        <tr class="hover:bg-slate-50 bg-amber-50/40">
+                            <td class="p-3 font-semibold text-slate-800">
+                                Aktivitas Tambahan (Kustom)
+                                <span class="block text-[11px] text-slate-500 font-normal">${kr.keterangan_lainnya || '-'}</span>
+                            </td>
+                            <td class="p-3 text-slate-500"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">Tugas Khusus</span></td>
+                            <td class="p-3 text-center text-slate-500 font-mono">-</td>
+                            <td class="p-3 text-center font-bold text-slate-800">1x</td>
+                            <td class="p-3 text-right font-extrabold text-amber-600">+${kr.poin_lainnya || 0} Pts</td>
+                        </tr>`;
+                    }
+
+                    tableHtml += `
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-slate-50/80 font-bold border-t border-slate-200">
+                                    <td colspan="4" class="p-3 text-slate-900 text-right">Total Akumulasi Poin KPI (${targetPeriod}):</td>
+                                    <td class="p-3 text-right text-sm font-black text-blue-700">${mKpi.kpiPoints} Pts</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>`;
+                    activityContainer.innerHTML = tableHtml;
+                } else {
+                    activityContainer.innerHTML = `
+                    <div class="bg-slate-50 rounded-2xl p-6 sm:p-8 text-center border border-dashed border-slate-200">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3">
+                            <span class="material-symbols-outlined text-2xl">fact_check</span>
+                        </div>
+                        <h4 class="text-sm font-bold text-slate-800">Belum Ada Catatan Aktivitas untuk Periode ${targetPeriod}</h4>
+                        <p class="text-xs text-slate-500 max-w-md mx-auto mt-1 leading-relaxed">
+                            Aktivitas operasional Anda (hadir rapat, administrasi, desain flyer, edit video dokumentasi, dan aksi lapangan) akan diinput serta diverifikasi oleh Pengurus Wilayah WIZ Bangka Belitung.
+                        </p>
+                    </div>`;
+                }
+            }
+
+            // 5. Render Table 2: Riwayat Donasi dari Link Penghimpunan Anda
             let allDonations = [];
             if (window.wizStore && window.wizStore.donations) {
                 try { allDonations = window.wizStore.donations.getAll() || []; } catch(e) {}
             }
 
-            // Filter donasi yang terhubung ke mitra ini
-            // Cocokkan: referralId, referralCode, referral_id, referral_code, atau phone
             const myDonations = allDonations.filter(d => {
                 const dRefId   = String(d.referralId   || d.referral_id   || '').toLowerCase();
                 const dRefCode = String(d.referralCode || d.referral_code || '').toLowerCase();
                 const dPhone   = String(d.referralPhone || d.referral_phone || '').replace(/\D/g,'');
-                return (mitraId   && (dRefId === mitraId || dRefCode === mitraId)) ||
-                       (mitraCode && (dRefId === mitraCode || dRefCode === mitraCode)) ||
-                       (mitraPhone && dPhone && dPhone === mitraPhone);
+                const matchMitra = (mitraId   && (dRefId === mitraId || dRefCode === mitraId)) ||
+                                   (mitraCode && (dRefId === mitraCode || dRefCode === mitraCode)) ||
+                                   (mitraPhone && dPhone && dPhone === mitraPhone);
+                if (!matchMitra) return false;
+
+                if (selectedPeriod && selectedPeriod !== 'ALL') {
+                    const dDate = d.createdAt || d.transactionDate || d.created_at || '';
+                    return dDate.startsWith(selectedPeriod);
+                }
+                return true;
             });
 
-            // Hitung KPI dari data nyata
-            const totalCount  = myDonations.length;
-            const totalAmount = myDonations.reduce((s, d) => s + (Number(d.amount) || 0), 0);
-            const rate = Number(mitra.defaultRate || mitra.rate || 6) / 100;
-            const totalEarned  = Math.round(totalAmount * rate);
-            const pendingBalance = myDonations
-                .filter(d => d.status === 'pending' || d.status === 'verified')
-                .reduce((s, d) => s + Math.round((Number(d.amount) || 0) * rate), 0);
-
-            // Update KPI cards
-            const kpiCount   = document.getElementById('kpi-total-count');
-            const kpiAmt     = document.getElementById('kpi-total-amount');
-            const kpiEarned  = document.getElementById('kpi-total-earned');
-            const kpiPending = document.getElementById('kpi-pending-balance');
-            if (kpiCount)   kpiCount.textContent   = totalCount;
-            if (kpiAmt)     kpiAmt.textContent     = `Rp ${totalAmount.toLocaleString('id-ID')}`;
-            if (kpiEarned)  kpiEarned.textContent  = `Rp ${totalEarned.toLocaleString('id-ID')}`;
-            if (kpiPending) kpiPending.textContent = `Rp ${pendingBalance.toLocaleString('id-ID')}`;
-
-            // Render tabel riwayat
             const tbody = document.getElementById('member-donations-tbody');
-            if (!tbody) return;
+            const donPeriodLabel = document.getElementById('member-donations-period-label');
+            if (donPeriodLabel) {
+                donPeriodLabel.textContent = (selectedPeriod === 'ALL') ? 'Menampilkan seluruh riwayat transaksi donasi' : `Menampilkan transaksi periode ${selectedPeriod}`;
+            }
 
-            if (myDonations.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400 text-sm">Belum ada transaksi donasi melalui link Anda. Bagikan program dan berita untuk mulai menghimpun kebaikan!</td></tr>';
-            } else {
-                const statusBadge = (s) => {
-                    if (s === 'verified') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">✓ Terverifikasi</span>';
-                    if (s === 'pending')  return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">⏳ Menunggu</span>';
-                    if (s === 'rejected') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">✕ Ditolak</span>';
-                    return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">' + (s||'-') + '</span>';
-                };
-                tbody.innerHTML = myDonations.map(d => {
-                    const tgl = (d.createdAt || d.transactionDate || '').split('T')[0] || '-';
-                    const nama = d.donorName || 'Hamba Allah';
-                    const prog = d.program || d.program_title || d.programSpesifik || 'Umum';
-                    const amt  = Number(d.amount) || 0;
-                    const fee  = d.referralFee || Math.round(amt * rate);
-                    return `<tr class="border-b border-slate-100 hover:bg-slate-50 text-sm">
-                        <td class="p-3 text-slate-500 text-xs">${tgl}</td>
-                        <td class="p-3 font-semibold text-slate-800">${nama}</td>
-                        <td class="p-3 text-slate-600">${prog}</td>
-                        <td class="p-3 font-bold text-primary">Rp ${amt.toLocaleString('id-ID')}</td>
-                        <td class="p-3 font-bold text-emerald-700">Rp ${fee.toLocaleString('id-ID')}</td>
-                        <td class="p-3">${statusBadge(d.status)}</td>
-                    </tr>`;
-                }).join('');
+            if (tbody) {
+                if (myDonations.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 text-xs">Belum ada transaksi donasi melalui link Anda untuk periode ini. Bagikan tautan donasi Anda untuk mulai menghimpun kebaikan!</td></tr>`;
+                } else {
+                    const statusBadge = (s) => {
+                        if (s === 'verified') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">✓ Terverifikasi</span>';
+                        if (s === 'pending')  return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">⏳ Menunggu</span>';
+                        if (s === 'rejected') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">✕ Ditolak</span>';
+                        return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">' + (s||'-') + '</span>';
+                    };
+
+                    const rate = Number(mitra.defaultRate || mitra.rate || 6) / 100;
+                    tbody.innerHTML = myDonations.map(d => {
+                        const tgl = (d.createdAt || d.transactionDate || '').split('T')[0] || '-';
+                        const nama = d.donorName || 'Hamba Allah';
+                        const prog = d.program || d.program_title || d.programSpesifik || 'Umum';
+                        const amt = Number(d.amount) || 0;
+                        const fee = d.referralFee || Math.round(amt * rate);
+                        return `<tr class="border-b border-slate-100 hover:bg-slate-50 text-xs">
+                            <td class="p-3 text-slate-500 font-mono">${tgl}</td>
+                            <td class="p-3 font-semibold text-slate-800">${nama}</td>
+                            <td class="p-3 text-slate-600">${prog}</td>
+                            <td class="p-3 text-right font-bold text-primary">Rp ${amt.toLocaleString('id-ID')}</td>
+                            <td class="p-3 text-right font-bold text-emerald-700">Rp ${fee.toLocaleString('id-ID')}</td>
+                            <td class="p-3 text-center">${statusBadge(d.status)}</td>
+                        </tr>`;
+                    }).join('');
+                }
             }
         }
 
@@ -923,4 +1749,7 @@ return;
         window.addEventListener('wiz-news-changed', () => renderAffiliateNewsGrid());
         window.addEventListener('wiz-programs-changed', () => renderAffiliateProgramsGrid());
         window.addEventListener('wiz-quotes-changed', () => renderAffiliateQuotesGrid());
-    </script></main><!-- Full Footer same as main site --><footer id="kontak" class="bg-[#232d3f] text-slate-300 w-full pt-14 pb-16 px-4 sm:px-6 lg:px-8 border-t border-slate-700/50 mt-auto"><div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10"><!-- Kolom 1: Brand, Hak Cipta, Alamat & Sosmed --><div class="space-y-4"><h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight">WIZ Babel</h3><p class="text-slate-300 text-sm sm:text-base leading-relaxed">© <span id="footer-year">2026</span> Wahdah Inspirasi Zakat Bangka Belitung. Amanah &amp; Profesional.</p><p class="text-slate-400 text-xs sm:text-sm leading-relaxed" data-site-office-address="pangkalpinang">Jl. Mentok No. 45, Pangkalpinang, Kepulauan Bangka Belitung</p><!-- Social Media Section --><div class="pt-2"><p class="text-slate-400 text-xs font-extrabold tracking-wider uppercase mb-3">IKUTI KAMI</p><div class="flex items-center gap-2.5 flex-wrap"><!-- Instagram --><a href="https://www.instagram.com/wahdahinspirasizakatbabel?igsh=dDB6bmsxbWIwbzh0" target="_blank" rel="noopener noreferrer" title="Instagram WIZ Babel" class="w-10 h-10 rounded-full bg-[#343e52] hover:bg-[#E1306C] text-slate-200 hover:text-white flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-sm"><svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path></svg></a><!-- TikTok --><a href="https://www.tiktok.com/@wizbangkabelitunglitung?is_from_webapp=1&sender_device=pc" target="_blank" rel="noopener noreferrer" title="TikTok WIZ Babel" class="w-10 h-10 rounded-full bg-[#343e52] hover:bg-[#000000] text-slate-200 hover:text-white flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-sm"><svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"></path></svg></a><!-- Facebook --><a href="https://www.facebook.com/share/1CMQ9zBSob/" target="_blank" rel="noopener noreferrer" title="Facebook WIZ Babel" class="w-10 h-10 rounded-full bg-[#343e52] hover:bg-[#1877F2] text-slate-200 hover:text-white flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-sm"><svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path></svg></a><!-- WhatsApp Channel --><a href="https://whatsapp.com/channel/0029VbCkB2uA89MnYdae7D1J" target="_blank" rel="noopener noreferrer" title="Saluran WhatsApp WIZ Babel" class="w-10 h-10 rounded-full bg-[#343e52] hover:bg-[#25D366] text-slate-200 hover:text-white flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-sm"><svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"></path></svg></a></div></div></div><!-- Kolom 2: Tautan Cepat --><div class="space-y-3.5"><h4 class="text-[#4ade80] font-extrabold text-sm sm:text-base tracking-wide uppercase">Tautan Cepat</h4><ul class="space-y-2.5 text-sm sm:text-base text-slate-300"><li><a href="/program" class="hover:text-white hover:underline transition-colors block">Program Pemberdayaan</a></li><li><a href="/laporan" class="hover:text-white hover:underline transition-colors block">Laporan Transparansi</a></li><li><a href="/berita" class="hover:text-white hover:underline transition-colors block">Berita &amp; Kegiatan</a></li><li><a href="/#kalkulator-zakat" class="hover:text-white hover:underline transition-colors block">Kalkulator Zakat</a></li></ul></div><!-- Kolom 3: Informasi --><div class="space-y-3.5"><h4 class="text-[#4ade80] font-extrabold text-sm sm:text-base tracking-wide uppercase">Informasi</h4><ul class="space-y-2.5 text-sm sm:text-base text-slate-300"><li><a href="/#tentang-kami" class="hover:text-white hover:underline transition-colors block">Tentang WIZ Babel</a></li><li><a href="/affiliate" class="hover:text-white transition-colors flex items-center gap-1.5 font-semibold text-[#8ef9ab]"><span class="material-symbols-outlined" style="font-size:16px;">handshake</span><span>Portal Mitra Penghimpunan</span></a></li><li><a href="/admin.html" class="hover:text-white transition-colors flex items-center gap-1.5 font-semibold text-[#8ef9ab]"><span class="material-symbols-outlined" style="font-size:16px;">lock</span><span>Portal Admin</span></a></li></ul></div><!-- Kolom 4: Bantuan & Kontak --><div class="space-y-3.5"><h4 class="text-[#4ade80] font-extrabold text-sm sm:text-base tracking-wide uppercase">Bantuan &amp; Kontak</h4><ul class="space-y-2.5 text-sm sm:text-base text-slate-300"><li><a href="https://wa.me/6282380830808" target="_blank" rel="noopener noreferrer" class="hover:text-white hover:underline transition-colors block">WhatsApp: +62 823-8083-0808</a></li><li><a href="mailto:wiz.babel@gmail.com" class="hover:text-white hover:underline transition-colors block">Email: wiz.babel@gmail.com</a></li></ul></div></div></footer><!-- Floating WhatsApp Button --><a href="https://wa.me/6282380830808?text=Halo%20WIZ%20Bangka%20Belitung,%20saya%20ingin%20bertanya%20mengenai%20program%20donasi" target="_blank" rel="noopener noreferrer" title="Chat WhatsApp WIZ Babel" class="fixed bottom-6 right-6 z-50 bg-[#25D366] hover:bg-[#20bd5a] text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 border-2 border-white/20"><svg class="w-8 h-8 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.121 4.092 4.164-1.091zM17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"></path></svg></a><!-- Core Scripts for Data Sync & Mitra Functionality --><script src="/assets/js/supabase-client.js?v=20260828_1787893082733"></script><script src="/assets/js/admin-store.js?v=20260828_1787893082733"></script><script src="/assets/js/main.js?v=20260828_1787893082733"></script><script src="/assets/js/nav-active.js?v=20260828_1787893082733"></script></body></html>
+    
+</script>
+</body>
+</html>

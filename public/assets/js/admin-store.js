@@ -38,6 +38,7 @@
         ALLOCATION_RULES: 'wiz_allocation_rules',
         REFERRALS: 'wiz_referrals',
         REFERRAL_PAYOUTS: 'wiz_referral_payouts',
+        KPI_MITRA: 'wiz_kpi_mitra',
         DONOR_ATTRIBUTIONS: 'wiz_donor_attributions',
         QUOTES: 'wiz_quotes',
         PROGRAMS: 'wiz_programs',
@@ -45,6 +46,7 @@
         DELETED_NEWS_IDS: 'wiz_deleted_news_ids',
         DELETED_DISB_IDS: 'wiz_deleted_disb_ids',
         DELETED_REF_IDS: 'wiz_deleted_ref_ids',
+        DELETED_KPI_IDS: 'wiz_deleted_kpi_ids',
         DELETED_QUOTE_IDS: 'wiz_deleted_quote_ids',
         DELETED_PROGRAM_IDS: 'wiz_deleted_program_ids',
         DELETED_ADMIN_IDS: 'wiz_deleted_admin_ids',
@@ -413,6 +415,18 @@
         setStore(STORAGE_KEYS.DELETED_REF_IDS, Array.from(set));
     }
 
+    function getDeletedKpiIds() {
+        try {
+            return new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.DELETED_KPI_IDS) || '[]'));
+        } catch { return new Set(); }
+    }
+
+    function addDeletedKpiId(id) {
+        if (!id) return;
+        const set = getDeletedKpiIds();
+        set.add(String(id));
+        setStore(STORAGE_KEYS.DELETED_KPI_IDS, Array.from(set));
+    }
 
     function getDeletedQuoteIds() {
         try {
@@ -2072,6 +2086,7 @@
                 disbursements: getStore(STORAGE_KEYS.DISBURSEMENTS) || [],
                 referrals: getStore(STORAGE_KEYS.REFERRALS) || [],
                 referral_payouts: getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || [],
+                kpi_mitra: getStore(STORAGE_KEYS.KPI_MITRA) || [],
                 activity: getStore(STORAGE_KEYS.ACTIVITY) || [],
                 site_settings: getStore(STORAGE_KEYS.SITE_SETTINGS) || DEFAULT_SITE_SETTINGS,
                 site_images: getStore(STORAGE_KEYS.SITE_IMAGES) || DEFAULT_SITE_IMAGES,
@@ -2086,6 +2101,7 @@
                 deleted_news_ids: Array.from(getDeletedNewsIds()),
                 deleted_disb_ids: Array.from(getDeletedDisbIds()),
                 deleted_ref_ids: Array.from(getDeletedRefIds()),
+                deleted_kpi_ids: Array.from(getDeletedKpiIds()),
                 deleted_quote_ids: Array.from(getDeletedQuoteIds()),
                 deleted_program_ids: Array.from(getDeletedProgramIds()),
                 deleted_admin_ids: Array.from(getDeletedAdminIds())
@@ -2098,6 +2114,7 @@
                 deletedNewsIds: bundle.deleted_news_ids,
                 deletedDisbIds: bundle.deleted_disb_ids,
                 deletedRefIds: bundle.deleted_ref_ids,
+                deletedKpiIds: bundle.deleted_kpi_ids,
                 deletedQuoteIds: bundle.deleted_quote_ids,
                 deletedProgramIds: bundle.deleted_program_ids,
                 deletedAdminIds: bundle.deleted_admin_ids
@@ -2294,16 +2311,18 @@
             let directSbDonations = null;
             let directSbDisbursements = null;
             let directSbReferrals = null;
+            let directSbKpi = null;
             let directSbSettings = null;
             let directSbQuotes = null;
 
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                const [sbQResult, sbNewsResult, sbDonResult, sbDisbResult, sbRefResult, sbSetResult] = await Promise.allSettled([
+                const [sbQResult, sbNewsResult, sbDonResult, sbDisbResult, sbRefResult, sbKpiResult, sbSetResult] = await Promise.allSettled([
                     window.wizSupabase.getQuotes().catch(() => null),
                     window.wizSupabase.select('news', { select: 'id,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at', order: 'created_at.desc' }).catch(() => null),
                     window.wizSupabase.select('donations').catch(() => null),
                     window.wizSupabase.select('disbursements').catch(() => null),
                     window.wizSupabase.getReferrals().catch(() => null),
+                    (typeof window.wizSupabase.getKpiMitra === 'function' ? window.wizSupabase.getKpiMitra() : window.wizSupabase.select('kpi_mitra')).catch(() => null),
                     window.wizSupabase.getSiteSettings().catch(() => null)
                 ]);
 
@@ -2312,7 +2331,12 @@
                 const sbDonRes = (sbDonResult.status === 'fulfilled' && sbDonResult.value) ? sbDonResult.value : null;
                 const sbDisbRes = (sbDisbResult.status === 'fulfilled' && sbDisbResult.value) ? sbDisbResult.value : null;
                 const sbRefRes = (sbRefResult.status === 'fulfilled' && sbRefResult.value) ? sbRefResult.value : null;
+                const sbKpiRes = (sbKpiResult.status === 'fulfilled' && sbKpiResult.value) ? sbKpiResult.value : null;
                 const sbSetRes = (sbSetResult.status === 'fulfilled' && sbSetResult.value) ? sbSetResult.value : null;
+
+                if (sbKpiRes && Array.isArray(sbKpiRes.data)) {
+                    directSbKpi = sbKpiRes.data;
+                }
 
                 if (sbQRes && Array.isArray(sbQRes.data) && sbQRes.data.length > 0) {
                     directSbQuotes = sbQRes.data;
@@ -2592,6 +2616,15 @@
 
             if (masterData && Array.isArray(masterData.referral_payouts)) {
                 setStore(STORAGE_KEYS.REFERRAL_PAYOUTS, masterData.referral_payouts);
+            }
+
+            // Sync KPI Mitra
+            if (directSbKpi !== null && Array.isArray(directSbKpi)) {
+                setStore(STORAGE_KEYS.KPI_MITRA, directSbKpi);
+                window.dispatchEvent(new CustomEvent('wiz-kpi-changed'));
+            } else if (masterData && Array.isArray(masterData.kpi_mitra)) {
+                setStore(STORAGE_KEYS.KPI_MITRA, masterData.kpi_mitra);
+                window.dispatchEvent(new CustomEvent('wiz-kpi-changed'));
             }
 
             // Sync Quotes: Supabase site_settings (key='quotes') is authoritative
@@ -5514,7 +5547,8 @@
                 defaultRate: 6,
                 pin: cleanPin,
                 status: 'active',
-                notes: 'Pendaftaran Affiliate Publik via website',
+                notes: data.notes || 'Pendaftaran Affiliate Publik via website',
+                cabang: data.cabang || 'Pangkalpinang',
                 createdBy: 'Publik (Pendaftaran Online)'
             });
 
@@ -5581,7 +5615,7 @@
             const ref = this.getById(referralId);
             if (!ref) return null;
 
-            let filterMonth = targetMonthStr; // e.g. "2026-08" or "Semua"
+            let filterMonth = targetMonthStr; // e.g. "2026-09" or "Semua"
             if (!filterMonth) {
                 const now = new Date();
                 filterMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -5603,13 +5637,31 @@
                 return sum + fee;
             }, 0);
 
+            // KPI Mitra & Brankas Wilayah Pool (7% PKP + 8% Sungailiat)
+            const kpiRecord = (typeof kpiMitra !== 'undefined' && kpiMitra.getByMitraAndPeriod) 
+                ? kpiMitra.getByMitraAndPeriod(ref.id, filterMonth) 
+                : null;
+            const kpiPoints = kpiRecord ? (Number(kpiRecord.totalPoin || kpiRecord.total_poin) || 0) : 0;
+
+            const poolSummary = (typeof kpiMitra !== 'undefined' && kpiMitra.getPoolSummary)
+                ? kpiMitra.getPoolSummary(filterMonth)
+                : { totalPoolWilayah: 0, totalPool7Percent: 0, totalGlobalPoints: 0, pointValue: 0 };
+
+            const poolFund = poolSummary.totalPoolWilayah !== undefined ? poolSummary.totalPoolWilayah : (poolSummary.totalPool7Percent || 0);
+
+            const additionalIncentive = (poolSummary.totalGlobalPoints > 0 && kpiPoints > 0)
+                ? Math.round((kpiPoints / poolSummary.totalGlobalPoints) * poolFund)
+                : 0;
+
+            const totalEarnedMonth = monthEarnedFee + additionalIncentive;
+
             let performanceTier = '🚀 Perlu Dorongan';
             let tierClass = 'bg-amber-100 text-amber-800 border-amber-200';
 
-            if (monthDonationCount >= 5 || monthTotalAmount >= 5000000) {
+            if (monthDonationCount >= 5 || monthTotalAmount >= 5000000 || kpiPoints >= 100) {
                 performanceTier = '⭐ Top Performer';
                 tierClass = 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold';
-            } else if (monthDonationCount >= 1) {
+            } else if (monthDonationCount >= 1 || kpiPoints >= 30) {
                 performanceTier = '✅ Stabil';
                 tierClass = 'bg-blue-100 text-blue-800 border-blue-200';
             }
@@ -5619,10 +5671,16 @@
                 name: ref.name,
                 code: ref.code || ref.id,
                 phone: ref.phone,
+                cabang: ref.cabang || 'Pangkalpinang',
                 month: filterMonth,
                 monthDonationCount,
                 monthTotalAmount,
                 monthEarnedFee,
+                kpiPoints,
+                kpiRecord,
+                additionalIncentive,
+                totalEarnedMonth,
+                poolSummary,
                 performanceTier,
                 tierClass
             };
@@ -5651,6 +5709,7 @@
                 bankName: data.bankName || '-',
                 accountNumber: data.accountNumber || '-',
                 accountHolder: data.accountHolder || data.name,
+                cabang: data.cabang || 'Pangkalpinang', // 'Pangkalpinang' | 'Sungailiat' | 'Wilayah'
                 defaultRate: Number(data.defaultRate) || 6,
                 pin: data.pin || (data.phone ? data.phone.slice(-4) : '1234'),
                 status: data.status || 'active',
@@ -5660,7 +5719,7 @@
             list.unshift(newRef);
             setStore(STORAGE_KEYS.REFERRALS, list);
 
-            activityLog.add('referral', `Perantara/Affiliate baru "${newRef.name}" (ID: ${newRef.code}) ditambahkan (Hak ${newRef.defaultRate}%).`, data.createdBy || 'Admin');
+            activityLog.add('referral', `Perantara/Affiliate baru "${newRef.name}" (Cabang: ${newRef.cabang}, ID: ${newRef.code}) ditambahkan (Hak ${newRef.defaultRate}%).`, data.createdBy || 'Admin');
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 await window.wizFirebase.insert('referrals', newRef);
@@ -5734,7 +5793,7 @@
             list[idx] = { ...list[idx], ...updates, updatedAt: new Date().toISOString() };
             setStore(STORAGE_KEYS.REFERRALS, list);
 
-            activityLog.add('referral', `Data Perantara "${list[idx].name}" (Rekening: ${list[idx].bankName} ${list[idx].accountNumber}) diperbarui.`, updates.updatedBy || 'Affiliate/System');
+            activityLog.add('referral', `Data Perantara "${list[idx].name}" (Cabang: ${list[idx].cabang || 'Pangkalpinang'}, Rekening: ${list[idx].bankName} ${list[idx].accountNumber}) diperbarui.`, updates.updatedBy || 'Affiliate/System');
 
             if (window.wizFirebase && window.wizFirebase.isConfigured()) {
                 await window.wizFirebase.set('referrals', String(list[idx].id), list[idx]);
@@ -5826,9 +5885,85 @@
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
         },
 
+        // Monthly KPI and Brankas Wilayah calculation for Mitra
+        async getMonthlyKPI(mitraId, targetMonthStr) {
+            let filterMonth = targetMonthStr;
+            if (!filterMonth || filterMonth === 'Semua') {
+                filterMonth = getCurrentPeriod();
+            }
+
+            const ref = this.getById(mitraId);
+            const mCabang = ref ? (ref.cabang || 'Pangkalpinang') : 'Pangkalpinang';
+            const cleanId = String(mitraId || '').toLowerCase();
+            const cleanCode = ref ? String(ref.code || '').toLowerCase() : '';
+            const cleanPhone = ref ? String(ref.phone || '').replace(/\D/g, '') : '';
+
+            // 1. Get filtered verified donations for this referral in targetMonth
+            const allDonations = getStore(STORAGE_KEYS.DONATIONS) || [];
+            const myMonthDonations = allDonations.filter(d => {
+                if (!d || (d.status !== 'verified' && d.status !== 'success' && d.status !== 'sukses')) return false;
+                const dDate = d.createdAt || d.verifiedAt || d.date || '';
+                if (!dDate.startsWith(filterMonth)) return false;
+
+                const dRefId = String(d.referralId || d.referral_id || '').toLowerCase();
+                const dRefCode = String(d.referralCode || d.referral_code || '').toLowerCase();
+                const dPhone = String(d.referralPhone || d.referral_phone || '').replace(/\D/g, '');
+
+                return (cleanId && (dRefId === cleanId || dRefCode === cleanId)) ||
+                       (cleanCode && (dRefId === cleanCode || dRefCode === cleanCode)) ||
+                       (cleanPhone && dPhone && dPhone === cleanPhone);
+            });
+
+            const monthDonationCount = myMonthDonations.length;
+            const monthTotalAmount = myMonthDonations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
+            const fixRatePercent = Number(ref?.defaultRate || ref?.rate || 6);
+            const monthEarnedFee = Math.round(monthTotalAmount * (fixRatePercent / 100));
+
+            // 2. Fetch KPI record for this mitra
+            const kpiRecord = kpiMitra.getByMitraAndPeriod(mitraId, filterMonth);
+            const kpiPoints = kpiRecord ? Number(kpiRecord.totalPoin || kpiRecord.total_poin || 0) : 0;
+
+            // 3. Pool Wilayah calculation
+            const poolSummary = await kpiMitra.getPoolSummary(filterMonth);
+            const totalGlobalPoints = poolSummary.totalGlobalPoints || 0;
+            const totalPoolWilayah = poolSummary.totalPoolWilayah || 0;
+
+            const poolPortionPercent = totalGlobalPoints > 0 ? Number(((kpiPoints / totalGlobalPoints) * 100).toFixed(2)) : 0;
+            const additionalIncentive = totalGlobalPoints > 0 ? Math.round((kpiPoints / totalGlobalPoints) * totalPoolWilayah) : 0;
+            const totalEarnedMonth = monthEarnedFee + additionalIncentive;
+
+            // 4. Performance Tier
+            let performanceTier = 'Pejuang Kebaikan';
+            if (monthTotalAmount >= 10000000 || kpiPoints >= 100) {
+                performanceTier = '⭐ Top Performer';
+            } else if (monthTotalAmount >= 5000000 || kpiPoints >= 50) {
+                performanceTier = '🥈 Mitra Utama';
+            } else if (monthTotalAmount >= 1000000 || kpiPoints >= 20) {
+                performanceTier = '🥉 Mitra Aktif';
+            }
+
+            return {
+                mitraId,
+                targetMonth: filterMonth,
+                cabang: mCabang,
+                monthDonationCount,
+                monthTotalAmount,
+                fixRatePercent,
+                monthEarnedFee,
+                kpiPoints,
+                kpiRecord,
+                totalGlobalPoints,
+                totalPoolWilayah,
+                poolPortionPercent,
+                additionalIncentive,
+                totalEarnedMonth,
+                performanceTier
+            };
+        },
+
         // Payout / Pencairan Hak Perantara
         getPayouts(referralId) {
-            const allPayouts = getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || [];
+            const allPayouts = getStore(STORAGE_KEYS.REFERRALS_PAYOUTS) || getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || [];
             if (referralId) return allPayouts.filter(p => p.referralId === referralId).sort((a, b) => new Date(b.paidAt) - new Date(a.paidAt));
             return allPayouts.sort((a, b) => new Date(b.paidAt) - new Date(a.paidAt));
         },
@@ -5907,6 +6042,294 @@
                     await pushToCloud();
                 }
             } catch(e) {}
+        }
+    };
+
+    // ─── Periods Generator Helper ─────────────────────────────
+    function generatePeriods(count = 12) {
+        const monthNamesIndo = [
+            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
+        const now = new Date();
+        const curYear = now.getFullYear();
+        const curMonth = now.getMonth();
+        const periods = [];
+
+        for (let i = 0; i < count; i++) {
+            const d = new Date(curYear, curMonth - i, 1);
+            const y = d.getFullYear();
+            const m = d.getMonth();
+            const val = `${y}-${String(m + 1).padStart(2, '0')}`;
+            const label = `${monthNamesIndo[m]} ${y}`;
+            periods.push({
+                value: val,
+                label: label,
+                isCurrent: i === 0,
+                year: y,
+                month: m + 1,
+                monthName: monthNamesIndo[m]
+            });
+        }
+        return periods;
+    }
+
+    function getCurrentPeriod() {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    }
+
+    // ─── KPI Mitra Manager (Centralized Brankas Wilayah) ────────────
+    const KPI_WEIGHTS = {
+        rapat: 5,
+        admin: 20,
+        desain: 35,
+        video: 50,
+        lapangan: 60
+    };
+
+    function calculateKpiPoints(data = {}) {
+        const r = (Number(data.qtyRapat !== undefined ? data.qtyRapat : data.qty_rapat) || 0) * KPI_WEIGHTS.rapat;
+        const a = (Number(data.qtyAdmin !== undefined ? data.qtyAdmin : data.qty_admin) || 0) * KPI_WEIGHTS.admin;
+        const d = (Number(data.qtyDesain !== undefined ? data.qtyDesain : data.qty_desain) || 0) * KPI_WEIGHTS.desain;
+        const v = (Number(data.qtyVideo !== undefined ? data.qtyVideo : data.qty_video) || 0) * KPI_WEIGHTS.video;
+        const l = (Number(data.qtyLapangan !== undefined ? data.qtyLapangan : data.qty_lapangan) || 0) * KPI_WEIGHTS.lapangan;
+        const o = Number(data.poinLainnya !== undefined ? data.poinLainnya : data.poin_lainnya) || 0;
+        return r + a + d + v + l + o;
+    }
+
+    const kpiMitra = {
+        weights: KPI_WEIGHTS,
+        generatePeriods,
+        getCurrentPeriod,
+
+        calculatePoints(data) {
+            return calculateKpiPoints(data || {});
+        },
+
+        getAll() {
+            const list = getStore(STORAGE_KEYS.KPI_MITRA) || [];
+            return list.sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
+        },
+
+        getByPeriod(periodeBulan) {
+            const all = this.getAll();
+            if (!periodeBulan || periodeBulan === 'Semua') return all;
+            return all.filter(k => (k.periodeBulan || k.periode_bulan) === periodeBulan);
+        },
+
+        getByMitraAndPeriod(mitraId, periodeBulan) {
+            if (!mitraId) return null;
+            const all = this.getAll();
+            const cleanId = String(mitraId).trim().toLowerCase();
+            return all.find(k => {
+                const kMid = String(k.mitraId || k.mitra_id || '').trim().toLowerCase();
+                const kMonth = String(k.periodeBulan || k.periode_bulan || '').trim();
+                return kMid === cleanId && (!periodeBulan || periodeBulan === 'Semua' || kMonth === periodeBulan);
+            }) || null;
+        },
+
+        getPoolSummary(targetMonthStr) {
+            let filterMonth = targetMonthStr;
+            if (!filterMonth || filterMonth === 'Semua') {
+                filterMonth = getCurrentPeriod();
+            }
+
+            // 1. Fetch all verified donations for this month
+            const allDonations = getStore(STORAGE_KEYS.DONATIONS) || [];
+            const allRefs = getStore(STORAGE_KEYS.REFERRALS) || [];
+            const refMap = new Map();
+            allRefs.forEach(r => {
+                if (r && r.id) refMap.set(String(r.id).toLowerCase(), r);
+                if (r && r.code) refMap.set(String(r.code).toLowerCase(), r);
+            });
+
+            const monthDonations = allDonations.filter(d => {
+                if (!d || (d.status !== 'verified' && d.status !== 'success' && d.status !== 'sukses')) return false;
+                const dDate = d.createdAt || d.verifiedAt || d.date || '';
+                return dDate.startsWith(filterMonth);
+            });
+
+            let sumPKP = 0;
+            let sumSungailiat = 0;
+            let countPKP = 0;
+            let countSungailiat = 0;
+
+            monthDonations.forEach(d => {
+                const amt = Number(d.amount) || 0;
+                const dWil = String(d.wilayah || d.cabang || d.branch || '').toLowerCase();
+                const dRefId = String(d.referralId || d.referral_id || d.referralCode || d.referral_code || '').toLowerCase();
+                const refObj = refMap.get(dRefId);
+                const refCabang = refObj ? String(refObj.cabang || '').toLowerCase() : '';
+
+                if (dWil.includes('sungailiat') || refCabang.includes('sungailiat')) {
+                    sumSungailiat += amt;
+                    countSungailiat++;
+                } else {
+                    sumPKP += amt;
+                    countPKP++;
+                }
+            });
+
+            // Pangkalpinang: 7% Pool, Sungailiat: 8% Pool -> Merged into "Brankas Wilayah"
+            const poolPKP = Math.round(sumPKP * 0.07);
+            const poolSungailiat = Math.round(sumSungailiat * 0.08);
+            const totalPoolWilayah = poolPKP + poolSungailiat;
+
+            // 2. Fetch all KPI records for this month
+            const monthKpiList = this.getByPeriod(filterMonth);
+            const totalGlobalPoints = monthKpiList.reduce((sum, k) => sum + (Number(k.totalPoin || k.total_poin) || 0), 0);
+            const pointValue = totalGlobalPoints > 0 ? (totalPoolWilayah / totalGlobalPoints) : 0;
+
+            return {
+                periodeBulan: filterMonth,
+                donationCount: monthDonations.length,
+                totalVerifiedDonations: sumPKP + sumSungailiat,
+                donationsPKP: sumPKP,
+                countPKP,
+                poolPKP,
+                donationsSungailiat: sumSungailiat,
+                countSungailiat,
+                poolSungailiat,
+                totalPoolWilayah,
+                totalPool7Percent: totalPoolWilayah, // Backward-compatibility
+                totalGlobalPoints,
+                pointValue,
+                pointConversionRate: pointValue,
+                konversiPoin: pointValue,
+                kpiCount: monthKpiList.length
+            };
+        },
+
+        async save(data) {
+            const mId = data ? String(data.mitraId || data.mitra_id || data.referralId || data.referral_id || '').trim() : '';
+            const pMonth = data ? String(data.periodeBulan || data.periode_bulan || data.periode || data.targetMonth || '').trim() : '';
+            if (!mId || !pMonth) {
+                throw new Error('Mitra dan Periode Bulan wajib diisi.');
+            }
+            const qRapat = Number(data.qtyRapat !== undefined ? data.qtyRapat : (data.qty_rapat || 0));
+            const qAdmin = Number(data.qtyAdmin !== undefined ? data.qtyAdmin : (data.qty_admin || 0));
+            const qDesain = Number(data.qtyDesain !== undefined ? data.qtyDesain : (data.qty_desain || 0));
+            const qVideo = Number(data.qtyVideo !== undefined ? data.qtyVideo : (data.qty_video || 0));
+            const qLapangan = Number(data.qtyLapangan !== undefined ? data.qtyLapangan : (data.qty_lapangan || 0));
+            const ketLain = String(data.keteranganLainnya !== undefined ? data.keteranganLainnya : (data.keterangan_lainnya || '')).trim();
+            const pLain = Number(data.poinLainnya !== undefined ? data.poinLainnya : (data.poin_lainnya || 0));
+
+            const totalPoinCalculated = calculateKpiPoints({
+                qtyRapat: qRapat,
+                qtyAdmin: qAdmin,
+                qtyDesain: qDesain,
+                qtyVideo: qVideo,
+                qtyLapangan: qLapangan,
+                poinLainnya: pLain
+            });
+
+            const list = getStore(STORAGE_KEYS.KPI_MITRA) || [];
+            const existingIdx = list.findIndex(k => 
+                String(k.mitraId || k.mitra_id).toLowerCase() === mId.toLowerCase() &&
+                String(k.periodeBulan || k.periode_bulan) === pMonth
+            );
+
+            const nowIso = new Date().toISOString();
+            const kpiObj = {
+                id: data.id || (existingIdx !== -1 ? list[existingIdx].id : generateUUID()),
+                mitraId: mId,
+                mitra_id: mId,
+                periodeBulan: pMonth,
+                periode_bulan: pMonth,
+                qtyRapat: qRapat,
+                qty_rapat: qRapat,
+                qtyAdmin: qAdmin,
+                qty_admin: qAdmin,
+                qtyDesain: qDesain,
+                qty_desain: qDesain,
+                qtyVideo: qVideo,
+                qty_video: qVideo,
+                qtyLapangan: qLapangan,
+                qty_lapangan: qLapangan,
+                keteranganLainnya: ketLain,
+                keterangan_lainnya: ketLain,
+                poinLainnya: pLain,
+                poin_lainnya: pLain,
+                totalPoin: totalPoinCalculated,
+                total_poin: totalPoinCalculated,
+                createdAt: (existingIdx !== -1 ? list[existingIdx].createdAt : null) || data.createdAt || nowIso,
+                updatedAt: nowIso
+            };
+
+            if (existingIdx !== -1) {
+                list[existingIdx] = kpiObj;
+            } else {
+                list.unshift(kpiObj);
+            }
+            setStore(STORAGE_KEYS.KPI_MITRA, list);
+
+            const ref = referrals.getById(mId);
+            const refName = ref ? ref.name : mId;
+            activityLog.add('kpi', `Input/Update KPI Mitra "${refName}" (${totalPoinCalculated} Poin) periode ${pMonth}.`, data.createdBy || 'Admin');
+
+            // Non-blocking Supabase Upsert
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.saveKpiMitra(kpiObj);
+                } catch(e) {
+                    console.warn('[KPI Mitra Supabase Upsert Error]:', e);
+                }
+            }
+
+            // Sync to /api/sync
+            try {
+                fetch('/api/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'save_kpi_mitra', kpi: kpiObj })
+                }).catch(() => {});
+            } catch(e) {}
+
+            try {
+                if (typeof pushToCloud === 'function') {
+                    pushToCloud().catch(() => {});
+                }
+            } catch(e) {}
+
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+            window.dispatchEvent(new CustomEvent('wiz-kpi-changed', { detail: kpiObj }));
+            broadcastSync('UPDATE_KPI_MITRA', kpiObj);
+            return kpiObj;
+        },
+
+        async delete(id) {
+            if (!id) return;
+            const strId = String(id);
+            addDeletedKpiId(strId);
+
+            const list = getStore(STORAGE_KEYS.KPI_MITRA) || [];
+            const item = list.find(k => String(k.id) === strId);
+            const filtered = list.filter(k => String(k.id) !== strId);
+            setStore(STORAGE_KEYS.KPI_MITRA, filtered);
+
+            if (item) {
+                const ref = referrals.getById(item.mitraId || item.mitra_id);
+                activityLog.add('kpi', `Data KPI Mitra "${ref ? ref.name : item.mitraId}" periode ${item.periodeBulan} dihapus.`, 'Admin');
+            }
+
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    await window.wizSupabase.deleteKpiMitra(strId);
+                } catch(e) {}
+            }
+
+            try {
+                fetch('/api/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ deleted_kpi_ids: [strId] })
+                }).catch(() => {});
+            } catch(e) {}
+
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+            window.dispatchEvent(new CustomEvent('wiz-kpi-changed'));
+            broadcastSync('DELETE_KPI_MITRA', { id: strId });
         }
     };
 
@@ -6270,6 +6693,7 @@
         siteSettings: siteSettingsManager,
         adminUsers,
         referrals,
+        kpiMitra,
         donorAttributions: donorAttributionsManager,
         quotes,
         allocationRulesManager,
@@ -6282,8 +6706,13 @@
         pushToCloud,
         fullBidirectionalSync,
         broadcastSync,
-        utils: { formatRupiah, formatRupiahCompact, formatDate, formatDateTime, timeAgo, generateId, mapProgramToPillar, mapPillarToKategori, mapKategoriToPillar, getProgramPillarKey, getProgramKategoriPilar, escapeHtml, isLockedPriorityProgram, normalizeProgramKey, isProgramMatching }
+        utils: { formatRupiah, formatRupiahCompact, formatDate, formatDateTime, timeAgo, generateId, generatePeriods, getCurrentPeriod, mapProgramToPillar, mapPillarToKategori, mapKategoriToPillar, getProgramPillarKey, getProgramKategoriPilar, escapeHtml, isLockedPriorityProgram, normalizeProgramKey, isProgramMatching }
     };
+
+    if (typeof window !== 'undefined') {
+        window.generatePeriods = generatePeriods;
+        window.getCurrentPeriod = getCurrentPeriod;
+    }
 
     console.log('[WIZ Store] Initialized with real-time cloud sync & 10s auto-polling. Collections ready.');
 })();

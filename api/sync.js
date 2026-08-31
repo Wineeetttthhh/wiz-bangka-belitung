@@ -579,6 +579,51 @@ export default async function handler(req, res) {
                 return res.status(200).json({ status: 'success', action: 'delete_quote', id: targetId });
             }
 
+            if (body && (body.action === 'save_kpi_mitra' || body.action === 'save_kpi') && (body.kpi || body.kpi_mitra)) {
+                const incomingKpi = body.kpi || body.kpi_mitra;
+                const mId = String(incomingKpi.mitraId || incomingKpi.mitra_id || '');
+                const pMonth = String(incomingKpi.periodeBulan || incomingKpi.periode_bulan || '');
+                if (!mId || !pMonth) {
+                    return res.status(400).json({ status: 'error', message: 'mitra_id and periode_bulan are required' });
+                }
+                if (!master.kpi_mitra) master.kpi_mitra = [];
+                const idx = master.kpi_mitra.findIndex(x => 
+                    String(x.mitraId || x.mitra_id || '').toLowerCase() === mId.toLowerCase() &&
+                    String(x.periodeBulan || x.periode_bulan) === pMonth
+                );
+                if (idx !== -1) {
+                    master.kpi_mitra[idx] = { ...master.kpi_mitra[idx], ...incomingKpi, updatedAt: new Date().toISOString() };
+                } else {
+                    master.kpi_mitra.unshift({ ...incomingKpi, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+                }
+                master.updatedAt = new Date().toISOString();
+
+                // Upsert to Supabase kpi_mitra table if available
+                fetch(`${SUPABASE_URL}/kpi_mitra`, {
+                    method: 'POST',
+                    headers: supabaseHeaders,
+                    body: JSON.stringify({
+                        id: incomingKpi.id,
+                        mitra_id: mId,
+                        periode_bulan: pMonth,
+                        qty_rapat: Number(incomingKpi.qty_rapat || incomingKpi.qtyRapat || 0),
+                        qty_admin: Number(incomingKpi.qty_admin || incomingKpi.qtyAdmin || 0),
+                        qty_desain: Number(incomingKpi.qty_desain || incomingKpi.qtyDesain || 0),
+                        qty_video: Number(incomingKpi.qty_video || incomingKpi.qtyVideo || 0),
+                        qty_lapangan: Number(incomingKpi.qty_lapangan || incomingKpi.qtyLapangan || 0),
+                        keterangan_lainnya: incomingKpi.keterangan_lainnya || incomingKpi.keteranganLainnya || '',
+                        poin_lainnya: Number(incomingKpi.poin_lainnya || incomingKpi.poinLainnya || 0),
+                        total_poin: Number(incomingKpi.total_poin || incomingKpi.totalPoin || 0),
+                        created_at: incomingKpi.created_at || incomingKpi.createdAt || new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    })
+                }).catch(() => {});
+
+                await supabaseSaveMaster(master);
+                invalidateCache();
+                return res.status(200).json({ status: 'success', action: 'save_kpi_mitra', kpi: incomingKpi });
+            }
+
             const deletedDonationIds = [
                 ...(Array.isArray(incoming.deleted_ids) ? incoming.deleted_ids : []),
                 ...(Array.isArray(incoming.deleted_donation_ids) ? incoming.deleted_donation_ids : [])
@@ -715,6 +760,24 @@ export default async function handler(req, res) {
                 master.baselines = { ...(master.baselines || {}), ...incoming.baselines };
             if (incoming.custom_specific_programs && typeof incoming.custom_specific_programs === 'object')
                 master.custom_specific_programs = { ...(master.custom_specific_programs || {}), ...incoming.custom_specific_programs };
+            if (incoming.kpi_mitra && Array.isArray(incoming.kpi_mitra)) {
+                if (!master.kpi_mitra) master.kpi_mitra = [];
+                incoming.kpi_mitra.forEach(k => {
+                    if (!k) return;
+                    const mId = String(k.mitraId || k.mitra_id || '');
+                    const pBulan = String(k.periodeBulan || k.periode_bulan || '');
+                    if (!mId || !pBulan) return;
+                    const idx = master.kpi_mitra.findIndex(x =>
+                        String(x.mitraId || x.mitra_id || '').toLowerCase() === mId.toLowerCase() &&
+                        String(x.periodeBulan || x.periode_bulan) === pBulan
+                    );
+                    if (idx !== -1) {
+                        master.kpi_mitra[idx] = { ...master.kpi_mitra[idx], ...k };
+                    } else {
+                        master.kpi_mitra.unshift(k);
+                    }
+                });
+            }
             if (incoming.specific_prog_imgs && typeof incoming.specific_prog_imgs === 'object') {
                 master.specific_prog_imgs = { ...(master.specific_prog_imgs || {}), ...incoming.specific_prog_imgs };
                 syncTasks.push(

@@ -178,31 +178,62 @@ import MitraLayout from '../layouts/MitraLayout.astro';
         <!-- ======================================================== -->
         <!-- STATE 2: LOGGED-IN MEMBER DASHBOARD VIEW                 -->
         <!-- ======================================================== -->
+        <!-- STATE 2: LOGGED-IN MEMBER DASHBOARD VIEW                 -->
+        <!-- ======================================================== -->
         <div id="member-state-container" class="space-y-6 hidden w-full">
 
             <!-- Member Header Card -->
-            <div class="bg-gradient-to-r from-emerald-900 to-teal-900 text-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 w-full">
-                <div class="flex items-center gap-3.5">
-                    <div id="member-avatar" class="w-12 h-12 rounded-2xl bg-white text-emerald-900 font-extrabold text-xl flex items-center justify-center shadow-md">
+            <div class="bg-gradient-to-r from-emerald-950 via-emerald-900 to-teal-950 text-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-xl border border-emerald-500/30 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5 w-full relative overflow-hidden">
+                <div class="absolute -top-12 -right-12 w-48 h-48 bg-primary/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-12 -left-12 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="relative z-10 flex items-center gap-4">
+                    <div id="member-avatar" class="w-14 h-14 rounded-2xl bg-white text-emerald-900 font-extrabold text-2xl flex items-center justify-center shadow-lg ring-4 ring-white/10 shrink-0">
                         M
                     </div>
                     <div>
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="bg-emerald-700/80 text-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Fundraiser Aktif</span>
-                            <span id="member-code-badge" class="bg-white/20 text-white font-mono text-xs font-bold px-2.5 py-0.5 rounded-md border border-white/20">WIZ-000</span>
+                        <div class="flex items-center gap-2 flex-wrap mb-1">
+                            <span id="member-cabang-badge" class="bg-emerald-500/25 border border-emerald-400/40 text-emerald-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                                Cabang Pangkalpinang
+                            </span>
+                            <span id="member-status-badge" class="bg-emerald-700/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">
+                                Fundraiser Aktif
+                            </span>
+                            <span id="member-code-badge" class="bg-white/20 text-white font-mono text-xs font-bold px-2.5 py-0.5 rounded-md border border-white/20">
+                                WIZ-000
+                            </span>
                         </div>
-                        <h2 id="member-welcome-title" class="text-lg sm:text-2xl font-bold mt-0.5 text-white">Selamat Datang, Mitra Kebaikan!</h2>
+                        <h2 id="member-welcome-title" class="text-xl sm:text-2xl font-black text-white">Selamat Datang, Mitra Kebaikan!</h2>
+                        <p class="text-xs text-emerald-200/80 mt-0.5">Jembatan kebaikan ummat Bangka Belitung • WIZ Babel</p>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2 w-full md:w-auto">
-                    <button onclick="copyFundraisingLink()" type="button" class="flex-1 md:flex-none bg-white text-emerald-900 hover:bg-emerald-50 px-4 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer">
-                        <span class="material-symbols-outlined text-sm">content_copy</span>
-                        <span>Salin Link Fundraising</span>
+                <!-- Right Header Actions (Link Bar + Period Filter + QR Code + Logout) -->
+                <div class="relative z-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto">
+                    <!-- Period Filter Selector -->
+                    <div class="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/20">
+                        <span class="material-symbols-outlined text-base text-emerald-300">calendar_month</span>
+                        <select id="member-periode-filter" onchange="renderMemberDashboard()" class="bg-transparent text-white font-bold text-xs outline-none cursor-pointer">
+                            <!-- Populated dynamically by generatePeriods() -->
+                        </select>
+                    </div>
+
+                    <!-- Readonly Link + Copy Button -->
+                    <div class="flex items-center gap-1 bg-white/10 backdrop-blur-md p-1 rounded-xl border border-white/20 flex-1 sm:flex-none">
+                        <input type="text" id="member-referral-link-input" readonly onclick="this.select()" class="bg-transparent text-white font-mono text-xs px-2 py-1 w-full sm:w-44 outline-none truncate select-all" value="" title="Tautan Donasi Anda">
+                        <button onclick="copyFundraisingLink()" type="button" class="bg-white text-emerald-900 hover:bg-emerald-50 px-3 py-1.5 rounded-lg font-bold text-xs flex items-center justify-center gap-1 shadow-xs transition-all cursor-pointer whitespace-nowrap" title="Salin Tautan">
+                            <span class="material-symbols-outlined text-sm">content_copy</span>
+                            <span>Salin</span>
+                        </button>
+                    </div>
+
+                    <button onclick="toggleMemberQrModal()" type="button" class="bg-emerald-800/80 hover:bg-emerald-700 text-white border border-emerald-400/30 px-3 py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1 transition-all cursor-pointer shadow-xs whitespace-nowrap" title="Tampilkan QR Code Donasi">
+                        <span class="material-symbols-outlined text-base">qr_code_2</span>
+                        <span class="hidden sm:inline">QR Code</span>
                     </button>
-                    <button onclick="handleAffiliateLogout()" type="button" class="bg-emerald-950/60 hover:bg-red-600/80 text-white border border-white/10 px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1 transition-all cursor-pointer">
-                        <span class="material-symbols-outlined text-sm">logout</span>
-                        <span>Keluar</span>
+
+                    <button onclick="handleAffiliateLogout()" type="button" class="bg-red-500/20 hover:bg-red-600 text-white border border-red-400/30 px-3 py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1 transition-all cursor-pointer shadow-xs" title="Keluar dari Akun">
+                        <span class="material-symbols-outlined text-base">logout</span>
                     </button>
                 </div>
             </div>
@@ -212,7 +243,7 @@ import MitraLayout from '../layouts/MitraLayout.astro';
                 <div class="flex justify-start gap-1 sm:gap-2 overflow-x-auto p-1.5">
                     <button onclick="switchMemberSubTab('subtab-kpi')" id="btn-subtab-kpi" class="member-nav-btn active shrink-0 whitespace-nowrap px-3.5 sm:px-5 py-2.5 sm:py-3 font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all rounded-xl border-b-2 border-primary text-primary bg-primary/5 cursor-pointer">
                         <span class="material-symbols-outlined text-base sm:text-lg">analytics</span>
-                        <span>Penghimpunan</span>
+                        <span>Penghimpunan &amp; KPI</span>
                     </button>
                     <button onclick="switchMemberSubTab('subtab-news')" id="btn-subtab-news" class="member-nav-btn shrink-0 whitespace-nowrap px-3.5 sm:px-5 py-2.5 sm:py-3 font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all rounded-xl border-b-2 border-transparent text-slate-600 hover:text-slate-900 cursor-pointer">
                         <span class="material-symbols-outlined text-base sm:text-lg">feed</span>
@@ -235,37 +266,92 @@ import MitraLayout from '../layouts/MitraLayout.astro';
 
             <!-- SUBTAB 1: Performance Dashboard & KPI -->
             <div id="subtab-kpi" class="member-subtab space-y-6 sm:space-y-8 w-full">
+                <!-- 4 Dashboard Metric Cards (Dynamic Reactivity with Period Dropdown) -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full">
-                    <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1">
-                        <span class="text-[11px] text-slate-500 font-semibold block uppercase tracking-wider">Total Donasi Dihimpun</span>
-                        <div class="flex items-baseline justify-between">
-                            <span id="kpi-total-count" class="text-2xl font-extrabold text-slate-900">0</span>
-                            <span class="text-xs text-slate-400 font-semibold">Transaksi</span>
+                    <!-- Card 1: Total Donasi Dibawa -->
+                    <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Donasi Dihimpun</span>
+                            <span id="kpi-tier-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">Mitra Aktif</span>
                         </div>
+                        <div>
+                            <span id="kpi-total-amount" class="text-2xl sm:text-3xl font-black text-slate-900 block">Rp 0</span>
+                            <p class="text-xs font-semibold text-emerald-700 mt-1" id="kpi-fix-fee-info">Hak Fix (6%): Rp 0</p>
+                        </div>
+                        <p class="text-[11px] text-slate-400 font-medium border-t border-slate-100 pt-1.5" id="kpi-donation-count-info">0 transaksi donasi</p>
                     </div>
 
-                    <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1">
-                        <span class="text-[11px] text-slate-500 font-semibold block uppercase tracking-wider">Nominal Terkumpul</span>
-                        <span id="kpi-total-amount" class="text-2xl font-extrabold text-primary">Rp 0</span>
+                    <!-- Card 2: Akumulasi Poin KPI -->
+                    <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Poin KPI Anda</span>
+                            <span class="material-symbols-outlined text-blue-600 text-lg">workspace_premium</span>
+                        </div>
+                        <div>
+                            <span id="kpi-total-points" class="text-2xl sm:text-3xl font-black text-blue-600 block">0 Pts</span>
+                            <p class="text-xs font-semibold text-blue-800 mt-1 truncate" id="kpi-points-breakdown">Belum ada catatan aktivitas</p>
+                        </div>
+                        <p class="text-[11px] text-slate-400 font-medium border-t border-slate-100 pt-1.5" id="kpi-pool-share-info">0% dari Poin Global</p>
                     </div>
 
-                    <div class="bg-emerald-50 p-4 sm:p-5 rounded-2xl border border-emerald-200 shadow-xs space-y-1">
-                        <span class="text-[11px] text-emerald-800 font-semibold block uppercase tracking-wider">Total Insentif Diperoleh (6%)</span>
-                        <span id="kpi-total-earned" class="text-2xl font-extrabold text-emerald-900">Rp 0</span>
+                    <!-- Card 3: Insentif Tambahan (Alokasi Pool Kinerja Wilayah) -->
+                    <div class="bg-gradient-to-br from-purple-50 to-indigo-50 p-4 sm:p-5 rounded-2xl border border-purple-200/80 shadow-xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] text-purple-900 font-bold uppercase tracking-wider">Insentif Tambahan</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-200 text-purple-900">⏳ Distribusi Akhir Bulan</span>
+                        </div>
+                        <div>
+                            <span id="kpi-pool-incentive" class="text-2xl sm:text-3xl font-black text-purple-900 block">Rp 0</span>
+                            <p class="text-xs font-semibold text-purple-700 mt-1" id="kpi-pool-wilayah-info">Alokasi Pool Wilayah: Rp 0</p>
+                        </div>
+                        <p class="text-[11px] text-purple-600/70 font-medium border-t border-purple-200/40 pt-1.5">Insentif proporsional berbasis poin KPI</p>
                     </div>
 
-                    <div class="bg-amber-50 p-4 sm:p-5 rounded-2xl border border-amber-200 shadow-xs space-y-1">
-                        <span class="text-[11px] text-amber-800 font-semibold block uppercase tracking-wider">Saldo Belum Dicairkan</span>
-                        <span id="kpi-pending-balance" class="text-2xl font-extrabold text-amber-900">Rp 0</span>
+                    <!-- Card 4: Total Hak Insentif & Status Saldo -->
+                    <div class="bg-gradient-to-br from-emerald-50 to-teal-50 p-4 sm:p-5 rounded-2xl border border-emerald-200 shadow-xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] text-emerald-900 font-bold uppercase tracking-wider">Total Hak Insentif</span>
+                            <span class="material-symbols-outlined text-emerald-700 text-lg">account_balance_wallet</span>
+                        </div>
+                        <div>
+                            <span id="kpi-total-earned" class="text-2xl sm:text-3xl font-black text-emerald-900 block">Rp 0</span>
+                            <p class="text-xs font-semibold text-amber-800 mt-1" id="kpi-pending-info">Sisa Pending: Rp 0</p>
+                        </div>
+                        <p class="text-[11px] text-emerald-700/70 font-medium border-t border-emerald-200/40 pt-1.5">Hak Fix (6%) + Insentif Tambahan Kinerja</p>
                     </div>
                 </div>
 
-                <!-- Detailed Transactions Table -->
+                <!-- Table 1: Rincian Log Aktivitas & Poin KPI Bulan Ini -->
                 <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200 shadow-sm space-y-4 w-full">
-                    <h3 class="font-bold text-slate-900 text-base sm:text-lg flex items-center gap-2">
-                        <span class="material-symbols-outlined text-primary">format_list_bulleted</span>
-                        <span>Riwayat Donasi dari Link Penghimpunan Anda</span>
-                    </h3>
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 pb-3">
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-base sm:text-lg flex items-center gap-2">
+                                <span class="material-symbols-outlined text-blue-600">fact_check</span>
+                                <span>Rincian Log Aktivitas Operasional &amp; Poin KPI</span>
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-0.5" id="kpi-activity-period-label">Catatan evaluasi kinerja aktivitas Anda untuk periode bulan terpilih.</p>
+                        </div>
+                        <span id="kpi-activity-total-badge" class="px-3 py-1 bg-blue-100 text-blue-800 font-bold text-xs rounded-xl border border-blue-200">
+                            0 Poin Terkumpul
+                        </span>
+                    </div>
+
+                    <div id="member-kpi-activity-container" class="w-full">
+                        <!-- Rendered dynamically (Table if exists, or Empty State Card) -->
+                    </div>
+                </div>
+
+                <!-- Table 2: Detailed Transactions Table -->
+                <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200 shadow-sm space-y-4 w-full">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 pb-3">
+                        <h3 class="font-bold text-slate-900 text-base sm:text-lg flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">format_list_bulleted</span>
+                            <span>Riwayat Donasi dari Link Penghimpunan Anda</span>
+                        </h3>
+                        <span class="text-xs font-semibold text-slate-500" id="member-donations-period-label">
+                            Menampilkan transaksi periode terpilih
+                        </span>
+                    </div>
 
                     <div class="w-full overflow-x-auto rounded-xl border border-slate-100">
                         <table class="w-full min-w-[540px] text-left text-xs border-collapse">
@@ -274,9 +360,9 @@ import MitraLayout from '../layouts/MitraLayout.astro';
                                     <th class="p-3 font-bold">Tanggal</th>
                                     <th class="p-3 font-bold">Donatur</th>
                                     <th class="p-3 font-bold">Program</th>
-                                    <th class="p-3 font-bold">Nominal</th>
-                                    <th class="p-3 font-bold">Hak Insentif (6%)</th>
-                                    <th class="p-3 font-bold">Status</th>
+                                    <th class="p-3 font-bold text-right">Nominal</th>
+                                    <th class="p-3 font-bold text-right">Hak Fix (6%)</th>
+                                    <th class="p-3 font-bold text-center">Status</th>
                                 </tr>
                             </thead>
                             <tbody id="member-donations-tbody">
@@ -428,6 +514,42 @@ import MitraLayout from '../layouts/MitraLayout.astro';
 
     </div>
 
+    <!-- Modal: QR Code Donasi Mitra -->
+    <div id="member-qr-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl border border-slate-200 text-center space-y-4 relative">
+            <button type="button" onclick="toggleMemberQrModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 p-1 rounded-full hover:bg-slate-100 transition-colors cursor-pointer">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+
+            <div class="inline-flex p-3 rounded-2xl bg-emerald-50 text-emerald-800">
+                <span class="material-symbols-outlined text-3xl">qr_code_scanner</span>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-black text-slate-900" id="qr-modal-mitra-name">QR Code Donasi Mitra</h3>
+                <p class="text-xs text-slate-500 font-mono font-bold text-primary mt-0.5" id="qr-modal-mitra-code">WIZ-000</p>
+            </div>
+
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex justify-center items-center">
+                <img id="member-qr-img" src="" alt="QR Code Donasi" class="w-56 h-56 object-contain rounded-xl shadow-xs">
+            </div>
+
+            <p class="text-xs text-slate-500 leading-relaxed">
+                Tunjukkan QR Code ini kepada calon donatur untuk berdonasi langsung melalui website resmi WIZ Bangka Belitung.
+            </p>
+
+            <div class="flex gap-2 pt-1">
+                <button type="button" onclick="copyFundraisingLink()" class="flex-1 bg-primary hover:bg-emerald-700 text-white font-bold text-xs py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">content_copy</span>
+                    <span>Salin Tautan</span>
+                </button>
+                <button type="button" onclick="toggleMemberQrModal()" class="px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2.5 rounded-xl transition-all cursor-pointer">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Interactive Script for Portal Mitra -->
     <script is:inline>
         let currentLoggedAffiliate = null;
@@ -556,9 +678,57 @@ import MitraLayout from '../layouts/MitraLayout.astro';
             }
         }
 
+        function populateMemberPeriodFilter() {
+            const sel = document.getElementById('member-periode-filter');
+            if (!sel) return;
+            const currentVal = sel.value;
+            const periods = (typeof generatePeriods === 'function') 
+                ? generatePeriods(12) 
+                : (window.wizStore && typeof window.wizStore.utils?.generatePeriods === 'function' ? window.wizStore.utils.generatePeriods(12) : []);
+            
+            const curMonth = (typeof getCurrentPeriod === 'function')
+                ? getCurrentPeriod()
+                : (window.wizStore && typeof window.wizStore.utils?.getCurrentPeriod === 'function' ? window.wizStore.utils.getCurrentPeriod() : new Date().toISOString().slice(0, 7));
+
+            let html = `<option value="ALL">Semua Periode</option>`;
+            periods.forEach(p => {
+                html += `<option value="${p.value}" ${p.value === curMonth ? 'selected' : ''}>${p.label} ${p.isCurrent ? '(Bulan Ini)' : ''}</option>`;
+            });
+            sel.innerHTML = html;
+            if (currentVal && Array.from(sel.options).some(o => o.value === currentVal)) {
+                sel.value = currentVal;
+            }
+        }
+
+        function toggleMemberQrModal() {
+            const modal = document.getElementById('member-qr-modal');
+            if (!modal) return;
+            const isHidden = modal.classList.contains('hidden');
+            if (isHidden) {
+                if (!currentLoggedAffiliate) return;
+                const mitra = currentLoggedAffiliate;
+                const activeRefCode = mitra.code || mitra.id || 'WIZ';
+                const origin = window.location.origin || 'https://www.wizbangkabelitung.or.id';
+                const donationLink = `${origin}/?ref=${encodeURIComponent(activeRefCode)}`;
+                
+                const nameEl = document.getElementById('qr-modal-mitra-name');
+                if (nameEl) nameEl.textContent = mitra.name || 'Mitra WIZ Babel';
+                const codeEl = document.getElementById('qr-modal-mitra-code');
+                if (codeEl) codeEl.textContent = `Kode Mitra: ${activeRefCode}`;
+                const qrImg = document.getElementById('member-qr-img');
+                if (qrImg) qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=10&data=${encodeURIComponent(donationLink)}`;
+
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
         function activateMemberState(ref) {
             document.getElementById('auth-state-container').classList.add('hidden');
             document.getElementById('member-state-container').classList.remove('hidden');
+
+            populateMemberPeriodFilter();
 
             const initial = (ref.name || 'A').charAt(0).toUpperCase();
             const avatarEl = document.getElementById('member-avatar');
@@ -569,6 +739,27 @@ import MitraLayout from '../layouts/MitraLayout.astro';
 
             const codeEl = document.getElementById('member-code-badge');
             if (codeEl) codeEl.textContent = ref.code || ref.id;
+
+            const cabangBadge = document.getElementById('member-cabang-badge');
+            if (cabangBadge) {
+                const cb = ref.cabang || 'Pangkalpinang';
+                if (cb === 'Sungailiat') {
+                    cabangBadge.textContent = 'Cabang Sungailiat';
+                    cabangBadge.className = 'bg-teal-500/25 border border-teal-400/40 text-teal-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider';
+                } else if (cb === 'Wilayah') {
+                    cabangBadge.textContent = 'Kantor Wilayah Bangka Belitung';
+                    cabangBadge.className = 'bg-indigo-500/25 border border-indigo-400/40 text-indigo-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider';
+                } else {
+                    cabangBadge.textContent = 'Cabang Pangkalpinang';
+                    cabangBadge.className = 'bg-emerald-500/25 border border-emerald-400/40 text-emerald-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider';
+                }
+            }
+
+            const origin = window.location.origin || 'https://www.wizbangkabelitung.or.id';
+            const activeRefCode = ref.code || ref.id || 'WIZ';
+            const donationLink = `${origin}/?ref=${encodeURIComponent(activeRefCode)}`;
+            const linkInput = document.getElementById('member-referral-link-input');
+            if (linkInput) linkInput.value = donationLink;
 
             if (document.getElementById('prof-name')) document.getElementById('prof-name').value = ref.name || '';
             if (document.getElementById('prof-phone')) document.getElementById('prof-phone').value = ref.phone || '';
@@ -623,8 +814,6 @@ import MitraLayout from '../layouts/MitraLayout.astro';
                 return;
             }
 
-
-
             if (window.wizStore && window.wizStore.referrals) {
                 try {
                     const res = await window.wizStore.referrals.login({ identifier, pin });
@@ -634,8 +823,6 @@ import MitraLayout from '../layouts/MitraLayout.astro';
                         localStorage.setItem('wiz_logged_affiliate', JSON.stringify(res.referral));
                         activateMemberState(res.referral);
                         return;
-                    } else {
-return;
                     }
                 } catch(err) {
                     console.warn('Login error:', err);
@@ -686,6 +873,7 @@ return;
                             code: aff.code || aff.id,
                             name: aff.name,
                             phone: aff.phone,
+                            cabang: aff.cabang || 'Pangkalpinang',
                             bankName: aff.bankName || aff.bank_name || '',
                             accountNumber: aff.accountNumber || aff.account_number || '',
                             accountHolder: aff.accountHolder || aff.account_holder || aff.name,
@@ -720,7 +908,7 @@ return;
             const pin = document.getElementById('reg-pin').value.trim();
 
             if (window.wizStore && window.wizStore.referrals) {
-                const res = await window.wizStore.referrals.registerPublic({ name, phone, bankName, accountNumber, accountHolder, pin });
+                const res = await window.wizStore.referrals.registerPublic({ name, phone, bankName, accountNumber, accountHolder, pin, cabang: 'Pangkalpinang' });
                 if (res.success) {
                     currentLoggedAffiliate = res.referral;
                     sessionStorage.setItem('wiz_logged_affiliate', JSON.stringify(res.referral));
@@ -740,77 +928,285 @@ return;
             alert('Anda telah keluar dari Portal Member Mitra Penghimpunan.');
         }
 
-        function renderMemberDashboard() {
+        async function renderMemberDashboard() {
             if (!currentLoggedAffiliate) return;
             const mitra = currentLoggedAffiliate;
             const mitraId   = (mitra.id   || '').toLowerCase();
             const mitraCode = (mitra.code || '').toLowerCase();
             const mitraPhone = (mitra.phone || '').replace(/\D/g, '');
 
-            // Ambil semua donasi dari store (sama persis dengan admin)
+            // Period filter
+            const periodSel = document.getElementById('member-periode-filter');
+            if (periodSel && periodSel.options.length <= 1) {
+                populateMemberPeriodFilter();
+            }
+            const selectedPeriod = periodSel ? periodSel.value : 'ALL';
+            const curPeriod = (typeof getCurrentPeriod === 'function') 
+                ? getCurrentPeriod() 
+                : (window.wizStore && typeof window.wizStore.utils?.getCurrentPeriod === 'function' ? window.wizStore.utils.getCurrentPeriod() : new Date().toISOString().slice(0, 7));
+            const targetPeriod = (selectedPeriod === 'ALL') ? curPeriod : selectedPeriod;
+
+            // 1. Get Monthly KPI calculation from wizStore.referrals
+            let mKpi = null;
+            if (window.wizStore && window.wizStore.referrals && typeof window.wizStore.referrals.getMonthlyKPI === 'function') {
+                try {
+                    mKpi = await window.wizStore.referrals.getMonthlyKPI(mitra.id, targetPeriod);
+                } catch(e) {
+                    console.warn('[Mitra Portal] getMonthlyKPI error:', e);
+                }
+            }
+
+            // 2. Get Pool Summary from wizStore.kpiMitra
+            let poolSummary = { poolPKP: 0, poolSungailiat: 0, totalPoolWilayah: 0, totalGlobalPoints: 0, pointConversionRate: 0 };
+            if (window.wizStore && window.wizStore.kpiMitra && typeof window.wizStore.kpiMitra.getPoolSummary === 'function') {
+                try {
+                    poolSummary = await window.wizStore.kpiMitra.getPoolSummary(targetPeriod);
+                } catch(e) {
+                    console.warn('[Mitra Portal] getPoolSummary error:', e);
+                }
+            }
+
+            // Fallback if mKpi is null
+            if (!mKpi) {
+                mKpi = {
+                    mitraId: mitra.id,
+                    targetMonth: targetPeriod,
+                    cabang: mitra.cabang || 'Pangkalpinang',
+                    monthDonationCount: 0,
+                    monthTotalAmount: 0,
+                    fixRatePercent: 6,
+                    monthEarnedFee: 0,
+                    kpiPoints: 0,
+                    kpiRecord: null,
+                    poolPortionPercent: 0,
+                    additionalIncentive: 0,
+                    totalEarnedMonth: 0,
+                    performanceTier: 'Pejuang Kebaikan'
+                };
+            }
+
+            // Update Header Elements
+            const avatarEl = document.getElementById('member-avatar');
+            if (avatarEl) avatarEl.textContent = (mitra.name || 'M').charAt(0).toUpperCase();
+
+            const welcomeTitle = document.getElementById('member-welcome-title');
+            if (welcomeTitle) welcomeTitle.textContent = `Selamat Datang, ${mitra.name}!`;
+
+            const codeBadge = document.getElementById('member-code-badge');
+            if (codeBadge) codeBadge.textContent = mitra.code || mitra.id;
+
+            const cabangBadge = document.getElementById('member-cabang-badge');
+            if (cabangBadge) {
+                const cb = mitra.cabang || 'Pangkalpinang';
+                if (cb === 'Sungailiat') {
+                    cabangBadge.textContent = 'Cabang Sungailiat';
+                    cabangBadge.className = 'bg-teal-500/25 border border-teal-400/40 text-teal-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider';
+                } else if (cb === 'Wilayah') {
+                    cabangBadge.textContent = 'Kantor Wilayah Bangka Belitung';
+                    cabangBadge.className = 'bg-indigo-500/25 border border-indigo-400/40 text-indigo-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider';
+                } else {
+                    cabangBadge.textContent = 'Cabang Pangkalpinang';
+                    cabangBadge.className = 'bg-emerald-500/25 border border-emerald-400/40 text-emerald-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider';
+                }
+            }
+
+            // Update referral link input
+            const origin = window.location.origin || 'https://www.wizbangkabelitung.or.id';
+            const activeRefCode = mitra.code || mitra.id || 'WIZ';
+            const donationLink = `${origin}/?ref=${encodeURIComponent(activeRefCode)}`;
+            const linkInput = document.getElementById('member-referral-link-input');
+            if (linkInput) linkInput.value = donationLink;
+
+            // 3. Update Metric Cards
+            const kpiAmt = document.getElementById('kpi-total-amount');
+            const kpiFixInfo = document.getElementById('kpi-fix-fee-info');
+            const kpiDonCount = document.getElementById('kpi-donation-count-info');
+            const kpiTierBadge = document.getElementById('kpi-tier-badge');
+
+            if (kpiAmt) kpiAmt.textContent = `Rp ${mKpi.monthTotalAmount.toLocaleString('id-ID')}`;
+            if (kpiFixInfo) kpiFixInfo.textContent = `Hak Fix (${mKpi.fixRatePercent}%): Rp ${mKpi.monthEarnedFee.toLocaleString('id-ID')}`;
+            if (kpiDonCount) kpiDonCount.textContent = `${mKpi.monthDonationCount} transaksi donasi terverifikasi`;
+            if (kpiTierBadge) kpiTierBadge.textContent = mKpi.performanceTier || 'Pejuang Kebaikan';
+
+            const kpiPointsEl = document.getElementById('kpi-total-points');
+            const kpiPtsBreakdown = document.getElementById('kpi-points-breakdown');
+            const kpiPoolShare = document.getElementById('kpi-pool-share-info');
+
+            if (kpiPointsEl) kpiPointsEl.textContent = `${mKpi.kpiPoints} Pts`;
+            if (kpiPtsBreakdown) {
+                if (mKpi.kpiRecord) {
+                    const kr = mKpi.kpiRecord;
+                    const items = [];
+                    if (kr.qty_rapat) items.push(`Rapat: ${kr.qty_rapat}x`);
+                    if (kr.qty_admin) items.push(`Admin: ${kr.qty_admin}x`);
+                    if (kr.qty_desain) items.push(`Desain: ${kr.qty_desain}x`);
+                    if (kr.qty_video) items.push(`Video: ${kr.qty_video}x`);
+                    if (kr.qty_lapangan) items.push(`Penyaluran: ${kr.qty_lapangan}x`);
+                    if (kr.poin_lainnya) items.push(`Lainnya: ${kr.poin_lainnya} pt`);
+                    kpiPtsBreakdown.textContent = items.length > 0 ? items.join(', ') : 'Belum ada rincian aktivitas';
+                } else {
+                    kpiPtsBreakdown.textContent = 'Belum ada catatan aktivitas';
+                }
+            }
+            if (kpiPoolShare) {
+                kpiPoolShare.textContent = `${mKpi.poolPortionPercent}% dari Poin Global (${poolSummary.totalGlobalPoints} Pts)`;
+            }
+
+            const kpiPoolIncentive = document.getElementById('kpi-pool-incentive');
+            const kpiPoolWilayahInfo = document.getElementById('kpi-pool-wilayah-info');
+            if (kpiPoolIncentive) kpiPoolIncentive.textContent = `Rp ${mKpi.additionalIncentive.toLocaleString('id-ID')}`;
+            if (kpiPoolWilayahInfo) kpiPoolWilayahInfo.textContent = `Alokasi Pool Wilayah: Rp ${poolSummary.totalPoolWilayah.toLocaleString('id-ID')}`;
+
+            const kpiTotalEarned = document.getElementById('kpi-total-earned');
+            const kpiPendingInfo = document.getElementById('kpi-pending-info');
+            if (kpiTotalEarned) kpiTotalEarned.textContent = `Rp ${mKpi.totalEarnedMonth.toLocaleString('id-ID')}`;
+            if (kpiPendingInfo) {
+                const pendingBal = mitra.pendingBalance || (mKpi.monthEarnedFee + mKpi.additionalIncentive);
+                kpiPendingInfo.textContent = `Sisa Pending: Rp ${pendingBal.toLocaleString('id-ID')}`;
+            }
+
+            // 4. Render Table 1: Rincian Log Aktivitas & Poin KPI
+            const activityContainer = document.getElementById('member-kpi-activity-container');
+            const activityTotalBadge = document.getElementById('kpi-activity-total-badge');
+            const activityPeriodLabel = document.getElementById('kpi-activity-period-label');
+
+            if (activityTotalBadge) activityTotalBadge.textContent = `${mKpi.kpiPoints} Poin Terkumpul`;
+            if (activityPeriodLabel) activityPeriodLabel.textContent = `Catatan evaluasi kinerja aktivitas Anda untuk periode ${targetPeriod}.`;
+
+            if (activityContainer) {
+                if (mKpi.kpiRecord && mKpi.kpiPoints > 0) {
+                    const kr = mKpi.kpiRecord;
+                    const rows = [
+                        { act: 'Hadir Rapat Koordinasi / Evaluasi Bulanan', cat: 'Operasional & Rapat', weight: 5, qty: kr.qty_rapat || 0 },
+                        { act: 'Administrasi & Pelaporan Program Penyaluran', cat: 'Administrasi', weight: 20, qty: kr.qty_admin || 0 },
+                        { act: 'Desain Grafis / Flyer Dakwah & Publikasi', cat: 'Media & Syiar', weight: 35, qty: kr.qty_desain || 0 },
+                        { act: 'Editing Video Dokumentasi / Reels Penyaluran', cat: 'Media & Syiar', weight: 50, qty: kr.qty_video || 0 },
+                        { act: 'Turun Penyaluran Lapangan / Aksi Tanggap', cat: 'Penyaluran Lapangan', weight: 60, qty: kr.qty_lapangan || 0 }
+                    ];
+
+                    let tableHtml = `
+                    <div class="w-full overflow-x-auto rounded-xl border border-slate-200">
+                        <table class="w-full min-w-[600px] text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-700 border-b border-slate-200">
+                                    <th class="p-3 font-bold">Nama Aktivitas / Kegiatan</th>
+                                    <th class="p-3 font-bold">Kategori</th>
+                                    <th class="p-3 font-bold text-center">Bobot</th>
+                                    <th class="p-3 font-bold text-center">Frekuensi (Qty)</th>
+                                    <th class="p-3 font-bold text-right">Poin Didapat</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">`;
+
+                    rows.forEach(r => {
+                        if (r.qty > 0) {
+                            const pts = r.qty * r.weight;
+                            tableHtml += `
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-3 font-semibold text-slate-800">${r.act}</td>
+                                <td class="p-3 text-slate-500"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">${r.cat}</span></td>
+                                <td class="p-3 text-center text-slate-500 font-mono">${r.weight} pt</td>
+                                <td class="p-3 text-center font-bold text-slate-800">${r.qty}x</td>
+                                <td class="p-3 text-right font-extrabold text-blue-600">+${pts} Pts</td>
+                            </tr>`;
+                        }
+                    });
+
+                    if (kr.poin_lainnya > 0 || kr.keterangan_lainnya) {
+                        tableHtml += `
+                        <tr class="hover:bg-slate-50 bg-amber-50/40">
+                            <td class="p-3 font-semibold text-slate-800">
+                                Aktivitas Tambahan (Kustom)
+                                <span class="block text-[11px] text-slate-500 font-normal">${kr.keterangan_lainnya || '-'}</span>
+                            </td>
+                            <td class="p-3 text-slate-500"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">Tugas Khusus</span></td>
+                            <td class="p-3 text-center text-slate-500 font-mono">-</td>
+                            <td class="p-3 text-center font-bold text-slate-800">1x</td>
+                            <td class="p-3 text-right font-extrabold text-amber-600">+${kr.poin_lainnya || 0} Pts</td>
+                        </tr>`;
+                    }
+
+                    tableHtml += `
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-slate-50/80 font-bold border-t border-slate-200">
+                                    <td colspan="4" class="p-3 text-slate-900 text-right">Total Akumulasi Poin KPI (${targetPeriod}):</td>
+                                    <td class="p-3 text-right text-sm font-black text-blue-700">${mKpi.kpiPoints} Pts</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>`;
+                    activityContainer.innerHTML = tableHtml;
+                } else {
+                    activityContainer.innerHTML = `
+                    <div class="bg-slate-50 rounded-2xl p-6 sm:p-8 text-center border border-dashed border-slate-200">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3">
+                            <span class="material-symbols-outlined text-2xl">fact_check</span>
+                        </div>
+                        <h4 class="text-sm font-bold text-slate-800">Belum Ada Catatan Aktivitas untuk Periode ${targetPeriod}</h4>
+                        <p class="text-xs text-slate-500 max-w-md mx-auto mt-1 leading-relaxed">
+                            Aktivitas operasional Anda (hadir rapat, administrasi, desain flyer, edit video dokumentasi, dan aksi lapangan) akan diinput serta diverifikasi oleh Pengurus Wilayah WIZ Bangka Belitung.
+                        </p>
+                    </div>`;
+                }
+            }
+
+            // 5. Render Table 2: Riwayat Donasi dari Link Penghimpunan Anda
             let allDonations = [];
             if (window.wizStore && window.wizStore.donations) {
                 try { allDonations = window.wizStore.donations.getAll() || []; } catch(e) {}
             }
 
-            // Filter donasi yang terhubung ke mitra ini
-            // Cocokkan: referralId, referralCode, referral_id, referral_code, atau phone
             const myDonations = allDonations.filter(d => {
                 const dRefId   = String(d.referralId   || d.referral_id   || '').toLowerCase();
                 const dRefCode = String(d.referralCode || d.referral_code || '').toLowerCase();
                 const dPhone   = String(d.referralPhone || d.referral_phone || '').replace(/\D/g,'');
-                return (mitraId   && (dRefId === mitraId || dRefCode === mitraId)) ||
-                       (mitraCode && (dRefId === mitraCode || dRefCode === mitraCode)) ||
-                       (mitraPhone && dPhone && dPhone === mitraPhone);
+                const matchMitra = (mitraId   && (dRefId === mitraId || dRefCode === mitraId)) ||
+                                   (mitraCode && (dRefId === mitraCode || dRefCode === mitraCode)) ||
+                                   (mitraPhone && dPhone && dPhone === mitraPhone);
+                if (!matchMitra) return false;
+
+                if (selectedPeriod && selectedPeriod !== 'ALL') {
+                    const dDate = d.createdAt || d.transactionDate || d.created_at || '';
+                    return dDate.startsWith(selectedPeriod);
+                }
+                return true;
             });
 
-            // Hitung KPI dari data nyata
-            const totalCount  = myDonations.length;
-            const totalAmount = myDonations.reduce((s, d) => s + (Number(d.amount) || 0), 0);
-            const rate = Number(mitra.defaultRate || mitra.rate || 6) / 100;
-            const totalEarned  = Math.round(totalAmount * rate);
-            const pendingBalance = myDonations
-                .filter(d => d.status === 'pending' || d.status === 'verified')
-                .reduce((s, d) => s + Math.round((Number(d.amount) || 0) * rate), 0);
-
-            // Update KPI cards
-            const kpiCount   = document.getElementById('kpi-total-count');
-            const kpiAmt     = document.getElementById('kpi-total-amount');
-            const kpiEarned  = document.getElementById('kpi-total-earned');
-            const kpiPending = document.getElementById('kpi-pending-balance');
-            if (kpiCount)   kpiCount.textContent   = totalCount;
-            if (kpiAmt)     kpiAmt.textContent     = `Rp ${totalAmount.toLocaleString('id-ID')}`;
-            if (kpiEarned)  kpiEarned.textContent  = `Rp ${totalEarned.toLocaleString('id-ID')}`;
-            if (kpiPending) kpiPending.textContent = `Rp ${pendingBalance.toLocaleString('id-ID')}`;
-
-            // Render tabel riwayat
             const tbody = document.getElementById('member-donations-tbody');
-            if (!tbody) return;
+            const donPeriodLabel = document.getElementById('member-donations-period-label');
+            if (donPeriodLabel) {
+                donPeriodLabel.textContent = (selectedPeriod === 'ALL') ? 'Menampilkan seluruh riwayat transaksi donasi' : `Menampilkan transaksi periode ${selectedPeriod}`;
+            }
 
-            if (myDonations.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400 text-sm">Belum ada transaksi donasi melalui link Anda. Bagikan program dan berita untuk mulai menghimpun kebaikan!</td></tr>';
-            } else {
-                const statusBadge = (s) => {
-                    if (s === 'verified') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">✓ Terverifikasi</span>';
-                    if (s === 'pending')  return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">⏳ Menunggu</span>';
-                    if (s === 'rejected') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">✕ Ditolak</span>';
-                    return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">' + (s||'-') + '</span>';
-                };
-                tbody.innerHTML = myDonations.map(d => {
-                    const tgl = (d.createdAt || d.transactionDate || '').split('T')[0] || '-';
-                    const nama = d.donorName || 'Hamba Allah';
-                    const prog = d.program || d.program_title || d.programSpesifik || 'Umum';
-                    const amt  = Number(d.amount) || 0;
-                    const fee  = d.referralFee || Math.round(amt * rate);
-                    return `<tr class="border-b border-slate-100 hover:bg-slate-50 text-sm">
-                        <td class="p-3 text-slate-500 text-xs">${tgl}</td>
-                        <td class="p-3 font-semibold text-slate-800">${nama}</td>
-                        <td class="p-3 text-slate-600">${prog}</td>
-                        <td class="p-3 font-bold text-primary">Rp ${amt.toLocaleString('id-ID')}</td>
-                        <td class="p-3 font-bold text-emerald-700">Rp ${fee.toLocaleString('id-ID')}</td>
-                        <td class="p-3">${statusBadge(d.status)}</td>
-                    </tr>`;
-                }).join('');
+            if (tbody) {
+                if (myDonations.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 text-xs">Belum ada transaksi donasi melalui link Anda untuk periode ini. Bagikan tautan donasi Anda untuk mulai menghimpun kebaikan!</td></tr>`;
+                } else {
+                    const statusBadge = (s) => {
+                        if (s === 'verified') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">✓ Terverifikasi</span>';
+                        if (s === 'pending')  return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">⏳ Menunggu</span>';
+                        if (s === 'rejected') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">✕ Ditolak</span>';
+                        return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">' + (s||'-') + '</span>';
+                    };
+
+                    const rate = Number(mitra.defaultRate || mitra.rate || 6) / 100;
+                    tbody.innerHTML = myDonations.map(d => {
+                        const tgl = (d.createdAt || d.transactionDate || '').split('T')[0] || '-';
+                        const nama = d.donorName || 'Hamba Allah';
+                        const prog = d.program || d.program_title || d.programSpesifik || 'Umum';
+                        const amt = Number(d.amount) || 0;
+                        const fee = d.referralFee || Math.round(amt * rate);
+                        return `<tr class="border-b border-slate-100 hover:bg-slate-50 text-xs">
+                            <td class="p-3 text-slate-500 font-mono">${tgl}</td>
+                            <td class="p-3 font-semibold text-slate-800">${nama}</td>
+                            <td class="p-3 text-slate-600">${prog}</td>
+                            <td class="p-3 text-right font-bold text-primary">Rp ${amt.toLocaleString('id-ID')}</td>
+                            <td class="p-3 text-right font-bold text-emerald-700">Rp ${fee.toLocaleString('id-ID')}</td>
+                            <td class="p-3 text-center">${statusBadge(d.status)}</td>
+                        </tr>`;
+                    }).join('');
+                }
             }
         }
 
