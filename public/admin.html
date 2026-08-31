@@ -1287,22 +1287,81 @@
 
                 <!-- Stats Breakdown Grid in Pool Card (5 Cards) -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-md mt-lg pt-lg border-t border-white/10 relative z-10">
-                    <div class="bg-white/5 backdrop-blur-sm p-md rounded-xl border border-white/10">
-                        <p class="text-xs text-slate-300 font-medium">Pool Pangkalpinang (7%)</p>
-                        <h4 id="kpi-pool-pkp" class="text-lg md:text-xl font-black text-white mt-1">Rp 0</h4>
-                        <p class="text-[11px] text-slate-400 mt-0.5" id="kpi-donations-pkp">Donasi: Rp 0</p>
+                    <!-- Card 1: Pool Pangkalpinang (7%) -->
+                    <div class="bg-white/5 backdrop-blur-sm p-md rounded-xl border border-white/10 relative" id="card-pool-pkp">
+                        <div class="flex items-center justify-between gap-1">
+                            <p class="text-xs text-slate-300 font-medium">Pool Pangkalpinang (7%)</p>
+                            <button id="btn-edit-pool-pkp" onclick="startEditPool('pkp')" type="button" class="p-1 text-slate-400 hover:text-white hover:bg-white/10 rounded transition-colors cursor-pointer" title="Edit manual nominal Pool Pangkalpinang">
+                                <span class="material-symbols-outlined text-sm">edit</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Display View -->
+                        <div id="display-pool-pkp" class="flex items-center justify-between gap-1 mt-1">
+                            <h4 id="kpi-pool-pkp" class="text-lg md:text-xl font-black text-white">Rp 0</h4>
+                            <span id="badge-override-pkp" class="hidden px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/40">Manual</span>
+                        </div>
+
+                        <!-- Inline Edit View -->
+                        <div id="edit-pool-pkp-form" class="hidden mt-1.5 space-y-1">
+                            <div class="flex items-center gap-1">
+                                <input type="number" id="input-pool-pkp" class="w-full bg-slate-900/90 border border-emerald-400/60 rounded-lg px-2 py-1 text-xs text-white font-mono font-bold focus:outline-none focus:ring-1 focus:ring-emerald-400" placeholder="Nominal Rp" min="0" step="1000">
+                                <button onclick="saveEditPool('pkp')" type="button" class="p-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors cursor-pointer" title="Simpan">
+                                    <span class="material-symbols-outlined text-base">check</span>
+                                </button>
+                                <button onclick="cancelEditPool('pkp')" type="button" class="p-1 bg-white/10 hover:bg-white/20 text-slate-300 rounded-lg transition-colors cursor-pointer" title="Batal">
+                                    <span class="material-symbols-outlined text-base">close</span>
+                                </button>
+                            </div>
+                        </div>
+
+
+                        <!-- Comparison helper text -->
+                        <div id="helper-pool-pkp" class="hidden text-[10px] text-amber-300/90 mt-1 pt-1 border-t border-white/10 flex items-center justify-between">
+                            <span id="helper-text-pkp">Kalkulasi sistem asli: Rp 0</span>
+                            <button onclick="resetPoolOverride('pkp')" type="button" class="text-[9px] underline hover:text-white cursor-pointer ml-1 text-amber-200" title="Kembalikan ke hitungan otomatis">Reset</button>
+                        </div>
                     </div>
 
-                    <div class="bg-white/5 backdrop-blur-sm p-md rounded-xl border border-white/10">
-                        <p class="text-xs text-slate-300 font-medium">Pool Sungailiat (8%)</p>
-                        <h4 id="kpi-pool-sungailiat" class="text-lg md:text-xl font-black text-white mt-1">Rp 0</h4>
-                        <p class="text-[11px] text-slate-400 mt-0.5" id="kpi-donations-sungailiat">Donasi: Rp 0</p>
+                    <!-- Card 2: Pool Sungailiat (8%) -->
+                    <div class="bg-white/5 backdrop-blur-sm p-md rounded-xl border border-white/10 relative" id="card-pool-sungailiat">
+                        <div class="flex items-center justify-between gap-1">
+                            <p class="text-xs text-slate-300 font-medium">Pool Sungailiat (8%)</p>
+                            <button id="btn-edit-pool-sungailiat" onclick="startEditPool('sungailiat')" type="button" class="p-1 text-slate-400 hover:text-white hover:bg-white/10 rounded transition-colors cursor-pointer" title="Edit manual nominal Pool Sungailiat">
+                                <span class="material-symbols-outlined text-sm">edit</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Display View -->
+                        <div id="display-pool-sungailiat" class="flex items-center justify-between gap-1 mt-1">
+                            <h4 id="kpi-pool-sungailiat" class="text-lg md:text-xl font-black text-white">Rp 0</h4>
+                            <span id="badge-override-sungailiat" class="hidden px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/40">Manual</span>
+                        </div>
+
+                        <!-- Inline Edit View -->
+                        <div id="edit-pool-sungailiat-form" class="hidden mt-1.5 space-y-1">
+                            <div class="flex items-center gap-1">
+                                <input type="number" id="input-pool-sungailiat" class="w-full bg-slate-900/90 border border-blue-400/60 rounded-lg px-2 py-1 text-xs text-white font-mono font-bold focus:outline-none focus:ring-1 focus:ring-blue-400" placeholder="Nominal Rp" min="0" step="1000">
+                                <button onclick="saveEditPool('sungailiat')" type="button" class="p-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors cursor-pointer" title="Simpan">
+                                    <span class="material-symbols-outlined text-base">check</span>
+                                </button>
+                                <button onclick="cancelEditPool('sungailiat')" type="button" class="p-1 bg-white/10 hover:bg-white/20 text-slate-300 rounded-lg transition-colors cursor-pointer" title="Batal">
+                                    <span class="material-symbols-outlined text-base">close</span>
+                                </button>
+                            </div>
+                        </div>
+
+
+                        <!-- Comparison helper text -->
+                        <div id="helper-pool-sungailiat" class="hidden text-[10px] text-amber-300/90 mt-1 pt-1 border-t border-white/10 flex items-center justify-between">
+                            <span id="helper-text-sungailiat">Kalkulasi sistem asli: Rp 0</span>
+                            <button onclick="resetPoolOverride('sungailiat')" type="button" class="text-[9px] underline hover:text-white cursor-pointer ml-1 text-amber-200" title="Kembalikan ke hitungan otomatis">Reset</button>
+                        </div>
                     </div>
 
                     <div class="bg-emerald-500/10 backdrop-blur-sm p-md rounded-xl border border-emerald-500/20">
                         <p class="text-xs text-emerald-300 font-medium">Total Brankas Wilayah</p>
                         <h4 id="kpi-pool-total-fund" class="text-lg md:text-xl font-black text-emerald-400 mt-1">Rp 0</h4>
-                        <p class="text-[11px] text-emerald-200/70 mt-0.5" id="kpi-pool-donations-count">Total donasi gabungan</p>
                     </div>
 
                     <div class="bg-blue-500/10 backdrop-blur-sm p-md rounded-xl border border-blue-500/20">
@@ -7790,6 +7849,117 @@
             previewBox.classList.remove('hidden');
         }
 
+        // State & helper functions for Manual Pool Overrides (Infak Terikat)
+        let currentPoolEditingBranch = null;
+
+        function getPoolOverrides(period) {
+            try {
+                const all = JSON.parse(localStorage.getItem('wiz_kpi_pool_overrides') || '{}');
+                const p = all[period];
+                return {
+                    overridePoolPkp: (p && p.overridePoolPkp !== undefined && p.overridePoolPkp !== null && p.overridePoolPkp !== '') ? Number(p.overridePoolPkp) : null,
+                    overridePoolSungailiat: (p && p.overridePoolSungailiat !== undefined && p.overridePoolSungailiat !== null && p.overridePoolSungailiat !== '') ? Number(p.overridePoolSungailiat) : null
+                };
+            } catch(e) {
+                return { overridePoolPkp: null, overridePoolSungailiat: null };
+            }
+        }
+
+        function savePoolOverrideToStorage(period, key, value) {
+            try {
+                const all = JSON.parse(localStorage.getItem('wiz_kpi_pool_overrides') || '{}');
+                all[period] = all[period] || { overridePoolPkp: null, overridePoolSungailiat: null };
+                all[period][key] = (value !== null && value !== undefined && value !== '') ? Math.max(0, Number(value)) : null;
+                localStorage.setItem('wiz_kpi_pool_overrides', JSON.stringify(all));
+            } catch(e) {
+                console.warn('[Pool Override Storage Error]', e);
+            }
+        }
+
+        function startEditPool(branch) {
+            currentPoolEditingBranch = branch;
+            const monthSelect = document.getElementById('referral-month-filter');
+            const defaultCurMonth = (wizStore.utils && typeof wizStore.utils.getCurrentPeriod === 'function')
+                ? wizStore.utils.getCurrentPeriod()
+                : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+            const selectedMonth = (monthSelect && monthSelect.value && monthSelect.value !== 'Semua') ? monthSelect.value : defaultCurMonth;
+
+            const overrides = getPoolOverrides(selectedMonth);
+            const poolSummary = wizStore.kpiMitra.getPoolSummary(selectedMonth, overrides);
+
+            if (branch === 'pkp') {
+                const currentVal = overrides.overridePoolPkp !== null ? overrides.overridePoolPkp : (poolSummary.rawPoolPKP || 0);
+                const inputEl = document.getElementById('input-pool-pkp');
+                if (inputEl) inputEl.value = currentVal;
+                document.getElementById('display-pool-pkp')?.classList.add('hidden');
+                document.getElementById('edit-pool-pkp-form')?.classList.remove('hidden');
+                document.getElementById('btn-edit-pool-pkp')?.classList.add('hidden');
+                inputEl?.focus();
+                inputEl?.select();
+            } else if (branch === 'sungailiat') {
+                const currentVal = overrides.overridePoolSungailiat !== null ? overrides.overridePoolSungailiat : (poolSummary.rawPoolSungailiat || 0);
+                const inputEl = document.getElementById('input-pool-sungailiat');
+                if (inputEl) inputEl.value = currentVal;
+                document.getElementById('display-pool-sungailiat')?.classList.add('hidden');
+                document.getElementById('edit-pool-sungailiat-form')?.classList.remove('hidden');
+                document.getElementById('btn-edit-pool-sungailiat')?.classList.add('hidden');
+                inputEl?.focus();
+                inputEl?.select();
+            }
+        }
+
+        function cancelEditPool(branch) {
+            currentPoolEditingBranch = null;
+            if (branch === 'pkp') {
+                document.getElementById('display-pool-pkp')?.classList.remove('hidden');
+                document.getElementById('edit-pool-pkp-form')?.classList.add('hidden');
+                document.getElementById('btn-edit-pool-pkp')?.classList.remove('hidden');
+            } else if (branch === 'sungailiat') {
+                document.getElementById('display-pool-sungailiat')?.classList.remove('hidden');
+                document.getElementById('edit-pool-sungailiat-form')?.classList.add('hidden');
+                document.getElementById('btn-edit-pool-sungailiat')?.classList.remove('hidden');
+            }
+        }
+
+        function saveEditPool(branch) {
+            const monthSelect = document.getElementById('referral-month-filter');
+            const defaultCurMonth = (wizStore.utils && typeof wizStore.utils.getCurrentPeriod === 'function')
+                ? wizStore.utils.getCurrentPeriod()
+                : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+            const selectedMonth = (monthSelect && monthSelect.value && monthSelect.value !== 'Semua') ? monthSelect.value : defaultCurMonth;
+
+            if (branch === 'pkp') {
+                const inputEl = document.getElementById('input-pool-pkp');
+                const val = inputEl ? inputEl.value : '';
+                savePoolOverrideToStorage(selectedMonth, 'overridePoolPkp', val);
+                cancelEditPool('pkp');
+            } else if (branch === 'sungailiat') {
+                const inputEl = document.getElementById('input-pool-sungailiat');
+                const val = inputEl ? inputEl.value : '';
+                savePoolOverrideToStorage(selectedMonth, 'overridePoolSungailiat', val);
+                cancelEditPool('sungailiat');
+            }
+
+            renderReferralsSection();
+        }
+
+        function resetPoolOverride(branch) {
+            const monthSelect = document.getElementById('referral-month-filter');
+            const defaultCurMonth = (wizStore.utils && typeof wizStore.utils.getCurrentPeriod === 'function')
+                ? wizStore.utils.getCurrentPeriod()
+                : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+            const selectedMonth = (monthSelect && monthSelect.value && monthSelect.value !== 'Semua') ? monthSelect.value : defaultCurMonth;
+
+            if (branch === 'pkp') {
+                savePoolOverrideToStorage(selectedMonth, 'overridePoolPkp', null);
+            } else if (branch === 'sungailiat') {
+                savePoolOverrideToStorage(selectedMonth, 'overridePoolSungailiat', null);
+            }
+
+            cancelEditPool(branch);
+            renderReferralsSection();
+        }
+
         function renderReferralsSection() {
             try {
                 if (!wizStore.referrals) return;
@@ -7818,15 +7988,17 @@
                     : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
                 const selectedMonth = monthSelect ? (monthSelect.value || curMonthDefault) : curMonthDefault;
 
-                // 1. Get Brankas Wilayah Pool Summary for selectedMonth (7% PKP + 8% Sungailiat)
+                const overrides = getPoolOverrides(selectedMonth);
+
+                // 1. Get Brankas Wilayah Pool Summary for selectedMonth (7% PKP + 8% Sungailiat with Overrides)
                 const poolSummary = (wizStore.kpiMitra && typeof wizStore.kpiMitra.getPoolSummary === 'function')
-                    ? wizStore.kpiMitra.getPoolSummary(selectedMonth)
-                    : { totalVerifiedDonations: 0, totalPoolWilayah: 0, totalPool7Percent: 0, donationsPKP: 0, donationsSungailiat: 0, poolPKP: 0, poolSungailiat: 0, totalGlobalPoints: 0, pointValue: 0, donationCount: 0, kpiCount: 0 };
+                    ? wizStore.kpiMitra.getPoolSummary(selectedMonth, overrides)
+                    : { totalVerifiedDonations: 0, totalPoolWilayah: 0, totalPool7Percent: 0, donationsPKP: 0, donationsSungailiat: 0, poolPKP: 0, poolSungailiat: 0, totalGlobalPoints: 0, pointValue: 0, donationCount: 0, kpiCount: 0, rawPoolPKP: 0, rawPoolSungailiat: 0, isOverriddenPKP: false, isOverriddenSungailiat: false };
 
                 // 2. Top Summary KPI Cards
                 const activeCount = allRefs.filter(r => r && r.status === 'active').length;
                 const totalFee6Percent = allRefs.reduce((s, r) => {
-                    const mKpi = wizStore.referrals.getMonthlyKPI(r.id, selectedMonth);
+                    const mKpi = wizStore.referrals.getMonthlyKPI(r.id, selectedMonth, overrides);
                     return s + (mKpi ? (Number(mKpi.monthEarnedFee) || 0) : (Number(r.totalFee6Percent) || 0));
                 }, 0);
                 const totalPoolFund = poolSummary.totalPoolWilayah !== undefined ? poolSummary.totalPoolWilayah : (poolSummary.totalPool7Percent || 0);
@@ -7857,12 +8029,30 @@
                 if (poolPeriodBadge) {
                     poolPeriodBadge.textContent = selectedMonth === 'Semua' ? 'Semua Periode' : `Periode ${selectedMonth}`;
                 }
+
+                // Update PKP Card display
                 if (poolPkpEl) poolPkpEl.textContent = fmt(poolSummary.poolPKP || 0);
-                if (donPkpEl) donPkpEl.textContent = `Donasi: ${fmt(poolSummary.donationsPKP || 0)} (${poolSummary.countPKP || 0}x)`;
+                const badgeOverridePkp = document.getElementById('badge-override-pkp');
+                const helperPoolPkp = document.getElementById('helper-pool-pkp');
+                const helperTextPkp = document.getElementById('helper-text-pkp');
+                if (badgeOverridePkp) badgeOverridePkp.classList.toggle('hidden', !poolSummary.isOverriddenPKP);
+                if (helperPoolPkp) {
+                    helperPoolPkp.classList.toggle('hidden', !poolSummary.isOverriddenPKP);
+                    if (helperTextPkp) helperTextPkp.textContent = `Kalkulasi sistem asli: ${fmt(poolSummary.rawPoolPKP || 0)}`;
+                }
+
+                // Update Sungailiat Card display
                 if (poolSungailiatEl) poolSungailiatEl.textContent = fmt(poolSummary.poolSungailiat || 0);
-                if (donSungailiatEl) donSungailiatEl.textContent = `Donasi: ${fmt(poolSummary.donationsSungailiat || 0)} (${poolSummary.countSungailiat || 0}x)`;
+                const badgeOverrideSgl = document.getElementById('badge-override-sungailiat');
+                const helperPoolSgl = document.getElementById('helper-pool-sungailiat');
+                const helperTextSgl = document.getElementById('helper-text-sungailiat');
+                if (badgeOverrideSgl) badgeOverrideSgl.classList.toggle('hidden', !poolSummary.isOverriddenSungailiat);
+                if (helperPoolSgl) {
+                    helperPoolSgl.classList.toggle('hidden', !poolSummary.isOverriddenSungailiat);
+                    if (helperTextSgl) helperTextSgl.textContent = `Kalkulasi sistem asli: ${fmt(poolSummary.rawPoolSungailiat || 0)}`;
+                }
+
                 if (poolFundEl) poolFundEl.textContent = fmt(totalPoolFund);
-                if (poolDonCountEl) poolDonCountEl.textContent = `Total: ${fmt(poolSummary.totalVerifiedDonations || 0)} (${poolSummary.donationCount || 0} donasi)`;
                 if (poolPointsEl) poolPointsEl.textContent = `${(poolSummary.totalGlobalPoints || 0).toLocaleString('id-ID')} Poin`;
                 if (poolMitraCountEl) poolMitraCountEl.textContent = `${poolSummary.kpiCount || 0} mitra tercatat KPI`;
                 if (poolRateEl) {
@@ -8264,11 +8454,12 @@
                 : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
             const selectedMonth = (monthSelect && monthSelect.value && monthSelect.value !== 'Semua') ? monthSelect.value : defaultCurMonth;
 
+            const overrides = getPoolOverrides(selectedMonth);
             const poolSummary = (wizStore.kpiMitra && typeof wizStore.kpiMitra.getPoolSummary === 'function')
-                ? wizStore.kpiMitra.getPoolSummary(selectedMonth)
+                ? wizStore.kpiMitra.getPoolSummary(selectedMonth, overrides)
                 : null;
 
-            if (!poolSummary || poolSummary.totalVerifiedDonations === 0) {
+            if (!poolSummary || (poolSummary.totalVerifiedDonations === 0 && poolSummary.totalPoolWilayah === 0)) {
                 alert(`⚠️ Belum ada donasi terverifikasi pada periode ${selectedMonth} untuk pembagian Brankas Wilayah.`);
                 return;
             }
@@ -8278,11 +8469,14 @@
                 return;
             }
 
+            const isPkpOverridden = poolSummary.isOverriddenPKP;
+            const isSglOverridden = poolSummary.isOverriddenSungailiat;
+
             const confirmMsg = `KUNCI & FINALISASI BRANKAS WILAYAH BULAN INI?\n\n` +
                 `• Periode: ${selectedMonth}\n` +
                 `• Total Donasi Terverifikasi: Rp ${poolSummary.totalVerifiedDonations.toLocaleString('id-ID')}\n` +
-                `• Pool Pangkalpinang (7%): Rp ${poolSummary.poolPKP.toLocaleString('id-ID')}\n` +
-                `• Pool Sungailiat (8%): Rp ${poolSummary.poolSungailiat.toLocaleString('id-ID')}\n` +
+                `• Pool Pangkalpinang (7%): Rp ${poolSummary.poolPKP.toLocaleString('id-ID')}${isPkpOverridden ? ' [Manual Override]' : ''}\n` +
+                `• Pool Sungailiat (8%): Rp ${poolSummary.poolSungailiat.toLocaleString('id-ID')}${isSglOverridden ? ' [Manual Override]' : ''}\n` +
                 `• Total Brankas Wilayah: Rp ${poolSummary.totalPoolWilayah.toLocaleString('id-ID')}\n` +
                 `• Total Poin Global: ${poolSummary.totalGlobalPoints} Poin\n` +
                 `• Nilai Konversi per 1 Poin: Rp ${Math.round(poolSummary.pointValue).toLocaleString('id-ID')} / Poin\n\n` +
@@ -8291,8 +8485,9 @@
             if (!confirm(confirmMsg)) return;
 
             try {
+                const overrideNote = (isPkpOverridden || isSglOverridden) ? ' (dengan penyesuaian manual)' : '';
                 if (wizStore.activity && typeof wizStore.activity.add === 'function') {
-                    wizStore.activity.add('kpi_finalisasi', `Finalisasi Distribusi Brankas Wilayah Periode ${selectedMonth}: Total Brankas Rp ${fmtCompact(poolSummary.totalPoolWilayah)}, Poin Global ${poolSummary.totalGlobalPoints} Poin.`, ADMIN_NAME);
+                    wizStore.activity.add('kpi_finalisasi', `Finalisasi Distribusi Brankas Wilayah Periode ${selectedMonth}${overrideNote}: Total Brankas Rp ${fmtCompact(poolSummary.totalPoolWilayah)}, Poin Global ${poolSummary.totalGlobalPoints} Poin.`, ADMIN_NAME);
                 }
 
                 if (typeof wizStore.pushToCloud === 'function') {
@@ -8300,8 +8495,8 @@
                 }
 
                 alert(`🎉 SUKSES!\n\nInsentif Brankas Wilayah periode ${selectedMonth} berhasil dikunci dan difinalisasi.\n\n` +
-                    `• Pool Pangkalpinang (7%): Rp ${poolSummary.poolPKP.toLocaleString('id-ID')}\n` +
-                    `• Pool Sungailiat (8%): Rp ${poolSummary.poolSungailiat.toLocaleString('id-ID')}\n` +
+                    `• Pool Pangkalpinang (7%): Rp ${poolSummary.poolPKP.toLocaleString('id-ID')}${isPkpOverridden ? ' [Manual Override]' : ''}\n` +
+                    `• Pool Sungailiat (8%): Rp ${poolSummary.poolSungailiat.toLocaleString('id-ID')}${isSglOverridden ? ' [Manual Override]' : ''}\n` +
                     `• Total Brankas Wilayah: Rp ${poolSummary.totalPoolWilayah.toLocaleString('id-ID')}\n` +
                     `• Total Poin Global: ${poolSummary.totalGlobalPoints} Poin\n` +
                     `• Nilai per 1 Poin: Rp ${Math.round(poolSummary.pointValue).toLocaleString('id-ID')}\n\n` +

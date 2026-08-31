@@ -5886,7 +5886,7 @@
         },
 
         // Monthly KPI and Brankas Wilayah calculation for Mitra
-        async getMonthlyKPI(mitraId, targetMonthStr) {
+        async getMonthlyKPI(mitraId, targetMonthStr, overrides = null) {
             let filterMonth = targetMonthStr;
             if (!filterMonth || filterMonth === 'Semua') {
                 filterMonth = getCurrentPeriod();
@@ -5924,7 +5924,7 @@
             const kpiPoints = kpiRecord ? Number(kpiRecord.totalPoin || kpiRecord.total_poin || 0) : 0;
 
             // 3. Pool Wilayah calculation
-            const poolSummary = await kpiMitra.getPoolSummary(filterMonth);
+            const poolSummary = await kpiMitra.getPoolSummary(filterMonth, overrides);
             const totalGlobalPoints = poolSummary.totalGlobalPoints || 0;
             const totalPoolWilayah = poolSummary.totalPoolWilayah || 0;
 
@@ -6129,10 +6129,20 @@
             }) || null;
         },
 
-        getPoolSummary(targetMonthStr) {
+        getPoolSummary(targetMonthStr, overrides = null) {
             let filterMonth = targetMonthStr;
             if (!filterMonth || filterMonth === 'Semua') {
                 filterMonth = getCurrentPeriod();
+            }
+
+            // Also check localStorage for saved overrides if not explicitly passed
+            if (!overrides && typeof localStorage !== 'undefined') {
+                try {
+                    const saved = JSON.parse(localStorage.getItem('wiz_kpi_pool_overrides') || '{}');
+                    if (saved && saved[filterMonth]) {
+                        overrides = saved[filterMonth];
+                    }
+                } catch(e) {}
             }
 
             // 1. Fetch all verified donations for this month
@@ -6172,9 +6182,19 @@
             });
 
             // Pangkalpinang: 7% Pool, Sungailiat: 8% Pool -> Merged into "Brankas Wilayah"
-            const poolPKP = Math.round(sumPKP * 0.07);
-            const poolSungailiat = Math.round(sumSungailiat * 0.08);
-            const totalPoolWilayah = poolPKP + poolSungailiat;
+            const rawPoolPKP = Math.round(sumPKP * 0.07);
+            const rawPoolSungailiat = Math.round(sumSungailiat * 0.08);
+
+            const overridePkp = (overrides && overrides.overridePoolPkp !== undefined && overrides.overridePoolPkp !== null && overrides.overridePoolPkp !== '')
+                ? Math.max(0, Number(overrides.overridePoolPkp))
+                : null;
+            const overrideSungailiat = (overrides && overrides.overridePoolSungailiat !== undefined && overrides.overridePoolSungailiat !== null && overrides.overridePoolSungailiat !== '')
+                ? Math.max(0, Number(overrides.overridePoolSungailiat))
+                : null;
+
+            const final_pool_pkp = overridePkp !== null ? overridePkp : rawPoolPKP;
+            const final_pool_sungailiat = overrideSungailiat !== null ? overrideSungailiat : rawPoolSungailiat;
+            const totalPoolWilayah = final_pool_pkp + final_pool_sungailiat;
 
             // 2. Fetch all KPI records for this month
             const monthKpiList = this.getByPeriod(filterMonth);
@@ -6187,10 +6207,16 @@
                 totalVerifiedDonations: sumPKP + sumSungailiat,
                 donationsPKP: sumPKP,
                 countPKP,
-                poolPKP,
+                rawPoolPKP,
+                poolPKP: final_pool_pkp,
+                overridePoolPkp: overridePkp,
+                isOverriddenPKP: overridePkp !== null,
                 donationsSungailiat: sumSungailiat,
                 countSungailiat,
-                poolSungailiat,
+                rawPoolSungailiat,
+                poolSungailiat: final_pool_sungailiat,
+                overridePoolSungailiat: overrideSungailiat,
+                isOverriddenSungailiat: overrideSungailiat !== null,
                 totalPoolWilayah,
                 totalPool7Percent: totalPoolWilayah, // Backward-compatibility
                 totalGlobalPoints,
