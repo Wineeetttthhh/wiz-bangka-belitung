@@ -234,9 +234,9 @@
                 <!-- Right Header Actions (Link Bar + Period Filter + QR Code + Logout) -->
                 <div class="relative z-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto">
                     <!-- Period Filter Selector -->
-                    <div class="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/20">
+                    <div class="flex items-center gap-1.5 bg-emerald-950/40 px-3 py-1.5 rounded-xl border border-white/20 shadow-inner">
                         <span class="material-symbols-outlined text-base text-emerald-300">calendar_month</span>
-                        <select id="member-periode-filter" onchange="renderMemberDashboard()" class="bg-transparent text-white font-bold text-xs outline-none cursor-pointer">
+                        <select id="member-periode-filter" onchange="renderMemberDashboard()" class="bg-transparent text-white font-bold text-xs outline-none cursor-pointer border-none py-0.5 [&>option]:bg-white [&>option]:text-slate-900">
                             <!-- Populated dynamically by generatePeriods() -->
                         </select>
                     </div>
@@ -317,7 +317,7 @@
                         <p class="text-[11px] text-slate-400 font-medium border-t border-slate-100 pt-1.5" id="kpi-pool-share-info">0% dari Poin Global</p>
                     </div>
 
-                    <!-- Card 3: Insentif Tambahan (Alokasi Pool Kinerja Wilayah) -->
+                    <!-- Card 3: Insentif Tambahan (Kinerja KPI Bulanan) -->
                     <div class="bg-gradient-to-br from-purple-50 to-indigo-50 p-4 sm:p-5 rounded-2xl border border-purple-200/80 shadow-xs space-y-2">
                         <div class="flex items-center justify-between">
                             <span class="text-[11px] text-purple-900 font-bold uppercase tracking-wider">Insentif Tambahan</span>
@@ -325,9 +325,9 @@
                         </div>
                         <div>
                             <span id="kpi-pool-incentive" class="text-2xl sm:text-3xl font-black text-purple-900 block">Rp 0</span>
-                            <p class="text-xs font-semibold text-purple-700 mt-1" id="kpi-pool-wilayah-info">Alokasi Pool Wilayah: Rp 0</p>
+                            <p class="text-xs font-semibold text-purple-700 mt-1" id="kpi-pool-wilayah-info">Berdasarkan capaian poin KPI Anda</p>
                         </div>
-                        <p class="text-[11px] text-purple-600/70 font-medium border-t border-purple-200/40 pt-1.5">Insentif proporsional berbasis poin KPI</p>
+                        <p class="text-[11px] text-purple-600/70 font-medium border-t border-purple-200/40 pt-1.5">Insentif kinerja berbasis poin KPI</p>
                     </div>
 
                     <!-- Card 4: Total Hak Insentif & Status Saldo -->
@@ -340,7 +340,7 @@
                             <span id="kpi-total-earned" class="text-2xl sm:text-3xl font-black text-emerald-900 block">Rp 0</span>
                             <p class="text-xs font-semibold text-amber-800 mt-1" id="kpi-pending-info">Sisa Pending: Rp 0</p>
                         </div>
-                        <p class="text-[11px] text-emerald-700/70 font-medium border-t border-emerald-200/40 pt-1.5">Hak Fix (6%) + Insentif Tambahan Kinerja</p>
+                        <p class="text-[11px] text-emerald-700/70 font-medium border-t border-emerald-200/40 pt-1.5">Hak Fix (6%) + Insentif Tambahan</p>
                     </div>
                 </div>
 
@@ -718,9 +718,9 @@
                 ? getCurrentPeriod()
                 : (window.wizStore && typeof window.wizStore.utils?.getCurrentPeriod === 'function' ? window.wizStore.utils.getCurrentPeriod() : new Date().toISOString().slice(0, 7));
 
-            let html = `<option value="ALL">Semua Periode</option>`;
+            let html = `<option value="ALL" class="text-slate-900 bg-white" style="color:#0f172a;background-color:#ffffff;">Semua Periode</option>`;
             periods.forEach(p => {
-                html += `<option value="${p.value}" ${p.value === curMonth ? 'selected' : ''}>${p.label} ${p.isCurrent ? '(Bulan Ini)' : ''}</option>`;
+                html += `<option value="${p.value}" class="text-slate-900 bg-white" style="color:#0f172a;background-color:#ffffff;" ${p.value === curMonth ? 'selected' : ''}>${p.label} ${p.isCurrent ? '(Bulan Ini)' : ''}</option>`;
             });
             sel.innerHTML = html;
             if (currentVal && Array.from(sel.options).some(o => o.value === currentVal)) {
@@ -1077,13 +1077,23 @@
                 }
             }
             if (kpiPoolShare) {
-                kpiPoolShare.textContent = `${mKpi.poolPortionPercent}% dari Poin Global (${poolSummary.totalGlobalPoints} Pts)`;
+                if (mKpi.kpiPoints > 0) {
+                    kpiPoolShare.textContent = `${mKpi.kpiPoints} Poin tercatat pada periode ini`;
+                } else {
+                    kpiPoolShare.textContent = 'Belum ada poin tercatat';
+                }
             }
 
             const kpiPoolIncentive = document.getElementById('kpi-pool-incentive');
             const kpiPoolWilayahInfo = document.getElementById('kpi-pool-wilayah-info');
             if (kpiPoolIncentive) kpiPoolIncentive.textContent = `Rp ${mKpi.additionalIncentive.toLocaleString('id-ID')}`;
-            if (kpiPoolWilayahInfo) kpiPoolWilayahInfo.textContent = `Alokasi Pool Wilayah: Rp ${poolSummary.totalPoolWilayah.toLocaleString('id-ID')}`;
+            if (kpiPoolWilayahInfo) {
+                if (mKpi.kpiPoints > 0) {
+                    kpiPoolWilayahInfo.textContent = `Dari akumulasi ${mKpi.kpiPoints} poin KPI Anda`;
+                } else {
+                    kpiPoolWilayahInfo.textContent = 'Belum ada poin KPI pada periode ini';
+                }
+            }
 
             const kpiTotalEarned = document.getElementById('kpi-total-earned');
             const kpiPendingInfo = document.getElementById('kpi-pending-info');
@@ -1167,13 +1177,13 @@
                     activityContainer.innerHTML = tableHtml;
                 } else {
                     activityContainer.innerHTML = `
-                    <div class="bg-slate-50 rounded-2xl p-6 sm:p-8 text-center border border-dashed border-slate-200">
-                        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3">
+                    <div class="bg-slate-50/80 rounded-2xl p-6 sm:p-8 text-center border border-dashed border-slate-200 w-full flex flex-col items-center justify-center">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
                             <span class="material-symbols-outlined text-2xl">fact_check</span>
                         </div>
-                        <h4 class="text-sm font-bold text-slate-800">Belum Ada Catatan Aktivitas untuk Periode ${targetPeriod}</h4>
-                        <p class="text-xs text-slate-500 max-w-md mx-auto mt-1 leading-relaxed">
-                            Aktivitas operasional Anda (hadir rapat, administrasi, desain flyer, edit video dokumentasi, dan aksi lapangan) akan diinput serta diverifikasi oleh Pengurus Wilayah WIZ Bangka Belitung.
+                        <h4 class="text-sm font-bold text-slate-800 mb-1">Belum Ada Catatan Aktivitas untuk Periode ${targetPeriod}</h4>
+                        <p class="text-xs text-slate-500 max-w-lg text-center leading-relaxed mx-auto">
+                            Aktivitas operasional Anda (rapat, administrasi, desain, video, dan penyaluran lapangan) akan diverifikasi dan diinput oleh pengurus wilayah.
                         </p>
                     </div>`;
                 }
