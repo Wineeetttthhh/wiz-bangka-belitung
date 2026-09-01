@@ -30,7 +30,8 @@ export const GET: APIRoute = async ({ request }) => {
         });
     }
 
-    const allNews = await fetchAllNews();
+    const includeDrafts = url.searchParams.get('include_drafts') === '1' || url.searchParams.get('all') === '1' || url.searchParams.get('status') === 'all';
+    const allNews = await fetchAllNews(includeDrafts);
     return new Response(JSON.stringify({ success: true, data: allNews }), {
         status: 200,
         headers: NO_CACHE_HEADERS

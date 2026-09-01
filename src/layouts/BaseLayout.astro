@@ -8,6 +8,7 @@ export interface Props {
     title?: string;
     description?: string;
     image?: string;
+    url?: string;
     type?: string;
     keywords?: string;
 }
@@ -16,6 +17,7 @@ const {
     title = 'WIZ Bangka Belitung - Tebarkan Kebaikan',
     description = 'Wahdah Inspirasi Zakat (WIZ) Bangka Belitung - Lembaga Amil Zakat Terpercaya. Melayani Zakat, Infak, Sedekah & Wakaf untuk pemberdayaan umat di Bangka Belitung.',
     image = '/assets/images/foto-utama-wiz.jpg',
+    url,
     type = 'website',
     keywords = 'WIZ Bangka Belitung, Wahdah Inspirasi Zakat, Zakat Babel, Sedekah Bangka, Donasi Online, Zakat Maal, Beasiswa Tahfidz'
 } = Astro.props;
@@ -24,7 +26,7 @@ const {
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth light">
 <head>
-    <SEO title={title} description={description} image={image} type={type} keywords={keywords} />
+    <SEO title={title} description={description} image={image} url={url} type={type} keywords={keywords} />
     <style is:global>
         html, body {
             overflow-x: hidden !important;

@@ -38,12 +38,18 @@ function formatDate(dateStr: string) {
 }
 
 const displayDate = formatDate(news.eventDate || news.createdAt);
+
+// Absolute Open Graph Image URL for WhatsApp & Social Media crawlers
+const rawImg = news.imageUrl || (Array.isArray(news.gallery) && news.gallery.length > 0 ? news.gallery[0] : '') || '/assets/images/foto-utama-wiz.jpg';
+const ogImage = rawImg.startsWith('http://') || rawImg.startsWith('https://')
+    ? rawImg
+    : `https://www.wizbangkabelitung.or.id${rawImg.startsWith('/') ? '' : '/'}${rawImg}`;
 ---
 
 <BaseLayout
     title={`${news.title} | WIZ Bangka Belitung`}
     description={news.content ? news.content.replace(/<[^>]*>/g, '').substring(0, 160) : ''}
-    image={news.imageUrl || '/assets/images/default-program-wiz.png'}
+    image={ogImage}
     url={canonicalUrl}
     type="article"
 >

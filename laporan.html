@@ -215,7 +215,9 @@
                 <span class="material-symbols-outlined text-lg sm:text-xl">account_balance_wallet</span>
                 <span class="font-label-md text-xs sm:text-sm font-bold">Total Dana Masuk</span>
             </div>
-            <div class="font-bold text-on-surface text-lg sm:text-xl md:text-2xl tracking-tight truncate min-w-0 w-full" id="pub-total-masuk" title="Total Dana Masuk">Rp 0</div>
+            <div class="font-bold text-on-surface text-lg sm:text-xl md:text-2xl tracking-tight truncate min-w-0 w-full" id="pub-total-masuk" title="Total Dana Masuk">
+                <div class="h-7 w-28 bg-slate-200 animate-pulse rounded-lg mt-1"></div>
+            </div>
             <span class="font-caption text-[11px] sm:text-caption text-on-surface-variant">Donasi terverifikasi sah</span>
         </div>
 
@@ -224,7 +226,9 @@
                 <span class="material-symbols-outlined text-lg sm:text-xl">volunteer_activism</span>
                 <span class="font-label-md text-xs sm:text-sm font-bold">Total Tersalurkan</span>
             </div>
-            <div class="font-bold text-on-surface text-lg sm:text-xl md:text-2xl tracking-tight truncate min-w-0 w-full" id="pub-total-salur" title="Total Tersalurkan">Rp 0</div>
+            <div class="font-bold text-on-surface text-lg sm:text-xl md:text-2xl tracking-tight truncate min-w-0 w-full" id="pub-total-salur" title="Total Tersalurkan">
+                <div class="h-7 w-28 bg-slate-200 animate-pulse rounded-lg mt-1"></div>
+            </div>
             <span class="font-caption text-[11px] sm:text-caption text-on-surface-variant">Telah disalurkan ke penerima</span>
         </div>
 
@@ -233,7 +237,9 @@
                 <span class="material-symbols-outlined text-lg sm:text-xl">account_balance</span>
                 <span class="font-label-md text-xs sm:text-sm font-bold">Saldo Saat Ini</span>
             </div>
-            <div class="font-bold text-on-surface text-lg sm:text-xl md:text-2xl tracking-tight truncate min-w-0 w-full" id="pub-saldo" title="Saldo Saat Ini">Rp 0</div>
+            <div class="font-bold text-on-surface text-lg sm:text-xl md:text-2xl tracking-tight truncate min-w-0 w-full" id="pub-saldo" title="Saldo Saat Ini">
+                <div class="h-7 w-28 bg-slate-200 animate-pulse rounded-lg mt-1"></div>
+            </div>
             <span class="font-caption text-[11px] sm:text-caption text-on-surface-variant">Sisa saldo amanah program</span>
         </div>
 
@@ -242,7 +248,9 @@
                 <span class="material-symbols-outlined text-lg sm:text-xl">groups</span>
                 <span class="font-label-md text-xs sm:text-sm font-bold">Jumlah Donatur</span>
             </div>
-            <div class="font-bold text-on-surface text-lg sm:text-xl md:text-2xl tracking-tight truncate min-w-0 w-full" id="pub-donatur-count" title="Jumlah Donatur">0</div>
+            <div class="font-bold text-on-surface text-lg sm:text-xl md:text-2xl tracking-tight truncate min-w-0 w-full" id="pub-donatur-count" title="Jumlah Donatur">
+                <div class="h-7 w-16 bg-slate-200 animate-pulse rounded-lg mt-1"></div>
+            </div>
             <span class="font-caption text-[11px] sm:text-caption text-on-surface-variant">Donatur terverifikasi</span>
         </div>
     </section>
@@ -259,10 +267,10 @@
             </div>
             <div class="flex flex-wrap items-center gap-2">
                 <div class="inline-flex p-1 bg-surface-container-high rounded-xl border border-outline-variant/30 text-xs font-bold">
-                    <button type="button" id="btn-chart-masuk" onclick="setChartMetric('masuk')" class="px-3 py-1.5 rounded-lg transition-all text-on-surface-variant hover:text-on-surface font-semibold">
+                    <button type="button" id="btn-chart-masuk" onclick="setChartMetric('masuk')" class="px-3 py-1.5 rounded-lg transition-all text-on-surface-variant hover:text-on-surface font-semibold cursor-pointer">
                         📥 Pemasukan
                     </button>
-                    <button type="button" id="btn-chart-salur" onclick="setChartMetric('salur')" class="px-3 py-1.5 rounded-lg transition-all bg-primary text-on-primary font-bold shadow-xs">
+                    <button type="button" id="btn-chart-salur" onclick="setChartMetric('salur')" class="px-3 py-1.5 rounded-lg transition-all bg-primary text-on-primary font-bold shadow-xs cursor-pointer">
                         📤 Penyaluran
                     </button>
                 </div>
@@ -278,12 +286,15 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-center pt-sm">
             <!-- Left: Donut Chart SVG Container -->
             <div class="lg:col-span-5 flex flex-col items-center justify-center p-md bg-surface-container-low rounded-xl border border-outline-variant/20 relative min-h-[260px]" id="pillar-chart-container">
-                <!-- SVG Donut Chart dynamically rendered -->
+                <div class="w-40 h-40 rounded-full border-8 border-slate-200 border-t-emerald-600 animate-spin"></div>
             </div>
 
             <!-- Right: Legend Cards Grid with Percentages & Nominals -->
             <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-sm" id="pillar-legend-container">
-                <!-- Rendered dynamically -->
+                <div class="h-16 bg-slate-100 rounded-xl animate-pulse"></div>
+                <div class="h-16 bg-slate-100 rounded-xl animate-pulse"></div>
+                <div class="h-16 bg-slate-100 rounded-xl animate-pulse"></div>
+                <div class="h-16 bg-slate-100 rounded-xl animate-pulse"></div>
             </div>
         </div>
     </section>
@@ -294,7 +305,12 @@
             <span class="material-symbols-outlined text-primary">history_edu</span>
             <span>Riwayat Penyaluran Dana Terbaru</span>
         </h2>
-        <div id="disbursement-history-list" class="space-y-sm divide-y divide-outline-variant/20"></div>
+        <div id="disbursement-history-list" class="space-y-sm divide-y divide-outline-variant/20">
+            <div class="py-3 space-y-2">
+                <div class="h-4 bg-slate-100 rounded-md w-3/4 animate-pulse"></div>
+                <div class="h-3 bg-slate-100 rounded-md w-1/2 animate-pulse"></div>
+            </div>
+        </div>
     </section>
 
 </main>

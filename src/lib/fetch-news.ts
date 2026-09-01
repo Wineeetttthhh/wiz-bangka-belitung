@@ -69,11 +69,13 @@ function mapRow(row: SupabaseNewsRow): NewsItem {
 }
 
 /**
- * Fetch all published news from Supabase — no cache, always fresh.
+ * Fetch all news from Supabase — no cache, always fresh.
+ * @param includeDrafts Set to true to include draft articles
  */
-export async function fetchAllNews(): Promise<NewsItem[]> {
+export async function fetchAllNews(includeDrafts: boolean = false): Promise<NewsItem[]> {
     try {
-        const url = `${SUPABASE_URL}/rest/v1/news?status=eq.published&order=created_at.desc&select=id,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at`;
+        const filterStatus = includeDrafts ? '' : '&status=eq.published';
+        const url = `${SUPABASE_URL}/rest/v1/news?order=created_at.desc&select=id,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at${filterStatus}`;
         const res = await fetch(url, {
             method: 'GET',
             headers: BASE_HEADERS,
@@ -89,20 +91,40 @@ export async function fetchAllNews(): Promise<NewsItem[]> {
 }
 
 /**
- * Fetch a single news item by ID — no cache, always fresh.
+ * Fetch a single news item by ID or Slug — no cache, always fresh.
  */
-export async function fetchNewsById(id: string): Promise<NewsItem | null> {
+export async function fetchNewsById(idOrSlug: string): Promise<NewsItem | null> {
     try {
-        const url = `${SUPABASE_URL}/rest/v1/news?id=eq.${encodeURIComponent(id)}&select=id,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at&limit=1`;
+        const encoded = encodeURIComponent(idOrSlug);
+        // Try direct lookup by id or slug
+        const url = `${SUPABASE_URL}/rest/v1/news?or=(id.eq.${encoded},slug.eq.${encoded})&select=id,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at&limit=1`;
         const res = await fetch(url, {
             method: 'GET',
             headers: BASE_HEADERS,
             cache: 'no-store'
         });
-        if (!res.ok) return null;
-        const rows: SupabaseNewsRow[] = await res.json();
-        if (!Array.isArray(rows) || rows.length === 0) return null;
-        return mapRow(rows[0]);
+        if (res.ok) {
+            const rows: SupabaseNewsRow[] = await res.json();
+            if (Array.isArray(rows) && rows.length > 0) {
+                return mapRow(rows[0]);
+            }
+        }
+
+        // Fallback: try by id only if or filter failed
+        const fallbackUrl = `${SUPABASE_URL}/rest/v1/news?id=eq.${encoded}&select=id,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at&limit=1`;
+        const fbRes = await fetch(fallbackUrl, {
+            method: 'GET',
+            headers: BASE_HEADERS,
+            cache: 'no-store'
+        });
+        if (fbRes.ok) {
+            const fbRows: SupabaseNewsRow[] = await fbRes.json();
+            if (Array.isArray(fbRows) && fbRows.length > 0) {
+                return mapRow(fbRows[0]);
+            }
+        }
+
+        return null;
     } catch (_) {
         return null;
     }

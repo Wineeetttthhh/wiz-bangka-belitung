@@ -944,40 +944,42 @@
                 </div>
             </div>
 
-            <!-- Stats & Filter Bar -->
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-md items-center">
-                <!-- Badges -->
-                <div class="md:col-span-4 flex items-center gap-xs flex-wrap">
-                    <span id="news-stat-total" class="px-3 py-1.5 bg-surface-container rounded-xl text-caption font-bold text-on-surface">Total: 0 Berita</span>
-                    <span id="news-stat-published" class="px-3 py-1.5 bg-emerald-100 text-emerald-800 rounded-xl text-caption font-bold">✅ 0 Tayang</span>
-                    <span id="news-stat-draft" class="px-3 py-1.5 bg-amber-100 text-amber-800 rounded-xl text-caption font-bold">⏳ 0 Draft</span>
-                </div>
-
-                <!-- Search & Filters -->
-                <div class="md:col-span-8 flex flex-col sm:flex-row items-center gap-xs">
-                    <!-- Search Input -->
-                    <div class="relative w-full sm:flex-1">
-                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
-                        <input type="text" id="news-search-input" oninput="renderNewsList()" placeholder="Cari judul berita atau isi kegiatan..." class="w-full pl-9 pr-3 py-2 bg-surface border border-outline-variant rounded-xl text-caption outline-none focus:border-primary">
+            <!-- Stats & Shadcn-style Tabs Filter Bar -->
+            <div class="space-y-sm">
+                <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-sm">
+                    <!-- Shadcn Segmented Tabs -->
+                    <div class="inline-flex p-1 bg-surface-container rounded-xl border border-outline-variant/40 shrink-0 self-start md:self-auto">
+                        <button type="button" id="tab-news-all" onclick="setNewsTab('Semua')" class="news-tab-btn active px-4 py-2 rounded-lg text-caption font-bold transition-all bg-surface text-primary shadow-xs cursor-pointer">
+                            Semua (<span id="news-stat-total-count">0</span>)
+                        </button>
+                        <button type="button" id="tab-news-published" onclick="setNewsTab('published')" class="news-tab-btn px-4 py-2 rounded-lg text-caption font-semibold text-on-surface-variant transition-all hover:text-on-surface cursor-pointer">
+                            ✅ Published (<span id="news-stat-pub-count">0</span>)
+                        </button>
+                        <button type="button" id="tab-news-draft" onclick="setNewsTab('draft')" class="news-tab-btn px-4 py-2 rounded-lg text-caption font-semibold text-on-surface-variant transition-all hover:text-on-surface cursor-pointer">
+                            ⏳ Draft (<span id="news-stat-draft-count">0</span>)
+                        </button>
                     </div>
-                    <!-- Category Select -->
-                    <select id="news-filter-category" onchange="renderNewsList()" class="w-full sm:w-auto bg-surface border border-outline-variant rounded-xl px-3 py-2 text-caption text-on-surface outline-none focus:border-primary">
-                        <option value="Semua">Semua Kategori</option>
-                        <option value="Kegiatan & Penyaluran">Kegiatan &amp; Penyaluran</option>
-                        <option value="Kegiatan & Event">Kegiatan &amp; Event</option>
-                        <option value="Dakwah & Pendidikan">Dakwah &amp; Pendidikan</option>
-                        <option value="Kemanusiaan & Sosial">Kemanusiaan &amp; Sosial</option>
-                        <option value="Kesehatan & Layanan Ummat">Kesehatan &amp; Layanan Ummat</option>
-                        <option value="Ekonomi & Pemberdayaan">Ekonomi &amp; Pemberdayaan</option>
-                        <option value="Pengumuman">Pengumuman</option>
-                        <option value="Laporan Publik">Laporan Publik</option>
-                    </select>
-                    <!-- Status Filter -->
-                    <select id="news-filter-status" onchange="renderNewsList()" class="w-full sm:w-auto bg-surface border border-outline-variant rounded-xl px-3 py-2 text-caption text-on-surface outline-none focus:border-primary font-semibold">
-                        <option value="Semua">Semua Status</option>
-                        <option value="published">✅ Dipublikasikan</option>
-                        <option value="draft">⏳ Draft</option>
-                    </select>
+
+                    <!-- Search & Category Filters -->
+                    <div class="flex flex-col sm:flex-row items-center gap-xs flex-1 max-w-xl">
+                        <!-- Search Input -->
+                        <div class="relative w-full sm:flex-1">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+                            <input type="text" id="news-search-input" oninput="renderNewsList()" placeholder="Cari judul berita atau isi kegiatan..." class="w-full pl-9 pr-3 py-2 bg-surface border border-outline-variant rounded-xl text-caption outline-none focus:border-primary">
+                        </div>
+                        <!-- Category Select -->
+                        <select id="news-filter-category" onchange="renderNewsList()" class="w-full sm:w-auto bg-surface border border-outline-variant rounded-xl px-3 py-2 text-caption text-on-surface outline-none focus:border-primary font-medium">
+                            <option value="Semua">Semua Kategori</option>
+                            <option value="Kegiatan & Penyaluran">Kegiatan &amp; Penyaluran</option>
+                            <option value="Kegiatan & Event">Kegiatan &amp; Event</option>
+                            <option value="Dakwah & Pendidikan">Dakwah &amp; Pendidikan</option>
+                            <option value="Kemanusiaan & Sosial">Kemanusiaan &amp; Sosial</option>
+                            <option value="Kesehatan & Layanan Ummat">Kesehatan &amp; Layanan Ummat</option>
+                            <option value="Ekonomi & Pemberdayaan">Ekonomi &amp; Pemberdayaan</option>
+                            <option value="Pengumuman">Pengumuman</option>
+                            <option value="Laporan Publik">Laporan Publik</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -4630,6 +4632,23 @@
 
         // ─── News & Dokumentasi Handlers ───────────────────
         let activeNewsGallery = [];
+        let activeNewsTab = 'Semua';
+
+        function setNewsTab(tab) {
+            activeNewsTab = tab;
+            const tabAll = document.getElementById('tab-news-all');
+            const tabPub = document.getElementById('tab-news-published');
+            const tabDraft = document.getElementById('tab-news-draft');
+
+            const activeClass = 'news-tab-btn active px-4 py-2 rounded-lg text-caption font-bold transition-all bg-surface text-primary shadow-xs cursor-pointer';
+            const inactiveClass = 'news-tab-btn px-4 py-2 rounded-lg text-caption font-semibold text-on-surface-variant transition-all hover:text-on-surface cursor-pointer';
+
+            if (tabAll) tabAll.className = tab === 'Semua' ? activeClass : inactiveClass;
+            if (tabPub) tabPub.className = tab === 'published' ? activeClass : inactiveClass;
+            if (tabDraft) tabDraft.className = tab === 'draft' ? activeClass : inactiveClass;
+
+            renderNewsList();
+        }
 
         function renderNewsList() {
             if (!wizStore || !wizStore.news) return;
@@ -4637,15 +4656,23 @@
             const container = document.getElementById('news-list');
             if (!container) return;
 
-            // Update stats badges
+            // Update stats counts in Tabs
             const totalCount = allNews.length;
-            const publishedCount = allNews.filter(n => n.status === 'published').length;
+            const publishedCount = allNews.filter(n => (n.status || 'published') === 'published').length;
             const draftCount = allNews.filter(n => n.status === 'draft').length;
 
+            const totalCountEl = document.getElementById('news-stat-total-count');
+            const pubCountEl = document.getElementById('news-stat-pub-count');
+            const draftCountEl = document.getElementById('news-stat-draft-count');
+
+            if (totalCountEl) totalCountEl.textContent = totalCount;
+            if (pubCountEl) pubCountEl.textContent = publishedCount;
+            if (draftCountEl) draftCountEl.textContent = draftCount;
+
+            // Legacy badges fallback if present
             const totalEl = document.getElementById('news-stat-total');
             const pubEl = document.getElementById('news-stat-published');
             const draftEl = document.getElementById('news-stat-draft');
-
             if (totalEl) totalEl.textContent = `Total: ${totalCount} Berita`;
             if (pubEl) pubEl.textContent = `✅ ${publishedCount} Tayang`;
             if (draftEl) draftEl.textContent = `⏳ ${draftCount} Draft`;
@@ -4653,10 +4680,11 @@
             // Read filters
             const searchKeyword = (document.getElementById('news-search-input')?.value || '').toLowerCase().trim();
             const categoryFilter = document.getElementById('news-filter-category')?.value || 'Semua';
-            const statusFilter = document.getElementById('news-filter-status')?.value || 'Semua';
+            const statusFilter = activeNewsTab;
 
             let filtered = allNews.filter(n => {
-                if (statusFilter !== 'Semua' && n.status !== statusFilter) return false;
+                const itemStatus = n.status || 'published';
+                if (statusFilter !== 'Semua' && itemStatus !== statusFilter) return false;
                 if (categoryFilter !== 'Semua' && n.category !== categoryFilter) return false;
                 if (searchKeyword) {
                     const matchTitle = (n.title || '').toLowerCase().includes(searchKeyword);
@@ -5095,100 +5123,166 @@
             activeNewsGallery = [];
         }
 
+        function showAdminToast(title, message, type = 'success') {
+            let container = document.getElementById('admin-toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'admin-toast-container';
+                container.className = 'fixed bottom-5 right-5 z-[9999] flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4';
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto p-4 rounded-2xl shadow-xl border flex items-start gap-3 transform transition-all duration-300 translate-y-4 opacity-0 ${
+                type === 'success' ? 'bg-emerald-950/95 border-emerald-500/50 text-white' :
+                type === 'warning' ? 'bg-amber-950/95 border-amber-500/50 text-white' :
+                'bg-rose-950/95 border-rose-500/50 text-white'
+            }`;
+
+            const icon = type === 'success' ? 'check_circle' : type === 'warning' ? 'edit_note' : 'error';
+            const iconColor = type === 'success' ? 'text-emerald-400' : type === 'warning' ? 'text-amber-400' : 'text-rose-400';
+
+            toast.innerHTML = `
+                <span class="material-symbols-outlined ${iconColor} text-xl shrink-0 mt-0.5">${icon}</span>
+                <div class="flex-1 min-w-0">
+                    <h5 class="font-bold text-sm leading-tight">${title}</h5>
+                    <p class="text-xs text-white/80 mt-0.5 leading-snug">${message}</p>
+                </div>
+                <button type="button" class="text-white/60 hover:text-white shrink-0 cursor-pointer" onclick="this.parentElement.remove()">
+                    <span class="material-symbols-outlined text-sm">close</span>
+                </button>
+            `;
+
+            container.appendChild(toast);
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-4', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-4', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 4500);
+        }
+
         async function handleNewsSave(e) {
             e.preventDefault();
-            const editId = document.getElementById('news-edit-id').value;
-            const title = (document.getElementById('news-title').value || '').trim();
-            const category = document.getElementById('news-category').value;
-            const content = (document.getElementById('news-content').value || '').trim();
-            const imageUrl = (document.getElementById('news-image-url').value || '').trim() || 'assets/images/sedekah-beras-dhuafa.jpg';
-            const eventDateVal = document.getElementById('news-event-date').value;
-            const eventDate = eventDateVal ? new Date(eventDateVal).toISOString() : new Date().toISOString();
-            const status = document.querySelector('input[name="news-status"]:checked') ? document.querySelector('input[name="news-status"]:checked').value : 'published';
-            const author = (document.getElementById('news-author').value || sessionStorage.getItem('wiz_admin_name') || 'Admin WIZ Babel').trim();
-
-            if (!title) {
-                alert('Judul Berita wajib diisi!');
-                return;
-            }
-            if (!content) {
-                alert('Isi Berita lengkap wajib diisi!');
-                return;
+            const submitBtn = e.target ? e.target.querySelector('button[type="submit"]') : null;
+            const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                if (submitBtn.disabled) return;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Menyimpan...</span>`;
             }
 
-            const cleanGallery = activeNewsGallery.filter(Boolean);
-            const nowIso = new Date().toISOString();
-            const existingNews = editId && wizStore.news ? wizStore.news.getById(editId) : null;
-
-            const data = {
-                title,
-                category,
-                content,
-                imageUrl,
-                image_url: imageUrl,
-                gallery: cleanGallery,
-                eventDate,
-                event_date: eventDate,
-                status,
-                author,
-                createdAt: existingNews ? (existingNews.createdAt || existingNews.created_at || nowIso) : nowIso,
-                created_at: existingNews ? (existingNews.created_at || existingNews.createdAt || nowIso) : nowIso,
-                updatedAt: nowIso,
-                updated_at: nowIso
-            };
-
-            // 1. Instantly save to local store
-            let savedArticle = null;
-            if (editId) {
-                savedArticle = await wizStore.news.update(editId, data);
-            } else {
-                savedArticle = await wizStore.news.add(data);
-            }
-
-            // 2. Instantly close modal and refresh UI
-            closeNewsModal();
-            refreshAll();
-
-            // 3. Directly save to Supabase Database (Non-blocking background)
-            const itemToSave = savedArticle || data;
-            const fullPayload = {
-                id: String(editId || itemToSave.id),
-                title: itemToSave.title,
-                category: itemToSave.category,
-                content: itemToSave.content,
-                image_url: itemToSave.imageUrl || itemToSave.image_url || '',
-                gallery: itemToSave.gallery || [],
-                event_date: itemToSave.eventDate || itemToSave.event_date || nowIso,
-                status: itemToSave.status || 'published',
-                author: itemToSave.author,
-                created_at: itemToSave.createdAt || itemToSave.created_at || nowIso,
-                updated_at: nowIso
-            };
-
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                window.wizSupabase.upsert('news', fullPayload).then(() => {
-                    console.log('[Supabase] News saved successfully to PostgreSQL:', fullPayload.id);
-                }).catch(err => {
-                    console.error('[Supabase Save Error]', err);
-                });
-            }
-
-            // 4. Send direct micro-action to /api/sync so serverless cache is instantly updated
             try {
-                fetch('/api/sync', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'save_news', news: fullPayload })
-                }).catch(() => {});
-            } catch(e) {}
+                const editId = document.getElementById('news-edit-id').value;
+                const title = (document.getElementById('news-title').value || '').trim();
+                const category = document.getElementById('news-category').value;
+                const content = (document.getElementById('news-content').value || '').trim();
+                const imageUrl = (document.getElementById('news-image-url').value || '').trim() || 'assets/images/sedekah-beras-dhuafa.jpg';
+                const eventDateVal = document.getElementById('news-event-date').value;
+                const eventDate = eventDateVal ? new Date(eventDateVal).toISOString() : new Date().toISOString();
+                const status = document.querySelector('input[name="news-status"]:checked') ? document.querySelector('input[name="news-status"]:checked').value : 'published';
+                const author = (document.getElementById('news-author').value || sessionStorage.getItem('wiz_admin_name') || 'Admin WIZ Babel').trim();
 
-            // 5. Background cloud push for master bundle
-            if (wizStore.pushToCloud) {
-                wizStore.pushToCloud().catch(() => {});
+                if (!title) {
+                    alert('Judul Berita wajib diisi!');
+                    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalBtnText; }
+                    return;
+                }
+                if (!content) {
+                    alert('Isi Berita lengkap wajib diisi!');
+                    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalBtnText; }
+                    return;
+                }
+
+                const cleanGallery = activeNewsGallery.filter(Boolean);
+                const nowIso = new Date().toISOString();
+                const existingNews = editId && wizStore.news ? wizStore.news.getById(editId) : null;
+
+                const data = {
+                    title,
+                    category,
+                    content,
+                    imageUrl,
+                    image_url: imageUrl,
+                    gallery: cleanGallery,
+                    eventDate,
+                    event_date: eventDate,
+                    status,
+                    author,
+                    createdAt: existingNews ? (existingNews.createdAt || existingNews.created_at || nowIso) : nowIso,
+                    created_at: existingNews ? (existingNews.created_at || existingNews.createdAt || nowIso) : nowIso,
+                    updatedAt: nowIso,
+                    updated_at: nowIso
+                };
+
+                // 1. Instantly save to local store
+                let savedArticle = null;
+                if (editId) {
+                    savedArticle = await wizStore.news.update(editId, data);
+                } else {
+                    savedArticle = await wizStore.news.add(data);
+                }
+
+                // 2. Instantly close modal and refresh UI
+                closeNewsModal();
+                refreshAll();
+
+                // 3. Directly save to Supabase Database (Non-blocking background)
+                const itemToSave = savedArticle || data;
+                const fullPayload = {
+                    id: String(editId || itemToSave.id),
+                    title: itemToSave.title,
+                    category: itemToSave.category,
+                    content: itemToSave.content,
+                    image_url: itemToSave.imageUrl || itemToSave.image_url || '',
+                    gallery: itemToSave.gallery || [],
+                    event_date: itemToSave.eventDate || itemToSave.event_date || nowIso,
+                    status: itemToSave.status || 'published',
+                    author: itemToSave.author,
+                    created_at: itemToSave.createdAt || itemToSave.created_at || nowIso,
+                    updated_at: nowIso
+                };
+
+                if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                    window.wizSupabase.upsert('news', fullPayload).then(() => {
+                        console.log('[Supabase] News saved successfully to PostgreSQL:', fullPayload.id);
+                    }).catch(err => {
+                        console.error('[Supabase Save Error]', err);
+                    });
+                }
+
+                // 4. Send direct micro-action to /api/sync so serverless cache is instantly updated
+                try {
+                    fetch('/api/sync', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'save_news', news: fullPayload })
+                    }).catch(() => {});
+                } catch(e) {}
+
+                // 5. Background cloud push for master bundle
+                if (wizStore.pushToCloud) {
+                    wizStore.pushToCloud().catch(() => {});
+                }
+
+                // 6. User feedback via Toast notification
+                const isDraft = status === 'draft';
+                showAdminToast(
+                    isDraft ? '⏳ Draft Berita Berhasil Disimpan' : '✅ Berita Berhasil Ditayangkan',
+                    `"${title}" berhasil ${editId ? 'diperbarui' : 'disimpan'} (${isDraft ? 'Tersimpan di Tab Draft' : 'Aktif di Web Utama'}).`,
+                    isDraft ? 'warning' : 'success'
+                );
+            } catch(err) {
+                console.error('[News Save Error]', err);
+                alert('⚠️ Terjadi kendala saat menyimpan berita: ' + err.message);
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                }
             }
-
-            // 6. User feedback
-            alert(`✅ Berita "${title}" berhasil ${editId ? 'diperbarui' : 'disimpan'}!\n\nStatus: ${status === 'published' ? 'Dipublikasikan (Aktif di Seluruh Perangkat)' : 'Draft'}\nDatabase: Supabase PostgreSQL`);
         }
 
         function editNews(id) {

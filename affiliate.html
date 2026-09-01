@@ -1014,23 +1014,64 @@
 
         async function handleAffiliateRegister(e) {
             e.preventDefault();
-            const name = document.getElementById('reg-name').value.trim();
-            const phone = document.getElementById('reg-phone').value.trim();
-            const bankName = document.getElementById('reg-bank').value.trim();
-            const accountNumber = document.getElementById('reg-acc-no').value.trim();
-            const accountHolder = document.getElementById('reg-acc-holder').value.trim();
-            const pin = document.getElementById('reg-pin').value.trim();
+            const form = e.target;
+            const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
+            const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
 
-            if (window.wizStore && window.wizStore.referrals) {
-                const res = await window.wizStore.referrals.registerPublic({ name, phone, bankName, accountNumber, accountHolder, pin, cabang: 'Pangkalpinang' });
-                if (res.success) {
+            if (submitBtn) {
+                if (submitBtn.disabled) return;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `<span class="material-symbols-outlined text-xl animate-spin">sync</span><span>Mendaftarkan Mitra...</span>`;
+            }
+
+            try {
+                const name = (document.getElementById('reg-name').value || '').trim();
+                const phone = (document.getElementById('reg-phone').value || '').trim();
+                const bankName = (document.getElementById('reg-bank').value || '').trim();
+                const accountNumber = (document.getElementById('reg-acc-no').value || '').trim();
+                const accountHolder = (document.getElementById('reg-acc-holder').value || '').trim();
+                const pin = (document.getElementById('reg-pin').value || '').trim();
+
+                if (!name || !phone) {
+                    alert('⚠️ Nama Lengkap dan Nomor WhatsApp wajib diisi.');
+                    return;
+                }
+
+                if (!window.wizStore || !window.wizStore.referrals) {
+                    alert('⚠️ Sistem data sedang memuat. Silakan tunggu 2 detik lalu klik Daftar kembali.');
+                    return;
+                }
+
+                const res = await window.wizStore.referrals.registerPublic({ 
+                    name, 
+                    phone, 
+                    bankName, 
+                    accountNumber, 
+                    accountHolder, 
+                    pin, 
+                    cabang: 'Pangkalpinang',
+                    notes: 'Pendaftaran Mitra Penghimpunan Online'
+                });
+
+                if (res && res.success && res.referral) {
                     currentLoggedAffiliate = res.referral;
                     sessionStorage.setItem('wiz_logged_affiliate', JSON.stringify(res.referral));
                     localStorage.setItem('wiz_logged_affiliate', JSON.stringify(res.referral));
-                    alert(`✅ Pendaftaran berhasil! Kode Mitra Anda: ${res.referral.code || res.referral.id}`);
+                    
+                    alert(`✅ Pendaftaran Berhasil!\n\nSelamat datang, ${res.referral.name}!\nKode Mitra Anda: ${res.referral.code || res.referral.id}\nStatus: Aktif\n\nAnda sekarang dapat mulai membagikan tautan kebaikan.`);
+                    
+                    if (form) form.reset();
                     activateMemberState(res.referral);
                 } else {
-                    alert(`⚠️ ${res.message}`);
+                    alert(`⚠️ ${res ? res.message : 'Gagal melakukan pendaftaran. Silakan periksa kembali data Anda.'}`);
+                }
+            } catch(err) {
+                console.error('[Affiliate Register Error]', err);
+                alert('⚠️ Terjadi kendala saat mendaftar: ' + (err.message || 'Silakan periksa koneksi internet Anda dan coba lagi.'));
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnHtml;
                 }
             }
         }

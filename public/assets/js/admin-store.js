@@ -5505,10 +5505,13 @@
             return this.getById(identifier);
         },
 
-        async registerPublic({ name, phone, bankName, accountNumber, accountHolder, pin }) {
+        async registerPublic(payload = {}) {
+            const { name, phone, bankName, accountNumber, accountHolder, pin, cabang, notes } = payload;
             const cleanName = (name || '').trim();
             const cleanPhone = (phone || '').trim();
             const cleanPin = (pin || '').trim() || cleanPhone.slice(-4) || '1234';
+            const cleanCabang = (cabang || 'Pangkalpinang').trim();
+            const cleanNotes = (notes || 'Pendaftaran Mitra Publik via website').trim();
 
             if (!cleanName || !cleanPhone) {
                 return { success: false, message: 'Nama Lengkap & No. WhatsApp wajib diisi.' };
@@ -5525,14 +5528,15 @@
                 const updates = {
                     bankName: (bankName || existing.bankName || '-').trim(),
                     accountNumber: (accountNumber || existing.accountNumber || '-').trim(),
-                    accountHolder: (accountHolder || existing.accountHolder || cleanName).trim()
+                    accountHolder: (accountHolder || existing.accountHolder || cleanName).trim(),
+                    cabang: cleanCabang || existing.cabang || 'Pangkalpinang'
                 };
                 if (pin && pin.trim()) updates.pin = cleanPin;
 
                 const updatedRef = await this.update(existing.id, updates);
                 const resultRef = updatedRef || { ...existing, ...updates };
                 broadcastSync('UPDATE_REFERRAL', resultRef);
-                return { success: true, isExisting: true, referral: resultRef, message: 'Akun Affiliate Anda telah aktif & data terhubung ke Web Admin!' };
+                return { success: true, isExisting: true, referral: resultRef, message: 'Akun Mitra Anda telah aktif & data terhubung ke Web Admin!' };
             }
 
             const autoId = this.generateAffiliateId(new Date());
@@ -5547,12 +5551,12 @@
                 defaultRate: 6,
                 pin: cleanPin,
                 status: 'active',
-                notes: data.notes || 'Pendaftaran Affiliate Publik via website',
-                cabang: data.cabang || 'Pangkalpinang',
+                notes: cleanNotes,
+                cabang: cleanCabang,
                 createdBy: 'Publik (Pendaftaran Online)'
             });
 
-            return { success: true, isExisting: false, referral: newRef, message: 'Pendaftaran Affiliate/Perantara Kebaikan berhasil!' };
+            return { success: true, isExisting: false, referral: newRef, message: 'Pendaftaran Mitra Penghimpunan berhasil!' };
         },
 
         async login({ identifier, pin }) {
