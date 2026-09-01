@@ -8249,6 +8249,9 @@
                                         <button onclick="openKpiModal('${r.id}')" class="px-2 py-1 bg-blue-600 text-white hover:bg-blue-700 rounded font-bold transition-colors text-[11px] shadow-xs cursor-pointer inline-flex items-center gap-0.5" title="Input aktivitas KPI mitra ini">
                                             <span class="material-symbols-outlined text-[13px]">add_task</span> KPI
                                         </button>
+                                        <button onclick="openAdminBrochureModal('${r.id}')" class="px-2 py-1 bg-emerald-700 text-white hover:bg-emerald-800 rounded font-bold transition-colors text-[11px] shadow-xs cursor-pointer inline-flex items-center gap-0.5" title="Cetak Brosur Tri-Fold Personal Mitra">
+                                            <span class="material-symbols-outlined text-[13px]">menu_book</span> Brosur
+                                        </button>
                                         <button onclick="openReferralDetailModal('${r.id}')" class="px-2 py-1 bg-primary/10 text-primary hover:bg-primary/20 rounded font-bold transition-colors cursor-pointer">Detail</button>
                                         <button onclick="openReferralPayoutModal('${r.id}')" class="px-2 py-1 bg-amber-600 text-white hover:bg-amber-700 rounded font-bold transition-colors cursor-pointer">Cairkan</button>
                                         <button onclick="editReferral('${r.id}')" class="px-2 py-1 border border-outline-variant text-on-surface-variant hover:text-primary rounded font-semibold transition-colors cursor-pointer">Edit</button>
@@ -8303,6 +8306,23 @@
                 }
             } catch(err) {
                 console.error('[WIZ Admin] Error rendering referrals section:', err);
+            }
+        }
+
+        function openAdminBrochureModal(mitraId) {
+            if (!window.wizStore || !wizStore.referrals) {
+                alert('⚠️ Data Mitra sedang dimuat. Silakan tunggu.');
+                return;
+            }
+            const mitra = wizStore.referrals.getById(mitraId);
+            if (!mitra) {
+                alert('⚠️ Data Mitra tidak ditemukan.');
+                return;
+            }
+            if (window.WizBrochure && typeof window.WizBrochure.openModal === 'function') {
+                window.WizBrochure.openModal(mitra);
+            } else {
+                alert('⚠️ Modul Generator Brosur sedang diinisialisasi. Silakan klik kembali dalam 1 detik.');
             }
         }
 
@@ -9869,7 +9889,7 @@
         }
         window.submitForgotPasswordWA = submitForgotPasswordWA;
     </script>
+    <script src="/assets/js/brochure-generator.js"></script>
 </body>
-
 </html>
 
