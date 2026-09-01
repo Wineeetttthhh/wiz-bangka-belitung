@@ -1,6 +1,6 @@
 /**
  * WIZ Bangka Belitung - 2-Page Dynamic Tri-Fold Brochure Generator
- * High-Resolution (2500x1768) PNG Capture for Mitra Volunteers & Admin Printing
+ * High-Resolution (2500x1768) PNG Capture with Calibrated Absolute Coordinates
  */
 
 (function(window) {
@@ -8,10 +8,51 @@
 
     const BASE_WIDTH = 2500;
     const BASE_HEIGHT = 1768;
-    const ASPECT_RATIO = BASE_WIDTH / BASE_HEIGHT; // ~1.414
+
+    // Calibrated coordinates matching Canva A4 Tri-Fold Master Template (2500 x 1768 px)
+    const DEFAULT_POSITIONS = {
+        // Halaman Luar - QR Code box in white card (Left panel)
+        qrTop: 68.8,
+        qrLeft: 3.5,
+        qrWidth: 12.0,
+        // Halaman Luar - WhatsApp confirmation box in white card (Left panel)
+        waTop: 85.2,
+        waLeft: 16.8,
+        waWidth: 11.8,
+        // Halaman Dalam - Hubungi Kami contact box (Center panel)
+        innerWaTop: 82.2,
+        innerWaLeft: 39.5,
+        innerWaWidth: 21.0
+    };
 
     const WizBrochure = {
-        // CDN dependency loader
+        pos: { ...DEFAULT_POSITIONS },
+
+        initPositions: function() {
+            try {
+                const saved = localStorage.getItem('wiz_brochure_pos');
+                if (saved) {
+                    this.pos = { ...DEFAULT_POSITIONS, ...JSON.parse(saved) };
+                }
+            } catch(e) {
+                this.pos = { ...DEFAULT_POSITIONS };
+            }
+        },
+
+        savePositions: function(newPos) {
+            this.pos = { ...this.pos, ...newPos };
+            try {
+                localStorage.setItem('wiz_brochure_pos', JSON.stringify(this.pos));
+            } catch(e) {}
+        },
+
+        resetPositions: function() {
+            this.pos = { ...DEFAULT_POSITIONS };
+            try {
+                localStorage.removeItem('wiz_brochure_pos');
+            } catch(e) {}
+        },
+
         ensureLibraries: async function() {
             const loadScript = (src, id) => {
                 return new Promise((resolve, reject) => {
@@ -39,7 +80,6 @@
             return Promise.all(promises);
         },
 
-        // Helper to format phone for clean display (e.g. 0812-3456-7890)
         formatPhone: function(phone) {
             if (!phone) return '0811-7811-900';
             const clean = String(phone).replace(/\D/g, '');
@@ -52,80 +92,57 @@
             return phone;
         },
 
-        // Render Halaman Luar (Canvas 1) HTML Structure
-        renderLuarHtml: function(mitra, idPrefix = 'luar') {
+        // Render Halaman Luar (Canvas 1)
+        renderLuarHtml: function(mitra, idPrefix = 'luar', customPos = null) {
+            const pos = customPos || this.pos;
             const name = mitra.name || 'Mitra Kebaikan WIZ';
-            const code = (mitra.code || mitra.id || 'WIZ').toUpperCase();
             const phone = this.formatPhone(mitra.phone);
-            const referralUrl = `https://www.wizbangkabelitung.or.id/donasi?ref=${encodeURIComponent(code)}`;
 
             return `
             <div id="${idPrefix}-canvas-container" class="wiz-brochure-canvas relative w-full overflow-hidden select-none bg-slate-100" style="aspect-ratio: 2500 / 1768;">
-                <!-- Master Background Image -->
+                <!-- Master Background Image (2500 x 1768 px) -->
                 <img src="/images/brosur-master-luar.png" onerror="this.onerror=null; this.src='/assets/images/brosur-master-luar.png';" class="w-full h-full object-cover block pointer-events-none" alt="Brosur WIZ Luar">
 
-                <!-- PANEL KIRI (Flap Luar - Dynamic Overlay Area) -->
-                <div class="absolute top-0 left-0 w-[33.33%] h-full flex flex-col items-center pointer-events-none">
-                    
-                    <!-- 1. Teks Instruksi Google Lens (Di atas QR Code) -->
-                    <div class="absolute top-[48.8%] left-[6%] w-[88%] text-center">
-                        <p class="text-[clamp(9px,1.1vw,18px)] font-medium text-slate-800 leading-snug tracking-tight">
-                            Scan menggunakan <strong class="font-black text-[#006834]">Google Lens</strong><br>atau Kamera HP Anda
-                        </p>
-                    </div>
-
-                    <!-- 2. QR Code Box (Dinamis URL Referral) -->
-                    <div class="absolute top-[54.5%] left-[22.5%] w-[55%] aspect-square bg-white p-[3%] rounded-2xl shadow-lg border-2 border-emerald-600/30 flex items-center justify-center pointer-events-auto">
-                        <div id="${idPrefix}-qrcode-target" class="w-full h-full flex items-center justify-center [&>img]:w-full [&>img]:h-full [&>canvas]:w-full [&>canvas]:h-full"></div>
-                    </div>
-
-                    <!-- 3. Teks CTA di bawah QR Code -->
-                    <div class="absolute top-[81.5%] left-[6%] w-[88%] text-center">
-                        <p class="text-[clamp(10px,1.25vw,22px)] font-black text-[#006834] uppercase tracking-wide drop-shadow-xs">
-                            "Satu Scan, Jutaan Kebaikan"
-                        </p>
-                    </div>
-
-                    <!-- 4. Kontak Konfirmasi Donasi (Nomor WhatsApp & Nama Relawan) -->
-                    <div class="absolute top-[88.2%] left-[10%] w-[80%] flex flex-col items-center justify-center text-center">
-                        <div class="bg-white/95 backdrop-blur-xs px-3 py-1 rounded-xl border border-emerald-600/30 shadow-xs w-full max-w-[260px]">
-                            <span class="text-[clamp(7px,0.75vw,12px)] font-bold text-slate-500 block uppercase tracking-wider">Konfirmasi / Info Donasi:</span>
-                            <span class="text-[clamp(9px,1.15vw,19px)] font-black text-slate-900 font-mono tracking-tight block text-[#006834]">${phone}</span>
-                            <span class="text-[clamp(7px,0.85vw,13px)] font-extrabold text-slate-700 block truncate" title="${name}">(${name})</span>
-                        </div>
-                    </div>
-
+                <!-- ELEMEN 1: QR CODE SAJA (Tepat di dalam kotak QR placeholder bawaan template) -->
+                <div id="${idPrefix}-qr-box" class="absolute flex items-center justify-center p-[0.4%] bg-white rounded-lg select-none" 
+                     style="top: ${pos.qrTop}%; left: ${pos.qrLeft}%; width: ${pos.qrWidth}%; aspect-ratio: 1 / 1;">
+                    <div id="${idPrefix}-qrcode-target" class="w-full h-full flex items-center justify-center [&>img]:w-full [&>img]:h-full [&>canvas]:w-full [&>canvas]:h-full"></div>
                 </div>
+
+                <!-- ELEMEN 2: NOMOR WA & NAMA MITRA (Tepat di dalam kotak Konfirmasi Donasi) -->
+                <div id="${idPrefix}-wa-box" class="absolute flex flex-col items-center justify-center text-center select-none"
+                     style="top: ${pos.waTop}%; left: ${pos.waLeft}%; width: ${pos.waWidth}%;">
+                    <span class="font-mono font-black text-slate-900 text-[clamp(8px,1vw,16px)] tracking-tight block leading-tight">${phone}</span>
+                    <span class="font-bold text-slate-600 text-[clamp(6px,0.72vw,11px)] truncate max-w-full block leading-tight mt-0.5" title="${name}">(${name})</span>
+                </div>
+
             </div>`;
         },
 
-        // Render Halaman Dalam (Canvas 2) HTML Structure
-        renderDalamHtml: function(mitra, idPrefix = 'dalam') {
+        // Render Halaman Dalam (Canvas 2)
+        renderDalamHtml: function(mitra, idPrefix = 'dalam', customPos = null) {
+            const pos = customPos || this.pos;
             const name = mitra.name || 'Mitra Kebaikan WIZ';
             const phone = this.formatPhone(mitra.phone);
 
             return `
             <div id="${idPrefix}-canvas-container" class="wiz-brochure-canvas relative w-full overflow-hidden select-none bg-slate-100" style="aspect-ratio: 2500 / 1768;">
-                <!-- Master Background Image -->
+                <!-- Master Background Image (2500 x 1768 px) -->
                 <img src="/images/brosur-master-dalam.png" onerror="this.onerror=null; this.src='/assets/images/brosur-master-dalam.png';" class="w-full h-full object-cover block pointer-events-none" alt="Brosur WIZ Dalam">
 
-                <!-- PANEL TENGAH (Area Hubungi Kami / Layanan Jemput Donasi) -->
-                <div class="absolute top-0 left-[33.33%] w-[33.33%] h-full flex flex-col items-center pointer-events-none">
-                    
-                    <!-- Dynamic WhatsApp Contact Overlay on Center Panel -->
-                    <div class="absolute top-[87.5%] left-[8%] w-[84%] flex flex-col items-center justify-center text-center">
-                        <div class="bg-white/95 backdrop-blur-xs px-3 py-1.5 rounded-xl border border-emerald-600/30 shadow-xs w-full max-w-[260px]">
-                            <span class="text-[clamp(7px,0.75vw,12px)] font-bold text-slate-500 block uppercase tracking-wider">Layanan Jemput &amp; Konsultasi:</span>
-                            <span class="text-[clamp(9px,1.15vw,19px)] font-black text-[#006834] font-mono tracking-tight block">${phone}</span>
-                            <span class="text-[clamp(7px,0.85vw,13px)] font-extrabold text-slate-700 block truncate" title="${name}">Mitra: ${name}</span>
-                        </div>
+                <!-- ELEMEN KONTAK PADA PANEL TENGAH (Area Hubungi Kami) -->
+                <div id="${idPrefix}-inner-wa-box" class="absolute text-center select-none flex flex-col items-center justify-center"
+                     style="top: ${pos.innerWaTop}%; left: ${pos.innerWaLeft}%; width: ${pos.innerWaWidth}%;">
+                    <div class="bg-white/95 backdrop-blur-xs px-2.5 py-1 rounded-xl border border-emerald-600/30 shadow-xs w-full max-w-[240px]">
+                        <span class="text-[clamp(6px,0.7vw,11px)] font-bold text-slate-500 block uppercase tracking-wider">Layanan Jemput &amp; Konsultasi:</span>
+                        <span class="text-[clamp(8px,1.05vw,16px)] font-black text-[#006834] font-mono tracking-tight block">${phone}</span>
+                        <span class="text-[clamp(6px,0.75vw,12px)] font-extrabold text-slate-700 block truncate" title="${name}">Mitra: ${name}</span>
                     </div>
-
                 </div>
+
             </div>`;
         },
 
-        // Inject QR Code into rendered target element
         injectQrCode: function(targetElId, text) {
             const target = document.getElementById(targetElId);
             if (!target) return;
@@ -149,8 +166,9 @@
             }
         },
 
-        // Open Dialog Modal with Live Preview and Export Controls
         openModal: async function(mitraData) {
+            this.initPositions();
+
             const mitra = mitraData || {
                 name: 'Mitra Kebaikan WIZ',
                 code: 'WIZ-001',
@@ -160,12 +178,14 @@
 
             await this.ensureLibraries();
 
-            // Check or create modal container
             let modalEl = document.getElementById('wiz-brochure-modal');
             if (!modalEl) {
                 modalEl = document.createElement('div');
                 modalEl.id = 'wiz-brochure-modal';
-                modalEl.className = 'fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto opacity-0 pointer-events-none transition-opacity duration-300';
+                modalEl.className = 'fixed inset-0 z-[99999] bg-black/80 backdrop-blur-sm flex flex-col items-center justify-start sm:justify-center p-2 sm:p-4 md:p-6 overflow-y-auto opacity-0 pointer-events-none transition-opacity duration-300';
+                modalEl.onclick = (e) => {
+                    if (e.target === modalEl) WizBrochure.closeModal();
+                };
                 document.body.appendChild(modalEl);
             }
 
@@ -173,74 +193,132 @@
             const referralUrl = `https://www.wizbangkabelitung.or.id/donasi?ref=${encodeURIComponent(code)}`;
 
             modalEl.innerHTML = `
-            <div class="bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 max-w-5xl w-full flex flex-col max-h-[92vh] overflow-hidden transform scale-95 transition-transform duration-300">
+            <div class="my-auto bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 max-w-5xl w-full flex flex-col max-h-[92vh] overflow-hidden transform scale-95 transition-transform duration-300">
                 
                 <!-- Modal Header -->
-                <div class="px-5 py-4 sm:px-6 sm:py-5 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
+                <div class="px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 shadow-xs">
-                            <span class="material-symbols-outlined text-2xl text-emerald-700">menu_book</span>
+                        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 shadow-xs">
+                            <span class="material-symbols-outlined text-xl sm:text-2xl text-emerald-700">menu_book</span>
                         </div>
                         <div>
-                            <h3 class="text-base sm:text-lg font-black text-slate-900 leading-tight">Generator Brosur Digital Relawan (2 Halaman)</h3>
-                            <p class="text-xs text-slate-500 mt-0.5">Brosur Tri-Fold Personal: <strong class="text-emerald-700">${mitra.name}</strong> (Kode: <span class="font-mono font-bold">${code}</span>)</p>
+                            <h3 class="text-sm sm:text-base md:text-lg font-black text-slate-900 leading-tight">Generator Brosur Digital Relawan (2 Halaman)</h3>
+                            <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5">Brosur Tri-Fold Personal: <strong class="text-emerald-700">${mitra.name}</strong> (Kode: <span class="font-mono font-bold">${code}</span>)</p>
                         </div>
                     </div>
-                    <button type="button" onclick="WizBrochure.closeModal()" class="w-9 h-9 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition-colors cursor-pointer" title="Tutup Modal">
-                        <span class="material-symbols-outlined text-xl">close</span>
+                    <button type="button" onclick="WizBrochure.closeModal()" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition-colors cursor-pointer" title="Tutup Modal">
+                        <span class="material-symbols-outlined text-lg sm:text-xl">close</span>
                     </button>
                 </div>
 
                 <!-- Modal Sub-Header Tabs & Quick Actions -->
-                <div class="px-5 py-2.5 sm:px-6 bg-white border-b border-slate-100 flex flex-wrap items-center justify-between gap-2.5 shrink-0">
+                <div class="px-3 py-2 sm:px-6 sm:py-2.5 bg-white border-b border-slate-100 flex flex-wrap items-center justify-between gap-2 shrink-0">
                     <!-- Page Selector Tabs -->
                     <div class="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200 text-xs font-bold">
-                        <button type="button" id="tab-btn-luar" onclick="WizBrochure.switchTab('luar')" class="px-3.5 py-1.5 rounded-lg transition-all bg-emerald-700 text-white font-extrabold shadow-xs cursor-pointer">
+                        <button type="button" id="tab-btn-luar" onclick="WizBrochure.switchTab('luar')" class="px-3 py-1.5 rounded-lg transition-all bg-emerald-700 text-white font-extrabold shadow-xs cursor-pointer">
                             📄 Halaman Luar (Depan &amp; QR)
                         </button>
-                        <button type="button" id="tab-btn-dalam" onclick="WizBrochure.switchTab('dalam')" class="px-3.5 py-1.5 rounded-lg transition-all text-slate-600 hover:text-slate-900 font-semibold cursor-pointer">
+                        <button type="button" id="tab-btn-dalam" onclick="WizBrochure.switchTab('dalam')" class="px-3 py-1.5 rounded-lg transition-all text-slate-600 hover:text-slate-900 font-semibold cursor-pointer">
                             📖 Halaman Dalam (Program)
                         </button>
                     </div>
 
-                    <!-- Download High-Res Action Button -->
-                    <button type="button" id="btn-download-brochure" onclick="WizBrochure.executeDownload()" class="bg-[#006834] hover:bg-[#005228] text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold flex items-center gap-2 shadow-md shadow-emerald-900/20 transition-all cursor-pointer active:scale-95">
-                        <span class="material-symbols-outlined text-lg">download</span>
-                        <span>Download 2 Halaman (PNG High-Res)</span>
-                    </button>
+                    <!-- Right Controls: Toggle Calibration & Download Action -->
+                    <div class="flex items-center gap-2">
+                        <!-- Toggle Calibration Sliders Button -->
+                        <button type="button" onclick="WizBrochure.toggleCalibrationPanel()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 border border-slate-300 transition-all cursor-pointer" title="Kalibrasi Posisi QR &amp; WA">
+                            <span class="material-symbols-outlined text-sm sm:text-base text-emerald-700">tune</span>
+                            <span class="hidden sm:inline">Kalibrasi Posisi</span>
+                        </button>
+
+                        <!-- Download High-Res Action Button -->
+                        <button type="button" id="btn-download-brochure" onclick="WizBrochure.executeDownload()" class="bg-[#006834] hover:bg-[#005228] text-white px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-extrabold flex items-center gap-1.5 shadow-md shadow-emerald-900/20 transition-all cursor-pointer active:scale-95">
+                            <span class="material-symbols-outlined text-base sm:text-lg">download</span>
+                            <span>Download (PNG High-Res)</span>
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Modal Body: Interactive Canvas Preview Container -->
-                <div class="p-4 sm:p-6 overflow-y-auto flex-1 bg-slate-100/70 flex flex-col items-center justify-center">
-                    
-                    <!-- Notification Banner -->
-                    <div class="w-full max-w-4xl mb-3 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 flex items-center justify-between gap-3">
+                <!-- Collapsible Real-Time Slider Tuning Panel -->
+                <div id="wiz-calibration-panel" class="hidden px-4 py-3 sm:px-6 bg-slate-900 text-white border-b border-slate-800 shrink-0 transition-all">
+                    <div class="flex items-center justify-between mb-2">
                         <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-emerald-700 text-base shrink-0">verified</span>
-                            <span>QR Code &amp; Kontak WhatsApp telah disematkan otomatis. Siap dicetak fisik atau dibagikan ke calon donatur.</span>
+                            <span class="material-symbols-outlined text-amber-400 text-sm">tune</span>
+                            <span class="text-xs font-bold text-amber-400 uppercase tracking-wider">Live Position Sliders (Tuning Real-Time)</span>
                         </div>
-                        <span class="font-mono text-[11px] bg-emerald-200/60 text-emerald-900 px-2 py-0.5 rounded font-bold shrink-0">2500 x 1768 px</span>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="WizBrochure.handleResetDefaults()" class="text-[11px] px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 cursor-pointer">
+                                Reset Default
+                            </button>
+                            <button type="button" onclick="WizBrochure.handleSaveCustomPos()" class="text-[11px] px-2.5 py-0.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold cursor-pointer">
+                                Simpan Posisi
+                            </button>
+                        </div>
                     </div>
 
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
+                        <div class="bg-slate-800/80 p-2 rounded-lg border border-slate-700 space-y-1">
+                            <div class="flex justify-between font-mono text-[11px]">
+                                <span class="text-slate-300 font-bold">QR Top (%)</span>
+                                <span id="val-qr-top" class="text-emerald-400 font-bold">${this.pos.qrTop}%</span>
+                            </div>
+                            <input type="range" id="slider-qr-top" min="50" max="90" step="0.2" value="${this.pos.qrTop}" 
+                                   oninput="WizBrochure.updateLivePos('qrTop', this.value)" class="w-full accent-emerald-500 cursor-pointer">
+                        </div>
+
+                        <div class="bg-slate-800/80 p-2 rounded-lg border border-slate-700 space-y-1">
+                            <div class="flex justify-between font-mono text-[11px]">
+                                <span class="text-slate-300 font-bold">QR Left (%)</span>
+                                <span id="val-qr-left" class="text-emerald-400 font-bold">${this.pos.qrLeft}%</span>
+                            </div>
+                            <input type="range" id="slider-qr-left" min="0" max="25" step="0.2" value="${this.pos.qrLeft}" 
+                                   oninput="WizBrochure.updateLivePos('qrLeft', this.value)" class="w-full accent-emerald-500 cursor-pointer">
+                        </div>
+
+                        <div class="bg-slate-800/80 p-2 rounded-lg border border-slate-700 space-y-1">
+                            <div class="flex justify-between font-mono text-[11px]">
+                                <span class="text-slate-300 font-bold">WA Top (%)</span>
+                                <span id="val-wa-top" class="text-emerald-400 font-bold">${this.pos.waTop}%</span>
+                            </div>
+                            <input type="range" id="slider-wa-top" min="65" max="98" step="0.2" value="${this.pos.waTop}" 
+                                   oninput="WizBrochure.updateLivePos('waTop', this.value)" class="w-full accent-emerald-500 cursor-pointer">
+                        </div>
+
+                        <div class="bg-slate-800/80 p-2 rounded-lg border border-slate-700 space-y-1">
+                            <div class="flex justify-between font-mono text-[11px]">
+                                <span class="text-slate-300 font-bold">WA Left (%)</span>
+                                <span id="val-wa-left" class="text-emerald-400 font-bold">${this.pos.waLeft}%</span>
+                            </div>
+                            <input type="range" id="slider-wa-left" min="5" max="35" step="0.2" value="${this.pos.waLeft}" 
+                                   oninput="WizBrochure.updateLivePos('waLeft', this.value)" class="w-full accent-emerald-500 cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Body: Scrollable Canvas Preview Container -->
+                <div class="p-3 sm:p-5 overflow-y-auto flex-1 bg-slate-100/70 flex flex-col items-center justify-start min-h-[300px]">
+                    
                     <!-- Canvas Preview Wrapper (Page 1: Luar) -->
-                    <div id="preview-page-luar" class="w-full max-w-4xl rounded-2xl overflow-hidden shadow-xl border border-slate-300 bg-white">
+                    <div id="preview-page-luar" class="w-full max-w-4xl rounded-xl sm:rounded-2xl overflow-hidden shadow-xl border border-slate-300 bg-white">
                         ${this.renderLuarHtml(mitra, 'modal-luar')}
                     </div>
 
                     <!-- Canvas Preview Wrapper (Page 2: Dalam) -->
-                    <div id="preview-page-dalam" class="w-full max-w-4xl rounded-2xl overflow-hidden shadow-xl border border-slate-300 bg-white hidden">
+                    <div id="preview-page-dalam" class="w-full max-w-4xl rounded-xl sm:rounded-2xl overflow-hidden shadow-xl border border-slate-300 bg-white hidden">
                         ${this.renderDalamHtml(mitra, 'modal-dalam')}
                     </div>
 
                 </div>
 
                 <!-- Modal Footer Info -->
-                <div class="px-5 py-3 sm:px-6 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-2 shrink-0">
-                    <span class="flex items-center gap-1.5 font-medium">
+                <div class="px-4 py-2.5 sm:px-6 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-2 shrink-0">
+                    <span class="flex items-center gap-1 font-medium">
                         <span class="material-symbols-outlined text-sm text-emerald-600">qr_code_2</span>
-                        <span>Tautan Referral: <strong class="font-mono text-slate-800">${referralUrl}</strong></span>
+                        <span class="truncate max-w-[280px] sm:max-w-md">Ref: <strong class="font-mono text-slate-800">${referralUrl}</strong></span>
                     </span>
-                    <span class="text-slate-400">Wahdah Inspirasi Zakat Bangka Belitung</span>
+                    <button type="button" onclick="WizBrochure.closeModal()" class="px-3 py-1 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-bold text-xs cursor-pointer">
+                        Tutup
+                    </button>
                 </div>
 
             </div>`;
@@ -248,10 +326,9 @@
             // Inject QR code into preview target
             this.injectQrCode('modal-luar-qrcode-target', referralUrl);
 
-            // Store current active mitra for download handler
             this.activeMitra = mitra;
 
-            // Show modal smoothly
+            // Show modal
             modalEl.classList.remove('pointer-events-none', 'opacity-0');
             modalEl.classList.add('opacity-100');
             const dialogBox = modalEl.firstElementChild;
@@ -259,10 +336,52 @@
                 dialogBox.classList.remove('scale-95');
                 dialogBox.classList.add('scale-100');
             }
-            document.body.style.overflow = 'hidden';
         },
 
-        // Switch between Halaman Luar and Halaman Dalam in preview
+        toggleCalibrationPanel: function() {
+            const panel = document.getElementById('wiz-calibration-panel');
+            if (panel) {
+                panel.classList.toggle('hidden');
+            }
+        },
+
+        updateLivePos: function(prop, val) {
+            const numVal = parseFloat(val);
+            this.pos[prop] = numVal;
+
+            const labelMap = {
+                qrTop: 'val-qr-top',
+                qrLeft: 'val-qr-left',
+                waTop: 'val-wa-top',
+                waLeft: 'val-wa-left'
+            };
+            const labelEl = document.getElementById(labelMap[prop]);
+            if (labelEl) labelEl.textContent = `${numVal.toFixed(1)}%`;
+
+            const qrBox = document.getElementById('modal-luar-qr-box');
+            const waBox = document.getElementById('modal-luar-wa-box');
+
+            if (prop === 'qrTop' && qrBox) qrBox.style.top = `${numVal}%`;
+            if (prop === 'qrLeft' && qrBox) qrBox.style.left = `${numVal}%`;
+            if (prop === 'waTop' && waBox) waBox.style.top = `${numVal}%`;
+            if (prop === 'waLeft' && waBox) waBox.style.left = `${numVal}%`;
+        },
+
+        handleSaveCustomPos: function() {
+            this.savePositions(this.pos);
+            alert(`✅ Posisi Berhasil Disimpan!\n\n• QR Top: ${this.pos.qrTop}%\n• QR Left: ${this.pos.qrLeft}%\n• WA Top: ${this.pos.waTop}%\n• WA Left: ${this.pos.waLeft}%\n\nPengaturan ini akan otomatis digunakan saat mengekspor gambar resolusi tinggi.`);
+        },
+
+        handleResetDefaults: function() {
+            this.resetPositions();
+            ['qrTop', 'qrLeft', 'waTop', 'waLeft'].forEach(p => {
+                const slider = document.getElementById(`slider-${p.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}`);
+                if (slider) slider.value = this.pos[p];
+                this.updateLivePos(p, this.pos[p]);
+            });
+            alert('🔄 Posisi telah dipulihkan ke nilai default.');
+        },
+
         switchTab: function(tabName) {
             const pageLuar = document.getElementById('preview-page-luar');
             const pageDalam = document.getElementById('preview-page-dalam');
@@ -274,25 +393,24 @@
                 if (pageDalam) pageDalam.classList.remove('hidden');
 
                 if (btnLuar) {
-                    btnLuar.className = 'px-3.5 py-1.5 rounded-lg transition-all text-slate-600 hover:text-slate-900 font-semibold cursor-pointer';
+                    btnLuar.className = 'px-3 py-1.5 rounded-lg transition-all text-slate-600 hover:text-slate-900 font-semibold cursor-pointer';
                 }
                 if (btnDalam) {
-                    btnDalam.className = 'px-3.5 py-1.5 rounded-lg transition-all bg-emerald-700 text-white font-extrabold shadow-xs cursor-pointer';
+                    btnDalam.className = 'px-3 py-1.5 rounded-lg transition-all bg-emerald-700 text-white font-extrabold shadow-xs cursor-pointer';
                 }
             } else {
                 if (pageDalam) pageDalam.classList.add('hidden');
                 if (pageLuar) pageLuar.classList.remove('hidden');
 
                 if (btnDalam) {
-                    btnDalam.className = 'px-3.5 py-1.5 rounded-lg transition-all text-slate-600 hover:text-slate-900 font-semibold cursor-pointer';
+                    btnDalam.className = 'px-3 py-1.5 rounded-lg transition-all text-slate-600 hover:text-slate-900 font-semibold cursor-pointer';
                 }
                 if (btnLuar) {
-                    btnLuar.className = 'px-3.5 py-1.5 rounded-lg transition-all bg-emerald-700 text-white font-extrabold shadow-xs cursor-pointer';
+                    btnLuar.className = 'px-3 py-1.5 rounded-lg transition-all bg-emerald-700 text-white font-extrabold shadow-xs cursor-pointer';
                 }
             }
         },
 
-        // Close Modal
         closeModal: function() {
             const modalEl = document.getElementById('wiz-brochure-modal');
             if (!modalEl) return;
@@ -303,10 +421,8 @@
             }
             modalEl.classList.remove('opacity-100');
             modalEl.classList.add('opacity-0', 'pointer-events-none');
-            document.body.style.overflow = '';
         },
 
-        // Execute High-Resolution Capture and Download 2 PNG files
         executeDownload: async function() {
             if (!this.activeMitra) return;
             const mitra = this.activeMitra;
@@ -321,7 +437,6 @@
             try {
                 await this.ensureLibraries();
 
-                // Create hidden render stage container at exact 2500 x 1768 px
                 const stage = document.createElement('div');
                 stage.id = 'wiz-offscreen-render-stage';
                 stage.style.position = 'fixed';
@@ -349,16 +464,15 @@
                     });
                 };
 
-                // ── 1. RENDER & DOWNLOAD HALAMAN LUAR ─────────────────────────────
-                stage.innerHTML = this.renderLuarHtml(mitra, 'render-luar');
+                // 1. RENDER & DOWNLOAD HALAMAN LUAR
+                stage.innerHTML = this.renderLuarHtml(mitra, 'render-luar', this.pos);
                 this.injectQrCode('render-luar-qrcode-target', referralUrl);
                 
-                // Allow images and fonts to paint
-                await new Promise(r => setTimeout(r, 400));
+                await new Promise(r => setTimeout(r, 450));
 
                 const luarNode = document.getElementById('render-luar-canvas-container');
                 const canvasLuar = await window.html2canvas(luarNode, {
-                    scale: 1, // Render stage is already full 2500x1768
+                    scale: 1,
                     useCORS: true,
                     allowTaint: true,
                     backgroundColor: null,
@@ -369,13 +483,13 @@
 
                 await downloadCanvasAsPng(canvasLuar, `WIZ_Brosur_Luar_${cleanMitraName}_${code}.png`);
 
-                // ── 2. RENDER & DOWNLOAD HALAMAN DALAM ────────────────────────────
-                stage.innerHTML = this.renderDalamHtml(mitra, 'render-dalam');
-                await new Promise(r => setTimeout(r, 300));
+                // 2. RENDER & DOWNLOAD HALAMAN DALAM
+                stage.innerHTML = this.renderDalamHtml(mitra, 'render-dalam', this.pos);
+                await new Promise(r => setTimeout(r, 350));
 
                 const dalamNode = document.getElementById('render-dalam-canvas-container');
                 const canvasDalam = await window.html2canvas(dalamNode, {
-                    scale: 1, // Render stage is already full 2500x1768
+                    scale: 1,
                     useCORS: true,
                     allowTaint: true,
                     backgroundColor: null,
@@ -386,7 +500,6 @@
 
                 await downloadCanvasAsPng(canvasDalam, `WIZ_Brosur_Dalam_${cleanMitraName}_${code}.png`);
 
-                // Clean up stage
                 stage.remove();
 
                 alert(`✅ Berhasil Mengunduh 2 Halaman Brosur!\n\n1. WIZ_Brosur_Luar_${cleanMitraName}_${code}.png\n2. WIZ_Brosur_Dalam_${cleanMitraName}_${code}.png\n\nResolusi: 2500 x 1768 px (High-Res Siap Cetak).`);
