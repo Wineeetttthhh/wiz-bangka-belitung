@@ -8447,59 +8447,56 @@
                 alert('Pop-up terblokir oleh browser. Izinkan pop-up untuk mencetak kartu QR.');
                 return;
             }
-            printWin.document.write(\`
-            <!DOCTYPE html>
-            <html lang="id">
-            <head>
-                <meta charset="UTF-8">
-                <title>Cetak QRIS Mitra - \${name}</title>
-                <style>
-                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 90vh; }
-                    .card { background: #fff; width: 380px; padding: 30px; border-radius: 24px; border: 2px solid #006834; box-shadow: 0 10px 25px rgba(0,0,0,0.08); text-align: center; }
-                    .logo-header { font-size: 22px; font-weight: 900; color: #006834; margin-bottom: 2px; }
-                    .subtitle { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
-                    .mitra-badge { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 16px; padding: 12px; margin-bottom: 20px; }
-                    .mitra-name { font-size: 16px; font-weight: 900; color: #064e3b; margin: 0 0 4px 0; }
-                    .mitra-code { font-family: monospace; font-size: 12px; font-weight: 800; background: #006834; color: #fff; padding: 2px 8px; border-radius: 6px; display: inline-block; }
-                    .qr-container { width: 220px; height: 220px; margin: 0 auto 15px auto; padding: 10px; border: 1px solid #cbd5e1; border-radius: 16px; background: #fff; }
-                    .qr-container img { width: 100%; height: 100%; object-fit: contain; }
-                    .cta { font-size: 13px; font-weight: 900; color: #006834; text-transform: uppercase; margin: 0 0 4px 0; }
-                    .desc { font-size: 11px; color: #64748b; margin: 0 0 16px 0; }
-                    .footer-link { font-family: monospace; font-size: 10px; color: #94a3b8; word-break: break-all; border-top: 1px dashed #e2e8f0; padding-top: 12px; }
-                    @media print {
-                        body { background: #fff; padding: 0; }
-                        .card { box-shadow: none; border: 2px solid #006834; margin: auto; }
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="card">
-                    <div class="logo-header">WAHDAH INSPIRASI ZAKAT</div>
-                    <div class="subtitle">Bangka Belitung • Layanan Donasi &amp; Zakat</div>
-                    
-                    <div class="mitra-badge">
-                        <div class="mitra-name">\${name}</div>
-                        <span class="mitra-code">\${code}</span>
-                        \${phone !== '-' ? \`<div style="font-size:11px; font-family:monospace; color:#334155; margin-top:4px;">WA: \${phone} (\${cabang})</div>\` : ''}
-                    </div>
-
-                    <div class="qr-container">
-                        <img src="\${qrUrl}" alt="QRIS Mitra">
-                    </div>
-
-                    <div class="cta">"Satu Scan, Jutaan Kebaikan"</div>
-                    <div class="desc">Scan menggunakan Google Lens atau Kamera HP untuk berdonasi</div>
-
-                    <div class="footer-link">\${referralUrl}</div>
-                </div>
-                <script>
-                    window.onload = function() {
-                        setTimeout(function() { window.print(); }, 400);
-                    };
-                <\/script>
-            </body>
-            </html>
-            \`);
+            const htmlContent = [
+                '<!DOCTYPE html>',
+                '<html lang="id">',
+                '<head>',
+                '    <meta charset="UTF-8">',
+                '    <title>Cetak QRIS Mitra - ' + name + '</title>',
+                '    <style>',
+                '        body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 90vh; }',
+                '        .card { background: #fff; width: 380px; padding: 30px; border-radius: 24px; border: 2px solid #006834; box-shadow: 0 10px 25px rgba(0,0,0,0.08); text-align: center; }',
+                '        .logo-header { font-size: 22px; font-weight: 900; color: #006834; margin-bottom: 2px; }',
+                '        .subtitle { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }',
+                '        .mitra-badge { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 16px; padding: 12px; margin-bottom: 20px; }',
+                '        .mitra-name { font-size: 16px; font-weight: 900; color: #064e3b; margin: 0 0 4px 0; }',
+                '        .mitra-code { font-family: monospace; font-size: 12px; font-weight: 800; background: #006834; color: #fff; padding: 2px 8px; border-radius: 6px; display: inline-block; }',
+                '        .qr-container { width: 220px; height: 220px; margin: 0 auto 15px auto; padding: 10px; border: 1px solid #cbd5e1; border-radius: 16px; background: #fff; }',
+                '        .qr-container img { width: 100%; height: 100%; object-fit: contain; }',
+                '        .cta { font-size: 13px; font-weight: 900; color: #006834; text-transform: uppercase; margin: 0 0 4px 0; }',
+                '        .desc { font-size: 11px; color: #64748b; margin: 0 0 16px 0; }',
+                '        .footer-link { font-family: monospace; font-size: 10px; color: #94a3b8; word-break: break-all; border-top: 1px dashed #e2e8f0; padding-top: 12px; }',
+                '        @media print {',
+                '            body { background: #fff; padding: 0; }',
+                '            .card { box-shadow: none; border: 2px solid #006834; margin: auto; }',
+                '        }',
+                '    </style>',
+                '</head>',
+                '<body>',
+                '    <div class="card">',
+                '        <div class="logo-header">WAHDAH INSPIRASI ZAKAT</div>',
+                '        <div class="subtitle">Bangka Belitung • Layanan Donasi &amp; Zakat</div>',
+                '        <div class="mitra-badge">',
+                '            <div class="mitra-name">' + name + '</div>',
+                '            <span class="mitra-code">' + code + '</span>',
+                (phone !== '-' ? '            <div style="font-size:11px; font-family:monospace; color:#334155; margin-top:4px;">WA: ' + phone + ' (' + cabang + ')</div>' : ''),
+                '        </div>',
+                '        <div class="qr-container">',
+                '            <img src="' + qrUrl + '" alt="QRIS Mitra">',
+                '        </div>',
+                '        <div class="cta">"Satu Scan, Jutaan Kebaikan"</div>',
+                '        <div class="desc">Scan menggunakan Google Lens atau Kamera HP untuk berdonasi</div>',
+                '        <div class="footer-link">' + referralUrl + '</div>',
+                '    </div>',
+                '    <script>',
+                '        window.onload = function() {',
+                '            setTimeout(function() { window.print(); }, 400);',
+                '        };',
+                '    <\/script>',
+                '</body>',
+                '</html>'
+            ].join('\n');
+            printWin.document.write(htmlContent);
             printWin.document.close();
         }
 
