@@ -8249,8 +8249,8 @@
                                         <button onclick="openKpiModal('${r.id}')" class="px-2 py-1 bg-blue-600 text-white hover:bg-blue-700 rounded font-bold transition-colors text-[11px] shadow-xs cursor-pointer inline-flex items-center gap-0.5" title="Input aktivitas KPI mitra ini">
                                             <span class="material-symbols-outlined text-[13px]">add_task</span> KPI
                                         </button>
-                                        <button onclick="openAdminBrochureModal('${r.id}')" class="px-2 py-1 bg-emerald-700 text-white hover:bg-emerald-800 rounded font-bold transition-colors text-[11px] shadow-xs cursor-pointer inline-flex items-center gap-0.5" title="Cetak Brosur Tri-Fold Personal Mitra">
-                                            <span class="material-symbols-outlined text-[13px]">menu_book</span> Brosur
+                                        <button onclick="openMitraQrModal('${r.id}')" class="px-2 py-1 bg-emerald-700 text-white hover:bg-emerald-800 rounded font-bold transition-colors text-[11px] shadow-xs cursor-pointer inline-flex items-center gap-0.5" title="Tampilkan & Cetak QRIS Referral Mitra">
+                                            <span class="material-symbols-outlined text-[13px]">qr_code_2</span> QRIS
                                         </button>
                                         <button onclick="openReferralDetailModal('${r.id}')" class="px-2 py-1 bg-primary/10 text-primary hover:bg-primary/20 rounded font-bold transition-colors cursor-pointer">Detail</button>
                                         <button onclick="openReferralPayoutModal('${r.id}')" class="px-2 py-1 bg-amber-600 text-white hover:bg-amber-700 rounded font-bold transition-colors cursor-pointer">Cairkan</button>
@@ -8309,7 +8309,7 @@
             }
         }
 
-        function openAdminBrochureModal(mitraId) {
+        function openMitraQrModal(mitraId) {
             if (!window.wizStore || !wizStore.referrals) {
                 alert('⚠️ Data Mitra sedang dimuat. Silakan tunggu.');
                 return;
@@ -8319,11 +8319,188 @@
                 alert('⚠️ Data Mitra tidak ditemukan.');
                 return;
             }
-            if (window.WizBrochure && typeof window.WizBrochure.openModal === 'function') {
-                window.WizBrochure.openModal(mitra);
-            } else {
-                alert('⚠️ Modul Generator Brosur sedang diinisialisasi. Silakan klik kembali dalam 1 detik.');
+
+            const name = mitra.name || 'Mitra Penghimpunan WIZ';
+            const code = (mitra.code || mitra.id || 'WIZ').toUpperCase();
+            const phone = mitra.phone || '-';
+            const cabang = mitra.cabang || 'Pangkalpinang';
+            const referralUrl = `https://www.wizbangkabelitung.or.id/donasi?ref=${encodeURIComponent(code)}`;
+            const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${encodeURIComponent(referralUrl)}&color=005228`;
+
+            let modalEl = document.getElementById('admin-mitra-qr-modal');
+            if (!modalEl) {
+                modalEl = document.createElement('div');
+                modalEl.id = 'admin-mitra-qr-modal';
+                modalEl.className = 'fixed inset-0 z-[99999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-y-auto opacity-0 pointer-events-none transition-opacity duration-300';
+                modalEl.onclick = (e) => {
+                    if (e.target === modalEl) closeMitraQrModal();
+                };
+                document.body.appendChild(modalEl);
             }
+
+            modalEl.innerHTML = `
+            <div class="my-auto bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-md w-full overflow-hidden transform scale-95 transition-transform duration-300 flex flex-col">
+                
+                <!-- Header -->
+                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-xl">qr_code_2</span>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-black text-slate-900 leading-tight">QRIS / QR Referral Mitra</h3>
+                            <p class="text-xs text-slate-500">Cabang ${cabang}</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeMitraQrModal()" class="w-8 h-8 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition-colors cursor-pointer">
+                        <span class="material-symbols-outlined text-lg">close</span>
+                    </button>
+                </div>
+
+                <!-- Printable Card Area -->
+                <div id="mitra-qr-printable-area" class="p-6 bg-white flex flex-col items-center text-center">
+                    <!-- Badge Info Mitra -->
+                    <div class="w-full bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-3.5 mb-4 text-center">
+                        <h4 class="text-base font-black text-emerald-950">${name}</h4>
+                        <div class="flex items-center justify-center gap-2 mt-1 flex-wrap">
+                            <span class="px-2 py-0.5 rounded-md bg-emerald-700 text-white font-mono font-bold text-xs">ID: ${code}</span>
+                            <span class="px-2 py-0.5 rounded-md bg-white text-emerald-900 border border-emerald-300 font-bold text-xs">${cabang}</span>
+                            ${phone !== '-' ? `<span class="px-2 py-0.5 rounded-md bg-white text-slate-700 border border-slate-200 font-mono text-xs">${phone}</span>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- QR Code Display Box -->
+                    <div class="w-64 h-64 bg-white p-3.5 rounded-2xl border-2 border-emerald-600/30 shadow-lg flex items-center justify-center mb-3">
+                        <img id="mitra-qr-img-element" src="${qrImageUrl}" alt="QRIS ${name}" class="w-full h-full object-contain">
+                    </div>
+
+                    <p class="text-xs font-bold text-emerald-800 uppercase tracking-wide">"Satu Scan, Jutaan Kebaikan"</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Scan donasi otomatis terhubung ke akun mitra</p>
+
+                    <!-- Link Referral Box with Copy -->
+                    <div class="mt-4 w-full flex items-center gap-1 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
+                        <input type="text" readonly value="${referralUrl}" onclick="this.select()" class="bg-transparent font-mono text-xs text-slate-700 px-2 py-1 w-full outline-none select-all truncate">
+                        <button type="button" onclick="navigator.clipboard.writeText('${referralUrl}'); alert('✅ Link referral berhasil disalin!');" class="px-3 py-1 bg-white hover:bg-slate-200 text-slate-800 rounded-lg text-xs font-bold shrink-0 border border-slate-200 shadow-2xs cursor-pointer">
+                            Salin
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 grid grid-cols-2 gap-3">
+                    <button type="button" onclick="downloadMitraQrPng('${code}', '${encodeURIComponent(name)}', '${qrImageUrl}')" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer">
+                        <span class="material-symbols-outlined text-base">download</span>
+                        <span>Download QR</span>
+                    </button>
+                    <button type="button" onclick="printMitraQrCard('${code}', '${encodeURIComponent(name)}', '${cabang}', '${phone}', '${qrImageUrl}', '${referralUrl}')" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-md shadow-emerald-900/20 cursor-pointer">
+                        <span class="material-symbols-outlined text-base">print</span>
+                        <span>Cetak (Print)</span>
+                    </button>
+                </div>
+
+            </div>`;
+
+            modalEl.classList.remove('pointer-events-none', 'opacity-0');
+            modalEl.classList.add('opacity-100');
+            const box = modalEl.firstElementChild;
+            if (box) {
+                box.classList.remove('scale-95');
+                box.classList.add('scale-100');
+            }
+        }
+
+        function closeMitraQrModal() {
+            const modalEl = document.getElementById('admin-mitra-qr-modal');
+            if (!modalEl) return;
+            const box = modalEl.firstElementChild;
+            if (box) {
+                box.classList.remove('scale-100');
+                box.classList.add('scale-95');
+            }
+            modalEl.classList.remove('opacity-100');
+            modalEl.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        async function downloadMitraQrPng(code, rawName, qrUrl) {
+            const name = decodeURIComponent(rawName);
+            const cleanName = name.replace(/[^a-zA-Z0-9_-]/g, '_');
+            try {
+                const response = await fetch(qrUrl);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `QRIS_Mitra_${cleanName}_${code}.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            } catch(e) {
+                window.open(qrUrl, '_blank');
+            }
+        }
+
+        function printMitraQrCard(code, rawName, cabang, phone, qrUrl, referralUrl) {
+            const name = decodeURIComponent(rawName);
+            const printWin = window.open('', '_blank', 'width=700,height=800');
+            if (!printWin) {
+                alert('Pop-up terblokir oleh browser. Izinkan pop-up untuk mencetak kartu QR.');
+                return;
+            }
+            printWin.document.write(\`
+            <!DOCTYPE html>
+            <html lang="id">
+            <head>
+                <meta charset="UTF-8">
+                <title>Cetak QRIS Mitra - \${name}</title>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 90vh; }
+                    .card { background: #fff; width: 380px; padding: 30px; border-radius: 24px; border: 2px solid #006834; box-shadow: 0 10px 25px rgba(0,0,0,0.08); text-align: center; }
+                    .logo-header { font-size: 22px; font-weight: 900; color: #006834; margin-bottom: 2px; }
+                    .subtitle { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
+                    .mitra-badge { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 16px; padding: 12px; margin-bottom: 20px; }
+                    .mitra-name { font-size: 16px; font-weight: 900; color: #064e3b; margin: 0 0 4px 0; }
+                    .mitra-code { font-family: monospace; font-size: 12px; font-weight: 800; background: #006834; color: #fff; padding: 2px 8px; border-radius: 6px; display: inline-block; }
+                    .qr-container { width: 220px; height: 220px; margin: 0 auto 15px auto; padding: 10px; border: 1px solid #cbd5e1; border-radius: 16px; background: #fff; }
+                    .qr-container img { width: 100%; height: 100%; object-fit: contain; }
+                    .cta { font-size: 13px; font-weight: 900; color: #006834; text-transform: uppercase; margin: 0 0 4px 0; }
+                    .desc { font-size: 11px; color: #64748b; margin: 0 0 16px 0; }
+                    .footer-link { font-family: monospace; font-size: 10px; color: #94a3b8; word-break: break-all; border-top: 1px dashed #e2e8f0; padding-top: 12px; }
+                    @media print {
+                        body { background: #fff; padding: 0; }
+                        .card { box-shadow: none; border: 2px solid #006834; margin: auto; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="card">
+                    <div class="logo-header">WAHDAH INSPIRASI ZAKAT</div>
+                    <div class="subtitle">Bangka Belitung • Layanan Donasi &amp; Zakat</div>
+                    
+                    <div class="mitra-badge">
+                        <div class="mitra-name">\${name}</div>
+                        <span class="mitra-code">\${code}</span>
+                        \${phone !== '-' ? \`<div style="font-size:11px; font-family:monospace; color:#334155; margin-top:4px;">WA: \${phone} (\${cabang})</div>\` : ''}
+                    </div>
+
+                    <div class="qr-container">
+                        <img src="\${qrUrl}" alt="QRIS Mitra">
+                    </div>
+
+                    <div class="cta">"Satu Scan, Jutaan Kebaikan"</div>
+                    <div class="desc">Scan menggunakan Google Lens atau Kamera HP untuk berdonasi</div>
+
+                    <div class="footer-link">\${referralUrl}</div>
+                </div>
+                <script>
+                    window.onload = function() {
+                        setTimeout(function() { window.print(); }, 400);
+                    };
+                <\/script>
+            </body>
+            </html>
+            \`);
+            printWin.document.close();
         }
 
         // ─── KPI Activity & Pool UI Handlers ──────────────────
@@ -9889,7 +10066,6 @@
         }
         window.submitForgotPasswordWA = submitForgotPasswordWA;
     </script>
-    <script src="/assets/js/brochure-generator.js"></script>
 </body>
 </html>
 
