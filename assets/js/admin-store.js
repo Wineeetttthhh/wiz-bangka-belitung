@@ -476,9 +476,8 @@
                 },
                 'Berkah Juara': {
                     items: [
-                        { key: 'Beasiswa Pendidikan Juara', percent: 80 },
-                        { key: 'Perlengkapan Belajar Yatim', percent: 15 },
-                        { key: 'Beasiswa Tahfidz & Dhuafa', percent: 5 }
+                        { key: 'Beasiswa Pendidikan Juara', percent: 85 },
+                        { key: 'Perlengkapan Belajar Yatim', percent: 15 }
                     ]
                     // Total = 100% → VALID
                 },
@@ -527,9 +526,8 @@
                 },
                 'Berkah Juara': {
                     items: [
-                        { key: 'Beasiswa Pendidikan Juara', percent: 80 },
-                        { key: 'Perlengkapan Belajar Yatim', percent: 15 },
-                        { key: 'Beasiswa Tahfidz & Dhuafa', percent: 5 }
+                        { key: 'Beasiswa Pendidikan Juara', percent: 85 },
+                        { key: 'Perlengkapan Belajar Yatim', percent: 15 }
                     ]
                 },
                 'Berkah Peduli': {
@@ -4090,23 +4088,6 @@
             status: 'published',
             createdAt: '2026-01-23T00:00:00.000Z',
             updatedAt: '2026-01-23T00:00:00.000Z',
-            author: 'Admin WIZ Babel'
-        },
-        {
-            id: 'prog-beasiswa-tahfidz-dhuafa',
-            title: 'Beasiswa Tahfidz & Dhuafa',
-            slug: 'beasiswa-tahfidz-dan-dhuafa',
-            pillar: 'Berkah Juara',
-            kategori_pilar: 'Pendidikan',
-            category: 'Pendidikan & Beasiswa',
-            target: 'Rp 35.000.000',
-            targetAmount: 35000000,
-            description: 'Beasiswa pendidikan penuh dan asrama bagi santri tahfidz yatim dhuafa di Bangka Belitung.',
-            imageUrl: '/assets/images/tahfidz.png',
-            image_url: '/assets/images/tahfidz.png',
-            status: 'published',
-            createdAt: '2026-01-24T00:00:00.000Z',
-            updatedAt: '2026-01-24T00:00:00.000Z',
             author: 'Admin WIZ Babel'
         },
         {

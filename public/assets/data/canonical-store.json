@@ -1032,7 +1032,7 @@
     "Lomba Desain Poster Dakwah": "assets/images/default-program-wiz.jpg",
     "Mukerwil Mukernas Muktamar": "assets/images/default-program-wiz.jpg",
     "Mukerwil/Mukernas/Muktamar": "assets/images/default-program-wiz.jpg",
-    "Perlengkapan Belajar Yatim": "assets/images/perlengkapan-belajar-yatim.jpg",
+    "Perlengkapan Belajar Yatim": "assets/images/perlengkapan-belajar-yatim.png",
     "Kantor DPW WI Babel dan WIZ": "assets/images/default-program-wiz.jpg",
     "Bantuan Pasien Kritis Dhuafa": "assets/images/bantuan-pengobatan.jpg",
     "Keberangkatan Kepulangan Dai": "assets/images/keberangkatan-kepulangan-dai.jpg",
@@ -1046,15 +1046,14 @@
     "Pengadaan dan Perbaikan Kendaraan": "assets/images/default-program-wiz.jpg",
     "Beasiswa Tahfidz & Dhuafa": "assets/images/beasiswa-tahfidz.jpg",
     "Tahfidz Al-Qur'an": "assets/images/beasiswa-tahfidz.jpg",
-    "WIZ Berkah Juara Perlengkapan Belajar Yatim": "assets/images/perlengkapan-belajar-yatim.jpg",
+    "WIZ Berkah Juara Perlengkapan Belajar Yatim": "assets/images/perlengkapan-belajar-yatim.png",
     "Layanan Ambulance Ummat": "assets/images/ambulance-gratis-ummat.jpg"
   },
   "deleted_program_ids": [],
   "custom_specific_programs": {
     "Berkah Juara": [
       "Beasiswa Pendidikan Juara",
-      "Perlengkapan Belajar Yatim",
-      "Beasiswa Yatim & Dhuafa"
+      "Perlengkapan Belajar Yatim"
     ],
     "Berkah Sehat": [
       "Khitanan Massal Dhuafa",
