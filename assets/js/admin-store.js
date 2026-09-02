@@ -1322,34 +1322,31 @@
                 }
             }
 
-            // 2. Normalize Berkah Juara subAllocation across all branches
+            // 2. Normalize Berkah Juara subAllocation across all branches (Hanya 2 Program: Beasiswa Pendidikan Juara 85%, Perlengkapan Belajar Yatim 15%)
             for (const [w, wData] of Object.entries(saved)) {
                 if (wData && wData.subAllocation && wData.subAllocation['Berkah Juara']) {
                     const subJuara = wData.subAllocation['Berkah Juara'];
                     if (subJuara.items && Array.isArray(subJuara.items)) {
-                        // Rename any legacy 'Beasiswa Yatim & Dhuafa' to 'Beasiswa Tahfidz & Dhuafa'
-                        subJuara.items.forEach(item => {
-                            if (item.key === 'Beasiswa Yatim & Dhuafa' || item.key === 'Beasiswa Yatim dan Dhuafa') {
-                                item.key = 'Beasiswa Tahfidz & Dhuafa';
-                                modified = true;
-                            }
+                        // Hapus program Beasiswa Tahfidz & Dhuafa dari Berkah Juara
+                        subJuara.items = subJuara.items.filter(item => {
+                            const k = (item.key || '').toLowerCase();
+                            return !k.includes('tahfidz') && !k.includes('yatim & dhuafa') && !k.includes('yatim dan dhuafa');
                         });
 
-                        const itemJuara = subJuara.items.find(i => (i.key || '').toLowerCase().includes('pendidikan juara'));
+                        const itemJuara = subJuara.items.find(i => (i.key || '').toLowerCase().includes('pendidikan'));
                         const itemYatim = subJuara.items.find(i => (i.key || '').toLowerCase().includes('perlengkapan'));
-                        const itemTahfidz = subJuara.items.find(i => (i.key || '').toLowerCase().includes('tahfidz') || (i.key || '').toLowerCase().includes('dhuafa') || (i.key || '').toLowerCase().includes('yatim & dhuafa'));
 
-                        if (itemJuara && itemJuara.percent !== 80) { itemJuara.percent = 80; modified = true; }
-                        if (itemYatim && itemYatim.percent !== 15) { itemYatim.percent = 15; modified = true; }
-                        if (itemTahfidz) {
-                            if (itemTahfidz.key !== 'Beasiswa Tahfidz & Dhuafa') { itemTahfidz.key = 'Beasiswa Tahfidz & Dhuafa'; modified = true; }
-                            if (itemTahfidz.percent !== 5) { itemTahfidz.percent = 5; modified = true; }
+                        if (itemJuara) {
+                            if (itemJuara.percent !== 85) { itemJuara.percent = 85; modified = true; }
                         } else {
-                            subJuara.items.push({
-                                key: 'Beasiswa Tahfidz & Dhuafa',
-                                percent: 5,
-                                image: 'assets/images/default-program-wiz.jpg'
-                            });
+                            subJuara.items.unshift({ key: 'Beasiswa Pendidikan Juara', percent: 85, image: 'assets/images/beasiswa-pendidikan-juara.png' });
+                            modified = true;
+                        }
+
+                        if (itemYatim) {
+                            if (itemYatim.percent !== 15) { itemYatim.percent = 15; modified = true; }
+                        } else {
+                            subJuara.items.push({ key: 'Perlengkapan Belajar Yatim', percent: 15, image: 'assets/images/perlengkapan-belajar-yatim.png' });
                             modified = true;
                         }
                     }

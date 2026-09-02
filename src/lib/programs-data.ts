@@ -514,27 +514,6 @@ export const MASTER_PROGRAMS: ProgramItem[] = [
         active: true
     },
     {
-        id: 'prog-beasiswa-tahfidz-dhuafa',
-        slug: 'beasiswa-tahfidz-dan-dhuafa',
-        title: 'Beasiswa Tahfidz & Dhuafa',
-        pillar: 'Berkah Juara',
-        category: 'Pendidikan & Beasiswa',
-        target: 35000000,
-        targetFormatted: 'Rp 35.000.000',
-        collected: 0,
-        collectedFormatted: 'Rp 0',
-        donorsCount: 0,
-        daysLeft: 50,
-        description: 'Beasiswa pendidikan penuh dan asrama bagi santri tahfidz yatim dhuafa di Bangka Belitung.',
-        fullDescription: 'Menanggung biaya pendidikan asrama dan konsumsi bagi santri penghafal Quran dari kalangan keluarga yatim dan dhuafa.',
-        imageUrl: '/assets/images/tahfidz.png',
-        image_url: '/assets/images/tahfidz.png',
-        location: 'Pesantren Tahfidz Babel',
-        beneficiaries: 'Santri Tahfidz Dhuafa',
-        featured: true,
-        active: true
-    },
-    {
         id: 'prog-perlengkapan-belajar-yatim',
         slug: 'perlengkapan-belajar-yatim',
         title: 'Perlengkapan Belajar Yatim',

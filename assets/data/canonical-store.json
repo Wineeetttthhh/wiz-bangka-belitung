@@ -406,22 +406,6 @@
       "kategori_pilar": "Dakwah"
     },
     {
-      "id": "prog-beasiswa-tahfidz-dhuafa",
-      "slug": "beasiswa-tahfidz-dan-dhuafa",
-      "title": "Beasiswa Tahfidz & Dhuafa",
-      "author": "Admin WIZ Babel",
-      "pillar": "Berkah Juara",
-      "status": "published",
-      "target": "Rp 35.000.000",
-      "category": "Pendidikan & Beasiswa",
-      "imageUrl": "assets/images/beasiswa-tahfidz.jpg",
-      "createdAt": "2026-01-24T00:00:00.000Z",
-      "updatedAt": "2026-08-26T03:33:19.269Z",
-      "description": "Beasiswa pendidikan penuh dan asrama bagi santri tahfidz yatim dhuafa di Bangka Belitung.",
-      "targetAmount": 35000000,
-      "kategori_pilar": "Pendidikan"
-    },
-    {
       "id": "prog-perlengkapan-belajar-yatim",
       "slug": "perlengkapan-belajar-yatim",
       "title": "Perlengkapan Belajar Yatim",
@@ -597,16 +581,11 @@
           "items": [
             {
               "key": "Beasiswa Pendidikan Juara",
-              "percent": 80
+              "percent": 85
             },
             {
               "key": "Perlengkapan Belajar Yatim",
               "percent": 15
-            },
-            {
-              "key": "Beasiswa Tahfidz & Dhuafa",
-              "image": "assets/images/default-program-wiz.jpg",
-              "percent": 5
             }
           ]
         },
@@ -795,16 +774,11 @@
           "items": [
             {
               "key": "Beasiswa Pendidikan Juara",
-              "percent": 80
+              "percent": 85
             },
             {
               "key": "Perlengkapan Belajar Yatim",
               "percent": 15
-            },
-            {
-              "key": "Beasiswa Tahfidz & Dhuafa",
-              "image": "assets/images/default-program-wiz.jpg",
-              "percent": 5
             }
           ]
         },
