@@ -282,6 +282,28 @@ import { MASTER_PROGRAMS } from '../../lib/programs-data';
                 ? window.wizStore.utils.formatRupiahCompact 
                 : (v => 'Rp ' + Number(v||0).toLocaleString('id-ID'));
 
+            const PROGRAM_IMG_MAP = {
+                'pray-for-ntt': '/assets/images/default-program-wiz.jpg',
+                'tebar-sembako': '/assets/images/tebar-sembako.png',
+                'sedekah-beras-dhuafa': '/assets/images/sedekah-beras-dhuafa.png',
+                'sedekah-jumat': '/assets/images/sedekah-Jumat.png',
+                'santunan-yatim': '/assets/images/santunan-yatim.png',
+                'tebar-quran-nusantara': '/assets/images/tebar-qur\'an-nusantara.png',
+                'tebar-iftar-nusantara': '/assets/images/tebar-iftar-nusantara.png',
+                'pembangunan-markaz': '/assets/images/pembangunan-markaz-dakwah.png',
+                'pengadaan-perbaikan-kendaraan': '/assets/images/pengadaan-&-perbaikan-kendaraan.png',
+                'santunan-mualaf': '/assets/images/santunan-mualaf.png',
+                'tahfidz': '/assets/images/tahfidz.png',
+                'beasiswa-pendidikan-juara': '/assets/images/beasiswa-pendidikan-juara.png',
+                'beasiswa-tahfidz-dan-dhuafa': '/assets/images/tahfidz.png',
+                'perlengkapan-belajar-yatim': '/assets/images/perlengkapan-belajar-yatim.png',
+                'khitanan-massal-dhuafa': '/assets/images/khitanan-massal-dhuafa.png',
+                'layanan-pengobatan-gratis': '/assets/images/layanan-pengobatan-gratis.png',
+                'ambulance-gratis-ummat': '/assets/images/ambulance-gratis-ummat.png',
+                'modal-usaha-dhuafa': '/assets/images/modal-usaha-dhuafa.png',
+                'pelatihan-keterampilan-wirausaha': '/assets/images/pelatihan-keterampilan-wirausaha.png'
+            };
+
             const categorySections = [
                 { catKey: 'dakwah', pillars: ['Berkah Hidayah', 'Dakwah & Pembinaan', 'Dakwah'] },
                 { catKey: 'sosial', pillars: ['Berkah Peduli', 'Sosial & Kemanusiaan', 'Sosial'] },
@@ -304,11 +326,14 @@ import { MASTER_PROGRAMS } from '../../lib/programs-data';
                         ? window.wizStore.finance.getSpecificProgramStats(p.title, 0, p.targetAmount || 15000000)
                         : { percent: 0, saldo: 0 };
 
-                    const rawImg = p.image_url || p.imageUrl || (window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function' ? window.wizStore.allocationRulesManager.getSpecificProgramImage(p.title, p.pillar) : '') || '/assets/images/default-program-wiz.jpg';
-                    const dynamicImg = rawImg ? (rawImg.startsWith('/') || rawImg.startsWith('http') || rawImg.startsWith('data:') ? rawImg : `/${rawImg}`) : '/assets/images/default-program-wiz.jpg';
+                    const slug = p.slug || (p.title ? p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : 'program');
+                    let dynamicImg = PROGRAM_IMG_MAP[slug];
+                    if (!dynamicImg) {
+                        const rawImg = p.image_url || p.imageUrl || (window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function' ? window.wizStore.allocationRulesManager.getSpecificProgramImage(p.title, p.pillar) : '') || '/assets/images/default-program-wiz.jpg';
+                        dynamicImg = rawImg ? (rawImg.startsWith('/') || rawImg.startsWith('http') || rawImg.startsWith('data:') ? rawImg : `/${rawImg}`) : '/assets/images/default-program-wiz.jpg';
+                    }
 
                     const targetLabel = p.target || (`Rp ${(p.targetAmount || 15000000).toLocaleString('id-ID')}`);
-                    const slug = p.slug || (p.title ? p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : 'program');
 
                     return `
                     <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full cursor-pointer" data-category="${catKey}" data-title="${escapeHtml(p.title)}" data-target="${p.targetAmount || 15000000}">

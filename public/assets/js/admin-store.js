@@ -3708,7 +3708,8 @@
             target: 'Rp 25.000.000',
             targetAmount: 25000000,
             description: 'Penyaluran paket bahan pangan pokok untuk keluarga dhuafa, janda lansia, dan yatim di pelosok Bangka Belitung.',
-            imageUrl: '/assets/images/tebar-sembako.jpg',
+            imageUrl: '/assets/images/tebar-sembako.png',
+            image_url: '/assets/images/tebar-sembako.png',
             status: 'published',
             createdAt: '2026-01-01T00:00:00.000Z',
             updatedAt: '2026-01-01T00:00:00.000Z',
@@ -3724,7 +3725,8 @@
             target: 'Rp 20.000.000',
             targetAmount: 20000000,
             description: 'Bantuan beras premium secara berkala untuk mencukupi kebutuhan pokok para mustahik dan santri pondok pesantren.',
-            imageUrl: '/assets/images/sedekah-beras-dhuafa.jpg',
+            imageUrl: '/assets/images/sedekah-beras-dhuafa.png',
+            image_url: '/assets/images/sedekah-beras-dhuafa.png',
             status: 'published',
             createdAt: '2026-01-02T00:00:00.000Z',
             updatedAt: '2026-01-02T00:00:00.000Z',
@@ -3740,7 +3742,8 @@
             target: 'Rp 15.000.000',
             targetAmount: 15000000,
             description: 'Program Sedulang Berkah Sedekah Jumat untuk jamaah masjid, musafir, dan dhuafa di hari yang mulia.',
-            imageUrl: '/assets/images/sedekah-beras-dai.jpg',
+            imageUrl: '/assets/images/sedekah-Jumat.png',
+            image_url: '/assets/images/sedekah-Jumat.png',
             status: 'published',
             createdAt: '2026-01-03T00:00:00.000Z',
             updatedAt: '2026-01-03T00:00:00.000Z',
@@ -3756,7 +3759,8 @@
             target: 'Rp 30.000.000',
             targetAmount: 30000000,
             description: 'Santunan bulanan dan pemenuhan kebutuhan primer anak-anak yatim dhuafa agar tumbuh bahagia.',
-            imageUrl: '/assets/images/santunan-yatim.jpg',
+            imageUrl: '/assets/images/santunan-yatim.png',
+            image_url: '/assets/images/santunan-yatim.png',
             status: 'published',
             createdAt: '2026-01-04T00:00:00.000Z',
             updatedAt: '2026-01-04T00:00:00.000Z',
@@ -3772,7 +3776,8 @@
             target: 'Rp 20.000.000',
             targetAmount: 20000000,
             description: 'Distribusi mushaf Al-Qur\'an standar ke rumah tahfidz, TPQ, dan masjid pelosok daerah.',
-            imageUrl: '/assets/images/foto-utama-wiz.jpg',
+            imageUrl: '/assets/images/tebar-qur\'an-nusantara.png',
+            image_url: '/assets/images/tebar-qur\'an-nusantara.png',
             status: 'published',
             createdAt: '2026-01-05T00:00:00.000Z',
             updatedAt: '2026-01-05T00:00:00.000Z',
@@ -3788,7 +3793,8 @@
             target: 'Rp 30.000.000',
             targetAmount: 30000000,
             description: 'Penyaluran paket makanan buka puasa penuh berkah dan gizi untuk santri serta dhuafa di Bangka Belitung.',
-            imageUrl: '/assets/images/tebar-iftar.jpg',
+            imageUrl: '/assets/images/tebar-iftar-nusantara.png',
+            image_url: '/assets/images/tebar-iftar-nusantara.png',
             status: 'published',
             createdAt: '2026-01-06T00:00:00.000Z',
             updatedAt: '2026-01-06T00:00:00.000Z',
@@ -3804,7 +3810,8 @@
             target: 'Rp 25.000.000',
             targetAmount: 25000000,
             description: 'Apresiasi tunjangan dan bingkisan sembako untuk guru ngaji tradisional yang ikhlas mengajar di pelosok.',
-            imageUrl: '/assets/images/sedekah-beras-dai-koba.jpg',
+            imageUrl: '/assets/images/default-program-wiz.jpg',
+            image_url: '/assets/images/default-program-wiz.jpg',
             status: 'published',
             createdAt: '2026-01-07T00:00:00.000Z',
             updatedAt: '2026-01-07T00:00:00.000Z',
@@ -3820,7 +3827,8 @@
             target: 'Rp 35.000.000',
             targetAmount: 35000000,
             description: 'Pembuatan sumur bor, instalasi pipa, dan penampungan air bersih untuk daerah rawan kekeringan.',
-            imageUrl: '/assets/images/foto-utama-wiz.jpg',
+            imageUrl: '/assets/images/default-program-wiz.jpg',
+            image_url: '/assets/images/default-program-wiz.jpg',
             status: 'published',
             createdAt: '2026-01-08T00:00:00.000Z',
             updatedAt: '2026-01-08T00:00:00.000Z',
@@ -3838,7 +3846,8 @@
             target: 'Rp 2.004.000.000',
             targetAmount: 2004000000,
             description: 'Dukung pembangunan pusat dakwah terpadu, markaz kaderisasi da\'i, dan asrama santri tahfidz WIZ Bangka Belitung.',
-            imageUrl: '/assets/images/foto-utama-wiz.jpg',
+            imageUrl: '/assets/images/pembangunan-markaz-dakwah.png',
+            image_url: '/assets/images/pembangunan-markaz-dakwah.png',
             status: 'published',
             createdAt: '2026-01-09T00:00:00.000Z',
             updatedAt: '2026-01-09T00:00:00.000Z',
@@ -3854,7 +3863,8 @@
             target: 'Rp 35.000.000',
             targetAmount: 35000000,
             description: 'Pengadaan armada mobil dan sepeda motor operasional untuk mobilitas para da\'i ke pelosok pedalaman.',
-            imageUrl: '/assets/images/ambulance-gratis-ummat.jpg',
+            imageUrl: '/assets/images/pengadaan-&-perbaikan-kendaraan.png',
+            image_url: '/assets/images/pengadaan-&-perbaikan-kendaraan.png',
             status: 'published',
             createdAt: '2026-01-10T00:00:00.000Z',
             updatedAt: '2026-01-10T00:00:00.000Z',
@@ -3870,7 +3880,8 @@
             target: 'Rp 20.000.000',
             targetAmount: 20000000,
             description: 'Bimbingan aqidah, pelatihan ibadah, dan bantuan kemandirian hidup bagi saudara-saudara kita mualaf.',
-            imageUrl: '/assets/images/santunan-yatim.jpg',
+            imageUrl: '/assets/images/santunan-mualaf.png',
+            image_url: '/assets/images/santunan-mualaf.png',
             status: 'published',
             createdAt: '2026-01-11T00:00:00.000Z',
             updatedAt: '2026-01-11T00:00:00.000Z',
@@ -3886,7 +3897,8 @@
             target: 'Rp 30.000.000',
             targetAmount: 30000000,
             description: 'Program beasiswa pembinaan santri penghafal Al-Qur\'an 30 juz berkarakter qur\'ani.',
-            imageUrl: '/assets/images/beasiswa-tahfidz.jpg',
+            imageUrl: '/assets/images/tahfidz.png',
+            image_url: '/assets/images/tahfidz.png',
             status: 'published',
             createdAt: '2026-01-12T00:00:00.000Z',
             updatedAt: '2026-01-12T00:00:00.000Z',
@@ -3902,7 +3914,8 @@
             target: 'Rp 10.000.000',
             targetAmount: 10000000,
             description: 'Workshop retorika dakwah dan public speaking untuk membekali da\'i muda agar siap berkhutbah dan membina masyarakat.',
-            imageUrl: '/assets/images/foto-utama-wiz.jpg',
+            imageUrl: '/assets/images/default-program-wiz.jpg',
+            image_url: '/assets/images/default-program-wiz.jpg',
             status: 'published',
             createdAt: '2026-01-13T00:00:00.000Z',
             updatedAt: '2026-01-13T00:00:00.000Z',
@@ -3918,7 +3931,8 @@
             target: 'Rp 15.000.000',
             targetAmount: 15000000,
             description: 'Penyelenggaraan Tabligh Akbar menyambut bulan haram Dzulhijjah dan syiar keutamaan ibadah qurban.',
-            imageUrl: '/assets/images/foto-utama-wiz.jpg',
+            imageUrl: '/assets/images/default-program-wiz.jpg',
+            image_url: '/assets/images/default-program-wiz.jpg',
             status: 'published',
             createdAt: '2026-01-14T00:00:00.000Z',
             updatedAt: '2026-01-14T00:00:00.000Z',
@@ -3934,7 +3948,8 @@
             target: 'Rp 12.000.000',
             targetAmount: 12000000,
             description: 'Pelatihan standarisasi pengajar metode DIROSA (Pendidikan Al-Qur\'an Orang Dewasa) se-Bangka Belitung.',
-            imageUrl: '/assets/images/foto-utama-wiz.jpg',
+            imageUrl: '/assets/images/default-program-wiz.jpg',
+            image_url: '/assets/images/default-program-wiz.jpg',
             status: 'published',
             createdAt: '2026-01-15T00:00:00.000Z',
             updatedAt: '2026-01-15T00:00:00.000Z',
@@ -3950,7 +3965,8 @@
             target: 'Rp 8.000.000',
             targetAmount: 8000000,
             description: 'Edukasi dan pelatihan praktik fardhu kifayah tata cara memandikan, mengafani, dan menshalatkan jenazah.',
-            imageUrl: '/assets/images/foto-utama-wiz.jpg',
+            imageUrl: '/assets/images/default-program-wiz.jpg',
+            image_url: '/assets/images/default-program-wiz.jpg',
             status: 'published',
             createdAt: '2026-01-16T00:00:00.000Z',
             updatedAt: '2026-01-16T00:00:00.000Z',
@@ -3966,7 +3982,8 @@
             target: 'Rp 10.000.000',
             targetAmount: 10000000,
             description: 'Pelatihan videografi, fotografi jurnalistik, dan copywriting media sosial untuk generasi muda relawan dakwah.',
-            imageUrl: '/assets/images/foto-utama-wiz.jpg',
+            imageUrl: '/assets/images/default-program-wiz.jpg',
+            image_url: '/assets/images/default-program-wiz.jpg',
             status: 'published',
             createdAt: '2026-01-17T00:00:00.000Z',
             updatedAt: '2026-01-17T00:00:00.000Z',
@@ -3982,7 +3999,8 @@
             target: 'Rp 5.000.000',
             targetAmount: 5000000,
             description: 'Kompetisi karya visual kreatif islami untuk mengampanyekan ajakan kebaikan dan nilai-nilai Al-Qur\'an.',
-            imageUrl: '/assets/images/foto-utama-wiz.jpg',
+            imageUrl: '/assets/images/default-program-wiz.jpg',
+            image_url: '/assets/images/default-program-wiz.jpg',
             status: 'published',
             createdAt: '2026-01-18T00:00:00.000Z',
             updatedAt: '2026-01-18T00:00:00.000Z',
@@ -3998,7 +4016,8 @@
             target: 'Rp 150.000.000',
             targetAmount: 150000000,
             description: 'Pusat pelayanan administrasi ummat, dakwah terpadu, dan kantor Laznas WIZ Bangka Belitung.',
-            imageUrl: '/assets/images/foto-utama-wiz.jpg',
+            imageUrl: '/assets/images/default-program-wiz.jpg',
+            image_url: '/assets/images/default-program-wiz.jpg',
             status: 'published',
             createdAt: '2026-01-19T00:00:00.000Z',
             updatedAt: '2026-01-19T00:00:00.000Z',
@@ -4014,7 +4033,8 @@
             target: 'Rp 25.000.000',
             targetAmount: 25000000,
             description: 'Musyawarah kerja tahunan evaluasi program dakwah dan penetapan target keummatan di Bangka Belitung.',
-            imageUrl: '/assets/images/foto-utama-wiz.jpg',
+            imageUrl: '/assets/images/default-program-wiz.jpg',
+            image_url: '/assets/images/default-program-wiz.jpg',
             status: 'published',
             createdAt: '2026-01-20T00:00:00.000Z',
             updatedAt: '2026-01-20T00:00:00.000Z',
@@ -4031,6 +4051,7 @@
             targetAmount: 30000000,
             description: 'Dukungan akomodasi, transportasi, dan kafalah bagi para da\'i yang bertugas di provinsi Bangka Belitung.',
             imageUrl: '/assets/images/keberangkatan-kepulangan-dai.jpg',
+            image_url: '/assets/images/keberangkatan-kepulangan-dai.jpg',
             status: 'published',
             createdAt: '2026-01-21T00:00:00.000Z',
             updatedAt: '2026-01-21T00:00:00.000Z',
@@ -4046,7 +4067,8 @@
             target: 'Rp 15.000.000',
             targetAmount: 15000000,
             description: 'Penyediaan sarana kaleng infak harian di rumah, pertokoan, dan perkantoran guna memfasilitasi sedekah subuh.',
-            imageUrl: '/assets/images/foto-utama-wiz.jpg',
+            imageUrl: '/assets/images/default-program-wiz.jpg',
+            image_url: '/assets/images/default-program-wiz.jpg',
             status: 'published',
             createdAt: '2026-01-22T00:00:00.000Z',
             updatedAt: '2026-01-22T00:00:00.000Z',
@@ -4064,7 +4086,8 @@
             target: 'Rp 25.000.000',
             targetAmount: 25000000,
             description: 'Bantuan biaya SPP, uang sekolah, dan buku untuk siswa yatim serta dhuafa berprestasi.',
-            imageUrl: '/assets/images/beasiswa-pendidikan-juara.jpg',
+            imageUrl: '/assets/images/beasiswa-pendidikan-juara.png',
+            image_url: '/assets/images/beasiswa-pendidikan-juara.png',
             status: 'published',
             createdAt: '2026-01-23T00:00:00.000Z',
             updatedAt: '2026-01-23T00:00:00.000Z',
@@ -4080,7 +4103,8 @@
             target: 'Rp 35.000.000',
             targetAmount: 35000000,
             description: 'Beasiswa pendidikan penuh dan asrama bagi santri tahfidz yatim dhuafa di Bangka Belitung.',
-            imageUrl: '/assets/images/beasiswa-tahfidz.jpg',
+            imageUrl: '/assets/images/tahfidz.png',
+            image_url: '/assets/images/tahfidz.png',
             status: 'published',
             createdAt: '2026-01-24T00:00:00.000Z',
             updatedAt: '2026-01-24T00:00:00.000Z',
@@ -4096,7 +4120,8 @@
             target: 'Rp 15.000.000',
             targetAmount: 15000000,
             description: 'Paket perlengkapan sekolah lengkap (tas, seragam, sepatu, dan buku tulis) menjelang tahun ajaran baru.',
-            imageUrl: '/assets/images/perlengkapan-belajar-yatim.jpg',
+            imageUrl: '/assets/images/perlengkapan-belajar-yatim.png',
+            image_url: '/assets/images/perlengkapan-belajar-yatim.png',
             status: 'published',
             createdAt: '2026-01-25T00:00:00.000Z',
             updatedAt: '2026-01-25T00:00:00.000Z',
@@ -4114,7 +4139,8 @@
             target: 'Rp 20.000.000',
             targetAmount: 20000000,
             description: 'Layanan khitanan massal gratis dengan metode modern, pemberian bingkisan pakaian muslim, dan uang santunan.',
-            imageUrl: '/assets/images/khitanan-massal-dhuafa.jpg',
+            imageUrl: '/assets/images/khitanan-massal-dhuafa.png',
+            image_url: '/assets/images/khitanan-massal-dhuafa.png',
             status: 'published',
             createdAt: '2026-01-26T00:00:00.000Z',
             updatedAt: '2026-01-26T00:00:00.000Z',
@@ -4130,7 +4156,8 @@
             target: 'Rp 25.000.000',
             targetAmount: 25000000,
             description: 'Pemeriksaan kesehatan cuma-cuma, cek gula darah & tensi, serta pembagian obat bagi lansia dan dhuafa pelosok.',
-            imageUrl: '/assets/images/bantuan-pengobatan.jpg',
+            imageUrl: '/assets/images/layanan-pengobatan-gratis.png',
+            image_url: '/assets/images/layanan-pengobatan-gratis.png',
             status: 'published',
             createdAt: '2026-01-27T00:00:00.000Z',
             updatedAt: '2026-01-27T00:00:00.000Z',
@@ -4146,7 +4173,8 @@
             target: 'Rp 150.000.000',
             targetAmount: 150000000,
             description: 'Layanan antar-jemput pasien gawat darurat dhuafa dan pengantaran jenazah gratis 24 jam di Bangka Belitung.',
-            imageUrl: '/assets/images/ambulance-gratis-ummat.jpg',
+            imageUrl: '/assets/images/ambulance-gratis-ummat.png',
+            image_url: '/assets/images/ambulance-gratis-ummat.png',
             status: 'published',
             createdAt: '2026-01-28T00:00:00.000Z',
             updatedAt: '2026-01-28T00:00:00.000Z',
@@ -4164,7 +4192,8 @@
             target: 'Rp 25.000.000',
             targetAmount: 25000000,
             description: 'Bantuan sarana gerobak berkah, permodalan usaha tanpa riba, dan pendampingan usaha kecil bagi keluarga mustahik.',
-            imageUrl: '/assets/images/modal-usaha-dhuafa.jpg',
+            imageUrl: '/assets/images/modal-usaha-dhuafa.png',
+            image_url: '/assets/images/modal-usaha-dhuafa.png',
             status: 'published',
             createdAt: '2026-01-29T00:00:00.000Z',
             updatedAt: '2026-01-29T00:00:00.000Z',
@@ -4180,13 +4209,48 @@
             target: 'Rp 15.000.000',
             targetAmount: 15000000,
             description: 'Workshop keterampilan digital, pengolahan produk pangan, dan manajemen keuangan keluarga mandiri.',
-            imageUrl: '/assets/images/pelatihan-keterampilan-wirausaha.jpg',
+            imageUrl: '/assets/images/pelatihan-keterampilan-wirausaha.png',
+            image_url: '/assets/images/pelatihan-keterampilan-wirausaha.png',
             status: 'published',
             createdAt: '2026-01-30T00:00:00.000Z',
             updatedAt: '2026-01-30T00:00:00.000Z',
             author: 'Admin WIZ Babel'
         }
     ];
+
+    const PROGRAM_IMAGE_RESOLVER = {
+        'pray-for-ntt': '/assets/images/default-program-wiz.jpg',
+        'tebar-sembako': '/assets/images/tebar-sembako.png',
+        'sedekah-beras-dhuafa': '/assets/images/sedekah-beras-dhuafa.png',
+        'sedekah-jumat': '/assets/images/sedekah-Jumat.png',
+        'santunan-yatim': '/assets/images/santunan-yatim.png',
+        'tebar-quran-nusantara': '/assets/images/tebar-qur\'an-nusantara.png',
+        'tebar-iftar-nusantara': '/assets/images/tebar-iftar-nusantara.png',
+        'bahagiakan-guru-ngaji': '/assets/images/default-program-wiz.jpg',
+        'sedekah-air': '/assets/images/default-program-wiz.jpg',
+        'pembangunan-markaz': '/assets/images/pembangunan-markaz-dakwah.png',
+        'pengadaan-perbaikan-kendaraan': '/assets/images/pengadaan-&-perbaikan-kendaraan.png',
+        'santunan-mualaf': '/assets/images/santunan-mualaf.png',
+        'tahfidz': '/assets/images/tahfidz.png',
+        'pelatihan-public-speaking': '/assets/images/default-program-wiz.jpg',
+        'tabligh-akbar-dzulhijjah': '/assets/images/default-program-wiz.jpg',
+        'pelatihan-guru-dirosa': '/assets/images/default-program-wiz.jpg',
+        'pelatihan-penyelenggaraan-jenazah': '/assets/images/default-program-wiz.jpg',
+        'pelatihan-volunteer-media-dakwah': '/assets/images/default-program-wiz.jpg',
+        'lomba-desain-poster-dakwah': '/assets/images/default-program-wiz.jpg',
+        'kantor-dpw-wi-babel-dan-wiz': '/assets/images/default-program-wiz.jpg',
+        'mukerwil-mukernas-muktamar': '/assets/images/default-program-wiz.jpg',
+        'keberangkatan-kepulangan-dai': '/assets/images/keberangkatan-kepulangan-dai.jpg',
+        'pengadaan-celengan-sedekah-subuh': '/assets/images/default-program-wiz.jpg',
+        'beasiswa-pendidikan-juara': '/assets/images/beasiswa-pendidikan-juara.png',
+        'beasiswa-tahfidz-dan-dhuafa': '/assets/images/tahfidz.png',
+        'perlengkapan-belajar-yatim': '/assets/images/perlengkapan-belajar-yatim.png',
+        'khitanan-massal-dhuafa': '/assets/images/khitanan-massal-dhuafa.png',
+        'layanan-pengobatan-gratis': '/assets/images/layanan-pengobatan-gratis.png',
+        'ambulance-gratis-ummat': '/assets/images/ambulance-gratis-ummat.png',
+        'modal-usaha-dhuafa': '/assets/images/modal-usaha-dhuafa.png',
+        'pelatihan-keterampilan-wirausaha': '/assets/images/pelatihan-keterampilan-wirausaha.png'
+    };
 
     const programs = {
         getAll() {
@@ -4204,6 +4268,22 @@
                     }
                 });
 
+                // Auto-repair & update program images to official PNG assets
+                raw.forEach(p => {
+                    if (!p) return;
+                    const pSlug = (p.slug || (p.title ? p.title.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-') : '')).toLowerCase();
+                    const targetImg = PROGRAM_IMAGE_RESOLVER[pSlug];
+                    if (targetImg) {
+                        const currentImg = (p.image_url || p.imageUrl || '').trim();
+                        // If current image is not a custom uploaded data URL and matches old patterns
+                        if (!currentImg.startsWith('data:image') && (!currentImg || currentImg.endsWith('.jpg') || currentImg.includes('foto-utama-wiz') || currentImg !== targetImg)) {
+                            p.imageUrl = targetImg;
+                            p.image_url = targetImg;
+                            modified = true;
+                        }
+                    }
+                });
+
                 // Auto-sync kategori_pilar on all program objects
                 raw.forEach(p => {
                     if (p && (!p.kategori_pilar || p.kategori_pilar === '-')) {
@@ -4211,20 +4291,6 @@
                         modified = true;
                     }
                 });
-
-                // Auto-sync Keberangkatan Kepulangan Dai description
-                const daiProg = raw.find(r => r && (r.id === 'prog-dai-pelosok' || (r.title && isProgramMatching(r.title, 'Keberangkatan Kepulangan Dai'))));
-                if (daiProg && daiProg.description && daiProg.description.includes('pulau-pulau terpencil')) {
-                    daiProg.description = 'Dukungan akomodasi, transportasi, dan kafalah bagi para da\'i yang bertugas di provinsi Bangka Belitung.';
-                    modified = true;
-                }
-
-                // Auto-sync Khitanan Massal cover image
-                const khitanProg = raw.find(r => r && (r.id === 'prog-khitanan-massal' || (r.title && isProgramMatching(r.title, 'Khitanan Massal'))));
-                if (khitanProg) {
-                    khitanProg.imageUrl = 'assets/images/khitanan-massal-dhuafa.jpg?v=20260824_khitan2';
-                    modified = true;
-                }
 
                 if (modified) {
                     setStore(STORAGE_KEYS.PROGRAMS, raw);
