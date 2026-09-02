@@ -78,7 +78,7 @@ const SPECIFIC_PROGRAMS_METADATA = {
         location: 'Masjid Kemas Adil (Jl. Ahmad Yani)',
         beneficiaries: 'Penghafal Al-Qur\'an & Santri Tahfidz',
         description: 'Dukung para penghafal Al-Qur\'an dalam menjaga kalamullah dengan sedekah. Lokasi pelaksanaan di Masjid Kemas Adil (Jl. Ahmad Yani).',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/logo-wiz-babel.png'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/tahfidz.png'
     },
     'tahfidz-weekend': {
         title: 'Tahfidz Weekend',
@@ -87,7 +87,7 @@ const SPECIFIC_PROGRAMS_METADATA = {
         location: 'Masjid Kemas Adil (Jl. Ahmad Yani)',
         beneficiaries: 'Penghafal Al-Qur\'an & Santri Tahfidz',
         description: 'Dukung para penghafal Al-Qur\'an dalam menjaga kalamullah dengan sedekah. Lokasi pelaksanaan di Masjid Kemas Adil (Jl. Ahmad Yani).',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/logo-wiz-babel.png'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/tahfidz.png'
     },
     'pelatihan-public-speaking': {
         title: 'Pelatihan Public Speaking',
@@ -161,21 +161,21 @@ const SPECIFIC_PROGRAMS_METADATA = {
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 25.000.000',
         description: 'Penyaluran paket bahan pangan pokok untuk keluarga dhuafa, janda lansia, dan yatim di pelosok Bangka Belitung.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/tebar-sembako.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/tebar-sembako.png'
     },
     'tebar-sembako-dhuafa': {
         title: 'Tebar Sembako Dhuafa',
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 25.000.000',
         description: 'Penyaluran paket bahan pangan pokok untuk keluarga dhuafa, janda lansia, dan yatim di pelosok Bangka Belitung.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/tebar-sembako.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/tebar-sembako.png'
     },
     'sedekah-beras-dhuafa': {
         title: 'Sedekah Beras Dhuafa',
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 20.000.000',
         description: 'Bantuan beras premium secara berkala untuk mencukupi kebutuhan pokok para mustahik dan santri pondok pesantren.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/sedekah-beras-dhuafa.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/sedekah-beras-dhuafa.png'
     },
     'sedekah-beras-dai': {
         title: 'Sedekah Beras Dai',
@@ -210,28 +210,28 @@ const SPECIFIC_PROGRAMS_METADATA = {
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 30.000.000',
         description: 'Hadirkan senyum dan masa depan cerah untuk anak-anak yatim binaan di Bangka Belitung dengan santunan rutin dan perlengkapan sekolah.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/santunan-yatim.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/santunan-yatim.png'
     },
     'santunan-anak-yatim': {
         title: 'Santunan Anak Yatim',
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 30.000.000',
         description: 'Hadirkan senyum dan masa depan cerah untuk anak-anak yatim binaan di Bangka Belitung dengan santunan rutin dan perlengkapan sekolah.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/santunan-yatim.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/santunan-yatim.png'
     },
     'tebar-iftar': {
         title: 'Tebar Iftar Ramadan',
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 50.000.000',
         description: 'Berbagi paket buka puasa berkah untuk ribuan santri, dhuafa, dan pejuang nafkah di bulan suci Ramadan.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/tebar-iftar.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/tebar-iftar-nusantara.png'
     },
     'tebar-iftar-nusantara': {
         title: 'Tebar Iftar Ramadan',
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 50.000.000',
         description: 'Berbagi paket buka puasa berkah untuk ribuan santri, dhuafa, dan pejuang nafkah di bulan suci Ramadan.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/tebar-iftar-nusantara.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/tebar-iftar-nusantara.png'
     },
     'tebar-quran-nusantara': {
         title: 'Tebar Qur\'an Nusantara',
@@ -268,28 +268,28 @@ const SPECIFIC_PROGRAMS_METADATA = {
         pillar: 'Pendidikan & Beasiswa',
         target: 'Rp 40.000.000',
         description: 'Dukung biaya SPP dan perlengkapan sekolah bagi siswa berprestasi dari keluarga kurang mampu.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/beasiswa-pendidikan-juara.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/beasiswa-pendidikan-juara.png'
     },
     'beasiswa-tahfidz': {
         title: 'Beasiswa Tahfidz & Dhuafa',
         pillar: 'Pendidikan & Beasiswa',
         target: 'Rp 35.000.000',
         description: 'Bantuan biaya studi dan living cost santri penghafal Qur\'an di pesantren dan perguruan tinggi.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/beasiswa-tahfidz.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/tahfidz.png'
     },
     'beasiswa-tahfidz-dhuafa': {
         title: 'Beasiswa Tahfidz & Dhuafa',
         pillar: 'Pendidikan & Beasiswa',
         target: 'Rp 35.000.000',
         description: 'Bantuan biaya studi dan living cost santri penghafal Qur\'an di pesantren dan perguruan tinggi.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/beasiswa-tahfidz.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/tahfidz.png'
     },
     'perlengkapan-belajar-yatim': {
         title: 'Perlengkapan Belajar Yatim',
         pillar: 'Pendidikan & Beasiswa',
         target: 'Rp 12.000.000',
         description: 'Bantuan tas, seragam, sepatu, dan buku pelajaran untuk anak-anak yatim dhuafa menyambut tahun ajaran baru.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/perlengkapan-belajar-yatim.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/perlengkapan-belajar-yatim.png'
     },
 
     // ── 4. Kesehatan Masyarakat (Berkah Sehat) ──
@@ -298,56 +298,56 @@ const SPECIFIC_PROGRAMS_METADATA = {
         pillar: 'Kesehatan Masyarakat',
         target: 'Rp 20.000.000',
         description: 'Layanan berobat gratis dan bantuan pengobatan bagi pasien dhuafa dan lansia kritis di Bangka Belitung.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/bantuan-pengobatan.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/layanan-pengobatan-gratis.png'
     },
     'layanan-pengobatan-gratis': {
         title: 'Layanan Pengobatan Gratis',
         pillar: 'Kesehatan Masyarakat',
         target: 'Rp 20.000.000',
         description: 'Layanan berobat gratis dan bantuan pengobatan bagi pasien dhuafa dan lansia kritis di Bangka Belitung.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/bantuan-pengobatan.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/layanan-pengobatan-gratis.png'
     },
     'bantuan-kesehatan-dhuafa': {
         title: 'Bantuan Kesehatan Dhuafa',
         pillar: 'Kesehatan Masyarakat',
         target: 'Rp 20.000.000',
         description: 'Layanan berobat gratis dan bantuan pengobatan bagi pasien dhuafa dan lansia kritis di Bangka Belitung.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/bantuan-pengobatan.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/layanan-pengobatan-gratis.png'
     },
     'bantuan-pasien-kritis-dhuafa': {
         title: 'Bantuan Pasien Kritis Dhuafa',
         pillar: 'Kesehatan Masyarakat',
         target: 'Rp 20.000.000',
         description: 'Bantuan biaya tebus obat dan rawat inap bagi pasien dhuafa kurang mampu yang tidak tercover penuh oleh asuransi.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/bantuan-pengobatan.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/layanan-pengobatan-gratis.png'
     },
     'ambulance-gratis-ummat': {
         title: 'Ambulance Gratis Ummat',
         pillar: 'Kesehatan Masyarakat',
         target: 'Rp 30.000.000',
         description: 'Operasional layanan antar jemput pasien dhuafa dan jenazah gratis 24 jam di wilayah Bangka Belitung.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/ambulance-gratis-ummat.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/ambulance-gratis-ummat.png'
     },
     'ambulans-gratis-peduli': {
         title: 'Ambulans Gratis Peduli',
         pillar: 'Kesehatan Masyarakat',
         target: 'Rp 30.000.000',
         description: 'Operasional layanan antar jemput pasien dhuafa dan jenazah gratis 24 jam di wilayah Bangka Belitung.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/ambulance-gratis-ummat.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/ambulance-gratis-ummat.png'
     },
     'khitanan-massal-dhuafa': {
         title: 'Khitanan Massal Dhuafa',
         pillar: 'Kesehatan Masyarakat',
         target: 'Rp 15.000.000',
         description: 'Program khitanan massal gratis medis profesional dan santunan bingkisan untuk anak-anak dhuafa.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/khitanan-massal-dhuafa.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/khitanan-massal-dhuafa.png'
     },
     'khitanan-massal': {
         title: 'Khitanan Massal Dhuafa',
         pillar: 'Kesehatan Masyarakat',
         target: 'Rp 15.000.000',
         description: 'Program khitanan massal gratis medis profesional dan santunan bingkisan untuk anak-anak dhuafa.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/khitanan-massal-dhuafa.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/khitanan-massal-dhuafa.png'
     },
 
     // ── 5. Ekonomi & Pemberdayaan (Berkah Mandiri) ──
@@ -356,28 +356,28 @@ const SPECIFIC_PROGRAMS_METADATA = {
         pillar: 'Ekonomi & Pemberdayaan',
         target: 'Rp 30.000.000',
         description: 'Bantuan modal usaha tanpa riba dan pendampingan bisnis untuk mengangkat mustahik menjadi muzakki.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/modal-usaha-dhuafa.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/modal-usaha-dhuafa.png'
     },
     'modal-usaha-dhuafa': {
         title: 'Modal Usaha Dhuafa',
         pillar: 'Ekonomi & Pemberdayaan',
         target: 'Rp 25.000.000',
         description: 'Bantuan permodalan produktif dan alat kerja bagi pelaku usaha mikro pra-sejahtera agar mandiri.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/modal-usaha-dhuafa.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/modal-usaha-dhuafa.png'
     },
     'gerobak-berkah-umkm': {
         title: 'Gerobak Berkah UMKM',
         pillar: 'Ekonomi & Pemberdayaan',
         target: 'Rp 15.000.000',
         description: 'Pengadaan gerobak usaha dan peralatan jualan bagi para kepala keluarga dhuafa untuk mandiri berpenghasilan.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/modal-usaha-dhuafa.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/modal-usaha-dhuafa.png'
     },
     'pelatihan-keterampilan-wirausaha': {
         title: 'Pelatihan Keterampilan Wirausaha',
         pillar: 'Ekonomi & Pemberdayaan',
         target: 'Rp 10.000.000',
         description: 'Bimbingan teknis kewirausahaan, manajemen keuangan usaha kecil, dan pemasaran digital untuk UMKM dhuafa.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/pelatihan-keterampilan-wirausaha.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/pelatihan-keterampilan-wirausaha.png'
     }
 };
 
@@ -550,31 +550,31 @@ export default async function handler(req, res) {
 
 const PROGRAM_IMAGE_MAP = {
     'pray-for-ntt':                                 'assets/images/pray-for-ntt.jpg',
-    'sedekah-beras-dhuafa':                         'assets/images/sedekah-beras-dhuafa.jpg',
+    'sedekah-beras-dhuafa':                         'assets/images/sedekah-beras-dhuafa.png',
     'sedekah-beras-dai':                            'assets/images/sedekah-beras-dai.jpg',
     'sedekah-beras-dai-koba':                       'assets/images/sedekah-beras-dai-koba.jpg',
-    'beasiswa-pendidikan-juara':                    'assets/images/beasiswa-pendidikan-juara.jpg',
-    'beasiswa-tahfidz':                             'assets/images/beasiswa-tahfidz.jpg',
-    'beasiswa-tahfidz-dhuafa':                      'assets/images/beasiswa-tahfidz.jpg',
-    'tebar-iftar':                                  'assets/images/tebar-iftar.jpg',
-    'tebar-iftar-nusantara':                        'assets/images/tebar-iftar-nusantara.jpg',
-    'santunan-yatim':                               'assets/images/santunan-yatim.jpg',
-    'santunan-anak-yatim':                          'assets/images/santunan-yatim.jpg',
-    'tebar-sembako':                                'assets/images/tebar-sembako.jpg',
-    'tebar-sembako-dhuafa':                         'assets/images/tebar-sembako.jpg',
-    'perlengkapan-belajar-yatim':                   'assets/images/perlengkapan-belajar-yatim.jpg',
-    'wiz-berkah-juara-perlengkapan-belajar-yatim':  'assets/images/perlengkapan-belajar-yatim.jpg',
-    'modal-usaha-dhuafa':                           'assets/images/modal-usaha-dhuafa.jpg',
-    'modal-usaha-mandiri':                          'assets/images/modal-usaha-dhuafa.jpg',
-    'gerobak-berkah-umkm':                          'assets/images/modal-usaha-dhuafa.jpg',
-    'pelatihan-keterampilan-wirausaha':             'assets/images/pelatihan-keterampilan-wirausaha.jpg',
-    'bantuan-pengobatan':                           'assets/images/bantuan-pengobatan.jpg',
-    'bantuan-kesehatan-dhuafa':                     'assets/images/bantuan-pengobatan.jpg',
-    'bantuan-pasien-kritis-dhuafa':                 'assets/images/bantuan-pengobatan.jpg',
-    'layanan-pengobatan-gratis':                    'assets/images/bantuan-pengobatan.jpg',
-    'ambulance-gratis-ummat':                       'assets/images/ambulance-gratis-ummat.jpg',
-    'ambulans-gratis-peduli':                       'assets/images/ambulance-gratis-ummat.jpg',
-    'khitanan-massal-dhuafa':                       'assets/images/khitanan-massal-dhuafa.jpg',
+    'beasiswa-pendidikan-juara':                    'assets/images/beasiswa-pendidikan-juara.png',
+    'beasiswa-tahfidz':                             'assets/images/tahfidz.png',
+    'beasiswa-tahfidz-dhuafa':                      'assets/images/tahfidz.png',
+    'tebar-iftar':                                  'assets/images/tebar-iftar-nusantara.png',
+    'tebar-iftar-nusantara':                        'assets/images/tebar-iftar-nusantara.png',
+    'santunan-yatim':                               'assets/images/santunan-yatim.png',
+    'santunan-anak-yatim':                          'assets/images/santunan-yatim.png',
+    'tebar-sembako':                                'assets/images/tebar-sembako.png',
+    'tebar-sembako-dhuafa':                         'assets/images/tebar-sembako.png',
+    'perlengkapan-belajar-yatim':                   'assets/images/perlengkapan-belajar-yatim.png',
+    'wiz-berkah-juara-perlengkapan-belajar-yatim':  'assets/images/perlengkapan-belajar-yatim.png',
+    'modal-usaha-dhuafa':                           'assets/images/modal-usaha-dhuafa.png',
+    'modal-usaha-mandiri':                          'assets/images/modal-usaha-dhuafa.png',
+    'gerobak-berkah-umkm':                          'assets/images/modal-usaha-dhuafa.png',
+    'pelatihan-keterampilan-wirausaha':             'assets/images/pelatihan-keterampilan-wirausaha.png',
+    'bantuan-pengobatan':                           'assets/images/layanan-pengobatan-gratis.png',
+    'bantuan-kesehatan-dhuafa':                     'assets/images/layanan-pengobatan-gratis.png',
+    'bantuan-pasien-kritis-dhuafa':                 'assets/images/layanan-pengobatan-gratis.png',
+    'layanan-pengobatan-gratis':                    'assets/images/layanan-pengobatan-gratis.png',
+    'ambulance-gratis-ummat':                       'assets/images/ambulance-gratis-ummat.png',
+    'ambulans-gratis-peduli':                       'assets/images/ambulance-gratis-ummat.png',
+    'khitanan-massal-dhuafa':                       'assets/images/khitanan-massal-dhuafa.png',
     'khitanan-massal':                              'assets/images/khitanan-massal.jpg',
     'keberangkatan-kepulangan-dai':                 'assets/images/keberangkatan-kepulangan-dai.jpg',
     'keberangkatan-dan-kepulangan-dai':             'assets/images/keberangkatan-kepulangan-dai.jpg',
@@ -707,63 +707,63 @@ const PROGRAM_IMAGE_MAP = {
             title: 'Sedekah Beras Dhuafa', 
             pillar: 'Sosial & Kemanusiaan', 
             target: 'Rp 15.000.000', 
-            img: specificImgsMap['Sedekah Beras Dhuafa'] || 'assets/images/sedekah-beras-dhuafa.jpg' 
+            img: specificImgsMap['Sedekah Beras Dhuafa'] || 'assets/images/sedekah-beras-dhuafa.png' 
         },
         { 
             slug: 'beasiswa-pendidikan-juara', 
             title: 'Beasiswa Pendidikan Juara', 
             pillar: 'Pendidikan & Beasiswa', 
             target: 'Rp 25.000.000', 
-            img: specificImgsMap['Beasiswa Pendidikan Juara'] || 'assets/images/beasiswa-pendidikan-juara.jpg' 
+            img: specificImgsMap['Beasiswa Pendidikan Juara'] || 'assets/images/beasiswa-pendidikan-juara.png' 
         },
         { 
             slug: 'tebar-iftar', 
             title: 'Tebar Ifthar Nusantara', 
             pillar: 'Sosial & Kemanusiaan', 
             target: 'Rp 30.000.000', 
-            img: specificImgsMap['Tebar Iftar'] || 'assets/images/tebar-iftar.jpg' 
+            img: specificImgsMap['Tebar Iftar'] || 'assets/images/tebar-iftar-nusantara.png' 
         },
         { 
             slug: 'santunan-yatim', 
             title: 'Santunan Anak Yatim', 
             pillar: 'Sosial & Kemanusiaan', 
             target: 'Rp 10.000.000', 
-            img: specificImgsMap['Santunan Yatim'] || 'assets/images/santunan-yatim.jpg' 
+            img: specificImgsMap['Santunan Yatim'] || 'assets/images/santunan-yatim.png' 
         },
         { 
             slug: 'tebar-sembako', 
             title: 'Tebar Sembako Dhuafa', 
             pillar: 'Sosial & Kemanusiaan', 
             target: 'Rp 25.000.000', 
-            img: specificImgsMap['Tebar Sembako'] || 'assets/images/tebar-sembako.jpg' 
+            img: specificImgsMap['Tebar Sembako'] || 'assets/images/tebar-sembako.png' 
         },
         { 
             slug: 'bantuan-pengobatan', 
             title: 'Bantuan Pengobatan & Kesehatan', 
             pillar: 'Kesehatan Masyarakat', 
             target: 'Rp 20.000.000', 
-            img: specificImgsMap['Bantuan Pengobatan'] || 'assets/images/bantuan-pengobatan.jpg' 
+            img: specificImgsMap['Bantuan Pengobatan'] || 'assets/images/layanan-pengobatan-gratis.png' 
         },
         { 
             slug: 'modal-usaha-dhuafa', 
             title: 'Modal Usaha Dhuafa', 
             pillar: 'Ekonomi & Pemberdayaan', 
             target: 'Rp 25.000.000', 
-            img: specificImgsMap['Modal Usaha Dhuafa'] || 'assets/images/modal-usaha-dhuafa.jpg' 
+            img: specificImgsMap['Modal Usaha Dhuafa'] || 'assets/images/modal-usaha-dhuafa.png' 
         },
         { 
             slug: 'pelatihan-keterampilan-wirausaha', 
             title: 'Pelatihan Keterampilan Wirausaha', 
             pillar: 'Ekonomi & Pemberdayaan', 
             target: 'Rp 10.000.000', 
-            img: specificImgsMap['Pelatihan Keterampilan Wirausaha'] || 'assets/images/pelatihan-keterampilan-wirausaha.jpg' 
+            img: specificImgsMap['Pelatihan Keterampilan Wirausaha'] || 'assets/images/pelatihan-keterampilan-wirausaha.png' 
         },
         { 
             slug: 'ambulance-gratis-ummat', 
             title: 'Ambulance Gratis Ummat', 
             pillar: 'Kesehatan Masyarakat', 
             target: 'Rp 30.000.000', 
-            img: specificImgsMap['Ambulance Gratis Ummat'] || 'assets/images/ambulance-gratis-ummat.jpg' 
+            img: specificImgsMap['Ambulance Gratis Ummat'] || 'assets/images/ambulance-gratis-ummat.png' 
         }
     ];
 
@@ -826,7 +826,7 @@ const PROGRAM_IMAGE_MAP = {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${escapeHtml(title)} — WIZ Bangka Belitung</title>
     <meta name="description" content="${escapeHtml(description)}">
-    <link rel="icon" href="${origin}/assets/images/logo-wiz-babel.png" type="image/png">
+    <link rel="icon" href="${origin}/assets/images/tahfidz.png" type="image/png">
 
     <!-- Open Graph / WhatsApp / Facebook / Instagram / Telegram / LinkedIn -->
     <meta property="og:type" content="article">
@@ -885,7 +885,7 @@ const PROGRAM_IMAGE_MAP = {
     <nav class="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200/60 shadow-sm w-full">
         <div class="flex justify-between items-center w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto h-20 sm:h-24 gap-4">
             <a href="${origin}/index.html" class="flex items-center group py-2 shrink-0 max-w-xs">
-                <img src="${origin}/assets/images/logo-wiz-babel.png" alt="WIZ Babel" loading="eager" class="object-contain transition-transform group-hover:scale-105 h-12 sm:h-14 w-auto max-w-[160px] block"/>
+                <img src="${origin}/assets/images/tahfidz.png" alt="WIZ Babel" loading="eager" class="object-contain transition-transform group-hover:scale-105 h-12 sm:h-14 w-auto max-w-[160px] block"/>
             </a>
             
             <div class="hidden lg:flex gap-6 xl:gap-8 items-center text-sm font-semibold text-slate-600">

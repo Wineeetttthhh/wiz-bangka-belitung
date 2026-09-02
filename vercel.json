@@ -1,5 +1,15 @@
 {
   "version": 2,
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/api/og-image", "destination": "/api/og-image.js" },
+    { "source": "/program-image/:slug.jpg", "destination": "/api/og-image.js?type=program&id=:slug" },
+    { "source": "/quote-image/:id.jpg", "destination": "/api/og-image.js?type=quote&id=:id" },
+    { "source": "/news-image/:id.jpg", "destination": "/api/og-image.js?type=news&id=:id" },
+    { "source": "/program/:slug", "destination": "/api/program.js?name=:slug" },
+    { "source": "/quote/:id", "destination": "/api/quote.js?id=:id" },
+    { "source": "/flyer/:id", "destination": "/api/quote.js?id=:id" },
+    { "source": "/berita/:id", "destination": "/api/berita.js?id=:id" }
+  ]
 }

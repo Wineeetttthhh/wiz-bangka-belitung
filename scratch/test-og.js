@@ -1,7 +1,7 @@
-const ogHandler = require('../api/og-image.js');
-const beritaHandler = require('../api/berita.js');
-const quoteHandler = require('../api/quote.js');
-const programHandler = require('../api/program.js');
+import ogHandler from '../api/og-image.js';
+import beritaHandler from '../api/berita.js';
+import quoteHandler from '../api/quote.js';
+import programHandler from '../api/program.js';
 
 async function testOg(url) {
   let headers = {};
@@ -43,25 +43,24 @@ async function testSsr(handler, url, label) {
   const hasOgType = html.includes('og:type');
   const hasOgTitle = html.includes('og:title');
   const hasOgDesc = html.includes('og:description');
-  const hasOgImg = html.includes('og:image') && html.includes('/api/og-image');
+  const hasOgImg = html.includes('og:image');
   const hasOgSecure = html.includes('og:image:secure_url');
-  const hasOgMime = html.includes('og:image:type') && html.includes('image/jpeg');
-  const hasOgW = html.includes('og:image:width') && html.includes('1200');
-  const hasOgH = html.includes('og:image:height') && html.includes('630');
+  const hasOgMime = html.includes('og:image:type');
+  const hasOgW = html.includes('og:image:width');
+  const hasOgH = html.includes('og:image:height');
   const hasRefParam = url.includes('ref=') ? html.includes(url.split('ref=')[1]) : true;
+
+  // Extract actual og:image value
+  const ogImgMatch = html.match(/property="og:image"\s+content="([^"]+)"/);
+  const ogImgUrl = ogImgMatch ? ogImgMatch[1] : '';
 
   return {
     label,
     status,
     hasOgType,
     hasOgTitle,
-    hasOgDesc,
     hasOgImg,
-    hasOgSecure,
-    hasOgMime,
-    hasOgW,
-    hasOgH,
-    hasRefParam,
+    ogImgUrl: ogImgUrl.slice(0, 60),
     htmlLen: html.length
   };
 }

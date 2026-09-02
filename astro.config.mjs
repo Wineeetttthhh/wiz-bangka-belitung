@@ -5,6 +5,7 @@ import vercel from '@astrojs/vercel';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://www.wizbangkabelitung.or.id',
   output: 'server', // Full SSR — static pages opt-out with prerender=true
   adapter: vercel({
     webAnalytics: { enabled: true }
