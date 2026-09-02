@@ -668,14 +668,8 @@ const PROGRAM_IMAGE_MAP = {
     }
 
     // Direct Image Resolution for WhatsApp, Facebook, and Twitter (< 50ms response)
-    let directOgImage = `${origin}/program-image/${encodeURIComponent(canonicalSlug)}.jpg`;
-    if (selectedProgram.imageUrl && selectedProgram.imageUrl.startsWith('https://')) {
-        directOgImage = selectedProgram.imageUrl;
-    } else if (PROGRAM_IMAGE_MAP[canonicalSlug]) {
-        directOgImage = `${origin}/${PROGRAM_IMAGE_MAP[canonicalSlug].replace(/^\//, '')}`;
-    }
-    const ogImageUrl = directOgImage;
-    const ogImageSecureUrl = directOgImage;
+    const ogImageUrl = `${origin}/program-image/${encodeURIComponent(canonicalSlug)}.jpg`;
+    const ogImageSecureUrl = ogImageUrl;
 
     // Determine actual page image source for HTML body display
     let pageImgSrc = rawImg;
@@ -826,7 +820,7 @@ const PROGRAM_IMAGE_MAP = {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${escapeHtml(title)} — WIZ Bangka Belitung</title>
     <meta name="description" content="${escapeHtml(description)}">
-    <link rel="icon" href="${origin}/assets/images/tahfidz.png" type="image/png">
+    <link rel="icon" href="${origin}/assets/images/logo-wiz-babel.png" type="image/png">
 
     <!-- Open Graph / WhatsApp / Facebook / Instagram / Telegram / LinkedIn -->
     <meta property="og:type" content="article">
@@ -885,7 +879,7 @@ const PROGRAM_IMAGE_MAP = {
     <nav class="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200/60 shadow-sm w-full">
         <div class="flex justify-between items-center w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto h-20 sm:h-24 gap-4">
             <a href="${origin}/index.html" class="flex items-center group py-2 shrink-0 max-w-xs">
-                <img src="${origin}/assets/images/tahfidz.png" alt="WIZ Babel" loading="eager" class="object-contain transition-transform group-hover:scale-105 h-12 sm:h-14 w-auto max-w-[160px] block"/>
+                <img src="${origin}/assets/images/logo-wiz-babel.png" alt="WIZ Babel" loading="eager" class="object-contain transition-transform group-hover:scale-105 h-12 sm:h-14 w-auto max-w-[160px] block"/>
             </a>
             
             <div class="hidden lg:flex gap-6 xl:gap-8 items-center text-sm font-semibold text-slate-600">
@@ -910,8 +904,8 @@ const PROGRAM_IMAGE_MAP = {
     <main class="max-w-3xl mx-auto px-4 py-8 flex-grow space-y-8 w-full">
         <!-- Main Hero Program Card -->
         <div class="bg-white rounded-3xl overflow-hidden shadow-xl border border-slate-200">
-            <div class="relative w-full bg-slate-900 overflow-hidden" style="max-height:420px; min-height:220px;">
-                <img src="${escapeHtml(pageImgSrc)}" alt="${escapeHtml(title)}" class="w-full h-auto block" style="max-height:420px; object-fit:contain; background:#0f172a;">
+            <div class="relative w-full bg-slate-950 overflow-hidden flex items-center justify-center p-2 sm:p-4">
+                <img src="${escapeHtml(pageImgSrc)}" alt="${escapeHtml(title)}" class="w-full max-h-[640px] object-contain rounded-2xl block mx-auto">
                 <span class="absolute top-4 left-4 bg-emerald-600 text-white text-xs font-bold px-3.5 py-1 rounded-full shadow backdrop-blur-xs">
                     ${escapeHtml(pillar)}
                 </span>

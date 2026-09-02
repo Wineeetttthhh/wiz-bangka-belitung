@@ -22,15 +22,14 @@ const percentage = Math.min(100, Math.round((program.collected / program.target)
 const nominalPresets = [20000, 50000, 100000, 250000, 500000, 1000000];
 const ogTitle = program.judul || program.title;
 const ogDescription = program.deskripsi_singkat || program.description;
-const imagePath = program.image_url || program.imageUrl || '/assets/images/default-program-wiz.jpg';
-const absoluteImageUrl = new URL(imagePath.startsWith('/') ? imagePath : `/${imagePath}`, Astro.site || Astro.url.origin).href;
+const ogImageUrl = new URL(`/program-image/${program.slug}.jpg`, Astro.site || Astro.url.origin).href;
 const canonicalUrl = new URL(`/program/${program.slug}`, Astro.site || Astro.url.origin).href;
 ---
 
 <BaseLayout
     title={`${ogTitle} | WIZ Bangka Belitung`}
     description={ogDescription}
-    image={absoluteImageUrl}
+    image={ogImageUrl}
     url={canonicalUrl}
     type="article"
 >
@@ -38,9 +37,13 @@ const canonicalUrl = new URL(`/program/${program.slug}`, Astro.site || Astro.url
         <!-- WhatsApp & Social Open Graph Preview -->
         <meta property="og:title" content={ogTitle} />
         <meta property="og:description" content={ogDescription} />
-        <meta property="og:image" content={absoluteImageUrl} />
-        <meta property="og:image:secure_url" content={absoluteImageUrl} />
+        <meta property="og:image" content={ogImageUrl} />
+        <meta property="og:image:secure_url" content={ogImageUrl} />
+        <meta property="og:image:type" content="image/jpeg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content={ogImageUrl} />
     </Fragment>
 
     <!-- Breadcrumb -->
@@ -62,11 +65,11 @@ const canonicalUrl = new URL(`/program/${program.slug}`, Astro.site || Astro.url
             <div class="lg:col-span-7 space-y-8">
                 
                 <!-- Main Image -->
-                <div class="relative aspect-video rounded-3xl overflow-hidden shadow-lg border border-slate-200 bg-slate-900">
+                <div class="relative w-full rounded-3xl overflow-hidden shadow-lg border border-slate-200 bg-slate-950 flex items-center justify-center p-2 sm:p-4">
                     <img
                         src={program.image_url || program.imageUrl || '/assets/images/default-program-wiz.jpg'}
                         alt={program.title}
-                        class="w-full h-full object-cover"
+                        class="w-full max-h-[640px] object-contain rounded-2xl block mx-auto"
                         onerror="this.src='/assets/images/default-program-wiz.jpg'"
                     />
                     <div class="absolute top-4 left-4">
