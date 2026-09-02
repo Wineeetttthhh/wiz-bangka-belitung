@@ -22,7 +22,10 @@ const percentage = Math.min(100, Math.round((program.collected / program.target)
 const nominalPresets = [20000, 50000, 100000, 250000, 500000, 1000000];
 const ogTitle = program.judul || program.title;
 const ogDescription = program.deskripsi_singkat || program.description;
-const ogImageUrl = new URL(`/program-image/${program.slug}.jpg`, Astro.site || Astro.url.origin).href;
+// High-speed static 1200x630 OG image (< 120KB) for instant WhatsApp & Social Media Preview Cards
+const cleanOgSlug = (program.slug || 'default-program-wiz').replace(/&/g, 'dan').replace(/[']/g, '');
+const ogImgFile = `/assets/images/og/${cleanOgSlug}.jpg`;
+const ogImageUrl = new URL(ogImgFile, Astro.site || Astro.url.origin).href;
 const canonicalUrl = new URL(`/program/${program.slug}`, Astro.site || Astro.url.origin).href;
 ---
 
