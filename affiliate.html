@@ -1527,19 +1527,18 @@
             grid.innerHTML = progs.map(p => {
                 const slug = p.slug || (p.title ? p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : 'program');
                 const progUrl = `${origin}/program/${slug}?ref=${encodeURIComponent(activeRef)}`;
-                const dynamicImg = (window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function')
-                    ? window.wizStore.allocationRulesManager.getSpecificProgramImage(p.title, p.pillar)
-                    : (p.imageUrl || '/assets/images/default-program-wiz.png');
+                const rawImg = (p.image_url || p.imageUrl || (window.wizStore && window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function' ? window.wizStore.allocationRulesManager.getSpecificProgramImage(p.title, p.pillar) : '') || '/assets/images/default-program-wiz.jpg').trim();
+                const progImg = rawImg ? (rawImg.startsWith('/') || rawImg.startsWith('http') || rawImg.startsWith('data:') ? rawImg : `/${rawImg}`) : '/assets/images/default-program-wiz.jpg';
                 const descSnippet = (p.description || p.story || '').replace(/<[^>]*>/g, '').trim().slice(0, 100);
 
                 return `
                 <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs hover:shadow-md transition-shadow flex flex-col">
-                    <div class="aspect-video relative overflow-hidden bg-slate-100">
-                        <img src="${dynamicImg}" class="w-full h-full object-cover" alt="${p.title}" onerror="this.src='/assets/images/default-program-wiz.png'">
+                    <div class="aspect-[3/4] relative overflow-hidden bg-slate-100">
+                        <img src="${progImg}" class="w-full h-full object-cover" alt="${escapeJsString(p.title)}" onerror="this.src='/assets/images/default-program-wiz.jpg'">
                         <span class="absolute top-2 left-2 bg-primary text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">${p.pillar || 'Kebaikan'}</span>
                     </div>
                     <div class="p-4 flex flex-col flex-grow space-y-2">
-                        <h4 class="text-sm font-bold text-slate-900 line-clamp-1">${p.title}</h4>
+                        <h4 class="text-sm font-bold text-slate-900 line-clamp-1">${escapeJsString(p.title)}</h4>
                         <p class="text-xs text-slate-500 line-clamp-2">${descSnippet}...</p>
                         <div class="pt-3 mt-auto flex items-center gap-2">
                             <button type="button" onclick="copyProgramShareLink('${progUrl}')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1 transition-colors cursor-pointer">

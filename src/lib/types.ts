@@ -9,6 +9,7 @@ export interface ProgramItem {
     id: string;
     slug: string;
     title: string;
+    judul?: string;
     pillar: PillarType;
     category: string;
     target: number;
@@ -18,8 +19,10 @@ export interface ProgramItem {
     donorsCount: number;
     daysLeft: number;
     description: string;
+    deskripsi_singkat?: string;
     fullDescription?: string;
     imageUrl: string;
+    image_url?: string;
     location?: string;
     beneficiaries?: string;
     featured?: boolean;

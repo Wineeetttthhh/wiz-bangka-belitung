@@ -20,16 +20,29 @@ if (!program) {
 
 const percentage = Math.min(100, Math.round((program.collected / program.target) * 100));
 const nominalPresets = [20000, 50000, 100000, 250000, 500000, 1000000];
-const canonicalUrl = `https://www.wizbangkabelitung.or.id/program/${program.slug}`;
+const ogTitle = program.judul || program.title;
+const ogDescription = program.deskripsi_singkat || program.description;
+const imagePath = program.image_url || program.imageUrl || '/assets/images/default-program-wiz.jpg';
+const absoluteImageUrl = new URL(imagePath.startsWith('/') ? imagePath : `/${imagePath}`, Astro.site || Astro.url.origin).href;
+const canonicalUrl = new URL(`/program/${program.slug}`, Astro.site || Astro.url.origin).href;
 ---
 
 <BaseLayout
-    title={`${program.title} | WIZ Bangka Belitung`}
-    description={program.description}
-    image={program.imageUrl || '/assets/images/default-program-wiz.png'}
+    title={`${ogTitle} | WIZ Bangka Belitung`}
+    description={ogDescription}
+    image={absoluteImageUrl}
     url={canonicalUrl}
     type="article"
 >
+    <Fragment slot="head">
+        <!-- WhatsApp & Social Open Graph Preview -->
+        <meta property="og:title" content={ogTitle} />
+        <meta property="og:description" content={ogDescription} />
+        <meta property="og:image" content={absoluteImageUrl} />
+        <meta property="og:image:secure_url" content={absoluteImageUrl} />
+        <meta name="twitter:card" content="summary_large_image" />
+    </Fragment>
+
     <!-- Breadcrumb -->
     <div class="bg-slate-100 py-3 border-b border-slate-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-xs text-slate-500 flex items-center gap-2">
@@ -51,7 +64,7 @@ const canonicalUrl = `https://www.wizbangkabelitung.or.id/program/${program.slug
                 <!-- Main Image -->
                 <div class="relative aspect-video rounded-3xl overflow-hidden shadow-lg border border-slate-200 bg-slate-900">
                     <img
-                        src={program.imageUrl}
+                        src={program.image_url || program.imageUrl || '/assets/images/default-program-wiz.jpg'}
                         alt={program.title}
                         class="w-full h-full object-cover"
                         onerror="this.src='/assets/images/default-program-wiz.jpg'"

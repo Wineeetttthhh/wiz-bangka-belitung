@@ -27,6 +27,7 @@ const {
 <html lang="id" class="scroll-smooth light">
 <head>
     <SEO title={title} description={description} image={image} url={url} type={type} keywords={keywords} />
+    <slot name="head" />
     <style is:global>
         html, body {
             overflow-x: hidden !important;

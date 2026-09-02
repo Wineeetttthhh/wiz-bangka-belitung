@@ -4297,7 +4297,8 @@
                 location: (progData.location || 'Kepulauan Bangka Belitung').trim(),
                 beneficiaries: (progData.beneficiaries || '').trim(),
                 description: (progData.description || '').trim(),
-                imageUrl: progData.imageUrl || progData.image || (allocationRulesManager ? allocationRulesManager.getSpecificProgramImage(cleanTitle, pillar) : '') || 'assets/images/foto-utama-wiz.jpg',
+                imageUrl: progData.image_url || progData.imageUrl || progData.image || (allocationRulesManager ? allocationRulesManager.getSpecificProgramImage(cleanTitle, pillar) : '') || '/assets/images/default-program-wiz.jpg',
+                image_url: progData.image_url || progData.imageUrl || progData.image || (allocationRulesManager ? allocationRulesManager.getSpecificProgramImage(cleanTitle, pillar) : '') || '/assets/images/default-program-wiz.jpg',
                 status: progData.status === 'draft' ? 'draft' : 'published',
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
@@ -4338,6 +4339,12 @@
                 updatedAt: new Date().toISOString()
             };
 
+            if (updates.image_url || updates.imageUrl) {
+                const targetImg = updates.image_url || updates.imageUrl;
+                updated.imageUrl = targetImg;
+                updated.image_url = targetImg;
+            }
+
             if (updates.pillar && !updates.kategori_pilar) {
                 updated.kategori_pilar = mapPillarToKategori(updates.pillar);
             }
@@ -4352,8 +4359,8 @@
             list[idx] = updated;
             setStore(STORAGE_KEYS.PROGRAMS, list);
 
-            if (updates.imageUrl && allocationRulesManager) {
-                allocationRulesManager.updateSpecificProgramImageByName(updated.title, updates.imageUrl);
+            if ((updates.imageUrl || updates.image_url) && allocationRulesManager) {
+                allocationRulesManager.updateSpecificProgramImageByName(updated.title, updates.imageUrl || updates.image_url);
             }
 
             activityLog.add('system_config', `Program "${updated.title}" diperbarui (Status: ${updated.status}).`, sessionStorage.getItem('wiz_admin_name') || 'Admin');

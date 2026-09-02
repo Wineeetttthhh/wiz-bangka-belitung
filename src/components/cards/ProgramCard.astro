@@ -23,9 +23,9 @@ const pillarStyle = pillarColors[program.pillar] || { bg: 'bg-slate-50', text: '
 
 <div class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 flex flex-col h-full hover:-translate-y-1">
     <!-- Image & Badge Container -->
-    <div class="relative h-48 sm:h-52 w-full overflow-hidden bg-slate-100">
+    <div class="relative aspect-[3/4] w-full overflow-hidden bg-slate-100">
         <img
-            src={program.imageUrl}
+            src={program.image_url || program.imageUrl || '/assets/images/default-program-wiz.jpg'}
             alt={program.title}
             loading="lazy"
             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"

@@ -2465,53 +2465,61 @@
                     <p class="font-caption text-[11px] text-on-surface-variant mt-1">Deskripsi ini akan muncul di kartu detail program pada Form Donasi, Katalog, dan Preview WhatsApp.</p>
                 </div>
 
-                <!-- Cover Foto Program -->
+                <!-- Cover Foto Program (image_url) -->
                 <div class="border border-outline-variant/40 rounded-2xl p-md bg-surface-container-lowest space-y-md shadow-xs">
                     <div class="flex items-center justify-between">
                         <div>
                             <h4 class="font-label-md text-label-md font-bold text-primary flex items-center gap-1.5">
                                 <span class="material-symbols-outlined text-[20px]">add_a_photo</span>
-                                <span>Foto Cover Program</span>
+                                <span>Foto Cover Program (image_url)</span>
                             </h4>
-                            <p class="font-caption text-caption text-on-surface-variant mt-0.5">Foto yang akan tampil di Beranda, Katalog Program, Portal Mitra &amp; Preview WhatsApp.</p>
+                            <p class="font-caption text-caption text-on-surface-variant mt-0.5">Ketik path file lokal statis (misal: <code class="bg-surface-container px-1.5 py-0.5 rounded text-primary font-mono text-[11px]">/assets/images/bantuan-kesehatan-dhuafa.png</code>) atau unggah gambar.</p>
+                        </div>
+                    </div>
+
+                    <!-- Input Teks image_url Manual -->
+                    <div class="space-y-1.5">
+                        <label class="block font-label-md text-label-md text-on-surface font-bold">Path / URL Gambar (image_url):</label>
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="spec-prog-img-url" name="image_url" oninput="handleProgramImageUrlChange(this.value)" class="flex-1 bg-surface border border-outline-variant rounded-xl px-3 py-2.5 font-mono text-xs text-on-surface outline-none focus:border-primary font-semibold" placeholder="/assets/images/nama-file.jpg">
+                            <button type="button" onclick="clearModalProgramPhoto()" class="px-3 py-2.5 border border-outline-variant text-on-surface-variant rounded-xl text-caption hover:text-error hover:border-error transition-colors font-bold">Reset</button>
                         </div>
                     </div>
 
                     <!-- Preset HD Quick Pickers -->
                     <div class="space-y-1.5">
-                        <span class="font-caption text-caption font-bold text-on-surface-variant">Pilihan Foto Cepat:</span>
+                        <span class="font-caption text-caption font-bold text-on-surface-variant">Pilihan Cepat File Lokal:</span>
                         <div class="flex items-center gap-2 flex-wrap">
-                            <button type="button" onclick="setSpecificProgramPresetPhoto('assets/images/pray-for-ntt.jpg')" class="px-2.5 py-1 bg-rose-50 text-rose-700 rounded-lg text-caption font-bold hover:bg-rose-600 hover:text-white transition-colors border border-rose-200">🌋 Pray For NTT</button>
-                            <button type="button" onclick="setSpecificProgramPresetPhoto('assets/images/sedekah-beras-dhuafa.jpg')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">🌾 Beras Dhuafa</button>
-                            <button type="button" onclick="setSpecificProgramPresetPhoto('assets/images/beasiswa-tahfidz.jpg')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">🎓 Beasiswa</button>
-                            <button type="button" onclick="setSpecificProgramPresetPhoto('assets/images/tebar-iftar.jpg')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">🌙 Tebar Ifthar</button>
-                            <button type="button" onclick="setSpecificProgramPresetPhoto('assets/images/foto-utama-wiz.jpg')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">🕌 Markaz Dakwah</button>
+                            <button type="button" onclick="setSpecificProgramPresetPhoto('/assets/images/pray-for-ntt.jpg')" class="px-2.5 py-1 bg-rose-50 text-rose-700 rounded-lg text-caption font-bold hover:bg-rose-600 hover:text-white transition-colors border border-rose-200">🌋 Pray For NTT</button>
+                            <button type="button" onclick="setSpecificProgramPresetPhoto('/assets/images/sedekah-beras-dhuafa.png')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">🌾 Beras Dhuafa</button>
+                            <button type="button" onclick="setSpecificProgramPresetPhoto('/assets/images/beasiswa-pendidikan-juara.png')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">🎓 Beasiswa Juara</button>
+                            <button type="button" onclick="setSpecificProgramPresetPhoto('/assets/images/tebar-iftar-nusantara.png')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">🌙 Tebar Ifthar</button>
+                            <button type="button" onclick="setSpecificProgramPresetPhoto('/assets/images/tebar-sembako.png')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">📦 Tebar Sembako</button>
+                            <button type="button" onclick="setSpecificProgramPresetPhoto('/assets/images/santunan-yatim.png')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">🤲 Santunan Yatim</button>
+                            <button type="button" onclick="setSpecificProgramPresetPhoto('/assets/images/bantuan-kesehatan-dhuafa.png')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">🏥 Bantuan Kesehatan</button>
+                            <button type="button" onclick="setSpecificProgramPresetPhoto('/assets/images/modal-usaha-dhuafa.png')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">💼 Modal Usaha</button>
+                            <button type="button" onclick="setSpecificProgramPresetPhoto('/assets/images/pembangunan-markaz-dakwah.png')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">🕌 Markaz Dakwah</button>
                         </div>
                     </div>
 
                     <!-- Upload Box -->
                     <div class="space-y-2">
-                        <div onclick="document.getElementById('spec-prog-file-upload').click()" class="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-primary/40 rounded-2xl bg-primary/5 hover:bg-primary/10 cursor-pointer transition-all group">
-                            <span class="material-symbols-outlined text-primary text-3xl mb-1 group-hover:scale-110 transition-transform">cloud_upload</span>
-                            <span class="font-label-md text-label-md text-primary font-bold">Pilih foto dari komputer / galeri HP</span>
-                            <span class="font-caption text-caption text-on-surface-variant mt-0.5">JPG, PNG, WebP — Otomatis dikompres optimal</span>
+                        <div onclick="document.getElementById('spec-prog-file-upload').click()" class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-primary/40 rounded-2xl bg-primary/5 hover:bg-primary/10 cursor-pointer transition-all group">
+                            <span class="material-symbols-outlined text-primary text-2xl mb-1 group-hover:scale-110 transition-transform">cloud_upload</span>
+                            <span class="font-label-md text-label-md text-primary font-bold">Atau unggah file baru dari komputer / galeri HP</span>
+                            <span class="font-caption text-caption text-on-surface-variant mt-0.5">JPG, PNG, WebP — Otomatis dikompres</span>
                         </div>
                         <input type="file" id="spec-prog-file-upload" accept="image/*" onchange="handleModalProgramPhotoSelect(event)" style="display: none;">
-                        
-                        <div class="flex items-center gap-2">
-                            <input type="text" id="spec-prog-img-url" class="flex-1 bg-surface border border-outline-variant rounded-xl px-3 py-2 font-caption text-on-surface outline-none focus:border-primary" placeholder="Atau tempel URL gambar di sini...">
-                            <button type="button" onclick="clearModalProgramPhoto()" class="px-3 py-2 border border-outline-variant text-on-surface-variant rounded-xl text-caption hover:text-error hover:border-error transition-colors">Reset</button>
-                        </div>
 
                         <!-- Preview Box -->
                         <div id="spec-prog-preview-container" class="mt-2 flex items-center gap-md p-2 bg-surface-container-low rounded-xl border border-outline-variant/30">
-                            <img id="spec-prog-main-preview" src="assets/images/sedekah-beras-dhuafa.jpg" onerror="this.src='assets/images/sedekah-beras-dhuafa.jpg';" class="h-24 w-40 rounded-lg object-cover border border-outline-variant/30 shadow-xs shrink-0" alt="Preview">
+                            <img id="spec-prog-main-preview" src="/assets/images/default-program-wiz.jpg" onerror="this.src='/assets/images/default-program-wiz.jpg';" class="h-24 w-32 rounded-lg object-cover border border-outline-variant/30 shadow-xs shrink-0" alt="Preview">
                             <div class="text-caption space-y-1">
                                 <span class="font-bold text-primary flex items-center gap-1">
                                     <span class="material-symbols-outlined text-sm">check_circle</span>
-                                    <span>Foto Cover Terpasang</span>
+                                    <span>Preview Foto Cover</span>
                                 </span>
-                                <p class="text-on-surface-variant text-[11px]">Siap ditampilkan saat program diterbitkan.</p>
+                                <p class="text-on-surface-variant text-[11px]">Preview langsung berdasarkan path atau file yang Anda pilih.</p>
                             </div>
                         </div>
                     </div>
@@ -6330,19 +6338,33 @@
             renderSpecificProgramImagesSection();
         }
 
+        function handleProgramImageUrlChange(val) {
+            const imgEl = document.getElementById('spec-prog-main-preview');
+            const cleanVal = (val || '').trim();
+            if (imgEl) {
+                imgEl.src = cleanVal || '/assets/images/default-program-wiz.jpg';
+                imgEl.dataset.fullSrc = cleanVal || '/assets/images/default-program-wiz.jpg';
+            }
+            const urlInput = document.getElementById('spec-prog-img-url');
+            if (urlInput && !cleanVal.startsWith('data:image')) {
+                delete urlInput.dataset.base64;
+            }
+        }
+
         function setSpecificProgramPresetPhoto(url) {
             const imgEl = document.getElementById('spec-prog-main-preview');
             const urlInput = document.getElementById('spec-prog-img-url');
+            const finalUrl = (url || '').trim() || '/assets/images/default-program-wiz.jpg';
             if (imgEl) {
-                imgEl.src = url;
-                imgEl.dataset.fullSrc = url;
+                imgEl.src = finalUrl;
+                imgEl.dataset.fullSrc = finalUrl;
             }
             if (urlInput) {
-                if (url && url.startsWith('data:image')) {
+                if (finalUrl && finalUrl.startsWith('data:image')) {
                     urlInput.value = '[Foto Unggahan Baru Terpasang]';
-                    urlInput.dataset.base64 = url;
+                    urlInput.dataset.base64 = finalUrl;
                 } else {
-                    urlInput.value = url || '';
+                    urlInput.value = finalUrl || '';
                     delete urlInput.dataset.base64;
                 }
             }
@@ -6350,8 +6372,11 @@
 
         function clearModalProgramPhoto() {
             const urlInput = document.getElementById('spec-prog-img-url');
-            if (urlInput) delete urlInput.dataset.base64;
-            setSpecificProgramPresetPhoto('assets/images/default-program-wiz.jpg');
+            if (urlInput) {
+                urlInput.value = '';
+                delete urlInput.dataset.base64;
+            }
+            setSpecificProgramPresetPhoto('/assets/images/default-program-wiz.jpg');
         }
 
         function handleModalProgramPhotoSelect(event) {
@@ -6393,13 +6418,14 @@
                     document.getElementById('spec-prog-location').value = progObj.location || 'Kepulauan Bangka Belitung';
                     document.getElementById('spec-prog-beneficiaries').value = progObj.beneficiaries || '';
                     document.getElementById('spec-prog-desc').value = progObj.description || '';
-                    setSpecificProgramPresetPhoto(progObj.imageUrl || 'assets/images/default-program-wiz.jpg');
+                    const loadedImg = progObj.image_url || progObj.imageUrl || '/assets/images/default-program-wiz.jpg';
+                    setSpecificProgramPresetPhoto(loadedImg);
                     const statusRadios = document.getElementsByName('spec-prog-status');
                     for (const r of statusRadios) {
                         r.checked = (r.value === progObj.status);
                     }
                 } else {
-                    const currentImg = (window.wizStore && window.wizStore.allocationRulesManager) ? window.wizStore.allocationRulesManager.getSpecificProgramImage(editTitle, editPillar) : 'assets/images/default-program-wiz.jpg';
+                    const currentImg = (window.wizStore && window.wizStore.allocationRulesManager) ? window.wizStore.allocationRulesManager.getSpecificProgramImage(editTitle, editPillar) : '/assets/images/default-program-wiz.jpg';
                     setSpecificProgramPresetPhoto(currentImg);
                     document.getElementById('spec-prog-target').value = 'Rp 50.000.000';
                     document.getElementById('spec-prog-location').value = 'Kepulauan Bangka Belitung';
@@ -6412,7 +6438,7 @@
                 if (editPillar) document.getElementById('spec-prog-pillar').value = editPillar;
                 document.getElementById('spec-prog-location').value = 'Kepulauan Bangka Belitung';
                 document.getElementById('spec-prog-beneficiaries').value = '';
-                setSpecificProgramPresetPhoto('assets/images/default-program-wiz.jpg');
+                setSpecificProgramPresetPhoto('/assets/images/default-program-wiz.jpg');
                 const statusRadios = document.getElementsByName('spec-prog-status');
                 for (const r of statusRadios) {
                     if (r.value === 'published') r.checked = true;
@@ -6437,9 +6463,17 @@
             const location = document.getElementById('spec-prog-location').value.trim() || 'Kepulauan Bangka Belitung';
             const beneficiaries = document.getElementById('spec-prog-beneficiaries').value.trim();
             const desc = document.getElementById('spec-prog-desc').value.trim();
-            const imgEl = document.getElementById('spec-prog-main-preview');
             const urlInput = document.getElementById('spec-prog-img-url');
-            const imgUrl = (imgEl && imgEl.dataset.fullSrc) ? imgEl.dataset.fullSrc : ((urlInput && urlInput.dataset.base64) ? urlInput.dataset.base64 : (urlInput ? urlInput.value : 'assets/images/default-program-wiz.jpg'));
+            const imgEl = document.getElementById('spec-prog-main-preview');
+
+            let imgUrl = '/assets/images/default-program-wiz.jpg';
+            if (urlInput && urlInput.dataset.base64 && urlInput.value.includes('[Foto Unggahan')) {
+                imgUrl = urlInput.dataset.base64;
+            } else if (urlInput && urlInput.value.trim()) {
+                imgUrl = urlInput.value.trim();
+            } else if (imgEl && imgEl.dataset.fullSrc) {
+                imgUrl = imgEl.dataset.fullSrc;
+            }
 
             let status = 'published';
             const statusRadios = document.getElementsByName('spec-prog-status');
@@ -6471,6 +6505,7 @@
                         beneficiaries: beneficiaries,
                         description: desc,
                         imageUrl: imgUrl,
+                        image_url: imgUrl,
                         status: status
                     });
                 } else {
@@ -6482,6 +6517,7 @@
                         beneficiaries: beneficiaries,
                         description: desc,
                         imageUrl: imgUrl,
+                        image_url: imgUrl,
                         status: status
                     });
                 }
