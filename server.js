@@ -111,6 +111,7 @@ try {
     });
 } catch (e) {}
 
+const server = http.createServer((req, res) => {
     let reqUrl = req.url.split('?')[0];
     try { reqUrl = decodeURIComponent(reqUrl); } catch(e) {}
 
