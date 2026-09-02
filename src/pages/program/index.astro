@@ -59,7 +59,7 @@ import { MASTER_PROGRAMS } from '../../lib/programs-data';
                     return (
                         <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="dakwah" data-title={program.title}>
                             <div class="relative overflow-hidden aspect-video bg-surface-container">
-                                <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt={program.title} src={program.imageUrl} onerror="this.onerror=null; this.src='/assets/images/foto-utama-wiz.jpg';" alt={program.title}/>
+                                <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt={program.title} src={program.image_url || program.imageUrl || '/assets/images/default-program-wiz.jpg'} onerror="this.onerror=null; this.src='/assets/images/default-program-wiz.jpg';" alt={program.title}/>
                                 <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Dakwah</span>
                             </div>
                             <div class="p-lg flex flex-col flex-grow">
@@ -100,7 +100,7 @@ import { MASTER_PROGRAMS } from '../../lib/programs-data';
                     return (
                         <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="sosial" data-title={program.title}>
                             <div class="relative overflow-hidden aspect-video bg-surface-container">
-                                <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt={program.title} src={program.imageUrl} onerror="this.onerror=null; this.src='/assets/images/foto-utama-wiz.jpg';" alt={program.title}/>
+                                <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt={program.title} src={program.image_url || program.imageUrl || '/assets/images/default-program-wiz.jpg'} onerror="this.onerror=null; this.src='/assets/images/default-program-wiz.jpg';" alt={program.title}/>
                                 <span class="absolute top-sm left-sm bg-tertiary-container/90 text-on-tertiary font-caption text-caption px-sm py-xs rounded-full font-semibold">Sosial</span>
                             </div>
                             <div class="p-lg flex flex-col flex-grow">
@@ -141,7 +141,7 @@ import { MASTER_PROGRAMS } from '../../lib/programs-data';
                     return (
                         <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="pendidikan" data-title={program.title}>
                             <div class="relative overflow-hidden aspect-video bg-surface-container">
-                                <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt={program.title} src={program.imageUrl} onerror="this.onerror=null; this.src='/assets/images/foto-utama-wiz.jpg';" alt={program.title}/>
+                                <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt={program.title} src={program.image_url || program.imageUrl || '/assets/images/default-program-wiz.jpg'} onerror="this.onerror=null; this.src='/assets/images/default-program-wiz.jpg';" alt={program.title}/>
                                 <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Pendidikan</span>
                             </div>
                             <div class="p-lg flex flex-col flex-grow">
@@ -182,7 +182,7 @@ import { MASTER_PROGRAMS } from '../../lib/programs-data';
                     return (
                         <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="kesehatan" data-title={program.title}>
                             <div class="relative overflow-hidden aspect-video bg-surface-container">
-                                <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt={program.title} src={program.imageUrl} onerror="this.onerror=null; this.src='/assets/images/foto-utama-wiz.jpg';" alt={program.title}/>
+                                <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt={program.title} src={program.image_url || program.imageUrl || '/assets/images/default-program-wiz.jpg'} onerror="this.onerror=null; this.src='/assets/images/default-program-wiz.jpg';" alt={program.title}/>
                                 <span class="absolute top-sm left-sm bg-tertiary-container/90 text-on-tertiary font-caption text-caption px-sm py-xs rounded-full font-semibold">Kesehatan</span>
                             </div>
                             <div class="p-lg flex flex-col flex-grow">
@@ -223,7 +223,7 @@ import { MASTER_PROGRAMS } from '../../lib/programs-data';
                     return (
                         <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="ekonomi" data-title={program.title}>
                             <div class="relative overflow-hidden aspect-video bg-surface-container">
-                                <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt={program.title} src={program.imageUrl} onerror="this.onerror=null; this.src='/assets/images/foto-utama-wiz.jpg';" alt={program.title}/>
+                                <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt={program.title} src={program.image_url || program.imageUrl || '/assets/images/default-program-wiz.jpg'} onerror="this.onerror=null; this.src='/assets/images/default-program-wiz.jpg';" alt={program.title}/>
                                 <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Ekonomi</span>
                             </div>
                             <div class="p-lg flex flex-col flex-grow">
@@ -304,9 +304,8 @@ import { MASTER_PROGRAMS } from '../../lib/programs-data';
                         ? window.wizStore.finance.getSpecificProgramStats(p.title, 0, p.targetAmount || 15000000)
                         : { percent: 0, saldo: 0 };
 
-                    const dynamicImg = (window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function')
-                        ? window.wizStore.allocationRulesManager.getSpecificProgramImage(p.title, p.pillar)
-                        : (p.imageUrl || '/assets/images/default-program-wiz.png');
+                    const rawImg = p.image_url || p.imageUrl || (window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function' ? window.wizStore.allocationRulesManager.getSpecificProgramImage(p.title, p.pillar) : '') || '/assets/images/default-program-wiz.jpg';
+                    const dynamicImg = rawImg ? (rawImg.startsWith('/') || rawImg.startsWith('http') || rawImg.startsWith('data:') ? rawImg : `/${rawImg}`) : '/assets/images/default-program-wiz.jpg';
 
                     const targetLabel = p.target || (`Rp ${(p.targetAmount || 15000000).toLocaleString('id-ID')}`);
                     const slug = p.slug || (p.title ? p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : 'program');
@@ -314,7 +313,7 @@ import { MASTER_PROGRAMS } from '../../lib/programs-data';
                     return `
                     <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full cursor-pointer" data-category="${catKey}" data-title="${escapeHtml(p.title)}" data-target="${p.targetAmount || 15000000}">
                         <div class="relative overflow-hidden aspect-video bg-surface-container">
-                            <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="${escapeHtml(p.title)}" src="${escapeHtml(dynamicImg)}" onerror="this.onerror=null; this.src='/assets/images/default-program-wiz.png';" alt="${escapeHtml(p.title)}"/>
+                            <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="${escapeHtml(p.title)}" src="${escapeHtml(dynamicImg)}" onerror="this.onerror=null; this.src='/assets/images/default-program-wiz.jpg';" alt="${escapeHtml(p.title)}"/>
                             <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">${escapeHtml(p.pillar)}</span>
                             ${p.urgent ? '<span class="absolute top-sm right-sm bg-error text-on-error font-caption text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider animate-pulse shadow-sm">Mendesak</span>' : ''}
                         </div>

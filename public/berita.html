@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Berita &amp; Kegiatan Penyaluran — Laznas WIZ Bangka Belitung</title>
+    <meta name="description" content="Arsip berita lengkap, dokumentasi kegiatan penyaluran donasi, dan program kebaikan Laznas Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.">
+    <link rel="icon" href="assets/images/logo-wiz-babel.png" type="image/png">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="WIZ Bangka Belitung">
+    <meta property="og:title" content="Berita & Kegiatan Penyaluran — Laznas WIZ Bangka Belitung">
+    <meta property="og:description" content="Arsip berita lengkap, dokumentasi kegiatan penyaluran donasi, dan program kebaikan Laznas Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.">
+    <meta property="og:image" content="https://www.wizbangkabelitung.or.id/assets/images/foto-utama-wiz.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:url" content="https://www.wizbangkabelitung.or.id/berita">
+
+    <!-- Google Fonts & Material Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-high": "#e1e8fd",
+                        "secondary-fixed": "#ffdcbf",
+                        "primary-fixed": "#8ef9ab",
+                        "on-secondary-container": "#663800",
+                        "tertiary-fixed": "#89f5e7",
+                        "inverse-on-surface": "#edf0ff",
+                        "surface-dim": "#d3daef",
+                        "surface-container-highest": "#dce2f7",
+                        "surface-bright": "#f9f9ff",
+                        "on-primary-fixed-variant": "#005228",
+                        "on-primary-container": "#e9ffe9",
+                        "secondary-container": "#fd9923",
+                        "primary": "#006834",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#006d37",
+                        "surface-container-lowest": "#ffffff",
+                        "surface": "#f9f9ff",
+                        "tertiary-fixed-dim": "#6bd8cb",
+                        "outline": "#6e7a6e",
+                        "surface-variant": "#dce2f7",
+                        "tertiary-container": "#008176",
+                        "secondary-fixed-dim": "#ffb874",
+                        "inverse-primary": "#72dc91",
+                        "outline-variant": "#bdcabc",
+                        "inverse-surface": "#293040",
+                        "on-surface": "#141b2b",
+                        "on-tertiary-fixed": "#00201d",
+                        "on-secondary-fixed": "#2d1600",
+                        "on-secondary-fixed-variant": "#6b3b00",
+                        "on-background": "#141b2b",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#00210c",
+                        "on-surface-variant": "#3e4a3f",
+                        "on-tertiary": "#ffffff",
+                        "tertiary": "#00665d",
+                        "background": "#f9f9ff",
+                        "surface-container": "#e9edff",
+                        "on-tertiary-fixed-variant": "#005049",
+                        "primary-container": "#008444",
+                        "primary-fixed-dim": "#72dc91",
+                        "on-tertiary-container": "#e5fffa",
+                        "secondary": "#8c4f00",
+                        "on-error": "#ffffff",
+                        "surface-container-low": "#f1f3ff"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.25rem",
+                        lg: "0.5rem",
+                        xl: "0.75rem",
+                        full: "9999px"
+                    },
+                    spacing: {
+                        base: "4px",
+                        xs: "4px",
+                        sm: "8px",
+                        "margin-mobile": "16px",
+                        lg: "24px",
+                        "container-max": "1280px",
+                        xl: "32px",
+                        xxl: "48px",
+                        md: "16px",
+                        gutter: "24px"
+                    },
+                    fontFamily: {
+                        "display-lg-mobile": ["Plus Jakarta Sans", "sans-serif"],
+                        "label-md": ["Inter", "sans-serif"],
+                        "display-lg": ["Plus Jakarta Sans", "sans-serif"],
+                        "body-lg": ["Inter", "sans-serif"],
+                        "headline-md": ["Plus Jakarta Sans", "sans-serif"],
+                        caption: ["Inter", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"],
+                        "headline-lg": ["Plus Jakarta Sans", "sans-serif"],
+                        sans: ["Inter", "sans-serif"],
+                        heading: ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    fontSize: {
+                        "display-lg-mobile": ["36px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "label-md": ["14px", { lineHeight: "20px", fontWeight: "500" }],
+                        "display-lg": ["48px", { lineHeight: "60px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+                        "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+                        caption: ["12px", { lineHeight: "16px", fontWeight: "400" }],
+                        "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "headline-lg": ["32px", { lineHeight: "40px", fontWeight: "600" }]
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal-backdrop.show {
+            display: flex;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md min-h-screen flex flex-col antialiased selection:bg-primary-container selection:text-on-primary-container">
+
+    <!-- TopNavBar -->
+    <!-- TopNavBar -->
+    <nav id="site-header" class="bg-white/95 backdrop-blur-md fixed top-0 inset-x-0 z-50 border-b border-slate-100 shadow-sm transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 sm:h-24 flex items-center justify-between gap-4">
+            <a href="/" class="flex items-center group py-2 shrink-0">
+                <img src="/assets/images/logo-wiz-babel.png" alt="WIZ Wahdah Inspirasi Zakat Bangka Belitung" loading="eager" fetchpriority="high" class="object-contain transition-transform group-hover:scale-102 h-12 sm:h-14 w-auto block">
+            </a>
+            <div class="hidden lg:flex items-center gap-6 xl:gap-8 text-[15px] font-medium text-slate-700">
+                <a class="nav-link pb-1 text-slate-700 hover:text-[#008444] transition-all border-b-2 border-transparent whitespace-nowrap" href="/">Beranda</a>
+                <a class="nav-link pb-1 text-slate-700 hover:text-[#008444] transition-all border-b-2 border-transparent whitespace-nowrap" href="/#tentang-kami">Tentang Kami</a>
+                <a class="nav-link pb-1 text-slate-700 hover:text-[#008444] transition-all border-b-2 border-transparent whitespace-nowrap" href="/program">Program</a>
+                <a class="nav-link pb-1 text-slate-700 hover:text-[#008444] transition-all border-b-2 border-transparent whitespace-nowrap" href="/laporan">Laporan Transparansi</a>
+                <a class="nav-link pb-1 transition-all border-b-2 whitespace-nowrap text-[#008444] font-bold border-[#008444]" href="/berita">Berita &amp; Kegiatan</a>
+                <a class="nav-link pb-1 text-slate-700 hover:text-[#008444] transition-all border-b-2 border-transparent whitespace-nowrap" href="/#kontak">Kontak</a>
+            </div>
+            <div class="flex items-center gap-3 shrink-0">
+                <a href="/donasi" class="hidden sm:inline-flex bg-[#F7941D] hover:bg-[#ea7e00] text-white px-5 sm:px-6 py-2.5 rounded-full text-sm font-extrabold shadow-md shadow-orange-500/20 hover:shadow-orange-500/30 transition-all items-center gap-1.5 whitespace-nowrap shrink-0 active:scale-98">
+                    <span class="material-symbols-outlined text-[18px]">favorite</span>
+                    <span>Donasi Sekarang</span>
+                </a>
+                <button id="mobile-menu-btn" type="button" class="lg:hidden p-2.5 text-slate-700 hover:text-[#008444] rounded-xl hover:bg-slate-100 transition-colors focus:outline-none cursor-pointer" aria-label="Buka Menu Navigasi">
+                    <span id="menu-icon" class="material-symbols-outlined text-2xl block select-none pointer-events-none">menu</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Drawer -->
+        <div id="mobile-menu" class="hidden lg:hidden border-t border-slate-100 bg-white px-4 py-4 space-y-2 shadow-lg">
+            <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/">Beranda</a>
+            <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/#tentang-kami">Tentang Kami</a>
+            <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/program">Program</a>
+            <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/laporan">Laporan Transparansi</a>
+            <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/berita">Berita &amp; Kegiatan</a>
+            <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/#kontak">Kontak</a>
+            <a href="/donasi" class="w-full bg-[#F7941D] hover:bg-[#ea7e00] text-white px-6 py-3 rounded-xl font-bold text-sm shadow-md flex items-center justify-center gap-2 mt-3">
+                <span class="material-symbols-outlined text-[18px]">favorite</span>
+                <span>Donasi Sekarang</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-b from-emerald-950 via-slate-900 to-slate-900 text-white py-12 sm:py-16 px-4 sm:px-6 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:16px_16px]"></div>
+        <div class="max-w-4xl mx-auto text-center relative z-10 space-y-4">
+            <span class="inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 px-4 py-1 rounded-full text-xs font-bold border border-emerald-500/30 uppercase tracking-wider backdrop-blur-xs">
+                <span class="material-symbols-outlined text-sm">newspaper</span>
+                Kabar &amp; Dokumentasi Penyaluran
+            </span>
+            <h1 class="font-heading text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+                Arsip Berita &amp; Kegiatan Penyaluran
+            </h1>
+            <p class="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+                Jejak transparansi dan dokumentasi nyata amanah zakat, infak, sedekah dari para muhsinin untuk kemaslahatan ummat di Bangka Belitung.
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Content Section -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 flex-grow space-y-8 w-full">
+
+        <!-- Search & Filter Bar -->
+        <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <div class="flex flex-col md:flex-row gap-3 justify-between items-center">
+                <!-- Search Input -->
+                <div class="relative w-full md:w-80">
+                    <span class="material-symbols-outlined absolute left-3.5 top-3 text-slate-400 text-lg">search</span>
+                    <input type="text" id="news-search-input" placeholder="Cari judul berita atau kegiatan..." oninput="handleSearchChange(this.value)"
+                        class="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-emerald-600 focus:bg-white transition-colors">
+                </div>
+
+                <!-- Stats summary -->
+                <div class="text-xs text-slate-500 font-semibold self-start md:self-center">
+                    Menampilkan <span id="news-count" class="font-bold text-emerald-800">0</span> Berita Terpublikasi
+                </div>
+            </div>
+
+            <!-- Category Filter Pills -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none" id="category-pills">
+                <button type="button" onclick="filterCategory('Semua', this)" class="cat-pill active px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-xs shrink-0 transition-all">Semua Kategori</button>
+                <button type="button" onclick="filterCategory('Kegiatan & Penyaluran', this)" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition-all">Kegiatan &amp; Penyaluran</button>
+                <button type="button" onclick="filterCategory('Dakwah & Pembinaan', this)" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition-all">Dakwah</button>
+                <button type="button" onclick="filterCategory('Sosial & Kemanusiaan', this)" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition-all">Sosial</button>
+                <button type="button" onclick="filterCategory('Pendidikan & Beasiswa', this)" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition-all">Pendidikan</button>
+                <button type="button" onclick="filterCategory('Kesehatan Masyarakat', this)" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition-all">Kesehatan</button>
+                <button type="button" onclick="filterCategory('Ekonomi & Pemberdayaan', this)" class="cat-pill px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition-all">Ekonomi</button>
+            </div>
+        </div>
+
+        <!-- News Cards Grid Container -->
+        <div id="news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <!-- Rendered Dynamically by JS -->
+        </div>
+
+        <!-- Pagination Controls -->
+        <div id="pagination-wrapper" class="hidden flex items-center justify-center gap-2 pt-4">
+            <button id="prev-page-btn" onclick="changePage(-1)" class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-600 font-bold text-xs hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none transition-colors flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">arrow_back</span>
+                <span>Sebelumnya</span>
+            </button>
+            <div id="page-numbers" class="flex items-center gap-1"></div>
+            <button id="next-page-btn" onclick="changePage(1)" class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-600 font-bold text-xs hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none transition-colors flex items-center gap-1">
+                <span>Selanjutnya</span>
+                <span class="material-symbols-outlined text-sm">arrow_forward</span>
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Detail Article Modal Reader -->
+    <div id="public-news-modal" class="modal-backdrop">
+        <div class="bg-white max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl border border-slate-200 w-full max-w-3xl flex flex-col">
+            <!-- Main Cover Photo -->
+            <div class="relative aspect-video w-full overflow-hidden bg-slate-900 shrink-0">
+                <img id="pub-modal-image" class="w-full h-full object-cover" src="" alt="Dokumentasi Utama Berita">
+                <button onclick="closePublicNewsModal()" class="absolute top-4 right-4 bg-black/60 hover:bg-black text-white p-2 rounded-full transition-colors z-10 shadow-md flex items-center justify-center cursor-pointer">
+                    <span class="material-symbols-outlined text-lg">close</span>
+                </button>
+                <div class="absolute bottom-4 left-4 flex gap-2 flex-wrap z-10">
+                    <span id="pub-news-category" class="px-3 py-1 bg-emerald-600 text-white rounded-full text-xs font-bold shadow-xs">Kategori</span>
+                    <span id="pub-news-event-date" class="px-3 py-1 bg-amber-500 text-slate-950 rounded-full text-xs font-bold shadow-xs">📅 Tanggal Kegiatan</span>
+                </div>
+            </div>
+
+            <!-- Article Body, Gallery & Share Options -->
+            <div class="p-6 sm:p-8 space-y-6 flex-grow">
+                <div class="space-y-2 border-b border-slate-100 pb-4">
+                    <h3 id="pub-news-title" class="font-heading text-xl sm:text-2xl font-extrabold text-slate-900 leading-snug">Judul Berita</h3>
+                    <div class="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                        <span class="material-symbols-outlined text-sm text-emerald-600">person</span>
+                        <span id="pub-news-meta">Author &amp; Date</span>
+                    </div>
+                </div>
+
+                <!-- Full Unclipped Article Content -->
+                <div id="pub-news-content" class="text-sm sm:text-base text-slate-700 leading-relaxed whitespace-pre-line text-justify space-y-4 font-normal"></div>
+                
+                <!-- Multi-Photo Gallery Grid -->
+                <div id="pub-news-gallery-wrapper" class="hidden space-y-3 pt-4 border-t border-slate-100">
+                    <h4 class="font-heading text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-emerald-600 text-base">collections</span>
+                        <span>Galeri Dokumentasi Tambahan</span>
+                    </h4>
+                    <div id="pub-news-gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                </div>
+
+                <!-- Social Media Share Bar -->
+                <div class="pt-6 border-t border-slate-100 bg-slate-50 p-4 sm:p-5 rounded-2xl space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-emerald-600 text-base">share</span>
+                            <span>Bagikan Berita Ini:</span>
+                        </span>
+                        <span id="share-toast" class="hidden text-xs text-emerald-600 font-bold animate-pulse">✓ Link tersalin!</span>
+                    </div>
+
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button id="share-wa-btn" onclick="shareArticleModal('wa')" class="flex-1 min-w-[120px] bg-[#25D366] hover:bg-[#20ba59] text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+                            <span>WhatsApp</span>
+                        </button>
+                        <button onclick="shareArticleModal('copy')" class="flex-1 min-w-[120px] bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+                            <span class="material-symbols-outlined text-sm">link</span>
+                            <span>Salin Tautan</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="kontak" class="bg-inverse-surface dark:bg-surface-container-lowest w-full px-margin-mobile md:px-gutter py-xxl mt-auto">
+        <div class="max-w-container-max mx-auto grid grid-cols-1 md:grid-cols-4 gap-xl">
+            <!-- Brand & Social Media -->
+            <div class="space-y-4 md:col-span-1">
+                <div class="font-headline-lg text-headline-lg font-bold text-surface-bright">WIZ Babel</div>
+                <p class="font-body-md text-body-md text-surface-variant/80">© <span class="footer-year"></span> Wahdah Inspirasi Zakat Bangka Belitung. Amanah &amp; Profesional.</p>
+                <p class="font-caption text-caption text-surface-variant/60" data-site-office-address="pangkalpinang">Jl. Mentok No. 45, Pangkalpinang, Bangka Belitung</p>
+
+                <!-- Social Media Icons -->
+                <div class="pt-2">
+                    <p class="font-caption text-caption text-surface-variant/60 mb-3 uppercase tracking-wider font-semibold">Ikuti Kami</p>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <!-- Instagram -->
+                        <a href="https://www.instagram.com/wahdahinspirasizakatbabel?igsh=dDB6bmsxbWIwbzh0" target="_blank" rel="noopener noreferrer"
+                           title="Instagram WIZ Babel"
+                           class="group flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-[#E1306C] transition-all duration-300 hover:scale-110 shadow-sm">
+                            <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                            </svg>
+                        </a>
+
+                        <!-- TikTok -->
+                        <a href="https://www.tiktok.com/@wizbangkabelitunglitung?is_from_webapp=1&sender_device=pc" target="_blank" rel="noopener noreferrer"
+                           title="TikTok WIZ Babel"
+                           class="group flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-[#010101] transition-all duration-300 hover:scale-110 shadow-sm border border-white/10">
+                            <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24">
+                                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/>
+                            </svg>
+                        </a>
+
+                        <!-- Facebook -->
+                        <a href="https://www.facebook.com/share/1CMQ9zBSob/" target="_blank" rel="noopener noreferrer"
+                           title="Facebook WIZ Babel"
+                           class="group flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-[#1877F2] transition-all duration-300 hover:scale-110 shadow-sm">
+                            <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                        </a>
+
+                        <!-- WhatsApp Channel -->
+                        <a href="https://whatsapp.com/channel/0029VbCkB2uA89MnYdae7D1J" target="_blank" rel="noopener noreferrer"
+                           title="Saluran WhatsApp WIZ Babel"
+                           class="group flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-[#25D366] transition-all duration-300 hover:scale-110 shadow-sm">
+                            <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h4 class="font-label-md text-label-md text-primary-fixed dark:text-primary font-bold">Tautan Cepat</h4>
+                <ul class="space-y-2 font-label-md text-label-md text-surface-variant/80">
+                    <li><a class="hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 inline-block focus:ring-2 focus:ring-primary-fixed" href="program.html">Program Pemberdayaan</a></li>
+                    <li><a class="hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 inline-block focus:ring-2 focus:ring-primary-fixed" href="program.html">Zakat Fitrah &amp; Maal</a></li>
+                    <li><a class="hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 inline-block focus:ring-2 focus:ring-primary-fixed" href="index.html#kalkulator-zakat">Kalkulator Zakat</a></li>
+                </ul>
+            </div>
+            <div class="space-y-4">
+                <h4 class="font-label-md text-label-md text-primary-fixed dark:text-primary font-bold">Informasi</h4>
+                <ul class="space-y-2 font-label-md text-label-md text-surface-variant/80">
+                    <li><a class="hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 inline-block focus:ring-2 focus:ring-primary-fixed" href="laporan.html">Laporan Publik Realtime</a></li>
+                    <li><a class="hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 inline-block focus:ring-2 focus:ring-primary-fixed" href="index.html#tentang-kami">Tentang WIZ Babel</a></li>
+                    <li><a class="hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 flex items-center gap-1 focus:ring-2 focus:ring-primary-fixed text-primary-fixed dark:text-primary font-semibold" href="affiliate.html"><span class="material-symbols-outlined text-sm">handshake</span> Portal Mitra Penghimpunan</a></li>
+                    <li><a class="hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 flex items-center gap-1 focus:ring-2 focus:ring-primary-fixed text-primary-fixed dark:text-primary font-semibold" href="admin.html"><span class="material-symbols-outlined text-sm">lock</span> Portal Admin</a></li>
+                </ul>
+            </div>
+            <div class="space-y-4">
+                <h4 class="font-label-md text-label-md text-primary-fixed dark:text-primary font-bold">Bantuan &amp; Kontak</h4>
+                <ul class="space-y-2 font-label-md text-label-md text-surface-variant/80">
+                    <li><a class="hover:text-surface-bright transition-colors" href="https://wa.me/6282380830808" target="_blank">WhatsApp: +62 823-8083-0808</a></li>
+                    <li><span class="text-surface-variant/80">Email: wiz.babel@gmail.com</span></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+    <script>
+        document.querySelectorAll('.footer-year, #footer-year, #footer-year-berita').forEach(el => el.textContent = new Date().getFullYear());
+    </script>
+
+    <!-- Scripts: Store & Supabase Sync -->
+    <script src="assets/js/supabase-client.js?v=20260828_1787893082733"></script>
+    <script src="assets/js/admin-store.js?v=20260828_1787893082733"></script>
+    <script src="assets/js/main.js?v=20260828_1787893082733"></script>
+    <script src="assets/js/nav-active.js?v=20260828_1787893082733"></script>
+
+    <script>
+        let currentCategory = 'Semua';
+        let currentSearchQuery = '';
+        let currentPage = 1;
+        const ITEMS_PER_PAGE = 12;
+        let currentModalArticle = null;
+
+        function getFilteredNews() {
+            if (!window.wizStore || !window.wizStore.news) return [];
+            const all = wizStore.news.getPublished() || [];
+            
+            return all.filter(n => {
+                if (!n) return false;
+                // Category match
+                if (currentCategory !== 'Semua') {
+                    const cat = (n.category || '').toLowerCase();
+                    const target = currentCategory.toLowerCase();
+                    if (!cat.includes(target) && !target.includes(cat)) {
+                        return false;
+                    }
+                }
+                // Search query match
+                if (currentSearchQuery) {
+                    const q = currentSearchQuery.toLowerCase();
+                    const title = (n.title || '').toLowerCase();
+                    const content = (n.content || '').toLowerCase();
+                    const author = (n.author || '').toLowerCase();
+                    if (!title.includes(q) && !content.includes(q) && !author.includes(q)) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+        }
+
+        let isFetchingPublicNews = false;
+        async function fetchFreshArchiveNews() {
+            if (isFetchingPublicNews) return;
+            isFetchingPublicNews = true;
+            try {
+                if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                    const res = await window.wizSupabase.select('news', { select: 'id,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at', order: 'created_at.desc' });
+                    if (res && Array.isArray(res.data) && res.data.length > 0) {
+                        const mapped = res.data.map(n => {
+                            const mainImg = (n.image_url || (Array.isArray(n.gallery) && n.gallery.length > 0 ? n.gallery[0] : '') || n.imageUrl || '').trim();
+                            return {
+                                id: String(n.id),
+                                title: n.title,
+                                category: n.category || 'Kegiatan & Penyaluran',
+                                content: n.content,
+                                imageUrl: mainImg,
+                                image_url: mainImg,
+                                gallery: Array.isArray(n.gallery) ? n.gallery : [],
+                                eventDate: n.event_date || n.eventDate || n.created_at,
+                                event_date: n.event_date || n.eventDate || n.created_at,
+                                status: n.status || 'published',
+                                author: n.author || 'Admin WIZ Babel',
+                                createdAt: n.created_at || n.createdAt || new Date().toISOString(),
+                                created_at: n.created_at || n.createdAt || new Date().toISOString(),
+                                updatedAt: n.updated_at || n.updatedAt || new Date().toISOString(),
+                                updated_at: n.updated_at || n.updatedAt || new Date().toISOString()
+                            };
+                        });
+                        mapped.sort((a, b) => {
+                            const timeA = new Date(a.createdAt || a.created_at || a.updatedAt || a.updated_at || a.eventDate || a.event_date || 0).getTime();
+                            const timeB = new Date(b.createdAt || b.created_at || b.updatedAt || b.updated_at || b.eventDate || b.event_date || 0).getTime();
+                            return timeB - timeA;
+                        });
+                        localStorage.setItem('wiz_news', JSON.stringify(mapped));
+                        renderArchive();
+                    }
+                }
+            } catch(e) {}
+            finally {
+                isFetchingPublicNews = false;
+            }
+        }
+        fetchFreshArchiveNews();
+
+        function renderArchive() {
+            const grid = document.getElementById('news-grid');
+            const countEl = document.getElementById('news-count');
+            const paginationWrapper = document.getElementById('pagination-wrapper');
+            if (!grid) return;
+
+            const filtered = getFilteredNews();
+            if (countEl) countEl.textContent = filtered.length;
+
+            if (filtered.length === 0) {
+                fetchFreshArchiveNews();
+                grid.innerHTML = `
+                <div class="col-span-1 md:col-span-3 text-center py-16 bg-white rounded-3xl border border-dashed border-slate-300 p-8 space-y-3 shadow-xs">
+                    <span class="material-symbols-outlined text-5xl text-emerald-600/40">feed</span>
+                    <p class="font-heading text-lg font-bold text-slate-800">Tidak Ada Berita Ditemukan</p>
+                    <p class="text-xs text-slate-500 max-w-md mx-auto">Coba gunakan kata kunci pencarian lain atau pilih kategori yang berbeda.</p>
+                </div>`;
+                if (paginationWrapper) paginationWrapper.classList.add('hidden');
+                return;
+            }
+
+            // Pagination calculation
+            const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+            const pageItems = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+            const defaultImg = 'assets/images/sedekah-beras-dhuafa.jpg';
+
+            grid.innerHTML = pageItems.map(n => {
+                const galCount = Array.isArray(n.gallery) ? n.gallery.filter(Boolean).length : 0;
+                const formattedDate = (window.wizStore && wizStore.utils) ? wizStore.utils.formatDate(n.eventDate || n.event_date || n.createdAt || n.created_at) : (n.eventDate || n.createdAt || '');
+                const rawImg = (n.imageUrl || n.image_url || '').trim();
+                const firstGal = (Array.isArray(n.gallery) && n.gallery.length > 0 && typeof n.gallery[0] === 'string') ? n.gallery[0].trim() : '';
+                const cardImg = rawImg || firstGal || defaultImg;
+
+                return `
+                <article class="bg-white rounded-3xl overflow-hidden shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-200 flex flex-col group">
+                    <div onclick="openModal('${n.id}')" class="relative aspect-video overflow-hidden bg-slate-900 cursor-pointer w-full">
+                        <img src="${cardImg}" onerror="this.src='${defaultImg}'" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 block" style="object-fit: cover; width: 100%; height: 100%; display: block;" alt="${n.title}" loading="lazy" decoding="async">
+                        <span class="absolute top-3 left-3 bg-emerald-600 text-white text-[11px] px-3 py-1 rounded-full font-bold shadow backdrop-blur-xs">${n.category || 'Kegiatan'}</span>
+                        ${galCount > 0 ? `
+                        <span class="absolute bottom-3 right-3 bg-black/75 backdrop-blur-xs text-white text-[11px] px-2.5 py-0.5 rounded-full font-bold shadow flex items-center gap-1">
+                            <span class="material-symbols-outlined text-xs">collections</span>
+                            <span>+${galCount} foto</span>
+                        </span>` : ''}
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow space-y-3">
+                        <div class="flex items-center text-emerald-800 text-xs font-semibold gap-1.5">
+                            <span class="material-symbols-outlined text-sm">event</span>
+                            <span>Kegiatan: ${formattedDate}</span>
+                            <span class="text-slate-300">•</span>
+                            <span class="text-slate-400">${n.author || 'Admin WIZ Babel'}</span>
+                        </div>
+                        <h3 onclick="openModal('${n.id}')" class="font-heading font-extrabold text-base sm:text-lg text-slate-900 group-hover:text-emerald-700 transition-colors line-clamp-2 cursor-pointer leading-snug">${n.title}</h3>
+                        <p onclick="openModal('${n.id}')" class="text-xs sm:text-sm text-slate-600 line-clamp-3 flex-grow cursor-pointer leading-relaxed">${n.content || ''}</p>
+                        
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                            <button onclick="openModal('${n.id}')" class="text-emerald-700 font-bold text-xs flex items-center gap-1 hover:underline cursor-pointer">
+                                <span>Baca Selengkapnya</span>
+                                <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                            </button>
+                            <button onclick="shareDirectWA('${n.id}')" title="Bagikan ke WhatsApp" class="text-slate-400 hover:text-[#25D366] transition-colors p-2 rounded-xl flex items-center justify-center cursor-pointer hover:bg-slate-50">
+                                <span class="material-symbols-outlined text-base">share</span>
+                            </button>
+                        </div>
+                    </div>
+                </article>`;
+            }).join('');
+
+            // Render Pagination
+            if (paginationWrapper) {
+                if (totalPages > 1) {
+                    paginationWrapper.classList.remove('hidden');
+                    document.getElementById('prev-page-btn').disabled = (currentPage === 1);
+                    document.getElementById('next-page-btn').disabled = (currentPage === totalPages);
+
+                    const pageNumbersEl = document.getElementById('page-numbers');
+                    pageNumbersEl.innerHTML = Array.from({ length: totalPages }, (_, i) => i + 1).map(p => `
+                        <button type="button" onclick="goToPage(${p})" class="w-8 h-8 rounded-xl font-bold text-xs flex items-center justify-center transition-all ${p === currentPage ? 'bg-emerald-600 text-white shadow-xs' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'}">
+                            ${p}
+                        </button>
+                    `).join('');
+                } else {
+                    paginationWrapper.classList.add('hidden');
+                }
+            }
+        }
+
+        function filterCategory(cat, btn) {
+            currentCategory = cat;
+            currentPage = 1;
+            document.querySelectorAll('.cat-pill').forEach(b => {
+                b.classList.remove('bg-emerald-600', 'text-white', 'shadow-xs', 'active');
+                b.classList.add('bg-slate-100', 'text-slate-600');
+            });
+            if (btn) {
+                btn.classList.remove('bg-slate-100', 'text-slate-600');
+                btn.classList.add('bg-emerald-600', 'text-white', 'shadow-xs', 'active');
+            }
+            renderArchive();
+        }
+
+        function handleSearchChange(q) {
+            currentSearchQuery = (q || '').trim();
+            currentPage = 1;
+            renderArchive();
+        }
+
+        function changePage(delta) {
+            currentPage += delta;
+            renderArchive();
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+        }
+
+        function goToPage(p) {
+            currentPage = p;
+            renderArchive();
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+        }
+
+        function openModal(id) {
+            if (!window.wizStore || !window.wizStore.news) return;
+            const article = wizStore.news.getById(id);
+            if (!article) return;
+            currentModalArticle = article;
+
+            const defaultImg = 'assets/images/sedekah-beras-dhuafa.jpg';
+            const rawImg = (article.imageUrl || article.image_url || '').trim();
+            const firstGal = (Array.isArray(article.gallery) && article.gallery.length > 0 && typeof article.gallery[0] === 'string') ? article.gallery[0].trim() : '';
+            const modalImg = rawImg || firstGal || defaultImg;
+
+            const imgEl = document.getElementById('pub-modal-image');
+            imgEl.src = modalImg;
+            imgEl.style.objectFit = 'cover';
+            imgEl.style.width = '100%';
+            imgEl.style.height = '100%';
+            imgEl.style.display = 'block';
+            imgEl.onerror = () => { imgEl.src = defaultImg; };
+
+            const formattedEventDate = (window.wizStore && wizStore.utils) ? wizStore.utils.formatDate(article.eventDate || article.createdAt) : (article.eventDate || article.createdAt || '');
+            const formattedPublishDate = (window.wizStore && wizStore.utils) ? wizStore.utils.formatDate(article.createdAt) : (article.createdAt || '');
+
+            document.getElementById('pub-news-category').textContent = article.category || 'Kegiatan & Event';
+            document.getElementById('pub-news-event-date').textContent = `📅 ${formattedEventDate}`;
+            document.getElementById('pub-news-title').textContent = article.title;
+            document.getElementById('pub-news-meta').textContent = `Dipublikasikan pada ${formattedPublishDate} • Oleh ${article.author || 'Admin WIZ Babel'}`;
+
+            document.getElementById('pub-news-content').textContent = article.content || '';
+
+            const gal = Array.isArray(article.gallery) ? article.gallery.filter(Boolean) : [];
+            const galWrapper = document.getElementById('pub-news-gallery-wrapper');
+            const galGrid = document.getElementById('pub-news-gallery-grid');
+            
+            if (gal.length > 0 && galWrapper && galGrid) {
+                galWrapper.classList.remove('hidden');
+                galGrid.innerHTML = gal.map(imgUrl => `
+                    <div class="overflow-hidden rounded-2xl border border-slate-200 shadow-xs aspect-video bg-slate-900">
+                        <img src="${imgUrl}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300 block" style="object-fit: cover; width: 100%; height: 100%; display: block;" alt="Dokumentasi Tambahan">
+                    </div>
+                `).join('');
+            } else if (galWrapper) {
+                galWrapper.classList.add('hidden');
+            }
+
+            document.getElementById('public-news-modal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePublicNewsModal() {
+            document.getElementById('public-news-modal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        function getPageRefCode() {
+            return (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || 
+                   (new URLSearchParams(window.location.search).get('ref') || sessionStorage.getItem('wiz_active_ref_id') || localStorage.getItem('wiz_ref_code') || '').trim();
+        }
+
+        function shareDirectWA(id) {
+            if (!window.wizStore || !window.wizStore.news) return;
+            const n = wizStore.news.getById(id);
+            if (!n) return;
+            const refCode = getPageRefCode();
+            const baseOrigin = 'https://www.wizbangkabelitung.or.id';
+            const shareUrlObj = new URL(`${baseOrigin}/berita/${encodeURIComponent(n.id)}`);
+            if (refCode) shareUrlObj.searchParams.set('ref', refCode);
+            const finalShareUrl = shareUrlObj.toString();
+            
+            if (typeof window.showWhatsAppShareToast === 'function') {
+                window.showWhatsAppShareToast('Membuka WhatsApp... Tunggu 1–2 detik di WhatsApp hingga kartu preview gambar muncul ✨');
+            }
+
+            // Send pure URL so WhatsApp renders the neat floating preview card with clickable link
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(finalShareUrl)}`, '_blank');
+        }
+
+        function shareArticleModal(platform) {
+            if (!currentModalArticle) return;
+            const refCode = getPageRefCode();
+            const baseOrigin = 'https://www.wizbangkabelitung.or.id';
+            const shareUrlObj = new URL(`${baseOrigin}/berita/${encodeURIComponent(currentModalArticle.id)}`);
+            if (refCode) shareUrlObj.searchParams.set('ref', refCode);
+
+            const finalShareUrl = shareUrlObj.toString();
+            if (platform === 'wa') {
+                if (typeof window.showWhatsAppShareToast === 'function') {
+                    window.showWhatsAppShareToast('Membuka WhatsApp... Tunggu 1–2 detik di WhatsApp hingga kartu preview gambar muncul ✨');
+                }
+                // Send pure URL so WhatsApp renders the neat floating preview card with clickable link
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(finalShareUrl)}`, '_blank');
+            } else if (platform === 'copy') {
+                const cleanCopyUrl = shareUrlObj.toString();
+                navigator.clipboard.writeText(cleanCopyUrl).then(() => {
+                    const toast = document.getElementById('share-toast');
+                    if (toast) {
+                        toast.classList.remove('hidden');
+                        setTimeout(() => toast.classList.add('hidden'), 3000);
+                    } else {
+                        alert('Tautan berita berhasil disalin ke clipboard!');
+                    }
+                });
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const fyb = document.getElementById('footer-year-berita');
+            if (fyb) fyb.textContent = new Date().getFullYear();
+            renderArchive();
+            fetchFreshArchiveNews();
+
+            // Auto-fetch fresh news from Supabase Cloud on startup for multi-device sync
+            if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
+                try {
+                    await window.wizStore.syncFromCloud(true);
+                    renderArchive();
+                } catch(e) {}
+            }
+
+            // Guaranteed multi-device fallback: Ensure all authoritative news items are loaded
+            try {
+                const res = await fetch('/api/sync?t=' + Date.now(), { cache: 'no-store' });
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json && json.data && Array.isArray(json.data.news) && json.data.news.length > 0) {
+                        localStorage.setItem('wiz_news', JSON.stringify(json.data.news));
+                        renderArchive();
+                    }
+                }
+            } catch(e) {}
+        });
+        window.addEventListener('wiz-news-changed', renderArchive);
+        window.addEventListener('wiz-sync-complete', renderArchive);
+        window.addEventListener('wiz-data-changed', renderArchive);
+    </script>
+</body>
+</html>

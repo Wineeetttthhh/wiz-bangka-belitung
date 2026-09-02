@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Laporan Transparansi Keuangan - WIZ Babel</title>
+    <meta name="description" content="Laporan transparansi keuangan dana amil zakat, infak, sedekah secara real-time Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.">
+    <link rel="icon" href="assets/images/logo-wiz-babel.png" type="image/png">
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Wahdah Inspirasi Zakat (WIZ) Bangka Belitung">
+    <meta property="og:url" content="https://www.wizbangkabelitung.or.id/laporan.html">
+    <meta property="og:title" content="Laporan Transparansi Keuangan - WIZ Bangka Belitung">
+    <meta property="og:description" content="Laporan transparansi keuangan dana amil zakat, infak, dan sedekah secara realtime WIZ Bangka Belitung.">
+    <meta property="og:image" content="https://www.wizbangkabelitung.or.id/assets/images/foto-utama-wiz.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Laporan Transparansi Keuangan - WIZ Bangka Belitung">
+    <meta name="twitter:description" content="Laporan transparansi keuangan dana amil zakat, infak, dan sedekah secara realtime WIZ Bangka Belitung.">
+    <meta name="twitter:image" content="https://www.wizbangkabelitung.or.id/assets/images/foto-utama-wiz.jpg">
+
+    <!-- Google Fonts & Material Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#e1e8fd",
+                        "secondary-fixed": "#ffdcbf",
+                        "primary-fixed": "#8ef9ab",
+                        "on-secondary-container": "#663800",
+                        "tertiary-fixed": "#89f5e7",
+                        "inverse-on-surface": "#edf0ff",
+                        "surface-dim": "#d3daef",
+                        "surface-container-highest": "#dce2f7",
+                        "surface-bright": "#f9f9ff",
+                        "on-primary-fixed-variant": "#005228",
+                        "on-primary-container": "#e9ffe9",
+                        "secondary-container": "#fd9923",
+                        "primary": "#006834",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#006d37",
+                        "surface-container-lowest": "#ffffff",
+                        "surface": "#f9f9ff",
+                        "tertiary-fixed-dim": "#6bd8cb",
+                        "outline": "#6e7a6e",
+                        "surface-variant": "#dce2f7",
+                        "tertiary-container": "#008176",
+                        "secondary-fixed-dim": "#ffb874",
+                        "inverse-primary": "#72dc91",
+                        "outline-variant": "#bdcabc",
+                        "inverse-surface": "#293040",
+                        "on-surface": "#141b2b",
+                        "on-tertiary-fixed": "#00201d",
+                        "on-secondary-fixed": "#2d1600",
+                        "on-secondary-fixed-variant": "#6b3b00",
+                        "on-background": "#141b2b",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#00210c",
+                        "on-surface-variant": "#3e4a3f",
+                        "on-tertiary": "#ffffff",
+                        "tertiary": "#00665d",
+                        "background": "#f9f9ff",
+                        "surface-container": "#e9edff",
+                        "on-tertiary-fixed-variant": "#005049",
+                        "primary-container": "#008444",
+                        "primary-fixed-dim": "#72dc91",
+                        "on-tertiary-container": "#e5fffa",
+                        "secondary": "#8c4f00",
+                        "on-error": "#ffffff",
+                        "surface-container-low": "#f1f3ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "margin-mobile": "16px",
+                        "lg": "24px",
+                        "container-max": "1280px",
+                        "xl": "32px",
+                        "xxl": "48px",
+                        "md": "16px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "display-lg-mobile": ["Plus Jakarta Sans", "sans-serif"],
+                        "label-md": ["Inter", "sans-serif"],
+                        "display-lg": ["Plus Jakarta Sans", "sans-serif"],
+                        "body-lg": ["Inter", "sans-serif"],
+                        "headline-md": ["Plus Jakarta Sans", "sans-serif"],
+                        "caption": ["Inter", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"],
+                        "headline-lg": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "display-lg-mobile": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "caption": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .shadow-level-1 { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); }
+        .shadow-level-2 { box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08); }
+
+        /* Modal styling */
+        .modal-backdrop {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .modal-backdrop.show { opacity: 1; pointer-events: auto; }
+        .modal-dialog {
+            background: #fff; border-radius: 20px;
+            width: 92%; max-width: 520px;
+            max-height: 90vh; overflow-y: auto;
+            transform: translateY(24px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+        }
+        .modal-backdrop.show .modal-dialog { transform: translateY(0); }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md antialiased min-h-screen flex flex-col">
+
+<!-- TopNavBar Component -->
+<nav id="site-header" class="bg-white/95 backdrop-blur-md fixed top-0 inset-x-0 z-50 border-b border-slate-100 shadow-sm transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 sm:h-24 flex items-center justify-between gap-4">
+        <a href="/" class="flex items-center group py-2 shrink-0">
+            <img src="/assets/images/logo-wiz-babel.png" alt="WIZ Wahdah Inspirasi Zakat Bangka Belitung" loading="eager" fetchpriority="high" class="object-contain transition-transform group-hover:scale-102 h-12 sm:h-14 w-auto block">
+        </a>
+        <div class="hidden lg:flex items-center gap-6 xl:gap-8 text-[15px] font-medium text-slate-700">
+            <a class="nav-link pb-1 text-slate-700 hover:text-[#008444] transition-all border-b-2 border-transparent whitespace-nowrap" href="/">Beranda</a>
+            <a class="nav-link pb-1 text-slate-700 hover:text-[#008444] transition-all border-b-2 border-transparent whitespace-nowrap" href="/#tentang-kami">Tentang Kami</a>
+            <a class="nav-link pb-1 text-slate-700 hover:text-[#008444] transition-all border-b-2 border-transparent whitespace-nowrap" href="/program">Program</a>
+            <a class="nav-link pb-1 transition-all border-b-2 whitespace-nowrap text-[#008444] font-bold border-[#008444]" href="/laporan">Laporan Transparansi</a>
+            <a class="nav-link pb-1 text-slate-700 hover:text-[#008444] transition-all border-b-2 border-transparent whitespace-nowrap" href="/berita">Berita &amp; Kegiatan</a>
+            <a class="nav-link pb-1 text-slate-700 hover:text-[#008444] transition-all border-b-2 border-transparent whitespace-nowrap" href="/#kontak">Kontak</a>
+        </div>
+        <div class="flex items-center gap-3 shrink-0">
+            <a href="/donasi" class="hidden sm:inline-flex bg-[#F7941D] hover:bg-[#ea7e00] text-white px-5 sm:px-6 py-2.5 rounded-full text-sm font-extrabold shadow-md shadow-orange-500/20 hover:shadow-orange-500/30 transition-all items-center gap-1.5 whitespace-nowrap shrink-0 active:scale-98">
+                <span class="material-symbols-outlined text-[18px]">favorite</span>
+                <span>Donasi Sekarang</span>
+            </a>
+            <button id="mobile-menu-btn" type="button" class="lg:hidden p-2.5 text-slate-700 hover:text-[#008444] rounded-xl hover:bg-slate-100 transition-colors focus:outline-none cursor-pointer" aria-label="Buka Menu Navigasi">
+                <span id="menu-icon" class="material-symbols-outlined text-2xl block select-none pointer-events-none">menu</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation Menu -->
+    <div id="mobile-menu" class="hidden lg:hidden border-t border-slate-100 bg-white px-4 py-4 space-y-2 shadow-lg">
+        <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/">Beranda</a>
+        <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/#tentang-kami">Tentang Kami</a>
+        <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/program">Program</a>
+        <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/laporan">Laporan Transparansi</a>
+        <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/berita">Berita &amp; Kegiatan</a>
+        <a class="nav-link block text-slate-700 hover:text-[#008444] font-semibold text-base py-2.5 border-b border-slate-100" href="/#kontak">Kontak</a>
+        <a href="/donasi" class="w-full bg-[#F7941D] hover:bg-[#ea7e00] text-white px-6 py-3 rounded-xl font-bold text-sm shadow-md flex items-center justify-center gap-2 mt-3">
+            <span class="material-symbols-outlined text-[18px]">favorite</span>
+            <span>Donasi Sekarang</span>
+        </a>
+    </div>
+</nav>
+
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-gutter py-xl md:py-xxl space-y-xxl flex-grow">
+
+    <!-- Header & Real-time Indicator -->
+    <section class="flex flex-col md:flex-row justify-between items-start md:items-end gap-md">
+        <div>
+            <h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary font-bold mb-sm">Transparansi Keuangan</h1>
+            <p class="font-body-lg text-body-lg text-on-surface-variant">Laporan transparansi dana amanah umat secara real-time dan terverifikasi.</p>
+        </div>
+        <div class="flex items-center gap-sm bg-surface-container-high px-md py-xs rounded-full border border-outline-variant shadow-sm">
+            <span class="relative flex h-3 w-3">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-fixed opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+            </span>
+            <span class="font-caption text-caption text-on-surface-variant font-medium">Update Terakhir: <strong id="live-time">Real-time</strong></span>
+        </div>
+    </section>
+
+    <!-- Dashboard Metrics (Bento Grid) -->
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-md md:gap-lg">
+        <div class="bg-surface-container-lowest p-md sm:p-lg rounded-xl shadow-level-1 border border-outline-variant/30 flex flex-col gap-xs hover:shadow-level-2 transition-all min-w-0 overflow-hidden">
+            <div class="flex items-center gap-xs sm:gap-sm text-primary">
+                <span class="material-symbols-outlined text-lg sm:text-xl">account_balance_wallet</span>
+                <span class="font-label-md text-xs sm:text-sm font-bold">Total Dana Masuk</span>
+            </div>
+            <div class="font-bold text-on-surface text-lg sm:text-xl md:text-2xl tracking-tight truncate min-w-0 w-full" id="pub-total-masuk" title="Total Dana Masuk">
+                <div class="h-7 w-28 bg-slate-200 animate-pulse rounded-lg mt-1"></div>
+            </div>
+            <span class="font-caption text-[11px] sm:text-caption text-on-surface-variant">Donasi terverifikasi sah</span>
+        </div>
+
+        <div class="bg-surface-container-lowest p-md sm:p-lg rounded-xl shadow-level-1 border border-outline-variant/30 flex flex-col gap-xs hover:shadow-level-2 transition-all min-w-0 overflow-hidden">
+            <div class="flex items-center gap-xs sm:gap-sm text-tertiary-container">
+                <span class="material-symbols-outlined text-lg sm:text-xl">volunteer_activism</span>
+                <span class="font-label-md text-xs sm:text-sm font-bold">Total Tersalurkan</span>
+            </div>
+            <div class="font-bold text-on-surface text-lg sm:text-xl md:text-2xl tracking-tight truncate min-w-0 w-full" id="pub-total-salur" title="Total Tersalurkan">
+                <div class="h-7 w-28 bg-slate-200 animate-pulse rounded-lg mt-1"></div>
+            </div>
+            <span class="font-caption text-[11px] sm:text-caption text-on-surface-variant">Telah disalurkan ke penerima</span>
+        </div>
+
+        <div class="bg-surface-container-lowest p-md sm:p-lg rounded-xl shadow-level-1 border border-outline-variant/30 flex flex-col gap-xs hover:shadow-level-2 transition-all min-w-0 overflow-hidden">
+            <div class="flex items-center gap-xs sm:gap-sm text-[#F7941D]">
+                <span class="material-symbols-outlined text-lg sm:text-xl">account_balance</span>
+                <span class="font-label-md text-xs sm:text-sm font-bold">Saldo Saat Ini</span>
+            </div>
+            <div class="font-bold text-on-surface text-lg sm:text-xl md:text-2xl tracking-tight truncate min-w-0 w-full" id="pub-saldo" title="Saldo Saat Ini">
+                <div class="h-7 w-28 bg-slate-200 animate-pulse rounded-lg mt-1"></div>
+            </div>
+            <span class="font-caption text-[11px] sm:text-caption text-on-surface-variant">Sisa saldo amanah program</span>
+        </div>
+
+        <div class="bg-surface-container-lowest p-md sm:p-lg rounded-xl shadow-level-1 border border-outline-variant/30 flex flex-col gap-xs hover:shadow-level-2 transition-all min-w-0 overflow-hidden">
+            <div class="flex items-center gap-xs sm:gap-sm text-secondary-container">
+                <span class="material-symbols-outlined text-lg sm:text-xl">groups</span>
+                <span class="font-label-md text-xs sm:text-sm font-bold">Jumlah Donatur</span>
+            </div>
+            <div class="font-bold text-on-surface text-lg sm:text-xl md:text-2xl tracking-tight truncate min-w-0 w-full" id="pub-donatur-count" title="Jumlah Donatur">
+                <div class="h-7 w-16 bg-slate-200 animate-pulse rounded-lg mt-1"></div>
+            </div>
+            <span class="font-caption text-[11px] sm:text-caption text-on-surface-variant">Donatur terverifikasi</span>
+        </div>
+    </section>
+
+    <!-- Diagram Lingkaran Distribusi Pilar (5 Berkah WIZ) -->
+    <section class="bg-surface-container-lowest rounded-xl shadow-level-1 border border-outline-variant/30 p-lg space-y-md">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+            <div>
+                <h2 class="font-headline-md text-headline-md font-bold text-primary flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">pie_chart</span>
+                    <span>Diagram Lingkaran Distribusi Alokasi Dana WIZ</span>
+                </h2>
+                <p id="chart-section-subtitle" class="font-body-md text-caption text-on-surface-variant">Proporsi dan persentase realisasi penyaluran dana per 5 Berkah WIZ (Berkah Hidayah, Berkah Juara, Berkah Peduli, Berkah Sehat, Berkah Mandiri) berdasarkan riwayat pengeluaran aktual.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <div class="inline-flex p-1 bg-surface-container-high rounded-xl border border-outline-variant/30 text-xs font-bold">
+                    <button type="button" id="btn-chart-masuk" onclick="setChartMetric('masuk')" class="px-3 py-1.5 rounded-lg transition-all text-on-surface-variant hover:text-on-surface font-semibold cursor-pointer">
+                        📥 Pemasukan
+                    </button>
+                    <button type="button" id="btn-chart-salur" onclick="setChartMetric('salur')" class="px-3 py-1.5 rounded-lg transition-all bg-primary text-on-primary font-bold shadow-xs cursor-pointer">
+                        📤 Penyaluran
+                    </button>
+                </div>
+                <select id="pub-filter-wilayah" onchange="renderPublicReport()" class="bg-surface border border-outline-variant rounded-lg px-3 py-2 font-caption text-caption text-on-surface font-bold outline-none cursor-pointer">
+                    <option value="Semua" selected>Wilayah: Konsolidasi (Semua)</option>
+                    <option value="Pangkalpinang">Wilayah: Pangkalpinang</option>
+                    <option value="Sungailiat">Wilayah: Sungailiat</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Donut Chart & Legend Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-center pt-sm">
+            <!-- Left: Donut Chart SVG Container -->
+            <div class="lg:col-span-5 flex flex-col items-center justify-center p-md bg-surface-container-low rounded-xl border border-outline-variant/20 relative min-h-[260px]" id="pillar-chart-container">
+                <div class="w-40 h-40 rounded-full border-8 border-slate-200 border-t-emerald-600 animate-spin"></div>
+            </div>
+
+            <!-- Right: Legend Cards Grid with Percentages & Nominals -->
+            <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-sm" id="pillar-legend-container">
+                <div class="h-16 bg-slate-100 rounded-xl animate-pulse"></div>
+                <div class="h-16 bg-slate-100 rounded-xl animate-pulse"></div>
+                <div class="h-16 bg-slate-100 rounded-xl animate-pulse"></div>
+                <div class="h-16 bg-slate-100 rounded-xl animate-pulse"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Public Penyaluran Log / Transparansi Penyaluran Terbaru -->
+    <section class="bg-surface-container-lowest rounded-xl shadow-level-1 border border-outline-variant/30 p-lg space-y-md">
+        <h2 class="font-headline-md text-headline-md font-bold text-primary flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">history_edu</span>
+            <span>Riwayat Penyaluran Dana Terbaru</span>
+        </h2>
+        <div id="disbursement-history-list" class="space-y-sm divide-y divide-outline-variant/20">
+            <div class="py-3 space-y-2">
+                <div class="h-4 bg-slate-100 rounded-md w-3/4 animate-pulse"></div>
+                <div class="h-3 bg-slate-100 rounded-md w-1/2 animate-pulse"></div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- Footer -->
+<footer id="kontak" class="bg-inverse-surface dark:bg-surface-container-lowest w-full px-margin-mobile md:px-gutter py-xxl mt-auto">
+    <div class="max-w-container-max mx-auto grid grid-cols-1 md:grid-cols-4 gap-xl">
+        <!-- Brand & Social Media -->
+        <div class="space-y-4 md:col-span-1">
+            <div class="font-headline-lg text-headline-lg font-bold text-surface-bright">WIZ Babel</div>
+            <p class="font-body-md text-body-md text-surface-variant/80">© <span class="footer-year"></span> Wahdah Inspirasi Zakat Bangka Belitung. Amanah &amp; Profesional.</p>
+            <p class="font-caption text-caption text-surface-variant/60" data-site-office-address="pangkalpinang">Jl. Mentok No. 45, Pangkalpinang, Bangka Belitung</p>
+
+            <!-- Social Media Icons -->
+            <div class="pt-2">
+                <p class="font-caption text-caption text-surface-variant/60 mb-3 uppercase tracking-wider font-semibold">Ikuti Kami</p>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <!-- Instagram -->
+                    <a href="https://www.instagram.com/wahdahinspirasizakatbabel?igsh=dDB6bmsxbWIwbzh0" target="_blank" rel="noopener noreferrer"
+                       title="Instagram WIZ Babel"
+                       class="group flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-[#E1306C] transition-all duration-300 hover:scale-110 shadow-sm">
+                        <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                    </a>
+
+                    <!-- TikTok -->
+                    <a href="https://www.tiktok.com/@wizbangkabelitunglitung?is_from_webapp=1&sender_device=pc" target="_blank" rel="noopener noreferrer"
+                       title="TikTok WIZ Babel"
+                       class="group flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-[#010101] transition-all duration-300 hover:scale-110 shadow-sm border border-white/10">
+                        <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24">
+                            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/>
+                        </svg>
+                    </a>
+
+                    <!-- Facebook -->
+                    <a href="https://www.facebook.com/share/1CMQ9zBSob/" target="_blank" rel="noopener noreferrer"
+                       title="Facebook WIZ Babel"
+                       class="group flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-[#1877F2] transition-all duration-300 hover:scale-110 shadow-sm">
+                        <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                    </a>
+
+                    <!-- WhatsApp Channel -->
+                    <a href="https://whatsapp.com/channel/0029VbCkB2uA89MnYdae7D1J" target="_blank" rel="noopener noreferrer"
+                       title="Saluran WhatsApp WIZ Babel"
+                       class="group flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-[#25D366] transition-all duration-300 hover:scale-110 shadow-sm">
+                        <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-4">
+            <h4 class="font-label-md text-label-md text-primary-fixed dark:text-primary font-bold">Tautan Cepat</h4>
+            <ul class="space-y-2 font-label-md text-label-md text-surface-variant/80">
+                <li><a class="hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 inline-block focus:ring-2 focus:ring-primary-fixed" href="program.html">Program Pemberdayaan</a></li>
+                <li><a class="hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 inline-block focus:ring-2 focus:ring-primary-fixed" href="program.html">Zakat Fitrah &amp; Maal</a></li>
+                <li><a class="hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 inline-block focus:ring-2 focus:ring-primary-fixed" href="index.html#kalkulator-zakat">Kalkulator Zakat</a></li>
+            </ul>
+        </div>
+        <div class="space-y-4">
+            <h4 class="font-label-md text-label-md text-primary-fixed dark:text-primary font-bold">Informasi</h4>
+            <ul class="space-y-2 font-label-md text-label-md text-surface-variant/80">
+                <li><a class="hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 inline-block focus:ring-2 focus:ring-primary-fixed" href="laporan.html">Laporan Publik Realtime</a></li>
+                <li><a class="hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 inline-block focus:ring-2 focus:ring-primary-fixed" href="index.html#tentang-kami">Tentang WIZ Babel</a></li>
+                <li><a class="hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 flex items-center gap-1 focus:ring-2 focus:ring-primary-fixed text-primary-fixed dark:text-primary font-semibold" href="affiliate.html"><span class="material-symbols-outlined text-sm">handshake</span> Portal Mitra Penghimpunan</a></li>
+                <li><a class="hover:text-surface-bright hover:translate-x-1 transition-transform duration-200 flex items-center gap-1 focus:ring-2 focus:ring-primary-fixed text-primary-fixed dark:text-primary font-semibold" href="admin.html"><span class="material-symbols-outlined text-sm">lock</span> Portal Admin</a></li>
+            </ul>
+        </div>
+        <div class="space-y-4">
+            <h4 class="font-label-md text-label-md text-primary-fixed dark:text-primary font-bold">Bantuan &amp; Kontak</h4>
+            <ul class="space-y-2 font-label-md text-label-md text-surface-variant/80">
+                <li><a class="hover:text-surface-bright transition-colors" href="https://wa.me/6282380830808" target="_blank">WhatsApp: +62 823-8083-0808</a></li>
+                <li><span class="text-surface-variant/80">Email: wiz.babel@gmail.com</span></li>
+            </ul>
+        </div>
+    </div>
+</footer>
+<script>document.querySelectorAll('.footer-year, #footer-year').forEach(el => el.textContent = new Date().getFullYear());</script>
+
+<!-- Donation Modal -->
+<div id="donation-modal" class="modal-backdrop">
+    <div class="modal-dialog">
+        <div class="flex justify-between items-center p-lg border-b border-surface-variant sticky top-0 bg-surface rounded-t-xl z-10">
+            <h3 id="modal-program-title" class="font-headline-md text-headline-md font-bold text-primary">Formulir Donasi</h3>
+            <button onclick="closeDonationModal()" class="text-outline hover:text-on-surface p-xs focus:outline-none">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <form id="donation-form" class="p-lg space-y-md" onsubmit="handleDonationSubmit(event)">
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Pilih Nominal Donasi</label>
+                <div class="grid grid-cols-3 gap-xs mb-sm">
+                    <button type="button" data-nominal="50000" onclick="setNominal(50000)" class="chip-nominal p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary focus:border-primary transition-all text-center cursor-pointer">Rp 50.000</button>
+                    <button type="button" data-nominal="100000" onclick="setNominal(100000)" class="chip-nominal p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary focus:border-primary transition-all text-center cursor-pointer">Rp 100.000</button>
+                    <button type="button" data-nominal="250000" onclick="setNominal(250000)" class="chip-nominal p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary focus:border-primary transition-all text-center cursor-pointer">Rp 250.000</button>
+                    <button type="button" data-nominal="500000" onclick="setNominal(500000)" class="chip-nominal p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary focus:border-primary transition-all text-center cursor-pointer">Rp 500.000</button>
+                    <button type="button" data-nominal="1000000" onclick="setNominal(1000000)" class="chip-nominal p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary focus:border-primary transition-all text-center cursor-pointer">Rp 1.000.000</button>
+                    <button type="button" data-nominal="" onclick="setNominal('')" class="chip-nominal p-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:border-primary focus:border-primary transition-all text-center cursor-pointer">Lainnya</button>
+                </div>
+                <div class="relative">
+                    <span class="absolute left-md top-1/2 -translate-y-1/2 font-bold text-primary">Rp</span>
+                    <input type="number" id="nominal-input" required min="1" class="w-full pl-xl pr-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary" placeholder="Masukkan nominal donasi (Bebas / Tanpa Minimal)"/>
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Nama Lengkap Donatur</label>
+                <input type="text" id="donor-name" required class="w-full px-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary" placeholder="Nama Anda atau hamba Allah"/>
+            </div>
+
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Nomor WhatsApp / HP</label>
+                <input type="tel" id="donor-phone" required class="w-full px-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary" placeholder="08xxxxxxxxxx"/>
+            </div>
+
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Doa / Pesan Kebaikan (Opsional)</label>
+                <textarea id="donor-message" rows="2" class="w-full px-md py-sm border border-outline-variant rounded-lg font-body-md focus:outline-none focus:border-primary" placeholder="Tuliskan doa atau niat donasi Anda..."></textarea>
+            </div>
+
+            <button type="submit" class="w-full bg-[#F7941D] text-white font-label-md text-label-md py-md rounded-lg hover:opacity-90 transition-opacity font-bold shadow-md text-center">
+                Lanjutkan Pembayaran Donasi
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Floating WhatsApp Button -->
+<a href="https://wa.me/6282380830808?text=Halo%20WIZ%20Bangka%20Belitung,%20saya%20ingin%20bertanya%20mengenai%20laporan%20keuangan" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 right-6 bg-[#25D366] text-white p-3 rounded-full shadow-lg hover:scale-110 transition-transform z-40 flex items-center justify-center">
+    <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.121 4.092 4.164-1.091z"/></svg>
+</a>
+
+<!-- Scripts -->
+<script src="assets/js/supabase-client.js?v=20260826_v14"></script>
+<script src="assets/js/admin-store.js?v=20260826_v14"></script>
+<script src="assets/js/main.js?v=20260827_noshare"></script>
+<script src="assets/js/nav-active.js?v=20260825_menu"></script>
+
+<script>
+    // Live Time Indicator
+    const liveTime = document.getElementById('live-time');
+    if (liveTime) {
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        liveTime.textContent = `Hari ini, ${timeStr} WIB`;
+    }
+
+    // Render Realtime Data from Store
+    function renderPublicReport() {
+        if (!window.wizStore) return;
+
+        const filterWilayah = document.getElementById('pub-filter-wilayah') ? document.getElementById('pub-filter-wilayah').value : 'Semua';
+        const stats = wizStore.finance.getOverviewStats(filterWilayah);
+        const fmt = wizStore.utils.formatRupiahCompact;
+
+        const elMasuk = document.getElementById('pub-total-masuk');
+        const elSalur = document.getElementById('pub-total-salur');
+        const elSaldo = document.getElementById('pub-saldo');
+        const elDonatur = document.getElementById('pub-donatur-count');
+
+        if (elMasuk) { elMasuk.textContent = fmt(stats.totalMasuk); elMasuk.title = fmt(stats.totalMasuk); }
+        if (elSalur) { elSalur.textContent = fmt(stats.totalTersalurkan); elSalur.title = fmt(stats.totalTersalurkan); }
+        if (elSaldo) { elSaldo.textContent = fmt(stats.saldo); elSaldo.title = fmt(stats.saldo); }
+        if (elDonatur) { elDonatur.textContent = stats.totalDonatur.toLocaleString('id-ID'); elDonatur.title = `${stats.totalDonatur} Donatur Terverifikasi`; }
+
+        // Disbursement history render
+        let disbList = wizStore.disbursements.getAll();
+        if (filterWilayah && filterWilayah !== 'Semua') {
+            disbList = disbList.filter(d => (d.wilayah || 'Pangkalpinang') === filterWilayah);
+        }
+        disbList = disbList.slice(0, 6);
+
+        const disbContainer = document.getElementById('disbursement-history-list');
+        if (disbContainer) {
+            if (disbList.length === 0) {
+                disbContainer.innerHTML = `<p class="font-caption text-on-surface-variant p-sm">Belum ada riwayat penyaluran terbaru${filterWilayah !== 'Semua' ? ' untuk ' + filterWilayah : ''}.</p>`;
+            } else {
+                disbContainer.innerHTML = disbList.map(d => `
+                    <div class="pt-sm flex flex-col sm:flex-row justify-between sm:items-center gap-xs">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-caption text-caption font-bold text-tertiary-container uppercase">${d.program}</span>
+                                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">${d.wilayah || 'Pangkalpinang'}</span>
+                            </div>
+                            <p class="font-body-md text-on-surface font-semibold">${d.description}</p>
+                            <p class="font-caption text-caption text-on-surface-variant">${wizStore.utils.formatDate(d.disbursedAt)}</p>
+                        </div>
+                        <div class="font-headline-md text-headline-md text-tertiary-container font-bold shrink-0">
+                            ${fmt(d.amount)}
+                        </div>
+                    </div>`).join('');
+            }
+        }
+
+        // Render Donut Chart for 5 Pillars distribution
+        renderPillarDonutChart(filterWilayah, stats);
+    }
+
+    let currentChartMetric = 'salur'; // 'salur' | 'masuk'
+
+    function setChartMetric(metric) {
+        currentChartMetric = metric;
+        const btnSalur = document.getElementById('btn-chart-salur');
+        const btnMasuk = document.getElementById('btn-chart-masuk');
+        
+        if (btnSalur && btnMasuk) {
+            if (metric === 'salur') {
+                btnSalur.className = 'px-3 py-1.5 rounded-lg transition-all bg-primary text-on-primary font-bold shadow-xs';
+                btnMasuk.className = 'px-3 py-1.5 rounded-lg transition-all text-on-surface-variant hover:text-on-surface font-semibold';
+            } else {
+                btnMasuk.className = 'px-3 py-1.5 rounded-lg transition-all bg-primary text-on-primary font-bold shadow-xs';
+                btnSalur.className = 'px-3 py-1.5 rounded-lg transition-all text-on-surface-variant hover:text-on-surface font-semibold';
+            }
+        }
+        
+        const subtitle = document.getElementById('chart-section-subtitle');
+        if (subtitle) {
+            subtitle.textContent = (metric === 'salur')
+                ? 'Proporsi dan persentase realisasi penyaluran dana per 5 Berkah WIZ (Berkah Hidayah, Berkah Juara, Berkah Peduli, Berkah Sehat, Berkah Mandiri) berdasarkan riwayat pengeluaran aktual.'
+                : 'Distribusi seluruh alokasi pemasukan donasi terverifikasi: 5 Berkah WIZ (program utama) + Dana Saving (cadangan) + Operasional lembaga, sesuai aturan alokasi yang ditetapkan.';
+        }
+        
+        renderPublicReport();
+    }
+
+    function renderPillarDonutChart(filterWilayah, overviewStats) {
+        const containerChart = document.getElementById('pillar-chart-container');
+        const containerLegend = document.getElementById('pillar-legend-container');
+        if (!containerChart || !containerLegend || !window.wizStore) return;
+
+        const fmt = wizStore.utils.formatRupiahCompact;
+        const perPillars = wizStore.finance.getPerProgram(filterWilayah);
+        const arm = window.wizStore.allocationRulesManager;
+
+        // Ambil donasi terverifikasi sesuai filter wilayah
+        let verifiedDonations = window.wizStore.donations ? window.wizStore.donations.getVerified() : [];
+        if (filterWilayah && filterWilayah !== 'Semua') {
+            verifiedDonations = verifiedDonations.filter(d => (d.wilayah || 'Pangkalpinang') === filterWilayah);
+        }
+
+        // Kalkulasi aktual Dana Saving & Operasional dari donasi
+        let dynamicDanaSavingAmt = 0;
+        let dynamicOperasionalAmt = 0;
+
+        verifiedDonations.forEach(d => {
+            const dWilayah = d.wilayah || 'Pangkalpinang';
+            const wRule = (arm && arm.get) ? arm.get(dWilayah) : null;
+            const mainAlloc = (wRule && wRule.mainAllocation) ? wRule.mainAllocation : [
+                { key: 'Dana Saving', percent: (dWilayah === 'Sungailiat' ? 10 : 2) },
+                { key: 'Operasional', percent: (dWilayah === 'Sungailiat' ? 14 : 13) }
+            ];
+
+            const prog = (d.programSpesifik || d.program || '').trim().toLowerCase();
+            const dType = d.type || d.donation_type || '';
+            const isGen = (dType === 'Infak Umum' || !prog || prog === '-' || prog === '.' || prog === 'infak umum' || prog === 'sedekah umum' || prog === 'umum');
+            const amt = Number(d.amount) || 0;
+
+            if (isGen) {
+                const sItem = mainAlloc.find(i => i.key === 'Dana Saving');
+                const oItem = mainAlloc.find(i => i.key === 'Operasional');
+                const sPct = sItem ? (Number(sItem.percent) || 0) : (dWilayah === 'Sungailiat' ? 10 : 2);
+                const oPct = oItem ? (Number(oItem.percent) || 0) : (dWilayah === 'Sungailiat' ? 14 : 13);
+                dynamicDanaSavingAmt += amt * (sPct / 100);
+                dynamicOperasionalAmt += amt * (oPct / 100);
+            } else {
+                const op = Number(d.alokasiOperasional || d.alokasi_operasional || Math.round(amt * 0.125));
+                dynamicOperasionalAmt += op;
+            }
+        });
+
+        const pillarDefs = [
+            { key: 'Berkah Hidayah', label: 'Berkah Hidayah', color: '#047857', bg: 'bg-emerald-50 border-emerald-200 text-emerald-900', dot: 'bg-emerald-600' },
+            { key: 'Berkah Juara', label: 'Berkah Juara', color: '#1d4ed8', bg: 'bg-blue-50 border-blue-200 text-blue-900', dot: 'bg-blue-600' },
+            { key: 'Berkah Peduli', label: 'Berkah Peduli', color: '#d97706', bg: 'bg-amber-50 border-amber-200 text-amber-900', dot: 'bg-amber-600' },
+            { key: 'Berkah Sehat', label: 'Berkah Sehat', color: '#be123c', bg: 'bg-rose-50 border-rose-200 text-rose-900', dot: 'bg-rose-600' },
+            { key: 'Berkah Mandiri', label: 'Berkah Mandiri', color: '#7e22ce', bg: 'bg-purple-50 border-purple-200 text-purple-900', dot: 'bg-purple-600' }
+        ];
+
+        let grandTotalMasuk = 0;
+        let grandTotalSalur = 0;
+
+        const pillarStats = pillarDefs.map(p => {
+            const pData = perPillars.find(pp => pp.key === p.key);
+            const totalMasuk = pData ? Number(pData.masuk) || 0 : 0;
+            const totalSalur = pData ? Number(pData.tersalurkan) || 0 : 0;
+            const saldo = pData ? Number(pData.saldo) || 0 : 0;
+
+            grandTotalMasuk += totalMasuk;
+            grandTotalSalur += totalSalur;
+
+            return { ...p, totalMasuk, totalSalur, saldo, percent: 0, displayPercentStr: '0%' };
+        });
+
+        const isSalurMode = (currentChartMetric === 'salur');
+
+        // Total dana masuk penuh
+        const realTotalMasuk = (overviewStats && overviewStats.totalMasuk > 0) ? overviewStats.totalMasuk : (grandTotalMasuk + dynamicDanaSavingAmt + dynamicOperasionalAmt);
+        const grandTotalFull = isSalurMode ? grandTotalSalur : realTotalMasuk;
+        const hasRealData = grandTotalFull > 0;
+
+        // Nilai rupiah Dana Saving & Operasional
+        const danaSavingAmt  = isSalurMode ? 0 : Math.round(dynamicDanaSavingAmt);
+        const operasionalAmt = isSalurMode ? 0 : Math.round(dynamicOperasionalAmt);
+
+        // Helper format persen
+        function fmtPct(rawPct) {
+            if (rawPct >= 99.9 && rawPct < 100) return '99.9%';
+            if (rawPct > 0 && rawPct < 0.1) return '<0.1%';
+            if (rawPct % 1 === 0) return `${rawPct.toFixed(0)}%`;
+            return `${rawPct.toFixed(1)}%`;
+        }
+
+        // Persentase pilar
+        if (hasRealData) {
+            pillarStats.forEach(p => {
+                const val = isSalurMode ? p.totalSalur : p.totalMasuk;
+                if (val > 0) {
+                    const rawPct = (val / grandTotalFull) * 100;
+                    p.percent = rawPct;
+                    p.displayPercentStr = fmtPct(rawPct);
+                } else {
+                    p.percent = 0;
+                    p.displayPercentStr = '0%';
+                }
+            });
+        }
+
+        const danaSavingPct = (hasRealData && danaSavingAmt > 0) ? (danaSavingAmt / grandTotalFull) * 100 : 0;
+        const operasionalPct = (hasRealData && operasionalAmt > 0) ? (operasionalAmt / grandTotalFull) * 100 : 0;
+
+        // Render SVG Donut Chart
+        const size = 220;
+        const strokeWidth = 32;
+        const radius = (size - strokeWidth) / 2;
+        const circumference = 2 * Math.PI * radius;
+        let accumulatedPercent = 0;
+
+        function makeSvgSegment(pct, color) {
+            const dashArray = `${(pct / 100) * circumference} ${circumference}`;
+            const dashOffset = -((accumulatedPercent / 100) * circumference);
+            accumulatedPercent += pct;
+            return `<circle cx="${size / 2}" cy="${size / 2}" r="${radius}"
+                        fill="transparent" stroke="${color}" stroke-width="${strokeWidth}"
+                        stroke-dasharray="${dashArray}" stroke-dashoffset="${dashOffset}"
+                        class="transition-all duration-700 ease-out hover:opacity-90" />`;
+        }
+
+        let strokeSegments = '';
+        if (hasRealData) {
+            // 1. Segmen 5 Pilar
+            pillarStats.forEach(p => {
+                const val = isSalurMode ? p.totalSalur : p.totalMasuk;
+                if (val > 0) strokeSegments += makeSvgSegment(p.percent, p.color);
+            });
+            // 2. Segmen Dana Saving
+            if (!isSalurMode && danaSavingPct > 0) {
+                strokeSegments += makeSvgSegment(danaSavingPct, '#0891b2'); // cyan-600
+            }
+            // 3. Segmen Operasional
+            if (!isSalurMode && operasionalPct > 0) {
+                strokeSegments += makeSvgSegment(operasionalPct, '#475569'); // slate-600
+            }
+        } else {
+            strokeSegments = `<circle cx="${size / 2}" cy="${size / 2}" r="${radius}"
+                                fill="transparent" stroke="#e2e8f0" stroke-width="${strokeWidth}"
+                                class="transition-all duration-700" />`;
+        }
+
+        const centerLabel = isSalurMode
+            ? (hasRealData ? 'Total Tersalurkan' : 'Belum Ada Penyaluran')
+            : (hasRealData ? 'Total Dana Masuk' : 'Belum Ada Donasi');
+        const centerValue = hasRealData ? fmt(grandTotalFull) : 'Rp 0';
+        const centerSub = isSalurMode ? 'Realisasi 5 Pilar' : 'Seluruh Alokasi Dana';
+
+        containerChart.innerHTML = `
+            <div class="relative flex items-center justify-center py-sm">
+                <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" class="transform -rotate-90">
+                    <circle cx="${size / 2}" cy="${size / 2}" r="${radius}" fill="transparent" stroke="#f1f5f9" stroke-width="${strokeWidth}" />
+                    ${strokeSegments}
+                </svg>
+                <div class="absolute flex flex-col items-center justify-center text-center p-2">
+                    <span class="font-caption text-[11px] text-on-surface-variant font-semibold">${centerLabel}</span>
+                    <span class="font-headline-md font-bold text-primary text-base">${centerValue}</span>
+                    <span class="text-[10px] text-outline font-semibold">${centerSub}</span>
+                </div>
+            </div>`;
+
+        // Render Legend Cards: 5 Pilar + Dana Saving + Operasional (Selalu 7 kartu)
+        const pillarCards = pillarStats.map(p => {
+            const activeVal = isSalurMode ? p.totalSalur : p.totalMasuk;
+            const valHighlight = activeVal > 0 ? (isSalurMode ? 'text-primary' : 'text-emerald-700') : 'text-slate-400';
+            const badgeClass  = activeVal > 0 ? (isSalurMode ? 'text-primary' : 'text-emerald-800') : 'text-slate-500';
+
+            return `
+            <div class="p-md rounded-xl border ${p.bg} shadow-xs flex items-center justify-between gap-md transition-transform hover:scale-[1.02]">
+                <div class="flex items-center gap-sm min-w-0">
+                    <span class="w-3.5 h-3.5 rounded-full ${p.dot} shrink-0 shadow-xs"></span>
+                    <div class="min-w-0">
+                        <h4 class="font-label-md font-bold text-xs truncate">${p.label}</h4>
+                        <p class="font-caption text-[11px] opacity-80 mt-0.5 truncate">
+                            ${isSalurMode
+                                ? `Salur: <strong class="font-bold text-on-surface">${fmt(p.totalSalur)}</strong> <span class="opacity-70">| Masuk: ${fmt(p.totalMasuk)}</span>`
+                                : `Masuk: <strong class="font-bold text-on-surface">${fmt(p.totalMasuk)}</strong> <span class="opacity-70">| Salur: ${fmt(p.totalSalur)}</span>`}
+                        </p>
+                    </div>
+                </div>
+                <div class="text-right shrink-0">
+                    <span class="font-headline-md font-bold text-sm block ${badgeClass}">${p.displayPercentStr}</span>
+                    <span class="text-[10px] opacity-85 font-mono font-bold block ${valHighlight}">${fmt(activeVal)}</span>
+                </div>
+            </div>`;
+        });
+
+        // Kartu Dana Saving & Operasional
+        const savingDisplayStr = fmtPct(danaSavingPct);
+        const opDisplayStr = fmtPct(operasionalPct);
+
+        const extraCards = `
+            <div class="p-md rounded-xl border bg-cyan-50 border-cyan-200 text-cyan-900 shadow-xs flex items-center justify-between gap-md transition-transform hover:scale-[1.02]">
+                <div class="flex items-center gap-sm min-w-0">
+                    <span class="w-3.5 h-3.5 rounded-full bg-cyan-600 shrink-0 shadow-xs"></span>
+                    <div class="min-w-0">
+                        <h4 class="font-label-md font-bold text-xs truncate">Dana Saving</h4>
+                        <p class="font-caption text-[11px] opacity-80 mt-0.5 truncate">
+                            ${isSalurMode ? 'Cadangan amanah program' : `Alokasi: <strong class="font-bold text-on-surface">${fmt(danaSavingAmt)}</strong>`}
+                        </p>
+                    </div>
+                </div>
+                <div class="text-right shrink-0">
+                    <span class="font-headline-md font-bold text-sm block text-cyan-800">${savingDisplayStr}</span>
+                    <span class="text-[10px] opacity-85 font-mono font-bold block text-cyan-700">${fmt(danaSavingAmt)}</span>
+                </div>
+            </div>
+            <div class="p-md rounded-xl border bg-slate-50 border-slate-200 text-slate-800 shadow-xs flex items-center justify-between gap-md transition-transform hover:scale-[1.02]">
+                <div class="flex items-center gap-sm min-w-0">
+                    <span class="w-3.5 h-3.5 rounded-full bg-slate-600 shrink-0 shadow-xs"></span>
+                    <div class="min-w-0">
+                        <h4 class="font-label-md font-bold text-xs truncate">Operasional</h4>
+                        <p class="font-caption text-[11px] opacity-80 mt-0.5 truncate">
+                            ${isSalurMode ? 'Dukungan amil & operasional' : `Alokasi: <strong class="font-bold text-on-surface">${fmt(operasionalAmt)}</strong>`}
+                        </p>
+                    </div>
+                </div>
+                <div class="text-right shrink-0">
+                    <span class="font-headline-md font-bold text-sm block text-slate-700">${opDisplayStr}</span>
+                    <span class="text-[10px] opacity-85 font-mono font-bold block text-slate-600">${fmt(operasionalAmt)}</span>
+                </div>
+            </div>
+        `;
+
+        containerLegend.innerHTML = pillarCards.join('') + extraCards;
+    }
+
+    // Table Filter
+    function filterReportTable() {
+        const query = document.getElementById('report-search').value.toLowerCase().trim();
+        const rows = document.querySelectorAll('#report-table-body tr');
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            if (text.includes(query)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // Modal Manager
+    const donationModal = document.getElementById('donation-modal');
+    const modalTitle = document.getElementById('modal-program-title');
+    const nominalInput = document.getElementById('nominal-input');
+
+    function openDonationModal(programName) {
+        const refCode = (typeof getActiveAffiliateRef === 'function' ? getActiveAffiliateRef() : '') || (new URLSearchParams(window.location.search).get('ref') || new URLSearchParams(window.location.search).get('affiliate') || new URLSearchParams(window.location.search).get('perantara'));
+        let url = 'donasi.html';
+        if (programName && programName !== 'Donasi Umum') {
+            url += `?type=Infak%20Terikat&program=${encodeURIComponent(programName)}`;
+            if (refCode) url += `&ref=${encodeURIComponent(refCode)}`;
+        } else if (refCode) {
+            url += `?ref=${encodeURIComponent(refCode)}`;
+        }
+        window.location.href = url;
+    }
+
+    function closeDonationModal() {
+        if (donationModal) {
+            donationModal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+    }
+
+    function updateChipActiveStyles(val) {
+        const numVal = parseInt(val) || 0;
+        const chips = document.querySelectorAll('#donation-modal .chip-nominal');
+        chips.forEach(chip => {
+            const chipVal = parseInt(chip.dataset.nominal || chip.getAttribute('onclick')?.match(/\d+/)?.[0]) || 0;
+            if (numVal > 0 && chipVal === numVal) {
+                chip.classList.add('border-primary', 'bg-primary/10', 'text-primary', 'font-bold', 'ring-1', 'ring-primary');
+                chip.classList.remove('text-on-surface', 'border-outline-variant');
+            } else {
+                chip.classList.remove('border-primary', 'bg-primary/10', 'text-primary', 'font-bold', 'ring-1', 'ring-primary');
+                chip.classList.add('text-on-surface', 'border-outline-variant');
+            }
+        });
+    }
+
+    function setNominal(value) {
+        const numVal = parseInt(value) || 0;
+        if (nominalInput) {
+            nominalInput.value = numVal > 0 ? numVal : '';
+        }
+        updateChipActiveStyles(numVal);
+    }
+
+    if (nominalInput) {
+        nominalInput.addEventListener('input', (e) => {
+            updateChipActiveStyles(e.target.value);
+        });
+    }
+
+    if (donationModal) {
+        donationModal.addEventListener('click', (e) => {
+            if (e.target === donationModal) {
+                closeDonationModal();
+            }
+        });
+    }
+
+    function handleDonationSubmit(event) {
+        event.preventDefault();
+        const nominal = nominalInput.value;
+        const name = document.getElementById('donor-name').value;
+        const phone = document.getElementById('donor-phone').value;
+        const msg = document.getElementById('donor-message').value;
+        const prog = modalTitle ? modalTitle.textContent : 'Donasi';
+
+        const text = `Bismillah, saya *${name}* (%2B${phone}) ingin berdonasi untuk *${prog}* sebesar *Rp ${Number(nominal).toLocaleString('id-ID')}*.%0A%0ANiat/Doa: ${msg || '-'}`;
+        window.open(`https://wa.me/6282380830808?text=${text}`, '_blank');
+        closeDonationModal();
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const fy = document.getElementById('footer-year');
+        if (fy) fy.textContent = new Date().getFullYear();
+        renderPublicReport();
+
+        // Listen for background sync completion to auto-refresh data
+        window.addEventListener('wiz-sync-complete', () => {
+            renderPublicReport();
+            console.log('[Laporan] Auto-refreshed after cloud sync.');
+        });
+
+        // Listen for specific data mutation events (verify, reject, add)
+        window.addEventListener('wiz-data-changed', () => {
+            renderPublicReport();
+            console.log('[Laporan] Auto-refreshed after data change event.');
+        });
+
+        // Instant cloud sync on startup for multi-device parity
+        if (window.wizStore && window.wizStore.syncFromCloud) {
+            await window.wizStore.syncFromCloud(true);
+            renderPublicReport();
+        }
+
+        // Supabase real-time subscription: watch donations table for INSERT/UPDATE
+        if (window.wizSupabase && window.wizSupabase.client) {
+            try {
+                window.wizSupabase.client
+                    .channel('laporan_donations_rt')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'donations' }, async () => {
+                        console.log('[Laporan] Supabase realtime: donations changed, refreshing...');
+                        if (window.wizStore && window.wizStore.syncFromCloud) {
+                            await window.wizStore.syncFromCloud(true);
+                        }
+                        renderPublicReport();
+                    })
+                    .subscribe();
+            } catch (e) {
+                console.warn('[Laporan] Real-time subscription failed:', e.message);
+            }
+        }
+    });
+</script>
+</body>
+</html>
