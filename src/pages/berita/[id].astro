@@ -212,7 +212,7 @@ const ogImage = rawImg.startsWith('http://') || rawImg.startsWith('https://')
             const ref = getActiveAffiliate();
             const baseUrl = window.location.origin || 'https://www.wizbangkabelitung.or.id';
             const shareUrl = `${baseUrl}/berita/${newsId}${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`;
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareUrl)}`, '_blank');
+            window.open(`https://wa.me/?text=${encodeURIComponent(shareUrl)}`, '_blank');
         });
     }
 </script>

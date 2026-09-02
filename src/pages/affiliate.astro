@@ -275,8 +275,8 @@ import MitraLayout from '../layouts/MitraLayout.astro';
                     </div>
                 </div>
 
-                <!-- 2. Penyempurnaan Tombol Aksi (Link Referral + Grid Tombol QR Code & Logout) -->
-                <div class="relative z-10 flex flex-col gap-3 w-full lg:w-auto lg:min-w-[340px]">
+                <!-- 2. Penyempurnaan Tombol Aksi (Link Referral + One-Click WA Share & Controls) -->
+                <div class="relative z-10 flex flex-col gap-2.5 w-full lg:w-auto lg:min-w-[360px]">
                     <!-- Readonly Link + Copy Button -->
                     <div class="flex items-center gap-1.5 bg-black/25 backdrop-blur-md p-1.5 rounded-xl border border-white/15 shadow-inner">
                         <input type="text" id="member-referral-link-input" readonly onclick="this.select()" class="bg-transparent text-white font-mono text-xs px-2.5 py-1.5 w-full outline-none truncate select-all" value="" title="Tautan Donasi Anda" placeholder="Link Referral Anda">
@@ -286,17 +286,29 @@ import MitraLayout from '../layouts/MitraLayout.astro';
                         </button>
                     </div>
 
-                    <!-- Action Buttons: Grid 2 Cols for QR Code & Logout -->
-                    <div class="grid grid-cols-2 gap-3 w-full">
-                        <!-- Tombol 1: Ikon QR + Teks "QR Code" (Kontras/Putih Elegan) -->
-                        <button onclick="toggleMemberQrModal()" type="button" class="bg-white hover:bg-emerald-50 text-emerald-950 font-bold text-xs sm:text-sm py-2.5 px-3 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 whitespace-nowrap" title="Tampilkan QR Code Donasi">
-                            <span class="material-symbols-outlined text-base sm:text-lg">qr_code_2</span>
+                    <!-- Tombol Utama: One-Click Bagikan ke WhatsApp (Chat / Grup) -->
+                    <button onclick="shareMemberReferralWA('chat')" type="button" class="w-full bg-[#25D366] hover:bg-[#1ebd5a] text-white font-extrabold text-xs sm:text-sm py-3 px-4 rounded-xl shadow-lg shadow-green-950/40 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current shrink-0" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+                        <span>Bagikan ke WhatsApp</span>
+                    </button>
+
+                    <!-- Action Buttons: Grid 3 Cols for WA Status, QR Code, & Logout -->
+                    <div class="grid grid-cols-3 gap-2 w-full">
+                        <!-- Tombol WA Status -->
+                        <button onclick="shareMemberReferralWA('status')" type="button" class="bg-emerald-800/80 hover:bg-emerald-700 text-emerald-100 border border-emerald-500/40 font-bold text-[11px] sm:text-xs py-2 px-1.5 rounded-xl shadow-xs transition-all flex items-center justify-center gap-1 cursor-pointer active:scale-95 whitespace-nowrap" title="Posting ke Status / Story WhatsApp">
+                            <span class="material-symbols-outlined text-base">donut_large</span>
+                            <span>WA Status</span>
+                        </button>
+
+                        <!-- Tombol QR Code -->
+                        <button onclick="toggleMemberQrModal()" type="button" class="bg-white hover:bg-emerald-50 text-emerald-950 font-bold text-[11px] sm:text-xs py-2 px-1.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-1 cursor-pointer active:scale-95 whitespace-nowrap" title="Tampilkan QR Code Donasi">
+                            <span class="material-symbols-outlined text-base">qr_code_2</span>
                             <span>QR Code</span>
                         </button>
 
-                        <!-- Tombol 2: Ikon Keluar + Teks "Logout" (Merah/Destructive Elegan) -->
-                        <button onclick="handleAffiliateLogout()" type="button" class="bg-red-500/20 hover:bg-red-500/30 text-red-200 hover:text-white border border-red-400/30 font-bold text-xs sm:text-sm py-2.5 px-3 rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 whitespace-nowrap" title="Keluar dari Akun">
-                            <span class="material-symbols-outlined text-base sm:text-lg">logout</span>
+                        <!-- Tombol Logout -->
+                        <button onclick="handleAffiliateLogout()" type="button" class="bg-red-500/20 hover:bg-red-500/30 text-red-200 hover:text-white border border-red-400/30 font-bold text-[11px] sm:text-xs py-2 px-1.5 rounded-xl shadow-xs transition-all flex items-center justify-center gap-1 cursor-pointer active:scale-95 whitespace-nowrap" title="Keluar dari Akun">
+                            <span class="material-symbols-outlined text-base">logout</span>
                             <span>Logout</span>
                         </button>
                     </div>
@@ -622,12 +634,18 @@ import MitraLayout from '../layouts/MitraLayout.astro';
                 Tunjukkan QR Code ini kepada calon donatur untuk berdonasi langsung melalui website resmi WIZ Bangka Belitung.
             </p>
 
-            <div class="flex gap-2 pt-1 w-full" style="width: 100% !important; display: flex !important;">
-                <button type="button" onclick="copyFundraisingLink()" class="flex-1 bg-primary hover:bg-emerald-700 text-white font-bold text-xs py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
-                    <span class="material-symbols-outlined text-sm">content_copy</span>
-                    <span>Salin Tautan</span>
-                </button>
-                <button type="button" onclick="toggleMemberQrModal()" class="px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2.5 rounded-xl transition-all cursor-pointer">
+            <div class="flex flex-col gap-2 pt-1 w-full" style="width: 100% !important; display: flex !important;">
+                <div class="flex gap-2 w-full">
+                    <button type="button" onclick="shareMemberReferralWA('chat')" class="flex-1 bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold text-xs py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">send</span>
+                        <span>Share WA</span>
+                    </button>
+                    <button type="button" onclick="copyFundraisingLink()" class="flex-1 bg-primary hover:bg-emerald-700 text-white font-bold text-xs py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-sm">content_copy</span>
+                        <span>Salin Link</span>
+                    </button>
+                </div>
+                <button type="button" onclick="toggleMemberQrModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2 rounded-xl transition-all cursor-pointer">
                     Tutup
                 </button>
             </div>
@@ -1464,271 +1482,70 @@ import MitraLayout from '../layouts/MitraLayout.astro';
             return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, ' ');
         }
 
-        function shareAffiliateNewsWA(newsId) {
-            const refCode = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || 'WIZ';
+        function shareMemberReferralWA(mode = 'chat') {
+            const refCode = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || (sessionStorage.getItem('wiz_active_ref_id') || 'WIZ');
             const origin = window.location.origin || 'https://www.wizbangkabelitung.or.id';
-            const finalShareUrl = `${origin}/berita/${encodeURIComponent(newsId)}?ref=${encodeURIComponent(refCode)}`;
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(finalShareUrl)}`, '_blank');
-        }
-
-        function copyAffiliateNewsLink(newsId) {
-            const refCode = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || 'WIZ';
-            const origin = window.location.origin || 'https://www.wizbangkabelitung.or.id';
-            const newsUrlObj = new URL(`${origin}/berita/${encodeURIComponent(newsId)}`);
-            if (refCode) newsUrlObj.searchParams.set('ref', refCode);
-            const newsUrl = newsUrlObj.toString();
-
-            navigator.clipboard.writeText(newsUrl).then(() => {
-                alert(`✅ Link Berita dengan Kode Mitra (${refCode}) berhasil disalin:\n\n${newsUrl}`);
-            });
-        }
-
-        function renderAffiliateProgramsGrid() {
-            const grid = document.getElementById('affiliate-programs-grid');
-            if (!grid) return;
-
-            const progs = (window.wizStore && window.wizStore.programs) ? window.wizStore.programs.getPublished() : [];
-            const activeRef = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || 'WIZ';
-
-            if (progs.length === 0) {
-                grid.innerHTML = '<div class="col-span-3 p-6 text-center text-slate-400">Belum ada program yang aktif.</div>';
-                return;
+            const donationLink = `${origin}/?ref=${encodeURIComponent(refCode)}`;
+            
+            let text = '';
+            if (mode === 'status') {
+                text = `*Wahdah Inspirasi Zakat (WIZ) Bangka Belitung*\n\n"Sedekah tidak akan mengurangi harta, melainkan menambah keberkahan dan melapangkan rezeki." (HR. Muslim)\n\nMari alirkan kebaikan dan raih pahala jariyah bersama WIZ Bangka Belitung. Salurkan donasi melalui tautan resmi kami:\n👉 ${donationLink}`;
+            } else {
+                text = `Assalamu'alaikum Warahmatullahi Wabarakatuh,\n\n*Wahdah Inspirasi Zakat (WIZ) Bangka Belitung*\n\n"Siapa yang menunjukkan kepada kebaikan, maka dia mendapatkan pahala seperti orang yang melakukannya." (HR. Muslim)\n\nSaya mengajak Bapak/Ibu/Sahabat untuk bersama-sama menyalurkan Zakat, Infak, dan Sedekah melalui lembaga amil zakat resmi terpercaya WIZ Bangka Belitung.\n\n📲 *Salurkan Donasi Melalui Tautan Resmi Ini:*\n👉 ${donationLink}\n\nSetiap donasi Anda akan disalurkan secara amanah, profesional, dan tepat sasaran untuk pemberdayaan ummat di Bangka Belitung. Barakallahu Fiikum. ✨`;
             }
 
-            const origin = window.location.origin || 'https://www.wizbangkabelitung.or.id';
-            grid.innerHTML = progs.map(p => {
-                const slug = p.slug || (p.title ? p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : 'program');
-                const progUrl = `${origin}/program/${slug}?ref=${encodeURIComponent(activeRef)}`;
-                const rawImg = (p.image_url || p.imageUrl || (window.wizStore && window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function' ? window.wizStore.allocationRulesManager.getSpecificProgramImage(p.title, p.pillar) : '') || '/assets/images/default-program-wiz.jpg').trim();
-                const progImg = rawImg ? (rawImg.startsWith('/') || rawImg.startsWith('http') || rawImg.startsWith('data:') ? rawImg : `/${rawImg}`) : '/assets/images/default-program-wiz.jpg';
-                const descSnippet = (p.description || p.story || '').replace(/<[^>]*>/g, '').trim().slice(0, 100);
+            if (typeof window.showWhatsAppShareToast === 'function') {
+                window.showWhatsAppShareToast('Membuka WhatsApp... Tunggu 1–2 detik di layar WhatsApp hingga kartu preview muncul ✨');
+            }
 
-                return `
-                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs hover:shadow-md transition-shadow flex flex-col">
-                    <div class="aspect-[3/4] relative overflow-hidden bg-slate-100">
-                        <img src="${progImg}" class="w-full h-full object-cover" alt="${escapeJsString(p.title)}" onerror="this.src='/assets/images/default-program-wiz.jpg'">
-                        <span class="absolute top-2 left-2 bg-primary text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">${p.pillar || 'Kebaikan'}</span>
-                    </div>
-                    <div class="p-4 flex flex-col flex-grow space-y-2">
-                        <h4 class="text-sm font-bold text-slate-900 line-clamp-1">${escapeJsString(p.title)}</h4>
-                        <p class="text-xs text-slate-500 line-clamp-2">${descSnippet}...</p>
-                        <div class="pt-3 mt-auto flex items-center gap-2">
-                            <button type="button" onclick="copyProgramShareLink('${progUrl}')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1 transition-colors cursor-pointer">
-                                <span>Salin Link</span>
-                            </button>
-                            <button type="button" onclick="shareProgramWA('${escapeJsString(p.title)}', '${progUrl}')" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white py-2 px-3 rounded-xl flex items-center justify-center gap-1 font-bold text-xs transition-colors cursor-pointer" title="Share WhatsApp">
-                                <span class="material-symbols-outlined text-base">send</span>
-                                <span>Share WA</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>`;
-            }).join('');
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
         }
+        window.shareMemberReferralWA = shareMemberReferralWA;
 
-        function copyProgramShareLink(url) {
-            navigator.clipboard.writeText(url).then(() => {
-                alert(`✅ Link Program berhasil disalin:\n\n${url}\n\nSetiap donasi dari link ini otomatis tersambung ke hak insentif 6% Anda.`);
+        function copyMemberReferralCaption() {
+            const refCode = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || (sessionStorage.getItem('wiz_active_ref_id') || 'WIZ');
+            const origin = window.location.origin || 'https://www.wizbangkabelitung.or.id';
+            const donationLink = `${origin}/?ref=${encodeURIComponent(refCode)}`;
+            const text = `Assalamu'alaikum Warahmatullahi Wabarakatuh,\n\n*Wahdah Inspirasi Zakat (WIZ) Bangka Belitung*\n\n"Siapa yang menunjukkan kepada kebaikan, maka dia mendapatkan pahala seperti orang yang melakukannya." (HR. Muslim)\n\nSaya mengajak Bapak/Ibu/Sahabat untuk bersama-sama menyalurkan Zakat, Infak, dan Sedekah melalui lembaga amil zakat resmi terpercaya WIZ Bangka Belitung.\n\n📲 *Salurkan Donasi Melalui Tautan Resmi Ini:*\n👉 ${donationLink}\n\nSetiap donasi Anda akan disalurkan secara amanah, profesional, dan tepat sasaran untuk pemberdayaan ummat di Bangka Belitung. Barakallahu Fiikum. ✨`;
+
+            navigator.clipboard.writeText(text).then(() => {
+                alert(`✅ Format Teks Ajakan & Link Mitra (${refCode}) berhasil disalin ke clipboard!\n\nAnda dapat langsung menempelkannya (paste) di WhatsApp Chat atau Status.`);
             });
+        }
+        window.copyMemberReferralCaption = copyMemberReferralCaption;
+
+        function shareAffiliateNewsWA(newsId) {
+            const refCode = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || (sessionStorage.getItem('wiz_active_ref_id') || 'WIZ');
+            const origin = window.location.origin || 'https://www.wizbangkabelitung.or.id';
+            const finalShareUrl = `${origin}/berita/${encodeURIComponent(newsId)}?ref=${encodeURIComponent(refCode)}`;
+
+            let allNews = [];
+            if (window.wizStore && window.wizStore.news) {
+                try { allNews = window.wizStore.news.getAll() || []; } catch(e) {}
+            }
+            if (allNews.length === 0) {
+                try { allNews = JSON.parse(localStorage.getItem('wiz_news') || '[]'); } catch(e) {}
+            }
+            const item = allNews.find(n => String(n.id) === String(newsId));
+            const title = item ? item.title : 'Kabar Berita & Kegiatan WIZ Babel';
+            const snippet = item ? (item.content || '').replace(/<[^>]*>/g, '').trim().slice(0, 110) : '';
+
+            const waText = `📰 *${title}*\n_Dokumentasi & Penyaluran WIZ Bangka Belitung_\n\n${snippet}${snippet ? '...' : ''}\n\n📲 Baca selengkapnya & dukung program kebaikan melalui tautan resmi:\n👉 ${finalShareUrl}`;
+
+            if (typeof window.showWhatsAppShareToast === 'function') {
+                window.showWhatsAppShareToast('Membuka WhatsApp... Tunggu 1–2 detik hingga kartu preview gambar muncul ✨');
+            }
+            window.open(`https://wa.me/?text=${encodeURIComponent(waText)}`, '_blank');
         }
 
         function shareProgramWA(title, url) {
             const cleanTitle = (title || 'Program Kebaikan').replace(/&quot;/g, '"');
-            const waText = `*${cleanTitle}* — WIZ Bangka Belitung\n\nMari bersama alirkan kebaikan dan raih pahala jariyah melalui program ini:\n📲 ${url}`;
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(waText)}`, '_blank');
-        }
-
-        function renderAffiliateQuotesGrid() {
-            const featuredCard = document.getElementById('affiliate-featured-quote');
-            const grid = document.getElementById('affiliate-quotes-grid');
-            if (!grid) return;
-
-            let allQuotes = [];
-            if (window.wizStore && window.wizStore.quotes) {
-                try {
-                    allQuotes = window.wizStore.quotes.getAll() || [];
-                } catch(e) {}
+            const waText = `🌟 *PROGRAM KEBAIKAN: ${cleanTitle.toUpperCase()}*\n(Wahdah Inspirasi Zakat Bangka Belitung)\n\n"Siapa yang menunjukkan kepada kebaikan, maka dia mendapatkan pahala seperti orang yang melakukannya." (HR. Muslim)\n\nMari bersama alirkan kebaikan dan raih pahala jariyah melalui program ini:\n📲 ${url}\n\nYuk sebar luaskan info kebaikan ini ke keluarga & sahabat kita ✨`;
+            
+            if (typeof window.showWhatsAppShareToast === 'function') {
+                window.showWhatsAppShareToast('Membuka WhatsApp... Tunggu 1–2 detik hingga kartu preview muncul ✨');
             }
-            if (allQuotes.length === 0) {
-                try {
-                    allQuotes = JSON.parse(localStorage.getItem('wiz_quotes') || '[]');
-                } catch(e) {}
-            }
-
-            const activeQuotes = allQuotes.filter(q => q && q.status === 'active');
-            const activeRef = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || 'WIZ';
-            const origin = window.location.origin || 'https://www.wizbangkabelitung.or.id';
-            const defaultImg = '/assets/images/foto-utama-wiz.jpg';
-
-            if (activeQuotes.length === 0) {
-                if (featuredCard) {
-                    featuredCard.className = 'bg-slate-50 text-slate-600 rounded-2xl p-6 sm:p-8 text-center border border-dashed border-slate-200 w-full block';
-                    featuredCard.setAttribute('style', 'width: 100% !important; display: block !important; box-sizing: border-box !important;');
-                    featuredCard.innerHTML = `
-                    <div class="max-w-2xl mx-auto space-y-2 py-4 block w-full text-center" style="width: 100% !important; max-width: 650px !important; margin: 0 auto !important; display: block !important;">
-                        <span class="material-symbols-outlined text-4xl text-emerald-600/50 block mx-auto mb-2">format_quote</span>
-                        <h4 class="font-bold text-slate-800 text-sm sm:text-base block w-full text-center" style="white-space: normal !important; word-break: normal !important; width: 100% !important;">Belum Ada Quote Harian Aktif</h4>
-                        <p class="text-xs sm:text-sm text-slate-500 leading-relaxed block w-full text-center" style="white-space: normal !important; word-break: normal !important; width: 100% !important; max-width: 500px !important; margin: 0 auto !important;">
-                            Materi flyer poster dakwah harian akan segera diterbitkan oleh Admin.
-                        </p>
-                        <div class="pt-3 flex justify-center w-full">
-                            <button type="button" onclick="fetchFreshQuotesDirectly()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer inline-flex items-center gap-1.5">
-                                <span class="material-symbols-outlined text-sm">refresh</span>
-                                <span>Cek Quote Terbaru</span>
-                            </button>
-                        </div>
-                    </div>`;
-                }
-                grid.innerHTML = '<div class="col-span-1 sm:col-span-2 lg:col-span-3 p-6 text-center text-slate-400 text-xs w-full block" style="width: 100% !important; display: block !important;">Belum ada koleksi quote lainnya yang dipublikasikan.</div>';
-                return;
-            }
-
-            // Restore featuredCard classes
-            if (featuredCard) {
-                featuredCard.className = 'bg-gradient-to-br from-emerald-950 via-emerald-900 to-primary text-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-xl relative overflow-hidden flex flex-col md:flex-row gap-6 items-center w-full';
-            }
-
-            // Determine today's or latest quote
-            const todayStr = new Date().toISOString().split('T')[0];
-            const todayQuote = activeQuotes.find(q => q.date === todayStr) || activeQuotes[0];
-            const otherQuotes = activeQuotes.filter(q => String(q.id) !== String(todayQuote.id));
-
-            // Render Featured Quote
-            if (featuredCard && todayQuote) {
-                const fImg = todayQuote.imageUrl || defaultImg;
-                const fText = (todayQuote.text || '').trim();
-                const fSource = todayQuote.source || 'Wahdah Inspirasi Zakat';
-                const fCat = todayQuote.category || 'Quote & Syiar Harian';
-                const fDate = todayQuote.date || (todayQuote.createdAt || '').split('T')[0] || todayStr;
-                const fQuoteUrl = `${origin}/quote/${encodeURIComponent(todayQuote.id)}?ref=${encodeURIComponent(activeRef)}`;
-
-                featuredCard.innerHTML = `
-                <div class="w-full md:w-5/12 aspect-[4/5] sm:aspect-square rounded-2xl overflow-hidden bg-slate-900 border border-white/20 shrink-0 shadow-lg relative group flex items-center justify-center">
-                    <img src="${fImg}" class="w-full h-full object-contain" alt="Flyer Quote" onerror="this.src='${defaultImg}'">
-                    <span class="absolute top-3 left-3 bg-amber-500 text-slate-950 font-extrabold text-[10px] px-3 py-1 rounded-full shadow-md">
-                        ${fCat}
-                    </span>
-                    <span class="absolute bottom-3 left-3 bg-black/60 backdrop-blur-xs text-white text-[10px] font-mono px-2.5 py-0.5 rounded-md">
-                        📅 ${fDate}
-                    </span>
-                </div>
-
-                <div class="flex-1 space-y-4 text-left w-full">
-                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-emerald-300 text-xs font-bold border border-white/15">
-                        <span class="material-symbols-outlined text-sm">stars</span>
-                        <span>Flyer / Quote Hari Ini (Materi Utama)</span>
-                    </div>
-
-                    ${fText ? `
-                    <div class="relative bg-white/10 backdrop-blur-xs rounded-2xl p-4 sm:p-5 border border-white/15">
-                        <span class="material-symbols-outlined text-2xl sm:text-3xl text-emerald-300 opacity-60 block mb-1">format_quote</span>
-                        <blockquote class="text-sm sm:text-base font-medium text-white/95 italic leading-relaxed font-serif">
-                            "${fText}"
-                        </blockquote>
-                        <p class="text-xs sm:text-sm font-extrabold text-amber-300 mt-2.5 flex items-center gap-1.5 font-sans">
-                            <span class="material-symbols-outlined text-base">menu_book</span>
-                            <span>${fSource}</span>
-                        </p>
-                    </div>` : `
-                    <div class="bg-white/10 rounded-2xl p-4 border border-white/15">
-                        <p class="text-sm font-bold text-amber-300 flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-base">menu_book</span>
-                            <span>${fSource}</span>
-                        </p>
-                        <p class="text-xs text-slate-300 mt-1">Flyer poster dakwah resmi siap dibagikan ke media sosial.</p>
-                    </div>`}
-
-                    <div class="flex flex-wrap items-center gap-2.5 pt-1">
-                        <button type="button" onclick="shareAffiliateQuoteWA('${todayQuote.id}')" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl font-bold text-xs flex items-center gap-2 shadow-sm transition-transform hover:scale-105 cursor-pointer">
-                            <span class="material-symbols-outlined text-sm">send</span>
-                            <span>Bagikan ke WhatsApp</span>
-                        </button>
-                        <button type="button" onclick="copyAffiliateQuoteFull('${todayQuote.id}')" class="bg-white text-emerald-950 hover:bg-emerald-50 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer" title="Salin Teks & Link Lengkap">
-                            <span class="material-symbols-outlined text-base">content_copy</span>
-                            <span>Salin Teks &amp; Link</span>
-                        </button>
-                        <button type="button" onclick="copyAffiliateQuoteLink('${todayQuote.id}')" class="bg-white/10 hover:bg-white/20 text-white px-3 sm:px-3.5 py-2.5 sm:py-3 rounded-xl font-bold text-xs flex items-center gap-1 border border-white/20 transition-colors cursor-pointer" title="Salin Link Saja">
-                            <span class="material-symbols-outlined text-base">link</span>
-                            <span>Salin Link</span>
-                        </button>
-                        <a href="${fQuoteUrl}" target="_blank" class="bg-white/10 hover:bg-white/20 text-white px-3 sm:px-3.5 py-2.5 sm:py-3 rounded-xl font-bold text-xs flex items-center gap-1 border border-white/20 transition-colors">
-                            <span class="material-symbols-outlined text-base">open_in_new</span>
-                            <span>Buka Flyer</span>
-                        </a>
-                    </div>
-                </div>`;
-            }
-
-            // Render other / all quotes grid
-            const listToRender = otherQuotes.length > 0 ? otherQuotes : activeQuotes;
-            grid.innerHTML = listToRender.map(q => {
-                const qImg = q.imageUrl || defaultImg;
-                const qText = (q.text || '').trim();
-                const qSnippet = qText ? (qText.length > 110 ? qText.slice(0, 110) + '...' : qText) : '';
-                const qSource = q.source || 'Wahdah Inspirasi Zakat';
-                const qDate = q.date || (q.createdAt || '').split('T')[0] || '-';
-                const qCat = q.category || 'Quote Dakwah';
-                const qUrl = `${origin}/quote/${encodeURIComponent(q.id)}?ref=${encodeURIComponent(activeRef)}`;
-
-                return `
-                <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs hover:shadow-md transition-all flex flex-col">
-                    <div class="aspect-[4/3] relative overflow-hidden bg-slate-900 flex items-center justify-center">
-                        <img src="${qImg}" class="w-full h-full object-contain" alt="Flyer Quote" onerror="this.src='${defaultImg}'">
-                        <span class="absolute top-2 left-2 bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-xs">
-                            ${qCat}
-                        </span>
-                        <span class="absolute bottom-2 right-2 bg-black/60 backdrop-blur-xs text-white text-[10px] font-mono px-2 py-0.5 rounded-md">
-                            ${qDate}
-                        </span>
-                    </div>
-                    <div class="p-4 flex flex-col flex-grow space-y-2.5">
-                        <div class="space-y-1">
-                            <p class="text-xs font-bold text-emerald-800 flex items-center gap-1">
-                                <span class="material-symbols-outlined text-sm">menu_book</span>
-                                <span class="truncate">${qSource}</span>
-                            </p>
-                            ${qSnippet ? `
-                            <p class="text-xs text-slate-600 italic font-serif line-clamp-3 leading-relaxed">
-                                "${qSnippet}"
-                            </p>` : `
-                            <p class="text-[11px] text-slate-400 italic">Flyer dakwah resmi WIZ Babel</p>`}
-                        </div>
-
-                        <div class="pt-2 mt-auto border-t border-slate-100 flex items-center gap-1.5">
-                            <button type="button" onclick="shareAffiliateQuoteWA('${q.id}')" class="flex-1 bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold text-xs py-2 px-2.5 rounded-xl flex items-center justify-center gap-1 shadow-xs transition-colors cursor-pointer" title="Bagikan ke WhatsApp">
-                                <span class="material-symbols-outlined text-sm">send</span>
-                                <span>Share WA</span>
-                            </button>
-                            <button type="button" onclick="copyAffiliateQuoteFull('${q.id}')" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs flex items-center justify-center transition-colors cursor-pointer" title="Salin Teks & Link">
-                                <span class="material-symbols-outlined text-[15px]">content_copy</span>
-                            </button>
-                            <a href="${qUrl}" target="_blank" class="p-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl font-bold text-xs flex items-center justify-center transition-colors" title="Buka Halaman Flyer">
-                                <span class="material-symbols-outlined text-[15px]">open_in_new</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        let isFetchingAffiliateQuotes = false;
-        async function fetchFreshQuotesDirectly() {
-            if (isFetchingAffiliateQuotes) return;
-            isFetchingAffiliateQuotes = true;
-            try {
-                if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                    const res = await window.wizSupabase.select('site_settings', { filter: 'key=eq.quotes' });
-                    if (res && Array.isArray(res.data) && res.data.length > 0 && res.data[0].value) {
-                        const quotesList = Array.isArray(res.data[0].value) ? res.data[0].value : [];
-                        localStorage.setItem('wiz_quotes', JSON.stringify(quotesList));
-                        renderAffiliateQuotesGrid();
-                    }
-                }
-            } catch(e) {
-                console.warn('[Affiliate Sync Quotes Error]', e);
-            } finally {
-                isFetchingAffiliateQuotes = false;
-            }
+            window.open(`https://wa.me/?text=${encodeURIComponent(waText)}`, '_blank');
         }
 
         function shareAffiliateQuoteWA(quoteId) {
@@ -1740,19 +1557,22 @@ import MitraLayout from '../layouts/MitraLayout.astro';
                 try { allQuotes = JSON.parse(localStorage.getItem('wiz_quotes') || '[]'); } catch(e) {}
             }
             const quote = allQuotes.find(q => String(q.id) === String(quoteId)) || allQuotes[0];
-            const refCode = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || 'WIZ';
+            const refCode = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || (sessionStorage.getItem('wiz_active_ref_id') || 'WIZ');
             const origin = window.location.origin || 'https://www.wizbangkabelitung.or.id';
             const finalShareUrl = `${origin}/quote/${encodeURIComponent(quoteId)}?ref=${encodeURIComponent(refCode)}`;
 
             let textMsg = '';
             if (quote && quote.text && quote.text.trim()) {
                 const source = quote.source || 'Wahdah Inspirasi Zakat';
-                textMsg = `*${source}*\n\n"${quote.text.trim()}"\n\n📲 Dapatkan flyer inspirasi & tunaikan sedekah melalui:\n${finalShareUrl}`;
+                textMsg = `*${source}*\n\n"${quote.text.trim()}"\n\n📲 Dapatkan flyer inspirasi dakwah & tunaikan sedekah melalui:\n👉 ${finalShareUrl}`;
             } else {
-                textMsg = `*Inspirasi & Syiar Kebaikan WIZ Bangka Belitung*\n\n📲 Simak flyer dakwah & raih pahala jariyah melalui:\n${finalShareUrl}`;
+                textMsg = `*Inspirasi & Syiar Kebaikan WIZ Bangka Belitung*\n\n📲 Simak flyer dakwah & raih pahala jariyah melalui:\n👉 ${finalShareUrl}`;
             }
 
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(textMsg)}`, '_blank');
+            if (typeof window.showWhatsAppShareToast === 'function') {
+                window.showWhatsAppShareToast('Membuka WhatsApp... Tunggu 1–2 detik hingga kartu preview muncul ✨');
+            }
+            window.open(`https://wa.me/?text=${encodeURIComponent(textMsg)}`, '_blank');
         }
 
         function copyAffiliateQuoteFull(quoteId) {

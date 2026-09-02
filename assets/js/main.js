@@ -337,14 +337,14 @@ function triggerSocialShare(platform) {
         const shareUrlObj = new URL(url.startsWith('http') ? url : `https://www.wizbangkabelitung.or.id/${url.replace(/^\//, '')}`);
         const finalUrl = shareUrlObj.toString();
         const text = `*${title}*\n\n${desc}\n\nSalurkan donasi terbaik Anda melalui tautan resmi berikut:\n👉 ${finalUrl}`;
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     } else if (platform === 'wa_status') {
         const shareUrlObj = new URL(url.startsWith('http') ? url : `https://www.wizbangkabelitung.or.id/${url.replace(/^\//, '')}`);
         const finalUrl = shareUrlObj.toString();
         if (typeof window.showWhatsAppShareToast === 'function') {
             window.showWhatsAppShareToast('Tunggu 1–2 detik di layar WhatsApp hingga kartu preview gambar muncul sebelum menekan kirim Status ✨');
         }
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(finalUrl)}`, '_blank');
+        window.open(`https://wa.me/?text=${encodeURIComponent(finalUrl)}`, '_blank');
     } else if (platform === 'ig') {
         copyShareCaption(true);
         setTimeout(() => {
@@ -503,7 +503,7 @@ function initHomeQuoteSection() {
         if (typeof window.showWhatsAppShareToast === 'function') {
             window.showWhatsAppShareToast();
         }
-        window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(flyerUrl), '_blank');
+        window.open('https://wa.me/?text=' + encodeURIComponent(flyerUrl), '_blank');
     };
 }
 
@@ -2206,7 +2206,7 @@ window.openShareModal = function (title, desc, url, programImg) {
     const waUrlObj = new URL(url.startsWith('http') ? url : `https://www.wizbangkabelitung.or.id/${url.replace(/^\//, '')}`);
     const encodedWaUrl = encodeURIComponent(waUrlObj.toString());
 
-    document.getElementById('share-btn-wa').href = `https://api.whatsapp.com/send?text=${encodedWaUrl}`;
+    document.getElementById('share-btn-wa').href = `https://wa.me/?text=${encodedWaUrl}`;
     document.getElementById('share-btn-fb').href = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
     document.getElementById('share-btn-tw').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodedUrl}`;
     document.getElementById('share-btn-tg').href = `https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent(title)}`;
