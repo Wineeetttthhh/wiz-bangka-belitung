@@ -6051,10 +6051,19 @@
         },
 
         // Payout / Pencairan Hak Perantara
-        getPayouts(referralId) {
+        getPayouts(referralId, targetMonthStr) {
             const allPayouts = getStore(STORAGE_KEYS.REFERRALS_PAYOUTS) || getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || [];
-            if (referralId) return allPayouts.filter(p => p.referralId === referralId).sort((a, b) => new Date(b.paidAt) - new Date(a.paidAt));
-            return allPayouts.sort((a, b) => new Date(b.paidAt) - new Date(a.paidAt));
+            let filtered = allPayouts;
+            if (referralId) {
+                filtered = filtered.filter(p => p.referralId === referralId);
+            }
+            if (targetMonthStr && targetMonthStr !== 'Semua') {
+                filtered = filtered.filter(p => {
+                    const pPeriode = p.periodeBulan || (p.referralName === 'Edwin' ? '2026-08' : (p.paidAt ? p.paidAt.substring(0, 7) : ''));
+                    return pPeriode === targetMonthStr;
+                });
+            }
+            return filtered.sort((a, b) => new Date(b.paidAt) - new Date(a.paidAt));
         },
 
         async recordPayout(data) {
@@ -6064,6 +6073,7 @@
                 referralId: data.referralId,
                 referralName: data.referralName || 'Perantara',
                 amount: Number(data.amount) || 0,
+                periodeBulan: data.periodeBulan || (data.paidAt ? data.paidAt.substring(0, 7) : getCurrentPeriod()),
                 paymentMethod: data.paymentMethod || 'Transfer Bank',
                 referenceNo: data.referenceNo || '-',
                 notes: data.notes || '',
