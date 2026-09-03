@@ -3908,7 +3908,7 @@
                 }
 
                 return `<tr class="hover:bg-surface-container-lowest/50 transition-colors ${d.status === 'pending' ? 'bg-amber-50/40 border-l-4 border-l-amber-500' : ''} cursor-pointer" onclick="showDonationDetail('${d.id}')">
-                <td class="p-md text-on-surface-variant whitespace-nowrap">${wizStore.utils.formatDate(d.createdAt)}</td>
+                <td class="p-md text-on-surface-variant whitespace-nowrap">${wizStore.utils.formatDate(d.tanggalTransaksi || d.tanggal_transaksi || d.createdAt)}</td>
                 <td class="p-md font-semibold">
                     <div>${d.donorName} ${d.donorName === 'Hamba Allah' ? '<span class="font-caption text-caption text-outline ml-1">(Anonim)</span>' : ''}</div>
                     ${refBadge}
@@ -4503,6 +4503,8 @@
                     additionalBonus: addBonus,
                     tanggalTransaksi: tanggalTransaksi,
                     tanggal_transaksi: tanggalTransaksi,
+                    createdAt: tanggalTransaksi,
+                    created_at: tanggalTransaksi,
                     verifiedBy: sessionStorage.getItem('wiz_admin_name') || ADMIN_NAME || 'Admin'
                 };
 
@@ -4693,7 +4695,7 @@
                     </p>
                 </div>
                 <div><p class="font-caption text-caption text-on-surface-variant font-semibold">Metode Pembayaran</p><p class="font-label-md font-bold">${d.method || '-'}</p></div>
-                <div><p class="font-caption text-caption text-on-surface-variant font-semibold">Tanggal Transaksi</p><p class="font-label-md font-medium">${wizStore.utils.formatDateTime(d.createdAt)}</p></div>
+                <div><p class="font-caption text-caption text-on-surface-variant font-semibold">Tanggal Transaksi</p><p class="font-label-md font-medium">${wizStore.utils.formatDateTime(d.tanggalTransaksi || d.tanggal_transaksi || d.createdAt)}</p></div>
                 <div>
                     <p class="font-caption text-caption text-on-surface-variant font-semibold">Status Transaksi</p>
                     <p class="font-label-md font-bold ${d.status === 'verified' ? 'text-emerald-700' : d.status === 'pending' ? 'text-amber-700' : 'text-rose-700'}">

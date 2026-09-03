@@ -266,7 +266,7 @@ const SUPABASE_CONFIG = {
                 tanggal_transaksi: tanggalTransaksiVal,
                 verified_at: verifiedAtVal,
                 verified_by: verifiedByVal,
-                created_at: data.created_at || data.createdAt || new Date().toISOString()
+                created_at: tanggalTransaksiVal || data.created_at || data.createdAt || new Date().toISOString()
             };
             let res = await upsert('donations', payload);
             if (res.error && (String(res.error).includes('tanggal_transaksi') || (res.error.message && String(res.error.message).includes('tanggal_transaksi')))) {

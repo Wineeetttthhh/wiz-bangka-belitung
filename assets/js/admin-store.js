@@ -3070,7 +3070,8 @@
                 status: donation.status || 'pending',
                 tanggalTransaksi: donation.tanggalTransaksi || donation.tanggal_transaksi || donation.createdAt || new Date().toISOString(),
                 tanggal_transaksi: donation.tanggal_transaksi || donation.tanggalTransaksi || donation.createdAt || new Date().toISOString(),
-                createdAt: donation.createdAt || new Date().toISOString(),
+                createdAt: donation.createdAt || donation.created_at || donation.tanggalTransaksi || donation.tanggal_transaksi || new Date().toISOString(),
+                created_at: donation.created_at || donation.createdAt || donation.tanggalTransaksi || donation.tanggal_transaksi || new Date().toISOString(),
                 verifiedAt: donation.status === 'verified' ? new Date().toISOString() : null,
                 verifiedBy: donation.status === 'verified' ? (donation.verifiedBy || 'Admin') : null
             };
@@ -3171,7 +3172,9 @@
                 category: programUtama,
                 amount: newAmount,
                 tanggalTransaksi: newTanggalTransaksi,
-                tanggal_transaksi: newTanggalTransaksi
+                tanggal_transaksi: newTanggalTransaksi,
+                createdAt: newTanggalTransaksi,
+                created_at: newTanggalTransaksi
             };
             setStore(STORAGE_KEYS.DONATIONS, list);
 
@@ -3199,7 +3202,9 @@
                         referral_fee: refFee,
                         notes: list[idx].notes,
                         status: list[idx].status,
-                        tanggal_transaksi: newTanggalTransaksi
+                        tanggal_transaksi: newTanggalTransaksi,
+                        created_at: newTanggalTransaksi,
+                        createdAt: newTanggalTransaksi
                     });
                 } catch(e) {}
             }
