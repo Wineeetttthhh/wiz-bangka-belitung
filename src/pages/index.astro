@@ -365,27 +365,71 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </div>
     </section>
 
-    <!-- Live Social Proof: Donatur Terbaru & Terverifikasi Real-Time -->
+    <!-- Live Social Proof & Transparansi Finansial Publik (Donasi Masuk & Penyaluran) -->
     <section id="donatur-terbaru" class="py-10 sm:py-16 px-3.5 sm:px-6 lg:px-8 bg-slate-50 border-t border-b border-slate-200/80">
-        <div class="max-w-7xl mx-auto space-y-6 sm:space-y-10">
+        <div class="max-w-7xl mx-auto space-y-6 sm:space-y-8">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 sm:gap-4">
                 <div class="space-y-1.5">
                     <span class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider">
                         <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
                         <span class="material-symbols-outlined text-sm sm:text-base text-emerald-700">verified</span>
-                        Donasi Terverifikasi Real-Time
+                        Transparansi Finansial Real-Time
                     </span>
-                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">Donatur Terbaru &amp; Sahabat Kebaikan</h2>
-                    <p class="text-xs sm:text-base text-slate-600 font-medium">Jejak kepedulian para muhsinin yang telah terverifikasi dan siap disalurkan ke program-program WIZ.</p>
+                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">Transparansi: Donasi Masuk &amp; Penyaluran</h2>
+                    <p class="text-xs sm:text-base text-slate-600 font-medium">Laporan publik real-time dari donasi para muhsinin hingga penyaluran amanah di lapangan.</p>
                 </div>
-                <a href="/laporan" class="inline-flex items-center gap-1 text-emerald-700 hover:text-emerald-800 text-xs sm:text-base font-extrabold transition-colors">
-                    <span>Lihat Laporan Transparansi Lengkap</span>
-                    <span class="material-symbols-outlined text-base sm:text-lg">arrow_forward</span>
-                </a>
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3 shrink-0">
+                    <!-- Tab Switcher -->
+                    <div class="inline-flex p-1 bg-slate-200/80 rounded-xl text-xs font-bold shadow-2xs">
+                        <button type="button" id="tab-transparansi-all" onclick="switchTransparencyTab('all')"
+                            class="transparency-tab-btn active px-3 sm:px-4 py-1.5 rounded-lg transition-all bg-white text-slate-900 shadow-xs cursor-pointer">
+                            ⚡ Semua Aktivitas
+                        </button>
+                        <button type="button" id="tab-transparansi-in" onclick="switchTransparencyTab('in')"
+                            class="transparency-tab-btn px-3 sm:px-4 py-1.5 rounded-lg transition-all text-slate-600 hover:text-emerald-700 cursor-pointer">
+                            📥 Donasi Masuk
+                        </button>
+                        <button type="button" id="tab-transparansi-out" onclick="switchTransparencyTab('out')"
+                            class="transparency-tab-btn px-3 sm:px-4 py-1.5 rounded-lg transition-all text-slate-600 hover:text-amber-700 cursor-pointer">
+                            📤 Penyaluran Dana
+                        </button>
+                    </div>
+                    <a href="/laporan" class="inline-flex items-center gap-1 text-emerald-700 hover:text-emerald-800 text-xs sm:text-sm font-extrabold transition-colors py-1.5 px-2">
+                        <span>Laporan Lengkap</span>
+                        <span class="material-symbols-outlined text-base">arrow_forward</span>
+                    </a>
+                </div>
             </div>
 
-            <div id="verified-donors-container" class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6">
+            <!-- Feed Containers: Dual column on 'all', or single grid on specific tabs -->
+            <div id="transparency-all-view" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Column 1: Donasi Masuk Terverifikasi -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between px-1 pb-1 border-b border-slate-200/80">
+                        <h3 class="text-xs sm:text-sm font-extrabold text-emerald-900 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-emerald-600 text-base">download_done</span>
+                            <span>Donasi Masuk Terbaru (Terverifikasi)</span>
+                        </h3>
+                        <span class="text-[10px] sm:text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Masuk</span>
+                    </div>
+                    <div id="verified-donors-container" class="space-y-3"></div>
+                </div>
+
+                <!-- Column 2: Penyaluran Dana -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between px-1 pb-1 border-b border-slate-200/80">
+                        <h3 class="text-xs sm:text-sm font-extrabold text-amber-900 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-amber-600 text-base">outbox</span>
+                            <span>Penyaluran Program Terbaru</span>
+                        </h3>
+                        <span class="text-[10px] sm:text-[11px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Tersalurkan</span>
+                    </div>
+                    <div id="disbursements-feed-container" class="space-y-3"></div>
+                </div>
             </div>
+
+            <!-- Single Tab View (Used when 'in' or 'out' is active) -->
+            <div id="transparency-single-view" class="hidden grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4"></div>
         </div>
     </section>
 
@@ -570,7 +614,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 isFetchingHomeNews = false;
             }
         }
-        function renderPublicNews() {
+        function renderPublicNews() {
             if (!window.wizStore) return;
             const allPublished = wizStore.news.getPublished();
             const publishedNews = (allPublished || []).slice(0, 6);
@@ -835,72 +879,273 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             });
         }
 
-        function renderVerifiedDonors(containerId = 'verified-donors-container') {
-            if (!window.wizStore || !wizStore.donations) return;
-            const container = document.getElementById(containerId);
-            if (!container) return;
+        let activeTransparencyTab = 'all';
 
-            const donors = (typeof wizStore.donations.getRecentVerified === 'function') 
-                ? wizStore.donations.getRecentVerified(10)
-                : [];
-            const fmt = wizStore.utils.formatRupiahCompact;
-
-            if (donors.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-1 md:col-span-2 text-center py-xl bg-surface-container-low rounded-2xl border border-dashed border-outline-variant/50 p-lg text-on-surface-variant text-xs">
-                        <span class="material-symbols-outlined text-3xl text-outline mb-1">volunteer_activism</span>
-                        <p class="font-bold text-on-surface">Belum Ada Donasi Terverifikasi Baru</p>
-                        <p class="text-caption text-outline">Jadilah yang pertama menyalurkan kebaikan hari ini!</p>
-                    </div>
-                `;
-                return;
+        function switchTransparencyTab(tab) {
+            activeTransparencyTab = tab;
+            document.querySelectorAll('.transparency-tab-btn').forEach(btn => {
+                btn.className = 'transparency-tab-btn px-3 sm:px-4 py-1.5 rounded-lg transition-all text-slate-600 hover:text-emerald-700 cursor-pointer';
+            });
+            const activeBtn = document.getElementById(`tab-transparansi-${tab}`);
+            if (activeBtn) {
+                activeBtn.className = 'transparency-tab-btn active px-3 sm:px-4 py-1.5 rounded-lg transition-all bg-white text-slate-900 shadow-xs font-bold cursor-pointer';
             }
 
-            container.innerHTML = donors.map((d, index) => {
-                const initials = d.isAnonymous
-                    ? 'HA'
-                    : (d.donorName.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase() || 'W');
-                
-                const avatarColors = [
-                    'bg-emerald-100 text-emerald-800 border-emerald-300',
-                    'bg-amber-100 text-amber-800 border-amber-300',
-                    'bg-blue-100 text-blue-800 border-blue-300',
-                    'bg-purple-100 text-purple-800 border-purple-300',
-                    'bg-teal-100 text-teal-800 border-teal-300'
-                ];
-                const colorClass = avatarColors[index % avatarColors.length];
+            const allView = document.getElementById('transparency-all-view');
+            const singleView = document.getElementById('transparency-single-view');
 
-                return `
-                <div class="p-md bg-surface-container-low hover:bg-surface-container transition-all duration-300 rounded-2xl border border-outline-variant/30 flex items-center justify-between gap-md shadow-xs hover:shadow-sm group">
-                    <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-11 h-11 rounded-full ${colorClass} border flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
-                            ${initials}
-                        </div>
-                        <div class="min-w-0">
-                            <div class="flex items-center gap-1.5 flex-wrap">
-                                <span class="font-bold text-on-surface text-sm truncate">${d.donorName}</span>
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                    ✅ Terverifikasi
-                                </span>
-                            </div>
-                            <p class="font-caption text-caption text-on-surface-variant truncate mt-0.5">
-                                Berdonasi untuk: <strong class="text-primary font-bold">${d.program}</strong>
-                            </p>
-                            <span class="text-[11px] text-outline flex items-center gap-1 mt-0.5">
-                                <span class="material-symbols-outlined text-[12px]">schedule</span> ${d.timeAgo}
-                                <span>•</span>
-                                <span class="font-semibold text-on-surface-variant">${d.wilayah}</span>
+            if (tab === 'all') {
+                if (allView) allView.classList.remove('hidden');
+                if (singleView) singleView.classList.add('hidden');
+                renderTransparencyDualFeed();
+            } else if (tab === 'in') {
+                if (allView) allView.classList.add('hidden');
+                if (singleView) {
+                    singleView.classList.remove('hidden');
+                    renderTransparencySingleFeed('in');
+                }
+            } else if (tab === 'out') {
+                if (allView) allView.classList.add('hidden');
+                if (singleView) {
+                    singleView.classList.remove('hidden');
+                    renderTransparencySingleFeed('out');
+                }
+            }
+        }
+
+        function createDonorCardHtml(d, index) {
+            const fmt = (window.wizStore && window.wizStore.utils) ? window.wizStore.utils.formatRupiahCompact : (n => 'Rp ' + Number(n).toLocaleString('id-ID'));
+            const maskFn = (window.wizStore && window.wizStore.utils && typeof window.wizStore.utils.maskDonorName === 'function')
+                ? window.wizStore.utils.maskDonorName
+                : (window.maskDonorName || ((name) => name || 'Hamba Allah'));
+
+            const rawName = d.donorName || d.donor_name || 'Hamba Allah';
+            const isAnon = Boolean(d.isAnonymous || d.is_anonymous || !rawName || rawName.toLowerCase() === 'hamba allah');
+            const displayName = maskFn(rawName, isAnon);
+
+            const initials = isAnon
+                ? 'HA'
+                : (displayName.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase() || 'W');
+            
+            const avatarColors = [
+                'bg-emerald-100 text-emerald-800 border-emerald-300',
+                'bg-amber-100 text-amber-800 border-amber-300',
+                'bg-blue-100 text-blue-800 border-blue-300',
+                'bg-purple-100 text-purple-800 border-purple-300',
+                'bg-teal-100 text-teal-800 border-teal-300'
+            ];
+            const colorClass = avatarColors[index % avatarColors.length];
+
+            const txDate = d.tanggalTransaksi || d.tanggal_transaksi || d.createdAt || d.created_at;
+            let timeText = d.timeAgo || '';
+            if (!timeText && txDate && window.wizStore && window.wizStore.utils && typeof window.wizStore.utils.timeAgo === 'function') {
+                timeText = window.wizStore.utils.timeAgo(txDate);
+            }
+            if (!timeText && txDate && window.wizStore && window.wizStore.utils && typeof window.wizStore.utils.formatDate === 'function') {
+                timeText = window.wizStore.utils.formatDate(txDate);
+            }
+            if (!timeText) timeText = 'Baru saja';
+
+            const prog = d.program || d.programSpesifik || d.program_spesifik || d.program_title || 'Infak Umum';
+            const wilayah = d.wilayah || 'Pangkalpinang';
+            const method = d.method || d.payment_method || 'Bank Transfer';
+
+            return `
+            <div class="p-3.5 bg-surface-container-low hover:bg-surface-container transition-all duration-300 rounded-2xl border border-outline-variant/30 flex items-center justify-between gap-3 shadow-xs hover:shadow-sm group">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 rounded-full ${colorClass} border flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                        ${initials}
+                    </div>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="font-bold text-on-surface text-xs sm:text-sm truncate" title="${escapeHtml(displayName)}">${escapeHtml(displayName)}</span>
+                            <span class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                ✅ Terverifikasi
                             </span>
                         </div>
-                    </div>
-                    <div class="text-right shrink-0">
-                        <span class="font-label-md text-sm font-extrabold text-primary font-mono block tracking-tight">
-                            ${fmt(d.amount)}
+                        <p class="font-caption text-[11px] text-on-surface-variant truncate mt-0.5">
+                            Berdonasi untuk: <strong class="text-primary font-bold">${escapeHtml(prog)}</strong>
+                        </p>
+                        <span class="text-[10px] text-outline flex items-center gap-1 mt-0.5">
+                            <span class="material-symbols-outlined text-[11px]">schedule</span> ${timeText}
+                            <span>•</span>
+                            <span class="font-semibold text-on-surface-variant">${escapeHtml(wilayah)}</span>
                         </span>
-                        <span class="text-[10px] text-outline uppercase font-semibold">${d.method}</span>
                     </div>
-                </div>`;
-            }).join('');
+                </div>
+                <div class="text-right shrink-0">
+                    <span class="font-label-md text-xs sm:text-sm font-extrabold text-primary font-mono block tracking-tight">
+                        ${fmt(d.amount)}
+                    </span>
+                    <span class="text-[9px] text-outline uppercase font-semibold">${escapeHtml(method)}</span>
+                </div>
+            </div>`;
+        }
+
+        function createDisbursementCardHtml(d, index) {
+            const fmt = (window.wizStore && window.wizStore.utils) ? window.wizStore.utils.formatRupiahCompact : (n => 'Rp ' + Number(n).toLocaleString('id-ID'));
+            const pillar = d.pillar || ((window.wizStore && window.wizStore.utils) ? window.wizStore.utils.mapProgramToPillar(d.program) : 'Pilar Sosial');
+            const rawDate = d.tanggalPenyaluran || d.tanggal_penyaluran || d.disbursedAt || d.disbursed_at || d.createdAt;
+            
+            let dateText = '';
+            if (rawDate && window.wizStore && window.wizStore.utils && typeof window.wizStore.utils.formatDate === 'function') {
+                dateText = window.wizStore.utils.formatDate(rawDate);
+            } else if (rawDate) {
+                try { dateText = new Date(rawDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); } catch(e) {}
+            }
+            if (!dateText) dateText = 'Tersalurkan';
+
+            const cleanDesc = (d.description || '-').replace(/\[Meta:[^\]]+\]/g, '').trim();
+            const wilayah = d.wilayah || 'Pangkalpinang';
+
+            return `
+            <div class="p-3.5 bg-amber-50/40 hover:bg-amber-50/80 transition-all duration-300 rounded-2xl border border-amber-200/60 flex items-center justify-between gap-3 shadow-xs hover:shadow-sm group">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-900 border border-amber-300 flex items-center justify-center shrink-0 shadow-xs">
+                        <span class="material-symbols-outlined text-base text-amber-700">volunteer_activism</span>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="font-bold text-slate-900 text-xs sm:text-sm truncate" title="${escapeHtml(d.program)}">${escapeHtml(d.program)}</span>
+                            <span class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                                📤 Disalurkan
+                            </span>
+                        </div>
+                        <p class="font-caption text-[11px] text-slate-600 line-clamp-1 mt-0.5" title="${escapeHtml(cleanDesc)}">
+                            ${escapeHtml(cleanDesc)}
+                        </p>
+                        <span class="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
+                            <span class="material-symbols-outlined text-[11px]">calendar_today</span> ${dateText}
+                            <span>•</span>
+                            <span class="font-semibold text-slate-700">${escapeHtml(wilayah)}</span>
+                            <span>•</span>
+                            <span class="text-amber-800 font-bold">${escapeHtml(pillar)}</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="text-right shrink-0">
+                    <span class="font-label-md text-xs sm:text-sm font-extrabold text-amber-900 font-mono block tracking-tight">
+                        ${fmt(d.amount)}
+                    </span>
+                    <span class="text-[9px] text-amber-700 uppercase font-semibold">Tersalurkan</span>
+                </div>
+            </div>`;
+        }
+
+        function renderTransparencyDualFeed() {
+            if (!window.wizStore) return;
+
+            // 1. Donasi Masuk
+            const inContainer = document.getElementById('verified-donors-container');
+            if (inContainer && wizStore.donations) {
+                const donors = (typeof wizStore.donations.getRecentVerified === 'function') 
+                    ? wizStore.donations.getRecentVerified(6)
+                    : [];
+
+                if (donors.length === 0) {
+                    inContainer.innerHTML = `
+                        <div class="text-center py-6 bg-surface-container-low rounded-2xl border border-dashed border-outline-variant/50 p-4 text-on-surface-variant text-xs">
+                            <span class="material-symbols-outlined text-2xl text-outline mb-1">volunteer_activism</span>
+                            <p class="font-bold text-on-surface">Belum Ada Donasi Terverifikasi Baru</p>
+                            <p class="text-caption text-outline">Jadilah yang pertama menyalurkan kebaikan hari ini!</p>
+                        </div>
+                    `;
+                } else {
+                    inContainer.innerHTML = donors.map((d, index) => createDonorCardHtml(d, index)).join('');
+                }
+            }
+
+            // 2. Penyaluran Dana
+            const outContainer = document.getElementById('disbursements-feed-container');
+            if (outContainer && wizStore.disbursements) {
+                const disbursements = (typeof wizStore.disbursements.getAll === 'function')
+                    ? wizStore.disbursements.getAll().slice(0, 6)
+                    : [];
+
+                if (disbursements.length === 0) {
+                    outContainer.innerHTML = `
+                        <div class="text-center py-6 bg-amber-50/50 rounded-2xl border border-dashed border-amber-200 p-4 text-amber-900/70 text-xs">
+                            <span class="material-symbols-outlined text-2xl text-amber-500 mb-1">outbox</span>
+                            <p class="font-bold text-amber-950">Belum Ada Data Penyaluran Baru</p>
+                            <p class="text-caption text-amber-800/70">Amanah donatur akan segera disalurkan ke mustahik.</p>
+                        </div>
+                    `;
+                } else {
+                    outContainer.innerHTML = disbursements.map((d, index) => createDisbursementCardHtml(d, index)).join('');
+                }
+            }
+
+            fetchLiveTransparencyFromCloud();
+        }
+
+        function renderTransparencySingleFeed(type) {
+            const singleView = document.getElementById('transparency-single-view');
+            if (!singleView || !window.wizStore) return;
+
+            if (type === 'in') {
+                const donors = (typeof wizStore.donations.getRecentVerified === 'function') 
+                    ? wizStore.donations.getRecentVerified(12)
+                    : [];
+                if (donors.length === 0) {
+                    singleView.innerHTML = `
+                        <div class="col-span-1 md:col-span-2 text-center py-10 bg-surface-container-low rounded-2xl border border-dashed border-outline-variant/50 p-6 text-on-surface-variant text-xs">
+                            <span class="material-symbols-outlined text-3xl text-outline mb-1">volunteer_activism</span>
+                            <p class="font-bold text-on-surface">Belum Ada Donasi Terverifikasi Baru</p>
+                            <p class="text-caption text-outline">Jadilah yang pertama menyalurkan kebaikan hari ini!</p>
+                        </div>
+                    `;
+                } else {
+                    singleView.innerHTML = donors.map((d, index) => createDonorCardHtml(d, index)).join('');
+                }
+            } else if (type === 'out') {
+                const disbursements = (typeof wizStore.disbursements.getAll === 'function')
+                    ? wizStore.disbursements.getAll().slice(0, 12)
+                    : [];
+                if (disbursements.length === 0) {
+                    singleView.innerHTML = `
+                        <div class="col-span-1 md:col-span-2 text-center py-10 bg-amber-50/50 rounded-2xl border border-dashed border-amber-200 p-6 text-amber-900/70 text-xs">
+                            <span class="material-symbols-outlined text-3xl text-amber-500 mb-1">outbox</span>
+                            <p class="font-bold text-amber-950">Belum Ada Riwayat Penyaluran Baru</p>
+                            <p class="text-caption text-amber-800/70">Amanah donatur akan segera disalurkan ke mustahik.</p>
+                        </div>
+                    `;
+                } else {
+                    singleView.innerHTML = disbursements.map((d, index) => createDisbursementCardHtml(d, index)).join('');
+                }
+            }
+        }
+
+        let isLiveFetching = false;
+        async function fetchLiveTransparencyFromCloud() {
+            if (isLiveFetching || !window.wizSupabase || !window.wizSupabase.isConfigured()) return;
+            if (typeof window.wizSupabase.getPublicTransparencyFeed !== 'function') return;
+            isLiveFetching = true;
+            try {
+                const feed = await window.wizSupabase.getPublicTransparencyFeed(8);
+                if (feed && feed.donations && feed.donations.length > 0) {
+                    const inContainer = document.getElementById('verified-donors-container');
+                    if (inContainer && activeTransparencyTab === 'all') {
+                        inContainer.innerHTML = feed.donations.map((d, index) => createDonorCardHtml(d, index)).join('');
+                    }
+                }
+                if (feed && feed.disbursements && feed.disbursements.length > 0) {
+                    const outContainer = document.getElementById('disbursements-feed-container');
+                    if (outContainer && activeTransparencyTab === 'all') {
+                        outContainer.innerHTML = feed.disbursements.map((d, index) => createDisbursementCardHtml(d, index)).join('');
+                    }
+                }
+            } catch(e) {
+            } finally {
+                isLiveFetching = false;
+            }
+        }
+
+        function renderVerifiedDonors() {
+            if (activeTransparencyTab === 'all') {
+                renderTransparencyDualFeed();
+            } else {
+                renderTransparencySingleFeed(activeTransparencyTab);
+            }
         }
 
         let currentInfakWilayah = 'Pangkalpinang';

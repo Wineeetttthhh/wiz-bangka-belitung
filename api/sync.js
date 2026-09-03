@@ -865,6 +865,7 @@ export default async function handler(req, res) {
                         referral_fee: d.referralFee !== undefined ? Number(d.referralFee) : (d.referral_fee !== undefined ? Number(d.referral_fee) : 0),
                         additional_bonus: Number(d.additionalBonus || d.additional_bonus || 0),
                         is_recurring_donor: Boolean(d.isRecurringDonor || d.is_recurring_donor || false),
+                        tanggal_transaksi: d.tanggal_transaksi || d.tanggalTransaksi || d.createdAt || d.created_at || new Date().toISOString(),
                         created_at: d.createdAt || d.created_at || new Date().toISOString(),
                         updated_at: new Date().toISOString()
                     };
@@ -874,6 +875,14 @@ export default async function handler(req, res) {
                             method: 'POST',
                             headers: supabaseHeaders,
                             body: JSON.stringify(payload)
+                        }).then(async r => {
+                            if (!r.ok && r.status === 400) {
+                                const err = await r.json().catch(() => null);
+                                if (err && err.message && err.message.includes('tanggal_transaksi')) {
+                                    delete payload.tanggal_transaksi;
+                                    return fetch(`${SUPABASE_URL}/donations`, { method: 'POST', headers: supabaseHeaders, body: JSON.stringify(payload) }).catch(() => {});
+                                }
+                            }
                         }).catch(() => {})
                     );
                 }
@@ -938,29 +947,41 @@ export default async function handler(req, res) {
             // Also upsert individual disbursement records to Supabase disbursements table
             if (Array.isArray(master.disbursements)) {
                 for (const disb of master.disbursements) {
-                    if (!disb || !disb.id) continue;
-                    const sType = disb.sourceType || disb.source_type || 'program_spesifik';
-                    const tType = disb.targetType || disb.target_type || 'specific';
-                    const fromProg = (disb.amountFromProgram !== undefined) ? disb.amountFromProgram : (disb.amount_from_program !== undefined ? disb.amount_from_program : Number(disb.amount) || 0);
-                    const fromSub = (disb.amountFromSubsidi !== undefined) ? disb.amountFromSubsidi : (disb.amount_from_subsidi !== undefined ? disb.amount_from_subsidi : 0);
+                    const fromProg = disb.amountFromProgram !== undefined ? Number(disb.amountFromProgram) : (Number(disb.amount) || 0);
+                    const fromSub = disb.amountFromSubsidi !== undefined ? Number(disb.amountFromSubsidi) : 0;
+                    const fullDesc = `${disb.description || ''} [Meta:source=${disb.sourceType || 'program_spesifik'}|target=${disb.targetType || 'specific'}|fromProg=${fromProg}|fromSub=${fromSub}|cat=${disb.disbursementCategory || 'program_execution'}]`.trim();
 
-                    let cleanDesc = String(disb.description || '').replace(/\s*\[Meta:[^\]]+\]/, '').trim();
-                    const fullDesc = `${cleanDesc} [Meta: source=${sType}|target=${tType}|fromProg=${fromProg}|fromSub=${fromSub}]`;
+                    const disbPayload = {
+                        id: String(disb.id),
+                        wilayah: String(disb.wilayah || 'Pangkalpinang'),
+                        program: String(disb.program || 'Infak Umum'),
+                        amount: Number(disb.amount) || 0,
+                        amount_from_program: fromProg,
+                        amount_from_subsidi: fromSub,
+                        subsidi_details: disb.subsidi_details || disb.subsidiDetails || [],
+                        description: fullDesc,
+                        tanggal_penyaluran: disb.tanggal_penyaluran || disb.tanggalPenyaluran || disb.disbursedAt || disb.disbursed_at || new Date().toISOString(),
+                        disbursed_at: disb.disbursedAt || disb.disbursed_at || new Date().toISOString(),
+                        recorded_by: String(disb.recordedBy || disb.recorded_by || 'Admin'),
+                        created_at: disb.createdAt || disb.created_at || new Date().toISOString()
+                    };
 
                     entityTasks.push(
                         fetch(`${SUPABASE_URL}/disbursements`, {
                             method: 'POST',
                             headers: supabaseHeaders,
-                            body: JSON.stringify({
-                                id: String(disb.id),
-                                wilayah: String(disb.wilayah || 'Pangkalpinang'),
-                                program: String(disb.program || 'Infak Umum'),
-                                amount: Number(disb.amount) || 0,
-                                description: fullDesc,
-                                disbursed_at: disb.disbursedAt || disb.disbursed_at || new Date().toISOString(),
-                                recorded_by: String(disb.recordedBy || disb.recorded_by || 'Admin'),
-                                created_at: disb.createdAt || disb.created_at || new Date().toISOString()
-                            })
+                            body: JSON.stringify(disbPayload)
+                        }).then(async r => {
+                            if (!r.ok && r.status === 400) {
+                                const err = await r.json().catch(() => null);
+                                if (err && err.message && (err.message.includes('tanggal_penyaluran') || err.message.includes('subsidi_details'))) {
+                                    delete disbPayload.tanggal_penyaluran;
+                                    delete disbPayload.subsidi_details;
+                                    delete disbPayload.amount_from_program;
+                                    delete disbPayload.amount_from_subsidi;
+                                    return fetch(`${SUPABASE_URL}/disbursements`, { method: 'POST', headers: supabaseHeaders, body: JSON.stringify(disbPayload) }).catch(() => {});
+                                }
+                            }
                         }).catch(() => {})
                     );
                 }

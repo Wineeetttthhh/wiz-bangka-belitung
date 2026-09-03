@@ -2431,6 +2431,8 @@
                             isRecurringDonor: isRecurring,
                             notes: (d.notes || '-').replace(/\[Meta:[^\]]*\]/g, '').trim() || '-',
                             status: d.status || 'pending',
+                            tanggalTransaksi: d.tanggal_transaksi || d.tanggalTransaksi || d.created_at || d.createdAt || new Date().toISOString(),
+                            tanggal_transaksi: d.tanggal_transaksi || d.tanggalTransaksi || d.created_at || d.createdAt || new Date().toISOString(),
                             verifiedAt: d.verified_at || (d.status === 'verified' ? (d.updated_at || d.created_at) : null),
                             verifiedBy: d.verified_by || (d.status === 'verified' ? 'Admin' : null),
                             createdAt: d.created_at || d.createdAt || new Date().toISOString()
@@ -2478,7 +2480,11 @@
                             amount: Number(d.amount) || 0,
                             amountFromProgram: fromProg,
                             amountFromSubsidi: fromSub,
+                            subsidiDetails: Array.isArray(d.subsidi_details) ? d.subsidi_details : (Array.isArray(d.subsidiDetails) ? d.subsidiDetails : []),
+                            subsidi_details: Array.isArray(d.subsidi_details) ? d.subsidi_details : (Array.isArray(d.subsidiDetails) ? d.subsidiDetails : []),
                             description: cleanDesc,
+                            tanggalPenyaluran: d.tanggal_penyaluran || d.tanggalPenyaluran || d.disbursed_at || d.disbursedAt || new Date().toISOString(),
+                            tanggal_penyaluran: d.tanggal_penyaluran || d.tanggalPenyaluran || d.disbursed_at || d.disbursedAt || new Date().toISOString(),
                             disbursedAt: d.disbursed_at || d.disbursedAt || new Date().toISOString(),
                             recordedBy: d.recorded_by || d.recordedBy || 'Admin',
                             createdAt: d.created_at || d.createdAt || new Date().toISOString()
@@ -3057,6 +3063,8 @@
                 proofImage: donation.proofImage || donation.proof_image || '',
                 notes: donation.notes || '-',
                 status: donation.status || 'pending',
+                tanggalTransaksi: donation.tanggalTransaksi || donation.tanggal_transaksi || donation.createdAt || new Date().toISOString(),
+                tanggal_transaksi: donation.tanggal_transaksi || donation.tanggalTransaksi || donation.createdAt || new Date().toISOString(),
                 createdAt: donation.createdAt || new Date().toISOString(),
                 verifiedAt: donation.status === 'verified' ? new Date().toISOString() : null,
                 verifiedBy: donation.status === 'verified' ? (donation.verifiedBy || 'Admin') : null
@@ -3140,6 +3148,8 @@
             const refFee = refId ? (updates.referralFee !== undefined ? Number(updates.referralFee) : Math.round(newAmount * (refRate / 100))) : 0;
             const addBonus = updates.additionalBonus !== undefined ? Number(updates.additionalBonus) : (list[idx].additionalBonus || 0);
 
+            const newTanggalTransaksi = updates.tanggalTransaksi || updates.tanggal_transaksi || list[idx].tanggalTransaksi || list[idx].tanggal_transaksi || list[idx].createdAt;
+
             list[idx] = {
                 ...list[idx],
                 ...updates,
@@ -3154,7 +3164,9 @@
                 additionalBonus: addBonus,
                 program: programSpesifik,
                 category: programUtama,
-                amount: newAmount
+                amount: newAmount,
+                tanggalTransaksi: newTanggalTransaksi,
+                tanggal_transaksi: newTanggalTransaksi
             };
             setStore(STORAGE_KEYS.DONATIONS, list);
 
@@ -3181,7 +3193,8 @@
                         referral_rate: refRate,
                         referral_fee: refFee,
                         notes: list[idx].notes,
-                        status: list[idx].status
+                        status: list[idx].status,
+                        tanggal_transaksi: newTanggalTransaksi
                     });
                 } catch(e) {}
             }
@@ -4520,7 +4533,7 @@
                         kategori_pilar: kategoriPilar
                     };
                 })
-                .sort((a, b) => new Date(b.disbursedAt) - new Date(a.disbursedAt));
+                .sort((a, b) => new Date(b.tanggalPenyaluran || b.disbursedAt || b.createdAt || 0) - new Date(a.tanggalPenyaluran || a.disbursedAt || a.createdAt || 0));
         },
 
         getById(id) {
@@ -4553,8 +4566,12 @@
                 amount: totalAmount,
                 amountFromProgram: fromProgram,
                 amountFromSubsidi: fromSubsidi,
+                subsidiDetails: Array.isArray(data.subsidiDetails) ? data.subsidiDetails : (Array.isArray(data.subsidi_details) ? data.subsidi_details : []),
+                subsidi_details: Array.isArray(data.subsidi_details) ? data.subsidi_details : (Array.isArray(data.subsidiDetails) ? data.subsidiDetails : []),
                 description: data.description || '',
-                disbursedAt: data.disbursedAt || new Date().toISOString(),
+                tanggalPenyaluran: data.tanggalPenyaluran || data.tanggal_penyaluran || data.disbursedAt || new Date().toISOString(),
+                tanggal_penyaluran: data.tanggal_penyaluran || data.tanggalPenyaluran || data.disbursedAt || new Date().toISOString(),
+                disbursedAt: data.disbursedAt || data.tanggalPenyaluran || new Date().toISOString(),
                 recordedBy: data.recordedBy || 'Admin',
                 createdAt: new Date().toISOString()
             };
@@ -4615,6 +4632,11 @@
                 amount: totalAmount, 
                 amountFromProgram: fromProgram,
                 amountFromSubsidi: fromSubsidi,
+                subsidiDetails: updates.subsidiDetails !== undefined ? updates.subsidiDetails : (updates.subsidi_details !== undefined ? updates.subsidi_details : (list[idx].subsidiDetails || [])),
+                subsidi_details: updates.subsidi_details !== undefined ? updates.subsidi_details : (updates.subsidiDetails !== undefined ? updates.subsidiDetails : (list[idx].subsidi_details || [])),
+                tanggalPenyaluran: updates.tanggalPenyaluran || updates.tanggal_penyaluran || list[idx].tanggalPenyaluran || list[idx].disbursedAt,
+                tanggal_penyaluran: updates.tanggal_penyaluran || updates.tanggalPenyaluran || list[idx].tanggal_penyaluran || list[idx].disbursedAt,
+                disbursedAt: updates.disbursedAt || updates.tanggalPenyaluran || list[idx].disbursedAt,
                 updatedAt: new Date().toISOString() 
             };
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
@@ -5002,47 +5024,62 @@
                         }
                     }
                 } else if (sType === 'auto_split' || tType === 'auto_split') {
-                    // 3. Skenario Auto-Split (Pemotongan Pintar):
+                    // 3. Skenario Auto-Split (Pemotongan Pintar & Subsidi Silang Antar-Program):
                     const fromProg = (db.amountFromProgram !== undefined) ? Number(db.amountFromProgram) : dbAmount;
                     const fromSub = (db.amountFromSubsidi !== undefined) ? Number(db.amountFromSubsidi) : 0;
                     const dbProg = db.program || db.programSpesifik || '';
+                    const details = Array.isArray(db.subsidiDetails) && db.subsidiDetails.length > 0
+                        ? db.subsidiDetails
+                        : (Array.isArray(db.subsidi_details) && db.subsidi_details.length > 0 ? db.subsidi_details : null);
 
-                    if (dbProg && isProgramMatching(dbProg, pName)) {
-                        spesifikSalur += fromProg;
-                    }
-
-                    if (fromSub > 0) {
-                        const dbPillar = db.pillar || mapProgramToPillar(db.program, db.category);
-                        
-                        if (dbPillar !== progPillar) {
-                            return;
-                        }
-
-                        if (isLockedPriorityProgram(pName)) {
-                            return;
-                        }
-
-                        const dbWilayah = db.wilayah || 'Pangkalpinang';
-                        const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get)
-                            ? (allocationRulesManager.get(dbWilayah) || ALLOCATION_RULES[dbWilayah])
-                            : ALLOCATION_RULES[dbWilayah];
-
-                        const subRule = wRules && wRules.subAllocation && wRules.subAllocation[progPillar];
-                        if (subRule && subRule.items && subRule.items.length > 0) {
-                            const subItem = subRule.items.find(si => isProgramMatching(si.key, pName));
-                            if (subItem) {
-                                let subWeight = (Number(subItem.percent) || 0) / 100;
-                                if (progPillar === 'Berkah Hidayah') {
-                                    const markazSub = subRule.items.find(si => isLockedPriorityProgram(si.key));
-                                    const markazPct = markazSub ? ((Number(markazSub.percent) || 0) / 100) : 0.05;
-                                    subWeight = subWeight / (1 - markazPct || 0.95);
-                                }
-                                infakUmumAlihFungsiSalur += Math.round(fromSub * subWeight);
-                                return;
+                    if (details && details.length > 0) {
+                        const matchingDetail = details.find(sub => sub && isProgramMatching(sub.program, pName));
+                        if (matchingDetail) {
+                            spesifikSalur += Number(matchingDetail.amount) || 0;
+                        } else {
+                            const hasMainInDetails = details.some(sub => sub && isProgramMatching(sub.program, dbProg));
+                            if (!hasMainInDetails && isProgramMatching(dbProg, pName)) {
+                                spesifikSalur += fromProg;
                             }
                         }
-                        if (isProgramMatching(progPillar, pName)) {
-                            infakUmumAlihFungsiSalur += fromSub;
+                    } else {
+                        if (dbProg && isProgramMatching(dbProg, pName)) {
+                            spesifikSalur += fromProg;
+                        }
+
+                        if (fromSub > 0) {
+                            const dbPillar = db.pillar || mapProgramToPillar(db.program, db.category);
+                            
+                            if (dbPillar !== progPillar) {
+                                return;
+                            }
+
+                            if (isLockedPriorityProgram(pName)) {
+                                return;
+                            }
+
+                            const dbWilayah = db.wilayah || 'Pangkalpinang';
+                            const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get)
+                                ? (allocationRulesManager.get(dbWilayah) || ALLOCATION_RULES[dbWilayah])
+                                : ALLOCATION_RULES[dbWilayah];
+
+                            const subRule = wRules && wRules.subAllocation && wRules.subAllocation[progPillar];
+                            if (subRule && subRule.items && subRule.items.length > 0) {
+                                const subItem = subRule.items.find(si => isProgramMatching(si.key, pName));
+                                if (subItem) {
+                                    let subWeight = (Number(subItem.percent) || 0) / 100;
+                                    if (progPillar === 'Berkah Hidayah') {
+                                        const markazSub = subRule.items.find(si => isLockedPriorityProgram(si.key));
+                                        const markazPct = markazSub ? ((Number(markazSub.percent) || 0) / 100) : 0.05;
+                                        subWeight = subWeight / (1 - markazPct || 0.95);
+                                    }
+                                    infakUmumAlihFungsiSalur += Math.round(fromSub * subWeight);
+                                    return;
+                                }
+                            }
+                            if (isProgramMatching(progPillar, pName)) {
+                                infakUmumAlihFungsiSalur += fromSub;
+                            }
                         }
                     }
                 }
@@ -5979,7 +6016,7 @@
             const allDonations = getStore(STORAGE_KEYS.DONATIONS) || [];
             const myMonthDonations = allDonations.filter(d => {
                 if (!d || (d.status !== 'verified' && d.status !== 'success' && d.status !== 'sukses')) return false;
-                const dDate = d.createdAt || d.verifiedAt || d.date || '';
+                const dDate = d.tanggalTransaksi || d.tanggal_transaksi || d.createdAt || d.verifiedAt || d.date || '';
                 if (!dDate.startsWith(filterMonth)) return false;
 
                 const dRefId = String(d.referralId || d.referral_id || '').toLowerCase();
@@ -6233,7 +6270,7 @@
 
             const monthDonations = allDonations.filter(d => {
                 if (!d || (d.status !== 'verified' && d.status !== 'success' && d.status !== 'sukses')) return false;
-                const dDate = d.createdAt || d.verifiedAt || d.date || '';
+                const dDate = d.tanggalTransaksi || d.tanggal_transaksi || d.createdAt || d.verifiedAt || d.date || '';
                 return dDate.startsWith(filterMonth);
             });
 
@@ -6784,6 +6821,55 @@
         }
     }, 8000);
 
+    // Helper: Mask donor name for public privacy
+    function maskDonorName(name, isAnonymous = false) {
+        if (!name) return 'Hamba Allah';
+        const clean = String(name).trim();
+        if (isAnonymous || !clean || clean.toLowerCase() === 'hamba allah' || clean.toLowerCase() === 'anonim' || clean.toLowerCase() === 'anonymous') {
+            return 'Hamba Allah';
+        }
+        const parts = clean.split(/\s+/);
+        if (parts.length === 1) {
+            const first = parts[0];
+            if (first.length <= 2) return first + '***';
+            return first.slice(0, 2) + '*'.repeat(Math.min(first.length - 2, 4));
+        }
+        const firstName = parts[0];
+        const rest = parts.slice(1).map(w => {
+            if (w.length <= 1) return w + '***';
+            return w[0] + '***';
+        }).join(' ');
+        return `${firstName} ${rest}`;
+    }
+
+    // Helper: Get all specific programs belonging to the same pillar with active saldo
+    function getPillarPrograms(pillarOrProgram, targetWilayah = null) {
+        const pillar = (pillarOrProgram && pillarOrProgram.includes('Berkah')) 
+            ? pillarOrProgram 
+            : mapProgramToPillar(pillarOrProgram);
+        const allProgs = (typeof programs !== 'undefined' && programs.getAll) ? programs.getAll() : DEFAULT_PROGRAMS;
+        
+        const matching = [];
+        const seen = new Set();
+        allProgs.forEach(p => {
+            if (!p || !p.title) return;
+            const pPillar = p.pillar || mapProgramToPillar(p.title);
+            if (pPillar === pillar && !seen.has(p.title.toLowerCase())) {
+                seen.add(p.title.toLowerCase());
+                const stats = finance.getSpecificProgramStats(p.title, 0, p.targetAmount || 50000000, targetWilayah);
+                matching.push({
+                    id: p.id,
+                    title: p.title,
+                    pillar: pPillar,
+                    kategori_pilar: mapPillarToKategori(pPillar),
+                    saldo: stats ? stats.saldo : 0,
+                    saldoFormatted: formatRupiah(stats ? stats.saldo : 0)
+                });
+            }
+        });
+        return matching;
+    }
+
     // ─── Public API ───────────────────────────────────────
     window.wizStore = {
         donations,
@@ -6809,12 +6895,34 @@
         pushToCloud,
         fullBidirectionalSync,
         broadcastSync,
-        utils: { formatRupiah, formatRupiahCompact, formatDate, formatDateTime, timeAgo, generateId, generatePeriods, getCurrentPeriod, mapProgramToPillar, mapPillarToKategori, mapKategoriToPillar, getProgramPillarKey, getProgramKategoriPilar, escapeHtml, isLockedPriorityProgram, normalizeProgramKey, isProgramMatching }
+        utils: { 
+            formatRupiah, 
+            formatRupiahCompact, 
+            formatDate, 
+            formatDateTime, 
+            timeAgo, 
+            generateId, 
+            generatePeriods, 
+            getCurrentPeriod, 
+            mapProgramToPillar, 
+            mapPillarToKategori, 
+            mapKategoriToPillar, 
+            getProgramPillarKey, 
+            getProgramKategoriPilar, 
+            escapeHtml, 
+            isLockedPriorityProgram, 
+            normalizeProgramKey, 
+            isProgramMatching,
+            maskDonorName,
+            getPillarPrograms
+        }
     };
 
     if (typeof window !== 'undefined') {
         window.generatePeriods = generatePeriods;
         window.getCurrentPeriod = getCurrentPeriod;
+        window.maskDonorName = maskDonorName;
+        window.getPillarPrograms = getPillarPrograms;
     }
 
     console.log('[WIZ Store] Initialized with real-time cloud sync & 10s auto-polling. Collections ready.');

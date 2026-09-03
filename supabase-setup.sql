@@ -25,10 +25,14 @@ CREATE TABLE IF NOT EXISTS public.donations (
     referral_fee NUMERIC DEFAULT 0,
     notes TEXT,
     status TEXT DEFAULT 'pending',
+    tanggal_transaksi TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
     verified_at TIMESTAMP WITH TIME ZONE,
     verified_by TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- Migration safety for existing donations table
+ALTER TABLE public.donations ADD COLUMN IF NOT EXISTS tanggal_transaksi TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now());
 
 -- 2. Table: News / Berita
 CREATE TABLE IF NOT EXISTS public.news (
@@ -85,11 +89,17 @@ CREATE TABLE IF NOT EXISTS public.disbursements (
     amount NUMERIC NOT NULL,
     amount_from_program NUMERIC DEFAULT 0,
     amount_from_subsidi NUMERIC DEFAULT 0,
+    subsidi_details JSONB DEFAULT '[]'::jsonb,
     description TEXT,
+    tanggal_penyaluran TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
     disbursed_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     recorded_by TEXT DEFAULT 'Admin',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- Migration safety for existing disbursements table
+ALTER TABLE public.disbursements ADD COLUMN IF NOT EXISTS tanggal_penyaluran TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now());
+ALTER TABLE public.disbursements ADD COLUMN IF NOT EXISTS subsidi_details JSONB DEFAULT '[]'::jsonb;
 
 -- 6. Table: Site Settings & Master State
 CREATE TABLE IF NOT EXISTS public.site_settings (

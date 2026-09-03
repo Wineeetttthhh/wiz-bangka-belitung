@@ -193,7 +193,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                                     <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">${d.wilayah || 'Pangkalpinang'}</span>
                                 </div>
                                 <p class="font-body-md text-on-surface font-semibold">${d.description}</p>
-                                <p class="font-caption text-caption text-on-surface-variant">${wizStore.utils.formatDate(d.disbursedAt)}</p>
+                                <p class="font-caption text-caption text-on-surface-variant">${wizStore.utils.formatDate(d.tanggalPenyaluran || d.tanggal_penyaluran || d.disbursedAt)}</p>
                             </div>
                             <div class="font-headline-md text-headline-md text-tertiary-container font-bold shrink-0">
                                 ${fmt(d.amount)}

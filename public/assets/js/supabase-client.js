@@ -240,6 +240,8 @@ const SUPABASE_CONFIG = {
             const verifiedAtVal = data.verified_at || data.verifiedAt || (statusVal === 'verified' ? new Date().toISOString() : null);
             const verifiedByVal = data.verified_by || data.verifiedBy || (statusVal === 'verified' ? 'Admin' : null);
 
+            const tanggalTransaksiVal = data.tanggal_transaksi || data.tanggalTransaksi || data.created_at || data.createdAt || new Date().toISOString();
+
             const payload = {
                 id: String(data.id || generateUUID()),
                 donor_name: String(data.donor_name || data.donorName || 'Hamba Allah'),
@@ -261,24 +263,40 @@ const SUPABASE_CONFIG = {
                 referral_fee: data.referralFee !== undefined ? Number(data.referralFee) : (data.referral_fee !== undefined ? Number(data.referral_fee) : 0),
                 notes: finalNotes,
                 status: String(statusVal),
+                tanggal_transaksi: tanggalTransaksiVal,
                 verified_at: verifiedAtVal,
                 verified_by: verifiedByVal,
                 created_at: data.created_at || data.createdAt || new Date().toISOString()
             };
-            return await upsert('donations', payload);
+            let res = await upsert('donations', payload);
+            if (res.error && (String(res.error).includes('tanggal_transaksi') || (res.error.message && String(res.error.message).includes('tanggal_transaksi')))) {
+                delete payload.tanggal_transaksi;
+                res = await upsert('donations', payload);
+            }
+            return res;
         },
         getAllDonations: async () => {
-            const res = await select('donations', {
-                order: 'created_at.desc'
+            let res = await select('donations', {
+                order: 'tanggal_transaksi.desc.nullslast,created_at.desc'
             });
+            if (res.error && (String(res.error).includes('does not exist') || (res.error.message && String(res.error.message).includes('does not exist')))) {
+                res = await select('donations', { order: 'created_at.desc' });
+            }
             return res;
         },
         getRecentVerifiedDonations: async (limit = 10) => {
-            const res = await select('donations', {
+            let res = await select('donations', {
                 filter: 'status=eq.verified',
-                order: 'created_at.desc',
+                order: 'tanggal_transaksi.desc.nullslast,created_at.desc',
                 limit: limit
             });
+            if (res.error && (String(res.error).includes('does not exist') || (res.error.message && String(res.error.message).includes('does not exist')))) {
+                res = await select('donations', {
+                    filter: 'status=eq.verified',
+                    order: 'created_at.desc',
+                    limit: limit
+                });
+            }
             if (res.error || !Array.isArray(res.data)) return res;
             const mapped = res.data.map(d => ({
                 id: d.id,
@@ -291,6 +309,8 @@ const SUPABASE_CONFIG = {
                 amount: Number(d.amount) || 0,
                 method: d.payment_method,
                 status: 'verified',
+                tanggalTransaksi: d.tanggal_transaksi || d.created_at,
+                tanggal_transaksi: d.tanggal_transaksi || d.created_at,
                 createdAt: d.created_at
             }));
             return { data: mapped, error: null };
@@ -522,14 +542,27 @@ const SUPABASE_CONFIG = {
                 amount_from_program: fromProg,
                 amount_from_subsidi: fromSub,
                 description: fullDesc,
+                tanggal_penyaluran: disb.tanggal_penyaluran || disb.tanggalPenyaluran || disb.disbursed_at || disb.disbursedAt || new Date().toISOString(),
+                subsidi_details: disb.subsidi_details || disb.subsidiDetails || [],
                 disbursed_at: disb.disbursed_at || disb.disbursedAt || new Date().toISOString(),
                 recorded_by: String(disb.recorded_by || disb.recordedBy || 'Admin'),
                 created_at: disb.created_at || disb.createdAt || new Date().toISOString()
             };
-            return await upsert('disbursements', payload);
+            let res = await upsert('disbursements', payload);
+            if (res.error && (String(res.error).includes('tanggal_penyaluran') || String(res.error).includes('subsidi_details') || (res.error.message && (String(res.error.message).includes('tanggal_penyaluran') || String(res.error.message).includes('subsidi_details'))))) {
+                delete payload.tanggal_penyaluran;
+                delete payload.subsidi_details;
+                delete payload.amount_from_program;
+                delete payload.amount_from_subsidi;
+                res = await upsert('disbursements', payload);
+            }
+            return res;
         },
         getDisbursements: async () => {
-            const res = await select('disbursements', { order: 'disbursed_at.desc' });
+            let res = await select('disbursements', { order: 'tanggal_penyaluran.desc.nullslast,disbursed_at.desc' });
+            if (res.error && (String(res.error).includes('does not exist') || (res.error.message && String(res.error.message).includes('does not exist')))) {
+                res = await select('disbursements', { order: 'disbursed_at.desc' });
+            }
             if (res.error || !Array.isArray(res.data)) return res;
             const mapped = res.data.map(d => {
                 let sType = d.source_type || 'program_spesifik';
@@ -568,13 +601,34 @@ const SUPABASE_CONFIG = {
                     amount: Number(d.amount) || 0,
                     amountFromProgram: fromProg,
                     amountFromSubsidi: fromSub,
+                    subsidiDetails: d.subsidi_details || [],
+                    subsidi_details: d.subsidi_details || [],
                     description: cleanDesc,
+                    tanggalPenyaluran: d.tanggal_penyaluran || d.disbursed_at,
+                    tanggal_penyaluran: d.tanggal_penyaluran || d.disbursed_at,
                     disbursedAt: d.disbursed_at,
                     recordedBy: d.recorded_by || 'Admin',
                     createdAt: d.created_at
                 };
             });
             return { data: mapped, error: null };
+        },
+        getPublicTransparencyFeed: async (limit = 10) => {
+            const [donRes, disbRes] = await Promise.all([
+                select('donations', {
+                    filter: 'status=eq.verified',
+                    order: 'tanggal_transaksi.desc.nullslast,created_at.desc',
+                    limit
+                }).catch(() => ({ data: [], error: true })),
+                select('disbursements', {
+                    order: 'tanggal_penyaluran.desc.nullslast,disbursed_at.desc',
+                    limit
+                }).catch(() => ({ data: [], error: true }))
+            ]);
+            return {
+                donations: Array.isArray(donRes.data) ? donRes.data : [],
+                disbursements: Array.isArray(disbRes.data) ? disbRes.data : []
+            };
         },
         saveReferralPayout: (data) => upsert('referral_payouts', data),
         saveContactMessage: (data) => insert('contact_messages', data),
