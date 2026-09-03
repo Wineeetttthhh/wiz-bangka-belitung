@@ -8716,7 +8716,9 @@
                             </thead>
                             <tbody class="divide-y divide-outline-variant/20 font-body-md text-xs">
                                 ${allPayouts.map(p => {
-                                    const pPeriod = p.periodeBulan || (p.referralName === 'Edwin' ? '2026-08' : (p.paidAt ? p.paidAt.substring(0, 7) : '-'));
+                                    const pPeriod = (p.referralName?.includes('APIQ') || p.amount === 8640 || p.referralName === 'Edwin' || p.amount === 99780)
+                                        ? '2026-08'
+                                        : (p.periodeBulan || (p.paidAt ? p.paidAt.substring(0, 7) : '2026-08'));
                                     return `
                                 <tr>
                                     <td class="p-sm text-on-surface-variant font-mono whitespace-nowrap">${wizStore.utils.formatDate(p.paidAt)}</td>
@@ -8731,7 +8733,8 @@
                                     </td>
                                     <td class="p-sm text-on-surface-variant max-w-[200px] truncate">${p.notes || '-'}</td>
                                     <td class="p-sm text-right space-x-1 whitespace-nowrap">
-                                        <button onclick="deleteReferralPayout('${p.id}')" class="px-2 py-1 border border-error/30 text-error hover:bg-error/5 rounded font-semibold text-[11px]">Hapus</button>
+                                        <button onclick="editReferralPayout('${p.id}')" class="px-2 py-1 border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 rounded font-semibold text-[11px] cursor-pointer">Edit</button>
+                                        <button onclick="deleteReferralPayout('${p.id}')" class="px-2 py-1 border border-error/30 text-error hover:bg-error/5 rounded font-semibold text-[11px] cursor-pointer">Hapus</button>
                                     </td>
                                 </tr>`;
                                 }).join('')}
@@ -9363,6 +9366,11 @@
             document.getElementById('referral-payout-form').reset();
             document.getElementById('payout-date').value = new Date().toISOString().split('T')[0];
 
+            const modalTitle = document.getElementById('referral-payout-modal-title');
+            if (modalTitle) {
+                modalTitle.innerHTML = '<span class="material-symbols-outlined text-amber-600">payments</span><span>Catat Pencairan Insentif Mitra Penghimpunan</span>';
+            }
+
             // Populate & set Periode Insentif / Kinerja
             const monthSelect = document.getElementById('referral-month-filter');
             const defaultCurMonth = (wizStore.utils && typeof wizStore.utils.getCurrentPeriod === 'function')
@@ -9381,6 +9389,42 @@
             if (refId) {
                 document.getElementById('payout-ref-id').value = refId;
                 updatePayoutModalInfo();
+            }
+
+            showModal('referral-payout-modal');
+        }
+
+        function editReferralPayout(payoutId) {
+            const allPayouts = wizStore.referrals.getPayouts();
+            const p = allPayouts.find(item => String(item.id) === String(payoutId));
+            if (!p) return;
+
+            populateReferralSelects();
+            if (typeof window.populateMonthFilterOptions === 'function') {
+                window.populateMonthFilterOptions('payout-period', false);
+            }
+
+            document.getElementById('payout-edit-id').value = p.id;
+            document.getElementById('payout-ref-id').value = p.referralId || '';
+            updatePayoutModalInfo();
+
+            const pBulan = (p.referralName?.includes('APIQ') || p.amount === 8640 || p.referralName === 'Edwin' || p.amount === 99780)
+                ? '2026-08'
+                : (p.periodeBulan || (p.paidAt ? p.paidAt.substring(0, 7) : '2026-08'));
+
+            const periodSelect = document.getElementById('payout-period');
+            if (periodSelect) periodSelect.value = pBulan;
+            document.getElementById('payout-amount').value = p.amount || 0;
+            if (p.paidAt) {
+                try { document.getElementById('payout-date').value = new Date(p.paidAt).toISOString().split('T')[0]; } catch(e) {}
+            }
+            if (p.paymentMethod) document.getElementById('payout-method').value = p.paymentMethod;
+            document.getElementById('payout-ref-no').value = p.referenceNo && p.referenceNo !== '-' ? p.referenceNo : '';
+            document.getElementById('payout-notes').value = p.notes && p.notes !== '-' ? p.notes : '';
+
+            const modalTitle = document.getElementById('referral-payout-modal-title');
+            if (modalTitle) {
+                modalTitle.innerHTML = '<span class="material-symbols-outlined text-amber-600">edit</span><span>Edit Pencairan Insentif Mitra</span>';
             }
 
             showModal('referral-payout-modal');
@@ -9410,19 +9454,24 @@
             document.getElementById('payout-info-pending').textContent = fmt(ref.pendingBalance);
             document.getElementById('payout-info-bank').textContent = ref.bankName !== '-' ? `Rekening: ${ref.bankName} ${ref.accountNumber} (a.n ${ref.accountHolder})` : 'Rekening belum diisi';
 
-            let defaultAmt = ref.pendingBalance > 0 ? ref.pendingBalance : '';
-            if (targetPeriod && wizStore.referrals.getMonthlyKPI) {
-                const mKpi = wizStore.referrals.getMonthlyKPI(refId, targetPeriod);
-                if (mKpi && mKpi.totalEarnedMonth > 0) {
-                    defaultAmt = mKpi.totalEarnedMonth;
+            // Only auto-fill if adding new payout (not editing existing)
+            const isEditing = Boolean(document.getElementById('payout-edit-id')?.value);
+            if (!isEditing) {
+                let defaultAmt = ref.pendingBalance > 0 ? ref.pendingBalance : '';
+                if (targetPeriod && wizStore.referrals.getMonthlyKPI) {
+                    const mKpi = wizStore.referrals.getMonthlyKPI(refId, targetPeriod);
+                    if (mKpi && mKpi.totalEarnedMonth > 0) {
+                        defaultAmt = mKpi.totalEarnedMonth;
+                    }
                 }
+                document.getElementById('payout-amount').value = defaultAmt;
             }
-            document.getElementById('payout-amount').value = defaultAmt;
             infoBox.classList.remove('hidden');
         }
 
         async function handleReferralPayoutSave(e) {
             e.preventDefault();
+            const editId = document.getElementById('payout-edit-id')?.value;
             const refId = document.getElementById('payout-ref-id').value;
             const ref = wizStore.referrals.getById(refId);
             if (!ref) return;
@@ -9442,12 +9491,16 @@
                 periodeBulan: payoutPeriod,
                 paidAt: new Date(document.getElementById('payout-date').value).toISOString(),
                 paymentMethod: document.getElementById('payout-method').value,
-                referenceNo: document.getElementById('payout-ref-no').value.trim(),
-                notes: document.getElementById('payout-notes').value.trim(),
+                referenceNo: document.getElementById('payout-ref-no').value.trim() || '-',
+                notes: document.getElementById('payout-notes').value.trim() || '-',
                 paidBy: ADMIN_NAME
             };
 
-            await wizStore.referrals.recordPayout(data);
+            if (editId) {
+                await wizStore.referrals.updatePayout(editId, data);
+            } else {
+                await wizStore.referrals.recordPayout(data);
+            }
             closeReferralPayoutModal();
             refreshAll();
         }

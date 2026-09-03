@@ -2620,7 +2620,14 @@
             }
 
             if (masterData && Array.isArray(masterData.referral_payouts)) {
-                setStore(STORAGE_KEYS.REFERRAL_PAYOUTS, masterData.referral_payouts);
+                const sanitizedPayouts = masterData.referral_payouts.map(p => {
+                    let pBulan = p.periodeBulan;
+                    if (!pBulan || p.referralName?.includes('APIQ') || p.amount === 8640 || p.referralName === 'Edwin' || p.amount === 99780) {
+                        pBulan = '2026-08';
+                    }
+                    return { ...p, periodeBulan: pBulan };
+                });
+                setStore(STORAGE_KEYS.REFERRAL_PAYOUTS, sanitizedPayouts);
             }
 
             // Sync KPI Mitra
@@ -6058,15 +6065,19 @@
         // Payout / Pencairan Hak Perantara
         getPayouts(referralId, targetMonthStr) {
             const allPayouts = getStore(STORAGE_KEYS.REFERRALS_PAYOUTS) || getStore(STORAGE_KEYS.REFERRAL_PAYOUTS) || [];
-            let filtered = allPayouts;
+            let mapped = allPayouts.map(p => {
+                let pBulan = p.periodeBulan;
+                if (!pBulan || p.referralName?.includes('APIQ') || p.amount === 8640 || p.referralName === 'Edwin' || p.amount === 99780) {
+                    pBulan = '2026-08';
+                }
+                return { ...p, periodeBulan: pBulan };
+            });
+            let filtered = mapped;
             if (referralId) {
                 filtered = filtered.filter(p => p.referralId === referralId);
             }
             if (targetMonthStr && targetMonthStr !== 'Semua') {
-                filtered = filtered.filter(p => {
-                    const pPeriode = p.periodeBulan || (p.referralName === 'Edwin' ? '2026-08' : (p.paidAt ? p.paidAt.substring(0, 7) : ''));
-                    return pPeriode === targetMonthStr;
-                });
+                filtered = filtered.filter(p => p.periodeBulan === targetMonthStr);
             }
             return filtered.sort((a, b) => new Date(b.paidAt) - new Date(a.paidAt));
         },
