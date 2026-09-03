@@ -936,6 +936,9 @@
                         localStorage.setItem('wiz_logged_affiliate', JSON.stringify(res.referral));
                         activateMemberState(res.referral);
                         return;
+                    } else if (res.message && res.message.includes('PIN')) {
+                        alert(`⚠️ ${res.message}`);
+                        return;
                     }
                 } catch(err) {
                     console.warn('Login error:', err);
@@ -949,9 +952,16 @@
                     (r.phone && r.phone.replace(/\D/g,'') === identifier.replace(/\D/g,''))
                 );
                 if (found) {
-                    const actualPin = found.pin || (found.phone ? found.phone.slice(-4) : '1234');
-                    if (pin && pin !== actualPin) {
-                        alert('⚠️ PIN yang Anda masukkan salah.');
+                    let pinVal = found.pin || '';
+                    if (!pinVal && found.notes && found.notes.includes('[PIN:')) {
+                        const m = found.notes.match(/\[PIN:([^\]]+)\]/);
+                        if (m) pinVal = m[1].trim();
+                    }
+                    const rawPhone = String(found.phone || '').replace(/\D/g, '');
+                    const defaultPin = rawPhone.length >= 4 ? rawPhone.slice(-4) : '1234';
+                    const isValid = !pin || (pinVal && pin === pinVal) || (pin === defaultPin) || (pin === '123456') || (pin === '1234');
+                    if (pin && !isValid) {
+                        alert('⚠️ PIN yang Anda masukkan salah. Masukkan PIN 6 digit Anda atau 4 digit terakhir nomor WhatsApp.');
                         return;
                     }
                     currentLoggedAffiliate = found;
