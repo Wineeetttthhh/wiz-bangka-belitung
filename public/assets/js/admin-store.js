@@ -2646,6 +2646,11 @@
             const authoritativeSettings = directSbSettings || (masterData && masterData.site_settings ? (masterData.site_settings.value || masterData.site_settings) : null);
             if (authoritativeSettings && typeof authoritativeSettings === 'object') {
                 const mergedSettings = { ...DEFAULT_SITE_SETTINGS, ...authoritativeSettings };
+                if (authoritativeSettings.kpi_pool_overrides && typeof authoritativeSettings.kpi_pool_overrides === 'object') {
+                    try {
+                        localStorage.setItem('wiz_kpi_pool_overrides', JSON.stringify(authoritativeSettings.kpi_pool_overrides));
+                    } catch(e) {}
+                }
                 setStore(STORAGE_KEYS.SITE_SETTINGS, mergedSettings);
                 window.dispatchEvent(new CustomEvent('wiz-site-settings-changed', { detail: mergedSettings }));
                 if (typeof window.applySiteSettings === 'function') {
@@ -5535,6 +5540,29 @@
         }
     };
 
+    // Helper: Mendapatkan nilai override Brankas Wilayah (baik otomatis dari donasi atau hasil edit manual)
+    function getEffectivePoolOverrides(filterMonth, overrides) {
+        if (overrides && (overrides.overridePoolPkp !== undefined || overrides.overridePoolSungailiat !== undefined)) {
+            return {
+                overridePoolPkp: (overrides.overridePoolPkp !== undefined && overrides.overridePoolPkp !== null && overrides.overridePoolPkp !== '') ? Number(overrides.overridePoolPkp) : null,
+                overridePoolSungailiat: (overrides.overridePoolSungailiat !== undefined && overrides.overridePoolSungailiat !== null && overrides.overridePoolSungailiat !== '') ? Number(overrides.overridePoolSungailiat) : null
+            };
+        }
+        if (typeof localStorage !== 'undefined') {
+            try {
+                const allOvr = JSON.parse(localStorage.getItem('wiz_kpi_pool_overrides') || '{}');
+                const p = allOvr ? allOvr[filterMonth] : null;
+                if (p) {
+                    return {
+                        overridePoolPkp: (p.overridePoolPkp !== undefined && p.overridePoolPkp !== null && p.overridePoolPkp !== '') ? Number(p.overridePoolPkp) : null,
+                        overridePoolSungailiat: (p.overridePoolSungailiat !== undefined && p.overridePoolSungailiat !== null && p.overridePoolSungailiat !== '') ? Number(p.overridePoolSungailiat) : null
+                    };
+                }
+            } catch(e) {}
+        }
+        return { overridePoolPkp: null, overridePoolSungailiat: null };
+    }
+
     // ─── Referrals (Hak 6% Perantara) Module ────────────────
     const referrals = {
         getAll() {
@@ -5936,6 +5964,9 @@
                 filterMonth = getCurrentPeriod();
             }
 
+            // Resolve effective overrides (from parameter or storage)
+            const effOverrides = getEffectivePoolOverrides(filterMonth, overrides);
+
             const ref = this.getById(mitraId) || this.getByCode(mitraId);
             const mCabang = ref ? (ref.cabang || 'Pangkalpinang') : 'Pangkalpinang';
             const cleanId = String((ref ? ref.id : mitraId) || '').toLowerCase();
@@ -5969,9 +6000,9 @@
                 : null;
             const kpiPoints = kpiRecord ? Number(kpiRecord.totalPoin || kpiRecord.total_poin || 0) : 0;
 
-            // 3. Pool Wilayah calculation
+            // 3. Pool Wilayah calculation (Menggunakan Brankas Wilayah aktif: otomatis atau diedit manual)
             const poolSummary = (typeof kpiMitra !== 'undefined' && kpiMitra.getPoolSummary)
-                ? kpiMitra.getPoolSummary(filterMonth, overrides)
+                ? kpiMitra.getPoolSummary(filterMonth, effOverrides)
                 : { totalGlobalPoints: 0, totalPoolWilayah: 0 };
             const totalGlobalPoints = poolSummary.totalGlobalPoints || 0;
             const totalPoolWilayah = poolSummary.totalPoolWilayah || 0;
@@ -6200,6 +6231,9 @@
                 filterMonth = getCurrentPeriod();
             }
 
+            // Resolve effective overrides (from parameter or storage)
+            const effOverrides = getEffectivePoolOverrides(filterMonth, overrides);
+
             // 1. Fetch all verified donations for this month
             const allDonations = getStore(STORAGE_KEYS.DONATIONS) || [];
             const allRefs = getStore(STORAGE_KEYS.REFERRALS) || [];
@@ -6239,11 +6273,11 @@
             const rawPoolPKP = Math.round(sumPKP * 0.07);
             const rawPoolSungailiat = Math.round(sumSungailiat * 0.08);
 
-            const overridePkp = (overrides && overrides.overridePoolPkp !== undefined && overrides.overridePoolPkp !== null && overrides.overridePoolPkp !== '')
-                ? Math.max(0, Number(overrides.overridePoolPkp))
+            const overridePkp = (effOverrides && effOverrides.overridePoolPkp !== undefined && effOverrides.overridePoolPkp !== null && effOverrides.overridePoolPkp !== '')
+                ? Math.max(0, Number(effOverrides.overridePoolPkp))
                 : null;
-            const overrideSungailiat = (overrides && overrides.overridePoolSungailiat !== undefined && overrides.overridePoolSungailiat !== null && overrides.overridePoolSungailiat !== '')
-                ? Math.max(0, Number(overrides.overridePoolSungailiat))
+            const overrideSungailiat = (effOverrides && effOverrides.overridePoolSungailiat !== undefined && effOverrides.overridePoolSungailiat !== null && effOverrides.overridePoolSungailiat !== '')
+                ? Math.max(0, Number(effOverrides.overridePoolSungailiat))
                 : null;
 
             const final_pool_pkp = overridePkp !== null ? overridePkp : rawPoolPKP;

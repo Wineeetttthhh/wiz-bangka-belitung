@@ -2059,10 +2059,10 @@
                         placeholder="Rincian penyaluran, lokasi penerima manfaat, dll..."></textarea>
                 </div>
 
-                <!-- 6. Tanggal Penyaluran -->
+                <!-- 6. Tanggal & Waktu Penyaluran -->
                 <div>
-                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Tanggal Penyaluran *</label>
-                    <input type="date" id="disb-date" required
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Tanggal &amp; Waktu Penyaluran *</label>
+                    <input type="datetime-local" id="disb-date" required
                         class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
                 </div>
                 <div class="flex gap-md pt-sm">
@@ -5595,12 +5595,15 @@
 
             const formatDateSafe = (dateStr) => {
                 try {
+                    if (window.wizStore && wizStore.utils && typeof wizStore.utils.formatDateTime === 'function') {
+                        return wizStore.utils.formatDateTime(dateStr);
+                    }
                     if (window.wizStore && wizStore.utils && typeof wizStore.utils.formatDate === 'function') {
                         return wizStore.utils.formatDate(dateStr);
                     }
-                    return (dateStr || '').substring(0, 10);
+                    return (dateStr || '').substring(0, 16);
                 } catch(e) {
-                    return (dateStr || '').substring(0, 10);
+                    return (dateStr || '').substring(0, 16);
                 }
             };
 
@@ -5651,7 +5654,7 @@
 
             container.innerHTML = `<table class="w-full text-left border-collapse">
             <thead><tr class="bg-surface-container-low border-b border-outline-variant/30 font-label-md text-label-md text-on-surface-variant">
-                <th class="p-md">Tanggal</th>
+                <th class="p-md">Tanggal &amp; Waktu</th>
                 <th class="p-md text-center">Wilayah</th>
                 <th class="p-md">Sumber &amp; Program</th>
                 <th class="p-md">Jumlah</th>
@@ -6183,14 +6186,16 @@
                     }
                     if (typeof handleDisbProgramSelect === 'function') handleDisbProgramSelect('');
                     
-                    // Default tanggal hari ini untuk penyaluran baru
+                    // Default tanggal & jam saat ini untuk penyaluran baru
                     const disbDateEl = document.getElementById('disb-date');
                     if (disbDateEl) {
-                        const today = new Date();
-                        const yyyy = today.getFullYear();
-                        const mm = String(today.getMonth() + 1).padStart(2, '0');
-                        const dd = String(today.getDate()).padStart(2, '0');
-                        disbDateEl.value = `${yyyy}-${mm}-${dd}`;
+                        const now = new Date();
+                        const yyyy = now.getFullYear();
+                        const mm = String(now.getMonth() + 1).padStart(2, '0');
+                        const dd = String(now.getDate()).padStart(2, '0');
+                        const hh = String(now.getHours()).padStart(2, '0');
+                        const min = String(now.getMinutes()).padStart(2, '0');
+                        disbDateEl.value = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
                     }
 
                     const rowsContainer = document.getElementById('disb-subsidi-rows');
@@ -6306,7 +6311,11 @@
             const disbDateVal = document.getElementById('disb-date')?.value;
             let tanggalPenyaluran = new Date().toISOString();
             if (disbDateVal) {
-                try { tanggalPenyaluran = new Date(disbDateVal + 'T12:00:00.000Z').toISOString(); } catch(e) {}
+                try { 
+                    tanggalPenyaluran = new Date(disbDateVal).toISOString(); 
+                } catch(e) {
+                    tanggalPenyaluran = new Date().toISOString();
+                }
             }
 
             const data = {
@@ -6377,7 +6386,15 @@
             if (disbDateEl) {
                 const rawDate = item.tanggalPenyaluran || item.tanggal_penyaluran || item.disbursedAt;
                 if (rawDate) {
-                    try { disbDateEl.value = new Date(rawDate).toISOString().split('T')[0]; } catch(e) {}
+                    try {
+                        const dObj = new Date(rawDate);
+                        const yyyy = dObj.getFullYear();
+                        const mm = String(dObj.getMonth() + 1).padStart(2, '0');
+                        const dd = String(dObj.getDate()).padStart(2, '0');
+                        const hh = String(dObj.getHours()).padStart(2, '0');
+                        const min = String(dObj.getMinutes()).padStart(2, '0');
+                        disbDateEl.value = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+                    } catch(e) {}
                 }
             }
 
@@ -8343,6 +8360,11 @@
                 all[period] = all[period] || { overridePoolPkp: null, overridePoolSungailiat: null };
                 all[period][key] = (value !== null && value !== undefined && value !== '') ? Math.max(0, Number(value)) : null;
                 localStorage.setItem('wiz_kpi_pool_overrides', JSON.stringify(all));
+
+                // Sinkronkan ke Supabase site_settings agar tersimpan permanen
+                if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                    window.wizSupabase.upsertSiteSetting('kpi_pool_overrides', all).catch(() => {});
+                }
             } catch(e) {
                 console.warn('[Pool Override Storage Error]', e);
             }
@@ -8559,7 +8581,7 @@
                             </thead>
                             <tbody class="divide-y divide-outline-variant/20 font-body-md text-xs">
                                 ${filteredRefs.map(r => {
-                                    const mKpi = wizStore.referrals.getMonthlyKPI(r.id, selectedMonth) || {};
+                                    const mKpi = wizStore.referrals.getMonthlyKPI(r.id, selectedMonth, overrides) || {};
                                     const tierBadge = mKpi.tierClass ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${mKpi.tierClass}">${mKpi.performanceTier}</span>` : '';
                                     const kpiRecord = mKpi.kpiRecord;
                                     const kpiPoints = mKpi.kpiPoints || 0;
