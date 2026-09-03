@@ -248,8 +248,9 @@ const server = http.createServer((req, res) => {
                     injected = injected.replace('<head>', `<head>\n${TAILWIND_TAG}`);
                 }
                 // Inject live reload script before </body>
-                if (injected.includes('</body>')) {
-                    injected = injected.replace('</body>', `${LIVE_RELOAD_SCRIPT}\n</body>`);
+                const lastBodyIdx = injected.lastIndexOf('</body>');
+                if (lastBodyIdx !== -1) {
+                    injected = injected.slice(0, lastBodyIdx) + LIVE_RELOAD_SCRIPT + '\n' + injected.slice(lastBodyIdx);
                 } else {
                     injected += LIVE_RELOAD_SCRIPT;
                 }

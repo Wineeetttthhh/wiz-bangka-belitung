@@ -370,54 +370,167 @@ const SUPABASE_CONFIG = {
             if (!data || (!data.mitra_id && !data.mitraId) || (!data.periode_bulan && !data.periodeBulan)) {
                 return { data: null, error: 'Mitra ID dan Periode Bulan wajib diisi' };
             }
+            const isUUID = (str) => typeof str === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str);
+            const mId = String(data.mitra_id || data.mitraId).trim();
+            const pMonth = String(data.periode_bulan || data.periodeBulan).trim();
+
             const payload = {
-                id: data.id || generateUUID(),
-                mitra_id: String(data.mitra_id || data.mitraId),
-                periode_bulan: String(data.periode_bulan || data.periodeBulan),
+                id: (data.id && isUUID(data.id)) ? data.id : generateUUID(),
+                mitra_id: mId,
+                mitraId: mId,
+                periode_bulan: pMonth,
+                periodeBulan: pMonth,
                 qty_rapat: Number(data.qty_rapat !== undefined ? data.qty_rapat : (data.qtyRapat || 0)),
+                qtyRapat: Number(data.qty_rapat !== undefined ? data.qty_rapat : (data.qtyRapat || 0)),
                 qty_admin: Number(data.qty_admin !== undefined ? data.qty_admin : (data.qtyAdmin || 0)),
+                qtyAdmin: Number(data.qty_admin !== undefined ? data.qty_admin : (data.qtyAdmin || 0)),
                 qty_desain: Number(data.qty_desain !== undefined ? data.qty_desain : (data.qtyDesain || 0)),
+                qtyDesain: Number(data.qty_desain !== undefined ? data.qty_desain : (data.qtyDesain || 0)),
                 qty_video: Number(data.qty_video !== undefined ? data.qty_video : (data.qtyVideo || 0)),
+                qtyVideo: Number(data.qty_video !== undefined ? data.qty_video : (data.qtyVideo || 0)),
                 qty_lapangan: Number(data.qty_lapangan !== undefined ? data.qty_lapangan : (data.qtyLapangan || 0)),
+                qtyLapangan: Number(data.qty_lapangan !== undefined ? data.qty_lapangan : (data.qtyLapangan || 0)),
                 keterangan_lainnya: data.keterangan_lainnya !== undefined ? (data.keterangan_lainnya || '') : (data.keteranganLainnya || ''),
+                keteranganLainnya: data.keterangan_lainnya !== undefined ? (data.keterangan_lainnya || '') : (data.keteranganLainnya || ''),
                 poin_lainnya: Number(data.poin_lainnya !== undefined ? data.poin_lainnya : (data.poinLainnya || 0)),
+                poinLainnya: Number(data.poin_lainnya !== undefined ? data.poin_lainnya : (data.poinLainnya || 0)),
                 total_poin: Number(data.total_poin !== undefined ? data.total_poin : (data.totalPoin || 0)),
+                totalPoin: Number(data.total_poin !== undefined ? data.total_poin : (data.totalPoin || 0)),
                 created_at: data.created_at || data.createdAt || new Date().toISOString(),
-                updated_at: new Date().toISOString()
+                createdAt: data.created_at || data.createdAt || new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
             };
-            return await upsert('kpi_mitra', payload);
+
+            let tableRes = null;
+            try {
+                const dbPayload = {
+                    id: payload.id,
+                    mitra_id: payload.mitra_id,
+                    periode_bulan: payload.periode_bulan,
+                    qty_rapat: payload.qty_rapat,
+                    qty_admin: payload.qty_admin,
+                    qty_desain: payload.qty_desain,
+                    qty_video: payload.qty_video,
+                    qty_lapangan: payload.qty_lapangan,
+                    keterangan_lainnya: payload.keterangan_lainnya,
+                    poin_lainnya: payload.poin_lainnya,
+                    total_poin: payload.total_poin,
+                    updated_at: payload.updated_at
+                };
+                tableRes = await upsert('kpi_mitra', dbPayload, 'mitra_id,periode_bulan');
+            } catch(e) {
+                console.warn('[saveKpiMitra table upsert exception]', e);
+            }
+
+            // Persistence Guarantee: Always sync into Supabase site_settings (key: 'kpi_mitra' and master_bundle)
+            try {
+                const ssRes = await select('site_settings', { filter: 'key=in.(kpi_mitra,master_bundle)' });
+                let existingList = [];
+                let mbDoc = null;
+                if (ssRes && Array.isArray(ssRes.data)) {
+                    const kpiDoc = ssRes.data.find(d => d.key === 'kpi_mitra');
+                    mbDoc = ssRes.data.find(d => d.key === 'master_bundle');
+                    if (kpiDoc && Array.isArray(kpiDoc.value)) {
+                        existingList = kpiDoc.value;
+                    } else if (mbDoc && mbDoc.value && Array.isArray(mbDoc.value.kpi_mitra)) {
+                        existingList = mbDoc.value.kpi_mitra;
+                    }
+                }
+
+                const cleanMid = payload.mitra_id.toLowerCase();
+                const idx = existingList.findIndex(k => 
+                    String(k.mitra_id || k.mitraId).toLowerCase() === cleanMid &&
+                    String(k.periode_bulan || k.periodeBulan) === payload.periode_bulan
+                );
+
+                if (idx !== -1) {
+                    existingList[idx] = { ...existingList[idx], ...payload };
+                } else {
+                    existingList.push(payload);
+                }
+
+                await upsert('site_settings', {
+                    key: 'kpi_mitra',
+                    value: existingList,
+                    updated_at: new Date().toISOString()
+                });
+
+                if (mbDoc && mbDoc.value && typeof mbDoc.value === 'object') {
+                    mbDoc.value.kpi_mitra = existingList;
+                    await upsert('site_settings', {
+                        key: 'master_bundle',
+                        value: mbDoc.value,
+                        updated_at: new Date().toISOString()
+                    });
+                }
+            } catch(errSs) {
+                console.warn('[saveKpiMitra site_settings sync exception]', errSs);
+            }
+
+            if (tableRes && tableRes.data) {
+                return { data: { ...payload, ...tableRes.data }, error: null };
+            }
+            return { data: payload, error: null };
         },
         getKpiMitra: async (periodeBulan = null) => {
-            const opts = { order: 'created_at.desc' };
-            if (periodeBulan && periodeBulan !== 'Semua') {
-                opts.filter = `periode_bulan=eq.${periodeBulan}`;
+            let list = null;
+            try {
+                const opts = { order: 'created_at.desc' };
+                if (periodeBulan && periodeBulan !== 'Semua') {
+                    opts.filter = `periode_bulan=eq.${periodeBulan}`;
+                }
+                const res = await select('kpi_mitra', opts);
+                if (res && !res.error && Array.isArray(res.data) && res.data.length > 0) {
+                    list = res.data;
+                }
+            } catch(e) {}
+
+            if (!list || list.length === 0) {
+                try {
+                    const ssRes = await select('site_settings', { filter: 'key=in.(kpi_mitra,master_bundle)' });
+                    if (ssRes && Array.isArray(ssRes.data)) {
+                        const kpiDoc = ssRes.data.find(d => d.key === 'kpi_mitra');
+                        const mbDoc = ssRes.data.find(d => d.key === 'master_bundle');
+                        if (kpiDoc && Array.isArray(kpiDoc.value)) {
+                            list = kpiDoc.value;
+                        } else if (mbDoc && mbDoc.value && Array.isArray(mbDoc.value.kpi_mitra)) {
+                            list = mbDoc.value.kpi_mitra;
+                        }
+                    }
+                } catch(e) {}
             }
-            const res = await select('kpi_mitra', opts);
-            if (res.error || !Array.isArray(res.data)) return res;
-            const mapped = res.data.map(k => ({
+
+            if (!list) list = [];
+
+            if (periodeBulan && periodeBulan !== 'Semua') {
+                list = list.filter(k => String(k.periode_bulan || k.periodeBulan) === String(periodeBulan));
+            }
+
+            const mapped = list.map(k => ({
                 id: k.id,
-                mitraId: k.mitra_id,
-                mitra_id: k.mitra_id,
-                periodeBulan: k.periode_bulan,
-                periode_bulan: k.periode_bulan,
-                qtyRapat: Number(k.qty_rapat) || 0,
-                qty_rapat: Number(k.qty_rapat) || 0,
-                qtyAdmin: Number(k.qty_admin) || 0,
-                qty_admin: Number(k.qty_admin) || 0,
-                qtyDesain: Number(k.qty_desain) || 0,
-                qty_desain: Number(k.qty_desain) || 0,
-                qtyVideo: Number(k.qty_video) || 0,
-                qty_video: Number(k.qty_video) || 0,
-                qtyLapangan: Number(k.qty_lapangan) || 0,
-                qty_lapangan: Number(k.qty_lapangan) || 0,
-                keteranganLainnya: k.keterangan_lainnya || '',
-                keterangan_lainnya: k.keterangan_lainnya || '',
-                poinLainnya: Number(k.poin_lainnya) || 0,
-                poin_lainnya: Number(k.poin_lainnya) || 0,
-                totalPoin: Number(k.total_poin) || 0,
-                total_poin: Number(k.total_poin) || 0,
-                createdAt: k.created_at,
-                updatedAt: k.updated_at
+                mitraId: k.mitra_id || k.mitraId,
+                mitra_id: k.mitra_id || k.mitraId,
+                periodeBulan: k.periode_bulan || k.periodeBulan,
+                periode_bulan: k.periode_bulan || k.periodeBulan,
+                qtyRapat: Number(k.qty_rapat !== undefined ? k.qty_rapat : (k.qtyRapat || 0)),
+                qty_rapat: Number(k.qty_rapat !== undefined ? k.qty_rapat : (k.qtyRapat || 0)),
+                qtyAdmin: Number(k.qty_admin !== undefined ? k.qty_admin : (k.qtyAdmin || 0)),
+                qty_admin: Number(k.qty_admin !== undefined ? k.qty_admin : (k.qtyAdmin || 0)),
+                qtyDesain: Number(k.qty_desain !== undefined ? k.qty_desain : (k.qtyDesain || 0)),
+                qty_desain: Number(k.qty_desain !== undefined ? k.qty_desain : (k.qtyDesain || 0)),
+                qtyVideo: Number(k.qty_video !== undefined ? k.qty_video : (k.qtyVideo || 0)),
+                qty_video: Number(k.qty_video !== undefined ? k.qty_video : (k.qtyVideo || 0)),
+                qtyLapangan: Number(k.qty_lapangan !== undefined ? k.qty_lapangan : (k.qtyLapangan || 0)),
+                qty_lapangan: Number(k.qty_lapangan !== undefined ? k.qty_lapangan : (k.qtyLapangan || 0)),
+                keteranganLainnya: k.keterangan_lainnya || k.keteranganLainnya || '',
+                keterangan_lainnya: k.keterangan_lainnya || k.keteranganLainnya || '',
+                poinLainnya: Number(k.poin_lainnya !== undefined ? k.poin_lainnya : (k.poinLainnya || 0)),
+                poin_lainnya: Number(k.poin_lainnya !== undefined ? k.poin_lainnya : (k.poinLainnya || 0)),
+                totalPoin: Number(k.total_poin !== undefined ? k.total_poin : (k.totalPoin || 0)),
+                total_poin: Number(k.total_poin !== undefined ? k.total_poin : (k.totalPoin || 0)),
+                createdAt: k.created_at || k.createdAt,
+                updatedAt: k.updated_at || k.updatedAt
             }));
             return { data: mapped, error: null };
         },

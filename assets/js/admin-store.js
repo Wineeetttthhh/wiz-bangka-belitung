@@ -5615,6 +5615,10 @@
             return this.getById(identifier);
         },
 
+        getByCode(code) {
+            return this.getById(code);
+        },
+
         async registerPublic(payload = {}) {
             const { name, phone, bankName, accountNumber, accountHolder, pin, cabang, notes } = payload;
             const cleanName = (name || '').trim();
@@ -5725,80 +5729,6 @@
             };
         },
 
-        getMonthlyKPI(referralId, targetMonthStr) {
-            const ref = this.getById(referralId);
-            if (!ref) return null;
-
-            let filterMonth = targetMonthStr; // e.g. "2026-09" or "Semua"
-            if (!filterMonth) {
-                const now = new Date();
-                filterMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-            }
-
-            // ONLY verified donations in this month count towards performance KPI
-            const refDonations = (ref.donations || []).filter(d => {
-                if (d.status !== 'verified' && d.status !== 'success' && d.status !== 'sukses') return false;
-                if (filterMonth === 'Semua') return true;
-                const dDate = d.createdAt || d.verifiedAt || d.date || '';
-                return dDate.startsWith(filterMonth);
-            });
-
-            const monthDonationCount = refDonations.length;
-            const monthTotalAmount = refDonations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
-            const monthEarnedFee = refDonations.reduce((sum, d) => {
-                const rate = d.referralRate !== undefined ? Number(d.referralRate) : Number(ref.defaultRate || 6);
-                const fee = d.referralFee !== undefined ? Number(d.referralFee) : Math.round((Number(d.amount) || 0) * (rate / 100));
-                return sum + fee;
-            }, 0);
-
-            // KPI Mitra & Brankas Wilayah Pool (7% PKP + 8% Sungailiat)
-            const kpiRecord = (typeof kpiMitra !== 'undefined' && kpiMitra.getByMitraAndPeriod) 
-                ? kpiMitra.getByMitraAndPeriod(ref.id, filterMonth) 
-                : null;
-            const kpiPoints = kpiRecord ? (Number(kpiRecord.totalPoin || kpiRecord.total_poin) || 0) : 0;
-
-            const poolSummary = (typeof kpiMitra !== 'undefined' && kpiMitra.getPoolSummary)
-                ? kpiMitra.getPoolSummary(filterMonth)
-                : { totalPoolWilayah: 0, totalPool7Percent: 0, totalGlobalPoints: 0, pointValue: 0 };
-
-            const poolFund = poolSummary.totalPoolWilayah !== undefined ? poolSummary.totalPoolWilayah : (poolSummary.totalPool7Percent || 0);
-
-            const additionalIncentive = (poolSummary.totalGlobalPoints > 0 && kpiPoints > 0)
-                ? Math.round((kpiPoints / poolSummary.totalGlobalPoints) * poolFund)
-                : 0;
-
-            const totalEarnedMonth = monthEarnedFee + additionalIncentive;
-
-            let performanceTier = '🚀 Perlu Dorongan';
-            let tierClass = 'bg-amber-100 text-amber-800 border-amber-200';
-
-            if (monthDonationCount >= 5 || monthTotalAmount >= 5000000 || kpiPoints >= 100) {
-                performanceTier = '⭐ Top Performer';
-                tierClass = 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold';
-            } else if (monthDonationCount >= 1 || kpiPoints >= 30) {
-                performanceTier = '✅ Stabil';
-                tierClass = 'bg-blue-100 text-blue-800 border-blue-200';
-            }
-
-            return {
-                referralId: ref.id,
-                name: ref.name,
-                code: ref.code || ref.id,
-                phone: ref.phone,
-                cabang: ref.cabang || 'Pangkalpinang',
-                month: filterMonth,
-                monthDonationCount,
-                monthTotalAmount,
-                monthEarnedFee,
-                kpiPoints,
-                kpiRecord,
-                additionalIncentive,
-                totalEarnedMonth,
-                poolSummary,
-                performanceTier,
-                tierClass
-            };
-        },
 
         generateAffiliateId(createdAtDate = new Date()) {
             const d = createdAtDate instanceof Date ? createdAtDate : new Date(createdAtDate || Date.now());
@@ -5999,16 +5929,16 @@
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
         },
 
-        // Monthly KPI and Brankas Wilayah calculation for Mitra
-        async getMonthlyKPI(mitraId, targetMonthStr, overrides = null) {
+        // Monthly KPI and Brankas Wilayah calculation for Mitra (SYNCHRONOUS for instant UI reactivity)
+        getMonthlyKPI(mitraId, targetMonthStr, overrides = null) {
             let filterMonth = targetMonthStr;
             if (!filterMonth || filterMonth === 'Semua') {
                 filterMonth = getCurrentPeriod();
             }
 
-            const ref = this.getById(mitraId);
+            const ref = this.getById(mitraId) || this.getByCode(mitraId);
             const mCabang = ref ? (ref.cabang || 'Pangkalpinang') : 'Pangkalpinang';
-            const cleanId = String(mitraId || '').toLowerCase();
+            const cleanId = String((ref ? ref.id : mitraId) || '').toLowerCase();
             const cleanCode = ref ? String(ref.code || '').toLowerCase() : '';
             const cleanPhone = ref ? String(ref.phone || '').replace(/\D/g, '') : '';
 
@@ -6034,11 +5964,15 @@
             const monthEarnedFee = Math.round(monthTotalAmount * (fixRatePercent / 100));
 
             // 2. Fetch KPI record for this mitra
-            const kpiRecord = kpiMitra.getByMitraAndPeriod(mitraId, filterMonth);
+            const kpiRecord = (typeof kpiMitra !== 'undefined' && kpiMitra.getByMitraAndPeriod)
+                ? kpiMitra.getByMitraAndPeriod(ref ? ref.id : mitraId, filterMonth)
+                : null;
             const kpiPoints = kpiRecord ? Number(kpiRecord.totalPoin || kpiRecord.total_poin || 0) : 0;
 
             // 3. Pool Wilayah calculation
-            const poolSummary = await kpiMitra.getPoolSummary(filterMonth, overrides);
+            const poolSummary = (typeof kpiMitra !== 'undefined' && kpiMitra.getPoolSummary)
+                ? kpiMitra.getPoolSummary(filterMonth, overrides)
+                : { totalGlobalPoints: 0, totalPoolWilayah: 0 };
             const totalGlobalPoints = poolSummary.totalGlobalPoints || 0;
             const totalPoolWilayah = poolSummary.totalPoolWilayah || 0;
 
@@ -6046,19 +5980,28 @@
             const additionalIncentive = totalGlobalPoints > 0 ? Math.round((kpiPoints / totalGlobalPoints) * totalPoolWilayah) : 0;
             const totalEarnedMonth = monthEarnedFee + additionalIncentive;
 
-            // 4. Performance Tier
+            // 4. Performance Tier & Badge Styling
             let performanceTier = 'Pejuang Kebaikan';
+            let tierClass = 'bg-slate-100 text-slate-700';
             if (monthTotalAmount >= 10000000 || kpiPoints >= 100) {
                 performanceTier = '⭐ Top Performer';
+                tierClass = 'bg-amber-100 text-amber-800 border border-amber-300';
             } else if (monthTotalAmount >= 5000000 || kpiPoints >= 50) {
                 performanceTier = '🥈 Mitra Utama';
+                tierClass = 'bg-blue-100 text-blue-800 border border-blue-300';
             } else if (monthTotalAmount >= 1000000 || kpiPoints >= 20) {
                 performanceTier = '🥉 Mitra Aktif';
+                tierClass = 'bg-emerald-100 text-emerald-800 border border-emerald-300';
             }
 
             return {
-                mitraId,
+                referralId: ref ? ref.id : mitraId,
+                mitraId: ref ? ref.id : mitraId,
+                name: ref ? ref.name : '',
+                code: ref ? (ref.code || ref.id) : '',
+                phone: ref ? ref.phone : '',
                 targetMonth: filterMonth,
+                month: filterMonth,
                 cabang: mCabang,
                 monthDonationCount,
                 monthTotalAmount,
@@ -6071,7 +6014,8 @@
                 poolPortionPercent,
                 additionalIncentive,
                 totalEarnedMonth,
-                performanceTier
+                performanceTier,
+                tierClass
             };
         },
 
@@ -6236,10 +6180,17 @@
             if (!mitraId) return null;
             const all = this.getAll();
             const cleanId = String(mitraId).trim().toLowerCase();
+            const ref = (typeof referrals !== 'undefined' && referrals.getById) 
+                ? (referrals.getById(mitraId) || (referrals.getByCode ? referrals.getByCode(mitraId) : null))
+                : null;
+            const refId = ref ? String(ref.id || '').trim().toLowerCase() : cleanId;
+            const refCode = ref && ref.code ? String(ref.code || '').trim().toLowerCase() : cleanId;
+
             return all.find(k => {
                 const kMid = String(k.mitraId || k.mitra_id || '').trim().toLowerCase();
                 const kMonth = String(k.periodeBulan || k.periode_bulan || '').trim();
-                return kMid === cleanId && (!periodeBulan || periodeBulan === 'Semua' || kMonth === periodeBulan);
+                const matches = (kMid === cleanId) || (refId && kMid === refId) || (refCode && kMid === refCode);
+                return matches && (!periodeBulan || periodeBulan === 'Semua' || kMonth === periodeBulan);
             }) || null;
         },
 
@@ -6247,16 +6198,6 @@
             let filterMonth = targetMonthStr;
             if (!filterMonth || filterMonth === 'Semua') {
                 filterMonth = getCurrentPeriod();
-            }
-
-            // Also check localStorage for saved overrides if not explicitly passed
-            if (!overrides && typeof localStorage !== 'undefined') {
-                try {
-                    const saved = JSON.parse(localStorage.getItem('wiz_kpi_pool_overrides') || '{}');
-                    if (saved && saved[filterMonth]) {
-                        overrides = saved[filterMonth];
-                    }
-                } catch(e) {}
             }
 
             // 1. Fetch all verified donations for this month
@@ -6281,11 +6222,6 @@
 
             monthDonations.forEach(d => {
                 const amt = Number(d.amount) || 0;
-                const dWil = String(d.wilayah || d.cabang || d.branch || '').toLowerCase();
-                const dRefId = String(d.referralId || d.referral_id || d.referralCode || d.referral_code || '').toLowerCase();
-                const refObj = refMap.get(dRefId);
-                const refCabang = refObj ? String(refObj.cabang || '').toLowerCase() : '';
-
                 if (dWil.includes('sungailiat') || refCabang.includes('sungailiat')) {
                     sumSungailiat += amt;
                     countSungailiat++;
@@ -6364,17 +6300,24 @@
                 poinLainnya: pLain
             });
 
+            const cleanMId = mId.toLowerCase();
+            const ref = referrals.getById(mId) || referrals.getByCode(mId);
+            const canonicalId = ref ? ref.id : mId;
+            const refId = ref ? String(ref.id).toLowerCase() : cleanMId;
+            const refCode = ref && ref.code ? String(ref.code).toLowerCase() : cleanMId;
+
             const list = getStore(STORAGE_KEYS.KPI_MITRA) || [];
-            const existingIdx = list.findIndex(k => 
-                String(k.mitraId || k.mitra_id).toLowerCase() === mId.toLowerCase() &&
-                String(k.periodeBulan || k.periode_bulan) === pMonth
-            );
+            const existingIdx = list.findIndex(k => {
+                const kMid = String(k.mitraId || k.mitra_id).toLowerCase();
+                const kMonth = String(k.periodeBulan || k.periode_bulan);
+                return (kMid === cleanMId || kMid === refId || kMid === refCode) && kMonth === pMonth;
+            });
 
             const nowIso = new Date().toISOString();
             const kpiObj = {
                 id: data.id || (existingIdx !== -1 ? list[existingIdx].id : generateUUID()),
-                mitraId: mId,
-                mitra_id: mId,
+                mitraId: canonicalId,
+                mitra_id: canonicalId,
                 periodeBulan: pMonth,
                 periode_bulan: pMonth,
                 qtyRapat: qRapat,
@@ -6404,14 +6347,25 @@
             }
             setStore(STORAGE_KEYS.KPI_MITRA, list);
 
-            const ref = referrals.getById(mId);
-            const refName = ref ? ref.name : mId;
+            const refName = ref ? ref.name : canonicalId;
             activityLog.add('kpi', `Input/Update KPI Mitra "${refName}" (${totalPoinCalculated} Poin) periode ${pMonth}.`, data.createdBy || 'Admin');
 
-            // Non-blocking Supabase Upsert
+            // Await Supabase Upsert
             if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                 try {
-                    await window.wizSupabase.saveKpiMitra(kpiObj);
+                    const sbRes = await window.wizSupabase.saveKpiMitra(kpiObj);
+                    if (sbRes && sbRes.data && sbRes.data.id) {
+                        kpiObj.id = sbRes.data.id;
+                        const freshList = getStore(STORAGE_KEYS.KPI_MITRA) || [];
+                        const fIdx = freshList.findIndex(k => 
+                            String(k.mitraId || k.mitra_id).toLowerCase() === String(canonicalId).toLowerCase() &&
+                            String(k.periodeBulan || k.periode_bulan) === pMonth
+                        );
+                        if (fIdx !== -1) {
+                            freshList[fIdx].id = sbRes.data.id;
+                            setStore(STORAGE_KEYS.KPI_MITRA, freshList);
+                        }
+                    }
                 } catch(e) {
                     console.warn('[KPI Mitra Supabase Upsert Error]:', e);
                 }

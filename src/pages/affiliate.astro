@@ -357,9 +357,10 @@ import { MASTER_QUOTES } from '../lib/quotes-data';
 
             <!-- SUBTAB 1: Performance Dashboard & KPI -->
             <div id="subtab-kpi" class="member-subtab space-y-6 sm:space-y-8 w-full">
-                <!-- 4 Dashboard Metric Cards (Dynamic Reactivity with Period Dropdown) -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full">
-                    <!-- Card 1: Total Donasi Dibawa -->
+
+                <!-- 3 Dashboard Metric Cards: Role-Based Restricted View (Hak 6% + Akumulasi Poin Saja) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 w-full">
+                    <!-- Card 1: Total Donasi Dihimpun -->
                     <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
                         <div class="flex items-center justify-between">
                             <span class="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Donasi Dihimpun</span>
@@ -367,48 +368,38 @@ import { MASTER_QUOTES } from '../lib/quotes-data';
                         </div>
                         <div>
                             <span id="kpi-total-amount" class="text-2xl sm:text-3xl font-black text-slate-900 block">Rp 0</span>
-                            <p class="text-xs font-semibold text-emerald-700 mt-1" id="kpi-fix-fee-info">Hak Fix (6%): Rp 0</p>
+                            <p class="text-xs font-semibold text-slate-600 mt-1" id="kpi-donation-count-info">0 transaksi donasi terverifikasi</p>
                         </div>
-                        <p class="text-[11px] text-slate-400 font-medium border-t border-slate-100 pt-1.5" id="kpi-donation-count-info">0 transaksi donasi</p>
+                        <p class="text-[11px] text-slate-400 font-medium border-t border-slate-100 pt-1.5">Penghimpunan donasi melalui link &amp; QR Anda</p>
                     </div>
 
-                    <!-- Card 2: Akumulasi Poin KPI -->
-                    <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Poin KPI Anda</span>
-                            <span class="material-symbols-outlined text-blue-600 text-lg">workspace_premium</span>
-                        </div>
-                        <div>
-                            <span id="kpi-total-points" class="text-2xl sm:text-3xl font-black text-blue-600 block">0 Pts</span>
-                            <p class="text-xs font-semibold text-blue-800 mt-1 truncate" id="kpi-points-breakdown">Belum ada catatan aktivitas</p>
-                        </div>
-                        <p class="text-[11px] text-slate-400 font-medium border-t border-slate-100 pt-1.5" id="kpi-pool-share-info">0% dari Poin Global</p>
-                    </div>
-
-                    <!-- Card 3: Insentif Tambahan (Kinerja KPI Bulanan) -->
-                    <div class="bg-gradient-to-br from-purple-50 to-indigo-50 p-4 sm:p-5 rounded-2xl border border-purple-200/80 shadow-xs space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-[11px] text-purple-900 font-bold uppercase tracking-wider">Insentif Tambahan</span>
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-200 text-purple-900">⏳ Distribusi Akhir Bulan</span>
-                        </div>
-                        <div>
-                            <span id="kpi-pool-incentive" class="text-2xl sm:text-3xl font-black text-purple-900 block">Rp 0</span>
-                            <p class="text-xs font-semibold text-purple-700 mt-1" id="kpi-pool-wilayah-info">Berdasarkan capaian poin KPI Anda</p>
-                        </div>
-                        <p class="text-[11px] text-purple-600/70 font-medium border-t border-purple-200/40 pt-1.5">Insentif kinerja berbasis poin KPI</p>
-                    </div>
-
-                    <!-- Card 4: Total Hak Insentif & Status Saldo -->
+                    <!-- Card 2: Hak Insentif Amil (6%) -->
                     <div class="bg-gradient-to-br from-emerald-50 to-teal-50 p-4 sm:p-5 rounded-2xl border border-emerald-200 shadow-xs space-y-2">
                         <div class="flex items-center justify-between">
-                            <span class="text-[11px] text-emerald-900 font-bold uppercase tracking-wider">Total Hak Insentif</span>
+                            <span class="text-[11px] text-emerald-900 font-bold uppercase tracking-wider">Hak Insentif Amil (6%)</span>
                             <span class="material-symbols-outlined text-emerald-700 text-lg">account_balance_wallet</span>
                         </div>
                         <div>
-                            <span id="kpi-total-earned" class="text-2xl sm:text-3xl font-black text-emerald-900 block">Rp 0</span>
+                            <span id="kpi-fix-fee-amount" class="text-2xl sm:text-3xl font-black text-emerald-900 block">Rp 0</span>
                             <p class="text-xs font-semibold text-amber-800 mt-1" id="kpi-pending-info">Sisa Pending: Rp 0</p>
                         </div>
-                        <p class="text-[11px] text-emerald-700/70 font-medium border-t border-emerald-200/40 pt-1.5">Hak Fix (6%) + Insentif Tambahan</p>
+                        <p class="text-[11px] text-emerald-700/70 font-medium border-t border-emerald-200/40 pt-1.5" id="kpi-fix-rate-label">Hak amil 6% atas donasi yang dihimpun</p>
+                    </div>
+
+                    <!-- Card 3: Evaluasi Kinerja (Akumulasi Poin KPI) -->
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 sm:p-5 rounded-2xl border border-blue-200 shadow-xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] text-blue-900 font-bold uppercase tracking-wider">Evaluasi Kinerja (Poin KPI)</span>
+                            <span class="material-symbols-outlined text-blue-600 text-lg">workspace_premium</span>
+                        </div>
+                        <div>
+                            <span id="kpi-total-points" class="text-2xl sm:text-3xl font-black text-blue-700 block">0 Poin</span>
+                            <p class="text-xs font-bold text-blue-900 mt-1" id="kpi-performance-headline">Total Kinerja Anda: 0 Poin</p>
+                        </div>
+                        <div class="border-t border-blue-200/60 pt-1.5 flex items-center justify-between gap-1 text-[11px] text-blue-700/80 font-medium">
+                            <span class="truncate" id="kpi-points-breakdown">Belum ada catatan aktivitas</span>
+                            <span class="shrink-0 px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 font-bold text-[10px]" id="kpi-activity-status-badge">Tercatat</span>
+                        </div>
                     </div>
                 </div>
 
@@ -1157,62 +1148,55 @@ import { MASTER_QUOTES } from '../lib/quotes-data';
             const linkInput = document.getElementById('member-referral-link-input');
             if (linkInput) linkInput.value = donationLink;
 
-            // 3. Update Metric Cards
+            // 3. Update Metric Cards (Role-Based Restricted: Only Hak 6% + KPI Points, No Pool Rupiah)
             const kpiAmt = document.getElementById('kpi-total-amount');
-            const kpiFixInfo = document.getElementById('kpi-fix-fee-info');
             const kpiDonCount = document.getElementById('kpi-donation-count-info');
             const kpiTierBadge = document.getElementById('kpi-tier-badge');
+            const kpiFixFeeAmount = document.getElementById('kpi-fix-fee-amount');
+            const kpiFixRateLabel = document.getElementById('kpi-fix-rate-label');
+            const kpiPendingInfo = document.getElementById('kpi-pending-info');
 
-            if (kpiAmt) kpiAmt.textContent = `Rp ${mKpi.monthTotalAmount.toLocaleString('id-ID')}`;
-            if (kpiFixInfo) kpiFixInfo.textContent = `Hak Fix (${mKpi.fixRatePercent}%): Rp ${mKpi.monthEarnedFee.toLocaleString('id-ID')}`;
-            if (kpiDonCount) kpiDonCount.textContent = `${mKpi.monthDonationCount} transaksi donasi terverifikasi`;
+            if (kpiAmt) kpiAmt.textContent = `Rp ${(mKpi.monthTotalAmount || 0).toLocaleString('id-ID')}`;
+            if (kpiDonCount) kpiDonCount.textContent = `${mKpi.monthDonationCount || 0} transaksi donasi terverifikasi`;
             if (kpiTierBadge) kpiTierBadge.textContent = mKpi.performanceTier || 'Pejuang Kebaikan';
 
-            const kpiPointsEl = document.getElementById('kpi-total-points');
-            const kpiPtsBreakdown = document.getElementById('kpi-points-breakdown');
-            const kpiPoolShare = document.getElementById('kpi-pool-share-info');
+            if (kpiFixFeeAmount) kpiFixFeeAmount.textContent = `Rp ${(mKpi.monthEarnedFee || 0).toLocaleString('id-ID')}`;
+            if (kpiFixRateLabel) kpiFixRateLabel.textContent = `Hak amil ${mKpi.fixRatePercent || 6}% atas donasi langsung`;
+            if (kpiPendingInfo) {
+                // Strictly based on 6% earned fee, no pool conversion
+                const pendingBal = mitra.pendingBalance !== undefined ? mitra.pendingBalance : (mKpi.monthEarnedFee || 0);
+                kpiPendingInfo.textContent = `Sisa Pending: Rp ${pendingBal.toLocaleString('id-ID')}`;
+            }
 
-            if (kpiPointsEl) kpiPointsEl.textContent = `${mKpi.kpiPoints} Pts`;
+            const kpiPointsEl = document.getElementById('kpi-total-points');
+            const kpiPerfHeadline = document.getElementById('kpi-performance-headline');
+            const kpiPtsBreakdown = document.getElementById('kpi-points-breakdown');
+            const kpiActStatusBadge = document.getElementById('kpi-activity-status-badge');
+
+            const currentPts = Number(mKpi.kpiPoints) || 0;
+            if (kpiPointsEl) kpiPointsEl.textContent = `${currentPts} Poin`;
+            if (kpiPerfHeadline) kpiPerfHeadline.textContent = `Total Kinerja Anda: ${currentPts} Poin`;
+            if (kpiActStatusBadge) {
+                kpiActStatusBadge.textContent = currentPts > 0 ? 'Terverifikasi' : 'Menunggu Input';
+                kpiActStatusBadge.className = currentPts > 0 
+                    ? 'shrink-0 px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 font-bold text-[10px]' 
+                    : 'shrink-0 px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-bold text-[10px]';
+            }
+
             if (kpiPtsBreakdown) {
-                if (mKpi.kpiRecord) {
+                if (mKpi.kpiRecord && currentPts > 0) {
                     const kr = mKpi.kpiRecord;
                     const items = [];
-                    if (kr.qty_rapat) items.push(`Rapat: ${kr.qty_rapat}x`);
-                    if (kr.qty_admin) items.push(`Admin: ${kr.qty_admin}x`);
-                    if (kr.qty_desain) items.push(`Desain: ${kr.qty_desain}x`);
-                    if (kr.qty_video) items.push(`Video: ${kr.qty_video}x`);
-                    if (kr.qty_lapangan) items.push(`Penyaluran: ${kr.qty_lapangan}x`);
-                    if (kr.poin_lainnya) items.push(`Lainnya: ${kr.poin_lainnya} pt`);
-                    kpiPtsBreakdown.textContent = items.length > 0 ? items.join(', ') : 'Belum ada rincian aktivitas';
+                    if (kr.qty_rapat || kr.qtyRapat) items.push(`Rapat: ${kr.qty_rapat || kr.qtyRapat}x`);
+                    if (kr.qty_admin || kr.qtyAdmin) items.push(`Admin: ${kr.qty_admin || kr.qtyAdmin}x`);
+                    if (kr.qty_desain || kr.qtyDesain) items.push(`Desain: ${kr.qty_desain || kr.qtyDesain}x`);
+                    if (kr.qty_video || kr.qtyVideo) items.push(`Video: ${kr.qty_video || kr.qtyVideo}x`);
+                    if (kr.qty_lapangan || kr.qtyLapangan) items.push(`Penyaluran: ${kr.qty_lapangan || kr.qtyLapangan}x`);
+                    if (kr.poin_lainnya || kr.poinLainnya) items.push(`Lainnya: ${kr.poin_lainnya || kr.poinLainnya} pt`);
+                    kpiPtsBreakdown.textContent = items.length > 0 ? items.join(', ') : 'Rincian aktivitas tercatat';
                 } else {
                     kpiPtsBreakdown.textContent = 'Belum ada catatan aktivitas';
                 }
-            }
-            if (kpiPoolShare) {
-                if (mKpi.kpiPoints > 0) {
-                    kpiPoolShare.textContent = `${mKpi.kpiPoints} Poin tercatat pada periode ini`;
-                } else {
-                    kpiPoolShare.textContent = 'Belum ada poin tercatat';
-                }
-            }
-
-            const kpiPoolIncentive = document.getElementById('kpi-pool-incentive');
-            const kpiPoolWilayahInfo = document.getElementById('kpi-pool-wilayah-info');
-            if (kpiPoolIncentive) kpiPoolIncentive.textContent = `Rp ${mKpi.additionalIncentive.toLocaleString('id-ID')}`;
-            if (kpiPoolWilayahInfo) {
-                if (mKpi.kpiPoints > 0) {
-                    kpiPoolWilayahInfo.textContent = `Dari akumulasi ${mKpi.kpiPoints} poin KPI Anda`;
-                } else {
-                    kpiPoolWilayahInfo.textContent = 'Belum ada poin KPI pada periode ini';
-                }
-            }
-
-            const kpiTotalEarned = document.getElementById('kpi-total-earned');
-            const kpiPendingInfo = document.getElementById('kpi-pending-info');
-            if (kpiTotalEarned) kpiTotalEarned.textContent = `Rp ${mKpi.totalEarnedMonth.toLocaleString('id-ID')}`;
-            if (kpiPendingInfo) {
-                const pendingBal = mitra.pendingBalance || (mKpi.monthEarnedFee + mKpi.additionalIncentive);
-                kpiPendingInfo.textContent = `Sisa Pending: Rp ${pendingBal.toLocaleString('id-ID')}`;
             }
 
             // 4. Render Table 1: Rincian Log Aktivitas & Poin KPI

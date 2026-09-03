@@ -8871,8 +8871,8 @@
                 '            setTimeout(function() { window.print(); }, 400);',
                 '        };',
                 '    <' + '/script>',
-                '</body>',
-                '</html>'
+                '    <' + '/body>',
+                '<' + '/html>'
             ].join('\n');
             printWin.document.write(htmlContent);
             printWin.document.close();
@@ -9070,7 +9070,11 @@
             const periodeBulan = document.getElementById('kpi-periode-month').value;
 
             if (!mitraId || !periodeBulan) {
-                alert('Silakan pilih Mitra dan Periode Bulan.');
+                if (typeof showAdminToast === 'function') {
+                    showAdminToast('Data Belum Lengkap', 'Silakan pilih Mitra dan Periode Bulan.', 'warning');
+                } else {
+                    alert('Silakan pilih Mitra dan Periode Bulan.');
+                }
                 return;
             }
 
@@ -9095,21 +9099,60 @@
                 qtyLapangan: getQty('lapangan'),
                 keteranganLainnya: (chkLain && chkLain.checked && ketLain) ? ketLain.value.trim() : '',
                 poinLainnya: (chkLain && chkLain.checked && poinLain) ? (Number(poinLain.value) || 0) : 0,
-                createdBy: ADMIN_NAME,
-                updatedBy: ADMIN_NAME
+                createdBy: typeof ADMIN_NAME !== 'undefined' ? ADMIN_NAME : 'Admin',
+                updatedBy: typeof ADMIN_NAME !== 'undefined' ? ADMIN_NAME : 'Admin'
             };
+
+            const submitBtn = e.target ? e.target.querySelector('button[type="submit"]') : null;
+            const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="inline-flex items-center gap-1.5"><svg class="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Menyimpan &amp; Sinkronisasi...</span>';
+            }
 
             try {
                 const saved = await wizStore.kpiMitra.save(payload);
                 closeKpiModal();
-                if (typeof refreshAll === 'function') refreshAll();
+
+                // Ensure the referrals table dropdown is aligned to the saved period
+                const monthSelect = document.getElementById('referral-month-filter');
+                if (monthSelect && monthSelect.value !== periodeBulan && monthSelect.value !== 'Semua') {
+                    monthSelect.value = periodeBulan;
+                }
+
+                // Instant UI re-render
                 renderReferralsSection();
-                
-                const ref = wizStore.referrals.getById(mitraId);
+                if (typeof refreshAll === 'function') refreshAll();
+
+                const ref = wizStore.referrals.getById(mitraId) || (wizStore.referrals.getByCode ? wizStore.referrals.getByCode(mitraId) : null);
                 const refName = ref ? ref.name : 'Mitra';
-                alert(`✅ KPI Aktivitas untuk "${refName}" periode ${periodeBulan} berhasil disimpan!\n\nTotal Poin KPI: ${saved.totalPoin} Poin.`);
+
+                if (typeof showAdminToast === 'function') {
+                    showAdminToast('Poin KPI Berhasil Disimpan', `Poin KPI untuk "${refName}" (${saved.totalPoin || 0} Pts) periode ${periodeBulan} berhasil disimpan dan sinkron ke Supabase.`, 'success');
+                } else {
+                    alert(`✅ KPI Aktivitas untuk "${refName}" periode ${periodeBulan} berhasil disimpan!\n\nTotal Poin KPI: ${saved.totalPoin} Poin.`);
+                }
+
+                // Background re-fetch to ensure single source of truth parity
+                if (window.wizSupabase && typeof window.wizSupabase.getKpiMitra === 'function') {
+                    window.wizSupabase.getKpiMitra(periodeBulan).then(res => {
+                        if (res && Array.isArray(res.data) && res.data.length > 0) {
+                            renderReferralsSection();
+                        }
+                    }).catch(() => {});
+                }
             } catch(err) {
-                alert('⚠️ Gagal menyimpan KPI Mitra: ' + err.message);
+                console.error('[handleKpiSave error]', err);
+                if (typeof showAdminToast === 'function') {
+                    showAdminToast('Gagal Menyimpan KPI', err.message || 'Terjadi kesalahan sistem', 'error');
+                } else {
+                    alert('⚠️ Gagal menyimpan KPI Mitra: ' + err.message);
+                }
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnHtml;
+                }
             }
         }
 
