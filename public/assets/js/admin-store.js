@@ -6253,6 +6253,8 @@
             let sumSungailiat = 0;
             let countPKP = 0;
             let countSungailiat = 0;
+            let fee6PercentPKP = 0;
+            let fee6PercentSungailiat = 0;
 
             monthDonations.forEach(d => {
                 const amt = Number(d.amount) || 0;
@@ -6260,28 +6262,46 @@
                 const dRefKey = String(d.referralId || d.referral_id || d.referralCode || d.referral_code || '').toLowerCase();
                 const ref = refMap.get(dRefKey);
                 const refCabang = String((ref && ref.cabang) || '').toLowerCase();
+
+                let dFee = 0;
+                if (ref) {
+                    const rate = Number(d.referralRate || d.referral_rate || ref.defaultRate || 6);
+                    dFee = d.referralFee !== undefined ? Number(d.referralFee) : Math.round(amt * (rate / 100));
+                }
+
                 if (dWil.includes('sungailiat') || refCabang.includes('sungailiat')) {
                     sumSungailiat += amt;
                     countSungailiat++;
+                    fee6PercentSungailiat += dFee;
                 } else {
                     sumPKP += amt;
                     countPKP++;
+                    fee6PercentPKP += dFee;
                 }
             });
 
-            // Pangkalpinang: 7% Pool, Sungailiat: 8% Pool -> Merged into "Brankas Wilayah"
-            const rawPoolPKP = Math.round(sumPKP * 0.07);
-            const rawPoolSungailiat = Math.round(sumSungailiat * 0.08);
+            // Alokasi Operasional Amil: Pangkalpinang 13%, Sungailiat 14%
+            const rawOpsPKP = Math.round(sumPKP * 0.13);
+            const rawOpsSungailiat = Math.round(sumSungailiat * 0.14);
 
-            const overridePkp = (effOverrides && effOverrides.overridePoolPkp !== undefined && effOverrides.overridePoolPkp !== null && effOverrides.overridePoolPkp !== '')
+            // Sisa Operasional setelah dikurangi hak fix 6% mitra yang dihimpun:
+            const rawPoolPKP = Math.max(0, rawOpsPKP - fee6PercentPKP);
+            const rawPoolSungailiat = Math.max(0, rawOpsSungailiat - fee6PercentSungailiat);
+
+            // Jika admin menginput editan manual Total Operasional Kotor (13% / 14%):
+            const overrideOpsPkp = (effOverrides && effOverrides.overridePoolPkp !== undefined && effOverrides.overridePoolPkp !== null && effOverrides.overridePoolPkp !== '')
                 ? Math.max(0, Number(effOverrides.overridePoolPkp))
                 : null;
-            const overrideSungailiat = (effOverrides && effOverrides.overridePoolSungailiat !== undefined && effOverrides.overridePoolSungailiat !== null && effOverrides.overridePoolSungailiat !== '')
+            const overrideOpsSungailiat = (effOverrides && effOverrides.overridePoolSungailiat !== undefined && effOverrides.overridePoolSungailiat !== null && effOverrides.overridePoolSungailiat !== '')
                 ? Math.max(0, Number(effOverrides.overridePoolSungailiat))
                 : null;
 
-            const final_pool_pkp = overridePkp !== null ? overridePkp : rawPoolPKP;
-            const final_pool_sungailiat = overrideSungailiat !== null ? overrideSungailiat : rawPoolSungailiat;
+            // Jika diedit, sistem otomatis memotong hak 6% mitra dari total operasional kotor yang diedit:
+            const final_ops_pkp = overrideOpsPkp !== null ? overrideOpsPkp : rawOpsPKP;
+            const final_ops_sungailiat = overrideOpsSungailiat !== null ? overrideOpsSungailiat : rawOpsSungailiat;
+
+            const final_pool_pkp = Math.max(0, final_ops_pkp - fee6PercentPKP);
+            const final_pool_sungailiat = Math.max(0, final_ops_sungailiat - fee6PercentSungailiat);
             const totalPoolWilayah = final_pool_pkp + final_pool_sungailiat;
 
             // 2. Fetch all KPI records for this month
@@ -6295,16 +6315,22 @@
                 totalVerifiedDonations: sumPKP + sumSungailiat,
                 donationsPKP: sumPKP,
                 countPKP,
+                rawOpsPKP,
+                totalOpsPKP: final_ops_pkp,
                 rawPoolPKP,
                 poolPKP: final_pool_pkp,
-                overridePoolPkp: overridePkp,
-                isOverriddenPKP: overridePkp !== null,
+                fee6PercentPKP,
+                overridePoolPkp: overrideOpsPkp,
+                isOverriddenPKP: overrideOpsPkp !== null,
                 donationsSungailiat: sumSungailiat,
                 countSungailiat,
+                rawOpsSungailiat,
+                totalOpsSungailiat: final_ops_sungailiat,
                 rawPoolSungailiat,
                 poolSungailiat: final_pool_sungailiat,
-                overridePoolSungailiat: overrideSungailiat,
-                isOverriddenSungailiat: overrideSungailiat !== null,
+                fee6PercentSungailiat,
+                overridePoolSungailiat: overrideOpsSungailiat,
+                isOverriddenSungailiat: overrideOpsSungailiat !== null,
                 totalPoolWilayah,
                 totalPool7Percent: totalPoolWilayah, // Backward-compatibility
                 totalGlobalPoints,

@@ -1268,46 +1268,38 @@
                     <div class="space-y-sm max-w-2xl">
                         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-bold uppercase tracking-wider">
                             <span class="material-symbols-outlined text-sm">account_balance_wallet</span>
-                            <span>Evaluasi Dana Operasional Wilayah (Brankas Wilayah)</span>
-                        </div>
-                        <h3 class="text-xl md:text-2xl font-black text-white flex items-center gap-2 flex-wrap">
-                            <span>Distribusi Insentif Terpusat &amp; Brankas Wilayah</span>
-                            <span id="kpi-pool-period-badge" class="text-xs font-bold px-2.5 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Periode ...</span>
-                        </h3>
-                        <p class="text-slate-300 text-xs md:text-sm leading-relaxed">
-                            Alokasi operasional amil: <strong>Pangkalpinang (6% Fix + 7% Pool)</strong> dan <strong>Sungailiat (6% Fix + 8% Pool)</strong> digabung ke <strong>Brankas Wilayah</strong> lalu dibagikan secara proporsional kepada seluruh mitra berdasarkan akumulasi perolehan poin KPI bulanan.
-                        </p>
-                    </div>
-
-                    <div class="shrink-0 w-full lg:w-auto">
-                        <button onclick="finalizeMonthlyPool()" class="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-xl py-3.5 rounded-xl font-black text-sm transition-all shadow-lg hover:shadow-emerald-500/25 border border-emerald-400/40 cursor-pointer">
-                            <span class="material-symbols-outlined text-lg">lock_clock</span>
-                            <span>Kunci &amp; Finalisasi Insentif Bulan Ini</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Stats Breakdown Grid in Pool Card (5 Cards) -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-md mt-lg pt-lg border-t border-white/10 relative z-10">
-                    <!-- Card 1: Pool Pangkalpinang (7%) -->
+                            <span>Evaluasi Dan                    <!-- Card 1: Operasional Pangkalpinang (13%) -->
                     <div class="bg-white/5 backdrop-blur-sm p-md rounded-xl border border-white/10 relative" id="card-pool-pkp">
                         <div class="flex items-center justify-between gap-1">
-                            <p class="text-xs text-slate-300 font-medium">Pool Pangkalpinang (7%)</p>
-                            <button id="btn-edit-pool-pkp" onclick="startEditPool('pkp')" type="button" class="p-1 text-slate-400 hover:text-white hover:bg-white/10 rounded transition-colors cursor-pointer" title="Edit manual nominal Pool Pangkalpinang">
+                            <p class="text-xs text-slate-300 font-medium">Operasional PKP (13%)</p>
+                            <button id="btn-edit-pool-pkp" onclick="startEditPool('pkp')" type="button" class="p-1 text-slate-400 hover:text-white hover:bg-white/10 rounded transition-colors cursor-pointer" title="Edit total operasional kotor Pangkalpinang (13%)">
                                 <span class="material-symbols-outlined text-sm">edit</span>
                             </button>
                         </div>
                         
                         <!-- Display View -->
-                        <div id="display-pool-pkp" class="flex items-center justify-between gap-1 mt-1">
-                            <h4 id="kpi-pool-pkp" class="text-lg md:text-xl font-black text-white">Rp 0</h4>
-                            <span id="badge-override-pkp" class="hidden px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/40">Manual</span>
+                        <div id="display-pool-pkp" class="mt-1">
+                            <div class="flex items-center justify-between gap-1">
+                                <h4 id="kpi-ops-total-pkp" class="text-base md:text-lg font-black text-white">Rp 0</h4>
+                                <span id="badge-override-pkp" class="hidden px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/40">Manual</span>
+                            </div>
+                            <div class="text-[10px] text-slate-300/80 mt-1.5 border-t border-white/10 pt-1 space-y-0.5">
+                                <div class="flex justify-between">
+                                    <span>Hak 6% Mitra:</span>
+                                    <span id="kpi-fee-pkp" class="text-amber-300 font-semibold">- Rp 0</span>
+                                </div>
+                                <div class="flex justify-between font-bold text-emerald-300">
+                                    <span>Sisa ke Brankas:</span>
+                                    <span id="kpi-pool-pkp">Rp 0</span>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Inline Edit View -->
                         <div id="edit-pool-pkp-form" class="hidden mt-1.5 space-y-1">
+                            <p class="text-[9px] text-slate-400">Total Operasional Kotor (13%):</p>
                             <div class="flex items-center gap-1">
-                                <input type="number" id="input-pool-pkp" class="w-full bg-slate-900/90 border border-emerald-400/60 rounded-lg px-2 py-1 text-xs text-white font-mono font-bold focus:outline-none focus:ring-1 focus:ring-emerald-400" placeholder="Nominal Rp" min="0" step="1000">
+                                <input type="number" id="input-pool-pkp" class="w-full bg-slate-900/90 border border-emerald-400/60 rounded-lg px-2 py-1 text-xs text-white font-mono font-bold focus:outline-none focus:ring-1 focus:ring-emerald-400" placeholder="Total 13% Rp" min="0" step="1000">
                                 <button onclick="saveEditPool('pkp')" type="button" class="p-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors cursor-pointer" title="Simpan">
                                     <span class="material-symbols-outlined text-base">check</span>
                                 </button>
@@ -1317,33 +1309,45 @@
                             </div>
                         </div>
 
-
                         <!-- Comparison helper text -->
                         <div id="helper-pool-pkp" class="hidden text-[10px] text-amber-300/90 mt-1 pt-1 border-t border-white/10 flex items-center justify-between">
-                            <span id="helper-text-pkp">Kalkulasi sistem asli: Rp 0</span>
+                            <span id="helper-text-pkp">Operasional kotor sistem: Rp 0</span>
                             <button onclick="resetPoolOverride('pkp')" type="button" class="text-[9px] underline hover:text-white cursor-pointer ml-1 text-amber-200" title="Kembalikan ke hitungan otomatis">Reset</button>
                         </div>
                     </div>
 
-                    <!-- Card 2: Pool Sungailiat (8%) -->
+                    <!-- Card 2: Operasional Sungailiat (14%) -->
                     <div class="bg-white/5 backdrop-blur-sm p-md rounded-xl border border-white/10 relative" id="card-pool-sungailiat">
                         <div class="flex items-center justify-between gap-1">
-                            <p class="text-xs text-slate-300 font-medium">Pool Sungailiat (8%)</p>
-                            <button id="btn-edit-pool-sungailiat" onclick="startEditPool('sungailiat')" type="button" class="p-1 text-slate-400 hover:text-white hover:bg-white/10 rounded transition-colors cursor-pointer" title="Edit manual nominal Pool Sungailiat">
+                            <p class="text-xs text-slate-300 font-medium">Operasional Sungailiat (14%)</p>
+                            <button id="btn-edit-pool-sungailiat" onclick="startEditPool('sungailiat')" type="button" class="p-1 text-slate-400 hover:text-white hover:bg-white/10 rounded transition-colors cursor-pointer" title="Edit total operasional kotor Sungailiat (14%)">
                                 <span class="material-symbols-outlined text-sm">edit</span>
                             </button>
                         </div>
                         
                         <!-- Display View -->
-                        <div id="display-pool-sungailiat" class="flex items-center justify-between gap-1 mt-1">
-                            <h4 id="kpi-pool-sungailiat" class="text-lg md:text-xl font-black text-white">Rp 0</h4>
-                            <span id="badge-override-sungailiat" class="hidden px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/40">Manual</span>
+                        <div id="display-pool-sungailiat" class="mt-1">
+                            <div class="flex items-center justify-between gap-1">
+                                <h4 id="kpi-ops-total-sungailiat" class="text-base md:text-lg font-black text-white">Rp 0</h4>
+                                <span id="badge-override-sungailiat" class="hidden px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/40">Manual</span>
+                            </div>
+                            <div class="text-[10px] text-slate-300/80 mt-1.5 border-t border-white/10 pt-1 space-y-0.5">
+                                <div class="flex justify-between">
+                                    <span>Hak 6% Mitra:</span>
+                                    <span id="kpi-fee-sungailiat" class="text-amber-300 font-semibold">- Rp 0</span>
+                                </div>
+                                <div class="flex justify-between font-bold text-emerald-300">
+                                    <span>Sisa ke Brankas:</span>
+                                    <span id="kpi-pool-sungailiat">Rp 0</span>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Inline Edit View -->
                         <div id="edit-pool-sungailiat-form" class="hidden mt-1.5 space-y-1">
+                            <p class="text-[9px] text-slate-400">Total Operasional Kotor (14%):</p>
                             <div class="flex items-center gap-1">
-                                <input type="number" id="input-pool-sungailiat" class="w-full bg-slate-900/90 border border-blue-400/60 rounded-lg px-2 py-1 text-xs text-white font-mono font-bold focus:outline-none focus:ring-1 focus:ring-blue-400" placeholder="Nominal Rp" min="0" step="1000">
+                                <input type="number" id="input-pool-sungailiat" class="w-full bg-slate-900/90 border border-blue-400/60 rounded-lg px-2 py-1 text-xs text-white font-mono font-bold focus:outline-none focus:ring-1 focus:ring-blue-400" placeholder="Total 14% Rp" min="0" step="1000">
                                 <button onclick="saveEditPool('sungailiat')" type="button" class="p-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors cursor-pointer" title="Simpan">
                                     <span class="material-symbols-outlined text-base">check</span>
                                 </button>
@@ -1353,10 +1357,9 @@
                             </div>
                         </div>
 
-
                         <!-- Comparison helper text -->
                         <div id="helper-pool-sungailiat" class="hidden text-[10px] text-amber-300/90 mt-1 pt-1 border-t border-white/10 flex items-center justify-between">
-                            <span id="helper-text-sungailiat">Kalkulasi sistem asli: Rp 0</span>
+                            <span id="helper-text-sungailiat">Operasional kotor sistem: Rp 0</span>
                             <button onclick="resetPoolOverride('sungailiat')" type="button" class="text-[9px] underline hover:text-white cursor-pointer ml-1 text-amber-200" title="Kembalikan ke hitungan otomatis">Reset</button>
                         </div>
                     </div>
@@ -8382,7 +8385,7 @@
             const poolSummary = wizStore.kpiMitra.getPoolSummary(selectedMonth, overrides);
 
             if (branch === 'pkp') {
-                const currentVal = overrides.overridePoolPkp !== null ? overrides.overridePoolPkp : (poolSummary.rawPoolPKP || 0);
+                const currentVal = overrides.overridePoolPkp !== null ? overrides.overridePoolPkp : (poolSummary.totalOpsPKP || poolSummary.rawOpsPKP || 0);
                 const inputEl = document.getElementById('input-pool-pkp');
                 if (inputEl) inputEl.value = currentVal;
                 document.getElementById('display-pool-pkp')?.classList.add('hidden');
@@ -8391,7 +8394,7 @@
                 inputEl?.focus();
                 inputEl?.select();
             } else if (branch === 'sungailiat') {
-                const currentVal = overrides.overridePoolSungailiat !== null ? overrides.overridePoolSungailiat : (poolSummary.rawPoolSungailiat || 0);
+                const currentVal = overrides.overridePoolSungailiat !== null ? overrides.overridePoolSungailiat : (poolSummary.totalOpsSungailiat || poolSummary.rawOpsSungailiat || 0);
                 const inputEl = document.getElementById('input-pool-sungailiat');
                 if (inputEl) inputEl.value = currentVal;
                 document.getElementById('display-pool-sungailiat')?.classList.add('hidden');
@@ -8525,25 +8528,35 @@
                 }
 
                 // Update PKP Card display
+                const opsTotalPkpEl = document.getElementById('kpi-ops-total-pkp');
+                const feePkpEl = document.getElementById('kpi-fee-pkp');
+                if (opsTotalPkpEl) opsTotalPkpEl.textContent = fmt(poolSummary.totalOpsPKP || 0);
+                if (feePkpEl) feePkpEl.textContent = `- ${fmt(poolSummary.fee6PercentPKP || 0)}`;
                 if (poolPkpEl) poolPkpEl.textContent = fmt(poolSummary.poolPKP || 0);
+
                 const badgeOverridePkp = document.getElementById('badge-override-pkp');
                 const helperPoolPkp = document.getElementById('helper-pool-pkp');
                 const helperTextPkp = document.getElementById('helper-text-pkp');
                 if (badgeOverridePkp) badgeOverridePkp.classList.toggle('hidden', !poolSummary.isOverriddenPKP);
                 if (helperPoolPkp) {
                     helperPoolPkp.classList.toggle('hidden', !poolSummary.isOverriddenPKP);
-                    if (helperTextPkp) helperTextPkp.textContent = `Kalkulasi sistem asli: ${fmt(poolSummary.rawPoolPKP || 0)}`;
+                    if (helperTextPkp) helperTextPkp.textContent = `Operasional kotor sistem: ${fmt(poolSummary.rawOpsPKP || 0)}`;
                 }
 
                 // Update Sungailiat Card display
+                const opsTotalSglEl = document.getElementById('kpi-ops-total-sungailiat');
+                const feeSglEl = document.getElementById('kpi-fee-sungailiat');
+                if (opsTotalSglEl) opsTotalSglEl.textContent = fmt(poolSummary.totalOpsSungailiat || 0);
+                if (feeSglEl) feeSglEl.textContent = `- ${fmt(poolSummary.fee6PercentSungailiat || 0)}`;
                 if (poolSungailiatEl) poolSungailiatEl.textContent = fmt(poolSummary.poolSungailiat || 0);
+
                 const badgeOverrideSgl = document.getElementById('badge-override-sungailiat');
                 const helperPoolSgl = document.getElementById('helper-pool-sungailiat');
                 const helperTextSgl = document.getElementById('helper-text-sungailiat');
                 if (badgeOverrideSgl) badgeOverrideSgl.classList.toggle('hidden', !poolSummary.isOverriddenSungailiat);
                 if (helperPoolSgl) {
                     helperPoolSgl.classList.toggle('hidden', !poolSummary.isOverriddenSungailiat);
-                    if (helperTextSgl) helperTextSgl.textContent = `Kalkulasi sistem asli: ${fmt(poolSummary.rawPoolSungailiat || 0)}`;
+                    if (helperTextSgl) helperTextSgl.textContent = `Operasional kotor sistem: ${fmt(poolSummary.rawOpsSungailiat || 0)}`;
                 }
 
                 if (poolFundEl) poolFundEl.textContent = fmt(totalPoolFund);
