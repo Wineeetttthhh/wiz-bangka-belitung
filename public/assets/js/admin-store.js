@@ -6222,6 +6222,10 @@
 
             monthDonations.forEach(d => {
                 const amt = Number(d.amount) || 0;
+                const dWil = String(d.wilayah || '').toLowerCase();
+                const dRefKey = String(d.referralId || d.referral_id || d.referralCode || d.referral_code || '').toLowerCase();
+                const ref = refMap.get(dRefKey);
+                const refCabang = String((ref && ref.cabang) || '').toLowerCase();
                 if (dWil.includes('sungailiat') || refCabang.includes('sungailiat')) {
                     sumSungailiat += amt;
                     countSungailiat++;
