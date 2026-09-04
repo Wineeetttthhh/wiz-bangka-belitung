@@ -73,7 +73,7 @@ const canonicalUrl = new URL(`/program/${program.slug}`, Astro.site || Astro.url
                         src={program.image_url || program.imageUrl || '/assets/images/default-program-wiz.jpg'}
                         alt={program.title}
                         class="w-full max-h-[640px] object-contain rounded-2xl block mx-auto"
-                        onerror="this.src='/assets/images/default-program-wiz.jpg'"
+                        onerror={`if(!this.dataset.triedOg){this.dataset.triedOg='1';this.src='${ogImgFile}';}else{this.src='/assets/images/default-program-wiz.jpg';}`}
                     />
                     <div class="absolute top-4 left-4">
                         <span class="px-3.5 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md text-amber-300 text-xs font-bold border border-slate-700 shadow-md">
