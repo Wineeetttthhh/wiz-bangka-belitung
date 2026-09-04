@@ -1428,10 +1428,14 @@
                             </div>
                             <h4 class="text-xs font-bold text-slate-900 line-clamp-2 leading-snug">${n.title}</h4>
                             <p class="text-[11px] text-slate-500 line-clamp-1">${rawExcerpt}</p>
-                            <div class="pt-1 flex items-center gap-1.5">
-                                <button type="button" onclick="shareAffiliateNewsWA('${n.id}')" class="flex-1 bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold text-xs py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 shadow-xs transition-colors cursor-pointer" title="Bagikan ke WhatsApp">
-                                    <span class="material-symbols-outlined text-sm">send</span>
-                                    <span>Share WA</span>
+                            <div class="pt-1 flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
+                                <button type="button" onclick="shareAffiliateNewsStatusWA('${n.id}')" class="flex-1 min-w-[75px] bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-[11px] py-1.5 px-1.5 rounded-lg flex items-center justify-center gap-1 shadow-xs transition-all active:scale-95 cursor-pointer" title="Buat Status WhatsApp (Kartu Gambar Otomatis Muncul)">
+                                    <span class="material-symbols-outlined text-sm">history_toggle_off</span>
+                                    <span>Status</span>
+                                </button>
+                                <button type="button" onclick="shareAffiliateNewsChatWA('${n.id}')" class="flex-1 min-w-[75px] bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold text-[11px] py-1.5 px-1.5 rounded-lg flex items-center justify-center gap-1 shadow-xs transition-all active:scale-95 cursor-pointer" title="Kirim Pesan Rapi ke Chat WhatsApp">
+                                    <span class="material-symbols-outlined text-sm">chat</span>
+                                    <span>Chat</span>
                                 </button>
                                 <button type="button" onclick="copyAffiliateNewsLink('${n.id}')" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-xs flex items-center justify-center transition-colors cursor-pointer" title="Salin Link">
                                     <span class="material-symbols-outlined text-[15px]">content_copy</span>
@@ -1494,7 +1498,15 @@
             return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, ' ');
         }
 
-        function shareAffiliateNewsWA(newsId) {
+        function shareAffiliateNewsStatusWA(newsId) {
+            const refCode = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || (sessionStorage.getItem('wiz_active_ref_id') || 'WIZ');
+            const canonicalUrl = `https://www.wizbangkabelitung.or.id/berita/${encodeURIComponent(newsId)}?ref=${encodeURIComponent(refCode)}`;
+            showAffiliateShareToast("✨ Membuka WhatsApp... Pilih 'Status Saya' dan tunggu 1–2 detik hingga kartu berita muncul!");
+            const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(canonicalUrl)}`;
+            window.open(waUrl, '_blank');
+        }
+
+        function shareAffiliateNewsChatWA(newsId) {
             const refCode = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || (sessionStorage.getItem('wiz_active_ref_id') || 'WIZ');
             const canonicalUrl = `https://www.wizbangkabelitung.or.id/berita/${encodeURIComponent(newsId)}?ref=${encodeURIComponent(refCode)}`;
 
@@ -1509,10 +1521,13 @@
             const title = item ? item.title : 'Kabar Berita & Kegiatan WIZ Babel';
             const snippet = item ? (item.content || '').replace(/<[^>]*>/g, '').trim().slice(0, 140) : 'Dokumentasi kegiatan dan penyaluran amanah donatur WIZ Bangka Belitung.';
 
-            // URL placed standalone at top line with double newline for guaranteed WhatsApp Photo Preview Card
-            const waText = `${canonicalUrl}\n\n📰 *${title}*\n${snippet}...\n\nBaca selengkapnya & dukung program kebaikan melalui tautan resmi di atas.`;
+            const waText = `*Kabar Berita: ${title}*\n_Wahdah Inspirasi Zakat (WIZ) Bangka Belitung_\n\n${snippet}...\n\nBaca dokumentasi selengkapnya melalui tautan resmi:\n👇👇👇\n${canonicalUrl}\n\n_Mari dukung terus dakwah dan kebaikan bersama WIZ Bangka Belitung._`;
             const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(waText)}`;
             window.open(waUrl, '_blank');
+        }
+
+        function shareAffiliateNewsWA(newsId) {
+            shareAffiliateNewsChatWA(newsId);
         }
 
         function copyAffiliateNewsLink(newsId) {
@@ -1616,10 +1631,14 @@
                                 <span class="text-slate-400 font-normal">Komisi 6%</span>
                             </div>
                         </div>
-                        <div class="pt-2 border-t border-slate-100 flex items-center gap-1.5">
-                            <button type="button" onclick="shareProgramDirectWA('${escapedSlug}', '${escapedTitle}', '${escapedDesc}')" class="flex-1 bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold text-xs py-2 px-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer" title="Bagikan ke WhatsApp">
-                                <span class="material-symbols-outlined text-base">send</span>
-                                <span>Share WA</span>
+                        <div class="pt-2 border-t border-slate-100 flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
+                            <button type="button" onclick="shareProgramStatusWA('${escapedSlug}', '${escapedTitle}')" class="flex-1 min-w-[95px] bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-2 px-2 rounded-xl flex items-center justify-center gap-1 shadow-xs transition-all active:scale-95 cursor-pointer" title="Buat Status WhatsApp (Kartu Poster Otomatis Muncul)">
+                                <span class="material-symbols-outlined text-[16px]">history_toggle_off</span>
+                                <span>Status WA</span>
+                            </button>
+                            <button type="button" onclick="shareProgramChatWA('${escapedSlug}', '${escapedTitle}', '${escapedDesc}')" class="flex-1 min-w-[95px] bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold text-xs py-2 px-2 rounded-xl flex items-center justify-center gap-1 shadow-xs transition-all active:scale-95 cursor-pointer" title="Kirim Pesan Rapi ke Chat Pribadi / Grup WhatsApp">
+                                <span class="material-symbols-outlined text-[16px]">chat</span>
+                                <span>Chat WA</span>
                             </button>
                             <button type="button" onclick="copyProgramDirectLink('${escapedSlug}', '${escapedTitle}')" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs flex items-center justify-center transition-colors cursor-pointer" title="Salin Link Program">
                                 <span class="material-symbols-outlined text-[17px]">content_copy</span>
@@ -1633,18 +1652,47 @@
             }).join('');
         }
 
-        function shareProgramDirectWA(slug, title, desc) {
+        function showAffiliateShareToast(msg) {
+            let toast = document.getElementById('affiliate-share-toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'affiliate-share-toast';
+                toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 text-white text-xs font-semibold px-4 py-2.5 rounded-2xl shadow-xl border border-slate-700 backdrop-blur-md transition-all duration-300 pointer-events-none opacity-0 translate-y-2 max-w-[90vw] text-center';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = msg;
+            toast.classList.remove('opacity-0', 'translate-y-2');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-2');
+            }, 3500);
+        }
+
+        // Khusus Status WA: Mengirim HANYA URL agar WhatsApp client memunculkan kartu preview poster & judul otomatis (seperti Foto 1)
+        function shareProgramStatusWA(slug, title) {
+            const activeRef = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || (sessionStorage.getItem('wiz_active_ref_id') || 'WIZ');
+            const canonicalUrl = `https://www.wizbangkabelitung.or.id/program/${encodeURIComponent(slug)}?ref=${encodeURIComponent(activeRef)}`;
+            showAffiliateShareToast("✨ Membuka WhatsApp... Pilih 'Status Saya' dan tunggu 1–2 detik hingga kartu poster muncul!");
+            const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(canonicalUrl)}`;
+            window.open(waUrl, '_blank');
+        }
+
+        // Khusus Room Chat / Grup WA: Pesan rapi, terstruktur, sopan, dan inspiratif
+        function shareProgramChatWA(slug, title, desc) {
             const cleanTitle = (title || 'Program Kebaikan').replace(/&quot;/g, '"');
             const cleanDesc = (desc || 'Mari bersama alirkan kebaikan dan raih pahala jariyah melalui program ini.').replace(/&quot;/g, '"');
             const activeRef = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || (sessionStorage.getItem('wiz_active_ref_id') || 'WIZ');
             const canonicalUrl = `https://www.wizbangkabelitung.or.id/program/${encodeURIComponent(slug)}?ref=${encodeURIComponent(activeRef)}`;
             
-            // Format strictly compliant with WhatsApp Open Graph Link Preview card scraper:
-            // Standalone URL on first line + double newline + descriptive text
-            const waText = `${canonicalUrl}\n\n🌟 *${cleanTitle}* - WIZ Bangka Belitung\n${cleanDesc}\n\nMari bersama alirkan kebaikan dan raih pahala jariyah melalui tautan resmi di atas.`;
+            const waText = `*Program Kebaikan: ${cleanTitle}*\n_Wahdah Inspirasi Zakat (WIZ) Bangka Belitung_\n\nBismillah. ${cleanDesc}\n\nMari bersama alirkan kebaikan dan raih pahala jariyah terbaik melalui tautan resmi:\n👇👇👇\n${canonicalUrl}\n\n_Semoga Allah membalas setiap amal kebaikan dengan rezeki berlimpah dan penuh berkah. Aamiin._`;
             
             const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(waText)}`;
             window.open(waUrl, '_blank');
+        }
+
+        function shareProgramDirectWA(slug, title, desc) {
+            shareProgramChatWA(slug, title, desc);
         }
 
         function copyProgramDirectLink(slug, title) {
@@ -1728,13 +1776,17 @@
                         <span>${fSource}</span>
                     </p>
                     <div class="pt-2 flex flex-wrap items-center gap-2.5">
-                        <button type="button" onclick="shareAffiliateQuoteWA('${todayQuote.id}')" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl flex items-center gap-2 shadow-lg transition-transform hover:scale-105 cursor-pointer">
-                            <span class="material-symbols-outlined text-lg">send</span>
-                            <span>Bagikan ke WA Story</span>
+                        <button type="button" onclick="shareAffiliateQuoteStatusWA('${todayQuote.id}')" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs sm:text-sm py-2.5 px-3.5 rounded-xl flex items-center gap-1.5 shadow-md transition-all active:scale-95 cursor-pointer" title="Buat Status WhatsApp">
+                            <span class="material-symbols-outlined text-lg">history_toggle_off</span>
+                            <span>Status WA</span>
                         </button>
-                        <button type="button" onclick="copyAffiliateQuoteFull('${todayQuote.id}')" class="bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl flex items-center gap-2 border border-white/20 transition-colors cursor-pointer">
+                        <button type="button" onclick="shareAffiliateQuoteChatWA('${todayQuote.id}')" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold text-xs sm:text-sm py-2.5 px-3.5 rounded-xl flex items-center gap-1.5 shadow-md transition-all active:scale-95 cursor-pointer" title="Kirim ke Chat / Grup WhatsApp">
+                            <span class="material-symbols-outlined text-lg">chat</span>
+                            <span>Chat WA</span>
+                        </button>
+                        <button type="button" onclick="copyAffiliateQuoteFull('${todayQuote.id}')" class="bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm py-2.5 px-3.5 rounded-xl flex items-center gap-1.5 border border-white/20 transition-colors cursor-pointer">
                             <span class="material-symbols-outlined text-lg">content_copy</span>
-                            <span>Salin Teks &amp; Link</span>
+                            <span>Salin Teks</span>
                         </button>
                         <a href="${localQuoteUrl}" target="_blank" class="bg-emerald-800/60 hover:bg-emerald-800 text-emerald-200 font-bold text-xs sm:text-sm py-2.5 px-3 rounded-xl flex items-center gap-1 border border-emerald-500/30 transition-colors" title="Buka Flyer">
                             <span class="material-symbols-outlined text-lg">open_in_new</span>
@@ -1766,10 +1818,14 @@
                                 </h4>
                                 <p class="text-xs text-slate-600 italic line-clamp-2 leading-relaxed">"${qText}"</p>
                             </div>
-                            <div class="pt-2 border-t border-slate-100 flex items-center gap-1.5">
-                                <button type="button" onclick="shareAffiliateQuoteWA('${q.id}')" class="flex-1 bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold text-xs py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 shadow-xs transition-colors cursor-pointer" title="Share WA">
-                                    <span class="material-symbols-outlined text-sm">send</span>
-                                    <span>Share WA</span>
+                            <div class="pt-2 border-t border-slate-100 flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
+                                <button type="button" onclick="shareAffiliateQuoteStatusWA('${q.id}')" class="flex-1 min-w-[75px] bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-1.5 px-1.5 rounded-lg flex items-center justify-center gap-1 shadow-xs transition-all active:scale-95 cursor-pointer" title="Buat Status WhatsApp (Flyer Otomatis Muncul)">
+                                    <span class="material-symbols-outlined text-sm">history_toggle_off</span>
+                                    <span>Status</span>
+                                </button>
+                                <button type="button" onclick="shareAffiliateQuoteChatWA('${q.id}')" class="flex-1 min-w-[75px] bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold text-xs py-1.5 px-1.5 rounded-lg flex items-center justify-center gap-1 shadow-xs transition-all active:scale-95 cursor-pointer" title="Kirim Pesan Rapi ke Chat WhatsApp">
+                                    <span class="material-symbols-outlined text-sm">chat</span>
+                                    <span>Chat</span>
                                 </button>
                                 <button type="button" onclick="copyAffiliateQuoteFull('${q.id}')" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-xs flex items-center justify-center transition-colors cursor-pointer" title="Salin Teks Quote">
                                     <span class="material-symbols-outlined text-[15px]">content_copy</span>
@@ -1814,7 +1870,15 @@
             }
         }
 
-        function shareAffiliateQuoteWA(quoteId) {
+        function shareAffiliateQuoteStatusWA(quoteId) {
+            const refCode = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || (sessionStorage.getItem('wiz_active_ref_id') || 'WIZ');
+            const origin = window.location.origin || 'https://www.wizbangkabelitung.or.id';
+            const finalShareUrl = `${origin}/quote/${encodeURIComponent(quoteId)}?ref=${encodeURIComponent(refCode)}`;
+            showAffiliateShareToast("✨ Membuka WhatsApp... Pilih 'Status Saya' dan tunggu 1–2 detik hingga kartu quote muncul!");
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(finalShareUrl)}`, '_blank');
+        }
+
+        function shareAffiliateQuoteChatWA(quoteId) {
             let allQuotes = [];
             if (window.wizStore && window.wizStore.quotes) {
                 try { allQuotes = window.wizStore.quotes.getAll() || []; } catch(e) {}
@@ -1835,8 +1899,12 @@
                 quoteSnippet = '*Inspirasi & Syiar Kebaikan WIZ Bangka Belitung*';
             }
 
-            const waText = `${finalShareUrl}\n\n${quoteSnippet}`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(waText)}`, '_blank');
+            const waText = `*Inspirasi Hari Ini*\n${quoteSnippet}\n\nSimak & sebarkan kebaikan melalui tautan resmi:\n👇👇👇\n${finalShareUrl}\n\n_Semoga menjadi pengingat dan ladang pahala bagi kita semua._`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(waText)}`, '_blank');
+        }
+
+        function shareAffiliateQuoteWA(quoteId) {
+            shareAffiliateQuoteChatWA(quoteId);
         }
 
         function copyAffiliateQuoteFull(quoteId) {

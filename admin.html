@@ -1268,7 +1268,28 @@
                     <div class="space-y-sm max-w-2xl">
                         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-bold uppercase tracking-wider">
                             <span class="material-symbols-outlined text-sm">account_balance_wallet</span>
-                            <span>Evaluasi Dan                    <!-- Card 1: Operasional Pangkalpinang (13%) -->
+                            <span>Evaluasi Dana Operasional Wilayah (Brankas Wilayah)</span>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-black text-white flex items-center gap-2 flex-wrap">
+                            <span>Distribusi Insentif Terpusat &amp; Brankas Wilayah</span>
+                            <span id="kpi-pool-period-badge" class="text-xs font-bold px-2.5 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Periode ...</span>
+                        </h3>
+                        <p class="text-slate-300 text-xs md:text-sm leading-relaxed">
+                            Alokasi operasional amil: <strong>Pangkalpinang (6% Fix + 7% Pool)</strong> dan <strong>Sungailiat (6% Fix + 8% Pool)</strong> digabung ke <strong>Brankas Wilayah</strong> lalu dibagikan secara proporsional kepada seluruh mitra berdasarkan akumulasi perolehan poin KPI bulanan.
+                        </p>
+                    </div>
+
+                    <div class="shrink-0 w-full lg:w-auto">
+                        <button onclick="finalizeMonthlyPool()" class="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-xl py-3.5 rounded-xl font-black text-sm transition-all shadow-lg hover:shadow-emerald-500/25 border border-emerald-400/40 cursor-pointer">
+                            <span class="material-symbols-outlined text-lg">lock_clock</span>
+                            <span>Kunci &amp; Finalisasi Insentif Bulan Ini</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Breakdown Grid in Pool Card (5 Cards) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-md mt-lg pt-lg border-t border-white/10 relative z-10">
+                    <!-- Card 1: Operasional Pangkalpinang (13%) -->
                     <div class="bg-white/5 backdrop-blur-sm p-md rounded-xl border border-white/10 relative" id="card-pool-pkp">
                         <div class="flex items-center justify-between gap-1">
                             <p class="text-xs text-slate-300 font-medium">Operasional PKP (13%)</p>
@@ -2383,12 +2404,21 @@
                     <div>
                         <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Periode Kinerja / Hak Insentif *</label>
                         <select id="payout-period" required onchange="updatePayoutModalInfo()" class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none font-bold">
+                            <option value="2026-09" selected>September 2026 (Bulan Ini)</option>
+                            <option value="2026-08">Agustus 2026</option>
+                            <option value="2026-07">Juli 2026</option>
+                            <option value="2026-06">Juni 2026</option>
+                            <option value="2026-05">Mei 2026</option>
+                            <option value="2026-04">April 2026</option>
+                            <option value="2026-03">Maret 2026</option>
+                            <option value="2026-02">Februari 2026</option>
+                            <option value="2026-01">Januari 2026</option>
                         </select>
                         <p class="text-[10px] text-on-surface-variant mt-0.5">Bulan hak kinerja yang dicairkan (misal: kinerja Agustus dicairkan awal September).</p>
                     </div>
                     <div>
                         <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Nominal Pencairan (Rp) *</label>
-                        <input type="number" id="payout-amount" required min="1000" class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none font-bold text-amber-800" placeholder="Contoh: 150000">
+                        <input type="number" id="payout-amount" required min="1" class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none font-bold text-amber-800" placeholder="Contoh: 150000">
                     </div>
                 </div>
 
@@ -8280,6 +8310,45 @@
         }
 
         // ─── Mitra Penghimpunan (Hak 6% Insentif) UI Handlers ─────────
+        
+        function populateMonthFilterOptions(elementId, includeAll = true) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            const periodsFn = window.generatePeriods || (window.wizStore && window.wizStore.utils && window.wizStore.utils.generatePeriods);
+            const periods = typeof periodsFn === 'function' ? periodsFn(12) : [];
+            const curPeriod = (window.getCurrentPeriod || (window.wizStore && window.wizStore.utils && window.wizStore.utils.getCurrentPeriod) || (() => {
+                const now = new Date();
+                return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+            }))();
+
+            const curVal = el.value;
+            let html = '';
+            if (includeAll) {
+                html += '<option value="Semua">Semua Periode</option>';
+            }
+            if (periods && periods.length > 0) {
+                periods.forEach(p => {
+                    html += '<option value="' + p.value + '" ' + (p.value === curPeriod ? 'selected' : '') + '>' + p.label + (p.isCurrent ? ' (Bulan Ini)' : '') + '</option>';
+                });
+            } else {
+                const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                const d = new Date();
+                for (let i = 0; i < 12; i++) {
+                    const temp = new Date(d.getFullYear(), d.getMonth() - i, 1);
+                    const y = temp.getFullYear();
+                    const m = temp.getMonth();
+                    const val = y + '-' + String(m + 1).padStart(2, '0');
+                    const label = monthNames[m] + ' ' + y;
+                    html += '<option value="' + val + '" ' + (i === 0 ? 'selected' : '') + '>' + label + (i === 0 ? ' (Bulan Ini)' : '') + '</option>';
+                }
+            }
+            el.innerHTML = html;
+            if (curVal && Array.from(el.options).some(o => o.value === curVal)) {
+                el.value = curVal;
+            }
+        }
+        window.populateMonthFilterOptions = populateMonthFilterOptions;
+
         function populateReferralSelects() {
             if (!wizStore.referrals) return;
             const activeRefs = wizStore.referrals.getAll().filter(r => r.status === 'active');
