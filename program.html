@@ -255,7 +255,7 @@
             <!-- Card 1 -->
             <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="dakwah" data-title="Pembangunan Markaz">
                 <div class="relative overflow-hidden aspect-[3/4] bg-slate-100">
-                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Pembangunan Markaz Dakwah" src="assets/images/default-program-wiz.jpg" onerror="this.onerror=null; this.src='assets/images/default-program-wiz.jpg';" alt="Pembangunan Markaz"/>
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Pembangunan Markaz Dakwah" src="/assets/images/pembangunan-markaz-dakwah.png" onerror="this.onerror=null; this.src='/assets/images/default-program-wiz.jpg';" alt="Pembangunan Markaz"/>
                     <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Dakwah</span>
                 </div>
                 <div class="p-lg flex flex-col flex-grow">
@@ -1431,6 +1431,29 @@
             { catKey: 'ekonomi', pillars: ['Berkah Mandiri', 'Ekonomi & Pemberdayaan', 'Ekonomi'] }
         ];
 
+        const PROGRAM_IMG_MAP = {
+            'pray-for-ntt': '/assets/images/default-program-wiz.jpg',
+            'tebar-sembako': '/assets/images/tebar-sembako.png',
+            'sedekah-beras-dhuafa': '/assets/images/sedekah-beras-dhuafa.png',
+            'sedekah-jumat': '/assets/images/sedekah-Jumat.png',
+            'santunan-yatim': '/assets/images/santunan-yatim.png',
+            'tebar-quran-nusantara': '/assets/images/tebar-qur\'an-nusantara.png',
+            'tebar-iftar-nusantara': '/assets/images/tebar-iftar-nusantara.png',
+            'pembangunan-markaz': '/assets/images/pembangunan-markaz-dakwah.png',
+            'pembangunan-markaz-dakwah': '/assets/images/pembangunan-markaz-dakwah.png',
+            'pengadaan-perbaikan-kendaraan': '/assets/images/pengadaan-&-perbaikan-kendaraan.png',
+            'santunan-mualaf': '/assets/images/santunan-mualaf.png',
+            'tahfidz': '/assets/images/tahfidz.png',
+            'beasiswa-pendidikan-juara': '/assets/images/beasiswa-pendidikan-juara.png',
+            'beasiswa-tahfidz-dan-dhuafa': '/assets/images/tahfidz.png',
+            'perlengkapan-belajar-yatim': '/assets/images/perlengkapan-belajar-yatim.png',
+            'khitanan-massal-dhuafa': '/assets/images/khitanan-massal-dhuafa.png',
+            'layanan-pengobatan-gratis': '/assets/images/layanan-pengobatan-gratis.png',
+            'ambulance-gratis-ummat': '/assets/images/ambulance-gratis-ummat.png',
+            'modal-usaha-dhuafa': '/assets/images/modal-usaha-dhuafa.png',
+            'pelatihan-keterampilan-wirausaha': '/assets/images/pelatihan-keterampilan-wirausaha.png'
+        };
+
         categorySections.forEach(({ catKey, pillars }) => {
             const section = document.querySelector(`.program-section[data-section-category="${catKey}"]`);
             if (!section) return;
@@ -1445,16 +1468,33 @@
                     ? window.wizStore.finance.getSpecificProgramStats(p.title, 0, p.targetAmount || 15000000)
                     : { percent: 0, saldo: 0 };
 
-                const dynamicImg = (window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function')
-                    ? window.wizStore.allocationRulesManager.getSpecificProgramImage(p.title, p.pillar)
-                    : (p.imageUrl || 'assets/images/foto-utama-wiz.jpg');
+                const pSlug = (p.slug || (p.title ? p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : 'program')).toLowerCase();
+                const pCleanTitle = (p.title || '').toLowerCase().trim();
+                let dynamicImg = PROGRAM_IMG_MAP[pSlug];
+                if (!dynamicImg) {
+                    if (pCleanTitle.includes('pembangunan markaz') || pSlug.includes('pembangunan-markaz')) {
+                        dynamicImg = '/assets/images/pembangunan-markaz-dakwah.png';
+                    } else if (pCleanTitle.includes('perlengkapan belajar') || pSlug.includes('perlengkapan-belajar')) {
+                        dynamicImg = '/assets/images/perlengkapan-belajar-yatim.png';
+                    } else {
+                        dynamicImg = (window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function')
+                            ? window.wizStore.allocationRulesManager.getSpecificProgramImage(p.title, p.pillar)
+                            : (p.imageUrl || '/assets/images/default-program-wiz.jpg');
+                    }
+                }
+                if (!dynamicImg || (typeof dynamicImg === 'string' && dynamicImg.startsWith('data:image') && (pCleanTitle.includes('perlengkapan belajar') || pCleanTitle.includes('pembangunan markaz')))) {
+                    dynamicImg = pCleanTitle.includes('perlengkapan belajar') ? '/assets/images/perlengkapan-belajar-yatim.png' : '/assets/images/pembangunan-markaz-dakwah.png';
+                }
+                if (dynamicImg && !dynamicImg.startsWith('/') && !dynamicImg.startsWith('http') && !dynamicImg.startsWith('data:')) {
+                    dynamicImg = '/' + dynamicImg;
+                }
 
                 const targetLabel = p.target || (`Rp ${(p.targetAmount || 15000000).toLocaleString('id-ID')}`);
 
                 return `
                 <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full cursor-pointer" data-category="${catKey}" data-title="${escapeHtml(p.title)}" data-target="${p.targetAmount || 15000000}">
                     <div class="relative overflow-hidden aspect-[3/4] bg-slate-100">
-                        <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="${escapeHtml(p.title)}" src="${dynamicImg}" onerror="this.onerror=null; this.src='assets/images/foto-utama-wiz.jpg';" alt="${escapeHtml(p.title)}"/>
+                        <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="${escapeHtml(p.title)}" src="${dynamicImg}" onerror="this.onerror=null; this.src='/assets/images/default-program-wiz.jpg';" alt="${escapeHtml(p.title)}"/>
                         <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">${escapeHtml(p.pillar)}</span>
                     </div>
                     <div class="p-lg flex flex-col flex-grow">

@@ -133,13 +133,24 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                                 if (found) {
                                     if (titleEl) titleEl.textContent = found.title;
                                     if (pillarEl) pillarEl.textContent = (found.pillar || found.category || 'BERKAH HIDAYAH').toUpperCase();
-                                    if (imgEl && found.imageUrl) imgEl.src = found.imageUrl;
+                                    var targetImg = found.imageUrl || found.image_url;
+                                    if (slugified.includes('pembangunan-markaz') || spacified.includes('pembangunan markaz') || spacified.includes('markaz')) {
+                                        targetImg = '/assets/images/pembangunan-markaz-dakwah.png';
+                                    } else if (slugified.includes('perlengkapan-belajar') || spacified.includes('perlengkapan belajar')) {
+                                        targetImg = '/assets/images/perlengkapan-belajar-yatim.png';
+                                    }
+                                    if (imgEl && targetImg) imgEl.src = targetImg;
                                     if (descEl) descEl.textContent = found.description || found.fullDescription || 'Salurkan donasi terbaik Anda untuk program kebaikan ini.';
                                     if (locEl) locEl.textContent = 'Lokasi: ' + (found.location || 'Kepulauan Bangka Belitung');
                                     if (benEl) benEl.textContent = found.beneficiaries || 'Mustahik & Santri';
                                 } else {
                                     var formatted = raw.includes('-') ? raw.split('-').map(function(w){ return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ') : raw;
                                     if (titleEl) titleEl.textContent = formatted;
+                                    if (slugified.includes('pembangunan-markaz') || spacified.includes('pembangunan markaz') || spacified.includes('markaz')) {
+                                        if (imgEl) imgEl.src = '/assets/images/pembangunan-markaz-dakwah.png';
+                                    } else if (slugified.includes('perlengkapan-belajar') || spacified.includes('perlengkapan belajar')) {
+                                        if (imgEl) imgEl.src = '/assets/images/perlengkapan-belajar-yatim.png';
+                                    }
                                 }
                             }
                         } catch(e) {}
@@ -872,12 +883,18 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                     const pLower = p.toLowerCase();
                     const pSlug = pLower.replace(/[^a-z0-9]/g, '-');
                     if (pLower === lower || pLower === spacified || pSlug === slugified || pLower.includes(spacified) || spacified.includes(pLower)) {
+                        let customImg = '/assets/images/foto-utama-wiz.jpg';
+                        if (pLower.includes('pembangunan markaz') || pSlug.includes('pembangunan-markaz') || pLower.includes('markaz')) {
+                            customImg = '/assets/images/pembangunan-markaz-dakwah.png';
+                        } else if (pLower.includes('perlengkapan belajar') || pSlug.includes('perlengkapan-belajar')) {
+                            customImg = '/assets/images/perlengkapan-belajar-yatim.png';
+                        }
                         return {
                             title: p,
                             pillar: cat,
                             category: cat,
                             description: `Program kebaikan ${p} dalam pilar ${cat} yang dikelola secara amanah dan transparan oleh WIZ Bangka Belitung.`,
-                            imageUrl: '/assets/images/foto-utama-wiz.jpg',
+                            imageUrl: customImg,
                             location: 'Kepulauan Bangka Belitung',
                             beneficiaries: 'Mustahik & Santri'
                         };
@@ -890,12 +907,19 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                 ? clean.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
                 : clean;
 
+            let customImg = '/assets/images/foto-utama-wiz.jpg';
+            if (slugified.includes('pembangunan-markaz') || spacified.includes('pembangunan markaz') || spacified.includes('markaz')) {
+                customImg = '/assets/images/pembangunan-markaz-dakwah.png';
+            } else if (slugified.includes('perlengkapan-belajar') || spacified.includes('perlengkapan belajar')) {
+                customImg = '/assets/images/perlengkapan-belajar-yatim.png';
+            }
+
             return {
                 title: formatted,
                 pillar: 'Berkah Hidayah',
                 category: 'Dakwah & Syiar',
                 description: `Penyaluran donasi khusus program ${formatted} melalui Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.`,
-                imageUrl: '/assets/images/foto-utama-wiz.jpg',
+                imageUrl: customImg,
                 location: 'Kepulauan Bangka Belitung',
                 beneficiaries: 'Mustahik di Bangka Belitung'
             };
@@ -961,7 +985,15 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                 if (titleEl) titleEl.textContent = prog.title || prog.name;
                 if (pillarEl) pillarEl.textContent = (prog.pillar || prog.category || 'BERKAH PEDULI').toUpperCase();
                 if (imgEl) {
-                    imgEl.src = prog.imageUrl || '/assets/images/foto-utama-wiz.jpg';
+                    const pSlug = (prog.slug || '').toLowerCase();
+                    const pTitle = (prog.title || prog.name || '').toLowerCase();
+                    let finalImg = prog.imageUrl || prog.image_url;
+                    if (pSlug.includes('pembangunan-markaz') || pTitle.includes('pembangunan markaz') || pTitle.includes('markaz')) {
+                        finalImg = '/assets/images/pembangunan-markaz-dakwah.png';
+                    } else if (pSlug.includes('perlengkapan-belajar') || pTitle.includes('perlengkapan belajar')) {
+                        finalImg = '/assets/images/perlengkapan-belajar-yatim.png';
+                    }
+                    imgEl.src = finalImg || '/assets/images/foto-utama-wiz.jpg';
                     imgEl.alt = prog.title || 'Foto Program';
                 }
                 if (descEl) descEl.textContent = prog.description || prog.fullDescription || 'Salurkan donasi terbaik Anda untuk program kebaikan ini.';

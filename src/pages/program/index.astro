@@ -291,6 +291,7 @@ import { MASTER_PROGRAMS } from '../../lib/programs-data';
                 'tebar-quran-nusantara': '/assets/images/tebar-qur\'an-nusantara.png',
                 'tebar-iftar-nusantara': '/assets/images/tebar-iftar-nusantara.png',
                 'pembangunan-markaz': '/assets/images/pembangunan-markaz-dakwah.png',
+                'pembangunan-markaz-dakwah': '/assets/images/pembangunan-markaz-dakwah.png',
                 'pengadaan-perbaikan-kendaraan': '/assets/images/pengadaan-&-perbaikan-kendaraan.png',
                 'santunan-mualaf': '/assets/images/santunan-mualaf.png',
                 'tahfidz': '/assets/images/tahfidz.png',
@@ -327,10 +328,20 @@ import { MASTER_PROGRAMS } from '../../lib/programs-data';
                         : { percent: 0, saldo: 0 };
 
                     const slug = p.slug || (p.title ? p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : 'program');
+                    const pCleanTitle = (p.title || '').toLowerCase().trim();
                     let dynamicImg = PROGRAM_IMG_MAP[slug];
                     if (!dynamicImg) {
-                        const rawImg = p.image_url || p.imageUrl || (window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function' ? window.wizStore.allocationRulesManager.getSpecificProgramImage(p.title, p.pillar) : '') || '/assets/images/default-program-wiz.jpg';
-                        dynamicImg = rawImg ? (rawImg.startsWith('/') || rawImg.startsWith('http') || rawImg.startsWith('data:') ? rawImg : `/${rawImg}`) : '/assets/images/default-program-wiz.jpg';
+                        if (pCleanTitle.includes('pembangunan markaz') || slug.includes('pembangunan-markaz')) {
+                            dynamicImg = '/assets/images/pembangunan-markaz-dakwah.png';
+                        } else if (pCleanTitle.includes('perlengkapan belajar') || slug.includes('perlengkapan-belajar')) {
+                            dynamicImg = '/assets/images/perlengkapan-belajar-yatim.png';
+                        } else {
+                            const rawImg = p.image_url || p.imageUrl || (window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function' ? window.wizStore.allocationRulesManager.getSpecificProgramImage(p.title, p.pillar) : '') || '/assets/images/default-program-wiz.jpg';
+                            dynamicImg = rawImg ? (rawImg.startsWith('/') || rawImg.startsWith('http') || rawImg.startsWith('data:') ? rawImg : `/${rawImg}`) : '/assets/images/default-program-wiz.jpg';
+                        }
+                    }
+                    if (!dynamicImg || (typeof dynamicImg === 'string' && dynamicImg.startsWith('data:image') && (pCleanTitle.includes('perlengkapan belajar') || pCleanTitle.includes('pembangunan markaz')))) {
+                        dynamicImg = pCleanTitle.includes('perlengkapan belajar') ? '/assets/images/perlengkapan-belajar-yatim.png' : '/assets/images/pembangunan-markaz-dakwah.png';
                     }
 
                     const targetLabel = p.target || (`Rp ${(p.targetAmount || 15000000).toLocaleString('id-ID')}`);

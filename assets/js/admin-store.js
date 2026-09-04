@@ -332,6 +332,65 @@
         window.wizStore.utils = window.wizStore.utils || {};
         window.wizStore.utils.formatRupiah = formatRupiah;
         window.wizStore.utils.formatRupiahCompact = formatRupiahCompact;
+
+        // Immediate Client-Side Storage Self-Repair for Pembangunan Markaz & Perlengkapan Belajar Yatim
+        try {
+            var rawProg = localStorage.getItem('wiz_programs');
+            if (rawProg && (rawProg.includes('pembangunan-markaz') || rawProg.includes('Pembangunan Markaz') || rawProg.includes('perlengkapan-belajar') || rawProg.includes('Perlengkapan Belajar'))) {
+                var pList = JSON.parse(rawProg);
+                if (Array.isArray(pList)) {
+                    var pMod = false;
+                    pList.forEach(function(p) {
+                        if (!p) return;
+                        var t = (p.title || '').toLowerCase();
+                        var s = (p.slug || '').toLowerCase();
+                        if (t.includes('pembangunan markaz') || s.includes('pembangunan-markaz')) {
+                            if (p.imageUrl !== '/assets/images/pembangunan-markaz-dakwah.png' || p.image_url !== '/assets/images/pembangunan-markaz-dakwah.png') {
+                                p.imageUrl = '/assets/images/pembangunan-markaz-dakwah.png';
+                                p.image_url = '/assets/images/pembangunan-markaz-dakwah.png';
+                                pMod = true;
+                            }
+                        }
+                        if (t.includes('perlengkapan belajar') || s.includes('perlengkapan-belajar')) {
+                            if (p.imageUrl !== '/assets/images/perlengkapan-belajar-yatim.png' || p.image_url !== '/assets/images/perlengkapan-belajar-yatim.png') {
+                                p.imageUrl = '/assets/images/perlengkapan-belajar-yatim.png';
+                                p.image_url = '/assets/images/perlengkapan-belajar-yatim.png';
+                                pMod = true;
+                            }
+                        }
+                    });
+                    if (pMod) {
+                        localStorage.setItem('wiz_programs', JSON.stringify(pList));
+                    }
+                }
+            }
+            var rawSp = localStorage.getItem('wiz_specific_prog_imgs');
+            if (rawSp) {
+                var spObj = JSON.parse(rawSp);
+                if (spObj && typeof spObj === 'object') {
+                    var spMod = false;
+                    if (spObj['Pembangunan Markaz'] !== 'assets/images/pembangunan-markaz-dakwah.png') {
+                        spObj['Pembangunan Markaz'] = 'assets/images/pembangunan-markaz-dakwah.png';
+                        spMod = true;
+                    }
+                    if (spObj['Pembangunan Markaz Dakwah'] !== 'assets/images/pembangunan-markaz-dakwah.png') {
+                        spObj['Pembangunan Markaz Dakwah'] = 'assets/images/pembangunan-markaz-dakwah.png';
+                        spMod = true;
+                    }
+                    if (spObj['Perlengkapan Belajar Yatim'] !== 'assets/images/perlengkapan-belajar-yatim.png') {
+                        spObj['Perlengkapan Belajar Yatim'] = 'assets/images/perlengkapan-belajar-yatim.png';
+                        spMod = true;
+                    }
+                    if (spObj['WIZ Berkah Juara Perlengkapan Belajar Yatim'] !== 'assets/images/perlengkapan-belajar-yatim.png') {
+                        spObj['WIZ Berkah Juara Perlengkapan Belajar Yatim'] = 'assets/images/perlengkapan-belajar-yatim.png';
+                        spMod = true;
+                    }
+                    if (spMod) {
+                        localStorage.setItem('wiz_specific_prog_imgs', JSON.stringify(spObj));
+                    }
+                }
+            }
+        } catch(e) {}
     }
 
     function formatDate(isoString) {
@@ -1286,7 +1345,7 @@
 
             // 1. Normalisasi Sub-Alokasi Berkah Hidayah KHUSUS Pangkalpinang (14 item tepat 100%, hapus duplikat 0%)
             const targetPangkalpinangHidayah = [
-                { key: 'Pembangunan Markaz', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
+                { key: 'Pembangunan Markaz', percent: 5, image: 'assets/images/pembangunan-markaz-dakwah.png' },
                 { key: 'Pengadaan & Perbaikan Kendaraan', percent: 10, image: 'assets/images/default-program-wiz.jpg' },
                 { key: 'Santunan Mualaf', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
                 { key: 'Pengadaan Celengan Sedekah Subuh', percent: 10, image: 'assets/images/default-program-wiz.jpg' },
@@ -2745,6 +2804,30 @@
             }
             if (masterData.programs && Array.isArray(masterData.programs) && masterData.programs.length > 0) {
                 smartMerge(STORAGE_KEYS.PROGRAMS, masterData.programs, (a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0), getDeletedProgramIds());
+                const progs = getStore(STORAGE_KEYS.PROGRAMS) || [];
+                let progsFixed = false;
+                progs.forEach(p => {
+                    if (!p) return;
+                    const pTitle = (p.title || '').toLowerCase();
+                    const pSlug = (p.slug || '').toLowerCase();
+                    if (pTitle.includes('pembangunan markaz') || pSlug.includes('pembangunan-markaz')) {
+                        if (p.imageUrl !== '/assets/images/pembangunan-markaz-dakwah.png' || p.image_url !== '/assets/images/pembangunan-markaz-dakwah.png') {
+                            p.imageUrl = '/assets/images/pembangunan-markaz-dakwah.png';
+                            p.image_url = '/assets/images/pembangunan-markaz-dakwah.png';
+                            progsFixed = true;
+                        }
+                    }
+                    if (pTitle.includes('perlengkapan belajar') || pSlug.includes('perlengkapan-belajar')) {
+                        if (p.imageUrl !== '/assets/images/perlengkapan-belajar-yatim.png' || p.image_url !== '/assets/images/perlengkapan-belajar-yatim.png') {
+                            p.imageUrl = '/assets/images/perlengkapan-belajar-yatim.png';
+                            p.image_url = '/assets/images/perlengkapan-belajar-yatim.png';
+                            progsFixed = true;
+                        }
+                    }
+                });
+                if (progsFixed) {
+                    setStore(STORAGE_KEYS.PROGRAMS, progs);
+                }
                 window.dispatchEvent(new CustomEvent('wiz-programs-changed'));
             }
 
@@ -4258,6 +4341,7 @@
         'bahagiakan-guru-ngaji': '/assets/images/default-program-wiz.jpg',
         'sedekah-air': '/assets/images/default-program-wiz.jpg',
         'pembangunan-markaz': '/assets/images/pembangunan-markaz-dakwah.png',
+        'pembangunan-markaz-dakwah': '/assets/images/pembangunan-markaz-dakwah.png',
         'pengadaan-perbaikan-kendaraan': '/assets/images/pengadaan-&-perbaikan-kendaraan.png',
         'santunan-mualaf': '/assets/images/santunan-mualaf.png',
         'tahfidz': '/assets/images/tahfidz.png',
@@ -4301,14 +4385,25 @@
                 raw.forEach(p => {
                     if (!p) return;
                     const pSlug = (p.slug || (p.title ? p.title.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-') : '')).toLowerCase();
-                    const targetImg = PROGRAM_IMAGE_RESOLVER[pSlug];
+                    const cleanTitle = (p.title || '').toLowerCase().trim();
+                    let targetImg = PROGRAM_IMAGE_RESOLVER[pSlug];
+                    if (!targetImg) {
+                        if (cleanTitle.includes('pembangunan markaz') || pSlug.includes('pembangunan-markaz')) {
+                            targetImg = '/assets/images/pembangunan-markaz-dakwah.png';
+                        }
+                        if (cleanTitle.includes('perlengkapan belajar') || pSlug.includes('perlengkapan-belajar')) {
+                            targetImg = '/assets/images/perlengkapan-belajar-yatim.png';
+                        }
+                    }
                     if (targetImg) {
                         const currentImg = (p.image_url || p.imageUrl || '').trim();
-                        // If current image is not a custom uploaded data URL and matches old patterns
-                        if (!currentImg.startsWith('data:image') && (!currentImg || currentImg.endsWith('.jpg') || currentImg.includes('foto-utama-wiz') || currentImg !== targetImg)) {
-                            p.imageUrl = targetImg;
-                            p.image_url = targetImg;
-                            modified = true;
+                        const isEnforced = cleanTitle.includes('pembangunan markaz') || pSlug.includes('pembangunan-markaz') || cleanTitle.includes('perlengkapan belajar') || pSlug.includes('perlengkapan-belajar');
+                        if (isEnforced || (!currentImg.startsWith('data:image') && (!currentImg || currentImg.endsWith('.jpg') || currentImg.includes('foto-utama-wiz') || currentImg.includes('default-program-wiz') || currentImg !== targetImg))) {
+                            if (p.imageUrl !== targetImg || p.image_url !== targetImg) {
+                                p.imageUrl = targetImg;
+                                p.image_url = targetImg;
+                                modified = true;
+                            }
                         }
                     }
                 });

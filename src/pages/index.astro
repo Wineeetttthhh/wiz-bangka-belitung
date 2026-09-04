@@ -868,12 +868,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                     progressBar.style.width = `${stats.percent}%`;
                 }
 
-                const customImg = (progObj && progObj.imageUrl) ? progObj.imageUrl : ((wizStore.allocationRulesManager) ? wizStore.allocationRulesManager.getSpecificProgramImage(progTitle) : '');
+                let customImg = (progObj && (progObj.image_url || progObj.imageUrl)) ? (progObj.image_url || progObj.imageUrl) : ((wizStore.allocationRulesManager) ? wizStore.allocationRulesManager.getSpecificProgramImage(progTitle) : '');
+                if (progTitle.toLowerCase().includes('markaz') && (!customImg || customImg.includes('foto-utama-wiz') || customImg.includes('default-program-wiz'))) {
+                    customImg = '/assets/images/pembangunan-markaz-dakwah.png';
+                }
                 if (customImg && !customImg.includes('placeholder') && !customImg.includes('default-program-wiz')) {
                     const imgEl = card.querySelector('img');
                     if (imgEl) {
                         imgEl.src = customImg;
-                        imgEl.onerror = () => { imgEl.src = '/assets/images/foto-utama-wiz.jpg'; };
+                        imgEl.onerror = () => { imgEl.src = '/assets/images/default-program-wiz.jpg'; };
                     }
                 }
             });
@@ -1342,8 +1345,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 });
 
                 if (found) {
-                    let img = found.imageUrl;
-                    if (!img || img.includes('default-program-wiz')) {
+                    let img = found.imageUrl || found.image_url;
+                    if (!img || img.includes('default-program-wiz') || ((def.slug.includes('pembangunan-markaz') || def.title.toLowerCase().includes('markaz')) && (img.includes('foto-utama-wiz') || img.includes('default-program-wiz')))) {
                         img = def.img;
                     }
                     if (!img.startsWith('http') && !img.startsWith('/')) img = '/' + img;
@@ -1378,7 +1381,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 return `
                 <article data-title="${escapeHtml(item.title)}" class="program-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-slate-200 flex flex-col group">
                     <div class="relative aspect-[3/4] overflow-hidden bg-slate-100">
-                        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="${escapeHtml(item.img)}" onerror="this.onerror=null; this.src='/assets/images/foto-utama-wiz.jpg';" alt="${escapeHtml(item.displayTitle || item.title)}"/>
+                        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="${escapeHtml(item.img)}" onerror="this.onerror=null; this.src='/assets/images/default-program-wiz.jpg';" alt="${escapeHtml(item.displayTitle || item.title)}"/>
                         <span class="absolute top-2.5 left-2.5 ${item.badgeColor} text-[11px] px-2.5 py-0.5 rounded-full font-bold shadow-xs flex items-center gap-1">
                             <span>${escapeHtml(item.pillar)}</span>
                         </span>

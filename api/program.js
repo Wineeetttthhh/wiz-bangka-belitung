@@ -34,7 +34,14 @@ const SPECIFIC_PROGRAMS_METADATA = {
         pillar: 'Dakwah & Pembinaan',
         target: 'Rp 2.004.000.000',
         description: 'Dukung pembangunan pusat kegiatan dakwah, kaderisasi da\'i, dan pembinaan umat di pelosok Bangka Belitung untuk mencetak generasi Rabbani yang kokoh dan berakhlak mulia.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/pembangunan-markaz-dakwah.png'
+    },
+    'pembangunan-markaz-dakwah': {
+        title: 'Pembangunan Markaz Dakwah',
+        pillar: 'Dakwah & Pembinaan',
+        target: 'Rp 2.004.000.000',
+        description: 'Dukung pembangunan pusat kegiatan dakwah, kaderisasi da\'i, dan pembinaan umat di pelosok Bangka Belitung untuk mencetak generasi Rabbani yang kokoh dan berakhlak mulia.',
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/pembangunan-markaz-dakwah.png'
     },
     'pengadaan-perbaikan-kendaraan': {
         title: 'Pengadaan & Perbaikan Kendaraan',
