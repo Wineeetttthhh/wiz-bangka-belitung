@@ -154,23 +154,27 @@ async function processToOgJpeg(rawInput) {
                     inputBuffer = await fetchExternalBuffer(str);
                 }
             } else if (str) {
-                const cleanRel = str.replace(/^\//, '');
-                const baseWithoutExt = cleanRel.replace(/\.[^/.]+$/, '');
-                const candidatePaths = [
-                    path.join(process.cwd(), cleanRel),
-                    path.join(process.cwd(), 'public', cleanRel),
-                    path.join(process.cwd(), 'dist', cleanRel),
-                    path.join(process.cwd(), 'assets', 'images', path.basename(cleanRel)),
-                    path.join(process.cwd(), 'public', 'assets', 'images', path.basename(cleanRel)),
-                    path.join(process.cwd(), 'assets', 'images', path.basename(baseWithoutExt) + '.png'),
-                    path.join(process.cwd(), 'assets', 'images', path.basename(baseWithoutExt) + '.jpg'),
-                    path.join(process.cwd(), 'public', 'assets', 'images', path.basename(baseWithoutExt) + '.png'),
-                    path.join(process.cwd(), 'public', 'assets', 'images', path.basename(baseWithoutExt) + '.jpg')
-                ];
-                for (const candidate of candidatePaths) {
-                    if (fs.existsSync(candidate)) {
-                        inputBuffer = fs.readFileSync(candidate);
-                        break;
+                if (path.isAbsolute(str) && fs.existsSync(str)) {
+                    inputBuffer = fs.readFileSync(str);
+                } else {
+                    const cleanRel = str.replace(/^\//, '');
+                    const baseWithoutExt = cleanRel.replace(/\.[^/.]+$/, '');
+                    const candidatePaths = [
+                        path.join(process.cwd(), cleanRel),
+                        path.join(process.cwd(), 'public', cleanRel),
+                        path.join(process.cwd(), 'dist', cleanRel),
+                        path.join(process.cwd(), 'assets', 'images', path.basename(cleanRel)),
+                        path.join(process.cwd(), 'public', 'assets', 'images', path.basename(cleanRel)),
+                        path.join(process.cwd(), 'assets', 'images', path.basename(baseWithoutExt) + '.png'),
+                        path.join(process.cwd(), 'assets', 'images', path.basename(baseWithoutExt) + '.jpg'),
+                        path.join(process.cwd(), 'public', 'assets', 'images', path.basename(baseWithoutExt) + '.png'),
+                        path.join(process.cwd(), 'public', 'assets', 'images', path.basename(baseWithoutExt) + '.jpg')
+                    ];
+                    for (const candidate of candidatePaths) {
+                        if (fs.existsSync(candidate)) {
+                            inputBuffer = fs.readFileSync(candidate);
+                            break;
+                        }
                     }
                 }
             }
@@ -376,6 +380,15 @@ const PROGRAM_IMAGE_MAP = {
 
 async function resolveProgramRaw(slug) {
     const cleanSlug = slugify(slug);
+
+    // 0. ULTRA-FAST: Check pre-generated 1200x630 OG image in assets/images/og
+    const ogCandidates = [
+        path.join(process.cwd(), 'assets', 'images', 'og', `${cleanSlug}.jpg`),
+        path.join(process.cwd(), 'public', 'assets', 'images', 'og', `${cleanSlug}.jpg`)
+    ];
+    for (const p of ogCandidates) {
+        if (fs.existsSync(p)) return p;
+    }
 
     // 1. FAST PATH: Check static map
     if (PROGRAM_IMAGE_MAP[cleanSlug]) {

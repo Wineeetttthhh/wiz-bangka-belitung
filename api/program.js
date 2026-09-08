@@ -683,7 +683,7 @@ const PROGRAM_IMAGE_MAP = {
     }
 
     // Direct Image Resolution for WhatsApp, Facebook, and Twitter (< 50ms response)
-    const ogImageUrl = `${origin}/program-image/${encodeURIComponent(canonicalSlug)}.jpg`;
+    const ogImageUrl = `${origin}/program-image/${encodeURIComponent(canonicalSlug)}.jpg?v=20260908v1`;
     const ogImageSecureUrl = ogImageUrl;
 
     // Determine actual page image source for HTML body display

@@ -24,7 +24,7 @@ const ogTitle = program.judul || program.title;
 const ogDescription = program.deskripsi_singkat || program.description;
 // High-speed static 1200x630 OG image (< 120KB) for instant WhatsApp & Social Media Preview Cards
 const cleanOgSlug = (program.slug || 'default-program-wiz').replace(/&/g, 'dan').replace(/[']/g, '');
-const ogImgFile = `/assets/images/og/${cleanOgSlug}.jpg`;
+const ogImgFile = `/assets/images/og/${cleanOgSlug}.jpg?v=20260908v1`;
 const ogImageUrl = new URL(ogImgFile, Astro.site || Astro.url.origin).href;
 const canonicalUrl = new URL(`/program/${program.slug}`, Astro.site || Astro.url.origin).href;
 ---
