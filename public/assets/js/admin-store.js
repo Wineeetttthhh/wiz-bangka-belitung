@@ -114,7 +114,8 @@
         'Layanan Ambulance Ummat': 'assets/images/ambulance-gratis-ummat.png',
         'Khitanan Massal Dhuafa': 'assets/images/khitanan-massal-dhuafa.png',
         'Khitanan Massal': 'assets/images/khitanan-massal-dhuafa.png',
-        'Keberangkatan Kepulangan Dai': 'assets/images/keberangkatan-kepulangan-dai.jpg',
+        'Keberangkatan Kepulangan Dai': 'assets/images/keberangkatan-dai.png',
+        'Hadirkan Pencerah Umat, Dukung Perjuangan Dai': 'assets/images/keberangkatan-dai.png',
         'Keberangkatan & Kepulangan Dai': 'assets/images/keberangkatan-kepulangan-dai.jpg',
         'Keberangkatan dan Kepulangan Dai': 'assets/images/keberangkatan-kepulangan-dai.jpg',
         'Pengadaan Celengan Sedekah Subuh': 'assets/images/default-program-wiz.jpg',
@@ -3110,7 +3111,7 @@
             const donationAmount = Number(donation.amount) || 0;
 
             // ── Lifetime Recurring Donor Attribution Locking ──
-            let refId = donation.referralId || null;
+            let refId = donation.referralId || donation.referralCode || null;
             let isRecurring = false;
             const donorPhone = donation.donorPhone || '';
             const donorEmail = donation.donorEmail || '';
@@ -4154,7 +4155,7 @@
         },
         {
             id: 'prog-dai-pelosok',
-            title: 'Keberangkatan Kepulangan Dai',
+            title: 'Hadirkan Pencerah Umat, Dukung Perjuangan Dai',
             slug: 'keberangkatan-kepulangan-dai',
             pillar: 'Berkah Hidayah',
             kategori_pilar: 'Dakwah',
@@ -4162,8 +4163,8 @@
             target: 'Rp 30.000.000',
             targetAmount: 30000000,
             description: 'Dukungan akomodasi, transportasi, dan kafalah bagi para da\'i yang bertugas di provinsi Bangka Belitung.',
-            imageUrl: '/assets/images/keberangkatan-kepulangan-dai.jpg',
-            image_url: '/assets/images/keberangkatan-kepulangan-dai.jpg',
+            imageUrl: '/assets/images/keberangkatan-dai.png',
+            image_url: '/assets/images/keberangkatan-dai.png',
             status: 'published',
             createdAt: '2026-01-21T00:00:00.000Z',
             updatedAt: '2026-01-21T00:00:00.000Z',
@@ -4353,7 +4354,8 @@
         'lomba-desain-poster-dakwah': '/assets/images/default-program-wiz.jpg',
         'kantor-dpw-wi-babel-dan-wiz': '/assets/images/default-program-wiz.jpg',
         'mukerwil-mukernas-muktamar': '/assets/images/default-program-wiz.jpg',
-        'keberangkatan-kepulangan-dai': '/assets/images/keberangkatan-kepulangan-dai.jpg',
+        'keberangkatan-kepulangan-dai': '/assets/images/keberangkatan-dai.png',
+        'hadirkan-pencerah-umat-dukung-perjuangan-dai': '/assets/images/keberangkatan-dai.png',
         'pengadaan-celengan-sedekah-subuh': '/assets/images/default-program-wiz.jpg',
         'beasiswa-pendidikan-juara': '/assets/images/beasiswa-pendidikan-juara.png',
         'beasiswa-tahfidz-dan-dhuafa': '/assets/images/tahfidz.png',

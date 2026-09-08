@@ -73,7 +73,7 @@ const canonicalUrl = new URL(`/program/${program.slug}`, Astro.site || Astro.url
                         src={program.image_url || program.imageUrl || '/assets/images/default-program-wiz.jpg'}
                         alt={program.title}
                         class="w-full max-h-[640px] object-contain rounded-2xl block mx-auto"
-                        onerror={`if(!this.dataset.triedOg){this.dataset.triedOg='1';this.src='${ogImgFile}';}else{this.src='/assets/images/default-program-wiz.jpg';}`}
+                        onerror={`if(!this.dataset.triedP1){this.dataset.triedP1='1';this.src='/images/programs/keberangkatan-dai.png';}else if(!this.dataset.triedP2){this.dataset.triedP2='1';this.src='/images/keberangkatan-dai.png';}else if(!this.dataset.triedOg){this.dataset.triedOg='1';this.src='${ogImgFile}';}else{this.src='/assets/images/default-program-wiz.jpg';}`}
                     />
                     <div class="absolute top-4 left-4">
                         <span class="px-3.5 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md text-amber-300 text-xs font-bold border border-slate-700 shadow-md">
@@ -210,19 +210,46 @@ const canonicalUrl = new URL(`/program/${program.slug}`, Astro.site || Astro.url
                 <!-- Share Widget (Diposisikan di akhir setelah Lanjut Pembayaran) -->
                 <div class="bg-gradient-to-r from-emerald-900 to-slate-900 text-white rounded-3xl p-6 shadow-xl flex flex-col items-stretch gap-4">
                     <div>
+                        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-800/70 border border-emerald-600/40 text-[11px] font-bold text-emerald-200 mb-2">
+                            <span class="material-symbols-outlined text-[15px] text-amber-300">handshake</span>
+                            <span>Program Kemitraan & Referral</span>
+                        </div>
                         <h4 class="font-bold text-base text-amber-300">Ajak Sahabat & Keluarga Berdonasi</h4>
-                        <p class="text-xs text-emerald-100 mt-1">Sebarkan program ini. Setiap kebaikan yang dilakukan orang lain lewat ajakan Anda bernilai pahala yang sama.</p>
+                        <p class="text-xs text-emerald-100 mt-1 leading-relaxed">Sebarkan program ini. Setiap kebaikan yang dilakukan orang lain lewat ajakan Anda bernilai pahala jariyah serta tercatat otomatis ke KPI Mitra.</p>
                     </div>
-                    <button
-                        type="button"
-                        id="share-program-btn"
-                        data-slug={program.slug}
-                        data-title={program.title}
-                        class="w-full py-3 px-4 rounded-2xl bg-[#25D366] hover:bg-[#1fa851] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md transition-all hover:scale-102 active:scale-98 cursor-pointer"
-                    >
-                        <span class="material-symbols-outlined text-lg">share</span>
-                        <span>Bagikan ke WhatsApp</span>
-                    </button>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <button
+                            type="button"
+                            id="share-program-btn"
+                            data-slug={program.slug}
+                            data-title={program.title}
+                            data-pillar={program.pillar}
+                            data-image={program.image_url || program.imageUrl || '/assets/images/default-program-wiz.jpg'}
+                            data-desc={program.description}
+                            class="w-full py-3 px-3 rounded-2xl bg-[#25D366] hover:bg-[#1fa851] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-md transition-all hover:scale-102 active:scale-98 cursor-pointer"
+                        >
+                            <span class="material-symbols-outlined text-lg">share</span>
+                            <span>Bagikan WA</span>
+                        </button>
+                        <button
+                            type="button"
+                            id="copy-program-link-btn"
+                            data-slug={program.slug}
+                            data-title={program.title}
+                            class="w-full py-3 px-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 border border-white/20 transition-all hover:scale-102 active:scale-98 cursor-pointer"
+                        >
+                            <span class="material-symbols-outlined text-lg">content_copy</span>
+                            <span>Salin Link</span>
+                        </button>
+                    </div>
+
+                    <div id="active-mitra-badge-wrap" class="hidden text-center pt-2 border-t border-emerald-800/60">
+                        <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-amber-300 bg-emerald-950/70 px-3 py-1.5 rounded-full border border-emerald-700/50">
+                            <span class="material-symbols-outlined text-sm text-emerald-400">verified</span>
+                            <span>Tautan Berisi Kode Mitra: <strong id="active-mitra-code-display" class="font-mono text-white"></strong></span>
+                        </span>
+                    </div>
                 </div>
 
             </div>
@@ -236,20 +263,36 @@ const canonicalUrl = new URL(`/program/${program.slug}`, Astro.site || Astro.url
 
     // Nominal Selection Logic
     let selectedAmount = 0;
-    const programSlug = document.getElementById('checkout-donate-btn')?.getAttribute('href')?.split('program=')[1]?.split('&')[0] || '';
     const checkoutBtn = document.getElementById('checkout-donate-btn') as HTMLAnchorElement;
+    const programSlug = checkoutBtn?.getAttribute('href')?.split('program=')[1]?.split('&')[0] || '';
     const nominalBtns = document.querySelectorAll('.nominal-btn');
     const customInput = document.getElementById('custom-amount-input') as HTMLInputElement;
 
-    function updateCheckoutUrl() {
-        if (checkoutBtn) {
-            if (selectedAmount > 0) {
-                checkoutBtn.href = `/donasi?program=${programSlug}&amount=${selectedAmount}`;
-            } else {
-                checkoutBtn.href = `/donasi?program=${programSlug}`;
-            }
+    // Resolve Active Mitra / Referral Code
+    const activeRef = getActiveAffiliate();
+
+    // Show badge if referral code is active
+    if (activeRef) {
+        const badgeWrap = document.getElementById('active-mitra-badge-wrap');
+        const codeDisplay = document.getElementById('active-mitra-code-display');
+        if (badgeWrap && codeDisplay) {
+            codeDisplay.textContent = activeRef;
+            badgeWrap.classList.remove('hidden');
         }
     }
+
+    function updateCheckoutUrl() {
+        if (checkoutBtn) {
+            const params = new URLSearchParams();
+            if (programSlug) params.set('program', programSlug);
+            if (selectedAmount > 0) params.set('amount', String(selectedAmount));
+            if (activeRef) params.set('ref', activeRef);
+            checkoutBtn.href = `/donasi?${params.toString()}`;
+        }
+    }
+
+    // Initialize checkout URL on page load
+    updateCheckoutUrl();
 
     nominalBtns.forEach((btn) => {
         btn.addEventListener('click', (e) => {
@@ -284,21 +327,55 @@ const canonicalUrl = new URL(`/program/${program.slug}`, Astro.site || Astro.url
         });
     }
 
+    // Build Share URL
+    function getShareUrl(slug: string) {
+        const baseUrl = window.location.origin || 'https://www.wizbangkabelitung.or.id';
+        const ref = getActiveAffiliate();
+        return `${baseUrl}/program/${slug}${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`;
+    }
+
     // Share Button with Affiliate Tracking
     const shareBtn = document.getElementById('share-program-btn');
     if (shareBtn) {
         shareBtn.addEventListener('click', () => {
             const slug = shareBtn.getAttribute('data-slug') || '';
-            const ref = getActiveAffiliate();
-            const baseUrl = window.location.origin || 'https://www.wizbangkabelitung.or.id';
-            const shareUrl = `${baseUrl}/program/${slug}${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`;
+            const title = shareBtn.getAttribute('data-title') || 'Program Kebaikan';
+            const pillar = shareBtn.getAttribute('data-pillar') || 'Sosial & Kemanusiaan';
+            const image = shareBtn.getAttribute('data-image') || '';
+            const desc = shareBtn.getAttribute('data-desc') || '';
+            const shareUrl = getShareUrl(slug);
 
-            if (window.showWhatsAppToast) {
-                window.showWhatsAppToast();
+            if (typeof (window as any).openUniversalShareModal === 'function') {
+                (window as any).openUniversalShareModal(title, pillar, image, desc, shareUrl);
+            } else if (typeof (window as any).showWhatsAppShareToast === 'function') {
+                (window as any).showWhatsAppShareToast('✨ Membuka WhatsApp... Kartu poster donasi akan muncul!');
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareUrl)}`, '_blank');
+            } else if (typeof (window as any).showWhatsAppToast === 'function') {
+                (window as any).showWhatsAppToast();
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareUrl)}`, '_blank');
+            } else {
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareUrl)}`, '_blank');
             }
+        });
+    }
 
-            // Pure URL sharing so WhatsApp reliably renders the OpenGraph card preview (thumbnail, title, link card)
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareUrl)}`, '_blank');
+    // Copy Referral Link Button
+    const copyLinkBtn = document.getElementById('copy-program-link-btn');
+    if (copyLinkBtn) {
+        copyLinkBtn.addEventListener('click', () => {
+            const slug = copyLinkBtn.getAttribute('data-slug') || '';
+            const title = copyLinkBtn.getAttribute('data-title') || 'Program Kebaikan';
+            const shareUrl = getShareUrl(slug);
+
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                if (typeof (window as any).showWhatsAppShareToast === 'function') {
+                    (window as any).showWhatsAppShareToast(`✅ Link program berhasil disalin! (Termasuk kode referral)`);
+                } else {
+                    alert(`✅ Link Program (${title}) berhasil disalin:\n\n${shareUrl}`);
+                }
+            }).catch(() => {
+                alert(`Tautan Program:\n${shareUrl}`);
+            });
         });
     }
 </script>

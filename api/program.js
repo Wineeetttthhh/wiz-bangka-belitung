@@ -65,11 +65,18 @@ const SPECIFIC_PROGRAMS_METADATA = {
         imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/keberangkatan-kepulangan-dai.jpg'
     },
     'keberangkatan-kepulangan-dai': {
-        title: 'Keberangkatan & Kepulangan Dai',
+        title: 'Hadirkan Pencerah Umat, Dukung Perjuangan Dai',
         pillar: 'Dakwah & Pembinaan',
         target: 'Rp 30.000.000',
-        description: 'Dukungan akomodasi, transportasi, dan kafalah bagi para da\'i yang bertugas di provinsi Bangka Belitung.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/keberangkatan-kepulangan-dai.jpg'
+        description: "Mari berpartisipasi memfasilitasi operasional keberangkatan Dai pengabdian ke pelosok Bangka Belitung, serta dukung pendidikan syar'i calon Dai ke Makassar untuk mencetak generasi pendakwah masa depan.",
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/keberangkatan-dai.png'
+    },
+    'hadirkan-pencerah-umat-dukung-perjuangan-dai': {
+        title: 'Hadirkan Pencerah Umat, Dukung Perjuangan Dai',
+        pillar: 'Dakwah & Pembinaan',
+        target: 'Rp 30.000.000',
+        description: "Mari berpartisipasi memfasilitasi operasional keberangkatan Dai pengabdian ke pelosok Bangka Belitung, serta dukung pendidikan syar'i calon Dai ke Makassar untuk mencetak generasi pendakwah masa depan.",
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/keberangkatan-dai.png'
     },
     'santunan-mualaf': {
         title: 'Santunan Mualaf',
@@ -583,7 +590,8 @@ const PROGRAM_IMAGE_MAP = {
     'ambulans-gratis-peduli':                       'assets/images/ambulance-gratis-ummat.png',
     'khitanan-massal-dhuafa':                       'assets/images/khitanan-massal-dhuafa.png',
     'khitanan-massal':                              'assets/images/khitanan-massal.jpg',
-    'keberangkatan-kepulangan-dai':                 'assets/images/keberangkatan-kepulangan-dai.jpg',
+    'keberangkatan-kepulangan-dai':                 'assets/images/keberangkatan-dai.png',
+    'hadirkan-pencerah-umat-dukung-perjuangan-dai': 'assets/images/keberangkatan-dai.png',
     'keberangkatan-dan-kepulangan-dai':             'assets/images/keberangkatan-kepulangan-dai.jpg',
 };
 

@@ -78,6 +78,20 @@ function getActiveAffiliateRef() {
                 return cookieRef;
             }
         }
+
+        // 5. Check if Mitra is currently logged in in Member Portal
+        const loggedMitraStr = sessionStorage.getItem('wiz_logged_affiliate') || localStorage.getItem('wiz_logged_affiliate');
+        if (loggedMitraStr) {
+            try {
+                const parsed = JSON.parse(loggedMitraStr);
+                const code = parsed?.code || parsed?.id;
+                if (code) {
+                    const cleanCode = String(code).trim();
+                    sessionStorage.setItem('wiz_active_ref_id', cleanCode);
+                    return cleanCode;
+                }
+            } catch(e) {}
+        }
     } catch(e) {}
     return '';
 }

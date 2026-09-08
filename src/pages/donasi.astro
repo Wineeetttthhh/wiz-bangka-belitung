@@ -800,7 +800,7 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                 "Pengadaan Celengan Sedekah Subuh", "Tahfidz Weekend", "Pelatihan Public Speaking",
                 "Tabligh Akbar Dzhulhijjah", "Pelatihan Guru Dirosa", "Pelatihan Penyelenggaraan Jenazah",
                 "Pelatihan Volunteer Media Dakwah", "Lomba Desain Poster Dakwah", "Kantor DPW WI Babel dan WIZ",
-                "Mukerwil/Mukernas/Muktamar", "Keberangkatan Kepulangan Dai"
+                "Mukerwil/Mukernas/Muktamar", "Hadirkan Pencerah Umat, Dukung Perjuangan Dai"
             ],
             'Berkah Peduli': [
                 "Pray For NTT", "Tebar Sembako", "Sedekah Beras & Sembako Dhuafa", "Sedekah Beras Dhuafa",
@@ -836,6 +836,12 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
         }
 
         function findProgramDetails(inputName) {
+            if (!inputName) return null;
+            var rawInput = decodeURIComponent(inputName).trim();
+            // Alias for Dai Program
+            if (/keberangkatan.*dai|kepulangan.*dai|pencerah.*umat|perjuangan.*dai/i.test(rawInput)) {
+                inputName = 'keberangkatan-kepulangan-dai';
+            }
             if (!inputName) return null;
             const clean = decodeURIComponent(inputName).trim();
             const lower = clean.toLowerCase();
@@ -1439,7 +1445,8 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                         method: isQris ? 'QRIS' : 'Transfer Bank (BSI)',
                         wilayah: state.wilayah,
                         message: state.donorMessage,
-                        referralCode: activeRef || undefined
+                        referralCode: activeRef || undefined,
+                        referralId: activeRef || undefined
                     }).catch(err => console.warn('Background save note:', err));
                 }
             } catch(err) {

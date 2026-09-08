@@ -58,8 +58,30 @@ export function getActiveAffiliate(): string {
                 return cookieRef;
             }
         }
+
+        // 5. Logged-in Mitra in Member Portal (sessionStorage / localStorage)
+        const loggedMitraStr = sessionStorage.getItem('wiz_logged_affiliate') || localStorage.getItem('wiz_logged_affiliate');
+        if (loggedMitraStr) {
+            try {
+                const parsed = JSON.parse(loggedMitraStr);
+                const code = parsed?.code || parsed?.id;
+                if (code) {
+                    const cleanCode = String(code).trim();
+                    sessionStorage.setItem('wiz_active_ref_id', cleanCode);
+                    return cleanCode;
+                }
+            } catch (e) {}
+        }
     } catch (e) {}
     return '';
+}
+
+export function getMitraShareUrl(slug: string, customRef?: string): string {
+    const activeRef = customRef || getActiveAffiliate();
+    const origin = (typeof window !== 'undefined' && window.location.origin)
+        ? window.location.origin
+        : 'https://www.wizbangkabelitung.or.id';
+    return `${origin}/program/${slug}${activeRef ? `?ref=${encodeURIComponent(activeRef)}` : ''}`;
 }
 
 export function formatRupiah(amount: number): string {
@@ -69,3 +91,4 @@ export function formatRupiah(amount: number): string {
         maximumFractionDigits: 0
     }).format(amount);
 }
+
