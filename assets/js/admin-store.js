@@ -337,7 +337,7 @@
         // Immediate Client-Side Storage Self-Repair for Pembangunan Markaz & Perlengkapan Belajar Yatim
         try {
             var rawProg = localStorage.getItem('wiz_programs');
-            if (rawProg && (rawProg.includes('pembangunan-markaz') || rawProg.includes('Pembangunan Markaz') || rawProg.includes('perlengkapan-belajar') || rawProg.includes('Perlengkapan Belajar'))) {
+            if (rawProg && (rawProg.includes('pembangunan-markaz') || rawProg.includes('Pembangunan Markaz') || rawProg.includes('perlengkapan-belajar') || rawProg.includes('Perlengkapan Belajar') || rawProg.includes('prog-dai-pelosok') || rawProg.includes('keberangkatan') || rawProg.includes('Keberangkatan') || rawProg.includes('Kepulangan Dai') || rawProg.includes('Pencerah Umat'))) {
                 var pList = JSON.parse(rawProg);
                 if (Array.isArray(pList)) {
                     var pMod = false;
@@ -345,6 +345,25 @@
                         if (!p) return;
                         var t = (p.title || '').toLowerCase();
                         var s = (p.slug || '').toLowerCase();
+                        if (p.id === 'prog-dai-pelosok' || s.includes('keberangkatan') || t.includes('keberangkatan') || t.includes('kepulangan dai') || t.includes('pencerah umat')) {
+                            if (p.title !== 'Hadirkan Pencerah Umat, Dukung Perjuangan Dai') {
+                                p.title = 'Hadirkan Pencerah Umat, Dukung Perjuangan Dai';
+                                pMod = true;
+                            }
+                            if (p.description !== "Mari berpartisipasi memfasilitasi operasional keberangkatan Dai pengabdian ke pelosok Bangka Belitung, serta dukung pendidikan syar'i calon Dai ke Makassar untuk mencetak generasi pendakwah masa depan.") {
+                                p.description = "Mari berpartisipasi memfasilitasi operasional keberangkatan Dai pengabdian ke pelosok Bangka Belitung, serta dukung pendidikan syar'i calon Dai ke Makassar untuk mencetak generasi pendakwah masa depan.";
+                                pMod = true;
+                            }
+                            if (p.fullDescription !== "Mari berpartisipasi memfasilitasi operasional keberangkatan Dai pengabdian ke pelosok Bangka Belitung, serta dukung pendidikan syar'i calon Dai ke Makassar untuk mencetak generasi pendakwah masa depan.") {
+                                p.fullDescription = "Mari berpartisipasi memfasilitasi operasional keberangkatan Dai pengabdian ke pelosok Bangka Belitung, serta dukung pendidikan syar'i calon Dai ke Makassar untuk mencetak generasi pendakwah masa depan.";
+                                pMod = true;
+                            }
+                            if (p.imageUrl !== '/assets/images/keberangkatan-dai.png' || p.image_url !== '/assets/images/keberangkatan-dai.png') {
+                                p.imageUrl = '/assets/images/keberangkatan-dai.png';
+                                p.image_url = '/assets/images/keberangkatan-dai.png';
+                                pMod = true;
+                            }
+                        }
                         if (t.includes('pembangunan markaz') || s.includes('pembangunan-markaz')) {
                             if (p.imageUrl !== '/assets/images/pembangunan-markaz-dakwah.png' || p.image_url !== '/assets/images/pembangunan-markaz-dakwah.png') {
                                 p.imageUrl = '/assets/images/pembangunan-markaz-dakwah.png';
@@ -4162,7 +4181,7 @@
             category: 'Dakwah & Pembinaan',
             target: 'Rp 30.000.000',
             targetAmount: 30000000,
-            description: 'Dukungan akomodasi, transportasi, dan kafalah bagi para da\'i yang bertugas di provinsi Bangka Belitung.',
+            description: "Mari berpartisipasi memfasilitasi operasional keberangkatan Dai pengabdian ke pelosok Bangka Belitung, serta dukung pendidikan syar'i calon Dai ke Makassar untuk mencetak generasi pendakwah masa depan.",
             imageUrl: '/assets/images/keberangkatan-dai.png',
             image_url: '/assets/images/keberangkatan-dai.png',
             status: 'published',
@@ -4388,6 +4407,11 @@
                     if (!p) return;
                     const pSlug = (p.slug || (p.title ? p.title.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-') : '')).toLowerCase();
                     const cleanTitle = (p.title || '').toLowerCase().trim();
+                    if (p.id === 'prog-dai-pelosok' || pSlug === 'keberangkatan-kepulangan-dai' || cleanTitle.includes('keberangkatan kepulangan dai') || (cleanTitle.includes('keberangkatan') && cleanTitle.includes('dai')) || cleanTitle.includes('pencerah umat')) {
+                        if (p.title !== 'Hadirkan Pencerah Umat, Dukung Perjuangan Dai') { p.title = 'Hadirkan Pencerah Umat, Dukung Perjuangan Dai'; modified = true; }
+                        if (p.description !== "Mari berpartisipasi memfasilitasi operasional keberangkatan Dai pengabdian ke pelosok Bangka Belitung, serta dukung pendidikan syar'i calon Dai ke Makassar untuk mencetak generasi pendakwah masa depan.") { p.description = "Mari berpartisipasi memfasilitasi operasional keberangkatan Dai pengabdian ke pelosok Bangka Belitung, serta dukung pendidikan syar'i calon Dai ke Makassar untuk mencetak generasi pendakwah masa depan."; modified = true; }
+                        if (p.imageUrl !== '/assets/images/keberangkatan-dai.png' || p.image_url !== '/assets/images/keberangkatan-dai.png') { p.imageUrl = '/assets/images/keberangkatan-dai.png'; p.image_url = '/assets/images/keberangkatan-dai.png'; modified = true; }
+                    }
                     let targetImg = PROGRAM_IMAGE_RESOLVER[pSlug];
                     if (!targetImg) {
                         if (cleanTitle.includes('pembangunan markaz') || pSlug.includes('pembangunan-markaz')) {

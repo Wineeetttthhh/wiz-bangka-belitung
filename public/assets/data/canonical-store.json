@@ -22,7 +22,7 @@
     {
       "id": "prog-dai-pelosok",
       "slug": "keberangkatan-kepulangan-dai",
-      "title": "Keberangkatan Kepulangan Dai",
+      "title": "Hadirkan Pencerah Umat, Dukung Perjuangan Dai",
       "author": "Admin WIZ Babel",
       "pillar": "Berkah Hidayah",
       "status": "published",
@@ -31,9 +31,10 @@
       "imageUrl": "assets/images/keberangkatan-dai.png",
       "createdAt": "2026-01-21T00:00:00.000Z",
       "updatedAt": "2026-08-24T11:42:42.106Z",
-      "description": "Dukungan penuh akomodasi da'i di seluruh wilayah Babel.",
+      "description": "Mari berpartisipasi memfasilitasi operasional keberangkatan Dai pengabdian ke pelosok Bangka Belitung, serta dukung pendidikan syar'i calon Dai ke Makassar untuk mencetak generasi pendakwah masa depan.",
       "targetAmount": 30000000,
-      "kategori_pilar": "Dakwah"
+      "kategori_pilar": "Dakwah",
+      "image_url": "assets/images/keberangkatan-dai.png"
     },
     {
       "id": "prog-pray-for-ntt",
@@ -1036,7 +1037,7 @@
     "Kantor DPW WI Babel dan WIZ": "assets/images/default-program-wiz.jpg",
     "Bantuan Pasien Kritis Dhuafa": "assets/images/bantuan-pengobatan.jpg",
     "Keberangkatan Kepulangan Dai": "assets/images/keberangkatan-dai.png",
-        "Hadirkan Pencerah Umat, Dukung Perjuangan Dai": "assets/images/keberangkatan-dai.png",
+    "Hadirkan Pencerah Umat, Dukung Perjuangan Dai": "assets/images/keberangkatan-dai.png",
     "Keberangkatan & Kepulangan Dai": "assets/images/keberangkatan-kepulangan-dai.jpg",
     "Pengadaan & Perbaikan Kendaraan": "assets/images/default-program-wiz.jpg",
     "Keberangkatan dan Kepulangan Dai": "assets/images/keberangkatan-kepulangan-dai.jpg",
