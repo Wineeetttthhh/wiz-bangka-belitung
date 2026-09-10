@@ -173,10 +173,10 @@ const {
         </div>
     </div>
 
-    <!-- Core Scripts with Dynamic Cache Buster -->
-    <script is:inline src={`/assets/js/supabase-client.js?v=${Date.now()}`}></script>
-    <script is:inline src={`/assets/js/admin-store.js?v=${Date.now()}`}></script>
-    <script is:inline src={`/assets/js/main.js?v=${Date.now()}`}></script>
-    <script is:inline src={`/assets/js/nav-active.js?v=${Date.now()}`}></script>
+    <!-- Core Scripts with Version-based Cache Control for Fast Mobile Caching -->
+    <script is:inline src="/assets/js/supabase-client.js?v=20260910-v3"></script>
+    <script is:inline src="/assets/js/admin-store.js?v=20260910-v3"></script>
+    <script is:inline src="/assets/js/main.js?v=20260910-v3"></script>
+    <script is:inline src="/assets/js/nav-active.js?v=20260910-v3"></script>
 </body>
 </html>

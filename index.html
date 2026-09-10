@@ -663,8 +663,6 @@
                     outContainer.innerHTML = disbursements.map((d, index) => createDisbursementCardHtml(d, index)).join('');
                 }
             }
-
-            fetchLiveTransparencyFromCloud();
         }
 
         function renderTransparencySingleFeed(type) {
@@ -701,31 +699,6 @@
                 } else {
                     singleView.innerHTML = disbursements.map((d, index) => createDisbursementCardHtml(d, index)).join('');
                 }
-            }
-        }
-
-        let isLiveFetching = false;
-        async function fetchLiveTransparencyFromCloud() {
-            if (isLiveFetching || !window.wizSupabase || !window.wizSupabase.isConfigured()) return;
-            if (typeof window.wizSupabase.getPublicTransparencyFeed !== 'function') return;
-            isLiveFetching = true;
-            try {
-                const feed = await window.wizSupabase.getPublicTransparencyFeed(8);
-                if (feed && feed.donations && feed.donations.length > 0) {
-                    const inContainer = document.getElementById('verified-donors-container');
-                    if (inContainer && activeTransparencyTab === 'all') {
-                        inContainer.innerHTML = feed.donations.map((d, index) => createDonorCardHtml(d, index)).join('');
-                    }
-                }
-                if (feed && feed.disbursements && feed.disbursements.length > 0) {
-                    const outContainer = document.getElementById('disbursements-feed-container');
-                    if (outContainer && activeTransparencyTab === 'all') {
-                        outContainer.innerHTML = feed.disbursements.map((d, index) => createDisbursementCardHtml(d, index)).join('');
-                    }
-                }
-            } catch(e) {
-            } finally {
-                isLiveFetching = false;
             }
         }
 
