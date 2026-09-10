@@ -26,7 +26,7 @@ const supabaseHeaders = {
 // In-memory cache for fast warm lambda hits
 let memCache = null;
 let memCacheTime = 0;
-const MEM_CACHE_TTL_MS = 60000; // 60s cache in memory to prevent Supabase egress leaks
+const MEM_CACHE_TTL_MS = 20000; // 20s cache in memory to prevent Supabase egress leaks while keeping data fresh
 
 function invalidateCache() {
     memCache = null;
@@ -249,7 +249,37 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
     if (req.method === 'GET') {
-        res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+        const query = req.query || {};
+        const isCheckOnly = query.check === '1' || query.v === 'check';
+
+        // Fast lightweight version check (<15ms, ~35 bytes)
+        if (isCheckOnly) {
+            let lastUpdated = memCache ? (memCache.updatedAt || memCache.updated_at) : null;
+            if (!lastUpdated) {
+                try {
+                    const r = await fetch(`${SUPABASE_URL}/site_settings?key=eq.master_bundle&select=updated_at`, {
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': 'Bearer ' + SUPABASE_KEY,
+                            'Accept': 'application/json'
+                        }
+                    });
+                    if (r.ok) {
+                        const j = await r.json();
+                        if (Array.isArray(j) && j[0] && j[0].updated_at) {
+                            lastUpdated = j[0].updated_at;
+                        }
+                    }
+                } catch(e) {}
+            }
+            res.setHeader('Cache-Control', 'public, s-maxage=5, stale-while-revalidate=20');
+            return res.status(200).json({
+                status: 'success',
+                updatedAt: lastUpdated || new Date().toISOString()
+            });
+        }
+
+        res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=60');
     } else {
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     }

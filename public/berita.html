@@ -440,35 +440,19 @@
             if (isFetchingPublicNews) return;
             isFetchingPublicNews = true;
             try {
-                if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                    const res = await window.wizSupabase.select('news', { select: 'id,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at', order: 'created_at.desc' });
-                    if (res && Array.isArray(res.data) && res.data.length > 0) {
-                        const mapped = res.data.map(n => {
-                            const mainImg = (n.image_url || (Array.isArray(n.gallery) && n.gallery.length > 0 ? n.gallery[0] : '') || n.imageUrl || '').trim();
-                            return {
-                                id: String(n.id),
-                                title: n.title,
-                                category: n.category || 'Kegiatan & Penyaluran',
-                                content: n.content,
-                                imageUrl: mainImg,
-                                image_url: mainImg,
-                                gallery: Array.isArray(n.gallery) ? n.gallery : [],
-                                eventDate: n.event_date || n.eventDate || n.created_at,
-                                event_date: n.event_date || n.eventDate || n.created_at,
-                                status: n.status || 'published',
-                                author: n.author || 'Admin WIZ Babel',
-                                createdAt: n.created_at || n.createdAt || new Date().toISOString(),
-                                created_at: n.created_at || n.createdAt || new Date().toISOString(),
-                                updatedAt: n.updated_at || n.updatedAt || new Date().toISOString(),
-                                updated_at: n.updated_at || n.updatedAt || new Date().toISOString()
-                            };
-                        });
-                        mapped.sort((a, b) => {
-                            const timeA = new Date(a.createdAt || a.created_at || a.updatedAt || a.updated_at || a.eventDate || a.event_date || 0).getTime();
-                            const timeB = new Date(b.createdAt || b.created_at || b.updatedAt || b.updated_at || b.eventDate || b.event_date || 0).getTime();
-                            return timeB - timeA;
-                        });
-                        localStorage.setItem('wiz_news', JSON.stringify(mapped));
+                if (window.wizStore && window.wizStore.news) {
+                    const cur = window.wizStore.news.getAll();
+                    if (Array.isArray(cur) && cur.length > 0) {
+                        renderArchive();
+                        return;
+                    }
+                }
+                const syncRes = await fetch('/api/sync');
+                if (syncRes.ok) {
+                    const json = await syncRes.json();
+                    const newsArr = json.data ? json.data.news : json.news;
+                    if (Array.isArray(newsArr) && newsArr.length > 0) {
+                        localStorage.setItem('wiz_news', JSON.stringify(newsArr));
                         renderArchive();
                     }
                 }

@@ -2328,87 +2328,117 @@
         isSyncInProgress = true;
         lastSyncTimestamp = now;
 
-        try {
-            // 0. Lightweight check: check updated_at first (~48 bytes vs ~1.2 MB)
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                try {
-                    const localSyncTime = localStorage.getItem('wiz_master_bundle_synced_at');
-                    const hasLocalData = localStorage.getItem('wiz_donations') || localStorage.getItem('wiz_news');
-                    if (!force && localSyncTime && hasLocalData) {
-                        const metaRes = await window.wizSupabase.select('site_settings', {
-                            filter: 'key=eq.master_bundle',
-                            select: 'updated_at'
-                        });
-                        const remoteTime = metaRes && metaRes.data && metaRes.data[0] && metaRes.data[0].updated_at;
-                        if (remoteTime && remoteTime === localSyncTime) {
-                            // Supabase data is unchanged! Skip downloading 1.2MB payload
-                            isSyncInProgress = false;
-                            return;
-                        }
-                    }
-                } catch(e) {}
-            }
+        const isAdminPortal = typeof window !== 'undefined' && (
+            window.location.pathname.includes('admin') || 
+            window.location.pathname.includes('portal')
+        );
 
+        try {
             let masterData = null;
 
-            // 1. Primary: Direct Supabase Fetch
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+            if (!isAdminPortal) {
+                // ─── HIGH-SPEED PUBLIC SYNC (Via Vercel Edge CDN & /api/sync) ───
+                // Prevents Supabase egress quota leaks while delivering <100ms response
+                const localSyncTime = localStorage.getItem('wiz_master_bundle_synced_at');
+                const hasLocalData = localStorage.getItem('wiz_donations') || localStorage.getItem('wiz_news');
+
+                // 0. Ultra-lightweight version check (~35 bytes vs 1.2 MB)
+                if (!force && localSyncTime && hasLocalData) {
+                    try {
+                        const chkRes = await fetch('/api/sync?v=check', {
+                            headers: { 'Accept': 'application/json' }
+                        });
+                        if (chkRes.ok) {
+                            const chkJson = await chkRes.json();
+                            if (chkJson && chkJson.updatedAt && chkJson.updatedAt === localSyncTime) {
+                                // Data is 100% up to date! Skip downloading full bundle
+                                isSyncInProgress = false;
+                                return;
+                            }
+                        }
+                    } catch(e) {}
+                }
+
+                // Fetch compressed bundle from /api/sync (served by Vercel Edge)
                 try {
-                    const sbRes = await window.wizSupabase.select('site_settings', { filter: 'key=eq.master_bundle' });
-                    if (sbRes && sbRes.data && sbRes.data.length > 0 && sbRes.data[0].value) {
-                        masterData = sbRes.data[0].value;
-                        if (sbRes.data[0].updated_at) {
-                            localStorage.setItem('wiz_master_bundle_synced_at', sbRes.data[0].updated_at);
+                    const res = await fetch('/api/sync', {
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    if (res.ok) {
+                        const json = await res.json();
+                        if (json && json.data) {
+                            masterData = json.data;
+                            const syncTime = masterData.updatedAt || masterData.updated_at || new Date().toISOString();
+                            localStorage.setItem('wiz_master_bundle_synced_at', syncTime);
                         }
                     }
                 } catch(e) {}
+
+                if (!masterData && !hasLocalData) {
+                    try {
+                        const cRes = await fetch('/assets/data/canonical-store.json');
+                        if (cRes.ok) masterData = await cRes.json();
+                    } catch(e) {}
+                }
+            } else {
+                // ─── ADMIN PORTAL SYNC (Direct Supabase Access) ───
+                if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                    try {
+                        const localSyncTime = localStorage.getItem('wiz_master_bundle_synced_at');
+                        const hasLocalData = localStorage.getItem('wiz_donations') || localStorage.getItem('wiz_news');
+                        if (!force && localSyncTime && hasLocalData) {
+                            const metaRes = await window.wizSupabase.select('site_settings', {
+                                filter: 'key=eq.master_bundle',
+                                select: 'updated_at'
+                            });
+                            const remoteTime = metaRes && metaRes.data && metaRes.data[0] && metaRes.data[0].updated_at;
+                            if (remoteTime && remoteTime === localSyncTime) {
+                                isSyncInProgress = false;
+                                return;
+                            }
+                        }
+                    } catch(e) {}
+                }
+
+                if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                    try {
+                        const sbRes = await window.wizSupabase.select('site_settings', { filter: 'key=eq.master_bundle' });
+                        if (sbRes && sbRes.data && sbRes.data.length > 0 && sbRes.data[0].value) {
+                            masterData = sbRes.data[0].value;
+                            if (sbRes.data[0].updated_at) {
+                                localStorage.setItem('wiz_master_bundle_synced_at', sbRes.data[0].updated_at);
+                            }
+                        }
+                    } catch(e) {}
+                }
+
+                if (!masterData) {
+                    try {
+                        const res = await fetch('/api/sync', { headers: { 'Accept': 'application/json' }, cache: 'no-cache' });
+                        if (res.ok) {
+                            const json = await res.json();
+                            if (json && json.data) masterData = json.data;
+                        }
+                    } catch (err) {}
+                }
+
+                if (!masterData && window.wizFirebase && window.wizFirebase.isConfigured()) {
+                    try {
+                        const { data } = await window.wizFirebase.select('system_state');
+                        const masterDoc = (data || []).find(d => d.id === 'master_bundle' || d.key === 'master_bundle');
+                        if (masterDoc) masterData = masterDoc;
+                    } catch(e) {}
+                }
+
+                if (!masterData) {
+                    try {
+                        const res = await fetch('/assets/data/canonical-store.json');
+                        if (res.ok) masterData = await res.json();
+                    } catch (e) {}
+                }
             }
 
-            // 2. Secondary: /api/sync endpoint
-            if (!masterData) {
-                try {
-                    const res = await fetch('/api/sync', {
-                        headers: { 'Accept': 'application/json' },
-                        cache: 'no-cache'
-                    });
-                    if (res.ok) {
-                        const json = await res.json();
-                        if (json && json.data) masterData = json.data;
-                    }
-                } catch (err) {}
-            }
-
-            if (!masterData && window.location.hostname !== 'www.wizbangkabelitung.or.id' && window.location.hostname !== 'wizbangkabelitung.or.id') {
-                try {
-                    const res = await fetch('https://www.wizbangkabelitung.or.id/api/sync', {
-                        headers: { 'Accept': 'application/json' },
-                        cache: 'no-cache'
-                    });
-                    if (res.ok) {
-                        const json = await res.json();
-                        if (json && json.data) masterData = json.data;
-                    }
-                } catch(e) {}
-            }
-
-            // 3. Third Fallback: Firestore Master Bundle
-            if (!masterData && window.wizFirebase && window.wizFirebase.isConfigured()) {
-                try {
-                    const { data } = await window.wizFirebase.select('system_state');
-                    const masterDoc = (data || []).find(d => d.id === 'master_bundle' || d.key === 'master_bundle');
-                    if (masterDoc) masterData = masterDoc;
-                } catch(e) {}
-            }
-
-            // 4. Fourth Fallback: Static canonical snapshot
-            if (!masterData) {
-                try {
-                    const res = await fetch('assets/data/canonical-store.json', { cache: 'no-cache' });
-                    if (res.ok) masterData = await res.json();
-                } catch (e) {}
-            }
-
-            // Query Supabase tables directly to ensure 100% freshness
+            // Query Supabase tables directly ONLY on admin portal to ensure 100% freshness
             let directSbNews = null;
             let directSbDonations = null;
             let directSbDisbursements = null;
@@ -2417,7 +2447,7 @@
             let directSbSettings = null;
             let directSbQuotes = null;
 
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+            if (isAdminPortal && window.wizSupabase && window.wizSupabase.isConfigured()) {
                 const [sbQResult, sbNewsResult, sbDonResult, sbDisbResult, sbRefResult, sbKpiResult, sbSetResult] = await Promise.allSettled([
                     window.wizSupabase.getQuotes().catch(() => null),
                     window.wizSupabase.select('news', { select: 'id,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at', order: 'created_at.desc' }).catch(() => null),
@@ -2771,7 +2801,7 @@
             // Standalone site_images & specific_prog_imgs from Supabase
             let cloudSiteImgsDirect = null;
             let cloudSpecificProgImgsDirect = null;
-            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+            if (isAdminPortal && window.wizSupabase && window.wizSupabase.isConfigured()) {
                 try {
                     const siRes = await window.wizSupabase.select('site_settings', { filter: 'key=eq.site_images' });
                     if (siRes && siRes.data && siRes.data[0] && siRes.data[0].value) {
@@ -6981,13 +7011,13 @@
     // Full authoritative sync on startup:
     async function initSync() {
         try {
-            // Jika local store kosong atau data berita kurang dari snapshot, segera isi dari canonical snapshot dulu
+            // Segera isi dari canonical snapshot dulu jika kosong
             const curDons = getStore(STORAGE_KEYS.DONATIONS) || [];
             const curRefs = getStore(STORAGE_KEYS.REFERRALS) || [];
             const curNews = getStore(STORAGE_KEYS.NEWS) || [];
             if (curDons.length === 0 || curRefs.length === 0 || curNews.length < 9) {
                 try {
-                    const cRes = await fetch('assets/data/canonical-store.json', { cache: 'no-cache' });
+                    const cRes = await fetch('/assets/data/canonical-store.json');
                     if (cRes.ok) {
                         const cData = await cRes.json();
                         if (cData && Array.isArray(cData.donations) && cData.donations.length > 0 && curDons.length === 0) {
@@ -7004,8 +7034,16 @@
                 } catch(e) {}
             }
 
-            await syncFromCloud(true);   // Pull fresh authoritative data from Supabase Cloud and replace local state
-            console.log('[WIZ Sync Engine] Initial real-time cloud sync complete (Supabase SSOT active).');
+            // Dispatch instant-paint events immediately so page displays in 0ms!
+            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+            window.dispatchEvent(new CustomEvent('wiz-donations-changed'));
+            window.dispatchEvent(new CustomEvent('wiz-referrals-changed'));
+            window.dispatchEvent(new CustomEvent('wiz-disbursements-changed'));
+            window.dispatchEvent(new CustomEvent('wiz-news-changed'));
+
+            // Run cloud sync in background without blocking initial paint
+            syncFromCloud(false).catch(() => {});
+            console.log('[WIZ Sync Engine] Initial real-time cloud sync started in background.');
             
             // Automatic recurring background cloud sync ONLY on admin portal (60 seconds)
             // Public pages (home, donasi, berita, laporan, etc.) NEVER loop-poll Supabase to prevent bandwidth egress leaks.
