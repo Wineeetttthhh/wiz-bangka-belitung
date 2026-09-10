@@ -10642,7 +10642,7 @@
         window.addEventListener('wiz-referrals-changed', () => refreshAll());
         window.addEventListener('wiz-admin-users-changed', () => refreshAll());
 
-        // Reactive live polling for real-time incoming donations
+        // Reactive live polling for real-time incoming donations (60s safe interval)
         setInterval(async () => {
             if (document.visibilityState === 'visible' && window.wizStore && typeof wizStore.syncFromCloud === 'function') {
                 try {
@@ -10650,7 +10650,7 @@
                 } catch(e) {}
                 refreshAll();
             }
-        }, 5000);
+        }, 60000);
 
         document.addEventListener('visibilitychange', async () => {
             if (document.visibilityState === 'visible') {

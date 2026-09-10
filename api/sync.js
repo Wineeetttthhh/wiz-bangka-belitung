@@ -26,7 +26,7 @@ const supabaseHeaders = {
 // In-memory cache for fast warm lambda hits
 let memCache = null;
 let memCacheTime = 0;
-const MEM_CACHE_TTL_MS = 1000; // 1s
+const MEM_CACHE_TTL_MS = 60000; // 60s cache in memory to prevent Supabase egress leaks
 
 function invalidateCache() {
     memCache = null;
@@ -248,7 +248,11 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    if (req.method === 'GET') {
+        res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+    } else {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
 
     if (req.method === 'OPTIONS') {
         return res.status(200).end();

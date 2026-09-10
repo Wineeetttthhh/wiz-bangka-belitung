@@ -2321,13 +2321,34 @@
     // ─── Sync From Cloud (Supabase Primary & Vercel API) ─────────────
     async function syncFromCloud(force = false) {
         const now = Date.now();
-        if (!force && (now - lastSyncTimestamp < 2000 || isSyncInProgress)) {
+        const minCooldown = force ? 1000 : 15000;
+        if (!force && (now - lastSyncTimestamp < minCooldown || isSyncInProgress)) {
             return;
         }
         isSyncInProgress = true;
         lastSyncTimestamp = now;
 
         try {
+            // 0. Lightweight check: check updated_at first (~48 bytes vs ~1.2 MB)
+            if (window.wizSupabase && window.wizSupabase.isConfigured()) {
+                try {
+                    const localSyncTime = localStorage.getItem('wiz_master_bundle_synced_at');
+                    const hasLocalData = localStorage.getItem('wiz_donations') || localStorage.getItem('wiz_news');
+                    if (!force && localSyncTime && hasLocalData) {
+                        const metaRes = await window.wizSupabase.select('site_settings', {
+                            filter: 'key=eq.master_bundle',
+                            select: 'updated_at'
+                        });
+                        const remoteTime = metaRes && metaRes.data && metaRes.data[0] && metaRes.data[0].updated_at;
+                        if (remoteTime && remoteTime === localSyncTime) {
+                            // Supabase data is unchanged! Skip downloading 1.2MB payload
+                            isSyncInProgress = false;
+                            return;
+                        }
+                    }
+                } catch(e) {}
+            }
+
             let masterData = null;
 
             // 1. Primary: Direct Supabase Fetch
@@ -2336,6 +2357,9 @@
                     const sbRes = await window.wizSupabase.select('site_settings', { filter: 'key=eq.master_bundle' });
                     if (sbRes && sbRes.data && sbRes.data.length > 0 && sbRes.data[0].value) {
                         masterData = sbRes.data[0].value;
+                        if (sbRes.data[0].updated_at) {
+                            localStorage.setItem('wiz_master_bundle_synced_at', sbRes.data[0].updated_at);
+                        }
                     }
                 } catch(e) {}
             }
@@ -6982,6 +7006,24 @@
 
             await syncFromCloud(true);   // Pull fresh authoritative data from Supabase Cloud and replace local state
             console.log('[WIZ Sync Engine] Initial real-time cloud sync complete (Supabase SSOT active).');
+            
+            // Automatic recurring background cloud sync ONLY on admin portal (60 seconds)
+            // Public pages (home, donasi, berita, laporan, etc.) NEVER loop-poll Supabase to prevent bandwidth egress leaks.
+            const isAdminPortal = typeof window !== 'undefined' && (
+                window.location.pathname.includes('admin') || 
+                window.location.pathname.includes('portal')
+            );
+            if (isAdminPortal) {
+                setInterval(async () => {
+                    if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+                        try {
+                            await syncFromCloud();
+                            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+                        } catch(e) {}
+                    }
+                }, 60000);
+            }
+
             window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
             window.dispatchEvent(new CustomEvent('wiz-donations-changed'));
             window.dispatchEvent(new CustomEvent('wiz-referrals-changed'));
@@ -7019,15 +7061,6 @@
         });
     }
 
-    // Automatic recurring background cloud sync every 8 seconds (when tab is active)
-    setInterval(async () => {
-        if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
-            try {
-                await syncFromCloud();
-                window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
-            } catch(e) {}
-        }
-    }, 8000);
 
     // Helper: Mask donor name for public privacy
     function maskDonorName(name, isAnonymous = false) {
