@@ -361,6 +361,7 @@ export default async function handler(req, res) {
         try {
             // Check in-memory cache
             if (memCache && (Date.now() - memCacheTime < MEM_CACHE_TTL_MS)) {
+                res.setHeader('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=60');
                 return res.status(200).json({
                     status: 'success',
                     source: 'memory_cache',
@@ -379,6 +380,7 @@ export default async function handler(req, res) {
             memCache = masterData;
             memCacheTime = Date.now();
 
+            res.setHeader('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=60');
             return res.status(200).json({
                 status: 'success',
                 source: 'supabase_cloud',
