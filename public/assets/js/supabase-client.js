@@ -607,9 +607,9 @@ const SUPABASE_CONFIG = {
         getNews: async (onlyPublished = false) => {
             const filter = onlyPublished ? 'status=eq.published' : undefined;
             const res = await select('news', { 
-                select: 'id,slug,title,category,content,image_url,imageUrl,gallery,event_date,status,author,created_at,updated_at',
+                select: '*',
                 filter, 
-                order: 'event_date.desc' 
+                order: 'created_at.desc' 
             });
             if (res.error || !Array.isArray(res.data)) return res;
             const mapped = res.data.map(n => ({

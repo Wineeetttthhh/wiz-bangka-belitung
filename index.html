@@ -146,7 +146,7 @@
                 // 1. Try Supabase REST query
                 if (window.wizSupabase && window.wizSupabase.isConfigured()) {
                     try {
-                        const res = await window.wizSupabase.select('news', { select: 'id,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at', order: 'created_at.desc' });
+                        const res = await window.wizSupabase.select('news', { select: '*', order: 'created_at.desc' });
                         if (res && Array.isArray(res.data) && res.data.length > 0) {
                             fetchedNews = res.data;
                         }

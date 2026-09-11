@@ -2450,7 +2450,7 @@
             if (isAdminPortal && window.wizSupabase && window.wizSupabase.isConfigured()) {
                 const [sbQResult, sbNewsResult, sbDonResult, sbDisbResult, sbRefResult, sbKpiResult, sbSetResult] = await Promise.allSettled([
                     window.wizSupabase.getQuotes().catch(() => null),
-                    window.wizSupabase.select('news', { select: 'id,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at', order: 'created_at.desc' }).catch(() => null),
+                    window.wizSupabase.select('news', { select: '*', order: 'created_at.desc' }).catch(() => null),
                     window.wizSupabase.select('donations').catch(() => null),
                     window.wizSupabase.select('disbursements').catch(() => null),
                     window.wizSupabase.getReferrals().catch(() => null),

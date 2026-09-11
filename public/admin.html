@@ -2668,6 +2668,40 @@
             <form id="news-form" class="p-lg space-y-lg" onsubmit="handleNewsSave(event)">
                 <input type="hidden" id="news-edit-id" value="">
                 
+                <!-- PILIHAN TEMPLATE CEPAT (1-KLIK ISI OTOMATIS) -->
+                <div class="p-md rounded-2xl bg-gradient-to-r from-primary/10 via-primary/5 to-surface-container-low border-2 border-primary/30 space-y-sm shadow-xs">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-xl">magic_button</span>
+                            <span class="font-label-md text-label-md font-bold text-primary">Template Cepat Berita Kegiatan (1-Klik Isi Otomatis):</span>
+                        </div>
+                        <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">✨ Praktis &amp; Cepat</span>
+                    </div>
+                    <p class="text-caption text-on-surface-variant leading-snug">Pilih jenis kegiatan berikut untuk mengisi judul, foto cover, kategori, dan isi berita secara instan. Anda cukup mengedit rincian angka/lokasi bila diperlukan:</p>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                        <button type="button" onclick="applyNewsTemplate('sembako')" class="p-2.5 rounded-xl border border-primary/30 bg-surface hover:bg-primary/10 hover:border-primary text-left transition-all group flex flex-col gap-1 cursor-pointer shadow-xs hover:scale-[1.02]">
+                            <span class="text-xl">🌾</span>
+                            <span class="font-bold text-xs text-primary">Sembako &amp; Beras</span>
+                            <span class="text-[10px] text-on-surface-variant line-clamp-1">Penyaluran Dhuafa</span>
+                        </button>
+                        <button type="button" onclick="applyNewsTemplate('beasiswa')" class="p-2.5 rounded-xl border border-primary/30 bg-surface hover:bg-primary/10 hover:border-primary text-left transition-all group flex flex-col gap-1 cursor-pointer shadow-xs hover:scale-[1.02]">
+                            <span class="text-xl">🎓</span>
+                            <span class="font-bold text-xs text-primary">Beasiswa &amp; Santri</span>
+                            <span class="text-[10px] text-on-surface-variant line-clamp-1">Tahfidz Al-Qur'an</span>
+                        </button>
+                        <button type="button" onclick="applyNewsTemplate('ambulans')" class="p-2.5 rounded-xl border border-primary/30 bg-surface hover:bg-primary/10 hover:border-primary text-left transition-all group flex flex-col gap-1 cursor-pointer shadow-xs hover:scale-[1.02]">
+                            <span class="text-xl">🚑</span>
+                            <span class="font-bold text-xs text-primary">Layanan Ambulans</span>
+                            <span class="text-[10px] text-on-surface-variant line-clamp-1">Pasien &amp; Darurat</span>
+                        </button>
+                        <button type="button" onclick="applyNewsTemplate('dakwah')" class="p-2.5 rounded-xl border border-primary/30 bg-surface hover:bg-primary/10 hover:border-primary text-left transition-all group flex flex-col gap-1 cursor-pointer shadow-xs hover:scale-[1.02]">
+                            <span class="text-xl">🕌</span>
+                            <span class="font-bold text-xs text-primary">Dakwah &amp; Markaz</span>
+                            <span class="text-[10px] text-on-surface-variant line-clamp-1">Kajian &amp; Da'i</span>
+                        </button>
+                    </div>
+                </div>
+                
                 <!-- Judul Berita -->
                 <div>
                     <label class="block font-label-md text-label-md text-on-surface font-bold mb-xs">Judul Berita / Kegiatan <span class="text-error">*</span></label>
@@ -2722,13 +2756,13 @@
                     <div class="space-y-1.5">
                         <span class="font-caption text-caption font-bold text-on-surface-variant">Pilihan Foto Cepat (Preset HD):</span>
                         <div class="flex items-center gap-2 flex-wrap">
-                            <button type="button" onclick="setNewsPresetPhoto('assets/images/tebar-iftar-1.jpg', 'Foto Tebar Iftar 1')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">🌙 Tebar Iftar 1</button>
-                            <button type="button" onclick="setNewsPresetPhoto('assets/images/tebar-iftar-2.jpg', 'Foto Tebar Iftar 2')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">🌙 Tebar Iftar 2</button>
-                            <button type="button" onclick="setNewsPresetPhoto('assets/images/tebar-iftar-3.jpg', 'Foto Tebar Iftar 3')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">🌙 Tebar Iftar 3</button>
-                            <button type="button" onclick="setNewsPresetPhoto('assets/images/sedekah-beras-dhuafa.jpg', 'Foto Beras Dhuafa')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">🌾 Sedekah Beras</button>
-                            <button type="button" onclick="setNewsPresetPhoto('assets/images/beasiswa-tahfidz.jpg', 'Foto Beasiswa')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">🎓 Beasiswa &amp; Santri</button>
-                            <button type="button" onclick="setNewsPresetPhoto('assets/images/sedekah-beras-dai.jpg', 'Foto Sembako')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">📦 Tebar Sembako</button>
-                            <button type="button" onclick="setNewsPresetPhoto('assets/images/foto-utama-wiz.jpg', 'Foto Dakwah')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">🕌 Dakwah &amp; Markaz</button>
+                            <button type="button" onclick="setNewsPresetPhoto('assets/images/sedekah-beras-dhuafa.jpg', 'Foto Beras Dhuafa')" class="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-caption font-bold hover:bg-primary hover:text-white transition-colors border border-primary/30">🌾 Sedekah Beras</button>
+                            <button type="button" onclick="setNewsPresetPhoto('assets/images/tebar-sembako.png', 'Foto Tebar Sembako')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">📦 Tebar Sembako</button>
+                            <button type="button" onclick="setNewsPresetPhoto('assets/images/tahfidz.png', 'Foto Santri Tahfidz')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">🎓 Santri Tahfidz</button>
+                            <button type="button" onclick="setNewsPresetPhoto('assets/images/ambulance-gratis-ummat.png', 'Foto Ambulans Gratis')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">🚑 Layanan Ambulans</button>
+                            <button type="button" onclick="setNewsPresetPhoto('assets/images/foto-utama-wiz.jpg', 'Foto Dakwah & Markaz')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">🕌 Dakwah &amp; Markaz</button>
+                            <button type="button" onclick="setNewsPresetPhoto('assets/images/santunan-yatim.png', 'Foto Santunan Yatim')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">👶 Santunan Yatim</button>
+                            <button type="button" onclick="setNewsPresetPhoto('assets/images/layanan-pengobatan-gratis.png', 'Foto Pengobatan Gratis')" class="px-2.5 py-1 bg-surface-container rounded-lg text-caption font-semibold hover:bg-primary/10 hover:text-primary transition-colors border border-outline-variant/30">🩺 Pengobatan Gratis</button>
                         </div>
                     </div>
 
@@ -4885,7 +4919,7 @@
                             <span class="material-symbols-outlined text-sm">${isPub ? 'visibility_off' : 'visibility'}</span>
                             <span>${isPub ? 'Draft-kan' : 'Tayangkan'}</span>
                         </button>
-                        <a href="berita/${n.id}" target="_blank" class="flex-1 md:flex-none flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl border border-outline-variant text-primary hover:bg-primary/5 font-label-md text-caption font-bold transition-colors cursor-pointer bg-surface">
+                        <a href="/berita/${n.id}" target="_blank" class="flex-1 md:flex-none flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl border border-outline-variant text-primary hover:bg-primary/5 font-label-md text-caption font-bold transition-colors cursor-pointer bg-surface">
                             <span class="material-symbols-outlined text-sm">open_in_new</span>
                             <span>Lihat</span>
                         </a>
@@ -4903,6 +4937,89 @@
         }
 
         // ─── News Photo Upload Handlers ────────────
+        // ─── News 1-Click Templates ──────────────────
+        function applyNewsTemplate(type) {
+            const todayStr = new Date().toISOString().split('T')[0];
+            const dateDisplay = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
+
+            if (type === 'sembako') {
+                document.getElementById('news-title').value = 'Penyaluran Paket Sembako & Beras untuk Kaum Dhuafa di Kepulauan Bangka Belitung';
+                document.getElementById('news-category').value = 'Kegiatan & Penyaluran';
+                document.getElementById('news-event-date').value = todayStr;
+                setNewsPresetPhoto('assets/images/sedekah-beras-dhuafa.jpg', 'Foto Beras Dhuafa');
+                document.getElementById('news-content').value = 
+`Alhamdulillah, Wahdah Inspirasi Zakat (WIZ) Gerai Bangka Belitung kembali menyalurkan amanah kebaikan dari para donatur berupa paket sembako dan beras untuk keluarga dhuafa, lansia, dan janda prasejahtera di wilayah Bangka Belitung pada ${dateDisplay}.
+
+Penyaluran ini merupakan ikhtiar nyata WIZ Babel dalam membantu meringankan beban ekonomi saudara-saudara kita yang membutuhkan. Paket bantuan yang diserahkan terdiri atas beras premium, minyak goreng, gula, dan kebutuhan pangan pokok harian lainnya.
+
+Para penerima manfaat menyambut bantuan ini dengan haru dan rasa syukur yang mendalam. Mereka mendoakan agar seluruh donatur dan muhsinin WIZ senantiasa diberikan kelapangan rezeki, keberkahan keluarga, dan kesehatan.
+
+"Jazakumullahu khairan katsiran kepada para donatur setia WIZ Bangka Belitung. Semoga setiap butir beras dan kebaikan yang dialirkan menjadi amal jariyah yang terus mengalir pahalanya di sisi Allah Subhanahu wa Ta'ala. Aamiin."`;
+            } else if (type === 'beasiswa') {
+                document.getElementById('news-title').value = 'Penyaluran Beasiswa Pendidikan & Santunan Santri Penghafal Al-Qur\'an';
+                document.getElementById('news-category').value = 'Dakwah & Pendidikan';
+                document.getElementById('news-event-date').value = todayStr;
+                setNewsPresetPhoto('assets/images/tahfidz.png', 'Foto Santri Tahfidz');
+                document.getElementById('news-content').value = 
+`Bangka Belitung — Pendidikan generasi Qur'ani adalah investasi terbaik umat. Pada ${dateDisplay}, Wahdah Inspirasi Zakat (WIZ) Bangka Belitung menyerahkan paket beasiswa pendidikan dan santunan operasional bagi para santri penghafal Al-Qur'an (Tahfidz).
+
+Program ini menyasar para santri yatim dan dhuafa yang tengah berjuang menghafalkan kalamullah di pondok pesantren dan Rumah Tahfidz di Bangka Belitung. Bantuan yang diberikan mencakup biaya pendidikan/syahriah, perlengkapan belajar, dan mushaf Al-Qur'an hafalan.
+
+Koordinator Program WIZ Babel menyampaikan bahwa program Beasiswa Juara dan Santri ini bertujuan menjaga keberlangsungan pendidikan agama anak-anak penerus dakwah Islam agar tidak terkendala faktor ekonomi.
+
+Terima kasih yang tak terhingga kepada seluruh donatur WIZ. Mari terus dukung lahirnya generasi penghafal Al-Qur'an di Bumi Serumpun Sebalai!`;
+            } else if (type === 'ambulans') {
+                document.getElementById('news-title').value = 'Layanan Ambulans Gratis WIZ Babel Siap Antar Pasien Dhuafa & Jenazah';
+                document.getElementById('news-category').value = 'Kesehatan & Layanan Ummat';
+                document.getElementById('news-event-date').value = todayStr;
+                setNewsPresetPhoto('assets/images/ambulance-gratis-ummat.png', 'Foto Layanan Ambulans');
+                document.getElementById('news-content').value = 
+`Pangkalpinang — Armada Ambulans Layanan Ummat Wahdah Inspirasi Zakat (WIZ) Bangka Belitung terus bergerak melayani masyarakat yang membutuhkan transportasi darurat, rujukan pasien dhuafa ke rumah sakit, serta layanan antar jenazah secara cuma-cuma (gratis).
+
+Pada ${dateDisplay}, tim relawan ambulans WIZ Babel kembali bertugas mengantarkan pasien dhuafa yang membutuhkan kontrol rutin dan penanganan medis darurat. Seluruh biaya bahan bakar dan operasional ditanggung sepenuhnya oleh program sedekah layanan kesehatan WIZ.
+
+Keluarga pasien mengungkapkan rasa syukur dan apresiasinya: "Layanan ambulans gratis dari WIZ ini sangat menolong kami saat kondisi darurat, pelayanannya cepat, ramah, dan tidak dipungut biaya sepeserpun."
+
+Terima kasih atas sedekah para donatur yang telah membiayai operasional armada ini. Semoga setiap putaran roda ambulans menjadi pahala jariyah yang abadi bagi kita semua.`;
+            } else if (type === 'dakwah') {
+                document.getElementById('news-title').value = 'Kajian Islam & Pembinaan Da\'i WIZ Bangka Belitung Berlangsung Khidmat';
+                document.getElementById('news-category').value = 'Dakwah & Pendidikan';
+                document.getElementById('news-event-date').value = todayStr;
+                setNewsPresetPhoto('assets/images/foto-utama-wiz.jpg', 'Foto Dakwah & Markaz');
+                document.getElementById('news-content').value = 
+`Alhamdulillah, telah terlaksana kegiatan Kajian Keislaman dan Pembinaan Da'i serta Kader Dakwah yang diselenggarakan oleh Wahdah Inspirasi Zakat (WIZ) Bangka Belitung pada ${dateDisplay}.
+
+Kegiatan ini dihadiri oleh jamaah, da'i binaan, dan simpatisan dakwah dengan antusiasme yang tinggi. Selain penyampaian tausiyah dan materi pembinaan keummatan, forum ini juga menjadi sarana silaturahmi serta evaluasi dakwah pelosok di wilayah Bangka Belitung.
+
+WIZ Babel terus berkomitmen membersamai para da'i yang bertugas di pelosok desa dengan dukungan Kafalah Da'i dan sarana transportasi dakwah, agar cahaya hidayah Islam dapat menyentuh seluruh lapisan masyarakat.
+
+Jazakumullahu khairan kepada para muhsinin. Semoga Allah senantiasa meneguhkan langkah kita dalam jalan dakwah dan kebaikan.`;
+            }
+
+            const counter = document.getElementById('news-content-counter');
+            if (counter) {
+                const len = (document.getElementById('news-content').value || '').length;
+                counter.textContent = len + ' karakter';
+            }
+            showAdminToast('✨ Template Berhasil Dimuat', 'Form berita telah diisi otomatis. Anda dapat langsung menyimpan atau mengedit detailnya.', 'success');
+        }
+
+        async function uploadToCloudStorage(dataUrl) {
+            if (!dataUrl || !dataUrl.startsWith('data:image')) return null;
+            try {
+                const res = await fetch('/api/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'upload_news_image', imageData: dataUrl })
+                });
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.status === 'success' && json.url) return json.url;
+                }
+            } catch(e) {}
+            return null;
+        }
+
         function setNewsPresetPhoto(url, label) {
             const inputEl = document.getElementById('news-image-url');
             const prevImg = document.getElementById('news-main-preview');
@@ -5251,12 +5368,12 @@
             activeNewsGallery = [];
         }
 
-        function showAdminToast(title, message, type = 'success') {
+        function showAdminToast(title, message, type = 'success', linkUrl = null) {
             let container = document.getElementById('admin-toast-container');
             if (!container) {
                 container = document.createElement('div');
                 container.id = 'admin-toast-container';
-                container.className = 'fixed bottom-5 right-5 z-[9999] flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4';
+                container.className = 'fixed bottom-5 right-5 z-[9999] flex flex-col gap-2 max-w-md w-full pointer-events-none px-4';
                 document.body.appendChild(container);
             }
 
@@ -5275,6 +5392,7 @@
                 <div class="flex-1 min-w-0">
                     <h5 class="font-bold text-sm leading-tight">${title}</h5>
                     <p class="text-xs text-white/80 mt-0.5 leading-snug">${message}</p>
+                    ${linkUrl ? `<a href="${linkUrl}" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-emerald-300 hover:text-white mt-2 bg-emerald-800/40 px-2.5 py-1 rounded-lg border border-emerald-500/30 transition-colors"><span>Buka Berita di Web Utama</span><span class="material-symbols-outlined text-[13px]">open_in_new</span></a>` : ''}
                 </div>
                 <button type="button" class="text-white/60 hover:text-white shrink-0 cursor-pointer" onclick="this.parentElement.remove()">
                     <span class="material-symbols-outlined text-sm">close</span>
@@ -5289,7 +5407,7 @@
             setTimeout(() => {
                 toast.classList.add('translate-y-4', 'opacity-0');
                 setTimeout(() => toast.remove(), 300);
-            }, 4500);
+            }, 6500);
         }
 
         async function handleNewsSave(e) {
@@ -5299,7 +5417,7 @@
             if (submitBtn) {
                 if (submitBtn.disabled) return;
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Menyimpan...</span>`;
+                submitBtn.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Menyimpan ke Supabase...</span>`;
             }
 
             try {
@@ -5307,7 +5425,7 @@
                 const title = (document.getElementById('news-title').value || '').trim();
                 const category = document.getElementById('news-category').value;
                 const content = (document.getElementById('news-content').value || '').trim();
-                const imageUrl = (document.getElementById('news-image-url').value || '').trim() || 'assets/images/sedekah-beras-dhuafa.jpg';
+                let imageUrl = (document.getElementById('news-image-url').value || '').trim() || 'assets/images/sedekah-beras-dhuafa.jpg';
                 const eventDateVal = document.getElementById('news-event-date').value;
                 const eventDate = eventDateVal ? new Date(eventDateVal).toISOString() : new Date().toISOString();
                 const status = document.querySelector('input[name="news-status"]:checked') ? document.querySelector('input[name="news-status"]:checked').value : 'published';
@@ -5322,6 +5440,14 @@
                     alert('Isi Berita lengkap wajib diisi!');
                     if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalBtnText; }
                     return;
+                }
+
+                // If image is a local base64, attempt cloud storage upload first
+                if (imageUrl && imageUrl.startsWith('data:image')) {
+                    try {
+                        const cloudUrl = await uploadToCloudStorage(imageUrl);
+                        if (cloudUrl) imageUrl = cloudUrl;
+                    } catch(e) {}
                 }
 
                 const cleanGallery = activeNewsGallery.filter(Boolean);
@@ -5357,7 +5483,7 @@
                 closeNewsModal();
                 refreshAll();
 
-                // 3. Directly save to Supabase Database (Non-blocking background)
+                // 3. Directly save to Supabase Database (Await to guarantee persistence)
                 const itemToSave = savedArticle || data;
                 const fullPayload = {
                     id: String(editId || itemToSave.id),
@@ -5374,20 +5500,21 @@
                 };
 
                 if (window.wizSupabase && window.wizSupabase.isConfigured()) {
-                    window.wizSupabase.upsert('news', fullPayload).then(() => {
+                    try {
+                        await window.wizSupabase.upsert('news', fullPayload);
                         console.log('[Supabase] News saved successfully to PostgreSQL:', fullPayload.id);
-                    }).catch(err => {
+                    } catch(err) {
                         console.error('[Supabase Save Error]', err);
-                    });
+                    }
                 }
 
                 // 4. Send direct micro-action to /api/sync so serverless cache is instantly updated
                 try {
-                    fetch('/api/sync', {
+                    await fetch('/api/sync', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ action: 'save_news', news: fullPayload })
-                    }).catch(() => {});
+                    });
                 } catch(e) {}
 
                 // 5. Background cloud push for master bundle
@@ -5395,12 +5522,14 @@
                     wizStore.pushToCloud().catch(() => {});
                 }
 
-                // 6. User feedback via Toast notification
+                // 6. User feedback via Toast notification with direct link
                 const isDraft = status === 'draft';
+                const viewUrl = !isDraft ? `/berita/${encodeURIComponent(fullPayload.id)}` : null;
                 showAdminToast(
                     isDraft ? '⏳ Draft Berita Berhasil Disimpan' : '✅ Berita Berhasil Ditayangkan',
-                    `"${title}" berhasil ${editId ? 'diperbarui' : 'disimpan'} (${isDraft ? 'Tersimpan di Tab Draft' : 'Aktif di Web Utama'}).`,
-                    isDraft ? 'warning' : 'success'
+                    `"${title}" berhasil ${editId ? 'diperbarui' : 'disimpan'} (${isDraft ? 'Tersimpan di Tab Draft' : 'Aktif di Web Utama & Database'}).`,
+                    isDraft ? 'warning' : 'success',
+                    viewUrl
                 );
             } catch(err) {
                 console.error('[News Save Error]', err);
@@ -5411,6 +5540,7 @@
                     submitBtn.innerHTML = originalBtnText;
                 }
             }
+        }
         }
 
         function editNews(id) {

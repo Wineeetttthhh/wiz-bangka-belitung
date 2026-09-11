@@ -75,7 +75,7 @@ function mapRow(row: SupabaseNewsRow): NewsItem {
 export async function fetchAllNews(includeDrafts: boolean = false): Promise<NewsItem[]> {
     try {
         const filterStatus = includeDrafts ? '' : '&status=eq.published';
-        const url = `${SUPABASE_URL}/rest/v1/news?order=created_at.desc&select=id,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at${filterStatus}`;
+        const url = `${SUPABASE_URL}/rest/v1/news?order=created_at.desc&select=*${filterStatus}`;
         const res = await fetch(url, {
             method: 'GET',
             headers: BASE_HEADERS,
@@ -96,8 +96,7 @@ export async function fetchAllNews(includeDrafts: boolean = false): Promise<News
 export async function fetchNewsById(idOrSlug: string): Promise<NewsItem | null> {
     try {
         const encoded = encodeURIComponent(idOrSlug);
-        // Try direct lookup by id or slug
-        const url = `${SUPABASE_URL}/rest/v1/news?or=(id.eq.${encoded},slug.eq.${encoded})&select=id,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at&limit=1`;
+        const url = `${SUPABASE_URL}/rest/v1/news?id=eq.${encoded}&select=*&limit=1`;
         const res = await fetch(url, {
             method: 'GET',
             headers: BASE_HEADERS,

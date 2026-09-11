@@ -15,6 +15,7 @@ import path from 'path';
 const SUPABASE_RAW_URL = process.env.SUPABASE_URL || 'https://dbyqvtfqgutqiuglcsmd.supabase.co';
 const SUPABASE_URL = SUPABASE_RAW_URL.endsWith('/rest/v1') ? SUPABASE_RAW_URL : `${SUPABASE_RAW_URL.replace(/\/$/, '')}/rest/v1`;
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || 'sb_publishable__d2nTNNx6bCo2wyfJNNJ-w_ISKmXmkx';
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || SUPABASE_KEY;
 
 const supabaseHeaders = {
     'apikey': SUPABASE_KEY,
@@ -43,7 +44,7 @@ async function supabaseGetMaster() {
                     'Accept': 'application/json'
                 }
             }).catch(() => null),
-            fetch(`${SUPABASE_URL}/news?select=id,slug,title,category,content,image_url,gallery,event_date,status,author,created_at,updated_at&order=created_at.desc`, {
+            fetch(`${SUPABASE_URL}/news?select=*&order=created_at.desc`, {
                 headers: {
                     'apikey': SUPABASE_KEY,
                     'Authorization': 'Bearer ' + SUPABASE_KEY,
@@ -407,6 +408,93 @@ export default async function handler(req, res) {
             if (!master) master = loadCanonicalSeed();
 
             // ─── HIGH-SPEED TARGETED MICRO-ACTIONS (<100ms) ─────────
+            if (body && body.action === 'save_news' && body.news) {
+                const n = body.news;
+                const newsPayload = {
+                    id: String(n.id),
+                    title: n.title,
+                    category: n.category || 'Kegiatan & Penyaluran',
+                    content: n.content,
+                    image_url: n.image_url || n.imageUrl || '',
+                    gallery: Array.isArray(n.gallery) ? n.gallery : [],
+                    event_date: n.event_date || n.eventDate || new Date().toISOString(),
+                    status: n.status || 'published',
+                    author: n.author || 'Admin WIZ Babel',
+                    created_at: n.created_at || n.createdAt || new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                };
+
+                try {
+                    await fetch(`${SUPABASE_URL}/news`, {
+                        method: 'POST',
+                        headers: {
+                            'apikey': SUPABASE_SERVICE_KEY,
+                            'Authorization': 'Bearer ' + SUPABASE_SERVICE_KEY,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'resolution=merge-duplicates,return=representation'
+                        },
+                        body: JSON.stringify(newsPayload)
+                    });
+                } catch(e) {
+                    console.warn('[Sync API] save_news Supabase error:', e.message);
+                }
+
+                invalidateCache();
+                return res.status(200).json({ status: 'success', action: 'save_news', news: newsPayload });
+            }
+
+            if (body && body.action === 'upload_news_image' && body.imageData) {
+                try {
+                    let base64Data = body.imageData;
+                    let mimeType = 'image/jpeg';
+                    let ext = 'jpg';
+                    const match = base64Data.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
+                    if (match) {
+                        mimeType = match[1];
+                        base64Data = match[2];
+                        if (mimeType.includes('png')) ext = 'png';
+                        else if (mimeType.includes('webp')) ext = 'webp';
+                    }
+                    const buffer = Buffer.from(base64Data, 'base64');
+                    const fileName = `news-${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
+                    const storageRes = await fetch(`${SUPABASE_RAW_URL.replace(/\/$/, '')}/storage/v1/object/news/${fileName}`, {
+                        method: 'POST',
+                        headers: {
+                            'apikey': SUPABASE_SERVICE_KEY,
+                            'Authorization': 'Bearer ' + SUPABASE_SERVICE_KEY,
+                            'Content-Type': mimeType
+                        },
+                        body: buffer
+                    });
+                    if (storageRes.ok) {
+                        const publicUrl = `${SUPABASE_RAW_URL.replace(/\/$/, '')}/storage/v1/object/public/news/${fileName}`;
+                        return res.status(200).json({ status: 'success', action: 'upload_news_image', url: publicUrl });
+                    } else {
+                        const errText = await storageRes.text();
+                        console.warn('[Sync API] upload_news_image failed:', errText);
+                    }
+                } catch(e) {
+                    console.warn('[Sync API] upload_news_image exception:', e.message);
+                }
+                return res.status(500).json({ status: 'error', message: 'Gagal mengunggah foto ke storage' });
+            }
+
+            if (body && body.action === 'delete_news' && body.id) {
+                try {
+                    await fetch(`${SUPABASE_URL}/news?id=eq.${encodeURIComponent(body.id)}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'apikey': SUPABASE_SERVICE_KEY,
+                            'Authorization': 'Bearer ' + SUPABASE_SERVICE_KEY,
+                            'Prefer': 'return=minimal'
+                        }
+                    });
+                } catch(e) {}
+
+                invalidateCache();
+                return res.status(200).json({ status: 'success', action: 'delete_news', id: body.id });
+            }
+
             if (body && body.action === 'verify_admin_user' && body.username) {
                 const cleanUser = (body.username || '').toLowerCase().trim();
                 const users = Array.isArray(master.admin_users) ? master.admin_users : [];
