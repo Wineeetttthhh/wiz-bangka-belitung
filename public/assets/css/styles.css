@@ -1855,3 +1855,78 @@ img {
   position: relative;
   z-index: 1000000;
 }
+
+/* ========================================================
+   Universal Share Modal Styling (Fix Mobile Squish Bug)
+   ======================================================== */
+#wiz-universal-share-modal {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 99999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px !important;
+  background-color: rgba(15, 23, 42, 0.75) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  box-sizing: border-box !important;
+  transition: opacity 0.25s ease-in-out !important;
+}
+
+#wiz-universal-share-modal.opacity-0 {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
+#wiz-universal-share-modal.opacity-100 {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  visibility: visible !important;
+}
+
+#wiz-universal-share-dialog {
+  position: relative !important;
+  width: 100% !important;
+  max-width: 480px !important;
+  min-width: min(94vw, 360px) !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-radius: 24px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4) !important;
+  border: 1px solid #e2e8f0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  max-height: 90vh !important;
+  box-sizing: border-box !important;
+  margin: auto !important;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+#wiz-universal-share-dialog.scale-95 {
+  transform: scale(0.95) !important;
+}
+
+#wiz-universal-share-dialog.scale-100 {
+  transform: scale(1) !important;
+}
+
+.wiz-share-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 10px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 380px) {
+  .wiz-share-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+  }
+}
+

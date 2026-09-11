@@ -141,122 +141,124 @@ function ensureUniversalShareModal() {
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'wiz-universal-share-modal';
-        modal.className = 'fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300';
+        modal.className = 'fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300';
+        modal.style.cssText = 'position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(15, 23, 42, 0.78); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-sizing: border-box; transition: opacity 0.25s ease; opacity: 0; pointer-events: none; visibility: hidden;';
         modal.innerHTML = `
-        <div class="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden transform scale-95 transition-transform duration-300 flex flex-col max-h-[92vh]" id="wiz-universal-share-dialog">
+        <div class="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden transform scale-95 transition-transform duration-300 flex flex-col max-h-[92vh]" id="wiz-universal-share-dialog" style="position: relative; width: 100%; max-width: 480px; min-width: min(94vw, 340px); background: #ffffff; color: #0f172a; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35); border: 1px solid #e2e8f0; overflow: hidden; display: flex; flex-direction: column; max-height: 90vh; box-sizing: border-box; margin: auto; transform: scale(0.95); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
             <!-- Modal Header -->
-            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80 sticky top-0 z-10">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
+            <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/90 sticky top-0 z-10" style="padding: 16px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; background: #f8fafc; position: sticky; top: 0; z-index: 10; box-sizing: border-box;">
+                <div class="flex items-center gap-2.5" style="display: flex; align-items: center; gap: 10px;">
+                    <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold" style="width: 36px; height: 36px; border-radius: 12px; background: #e8f5e9; color: #006834; display: flex; align-items: center; justify-content: center;">
                         <span class="material-symbols-outlined text-xl">share</span>
                     </div>
                     <div>
-                        <h3 class="font-bold text-slate-900 text-base leading-snug">Bagikan Program Kebaikan</h3>
-                        <p class="text-xs text-slate-500">Pilih media sosial untuk menyebarkan syiar donasi</p>
+                        <h3 class="font-bold text-slate-900 text-sm sm:text-base leading-snug" style="font-weight: 700; color: #0f172a; font-size: 15px; margin: 0;">Bagikan Program Kebaikan</h3>
+                        <p class="text-[11px] sm:text-xs text-slate-500" style="font-size: 12px; color: #64748b; margin: 0;">Pilih media sosial untuk menyebarkan syiar donasi</p>
                     </div>
                 </div>
-                <button type="button" onclick="closeUniversalShareModal()" class="w-8 h-8 rounded-full bg-slate-200/70 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors cursor-pointer" title="Tutup">
+                <button type="button" onclick="closeUniversalShareModal()" class="w-8 h-8 rounded-full bg-slate-200/70 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors cursor-pointer" style="width: 32px; height: 32px; border-radius: 9999px; background: #e2e8f0; border: none; color: #475569; display: flex; align-items: center; justify-content: center; cursor: pointer;" title="Tutup">
                     <span class="material-symbols-outlined text-lg">close</span>
                 </button>
             </div>
 
-            <!-- Program Preview Card -->
-            <div class="p-5 overflow-y-auto space-y-4">
-                <div class="flex gap-3.5 p-3 rounded-2xl bg-slate-50 border border-slate-200/80 items-center">
-                    <div class="w-20 h-16 rounded-xl overflow-hidden shrink-0 bg-slate-200">
-                        <img id="wiz-share-card-img" src="assets/images/foto-utama-wiz.jpg" class="w-full h-full object-cover" alt="Preview">
+            <!-- Program Preview Card & Buttons -->
+            <div class="p-4 sm:p-5 overflow-y-auto space-y-4" style="padding: 18px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; box-sizing: border-box;">
+                <!-- Preview Card -->
+                <div class="flex gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80 items-center" style="display: flex; gap: 12px; padding: 12px; border-radius: 16px; background: #f8fafc; border: 1px solid #e2e8f0; align-items: center; box-sizing: border-box; width: 100%;">
+                    <div class="w-16 h-14 sm:w-20 sm:h-16 rounded-xl overflow-hidden shrink-0 bg-slate-200" style="width: 68px; height: 56px; border-radius: 12px; overflow: hidden; flex-shrink: 0; background: #e2e8f0;">
+                        <img id="wiz-share-card-img" src="/assets/images/foto-utama-wiz.jpg" class="w-full h-full object-cover" style="width: 100%; height: 100%; object-fit: cover;" alt="Preview">
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <span id="wiz-share-card-pillar" class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary mb-1">Pilar Program</span>
-                        <h4 id="wiz-share-card-title" class="font-bold text-slate-900 text-sm truncate">Judul Program</h4>
-                        <p id="wiz-share-card-desc" class="text-xs text-slate-500 line-clamp-1">Salurkan sedekah terbaik Anda bersama WIZ Bangka Belitung.</p>
+                    <div class="flex-1 min-w-0" style="flex: 1; min-width: 0;">
+                        <span id="wiz-share-card-pillar" class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 mb-1" style="display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: #dcfce7; color: #166534; margin-bottom: 4px;">Pilar Program</span>
+                        <h4 id="wiz-share-card-title" class="font-bold text-slate-900 text-xs sm:text-sm truncate" style="font-weight: 700; color: #0f172a; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0;">Judul Program</h4>
+                        <p id="wiz-share-card-desc" class="text-[11px] text-slate-500 line-clamp-1" style="font-size: 11px; color: #64748b; margin: 2px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Salurkan sedekah terbaik Anda bersama WIZ Bangka Belitung.</p>
                     </div>
                 </div>
 
                 <!-- Social Media Sharing Grid -->
-                <div>
-                    <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">Pilih Media Sosial</span>
-                    <div class="grid grid-cols-4 gap-2.5">
+                <div style="width: 100%; box-sizing: border-box;">
+                    <span class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2" style="display: block; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">Pilih Media Sosial</span>
+                    <div class="wiz-share-grid grid grid-cols-4 gap-2 sm:gap-2.5" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; box-sizing: border-box;">
                         <!-- WhatsApp Chat -->
-                        <button type="button" onclick="triggerSocialShare('wa')" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 hover:border-[#25D366] hover:bg-[#25D366]/5 transition-all group cursor-pointer shadow-2xs">
-                            <div class="w-11 h-11 rounded-2xl bg-[#25D366] text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform mb-1.5">
-                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+                        <button type="button" onclick="triggerSocialShare('wa')" class="flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-2xl border border-slate-200 hover:border-[#25D366] hover:bg-emerald-50/50 transition-all cursor-pointer shadow-xs active:scale-95" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px; border-radius: 16px; border: 1px solid #e2e8f0; background: #ffffff; cursor: pointer; text-align: center; box-sizing: border-box; width: 100%;">
+                            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#25D366] text-white flex items-center justify-center shadow-sm mb-1.5" style="width: 42px; height: 42px; border-radius: 14px; background: #25D366; color: #ffffff; display: flex; align-items: center; justify-content: center; margin-bottom: 6px;">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" style="width: 20px; height: 20px;"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
                             </div>
-                            <span class="text-xs font-bold text-slate-800">WhatsApp</span>
-                            <span class="text-[10px] text-slate-400">Chat / Grup</span>
+                            <span class="text-[11px] sm:text-xs font-bold text-slate-800" style="font-size: 11px; font-weight: 700; color: #1e293b;">WhatsApp</span>
+                            <span class="text-[9px] sm:text-[10px] text-slate-400" style="font-size: 9px; color: #94a3b8;">Chat/Grup</span>
                         </button>
 
                         <!-- WhatsApp Status -->
-                        <button type="button" onclick="triggerSocialShare('wa_status')" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all group cursor-pointer shadow-2xs">
-                            <div class="w-11 h-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform mb-1.5">
-                                <span class="material-symbols-outlined text-2xl">donut_large</span>
+                        <button type="button" onclick="triggerSocialShare('wa_status')" class="flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-2xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all cursor-pointer shadow-xs active:scale-95" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px; border-radius: 16px; border: 1px solid #e2e8f0; background: #ffffff; cursor: pointer; text-align: center; box-sizing: border-box; width: 100%;">
+                            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-sm mb-1.5" style="width: 42px; height: 42px; border-radius: 14px; background: #059669; color: #ffffff; display: flex; align-items: center; justify-content: center; margin-bottom: 6px;">
+                                <span class="material-symbols-outlined text-xl">donut_large</span>
                             </div>
-                            <span class="text-xs font-bold text-slate-800">WA Status</span>
-                            <span class="text-[10px] text-slate-400">Story WA</span>
+                            <span class="text-[11px] sm:text-xs font-bold text-slate-800" style="font-size: 11px; font-weight: 700; color: #1e293b;">WA Status</span>
+                            <span class="text-[9px] sm:text-[10px] text-slate-400" style="font-size: 9px; color: #94a3b8;">Story WA</span>
                         </button>
 
                         <!-- Instagram -->
-                        <button type="button" onclick="triggerSocialShare('ig')" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 hover:border-[#E1306C] hover:bg-pink-50 transition-all group cursor-pointer shadow-2xs">
-                            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform mb-1.5">
-                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                        <button type="button" onclick="triggerSocialShare('ig')" class="flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-2xl border border-slate-200 hover:border-[#E1306C] hover:bg-pink-50 transition-all cursor-pointer shadow-xs active:scale-95" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px; border-radius: 16px; border: 1px solid #e2e8f0; background: #ffffff; cursor: pointer; text-align: center; box-sizing: border-box; width: 100%;">
+                            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white flex items-center justify-center shadow-sm mb-1.5" style="width: 42px; height: 42px; border-radius: 14px; background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); color: #ffffff; display: flex; align-items: center; justify-content: center; margin-bottom: 6px;">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" style="width: 20px; height: 20px;"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
                             </div>
-                            <span class="text-xs font-bold text-slate-800">Instagram</span>
-                            <span class="text-[10px] text-slate-400">Story / Bio</span>
+                            <span class="text-[11px] sm:text-xs font-bold text-slate-800" style="font-size: 11px; font-weight: 700; color: #1e293b;">Instagram</span>
+                            <span class="text-[9px] sm:text-[10px] text-slate-400" style="font-size: 9px; color: #94a3b8;">Story/Bio</span>
                         </button>
 
                         <!-- Telegram -->
-                        <button type="button" onclick="triggerSocialShare('tg')" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 hover:border-[#0088cc] hover:bg-sky-50 transition-all group cursor-pointer shadow-2xs">
-                            <div class="w-11 h-11 rounded-2xl bg-[#0088cc] text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform mb-1.5">
-                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.458c.538-.196 1.006.128.832.941z"/></svg>
+                        <button type="button" onclick="triggerSocialShare('tg')" class="flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-2xl border border-slate-200 hover:border-[#0088cc] hover:bg-sky-50 transition-all cursor-pointer shadow-xs active:scale-95" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px; border-radius: 16px; border: 1px solid #e2e8f0; background: #ffffff; cursor: pointer; text-align: center; box-sizing: border-box; width: 100%;">
+                            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#0088cc] text-white flex items-center justify-center shadow-sm mb-1.5" style="width: 42px; height: 42px; border-radius: 14px; background: #0088cc; color: #ffffff; display: flex; align-items: center; justify-content: center; margin-bottom: 6px;">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" style="width: 20px; height: 20px;"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.458c.538-.196 1.006.128.832.941z"/></svg>
                             </div>
-                            <span class="text-xs font-bold text-slate-800">Telegram</span>
-                            <span class="text-[10px] text-slate-400">Channel/Grup</span>
+                            <span class="text-[11px] sm:text-xs font-bold text-slate-800" style="font-size: 11px; font-weight: 700; color: #1e293b;">Telegram</span>
+                            <span class="text-[9px] sm:text-[10px] text-slate-400" style="font-size: 9px; color: #94a3b8;">Grup</span>
                         </button>
 
                         <!-- Facebook -->
-                        <button type="button" onclick="triggerSocialShare('fb')" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 hover:border-[#1877F2] hover:bg-blue-50 transition-all group cursor-pointer shadow-2xs">
-                            <div class="w-11 h-11 rounded-2xl bg-[#1877F2] text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform mb-1.5">
-                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M9 8H6v4h3v12h5V12h3.642L18 8h-4V6.333C14 5.374 14.5 5 15.688 5H18V0h-3.808C10.595 0 9 1.582 9 4.615V8z"/></svg>
+                        <button type="button" onclick="triggerSocialShare('fb')" class="flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-2xl border border-slate-200 hover:border-[#1877F2] hover:bg-blue-50 transition-all cursor-pointer shadow-xs active:scale-95" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px; border-radius: 16px; border: 1px solid #e2e8f0; background: #ffffff; cursor: pointer; text-align: center; box-sizing: border-box; width: 100%;">
+                            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#1877F2] text-white flex items-center justify-center shadow-sm mb-1.5" style="width: 42px; height: 42px; border-radius: 14px; background: #1877F2; color: #ffffff; display: flex; align-items: center; justify-content: center; margin-bottom: 6px;">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" style="width: 20px; height: 20px;"><path d="M9 8H6v4h3v12h5V12h3.642L18 8h-4V6.333C14 5.374 14.5 5 15.688 5H18V0h-3.808C10.595 0 9 1.582 9 4.615V8z"/></svg>
                             </div>
-                            <span class="text-xs font-bold text-slate-800">Facebook</span>
-                            <span class="text-[10px] text-slate-400">Feed / Grup</span>
+                            <span class="text-[11px] sm:text-xs font-bold text-slate-800" style="font-size: 11px; font-weight: 700; color: #1e293b;">Facebook</span>
+                            <span class="text-[9px] sm:text-[10px] text-slate-400" style="font-size: 9px; color: #94a3b8;">Feed/Grup</span>
                         </button>
 
                         <!-- X / Twitter -->
-                        <button type="button" onclick="triggerSocialShare('tw')" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 hover:border-black hover:bg-slate-100 transition-all group cursor-pointer shadow-2xs">
-                            <div class="w-11 h-11 rounded-2xl bg-black text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform mb-1.5">
-                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                        <button type="button" onclick="triggerSocialShare('tw')" class="flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-2xl border border-slate-200 hover:border-black hover:bg-slate-100 transition-all cursor-pointer shadow-xs active:scale-95" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px; border-radius: 16px; border: 1px solid #e2e8f0; background: #ffffff; cursor: pointer; text-align: center; box-sizing: border-box; width: 100%;">
+                            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-black text-white flex items-center justify-center shadow-sm mb-1.5" style="width: 42px; height: 42px; border-radius: 14px; background: #000000; color: #ffffff; display: flex; align-items: center; justify-content: center; margin-bottom: 6px;">
+                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24" style="width: 18px; height: 18px;"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                             </div>
-                            <span class="text-xs font-bold text-slate-800">X (Twitter)</span>
-                            <span class="text-[10px] text-slate-400">Post Tweet</span>
+                            <span class="text-[11px] sm:text-xs font-bold text-slate-800" style="font-size: 11px; font-weight: 700; color: #1e293b;">Twitter</span>
+                            <span class="text-[9px] sm:text-[10px] text-slate-400" style="font-size: 9px; color: #94a3b8;">X Post</span>
                         </button>
 
                         <!-- Native Mobile Share Sheet -->
-                        <button type="button" onclick="triggerSocialShare('native')" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 hover:border-primary hover:bg-primary/5 transition-all group cursor-pointer shadow-2xs">
-                            <div class="w-11 h-11 rounded-2xl bg-primary text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform mb-1.5">
-                                <span class="material-symbols-outlined text-2xl">share</span>
+                        <button type="button" onclick="triggerSocialShare('native')" class="flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-2xl border border-slate-200 hover:border-emerald-600 hover:bg-emerald-50/50 transition-all cursor-pointer shadow-xs active:scale-95" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px; border-radius: 16px; border: 1px solid #e2e8f0; background: #ffffff; cursor: pointer; text-align: center; box-sizing: border-box; width: 100%;">
+                            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#006834] text-white flex items-center justify-center shadow-sm mb-1.5" style="width: 42px; height: 42px; border-radius: 14px; background: #006834; color: #ffffff; display: flex; align-items: center; justify-content: center; margin-bottom: 6px;">
+                                <span class="material-symbols-outlined text-xl">share</span>
                             </div>
-                            <span class="text-xs font-bold text-slate-800">Lainnya</span>
-                            <span class="text-[10px] text-slate-400">App Lainnya</span>
+                            <span class="text-[11px] sm:text-xs font-bold text-slate-800" style="font-size: 11px; font-weight: 700; color: #1e293b;">Lainnya</span>
+                            <span class="text-[9px] sm:text-[10px] text-slate-400" style="font-size: 9px; color: #94a3b8;">Menu HP</span>
                         </button>
 
                         <!-- Copy Link -->
-                        <button type="button" onclick="triggerSocialShare('copy')" class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 hover:border-slate-400 hover:bg-slate-50 transition-all group cursor-pointer shadow-2xs">
-                            <div class="w-11 h-11 rounded-2xl bg-slate-700 text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform mb-1.5">
-                                <span class="material-symbols-outlined text-2xl">link</span>
+                        <button type="button" onclick="triggerSocialShare('copy')" class="flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-2xl border border-slate-200 hover:border-slate-400 hover:bg-slate-50 transition-all cursor-pointer shadow-xs active:scale-95" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 4px; border-radius: 16px; border: 1px solid #e2e8f0; background: #ffffff; cursor: pointer; text-align: center; box-sizing: border-box; width: 100%;">
+                            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-slate-700 text-white flex items-center justify-center shadow-sm mb-1.5" style="width: 42px; height: 42px; border-radius: 14px; background: #334155; color: #ffffff; display: flex; align-items: center; justify-content: center; margin-bottom: 6px;">
+                                <span class="material-symbols-outlined text-xl">link</span>
                             </div>
-                            <span class="text-xs font-bold text-slate-800">Salin Link</span>
-                            <span class="text-[10px] text-slate-400">Ke Clipboard</span>
+                            <span class="text-[11px] sm:text-xs font-bold text-slate-800" style="font-size: 11px; font-weight: 700; color: #1e293b;">Salin Link</span>
+                            <span class="text-[9px] sm:text-[10px] text-slate-400" style="font-size: 9px; color: #94a3b8;">Clipboard</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- URL Bar with Copy Button -->
-                <div class="pt-2">
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Tautan Langsung Program</label>
-                    <div class="flex items-center gap-1.5 p-1.5 bg-slate-100 rounded-2xl border border-slate-200">
-                        <input type="text" id="wiz-share-input-url" readonly class="bg-transparent text-xs text-slate-700 px-3 py-1 flex-1 font-mono outline-none select-all" value="">
-                        <button type="button" onclick="triggerSocialShare('copy')" id="wiz-share-btn-copy-input" class="bg-primary hover:bg-primary/90 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1 transition-all cursor-pointer shrink-0">
+                <div class="pt-1" style="padding-top: 4px; box-sizing: border-box; width: 100%;">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1" style="display: block; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Tautan Langsung Program</label>
+                    <div class="flex items-center gap-1.5 p-1.5 bg-slate-100 rounded-2xl border border-slate-200" style="display: flex; align-items: center; gap: 8px; padding: 6px; background: #f1f5f9; border-radius: 16px; border: 1px solid #e2e8f0; box-sizing: border-box; width: 100%;">
+                        <input type="text" id="wiz-share-input-url" readonly class="bg-transparent text-xs text-slate-700 px-3 py-1 flex-1 font-mono outline-none select-all" style="background: transparent; font-size: 12px; color: #334155; padding: 4px 10px; flex: 1; font-family: monospace; border: none; outline: none; width: 100%; min-width: 0;" value="">
+                        <button type="button" onclick="triggerSocialShare('copy')" id="wiz-share-btn-copy-input" class="bg-primary hover:bg-primary/90 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1 transition-all cursor-pointer shrink-0" style="background: #006834; color: #ffffff; font-weight: 700; font-size: 12px; padding: 8px 14px; border-radius: 12px; border: none; display: flex; align-items: center; gap: 4px; cursor: pointer; flex-shrink: 0;">
                             <span class="material-symbols-outlined text-sm">content_copy</span>
                             <span>Salin</span>
                         </button>
@@ -264,8 +266,8 @@ function ensureUniversalShareModal() {
                 </div>
 
                 <!-- Copy Ready-to-Use Caption Button -->
-                <div class="pt-1">
-                    <button type="button" onclick="copyShareCaption()" id="wiz-share-btn-caption" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs py-2.5 px-3 rounded-2xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs">
+                <div class="pt-1" style="padding-top: 4px; box-sizing: border-box; width: 100%;">
+                    <button type="button" onclick="copyShareCaption()" id="wiz-share-btn-caption" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs py-2.5 px-3 rounded-2xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs active:scale-98" style="width: 100%; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; font-weight: 700; font-size: 12px; padding: 10px 12px; border-radius: 16px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; box-sizing: border-box;">
                         <span class="material-symbols-outlined text-base text-emerald-700">edit_note</span>
                         <span>Salin Teks Ajakan Siap Posting (Caption Lengkap)</span>
                     </button>
@@ -324,8 +326,13 @@ function openUniversalShareModal(title, pillar = 'Sosial & Kemanusiaan', imageUr
     if (modal && dialog) {
         modal.classList.remove('opacity-0', 'pointer-events-none');
         modal.classList.add('opacity-100');
+        modal.style.opacity = '1';
+        modal.style.pointerEvents = 'auto';
+        modal.style.visibility = 'visible';
+        
         dialog.classList.remove('scale-95');
         dialog.classList.add('scale-100');
+        dialog.style.transform = 'scale(1)';
         document.body.style.overflow = 'hidden';
     }
 }
@@ -336,9 +343,13 @@ function closeUniversalShareModal() {
     if (!modal) return;
     modal.classList.add('opacity-0', 'pointer-events-none');
     modal.classList.remove('opacity-100');
+    modal.style.opacity = '0';
+    modal.style.pointerEvents = 'none';
+    modal.style.visibility = 'hidden';
     if (dialog) {
         dialog.classList.add('scale-95');
         dialog.classList.remove('scale-100');
+        dialog.style.transform = 'scale(0.95)';
     }
     document.body.style.overflow = '';
 }
