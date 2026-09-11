@@ -35,7 +35,7 @@ function invalidateCache() {
 
 async function supabaseGetMaster() {
     try {
-        const [settingsRes, newsRes, referralsRes] = await Promise.all([
+        const [settingsRes, newsRes, referralsRes, donationsRes, disbRes] = await Promise.all([
             fetch(`${SUPABASE_URL}/site_settings?select=*`, {
                 headers: {
                     'apikey': SUPABASE_KEY,
@@ -51,6 +51,20 @@ async function supabaseGetMaster() {
                 }
             }).catch(() => null),
             fetch(`${SUPABASE_URL}/referrals?select=*`, {
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': 'Bearer ' + SUPABASE_KEY,
+                    'Accept': 'application/json'
+                }
+            }).catch(() => null),
+            fetch(`${SUPABASE_URL}/donations?select=*&order=created_at.desc`, {
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': 'Bearer ' + SUPABASE_KEY,
+                    'Accept': 'application/json'
+                }
+            }).catch(() => null),
+            fetch(`${SUPABASE_URL}/disbursements?select=*&order=created_at.desc`, {
                 headers: {
                     'apikey': SUPABASE_KEY,
                     'Authorization': 'Bearer ' + SUPABASE_KEY,
@@ -142,6 +156,61 @@ async function supabaseGetMaster() {
                         createdAt: r.created_at || r.createdAt || new Date().toISOString()
                     };
                 });
+            }
+        }
+
+        if (donationsRes && donationsRes.ok) {
+            const donList = await donationsRes.json();
+            if (Array.isArray(donList) && donList.length > 0) {
+                master.donations = donList.map(d => ({
+                    id: String(d.id),
+                    donorName: d.donor_name || 'Hamba Allah',
+                    donorPhone: d.donor_phone || '-',
+                    donorEmail: d.donor_email || '',
+                    wilayah: d.wilayah || '-',
+                    programUtama: d.program_utama || '-',
+                    programSpesifik: d.program_spesifik || '-',
+                    program: d.program || d.program_spesifik || 'Donasi Kebaikan',
+                    category: d.category || d.program_utama || '-',
+                    type: d.donation_type || 'Infak Terikat',
+                    amount: Number(d.amount || 0),
+                    alokasiOperasional: Number(d.alokasi_operasional || 0),
+                    alokasiProgram: Number(d.alokasi_program || 0),
+                    method: d.payment_method || 'Bank Transfer',
+                    referralId: d.referral_id || null,
+                    referralCode: d.referral_code || null,
+                    referralName: d.referral_name || null,
+                    referralFee: Number(d.referral_fee || 0),
+                    notes: d.notes || '-',
+                    status: d.status || 'verified',
+                    tanggalTransaksi: d.tanggal_transaksi || d.created_at,
+                    createdAt: d.created_at,
+                    verifiedAt: d.verified_at,
+                    verifiedBy: d.verified_by
+                }));
+            }
+        }
+
+        if (disbRes && disbRes.ok) {
+            const disbList = await disbRes.json();
+            if (Array.isArray(disbList) && disbList.length > 0) {
+                master.disbursements = disbList.map(s => ({
+                    id: String(s.id),
+                    wilayah: s.wilayah || 'Pangkalpinang',
+                    program: s.program || 'Program Kebaikan',
+                    category: s.disbursement_category || 'program_execution',
+                    sourceType: s.source_type || 'program_spesifik',
+                    targetType: s.target_type || 'specific',
+                    amount: Number(s.amount || 0),
+                    amountFromProgram: Number(s.amount_from_program || 0),
+                    amountFromSubsidi: Number(s.amount_from_subsidi || 0),
+                    subsidiDetails: Array.isArray(s.subsidi_details) ? s.subsidi_details : [],
+                    description: s.description || '',
+                    tanggalPenyaluran: s.tanggal_penyaluran || s.created_at,
+                    disbursedAt: s.disbursed_at || s.created_at,
+                    recordedBy: s.recorded_by || 'Admin',
+                    createdAt: s.created_at
+                }));
             }
         }
 
