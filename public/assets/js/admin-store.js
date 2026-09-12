@@ -549,7 +549,7 @@
                         { key: 'Lomba Desain Poster Dakwah', percent: 5 },
                         { key: 'Kantor DPW WI Babel dan WIZ', percent: 15 },
                         { key: 'Mukerwil/Mukernas/Muktamar', percent: 10 },
-                        { key: 'Keberangkatan Kepulangan Dai', percent: 10 }
+                        { key: 'Hadirkan Pencerah Umat, Dukung Perjuangan Dai', percent: 10 }
                     ]
                     // Total = 100% → VALID (Khusus Pangkalpinang)
                 },
@@ -4907,7 +4907,7 @@
         const aliasGroups = [
             ['celengan', 'sedekahsubuh', 'celenganbesar', 'pengadaancelengan', 'pengadaancelengansedekahsubuh', 'progcelengansubuh', 'pengadaancelenganbesar'],
             ['kendaraan', 'perbaikankendaraan', 'pengadaankendaraan', 'pengadaandanperbaikankendaraan', 'pengadaanperbaikankendaraan', 'progkendaraandakwah'],
-            ['dai', 'keberangkatandai', 'kepulangandai', 'keberangkatankepulangandai', 'keberangkatandankepulangandai', 'progdaipelosok'],
+            ['dai', 'keberangkatandai', 'kepulangandai', 'keberangkatankepulangandai', 'keberangkatandankepulangandai', 'progdaipelosok', 'hadirkanpencerahumat', 'pencerahumat', 'perjuangandai', 'hadirkanpencerahumatdukungperjuangandai'],
             ['markaz', 'pembangunanmarkaz', 'progpembangunanmarkaz', 'markazdakwah'],
             ['kantor', 'kantordpw', 'kantordpwwibabeldanwiz', 'kantordpwwibabelwiz', 'progkantordpw'],
             ['mukerwil', 'mukernas', 'muktamar', 'mukerwilmukernasmuktamar', 'progmukerwil'],

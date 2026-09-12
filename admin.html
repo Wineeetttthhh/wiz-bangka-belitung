@@ -1979,100 +1979,124 @@
                     </select>
                 </div>
 
-                <!-- 2. Pilih Program Spesifik (Target Penyaluran) - INPUT PERTAMA -->
+                <!-- 2. Program Utama (Pilar) - LANGSUNG DI BAWAH WILAYAH -->
                 <div>
-                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Pilih Program Spesifik (Target Penyaluran) *</label>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Program Utama (Pilar) *</label>
+                    <select id="disb-pillar" required onchange="handleDisbPillarChange(this.value)"
+                        class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none text-sm font-bold text-primary">
+                        <option value="">-- Pilih Program Utama (Pilar) --</option>
+                        <option value="Berkah Hidayah">🕌 Berkah Hidayah (Dakwah &amp; Pembinaan)</option>
+                        <option value="Berkah Juara">🎓 Berkah Juara (Pendidikan &amp; Beasiswa)</option>
+                        <option value="Berkah Peduli">🤝 Berkah Peduli (Sosial &amp; Kemanusiaan)</option>
+                        <option value="Berkah Sehat">🚑 Berkah Sehat (Kesehatan Masyarakat)</option>
+                        <option value="Berkah Mandiri">💼 Berkah Mandiri (Ekonomi &amp; Pemberdayaan)</option>
+                        <option value="Operasional">🏢 Operasional Lembaga (Alokasi Internal)</option>
+                        <option value="Dana Saving">💰 Dana Saving (Cadangan &amp; Tabungan Kas)</option>
+                    </select>
+                </div>
+
+                <!-- 3. Program Spesifik (Target Penyaluran) - DINAMIS DI BAWAH PILAR -->
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Program Spesifik (Target Penyaluran) *</label>
                     <select id="disb-program" required onchange="handleDisbProgramSelect(this.value)"
                         class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none text-sm font-semibold">
-                        <option value="">-- Pilih Program Spesifik (Target Penyaluran) --</option>
+                        <option value="">-- Pilih Program Utama (Pilar) Terlebih Dahulu --</option>
                     </select>
 
-                    <!-- Saldo Kas & Info Pilar Live Container -->
-                    <div id="disb-prog-info-container" class="hidden mt-2 p-3 bg-surface-container-low rounded-xl border border-outline-variant/40 space-y-1.5 text-xs">
-                        <div class="flex flex-wrap items-center justify-between gap-1">
-                            <span class="text-on-surface font-medium flex items-center gap-1">
-                                <span class="material-symbols-outlined text-sm text-primary">verified</span>
-                                <span>Pilar: <strong id="disb-detected-pillar-text" class="text-primary font-bold">Pilar Dakwah</strong></span>
+                    <!-- Saldo Tersedia & Breakdown Realtime -->
+                    <div id="disb-prog-info-container" class="hidden mt-2.5 p-3.5 bg-gradient-to-br from-emerald-50/90 to-teal-50/70 rounded-xl border border-emerald-200/80 space-y-2 text-xs shadow-xs">
+                        <div class="flex flex-wrap items-center justify-between gap-1.5 pb-2 border-b border-emerald-200/60">
+                            <span class="text-emerald-950 font-bold flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-base text-emerald-700">account_balance</span>
+                                <span>Kas Program: <strong id="disb-detected-pillar-text" class="text-emerald-800 font-extrabold">-</strong></span>
                             </span>
-                            <span class="font-semibold text-on-surface">
-                                Saldo Kas Program: <strong id="disb-prog-saldo-text" class="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Rp 0</strong>
+                            <span class="font-extrabold text-xs text-emerald-950 flex items-center gap-1">
+                                <span>Saldo Tersedia:</span>
+                                <span id="disb-prog-saldo-text" class="text-emerald-800 text-sm font-black bg-white px-2.5 py-0.5 rounded-lg border border-emerald-300 shadow-2xs">Rp 0</span>
                             </span>
                         </div>
-                        <div class="flex flex-wrap items-center justify-between text-[11px] text-on-surface-variant pt-1 border-t border-outline-variant/20">
-                            <span>Sisa Subsidi Infak Umum Pilar (di luar Markaz):</span>
-                            <strong id="disb-pillar-pool-text" class="text-blue-800 font-bold">Rp 0</strong>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-[11px] pt-0.5">
+                            <div class="bg-white/90 p-2 rounded-lg border border-emerald-100 flex flex-col">
+                                <span class="text-slate-500 font-medium">1. Infak Terikat Masuk</span>
+                                <strong id="disb-breakdown-terikat" class="text-emerald-700 font-bold text-xs">Rp 0</strong>
+                            </div>
+                            <div class="bg-white/90 p-2 rounded-lg border border-emerald-100 flex flex-col">
+                                <span class="text-slate-500 font-medium">2. Alokasi Infak Umum</span>
+                                <strong id="disb-breakdown-umum" class="text-blue-700 font-bold text-xs">Rp 0</strong>
+                            </div>
+                            <div class="bg-white/90 p-2 rounded-lg border border-emerald-100 flex flex-col">
+                                <span class="text-slate-500 font-medium">3. Total Pengeluaran Lalu</span>
+                                <strong id="disb-breakdown-salur" class="text-rose-700 font-bold text-xs">Rp 0</strong>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 3. Sumber Dana Keluar (2 Opsi Sesuai Instruksi Manajemen) -->
+                <!-- 4. Nominal Pengeluaran Utama (Dari Program Target) -->
                 <div>
-                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Sumber Dana Keluar *</label>
-                    <select id="disb-source-type" required onchange="handleDisbSourceChange(this.value)"
-                        class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none text-sm font-bold text-primary">
-                        <option value="program_spesifik">🔵 Hanya Saldo Program Ini</option>
-                        <option value="auto_split">⚡ Saldo Program + Subsidi Silang Pilar (Otomatis)</option>
-                    </select>
-                    <p id="disb-source-hint" class="text-[11px] text-on-surface-variant mt-1 italic">Hanya memotong kas program yang dipilih. Ditolak jika nominal melebihi saldo kas.</p>
-                </div>
-
-                <!-- 4. Jumlah Pengeluaran -->
-                <div>
-                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Jumlah Pengeluaran (Rp) *</label>
-                    <input type="number" id="disb-amount" required min="1000" oninput="handleDisbAmountInput(this.value)"
+                    <div class="flex justify-between items-center mb-xs">
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold">Nominal Pengeluaran Utama (Rp) *</label>
+                        <span class="text-[11px] text-slate-500 font-medium">Dipotong dari Saldo Program Target</span>
+                    </div>
+                    <input type="number" id="disb-amount" required min="0" oninput="handleDisbMainAmountInput(this.value)"
                         class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none font-bold text-base text-primary"
-                        placeholder="Contoh: 2500000">
+                        placeholder="Contoh: 1500000">
+                    <p id="disb-main-amount-hint" class="text-[11px] text-rose-600 font-semibold mt-1 hidden"></p>
                 </div>
 
-                <!-- Live Auto-Split / Validasi Breakdown Preview Box -->
-                <div id="disb-split-preview-box" class="hidden rounded-xl p-3.5 text-xs space-y-2 border transition-all">
-                    <!-- Dynamic preview injected via JS -->
-                </div>
-
-                <!-- Detail Tarikan Subsidi Dinamis (Field Array Intra-Pilar) -->
-                <div id="disb-subsidi-container" class="hidden p-4 bg-amber-50/80 border border-amber-300 rounded-xl space-y-3 transition-all">
-                    <div class="flex items-center justify-between">
-                        <label class="font-label-md text-label-md text-amber-950 font-bold flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-amber-600 text-base">account_balance_wallet</span>
-                            <span>Detail Tarikan Subsidi Silang (Pilar yang Sama)</span>
-                        </label>
-                        <span id="disb-subsidi-pilar-badge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-900 border border-amber-300">
-                            Pilar: -
-                        </span>
-                    </div>
-                    <p class="text-xs text-amber-900/80 leading-relaxed">
-                        Tentukan porsi pemotongan saldo dari program-program dalam pilar yang sama. Total akumulasi seluruh baris wajib sama persis dengan <strong>Jumlah Pengeluaran</strong>.
-                    </p>
-
-                    <!-- Dynamic Rows Container -->
-                    <div id="disb-subsidi-rows" class="space-y-2">
-                        <!-- Injected via JavaScript -->
+                <!-- 5. Kendali Subsidi Silang Manual (Ambil dari Program Lain Se-Pilar) -->
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/90 space-y-3">
+                    <div class="flex items-center justify-between cursor-pointer" onclick="toggleSubsidiSilang()">
+                        <div class="flex items-center gap-2.5">
+                            <input type="checkbox" id="disb-enable-subsidi" onchange="handleSubsidiToggle(this.checked)" onclick="event.stopPropagation()"
+                                class="w-4 h-4 text-primary rounded border-slate-300 focus:ring-primary cursor-pointer">
+                            <div>
+                                <label for="disb-enable-subsidi" class="text-xs sm:text-sm font-bold text-slate-900 cursor-pointer block">Gunakan Subsidi Silang (Ambil dari program lain)</label>
+                                <span class="text-[11px] text-slate-500 block">Ambil dana dari program lain dalam SATU PILAR dan WILAYAH yang sama</span>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-slate-400 text-lg">swap_horiz</span>
                     </div>
 
-                    <!-- Actions & Quick Distribution -->
-                    <div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-amber-200">
-                        <button type="button" onclick="addDisbSubsidiRow()" 
-                            class="px-3 py-1.5 bg-white border border-amber-300 hover:border-amber-500 hover:bg-amber-100/50 text-amber-950 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer">
+                    <!-- Dynamic Field Array Container for Subsidi Silang -->
+                    <div id="disb-subsidi-container" class="hidden pt-3 border-t border-slate-200 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-extrabold text-amber-950 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-amber-600 text-sm">payments</span>
+                                <span>Rincian Sumber Dana Bantuan (Se-Pilar)</span>
+                            </span>
+                            <span id="disb-subsidi-pilar-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-200">
+                                Pilar: -
+                            </span>
+                        </div>
+
+                        <!-- Dynamic Rows -->
+                        <div id="disb-subsidi-rows" class="space-y-2">
+                            <!-- Injected via JS -->
+                        </div>
+
+                        <!-- Add Row Button -->
+                        <button type="button" onclick="addManualSubsidiRow()" 
+                            class="w-full py-2 bg-white border border-dashed border-amber-300 hover:border-amber-500 hover:bg-amber-50/50 text-amber-950 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs">
                             <span class="material-symbols-outlined text-sm text-amber-700">add_circle</span>
-                            <span>[+] Tambah Program Subsidi</span>
-                        </button>
-                        <button type="button" onclick="autoDistributeSubsidiRows()" 
-                            class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer shadow-xs">
-                            <span class="material-symbols-outlined text-sm">auto_fix_high</span>
-                            <span>⚡ Alokasi Otomatis (Rekomendasi)</span>
+                            <span>[+] Tambah Sumber Dana Subsidi</span>
                         </button>
                     </div>
+                </div>
 
-                    <!-- Summary & Real-time Validation Bar -->
-                    <div id="disb-subsidi-summary-bar" class="p-2.5 bg-white border border-amber-200 rounded-lg flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
-                        <div class="flex items-center gap-3">
-                            <span>Total Baris: <strong id="disb-subsidi-sum-val" class="font-bold text-on-surface">Rp 0</strong></span>
-                            <span>Target: <strong id="disb-subsidi-target-val" class="font-bold text-primary">Rp 0</strong></span>
-                        </div>
-                        <div id="disb-subsidi-status-badge" class="px-2.5 py-1 rounded font-bold text-[11px] flex items-center gap-1 bg-amber-100 text-amber-900 border border-amber-200">
-                            <span class="material-symbols-outlined text-xs">pending</span>
-                            <span>Belum Sesuai</span>
-                        </div>
+                <!-- 6. Ringkasan Total Pengeluaran Realtime -->
+                <div id="disb-total-summary-card" class="p-3.5 bg-surface-container-low rounded-xl border border-outline-variant/50 space-y-1.5 text-xs">
+                    <div class="flex justify-between items-center text-slate-600">
+                        <span>Dari Program Utama:</span>
+                        <span id="summary-amt-main" class="font-bold text-slate-900">Rp 0</span>
+                    </div>
+                    <div id="summary-subsidi-wrap" class="hidden flex justify-between items-center text-slate-600">
+                        <span>Dari Subsidi Silang:</span>
+                        <span id="summary-amt-sub" class="font-bold text-amber-800">Rp 0</span>
+                    </div>
+                    <div class="flex justify-between items-center pt-2 border-t border-outline-variant/30 text-sm font-extrabold">
+                        <span class="text-slate-900">Total Pengeluaran Keseluruhan:</span>
+                        <span id="summary-amt-total" class="text-primary text-base font-black">Rp 0</span>
                     </div>
                 </div>
 
@@ -3389,7 +3413,7 @@
                 "Lomba Desain Poster Dakwah",
                 "Kantor DPW WI Babel dan WIZ",
                 "Mukerwil/Mukernas/Muktamar",
-                "Keberangkatan Kepulangan Dai"
+                "Hadirkan Pencerah Umat, Dukung Perjuangan Dai"
             ],
             'Berkah Peduli': [
                 "Tebar Sembako",
@@ -5801,6 +5825,8 @@ Jazakumullahu khairan kepada para muhsinin. Semoga Allah senantiasa meneguhkan l
                     sourceBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-purple-100 text-purple-900 border border-purple-300/70">
                         <span class="w-1.5 h-1.5 rounded-full bg-purple-600 animate-pulse"></span> ⚡ Auto-Split (Kas: ${fmt(fromProg)} + Subsidi: ${fmt(fromSub)})
                     </span>`;
+                } else if (sType === 'subsidi_silang') {
+                    sourceBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-amber-100 text-amber-900 border border-amber-300"><span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span> ⚡ Subsidi Silang (Penyokong)</span>';
                 } else if (sType === 'infak_umum' || sType === 'infak_umum_subsidi') {
                     sourceBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300/60"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Subsidi Silang Infak Umum</span>';
                 } else {
@@ -5838,70 +5864,76 @@ Jazakumullahu khairan kepada para muhsinin. Semoga Allah senantiasa meneguhkan l
             <tbody class="font-body-md text-body-md divide-y divide-outline-variant/20">${rows}</tbody></table>`;
         }
 
+        function getSpecificProgramsForPillar(pillar, targetWilayah) {
+            const rules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.getAll)
+                ? allocationRulesManager.getAll()
+                : (window.wizStore ? wizStore.allocationRules : {});
+
+            const activeW = targetWilayah && targetWilayah !== 'Semua' ? targetWilayah : 'Pangkalpinang';
+            const programSet = new Set();
+
+            if (pillar === 'Operasional') {
+                return [{ title: 'Operasional — Infak Umum', pillar: 'Operasional', isSpecial: true }];
+            }
+            if (pillar === 'Dana Saving') {
+                return [{ title: 'Dana Saving — Alokasi Kas Cadangan', pillar: 'Dana Saving', isSpecial: true }];
+            }
+
+            // 1. From subAllocation rules
+            const wObj = rules[activeW];
+            if (wObj && wObj.subAllocation && wObj.subAllocation[pillar]) {
+                const subItems = wObj.subAllocation[pillar].items || [];
+                subItems.forEach(item => {
+                    if (item && item.key) programSet.add(item.key.trim());
+                });
+            }
+
+            // 2. From custom programs / master programs
+            const customPrograms = (window.wizStore && wizStore.programs) ? wizStore.programs.getAll() : [];
+            customPrograms.forEach(cp => {
+                if (!cp || !cp.title) return;
+                if (cp.is_active === false || cp.active === false || cp.status === 'archived') return;
+                const cpPillar = cp.pillar || (window.wizStore && wizStore.utils ? wizStore.utils.mapProgramToPillar(cp.title) : '');
+                if (cpPillar === pillar) {
+                    programSet.add(cp.title.trim());
+                }
+            });
+
+            // 3. Remove old / deprecated name "Keberangkatan Kepulangan Dai"
+            const result = [];
+            for (const title of programSet) {
+                if (title.toLowerCase() === 'keberangkatan kepulangan dai') continue;
+                result.push({ title: title, pillar: pillar });
+            }
+
+            return result;
+        }
+
         function populateDisbursementPrograms(selectedVal) {
             window.populateDisbProgramSelect = populateDisbursementPrograms;
             const select = document.getElementById('disb-program');
-            if (!select || !window.wizStore) return;
+            const pillarSelect = document.getElementById('disb-pillar');
+            if (!select || !pillarSelect) return;
 
-            const rules = wizStore.allocationRulesManager ? wizStore.allocationRulesManager.getAll() : wizStore.allocationRules;
-            const selectedWilayah = document.getElementById('disb-wilayah') ? document.getElementById('disb-wilayah').value : (document.getElementById('filter-wilayah') ? document.getElementById('filter-wilayah').value : 'Semua');
-            const targetWilayahs = selectedWilayah !== 'Semua' ? [selectedWilayah] : Object.keys(rules);
+            const selectedPillar = pillarSelect.value;
+            const activeWilayah = document.getElementById('disb-wilayah') ? document.getElementById('disb-wilayah').value : 'Pangkalpinang';
 
-            const pillarMap = new Map();
+            if (!selectedPillar) {
+                select.innerHTML = '<option value="">-- Pilih Program Utama (Pilar) Terlebih Dahulu --</option>';
+                select.value = '';
+                select.disabled = true;
+                handleDisbProgramSelect('');
+                return;
+            }
 
-            // Load sub-allocation programs from rules
-            targetWilayahs.forEach(w => {
-                const wObj = rules[w];
-                if (!wObj || !wObj.subAllocation) return;
-                Object.entries(wObj.subAllocation).forEach(([pillarKey, subObj]) => {
-                    if (!pillarMap.has(pillarKey)) pillarMap.set(pillarKey, new Set());
-                    const set = pillarMap.get(pillarKey);
-                    (subObj && subObj.items ? subObj.items : []).forEach(item => set.add(item.key));
-                });
-            });
-
-            // Load custom specific programs from store
-            const customPrograms = wizStore.programs ? wizStore.programs.getAll() : [];
-            customPrograms.forEach(cp => {
-                if (cp && cp.title) {
-                    const pillar = cp.pillar || wizStore.utils.mapProgramToPillar(cp.title) || 'Berkah Peduli';
-                    if (!pillarMap.has(pillar)) pillarMap.set(pillar, new Set());
-                    pillarMap.get(pillar).add(cp.title);
-                }
-            });
-
-            const pillarIcons = {
-                'Berkah Hidayah': '🕌',
-                'Berkah Juara': '🎓',
-                'Berkah Peduli': '🤝',
-                'Berkah Sehat': '🚑',
-                'Berkah Mandiri': '💼'
-            };
+            select.disabled = false;
+            const programs = getSpecificProgramsForPillar(selectedPillar, activeWilayah);
 
             let html = '<option value="">-- Pilih Program Spesifik (Target Penyaluran) --</option>';
+            programs.forEach(p => {
+                html += `<option value="${escapeHtml(p.title)}">${escapeHtml(p.title)}</option>`;
+            });
 
-            // 1. Kategori Operasional Lembaga (Alokasi Internal)
-            html += `<optgroup label="🏢 Operasional Lembaga (Alokasi Internal)">`;
-            html += `<option value="Operasional — Infak Umum">Operasional — Infak Umum</option>`;
-
-            html += `</optgroup>`;
-
-            // 2. Kategori Dana Saving (Cadangan & Tabungan)
-            html += `<optgroup label="💰 Dana Saving (Cadangan &amp; Tabungan)">`;
-            html += `<option value="Dana Saving — Alokasi Kas Cadangan">Dana Saving — Alokasi Kas Cadangan</option>`;
-            html += `</optgroup>`;
-
-            // 3. Kategori 5 Berkah WIZ
-            for (const [pillar, itemSet] of pillarMap.entries()) {
-                const icon = pillarIcons[pillar] || '📌';
-                const kat = (wizStore.utils && wizStore.utils.mapPillarToKategori) ? wizStore.utils.mapPillarToKategori(pillar) : '';
-                html += `<optgroup label="${icon} ${pillar} (Pilar ${kat})">`;
-                for (const itemKey of itemSet) {
-                    const val = `${itemKey}`;
-                    html += `<option value="${val}">${itemKey} — [${pillar}]</option>`;
-                }
-                html += `</optgroup>`;
-            }
             select.innerHTML = html;
             if (selectedVal) {
                 select.value = selectedVal;
@@ -5910,430 +5942,349 @@ Jazakumullahu khairan kepada para muhsinin. Semoga Allah senantiasa meneguhkan l
         }
 
         function handleDisbWilayahChange(wilayah) {
+            const pillarSelect = document.getElementById('disb-pillar');
             const currentProg = document.getElementById('disb-program')?.value || '';
-            populateDisbursementPrograms(currentProg);
+            if (pillarSelect && pillarSelect.value) {
+                populateDisbursementPrograms(currentProg);
+            }
             if (currentProg) {
                 handleDisbProgramSelect(currentProg);
-            } else {
-                handleDisbAmountInput(document.getElementById('disb-amount')?.value || '');
             }
+            updateDisbursementCalculations();
+        }
+
+        function handleDisbPillarChange(pillar) {
+            const progSelect = document.getElementById('disb-program');
+            if (progSelect) progSelect.value = '';
+            populateDisbursementPrograms('');
+            handleDisbProgramSelect('');
+
+            const badge = document.getElementById('disb-subsidi-pilar-badge');
+            if (badge) badge.textContent = pillar ? `Pilar: ${pillar}` : 'Pilar: -';
+
+            // Reset dynamic subsidy rows
+            const rowsContainer = document.getElementById('disb-subsidi-rows');
+            if (rowsContainer) rowsContainer.innerHTML = '';
+            const subToggle = document.getElementById('disb-enable-subsidi');
+            if (subToggle) subToggle.checked = false;
+            const subContainer = document.getElementById('disb-subsidi-container');
+            if (subContainer) subContainer.classList.add('hidden');
+            const subWrap = document.getElementById('summary-subsidi-wrap');
+            if (subWrap) subWrap.classList.add('hidden');
+
+            updateDisbursementCalculations();
         }
 
         function handleDisbProgramSelect(progTitle) {
             const infoContainer = document.getElementById('disb-prog-info-container');
             const detectedText = document.getElementById('disb-detected-pillar-text');
             const saldoText = document.getElementById('disb-prog-saldo-text');
-            const poolText = document.getElementById('disb-pillar-pool-text');
-            const sourceSelect = document.getElementById('disb-source-type');
+            const bkTerikat = document.getElementById('disb-breakdown-terikat');
+            const bkUmum = document.getElementById('disb-breakdown-umum');
+            const bkSalur = document.getElementById('disb-breakdown-salur');
 
             if (!progTitle || !window.wizStore) {
                 if (infoContainer) infoContainer.classList.add('hidden');
-                handleDisbAmountInput(document.getElementById('disb-amount')?.value || '');
+                updateDisbursementCalculations();
                 return;
             }
 
-            const pillar = wizStore.utils.mapProgramToPillar(progTitle);
-            const kat = wizStore.utils.mapPillarToKategori(pillar);
+            const pillar = (window.wizStore && wizStore.utils) ? wizStore.utils.mapProgramToPillar(progTitle) : 'Berkah Hidayah';
             const activeWilayah = document.getElementById('disb-wilayah') ? document.getElementById('disb-wilayah').value : 'Pangkalpinang';
-            const editId = document.getElementById('disb-edit-id')?.value || null;
 
             const progStats = wizStore.finance.getSpecificProgramStats(progTitle, 0, 50000000, activeWilayah);
             const progSaldo = progStats ? progStats.saldo : 0;
-            const isSpecialBucket = progTitle.includes('Operasional') || progTitle.includes('Saving');
-            const pillarPool = isSpecialBucket ? progSaldo : wizStore.finance.getPillarAvailableSubsidiPool(pillar, activeWilayah, editId);
 
-            if (detectedText) detectedText.textContent = `${pillar} (Pilar ${kat}) — [${activeWilayah}]`;
+            if (detectedText) detectedText.textContent = `${progTitle} [${activeWilayah}]`;
             if (saldoText) saldoText.textContent = fmt(progSaldo);
-            if (poolText) poolText.textContent = fmt(pillarPool);
+            if (bkTerikat) bkTerikat.textContent = fmt(progStats ? progStats.infakTerikat : 0);
+            if (bkUmum) bkUmum.textContent = fmt(progStats ? progStats.infakUmumMasuk : 0);
+            if (bkSalur) bkSalur.textContent = fmt(progStats ? progStats.spesifikSalur : 0);
+
             if (infoContainer) infoContainer.classList.remove('hidden');
 
-            if (sourceSelect && isSpecialBucket) {
-                sourceSelect.value = 'program_spesifik';
-            }
-
-            if (sourceSelect && sourceSelect.value === 'auto_split') {
-                initDisbSubsidiRows();
-            }
-
-            handleDisbAmountInput(document.getElementById('disb-amount')?.value || '');
+            // Refresh supporting programs in any active subsidy rows
+            refreshSubsidiRowOptions();
+            updateDisbursementCalculations();
         }
 
-        function handleDisbSourceChange(sourceType) {
-            const hint = document.getElementById('disb-source-hint');
-            const descField = document.getElementById('disb-description');
-            const progTitle = document.getElementById('disb-program')?.value || '';
-            const subContainer = document.getElementById('disb-subsidi-container');
-
-            if (sourceType === 'auto_split') {
-                if (hint) hint.textContent = '⚡ Alokasi pemotongan dana antar-program dalam pilar yang sama (Field Array). Total baris wajib sama dengan Jumlah Pengeluaran.';
-                if (descField && !descField.value) {
-                    descField.placeholder = progTitle ? `Contoh: Penyaluran program "${progTitle}" (Subsidi silang antar-program se-pilar)...` : "Rincian penyaluran, lokasi penerima manfaat, dll...";
-                }
-                if (subContainer) subContainer.classList.remove('hidden');
-                initDisbSubsidiRows();
-            } else {
-                if (hint) hint.textContent = '🔵 Hanya memotong kas program yang dipilih. Ditolak jika nominal input melebihi saldo kas.';
-                if (descField && !descField.value) {
-                    descField.placeholder = progTitle ? `Contoh: Penyaluran operasional langsung dari kas program "${progTitle}"...` : "Rincian penyaluran, lokasi penerima manfaat, dll...";
-                }
-                if (subContainer) subContainer.classList.add('hidden');
+        function toggleSubsidiSilang() {
+            const chk = document.getElementById('disb-enable-subsidi');
+            if (chk) {
+                chk.checked = !chk.checked;
+                handleSubsidiToggle(chk.checked);
             }
-
-            handleDisbAmountInput(document.getElementById('disb-amount')?.value || '');
         }
 
-        // ── Detail Tarikan Subsidi Dinamis (Pilar yang Sama) ──
-        function initDisbSubsidiRows(existingDetails = null) {
+        function handleSubsidiToggle(isChecked) {
             const container = document.getElementById('disb-subsidi-container');
+            const summaryWrap = document.getElementById('summary-subsidi-wrap');
             const rowsContainer = document.getElementById('disb-subsidi-rows');
-            const pilarBadge = document.getElementById('disb-subsidi-pilar-badge');
-            if (!container || !rowsContainer) return;
 
-            const targetProg = (document.getElementById('disb-program')?.value || '').trim();
-            const pillar = targetProg ? ((window.wizStore && window.wizStore.utils) ? window.wizStore.utils.mapProgramToPillar(targetProg) : 'Berkah Peduli') : 'Berkah Peduli';
-
-            if (pilarBadge) pilarBadge.textContent = `Pilar: ${pillar}`;
-
-            // If existing details provided (e.g. from edit mode)
-            if (Array.isArray(existingDetails) && existingDetails.length > 0) {
-                rowsContainer.innerHTML = '';
-                existingDetails.forEach(d => {
-                    addDisbSubsidiRow(d.program, d.amount);
-                });
-                updateDisbSubsidiTotals();
-                return;
-            }
-
-            // Fresh init
-            rowsContainer.innerHTML = '';
-            if (targetProg) {
-                autoDistributeSubsidiRows();
+            if (isChecked) {
+                if (container) container.classList.remove('hidden');
+                if (summaryWrap) summaryWrap.classList.remove('hidden');
+                if (rowsContainer && rowsContainer.children.length === 0) {
+                    addManualSubsidiRow();
+                }
             } else {
-                addDisbSubsidiRow('', 0);
+                if (container) container.classList.add('hidden');
+                if (summaryWrap) summaryWrap.classList.add('hidden');
+                if (rowsContainer) rowsContainer.innerHTML = '';
             }
+
+            updateDisbursementCalculations();
         }
 
-        function addDisbSubsidiRow(selectedProg = '', amount = 0) {
+        function addManualSubsidiRow(selectedProg = '', amount = '') {
             const rowsContainer = document.getElementById('disb-subsidi-rows');
             if (!rowsContainer) return;
 
+            const pillar = document.getElementById('disb-pillar')?.value || '';
             const targetProg = (document.getElementById('disb-program')?.value || '').trim();
             const activeWilayah = document.getElementById('disb-wilayah') ? document.getElementById('disb-wilayah').value : 'Pangkalpinang';
-            const pillar = targetProg ? ((window.wizStore && window.wizStore.utils) ? window.wizStore.utils.mapProgramToPillar(targetProg) : 'Berkah Peduli') : 'Berkah Peduli';
 
-            const pillarProgs = (window.wizStore && window.wizStore.utils && typeof window.wizStore.utils.getPillarPrograms === 'function')
-                ? window.wizStore.utils.getPillarPrograms(pillar, activeWilayah)
-                : [];
+            if (!pillar || !targetProg) {
+                alert('Silakan pilih "Program Utama (Pilar)" dan "Program Spesifik (Target)" terlebih dahulu sebelum menambah subsidi silang.');
+                return;
+            }
 
             const rowId = 'subsidi-row-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
             const rowDiv = document.createElement('div');
             rowDiv.id = rowId;
-            rowDiv.className = 'disb-subsidi-row flex items-center gap-2 bg-white p-2 rounded-lg border border-amber-200 shadow-2xs';
+            rowDiv.className = 'disb-subsidi-row p-2.5 bg-white rounded-xl border border-amber-200 shadow-2xs space-y-2';
 
-            let optionsHtml = `<option value="">-- Pilih Program Penyokong (${escapeHtml(pillar)}) --</option>`;
-            let matchedSelected = false;
+            const candidatePrograms = getSpecificProgramsForPillar(pillar, activeWilayah)
+                .filter(p => p.title.toLowerCase() !== targetProg.toLowerCase());
 
-            pillarProgs.forEach(p => {
-                const isSelected = selectedProg ? (p.title.toLowerCase() === selectedProg.toLowerCase()) : false;
-                if (isSelected) matchedSelected = true;
-                const isMain = targetProg && (p.title.toLowerCase() === targetProg.toLowerCase());
-                const tag = isMain ? ' [Target Utama]' : '';
-                optionsHtml += `<option value="${escapeHtml(p.title)}" ${isSelected ? 'selected' : ''}>${escapeHtml(p.title)}${tag} (Saldo: ${p.saldoFormatted})</option>`;
+            let optionsHtml = `<option value="">-- Pilih Program Bantuan (${escapeHtml(pillar)}) --</option>`;
+            candidatePrograms.forEach(p => {
+                const stats = wizStore.finance.getSpecificProgramStats(p.title, 0, 50000000, activeWilayah);
+                const saldo = stats ? stats.saldo : 0;
+                const isSel = selectedProg && p.title.toLowerCase() === selectedProg.toLowerCase();
+                optionsHtml += `<option value="${escapeHtml(p.title)}" ${isSel ? 'selected' : ''}>${escapeHtml(p.title)} (Saldo: ${fmt(saldo)})</option>`;
             });
 
-            if (selectedProg && !matchedSelected) {
-                optionsHtml += `<option value="${escapeHtml(selectedProg)}" selected>${escapeHtml(selectedProg)}</option>`;
-            }
-
             rowDiv.innerHTML = `
-                <div class="flex-1 min-w-0">
-                    <select class="disb-subsidi-prog-select w-full bg-surface border border-outline-variant rounded-md px-2.5 py-1.5 text-xs text-on-surface focus:border-primary font-medium" onchange="updateDisbSubsidiTotals()">
-                        ${optionsHtml}
-                    </select>
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    <div class="flex-1 min-w-0">
+                        <select class="disb-subsidi-prog-select w-full bg-surface border border-outline-variant rounded-lg px-2.5 py-1.5 text-xs text-on-surface font-semibold focus:border-primary outline-none" onchange="handleSubsidiRowProgChange('${rowId}')">
+                            ${optionsHtml}
+                        </select>
+                    </div>
+                    <div class="w-full sm:w-40 shrink-0">
+                        <input type="number" min="0" placeholder="Nominal Diambil (Rp)" value="${amount}" 
+                            class="disb-subsidi-amt-input w-full bg-surface border border-outline-variant rounded-lg px-2.5 py-1.5 text-xs font-bold text-primary focus:border-primary outline-none" 
+                            oninput="updateDisbursementCalculations()">
+                    </div>
+                    <button type="button" onclick="removeManualSubsidiRow('${rowId}')" title="Hapus Baris" 
+                        class="p-1.5 text-outline hover:text-error hover:bg-error-container/20 rounded-lg transition cursor-pointer self-end sm:self-center shrink-0">
+                        <span class="material-symbols-outlined text-base">delete</span>
+                    </button>
                 </div>
-                <div class="w-32 sm:w-36 shrink-0">
-                    <input type="number" min="0" placeholder="Nominal (Rp)" value="${amount > 0 ? amount : ''}" 
-                        class="disb-subsidi-amt-input w-full bg-surface border border-outline-variant rounded-md px-2.5 py-1.5 text-xs font-bold text-primary focus:border-primary outline-none" 
-                        oninput="updateDisbSubsidiTotals()">
+                <div class="flex items-center justify-between text-[11px] pt-1 border-t border-amber-100">
+                    <span class="text-slate-500 font-medium">Sisa Saldo Sumber Bantuan:</span>
+                    <strong class="disb-subsidi-row-saldo text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Rp 0</strong>
                 </div>
-                <button type="button" onclick="removeDisbSubsidiRow('${rowId}')" title="Hapus Baris" 
-                    class="p-1.5 text-outline hover:text-error hover:bg-error-container/20 rounded-md transition cursor-pointer shrink-0">
-                    <span class="material-symbols-outlined text-base">delete</span>
-                </button>
             `;
 
             rowsContainer.appendChild(rowDiv);
-            updateDisbSubsidiTotals();
+            if (selectedProg) {
+                handleSubsidiRowProgChange(rowId);
+            }
+            updateDisbursementCalculations();
         }
 
-        function removeDisbSubsidiRow(rowId) {
-            const row = document.getElementById(rowId);
-            if (row) {
-                row.remove();
-                updateDisbSubsidiTotals();
+        function removeManualSubsidiRow(rowId) {
+            const el = document.getElementById(rowId);
+            if (el) {
+                el.remove();
+                updateDisbursementCalculations();
             }
         }
 
-        function autoDistributeSubsidiRows() {
+        function handleSubsidiRowProgChange(rowId) {
+            const row = document.getElementById(rowId);
+            if (!row) return;
+
+            const select = row.querySelector('.disb-subsidi-prog-select');
+            const saldoBadge = row.querySelector('.disb-subsidi-row-saldo');
+            const prog = select ? select.value : '';
+            const activeWilayah = document.getElementById('disb-wilayah') ? document.getElementById('disb-wilayah').value : 'Pangkalpinang';
+
+            if (!prog || !window.wizStore) {
+                if (saldoBadge) saldoBadge.textContent = 'Rp 0';
+            } else {
+                const stats = wizStore.finance.getSpecificProgramStats(prog, 0, 50000000, activeWilayah);
+                const saldo = stats ? stats.saldo : 0;
+                if (saldoBadge) {
+                    saldoBadge.textContent = fmt(saldo);
+                    saldoBadge.dataset.saldo = saldo;
+                }
+            }
+
+            updateDisbursementCalculations();
+        }
+
+        function refreshSubsidiRowOptions() {
             const rowsContainer = document.getElementById('disb-subsidi-rows');
             if (!rowsContainer) return;
-
+            const pillar = document.getElementById('disb-pillar')?.value || '';
             const targetProg = (document.getElementById('disb-program')?.value || '').trim();
-            const totalTarget = Math.max(0, Number(document.getElementById('disb-amount')?.value) || 0);
             const activeWilayah = document.getElementById('disb-wilayah') ? document.getElementById('disb-wilayah').value : 'Pangkalpinang';
-            const pillar = targetProg ? ((window.wizStore && window.wizStore.utils) ? window.wizStore.utils.mapProgramToPillar(targetProg) : 'Berkah Peduli') : 'Berkah Peduli';
 
-            const pillarProgs = (window.wizStore && window.wizStore.utils && typeof window.wizStore.utils.getPillarPrograms === 'function')
-                ? window.wizStore.utils.getPillarPrograms(pillar, activeWilayah)
-                : [];
+            const candidatePrograms = getSpecificProgramsForPillar(pillar, activeWilayah)
+                .filter(p => p.title.toLowerCase() !== targetProg.toLowerCase());
 
-            rowsContainer.innerHTML = '';
-
-            if (!targetProg) {
-                addDisbSubsidiRow('', totalTarget);
-                return;
-            }
-
-            const targetStats = wizStore.finance.getSpecificProgramStats(targetProg, 0, 50000000, activeWilayah);
-            const targetSaldo = targetStats ? targetStats.saldo : 0;
-
-            const fromTarget = Math.min(totalTarget, targetSaldo);
-            const shortfall = Math.max(0, totalTarget - fromTarget);
-
-            // Row 1: Target Program
-            addDisbSubsidiRow(targetProg, fromTarget);
-
-            if (shortfall > 0) {
-                // Find supporting programs in same pillar with positive balance (excluding target and markaz)
-                const supporters = pillarProgs.filter(p => p.title.toLowerCase() !== targetProg.toLowerCase() && !p.title.toLowerCase().includes('markaz') && p.saldo > 0);
-                
-                let remainingShortfall = shortfall;
-                if (supporters.length > 0) {
-                    for (const supp of supporters) {
-                        if (remainingShortfall <= 0) break;
-                        const take = Math.min(remainingShortfall, supp.saldo);
-                        addDisbSubsidiRow(supp.title, take);
-                        remainingShortfall -= take;
-                    }
-                }
-                
-                // If still deficit or no other supporters with balance, add the first available supporting program
-                if (remainingShortfall > 0) {
-                    const fallbackSupp = pillarProgs.find(p => p.title.toLowerCase() !== targetProg.toLowerCase() && !p.title.toLowerCase().includes('markaz')) 
-                        || pillarProgs.find(p => p.title.toLowerCase() !== targetProg.toLowerCase());
-                    if (fallbackSupp) {
-                        addDisbSubsidiRow(fallbackSupp.title, remainingShortfall);
-                    }
-                }
-            }
-
-            updateDisbSubsidiTotals();
+            const rows = rowsContainer.querySelectorAll('.disb-subsidi-row');
+            rows.forEach(row => {
+                const select = row.querySelector('.disb-subsidi-prog-select');
+                if (!select) return;
+                const curVal = select.value;
+                let optHtml = `<option value="">-- Pilih Program Bantuan (${escapeHtml(pillar)}) --</option>`;
+                candidatePrograms.forEach(p => {
+                    const stats = wizStore.finance.getSpecificProgramStats(p.title, 0, 50000000, activeWilayah);
+                    const saldo = stats ? stats.saldo : 0;
+                    const isSel = curVal && p.title.toLowerCase() === curVal.toLowerCase();
+                    optHtml += `<option value="${escapeHtml(p.title)}" ${isSel ? 'selected' : ''}>${escapeHtml(p.title)} (Saldo: ${fmt(saldo)})</option>`;
+                });
+                select.innerHTML = optHtml;
+                handleSubsidiRowProgChange(row.id);
+            });
         }
 
-        function updateDisbSubsidiTotals() {
-            const rowsContainer = document.getElementById('disb-subsidi-rows');
-            const sumValEl = document.getElementById('disb-subsidi-sum-val');
-            const targetValEl = document.getElementById('disb-subsidi-target-val');
-            const badgeEl = document.getElementById('disb-subsidi-status-badge');
+        function handleDisbMainAmountInput(val) {
+            updateDisbursementCalculations();
+        }
+
+        function updateDisbursementCalculations() {
+            const targetProg = (document.getElementById('disb-program')?.value || '').trim();
+            const activeWilayah = document.getElementById('disb-wilayah') ? document.getElementById('disb-wilayah').value : 'Pangkalpinang';
+            const mainInput = document.getElementById('disb-amount');
+            const mainHint = document.getElementById('disb-main-amount-hint');
             const submitBtn = document.getElementById('btn-disbursement-submit');
-            const sourceVal = document.getElementById('disb-source-type')?.value || 'program_spesifik';
 
-            if (sourceVal !== 'auto_split') return;
+            const sumMainEl = document.getElementById('summary-amt-main');
+            const sumSubEl = document.getElementById('summary-amt-sub');
+            const sumTotalEl = document.getElementById('summary-amt-total');
 
-            const totalTarget = Math.max(0, Number(document.getElementById('disb-amount')?.value) || 0);
-            let totalDistributed = 0;
+            const isSubsidiEnabled = document.getElementById('disb-enable-subsidi')?.checked || false;
 
-            if (rowsContainer) {
-                const inputs = rowsContainer.querySelectorAll('.disb-subsidi-amt-input');
-                inputs.forEach(inp => {
-                    totalDistributed += Math.max(0, Number(inp.value) || 0);
+            let isValid = true;
+            let errorMessage = '';
+
+            // 1. Calculate Target Program Balance & Main Amount
+            let targetSaldo = 0;
+            if (targetProg && window.wizStore) {
+                const targetStats = wizStore.finance.getSpecificProgramStats(targetProg, 0, 50000000, activeWilayah);
+                targetSaldo = targetStats ? targetStats.saldo : 0;
+            }
+
+            const mainAmount = Math.max(0, Number(mainInput?.value) || 0);
+            if (sumMainEl) sumMainEl.textContent = fmt(mainAmount);
+
+            // Validation: Main amount cannot exceed target balance
+            if (mainAmount > targetSaldo) {
+                isValid = false;
+                errorMessage = `Nominal pengeluaran utama (${fmt(mainAmount)}) melebihi Saldo Tersedia program target (${fmt(targetSaldo)})`;
+                if (mainInput) {
+                    mainInput.classList.remove('border-outline-variant', 'focus:border-primary');
+                    mainInput.classList.add('border-rose-500', 'bg-rose-50', 'ring-2', 'ring-rose-300', 'text-rose-700');
+                }
+                if (mainHint) {
+                    mainHint.textContent = `⚠️ Melebihi Saldo Tersedia program target (${fmt(targetSaldo)})`;
+                    mainHint.classList.remove('hidden');
+                }
+            } else {
+                if (mainInput) {
+                    mainInput.classList.remove('border-rose-500', 'bg-rose-50', 'ring-2', 'ring-rose-300', 'text-rose-700');
+                    mainInput.classList.add('border-outline-variant', 'focus:border-primary');
+                }
+                if (mainHint) mainHint.classList.add('hidden');
+            }
+
+            // 2. Calculate Subsidy Rows
+            let totalSubsidi = 0;
+            if (isSubsidiEnabled) {
+                const rows = document.querySelectorAll('#disb-subsidi-rows .disb-subsidi-row');
+                const selectedProgs = new Set();
+
+                rows.forEach(r => {
+                    const sel = r.querySelector('.disb-subsidi-prog-select');
+                    const amtInp = r.querySelector('.disb-subsidi-amt-input');
+                    const prog = (sel?.value || '').trim();
+                    const amt = Math.max(0, Number(amtInp?.value) || 0);
+
+                    if (!prog && amt > 0) {
+                        isValid = false;
+                        errorMessage = 'Harap pilih program bantuan pada baris subsidi';
+                    }
+
+                    if (prog) {
+                        if (selectedProgs.has(prog.toLowerCase())) {
+                            isValid = false;
+                            errorMessage = `Program bantuan "${prog}" dipilih lebih dari satu kali`;
+                        }
+                        selectedProgs.add(prog.toLowerCase());
+
+                        const stats = wizStore.finance.getSpecificProgramStats(prog, 0, 50000000, activeWilayah);
+                        const suppSaldo = stats ? stats.saldo : 0;
+
+                        if (amt > suppSaldo) {
+                            isValid = false;
+                            errorMessage = `Nominal subsidi dari "${prog}" (${fmt(amt)}) melebihi saldo tersedia (${fmt(suppSaldo)})`;
+                            if (amtInp) {
+                                amtInp.classList.remove('border-outline-variant');
+                                amtInp.classList.add('border-rose-500', 'bg-rose-50', 'text-rose-700');
+                            }
+                        } else {
+                            if (amtInp) {
+                                amtInp.classList.remove('border-rose-500', 'bg-rose-50', 'text-rose-700');
+                                amtInp.classList.add('border-outline-variant');
+                            }
+                        }
+                    }
+
+                    totalSubsidi += amt;
                 });
             }
 
-            if (sumValEl) sumValEl.textContent = fmt(totalDistributed);
-            if (targetValEl) targetValEl.textContent = fmt(totalTarget);
+            if (sumSubEl) sumSubEl.textContent = fmt(totalSubsidi);
 
-            const diff = totalTarget - totalDistributed;
+            // 3. Total Overall Expense
+            const totalExpense = mainAmount + totalSubsidi;
+            if (sumTotalEl) sumTotalEl.textContent = fmt(totalExpense);
 
-            if (badgeEl) {
-                if (totalTarget <= 0) {
-                    badgeEl.className = 'px-2.5 py-1 rounded font-bold text-[11px] flex items-center gap-1 bg-amber-100 text-amber-900 border border-amber-300';
-                    badgeEl.innerHTML = '<span class="material-symbols-outlined text-xs">info</span><span>Masukkan Jumlah Pengeluaran</span>';
-                } else if (diff === 0) {
-                    badgeEl.className = 'px-2.5 py-1 rounded font-bold text-[11px] flex items-center gap-1 bg-emerald-100 text-emerald-900 border border-emerald-300';
-                    badgeEl.innerHTML = '<span class="material-symbols-outlined text-xs">check_circle</span><span>✅ Pas (100% Sesuai)</span>';
-                } else if (diff > 0) {
-                    badgeEl.className = 'px-2.5 py-1 rounded font-bold text-[11px] flex items-center gap-1 bg-rose-100 text-rose-900 border border-rose-300';
-                    badgeEl.innerHTML = `<span class="material-symbols-outlined text-xs">warning</span><span>Kurang ${fmt(diff)}</span>`;
-                } else {
-                    badgeEl.className = 'px-2.5 py-1 rounded font-bold text-[11px] flex items-center gap-1 bg-rose-100 text-rose-900 border border-rose-300';
-                    badgeEl.innerHTML = `<span class="material-symbols-outlined text-xs">error</span><span>Lebih ${fmt(Math.abs(diff))}</span>`;
-                }
+            if (totalExpense <= 0) {
+                isValid = false;
+                if (!errorMessage) errorMessage = 'Masukkan nominal pengeluaran lebih besar dari 0';
             }
 
-            // Block or enable submit button
+            if (!targetProg) {
+                isValid = false;
+                if (!errorMessage) errorMessage = 'Pilih Program Target terlebih dahulu';
+            }
+
+            // Update Submit Button State
             if (submitBtn) {
-                if (diff !== 0 || totalTarget <= 0) {
+                if (!isValid) {
                     submitBtn.disabled = true;
                     submitBtn.classList.remove('bg-primary', 'hover:bg-primary-container', 'text-on-primary');
-                    submitBtn.classList.add('bg-rose-100', 'text-rose-700', 'border', 'border-rose-400', 'cursor-not-allowed');
-                    submitBtn.innerHTML = `<span class="material-symbols-outlined text-sm">block</span><span>${diff > 0 ? 'Alokasi Kurang ' + fmt(diff) : 'Alokasi Lebih ' + fmt(Math.abs(diff))}</span>`;
+                    submitBtn.classList.add('bg-rose-100', 'text-rose-700', 'border', 'border-rose-300', 'cursor-not-allowed');
+                    submitBtn.innerHTML = `<span class="material-symbols-outlined text-sm">block</span><span>${errorMessage || 'Input Belum Valid'}</span>`;
                 } else {
                     submitBtn.disabled = false;
+                    submitBtn.classList.remove('bg-rose-100', 'text-rose-700', 'border', 'border-rose-300', 'cursor-not-allowed');
                     submitBtn.classList.add('bg-primary', 'hover:bg-primary-container', 'text-on-primary');
-                    submitBtn.classList.remove('bg-rose-100', 'text-rose-700', 'border', 'border-rose-400', 'cursor-not-allowed');
-                    submitBtn.innerHTML = '<span class="material-symbols-outlined text-sm">save</span><span>Simpan Pengeluaran</span>';
-                }
-            }
-        }
-
-        function handleDisbAmountInput(val) {
-            const previewBox = document.getElementById('disb-split-preview-box');
-            const amountInput = document.getElementById('disb-amount');
-            const submitBtn = document.getElementById('btn-disbursement-submit');
-            const sourceVal = document.getElementById('disb-source-type') ? document.getElementById('disb-source-type').value : 'program_spesifik';
-            const numVal = Math.max(0, Number(val) || 0);
-
-            // Sync target in dynamic subsidi summary bar
-            const targetValEl = document.getElementById('disb-subsidi-target-val');
-            if (targetValEl) targetValEl.textContent = fmt(numVal);
-
-            if (sourceVal === 'auto_split') {
-                updateDisbSubsidiTotals();
-            }
-
-            if (!previewBox) return;
-
-            const progTitle = (document.getElementById('disb-program')?.value || '').trim();
-
-            // Helper: set input merah / normal
-            function setInputError(isError) {
-                if (!amountInput) return;
-                if (isError) {
-                    amountInput.classList.remove('border-outline-variant', 'focus:border-primary');
-                    amountInput.classList.add('border-rose-500', 'ring-2', 'ring-rose-300', 'bg-rose-50', 'text-rose-700');
-                } else {
-                    amountInput.classList.remove('border-rose-500', 'ring-2', 'ring-rose-300', 'bg-rose-50', 'text-rose-700');
-                    amountInput.classList.add('border-outline-variant', 'focus:border-primary');
-                    amountInput.style.backgroundColor = '';
+                    submitBtn.innerHTML = `<span class="material-symbols-outlined text-sm">save</span><span>Simpan Pengeluaran (${fmt(totalExpense)})</span>`;
                 }
             }
 
-            // Helper: disable / enable tombol Simpan for program_spesifik
-            function setSubmitBlocked(isBlocked) {
-                if (!submitBtn || sourceVal === 'auto_split') return;
-                if (isBlocked) {
-                    submitBtn.disabled = true;
-                    submitBtn.classList.remove('bg-primary', 'hover:bg-primary-container', 'text-on-primary');
-                    submitBtn.classList.add('bg-rose-100', 'text-rose-700', 'border', 'border-rose-400', 'cursor-not-allowed');
-                    submitBtn.innerHTML = '<span class="material-symbols-outlined text-sm">block</span><span>Saldo Kas Tidak Cukup</span>';
-                } else {
-                    submitBtn.disabled = false;
-                    submitBtn.classList.add('bg-primary', 'hover:bg-primary-container', 'text-on-primary');
-                    submitBtn.classList.remove('bg-rose-100', 'text-rose-700', 'border', 'border-rose-400', 'cursor-not-allowed');
-                    submitBtn.innerHTML = '<span class="material-symbols-outlined text-sm">save</span><span>Simpan Pengeluaran</span>';
-                }
-            }
-
-            if (!progTitle || !numVal || !window.wizStore) {
-                previewBox.classList.add('hidden');
-                previewBox.innerHTML = '';
-                setInputError(false);
-                if (sourceVal === 'program_spesifik') setSubmitBlocked(false);
-                return;
-            }
-
-            const activeWilayah = document.getElementById('disb-wilayah') ? document.getElementById('disb-wilayah').value : 'Pangkalpinang';
-            const editId = document.getElementById('disb-edit-id')?.value || null;
-            const progStats = wizStore.finance.getSpecificProgramStats(progTitle, 0, 50000000, activeWilayah);
-            const progSaldo = progStats ? progStats.saldo : 0;
-
-            if (sourceVal === 'program_spesifik') {
-                const isOver = numVal > progSaldo;
-                setInputError(isOver);
-                setSubmitBlocked(isOver);
-
-                if (numVal <= progSaldo) {
-                    previewBox.className = 'rounded-xl p-3.5 text-xs space-y-1 bg-emerald-50 border border-emerald-300 text-emerald-950 block shadow-xs';
-                    previewBox.innerHTML = `
-                        <div class="flex items-center gap-1.5 font-bold text-emerald-900">
-                            <span class="material-symbols-outlined text-sm text-emerald-700">check_circle</span>
-                            <span>Saldo Kas Program Mencukupi (${activeWilayah})</span>
-                        </div>
-                        <p class="text-[11px] text-emerald-800 leading-relaxed">
-                            Pengeluaran <strong>${fmt(numVal)}</strong> memotong saldo kas "${escapeHtml(progTitle)}". Sisa saldo kas setelah penyaluran: <strong>${fmt(progSaldo - numVal)}</strong>.
-                        </p>
-                    `;
-                } else {
-                    const selisih = numVal - progSaldo;
-                    previewBox.className = 'rounded-xl p-3.5 text-xs space-y-1.5 bg-rose-50 border border-rose-300 text-rose-950 block shadow-xs';
-                    previewBox.innerHTML = `
-                        <div class="flex items-center gap-1.5 font-bold text-rose-900">
-                            <span class="material-symbols-outlined text-sm text-rose-700">error</span>
-                            <span>Saldo Kas Program Tidak Mencukupi!</span>
-                        </div>
-                        <p class="text-[11px] text-rose-800 leading-relaxed">
-                            Nominal pengeluaran <strong>${fmt(numVal)}</strong> melebihi saldo kas ${escapeHtml(progTitle)} di <strong>${activeWilayah}</strong> yang tersedia saat ini (<strong>${fmt(progSaldo)}</strong>).
-                        </p>
-                        <div class="p-2 bg-white/80 rounded-lg border border-rose-200 text-[11px] text-rose-900 font-semibold flex items-center justify-between">
-                            <span>Kekurangan Dana: <strong class="text-rose-700">${fmt(selisih)}</strong></span>
-                            <button type="button" onclick="document.getElementById('disb-source-type').value='auto_split'; handleDisbSourceChange('auto_split');" class="px-2.5 py-1 bg-primary text-white rounded font-bold hover:bg-primary-container text-[11px] cursor-pointer shadow-xs">
-                                Aktifkan Subsidi Silang ⚡
-                            </button>
-                        </div>
-                    `;
-                }
-            } else if (sourceVal === 'auto_split') {
-                const splitRes = wizStore.finance.calculateAutoSplit(progTitle, numVal, activeWilayah, editId);
-                setInputError(!splitRes.canSpend);
-
-                if (splitRes.canSpend) {
-                    previewBox.className = 'rounded-xl p-3.5 text-xs space-y-2 bg-purple-50/90 border border-purple-300 text-purple-950 block shadow-xs';
-                    previewBox.innerHTML = `
-                        <div class="flex items-center justify-between font-bold text-purple-900 border-b border-purple-200/80 pb-1.5">
-                            <span class="flex items-center gap-1.5">
-                                <span class="material-symbols-outlined text-sm text-purple-700">splitscreen</span>
-                                <span>Rincian Subsidi Silang Intra-Pilar — [${activeWilayah}]</span>
-                            </span>
-                            <span class="px-2 py-0.5 bg-purple-200/70 text-purple-950 font-extrabold rounded text-[11px]">Total: ${fmt(numVal)}</span>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
-                            <div class="p-2 bg-white/90 rounded-lg border border-purple-200/80 shadow-2xs">
-                                <span class="block text-slate-500 font-medium">1. Kas Program Terpakai</span>
-                                <strong class="text-emerald-700 text-xs font-bold">${fmt(splitRes.fromProgram)}</strong>
-                            </div>
-                            <div class="p-2 bg-white/90 rounded-lg border border-purple-200/80 shadow-2xs">
-                                <span class="block text-slate-500 font-medium">2. Sisa Kekurangan</span>
-                                <strong class="text-amber-700 text-xs font-bold">${fmt(splitRes.shortfall)}</strong>
-                            </div>
-                            <div class="p-2 bg-white/90 rounded-lg border border-purple-200/80 shadow-2xs">
-                                <span class="block text-slate-500 font-medium">3. Subsidi Pilar ${escapeHtml(splitRes.kategoriPilar)}</span>
-                                <strong class="text-purple-800 text-xs font-bold">${fmt(splitRes.fromSubsidi)}</strong>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    previewBox.className = 'rounded-xl p-3.5 text-xs space-y-1 bg-rose-50 border border-rose-300 text-rose-950 block';
-                    previewBox.innerHTML = `
-                        <div class="flex items-center gap-1.5 font-bold text-rose-900">
-                            <span class="material-symbols-outlined text-sm text-rose-700">block</span>
-                            <span>Total Dana di Pilar Ini Tidak Mencukupi (${activeWilayah})</span>
-                        </div>
-                        <p class="text-[11px] text-rose-800 leading-relaxed">
-                            Total dana di pilar ${escapeHtml(splitRes.kategoriPilar)} di ${activeWilayah} (di luar dana Markaz) tidak mencukupi untuk membiayai pengeluaran sebesar <strong>${fmt(numVal)}</strong>.
-                        </p>
-                    `;
-                }
-            }
+            return { isValid, errorMessage, mainAmount, totalSubsidi, totalExpense };
         }
 
         function openDisbursementModal(editId) {
             try {
-                if (typeof populateDisbursementPrograms === 'function') {
-                    populateDisbursementPrograms();
-                } else if (typeof populateDisbProgramSelect === 'function') {
-                    populateDisbProgramSelect();
-                }
                 const auth = getAdminAuthInfo();
                 const activeW = (!auth.isSuperAdmin && auth.assignedWilayah !== 'Semua') ? auth.assignedWilayah : (document.getElementById('disb-filter-wilayah') ? document.getElementById('disb-filter-wilayah').value : 'Pangkalpinang');
                 const disbWilayahEl = document.getElementById('disb-wilayah');
@@ -6353,13 +6304,24 @@ Jazakumullahu khairan kepada para muhsinin. Semoga Allah senantiasa meneguhkan l
                 const formEl = document.getElementById('disbursement-form');
                 if (!editId && formEl) {
                     formEl.reset();
-                    if (document.getElementById('disb-category')) {
-                        document.getElementById('disb-category').value = 'program_execution';
-                        if (typeof handleDisbCategoryChange === 'function') handleDisbCategoryChange('program_execution');
+                    if (document.getElementById('disb-pillar')) document.getElementById('disb-pillar').value = '';
+                    if (document.getElementById('disb-program')) {
+                        document.getElementById('disb-program').innerHTML = '<option value="">-- Pilih Program Utama (Pilar) Terlebih Dahulu --</option>';
+                        document.getElementById('disb-program').disabled = true;
                     }
-                    if (typeof handleDisbProgramSelect === 'function') handleDisbProgramSelect('');
+                    if (document.getElementById('disb-prog-info-container')) {
+                        document.getElementById('disb-prog-info-container').classList.add('hidden');
+                    }
+                    if (document.getElementById('disb-enable-subsidi')) {
+                        document.getElementById('disb-enable-subsidi').checked = false;
+                    }
+                    if (document.getElementById('disb-subsidi-container')) {
+                        document.getElementById('disb-subsidi-container').classList.add('hidden');
+                    }
+                    if (document.getElementById('disb-subsidi-rows')) {
+                        document.getElementById('disb-subsidi-rows').innerHTML = '';
+                    }
                     
-                    // Default tanggal & jam saat ini untuk penyaluran baru
                     const disbDateEl = document.getElementById('disb-date');
                     if (disbDateEl) {
                         const now = new Date();
@@ -6370,11 +6332,7 @@ Jazakumullahu khairan kepada para muhsinin. Semoga Allah senantiasa meneguhkan l
                         const min = String(now.getMinutes()).padStart(2, '0');
                         disbDateEl.value = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
                     }
-
-                    const rowsContainer = document.getElementById('disb-subsidi-rows');
-                    if (rowsContainer) rowsContainer.innerHTML = '';
-                    const subContainer = document.getElementById('disb-subsidi-container');
-                    if (subContainer) subContainer.classList.add('hidden');
+                    updateDisbursementCalculations();
                 }
             } catch (err) {
                 console.error('[openDisbursementModal Error]', err);
@@ -6384,24 +6342,30 @@ Jazakumullahu khairan kepada para muhsinin. Semoga Allah senantiasa meneguhkan l
 
         function closeDisbursementModal() {
             hideModal('disbursement-modal');
-            document.getElementById('disbursement-form').reset();
+            const formEl = document.getElementById('disbursement-form');
+            if (formEl) formEl.reset();
             const infoContainer = document.getElementById('disb-prog-info-container');
             if (infoContainer) infoContainer.classList.add('hidden');
-            const previewBox = document.getElementById('disb-split-preview-box');
-            if (previewBox) {
-                previewBox.classList.add('hidden');
-                previewBox.innerHTML = '';
-            }
             const subContainer = document.getElementById('disb-subsidi-container');
             if (subContainer) subContainer.classList.add('hidden');
             const rowsContainer = document.getElementById('disb-subsidi-rows');
             if (rowsContainer) rowsContainer.innerHTML = '';
+            const subToggle = document.getElementById('disb-enable-subsidi');
+            if (subToggle) subToggle.checked = false;
+            updateDisbursementCalculations();
         }
 
         async function handleDisbursementSave(e) {
             if (e) e.preventDefault();
             const editId = document.getElementById('disb-edit-id')?.value || '';
             const progTitle = (document.getElementById('disb-program')?.value || '').trim();
+            const pillar = document.getElementById('disb-pillar')?.value || '';
+
+            if (!pillar) {
+                alert('Silakan pilih "Program Utama (Pilar)" terlebih dahulu!');
+                document.getElementById('disb-pillar')?.focus();
+                return;
+            }
 
             if (!progTitle) {
                 alert('Silakan pilih "Program Spesifik (Target Penyaluran)" terlebih dahulu!');
@@ -6409,69 +6373,10 @@ Jazakumullahu khairan kepada para muhsinin. Semoga Allah senantiasa meneguhkan l
                 return;
             }
 
-            const amount = Number(document.getElementById('disb-amount')?.value) || 0;
-            if (amount <= 0) {
-                alert('Jumlah pengeluaran harus lebih besar dari 0!');
-                document.getElementById('disb-amount')?.focus();
+            const calc = updateDisbursementCalculations();
+            if (!calc.isValid) {
+                alert('⚠️ Validasi Pengeluaran Gagal: ' + calc.errorMessage);
                 return;
-            }
-
-            const sourceVal = document.getElementById('disb-source-type') ? document.getElementById('disb-source-type').value : 'program_spesifik';
-            
-            const auth = getAdminAuthInfo();
-            let activeWilayah = document.getElementById('disb-wilayah') ? document.getElementById('disb-wilayah').value : 'Pangkalpinang';
-            if (!auth.isSuperAdmin && auth.assignedWilayah !== 'Semua') {
-                activeWilayah = auth.assignedWilayah; // Strict Branch Scoping
-            }
-
-            const progStats = wizStore.finance.getSpecificProgramStats(progTitle, 0, 50000000, activeWilayah);
-            const progSaldo = progStats ? progStats.saldo : 0;
-            const pillar = (window.wizStore && window.wizStore.utils) ? window.wizStore.utils.mapProgramToPillar(progTitle) : 'Berkah Peduli';
-            const kategoriPilar = (window.wizStore && window.wizStore.utils) ? window.wizStore.utils.mapPillarToKategori(pillar) : 'Sosial';
-
-            let fromProgram = amount;
-            let fromSubsidi = 0;
-            let subsidiDetails = [];
-
-            // Validasi Opsi 1: Hanya Saldo Program Ini
-            if (sourceVal === 'program_spesifik') {
-                if (amount > progSaldo) {
-                    const allowOverride = confirm(`⚠️ Saldo tercatat kas program "${progTitle}" (${activeWilayah}) saat ini adalah ${fmt(progSaldo)}.\n\nNominal pengeluaran: ${fmt(amount)}.\n\nApakah Anda ingin tetap mencatat pengeluaran ini sekarang?`);
-                    if (!allowOverride) {
-                        document.getElementById('disb-amount')?.focus();
-                        return;
-                    }
-                }
-                fromProgram = amount;
-                fromSubsidi = 0;
-            } else if (sourceVal === 'auto_split') {
-                // Validasi Opsi 2: Subsidi Silang Intra-Pilar (Field Array Dinamis)
-                const rows = document.querySelectorAll('#disb-subsidi-rows .disb-subsidi-row');
-                let subSum = 0;
-                rows.forEach(r => {
-                    const p = (r.querySelector('.disb-subsidi-prog-select')?.value || '').trim();
-                    const a = Math.max(0, Number(r.querySelector('.disb-subsidi-amt-input')?.value) || 0);
-                    if (p && a > 0) {
-                        subsidiDetails.push({ program: p, amount: a });
-                        subSum += a;
-                    }
-                });
-
-                if (subSum !== amount) {
-                    alert(`⚠️ Total akumulasi baris Program Penyokong (${fmt(subSum)}) wajib sama persis dengan field utama "Jumlah Pengeluaran" (${fmt(amount)})!\n\nSelisih: ${fmt(Math.abs(amount - subSum))}. Silakan sesuaikan kembali sebelum menyimpan.`);
-                    return;
-                }
-
-                // Kalkulasi fromProgram dan fromSubsidi dari rincian baris
-                fromProgram = 0;
-                fromSubsidi = 0;
-                subsidiDetails.forEach(item => {
-                    if (item.program.toLowerCase() === progTitle.toLowerCase()) {
-                        fromProgram += item.amount;
-                    } else {
-                        fromSubsidi += item.amount;
-                    }
-                });
             }
 
             const description = (document.getElementById('disb-description')?.value || '').trim();
@@ -6481,49 +6386,104 @@ Jazakumullahu khairan kepada para muhsinin. Semoga Allah senantiasa meneguhkan l
                 return;
             }
 
+            const auth = getAdminAuthInfo();
+            let activeWilayah = document.getElementById('disb-wilayah') ? document.getElementById('disb-wilayah').value : 'Pangkalpinang';
+            if (!auth.isSuperAdmin && auth.assignedWilayah !== 'Semua') {
+                activeWilayah = auth.assignedWilayah;
+            }
+
             const disbDateVal = document.getElementById('disb-date')?.value;
             let tanggalPenyaluran = new Date().toISOString();
             if (disbDateVal) {
-                try { 
-                    tanggalPenyaluran = new Date(disbDateVal).toISOString(); 
-                } catch(e) {
-                    tanggalPenyaluran = new Date().toISOString();
-                }
+                try { tanggalPenyaluran = new Date(disbDateVal).toISOString(); } catch(e) {}
             }
 
-            const data = {
-                wilayah: activeWilayah,
-                sourceType: sourceVal === 'auto_split' ? 'auto_split' : 'program_spesifik',
-                targetType: sourceVal === 'auto_split' ? 'auto_split' : 'specific',
-                pillar: pillar,
-                kategori_pilar: kategoriPilar,
-                program: progTitle,
-                amount: amount,
-                amountFromProgram: fromProgram,
-                amountFromSubsidi: fromSubsidi,
-                subsidiDetails: subsidiDetails,
-                subsidi_details: subsidiDetails,
-                description: description,
-                tanggalPenyaluran: tanggalPenyaluran,
-                tanggal_penyaluran: tanggalPenyaluran,
-                disbursedAt: tanggalPenyaluran,
-                recordedBy: sessionStorage.getItem('wiz_admin_name') || ADMIN_NAME || 'Admin'
-            };
+            const kategoriPilar = (window.wizStore && window.wizStore.utils) ? window.wizStore.utils.mapPillarToKategori(pillar) : 'Dakwah';
+            const adminName = sessionStorage.getItem('wiz_admin_name') || ADMIN_NAME || 'Admin';
+            const batchId = 'disb-batch-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+
+            // Collect all records to insert
+            const recordsToSave = [];
+
+            // 1. Main target program record (if mainAmount > 0)
+            if (calc.mainAmount > 0) {
+                recordsToSave.push({
+                    wilayah: activeWilayah,
+                    sourceType: 'program_spesifik',
+                    targetType: 'specific',
+                    pillar: pillar,
+                    kategori_pilar: kategoriPilar,
+                    program: progTitle,
+                    amount: calc.mainAmount,
+                    amountFromProgram: calc.mainAmount,
+                    amountFromSubsidi: 0,
+                    description: description,
+                    tanggalPenyaluran: tanggalPenyaluran,
+                    tanggal_penyaluran: tanggalPenyaluran,
+                    disbursedAt: tanggalPenyaluran,
+                    recordedBy: adminName,
+                    batchId: batchId,
+                    metadata: { batchId, role: 'main_target', hasSubsidi: calc.totalSubsidi > 0 }
+                });
+            }
+
+            // 2. Subsidy rows records
+            const isSubsidiEnabled = document.getElementById('disb-enable-subsidi')?.checked || false;
+            if (isSubsidiEnabled) {
+                const rows = document.querySelectorAll('#disb-subsidi-rows .disb-subsidi-row');
+                rows.forEach(r => {
+                    const suppProg = (r.querySelector('.disb-subsidi-prog-select')?.value || '').trim();
+                    const amt = Math.max(0, Number(r.querySelector('.disb-subsidi-amt-input')?.value) || 0);
+                    if (suppProg && amt > 0) {
+                        recordsToSave.push({
+                            wilayah: activeWilayah,
+                            sourceType: 'subsidi_silang',
+                            targetType: 'specific',
+                            pillar: pillar,
+                            kategori_pilar: kategoriPilar,
+                            program: suppProg,
+                            amount: amt,
+                            amountFromProgram: amt,
+                            amountFromSubsidi: 0,
+                            description: `[Subsidi Silang untuk ${progTitle}] ${description}`,
+                            tanggalPenyaluran: tanggalPenyaluran,
+                            tanggal_penyaluran: tanggalPenyaluran,
+                            disbursedAt: tanggalPenyaluran,
+                            recordedBy: adminName,
+                            batchId: batchId,
+                            metadata: { batchId, role: 'subsidi_source', targetProgram: progTitle }
+                        });
+                    }
+                });
+            }
+
+            if (recordsToSave.length === 0) {
+                alert('Tidak ada nominal pengeluaran yang valid untuk disimpan.');
+                return;
+            }
 
             const submitBtn = document.getElementById('btn-disbursement-submit');
             if (submitBtn) {
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span> Menyimpan...';
+                submitBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span> Menyimpan ' + recordsToSave.length + ' Record...';
             }
 
             try {
-                if (editId) await wizStore.disbursements.update(editId, data);
-                else await wizStore.disbursements.add(data);
+                if (editId) {
+                    // Update single existing record
+                    await wizStore.disbursements.update(editId, recordsToSave[0]);
+                } else {
+                    // Multi-records creation for balanced accounting
+                    for (const rec of recordsToSave) {
+                        await wizStore.disbursements.add(rec);
+                    }
+                }
+
                 closeDisbursementModal();
-                showNotification('✅ Catatan pengeluaran dana berhasil disimpan!');
+                showNotification('✅ ' + recordsToSave.length + ' catatan pengeluaran berhasil disimpan!');
                 refreshAll();
                 try { renderDisbursementTable(); } catch(e) {}
-                alert(`✅ Pengeluaran ${fmt(amount)} [${activeWilayah}] berhasil dicatat!`);
+                alert(`✅ Pengeluaran Total ${fmt(calc.totalExpense)} [${activeWilayah}] berhasil dicatat dalam ${recordsToSave.length} record akuntansi!`);
             } catch(err) {
                 alert('Gagal menyimpan pengeluaran: ' + err.message);
             } finally {
