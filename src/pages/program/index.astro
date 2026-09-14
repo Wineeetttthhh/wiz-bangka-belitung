@@ -301,12 +301,7 @@ import { MASTER_PROGRAMS } from '../../lib/programs-data';
                 if (!p) return;
                 const cleanTitle = (p.title || '').toLowerCase().trim();
                 const cleanSlug = (p.slug || '').toLowerCase().trim();
-                if (p.id === 'prog-dai-pelosok' || cleanSlug === 'keberangkatan-kepulangan-dai' || cleanTitle.includes('keberangkatan kepulangan dai') || (cleanTitle.includes('keberangkatan') && cleanTitle.includes('dai')) || cleanTitle.includes('pencerah umat')) {
-                    p.title = 'Hadirkan Pencerah Umat, Dukung Perjuangan Dai';
-                    p.description = "Mari berpartisipasi memfasilitasi operasional keberangkatan Dai pengabdian ke pelosok Bangka Belitung, serta dukung pendidikan syar'i calon Dai ke Makassar untuk mencetak generasi pendakwah masa depan.";
-                    p.imageUrl = '/assets/images/keberangkatan-dai.png';
-                    p.image_url = '/assets/images/keberangkatan-dai.png';
-                }
+
                 if (p.id === 'prog-tahfidz' || cleanSlug === 'tahfidz' || cleanTitle === 'tahfidz' || cleanTitle === 'tahfidz weekend') {
                     p.title = 'Tahfidz Weekend';
                     p.pillar = 'Berkah Hidayah';
@@ -369,16 +364,19 @@ import { MASTER_PROGRAMS } from '../../lib/programs-data';
 
                     const slug = p.slug || (p.title ? p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : 'program');
                     const pCleanTitle = (p.title || '').toLowerCase().trim();
-                    let dynamicImg = PROGRAM_IMG_MAP[slug];
+                    // Admin uploaded photo has HIGHEST priority
+                    let dynamicImg = (p.imageUrl || p.image_url || '').trim();
+                    if (!dynamicImg || dynamicImg.includes('default-program-wiz') || dynamicImg.includes('foto-utama-wiz')) {
+                        dynamicImg = PROGRAM_IMG_MAP[slug] || '';
+                    }
                     if (!dynamicImg) {
-                        if (pCleanTitle.includes('pembangunan markaz') || slug.includes('pembangunan-markaz')) {
-                            dynamicImg = '/assets/images/pembangunan-markaz-dakwah.png';
-                        } else if (pCleanTitle.includes('perlengkapan belajar') || slug.includes('perlengkapan-belajar')) {
-                            dynamicImg = '/assets/images/perlengkapan-belajar-yatim.png';
-                        } else {
-                            const rawImg = p.image_url || p.imageUrl || (window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function' ? window.wizStore.allocationRulesManager.getSpecificProgramImage(p.title, p.pillar) : '') || '/assets/images/default-program-wiz.jpg';
-                            dynamicImg = rawImg ? (rawImg.startsWith('/') || rawImg.startsWith('http') || rawImg.startsWith('data:') ? rawImg : `/${rawImg}`) : '/assets/images/default-program-wiz.jpg';
-                        }
+                        const rawImg = (window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function')
+                            ? window.wizStore.allocationRulesManager.getSpecificProgramImage(p.title, p.pillar)
+                            : '';
+                        dynamicImg = rawImg || '/assets/images/default-program-wiz.jpg';
+                    }
+                    if (dynamicImg && !dynamicImg.startsWith('/') && !dynamicImg.startsWith('http') && !dynamicImg.startsWith('data:')) {
+                        dynamicImg = '/' + dynamicImg;
                     }
                     if (!dynamicImg || (typeof dynamicImg === 'string' && dynamicImg.startsWith('data:image') && (pCleanTitle.includes('perlengkapan belajar') || pCleanTitle.includes('pembangunan markaz')))) {
                         dynamicImg = pCleanTitle.includes('perlengkapan belajar') ? '/assets/images/perlengkapan-belajar-yatim.png' : '/assets/images/pembangunan-markaz-dakwah.png';

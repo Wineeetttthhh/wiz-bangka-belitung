@@ -1,63 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 
-<head><script>
-        // Auto-cleanup legacy Tahfidz in Berkah Juara from localStorage on page load
-        (function() {
-            try {
-                const rulesRaw = localStorage.getItem('wiz_allocation_rules');
-                if (rulesRaw) {
-                    const rules = JSON.parse(rulesRaw);
-                    let changed = false;
-                    ['Pangkalpinang', 'Sungailiat'].forEach(w => {
-                        if (rules[w] && rules[w].subAllocation) {
-                            const sub = rules[w].subAllocation;
-                            if (sub['Berkah Juara'] && Array.isArray(sub['Berkah Juara'].items)) {
-                                const prevLen = sub['Berkah Juara'].items.length;
-                                sub['Berkah Juara'].items = sub['Berkah Juara'].items.filter(i => !(i.key || '').toLowerCase().includes('tahfidz'));
-                                const bpj = sub['Berkah Juara'].items.find(i => (i.key || '').toLowerCase().includes('pendidikan juara'));
-                                const pby = sub['Berkah Juara'].items.find(i => (i.key || '').toLowerCase().includes('perlengkapan belajar'));
-                                if (bpj) bpj.percent = 85;
-                                if (pby) pby.percent = 15;
-                                if (sub['Berkah Juara'].items.length !== prevLen || (bpj && bpj.percent === 85)) changed = true;
-                            }
-                            if (sub['Berkah Hidayah'] && Array.isArray(sub['Berkah Hidayah'].items)) {
-                                sub['Berkah Hidayah'].items.forEach(i => {
-                                    if ((i.key || '').trim().toLowerCase() === 'tahfidz') {
-                                        i.key = 'Tahfidz Weekend';
-                                        if (!i.percent || i.percent === 0) i.percent = 5;
-                                        changed = true;
-                                    }
-                                });
-                            }
-                        }
-                    });
-                    if (changed) {
-                        localStorage.setItem('wiz_allocation_rules', JSON.stringify(rules));
-                    }
-                }
-                const progsRaw = localStorage.getItem('wiz_programs');
-                if (progsRaw) {
-                    let progs = JSON.parse(progsRaw);
-                    if (Array.isArray(progs)) {
-                        const prevLen = progs.length;
-                        progs = progs.filter(p => p && p.id !== 'prog-beasiswa-tahfidz-dhuafa' && (p.slug || '') !== 'beasiswa-tahfidz-dan-dhuafa' && !(p.pillar === 'Berkah Juara' && (p.title || '').toLowerCase().includes('tahfidz')));
-                        progs.forEach(p => {
-                            if (p && (p.id === 'prog-tahfidz' || (p.slug || '').toLowerCase() === 'tahfidz')) {
-                                p.title = 'Tahfidz Weekend';
-                                p.pillar = 'Berkah Hidayah';
-                                p.category = 'Dakwah & Pembinaan';
-                                p.kategori_pilar = 'Dakwah';
-                                p.imageUrl = '/assets/images/tahfidz.png';
-                                p.image_url = '/assets/images/tahfidz.png';
-                            }
-                        });
-                        localStorage.setItem('wiz_programs', JSON.stringify(progs));
-                    }
-                }
-            } catch(e) {}
-        })();
-    </script>
+<head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>WIZ Babel - Admin Dashboard</title>
@@ -4173,10 +4117,7 @@
                     if (imgPrev) imgPrev.src = compressed;
                     URL.revokeObjectURL(objectUrl);
 
-                    const progName = progNameInput ? progNameInput.value.trim() : '';
-                    if (progName && wizStore.allocationRulesManager) {
-                        wizStore.allocationRulesManager.updateSpecificProgramImageByName(progName, compressed);
-                    }
+                    
                 }
             }).catch(err => {
                 console.error('[Sub-program Photo Error]', err);
@@ -4308,46 +4249,77 @@
 
         async function handleAllocSave(e) {
             e.preventDefault();
-            const wilayah = document.getElementById('alloc-wilayah').value;
-            const pillarKey = document.getElementById('alloc-pillar').value;
-            const newPillarPercent = Number(document.getElementById('alloc-pillar-percent').value) || 0;
-
-            const wData = wizStore.allocationRulesManager.get(wilayah);
-            if (!wData) return;
-
-            const mainAllocItem = (wData.mainAllocation || []).find(i => i.key === pillarKey);
-            if (mainAllocItem) {
-                mainAllocItem.percent = newPillarPercent;
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Menyimpan...';
             }
+            try {
+                const wilayah = document.getElementById('alloc-wilayah').value;
+                const pillarKey = document.getElementById('alloc-pillar').value;
+                const newPillarPercent = Number(document.getElementById('alloc-pillar-percent').value) || 0;
 
-            const rows = document.querySelectorAll('#sub-programs-list .sub-program-row');
-            const newItems = [];
-            rows.forEach(r => {
-                const k = r.querySelector('.sub-key-input').value.trim();
-                const p = Number(r.querySelector('.sub-percent-input').value) || 0;
-                const img = r.querySelector('.sub-img-input').value.trim();
-                if (k) {
-                    newItems.push({ key: k, percent: p, image: img });
+                const wData = wizStore.allocationRulesManager.get(wilayah);
+                if (!wData) return;
+
+                const mainAllocItem = (wData.mainAllocation || []).find(i => i.key === pillarKey);
+                if (mainAllocItem) {
+                    mainAllocItem.percent = newPillarPercent;
                 }
-            });
 
-            if (!wData.subAllocation) wData.subAllocation = {};
-            wData.subAllocation[pillarKey] = { items: newItems };
+                const rows = document.querySelectorAll('#sub-programs-list .sub-program-row');
+                const newItems = [];
+                const newlyUploaded = [];
 
-            await wizStore.allocationRulesManager.update(wilayah, wData);
+                rows.forEach(r => {
+                    const k = r.querySelector('.sub-key-input').value.trim();
+                    const p = Number(r.querySelector('.sub-percent-input').value) || 0;
+                    const img = r.querySelector('.sub-img-input').value.trim();
+                    if (k) {
+                        newItems.push({ key: k, percent: p, image: img });
+                        if (img && img.startsWith('data:image')) {
+                            newlyUploaded.push({ key: k, image: img });
+                        }
+                    }
+                });
 
-            // Sync program photos directly to flat store, Supabase Cloud, and emit events
-            newItems.forEach(item => {
-                if (item.key && item.image) {
-                    wizStore.allocationRulesManager.updateSpecificProgramImageByName(item.key, item.image);
+                if (!wData.subAllocation) wData.subAllocation = {};
+                wData.subAllocation[pillarKey] = { items: newItems };
+
+                await wizStore.allocationRulesManager.update(wilayah, wData);
+
+                if (newlyUploaded.length > 0) {
+                    try {
+                        const flatMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+                        newlyUploaded.forEach(u => { flatMap[u.key] = u.image; });
+                        localStorage.setItem('wiz_specific_prog_imgs', JSON.stringify(flatMap));
+                    } catch(err) {}
+
+                    setTimeout(() => {
+                        newlyUploaded.forEach(u => {
+                            fetch('/api/sync-photo', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ programTitle: u.key, imageUrl: u.image })
+                            }).catch(() => {});
+                        });
+                    }, 50);
                 }
-            });
 
-            window.dispatchEvent(new CustomEvent('wiz-program-images-changed'));
-            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
-
-            closeAllocEditModal();
-            refreshAll();
+                closeAllocEditModal();
+                if (typeof showNotification === 'function') {
+                    showNotification(`✅ Aturan alokasi & program spesifik ${pillarKey} (${wilayah}) berhasil disimpan!`);
+                }
+                renderAllocationRulesSection();
+            } catch(err) {
+                console.error('[handleAllocSave Error]:', err);
+                alert('Terjadi kesalahan saat menyimpan aturan alokasi.');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Simpan Aturan & Program Spesifik';
+                }
+            }
         }
 
         // ─── Allocation Rules Section Render ────────────

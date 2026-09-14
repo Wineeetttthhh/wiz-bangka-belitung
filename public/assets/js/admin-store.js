@@ -1376,73 +1376,35 @@
             let saved = getStore(STORAGE_KEYS.ALLOCATION_RULES);
             if (!saved || typeof saved !== 'object') {
                 saved = JSON.parse(JSON.stringify(ALLOCATION_RULES));
-                setStore(STORAGE_KEYS.ALLOCATION_RULES, saved);
                 _cachedRules = saved;
                 return _cachedRules;
             }
 
-            // Self-repair once only if legacy structure is incomplete
-            let needsRepair = false;
-            if (!saved['Pangkalpinang'] || !saved['Pangkalpinang'].subAllocation || !saved['Pangkalpinang'].subAllocation['Berkah Hidayah']) {
-                needsRepair = true;
-            } else if (!Array.isArray(saved['Pangkalpinang'].subAllocation['Berkah Hidayah'].items) || saved['Pangkalpinang'].subAllocation['Berkah Hidayah'].items.length < 14) {
-                needsRepair = true;
-            }
-            if (!saved['Sungailiat'] || !saved['Sungailiat'].subAllocation || !saved['Sungailiat'].subAllocation['Berkah Hidayah']) {
-                needsRepair = true;
-            }
-
-            if (needsRepair) {
-                saved = JSON.parse(JSON.stringify(ALLOCATION_RULES));
-                setStore(STORAGE_KEYS.ALLOCATION_RULES, saved);
-            }
-
-            // Auto-repair & sanitize: Berkah Juara strictly Beasiswa Pendidikan Juara (85%) & Perlengkapan Belajar Yatim (15%) = 100%
-            // and Berkah Hidayah standardizes Tahfidz Weekend (5%)
-            let rulesFixed = false;
-            ['Pangkalpinang', 'Sungailiat'].forEach(w => {
-                if (saved[w] && saved[w].subAllocation) {
-                    const sub = saved[w].subAllocation;
-                    // 1. Sanitize Berkah Juara: remove any tahfidz item
-                    if (sub['Berkah Juara'] && Array.isArray(sub['Berkah Juara'].items)) {
-                        const originalLen = sub['Berkah Juara'].items.length;
-                        sub['Berkah Juara'].items = sub['Berkah Juara'].items.filter(it => {
-                            const k = (it.key || '').toLowerCase();
-                            return !k.includes('tahfidz');
-                        });
-                        const bpj = sub['Berkah Juara'].items.find(it => (it.key || '').toLowerCase().includes('pendidikan juara'));
-                        const pby = sub['Berkah Juara'].items.find(it => (it.key || '').toLowerCase().includes('perlengkapan belajar'));
-                        if (bpj && bpj.percent !== 85) { bpj.percent = 85; rulesFixed = true; }
-                        if (pby && pby.percent !== 15) { pby.percent = 15; rulesFixed = true; }
-                        if (sub['Berkah Juara'].items.length !== originalLen) rulesFixed = true;
+            // In-memory hygiene only (NEVER call setStore inside getter):
+            // 1. Remove legacy tahfidz from Berkah Juara if present in memory
+            // 2. Normalize "Tahfidz" name to "Tahfidz Weekend" in Berkah Hidayah
+            // Admin retains full control over percentages (including 0%) and item deletions!
+            try {
+                ['Pangkalpinang', 'Sungailiat'].forEach(w => {
+                    if (saved[w] && saved[w].subAllocation) {
+                        const sub = saved[w].subAllocation;
+                        if (sub['Berkah Juara'] && Array.isArray(sub['Berkah Juara'].items)) {
+                            sub['Berkah Juara'].items = sub['Berkah Juara'].items.filter(it => {
+                                const k = (it.key || '').toLowerCase();
+                                return !k.includes('tahfidz');
+                            });
+                        }
+                        if (sub['Berkah Hidayah'] && Array.isArray(sub['Berkah Hidayah'].items)) {
+                            sub['Berkah Hidayah'].items.forEach(it => {
+                                const k = (it.key || '').trim();
+                                if (k.toLowerCase() === 'tahfidz') {
+                                    it.key = 'Tahfidz Weekend';
+                                }
+                            });
+                        }
                     }
-                    // 2. Standardize Berkah Hidayah: rename Tahfidz to Tahfidz Weekend
-                    if (sub['Berkah Hidayah'] && Array.isArray(sub['Berkah Hidayah'].items)) {
-                        sub['Berkah Hidayah'].items.forEach(it => {
-                            const k = (it.key || '').trim();
-                            if (k.toLowerCase() === 'tahfidz') {
-                                it.key = 'Tahfidz Weekend';
-                                if (!it.percent || it.percent === 0) it.percent = 5;
-                                rulesFixed = true;
-                            }
-                            if (it.key === 'Tahfidz Weekend' && (!it.percent || it.percent === 0)) {
-                                it.percent = 5;
-                                rulesFixed = true;
-                            }
-                        });
-                        const seenKeys = new Set();
-                        sub['Berkah Hidayah'].items = sub['Berkah Hidayah'].items.filter(it => {
-                            const k = (it.key || '').toLowerCase().trim();
-                            if (seenKeys.has(k)) { rulesFixed = true; return false; }
-                            seenKeys.add(k);
-                            return true;
-                        });
-                    }
-                }
-            });
-            if (rulesFixed) {
-                setStore(STORAGE_KEYS.ALLOCATION_RULES, saved);
-            }
+                });
+            } catch(e) {}
 
             _cachedRules = saved;
             return _cachedRules;
@@ -4474,56 +4436,21 @@
                     }
                 });
 
-                // Auto-repair & update program images to official PNG assets
+                // Fallback default image ONLY if program has no image at all.
+                // Admin has FULL CONTROL over title, description, and custom uploaded images.
                 raw.forEach(p => {
                     if (!p) return;
                     const pSlug = (p.slug || (p.title ? p.title.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-') : '')).toLowerCase();
-                    const cleanTitle = (p.title || '').toLowerCase().trim();
-                    if (p.id === 'prog-dai-pelosok' || pSlug === 'keberangkatan-kepulangan-dai' || cleanTitle.includes('keberangkatan kepulangan dai') || (cleanTitle.includes('keberangkatan') && cleanTitle.includes('dai')) || cleanTitle.includes('pencerah umat')) {
-                        if (p.title !== 'Hadirkan Pencerah Umat, Dukung Perjuangan Dai') { p.title = 'Hadirkan Pencerah Umat, Dukung Perjuangan Dai'; modified = true; }
-                        if (p.description !== "Mari berpartisipasi memfasilitasi operasional keberangkatan Dai pengabdian ke pelosok Bangka Belitung, serta dukung pendidikan syar'i calon Dai ke Makassar untuk mencetak generasi pendakwah masa depan.") { p.description = "Mari berpartisipasi memfasilitasi operasional keberangkatan Dai pengabdian ke pelosok Bangka Belitung, serta dukung pendidikan syar'i calon Dai ke Makassar untuk mencetak generasi pendakwah masa depan."; modified = true; }
-                        if (p.imageUrl !== '/assets/images/keberangkatan-dai.png' || p.image_url !== '/assets/images/keberangkatan-dai.png') { p.imageUrl = '/assets/images/keberangkatan-dai.png'; p.image_url = '/assets/images/keberangkatan-dai.png'; modified = true; }
+                    const currentImg = (p.image_url || p.imageUrl || '').trim();
+                    if (!currentImg) {
+                        let targetImg = PROGRAM_IMAGE_RESOLVER[pSlug] || '/assets/images/default-program-wiz.jpg';
+                        p.imageUrl = targetImg;
+                        p.image_url = targetImg;
                     }
-                    if (p.id === 'prog-tahfidz' || pSlug === 'tahfidz' || cleanTitle === 'tahfidz' || cleanTitle === 'tahfidz weekend') {
-                        if (p.title !== 'Tahfidz Weekend') { p.title = 'Tahfidz Weekend'; modified = true; }
-                        if (p.pillar !== 'Berkah Hidayah') { p.pillar = 'Berkah Hidayah'; modified = true; }
-                        if (p.category !== 'Dakwah & Pembinaan') { p.category = 'Dakwah & Pembinaan'; modified = true; }
-                        if (p.kategori_pilar !== 'Dakwah') { p.kategori_pilar = 'Dakwah'; modified = true; }
-                        if (p.imageUrl !== '/assets/images/tahfidz.png' || p.image_url !== '/assets/images/tahfidz.png') { p.imageUrl = '/assets/images/tahfidz.png'; p.image_url = '/assets/images/tahfidz.png'; modified = true; }
-                    }
-                    let targetImg = PROGRAM_IMAGE_RESOLVER[pSlug];
-                    if (!targetImg) {
-                        if (cleanTitle.includes('pembangunan markaz') || pSlug.includes('pembangunan-markaz')) {
-                            targetImg = '/assets/images/pembangunan-markaz-dakwah.png';
-                        }
-                        if (cleanTitle.includes('perlengkapan belajar') || pSlug.includes('perlengkapan-belajar')) {
-                            targetImg = '/assets/images/perlengkapan-belajar-yatim.png';
-                        }
-                    }
-                    if (targetImg) {
-                        const currentImg = (p.image_url || p.imageUrl || '').trim();
-                        const isEnforced = cleanTitle.includes('pembangunan markaz') || pSlug.includes('pembangunan-markaz') || cleanTitle.includes('perlengkapan belajar') || pSlug.includes('perlengkapan-belajar');
-                        if (isEnforced || (!currentImg.startsWith('data:image') && (!currentImg || currentImg.endsWith('.jpg') || currentImg.includes('foto-utama-wiz') || currentImg.includes('default-program-wiz') || currentImg !== targetImg))) {
-                            if (p.imageUrl !== targetImg || p.image_url !== targetImg) {
-                                p.imageUrl = targetImg;
-                                p.image_url = targetImg;
-                                modified = true;
-                            }
-                        }
-                    }
-                });
-
-                // Auto-sync kategori_pilar on all program objects
-                raw.forEach(p => {
-                    if (p && (!p.kategori_pilar || p.kategori_pilar === '-')) {
+                    if (!p.kategori_pilar || p.kategori_pilar === '-') {
                         p.kategori_pilar = mapPillarToKategori(p.pillar || p.category);
-                        modified = true;
                     }
                 });
-
-                if (modified) {
-                    setStore(STORAGE_KEYS.PROGRAMS, raw);
-                }
             }
             return raw
                 .filter(p => p && p.id && !deletedSet.has(String(p.id)) && p.status !== 'deleted' && !p.isDeleted)
@@ -7019,11 +6946,23 @@
         } catch(e) {}
     }
 
-    // Listen to cross-tab storage events & BroadcastChannel
+    // Listen to cross-tab storage events & BroadcastChannel with storm loop protection
+    let _lastSyncDispatchTime = 0;
+    const DISPATCH_COOLDOWN_MS = 1000;
+
+    function safeDispatchSyncComplete(detail = null) {
+        const now = Date.now();
+        if (now - _lastSyncDispatchTime < DISPATCH_COOLDOWN_MS) {
+            return;
+        }
+        _lastSyncDispatchTime = now;
+        window.dispatchEvent(new CustomEvent('wiz-sync-complete', { detail }));
+    }
+
     try {
         const bc = new BroadcastChannel('wiz_sync_channel');
         bc.onmessage = (event) => {
-            window.dispatchEvent(new CustomEvent('wiz-sync-complete', { detail: event.data }));
+            safeDispatchSyncComplete(event.data);
         };
     } catch(e) {}
 
@@ -7039,8 +6978,8 @@
         if (e.key && e.key.startsWith('wiz_')) {
             clearTimeout(_storageDebounceTimer);
             _storageDebounceTimer = setTimeout(() => {
-                window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
-            }, 200);
+                safeDispatchSyncComplete({ key: e.key });
+            }, 600);
         }
     });
 
