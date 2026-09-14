@@ -5102,12 +5102,12 @@
                                 const subItem = subRule.items.find(si => isProgramMatching(si.key, pName) && (Number(si.percent) || 0) > 0) ||
                                                 subRule.items.find(si => isProgramMatching(si.key, pName));
                                 if (subItem) {
-                                    infakUmumMasuk += Math.round(pillarAmount * ((Number(subItem.percent) || 0) / 100));
+                                    infakUmumMasuk += (pillarAmount * ((Number(subItem.percent) || 0) / 100));
                                     return;
                                 }
                             }
                             if (isProgramMatching(progPillar, pName)) {
-                                infakUmumMasuk += Math.round(pillarAmount);
+                                infakUmumMasuk += pillarAmount;
                             }
                         }
                     }
@@ -5166,7 +5166,7 @@
                                 const markazPct = markazSub ? ((Number(markazSub.percent) || 0) / 100) : 0.05;
                                 subWeight = subWeight / (1 - markazPct || 0.95);
                             }
-                            infakUmumAlihFungsiSalur += Math.round(dbAmount * subWeight);
+                            infakUmumAlihFungsiSalur += (dbAmount * subWeight);
                             return;
                         }
                     }
@@ -5220,7 +5220,7 @@
                                         const markazPct = markazSub ? ((Number(markazSub.percent) || 0) / 100) : 0.05;
                                         subWeight = subWeight / (1 - markazPct || 0.95);
                                     }
-                                    infakUmumAlihFungsiSalur += Math.round(fromSub * subWeight);
+                                    infakUmumAlihFungsiSalur += (fromSub * subWeight);
                                     return;
                                 }
                             }
@@ -5234,11 +5234,12 @@
 
             const base = Number(defaultBase) || 0;
             const target = Number(defaultTarget) || (progObj ? progObj.targetAmount : 50000000) || 50000000;
-            const totalMasuk = base + infakTerikatMasuk + infakUmumMasuk;
-            const totalSalur = infakUmumAlihFungsiSalur + spesifikSalur;
+            const roundInfakUmumMasuk = Math.round(infakUmumMasuk);
+            const totalMasuk = Math.round(base + infakTerikatMasuk + infakUmumMasuk);
+            const totalSalur = Math.round(infakUmumAlihFungsiSalur + spesifikSalur);
 
             const infakUmumBersih = Math.max(0, infakUmumMasuk - infakUmumAlihFungsiSalur);
-            const saldoAktual = Math.max(0, base + infakTerikatMasuk + infakUmumBersih - spesifikSalur);
+            const saldoAktual = Math.max(0, Math.round(base + infakTerikatMasuk + infakUmumBersih - spesifikSalur));
             
             const percent = target > 0 ? Math.min(100, Math.max(0, Math.round((saldoAktual / target) * 100))) : 0;
 
@@ -5250,10 +5251,10 @@
                 saldo: saldoAktual,
                 target: target,
                 percent: isNaN(percent) ? 0 : percent,
-                infakTerikat: infakTerikatMasuk,
-                infakUmumMasuk: infakUmumMasuk,
-                infakUmumBersih: infakUmumBersih,
-                spesifikSalur: spesifikSalur,
+                infakTerikat: Math.round(infakTerikatMasuk),
+                infakUmumMasuk: roundInfakUmumMasuk,
+                infakUmumBersih: Math.round(infakUmumBersih),
+                spesifikSalur: Math.round(spesifikSalur),
                 pillar: progPillar,
                 kategori_pilar: kategoriPilar,
                 isPriorityLocked: isLockedPriorityProgram(pName)
