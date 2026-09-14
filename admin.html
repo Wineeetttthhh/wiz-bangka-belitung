@@ -1,7 +1,63 @@
 <!DOCTYPE html>
 <html lang="id">
 
-<head>
+<head><script>
+        // Auto-cleanup legacy Tahfidz in Berkah Juara from localStorage on page load
+        (function() {
+            try {
+                const rulesRaw = localStorage.getItem('wiz_allocation_rules');
+                if (rulesRaw) {
+                    const rules = JSON.parse(rulesRaw);
+                    let changed = false;
+                    ['Pangkalpinang', 'Sungailiat'].forEach(w => {
+                        if (rules[w] && rules[w].subAllocation) {
+                            const sub = rules[w].subAllocation;
+                            if (sub['Berkah Juara'] && Array.isArray(sub['Berkah Juara'].items)) {
+                                const prevLen = sub['Berkah Juara'].items.length;
+                                sub['Berkah Juara'].items = sub['Berkah Juara'].items.filter(i => !(i.key || '').toLowerCase().includes('tahfidz'));
+                                const bpj = sub['Berkah Juara'].items.find(i => (i.key || '').toLowerCase().includes('pendidikan juara'));
+                                const pby = sub['Berkah Juara'].items.find(i => (i.key || '').toLowerCase().includes('perlengkapan belajar'));
+                                if (bpj) bpj.percent = 85;
+                                if (pby) pby.percent = 15;
+                                if (sub['Berkah Juara'].items.length !== prevLen || (bpj && bpj.percent === 85)) changed = true;
+                            }
+                            if (sub['Berkah Hidayah'] && Array.isArray(sub['Berkah Hidayah'].items)) {
+                                sub['Berkah Hidayah'].items.forEach(i => {
+                                    if ((i.key || '').trim().toLowerCase() === 'tahfidz') {
+                                        i.key = 'Tahfidz Weekend';
+                                        if (!i.percent || i.percent === 0) i.percent = 5;
+                                        changed = true;
+                                    }
+                                });
+                            }
+                        }
+                    });
+                    if (changed) {
+                        localStorage.setItem('wiz_allocation_rules', JSON.stringify(rules));
+                    }
+                }
+                const progsRaw = localStorage.getItem('wiz_programs');
+                if (progsRaw) {
+                    let progs = JSON.parse(progsRaw);
+                    if (Array.isArray(progs)) {
+                        const prevLen = progs.length;
+                        progs = progs.filter(p => p && p.id !== 'prog-beasiswa-tahfidz-dhuafa' && (p.slug || '') !== 'beasiswa-tahfidz-dan-dhuafa' && !(p.pillar === 'Berkah Juara' && (p.title || '').toLowerCase().includes('tahfidz')));
+                        progs.forEach(p => {
+                            if (p && (p.id === 'prog-tahfidz' || (p.slug || '').toLowerCase() === 'tahfidz')) {
+                                p.title = 'Tahfidz Weekend';
+                                p.pillar = 'Berkah Hidayah';
+                                p.category = 'Dakwah & Pembinaan';
+                                p.kategori_pilar = 'Dakwah';
+                                p.imageUrl = '/assets/images/tahfidz.png';
+                                p.image_url = '/assets/images/tahfidz.png';
+                            }
+                        });
+                        localStorage.setItem('wiz_programs', JSON.stringify(progs));
+                    }
+                }
+            } catch(e) {}
+        })();
+    </script>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>WIZ Babel - Admin Dashboard</title>
@@ -3404,7 +3460,7 @@
                 "Pengadaan & Perbaikan Kendaraan",
                 "Santunan Mualaf",
                 "Pengadaan Celengan Sedekah Subuh",
-                "Tahfidz",
+                "Tahfidz Weekend",
                 "Pelatihan Public Speaking",
                 "Tabligh Akbar Dzhulhijjah",
                 "Pelatihan Guru Dirosa",
@@ -3427,7 +3483,6 @@
             ],
             'Berkah Juara': [
                 "Beasiswa Pendidikan Juara",
-                "Beasiswa Tahfidz & Dhuafa",
                 "Perlengkapan Belajar Yatim"
             ],
             'Berkah Sehat': [

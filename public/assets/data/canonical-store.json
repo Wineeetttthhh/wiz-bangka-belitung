@@ -89,7 +89,8 @@
       "kategori_pilar": "Dakwah",
       "targetAmount": 30000000,
       "imageUrl": "/assets/images/tahfidz.png",
-      "description": "Program pembinaan dan beasiswa santri penghafal Al-Qur'an pada akhir pekan di Masjid Kemas Adil."
+      "description": "Program pembinaan dan beasiswa santri penghafal Al-Qur'an pada akhir pekan di Masjid Kemas Adil.",
+      "image_url": "/assets/images/tahfidz.png"
     },
     {
       "id": "prog-public-speaking",

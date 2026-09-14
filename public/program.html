@@ -1419,6 +1419,29 @@
 
         if (!published || published.length === 0) return;
 
+        // Purge any legacy 'Beasiswa Tahfidz & Dhuafa' or tahfidz in Berkah Juara
+        published = published.filter(p => p && p.id !== 'prog-beasiswa-tahfidz-dhuafa' && (p.slug || '') !== 'beasiswa-tahfidz-dan-dhuafa' && !(p.pillar === 'Berkah Juara' && (p.title || '').toLowerCase().includes('tahfidz')));
+
+        // Enforce Dai program title and Tahfidz Weekend if stale in cache
+        published.forEach(p => {
+            if (!p) return;
+            const cleanTitle = (p.title || '').toLowerCase().trim();
+            const cleanSlug = (p.slug || '').toLowerCase().trim();
+            if (p.id === 'prog-dai-pelosok' || cleanSlug === 'keberangkatan-kepulangan-dai' || cleanTitle.includes('keberangkatan kepulangan dai') || (cleanTitle.includes('keberangkatan') && cleanTitle.includes('dai')) || cleanTitle.includes('pencerah umat')) {
+                p.title = 'Hadirkan Pencerah Umat, Dukung Perjuangan Dai';
+                p.description = "Mari berpartisipasi memfasilitasi operasional keberangkatan Dai pengabdian ke pelosok Bangka Belitung, serta dukung pendidikan syar'i calon Dai ke Makassar untuk mencetak generasi pendakwah masa depan.";
+                p.imageUrl = '/assets/images/keberangkatan-dai.png';
+                p.image_url = '/assets/images/keberangkatan-dai.png';
+            }
+            if (p.id === 'prog-tahfidz' || cleanSlug === 'tahfidz' || cleanTitle === 'tahfidz' || cleanTitle === 'tahfidz weekend') {
+                p.title = 'Tahfidz Weekend';
+                p.pillar = 'Berkah Hidayah';
+                p.category = 'Dakwah & Pembinaan';
+                p.imageUrl = '/assets/images/tahfidz.png';
+                p.image_url = '/assets/images/tahfidz.png';
+            }
+        });
+
         const fmt = (window.wizStore.utils && window.wizStore.utils.formatRupiahCompact) 
             ? window.wizStore.utils.formatRupiahCompact 
             : (v => 'Rp ' + Number(v||0).toLocaleString('id-ID'));
@@ -1444,9 +1467,9 @@
             'pengadaan-perbaikan-kendaraan': '/assets/images/pengadaan-&-perbaikan-kendaraan.png',
             'santunan-mualaf': '/assets/images/santunan-mualaf.png',
             'tahfidz': '/assets/images/tahfidz.png',
+                'tahfidz-weekend': '/assets/images/tahfidz.png',
             'beasiswa-pendidikan-juara': '/assets/images/beasiswa-pendidikan-juara.png',
-            'beasiswa-tahfidz-dan-dhuafa': '/assets/images/tahfidz.png',
-            'perlengkapan-belajar-yatim': '/assets/images/perlengkapan-belajar-yatim.png',
+                        'perlengkapan-belajar-yatim': '/assets/images/perlengkapan-belajar-yatim.png',
             'khitanan-massal-dhuafa': '/assets/images/khitanan-massal-dhuafa.png',
             'layanan-pengobatan-gratis': '/assets/images/layanan-pengobatan-gratis.png',
             'ambulance-gratis-ummat': '/assets/images/ambulance-gratis-ummat.png',

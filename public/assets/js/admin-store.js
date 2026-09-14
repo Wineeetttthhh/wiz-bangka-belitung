@@ -1397,6 +1397,53 @@
                 setStore(STORAGE_KEYS.ALLOCATION_RULES, saved);
             }
 
+            // Auto-repair & sanitize: Berkah Juara strictly Beasiswa Pendidikan Juara (85%) & Perlengkapan Belajar Yatim (15%) = 100%
+            // and Berkah Hidayah standardizes Tahfidz Weekend (5%)
+            let rulesFixed = false;
+            ['Pangkalpinang', 'Sungailiat'].forEach(w => {
+                if (saved[w] && saved[w].subAllocation) {
+                    const sub = saved[w].subAllocation;
+                    // 1. Sanitize Berkah Juara: remove any tahfidz item
+                    if (sub['Berkah Juara'] && Array.isArray(sub['Berkah Juara'].items)) {
+                        const originalLen = sub['Berkah Juara'].items.length;
+                        sub['Berkah Juara'].items = sub['Berkah Juara'].items.filter(it => {
+                            const k = (it.key || '').toLowerCase();
+                            return !k.includes('tahfidz');
+                        });
+                        const bpj = sub['Berkah Juara'].items.find(it => (it.key || '').toLowerCase().includes('pendidikan juara'));
+                        const pby = sub['Berkah Juara'].items.find(it => (it.key || '').toLowerCase().includes('perlengkapan belajar'));
+                        if (bpj && bpj.percent !== 85) { bpj.percent = 85; rulesFixed = true; }
+                        if (pby && pby.percent !== 15) { pby.percent = 15; rulesFixed = true; }
+                        if (sub['Berkah Juara'].items.length !== originalLen) rulesFixed = true;
+                    }
+                    // 2. Standardize Berkah Hidayah: rename Tahfidz to Tahfidz Weekend
+                    if (sub['Berkah Hidayah'] && Array.isArray(sub['Berkah Hidayah'].items)) {
+                        sub['Berkah Hidayah'].items.forEach(it => {
+                            const k = (it.key || '').trim();
+                            if (k.toLowerCase() === 'tahfidz') {
+                                it.key = 'Tahfidz Weekend';
+                                if (!it.percent || it.percent === 0) it.percent = 5;
+                                rulesFixed = true;
+                            }
+                            if (it.key === 'Tahfidz Weekend' && (!it.percent || it.percent === 0)) {
+                                it.percent = 5;
+                                rulesFixed = true;
+                            }
+                        });
+                        const seenKeys = new Set();
+                        sub['Berkah Hidayah'].items = sub['Berkah Hidayah'].items.filter(it => {
+                            const k = (it.key || '').toLowerCase().trim();
+                            if (seenKeys.has(k)) { rulesFixed = true; return false; }
+                            seenKeys.add(k);
+                            return true;
+                        });
+                    }
+                }
+            });
+            if (rulesFixed) {
+                setStore(STORAGE_KEYS.ALLOCATION_RULES, saved);
+            }
+
             _cachedRules = saved;
             return _cachedRules;
         },
@@ -2809,9 +2856,14 @@
                             const items = wData.subAllocation[pillarKey].items || [];
                             if (Array.isArray(titles)) {
                                 titles.forEach(t => {
-                                    const cleanT = (t === 'Beasiswa Yatim & Dhuafa' || t === 'Beasiswa Yatim dan Dhuafa') ? 'Beasiswa Tahfidz & Dhuafa' : t;
+                                    let cleanT = t;
+                                    if (cleanT.toLowerCase() === 'tahfidz') cleanT = 'Tahfidz Weekend';
+                                    // Never inject tahfidz into Berkah Juara
+                                    if (pillarKey === 'Berkah Juara' && cleanT.toLowerCase().includes('tahfidz')) {
+                                        return;
+                                    }
                                     if (!items.find(i => (i.key || '').toLowerCase() === cleanT.toLowerCase())) {
-                                        const defaultPct = (pillarKey === 'Berkah Juara' && cleanT === 'Beasiswa Tahfidz & Dhuafa') ? 5 : 0;
+                                        const defaultPct = 0;
                                         items.push({ key: cleanT, percent: defaultPct, image: allocationRulesManager.getSpecificProgramImage(cleanT, pillarKey) || '' });
                                         rulesModified = true;
                                     }
@@ -4044,7 +4096,7 @@
         },
         {
             id: 'prog-tahfidz',
-            title: 'Tahfidz',
+            title: 'Tahfidz Weekend',
             slug: 'tahfidz',
             pillar: 'Berkah Hidayah',
             kategori_pilar: 'Dakwah',
@@ -4249,23 +4301,6 @@
             author: 'Admin WIZ Babel'
         },
         {
-            id: 'prog-beasiswa-tahfidz-dhuafa',
-            title: 'Beasiswa Tahfidz & Dhuafa',
-            slug: 'beasiswa-tahfidz-dan-dhuafa',
-            pillar: 'Berkah Juara',
-            kategori_pilar: 'Pendidikan',
-            category: 'Pendidikan & Beasiswa',
-            target: 'Rp 35.000.000',
-            targetAmount: 35000000,
-            description: 'Beasiswa pendidikan penuh dan asrama bagi santri tahfidz yatim dhuafa di Bangka Belitung.',
-            imageUrl: '/assets/images/tahfidz.png',
-            image_url: '/assets/images/tahfidz.png',
-            status: 'published',
-            createdAt: '2026-01-24T00:00:00.000Z',
-            updatedAt: '2026-01-24T00:00:00.000Z',
-            author: 'Admin WIZ Babel'
-        },
-        {
             id: 'prog-perlengkapan-belajar-yatim',
             title: 'Perlengkapan Belajar Yatim',
             slug: 'perlengkapan-belajar-yatim',
@@ -4400,7 +4435,7 @@
         'hadirkan-pencerah-umat-dukung-perjuangan-dai': '/assets/images/keberangkatan-dai.png',
         'pengadaan-celengan-sedekah-subuh': '/assets/images/default-program-wiz.jpg',
         'beasiswa-pendidikan-juara': '/assets/images/beasiswa-pendidikan-juara.png',
-        'beasiswa-tahfidz-dan-dhuafa': '/assets/images/tahfidz.png',
+        'tahfidz-weekend': '/assets/images/tahfidz.png',
         'perlengkapan-belajar-yatim': '/assets/images/perlengkapan-belajar-yatim.png',
         'khitanan-massal-dhuafa': '/assets/images/khitanan-massal-dhuafa.png',
         'layanan-pengobatan-gratis': '/assets/images/layanan-pengobatan-gratis.png',
@@ -4418,6 +4453,20 @@
                 setStore(STORAGE_KEYS.PROGRAMS, raw);
             } else {
                 let modified = false;
+
+                // Purge any legacy 'Beasiswa Tahfidz & Dhuafa' or tahfidz in Berkah Juara
+                const origRawLen = raw.length;
+                raw = raw.filter(p => {
+                    if (!p) return false;
+                    const cleanT = (p.title || '').toLowerCase().trim();
+                    const cleanS = (p.slug || '').toLowerCase().trim();
+                    if (p.id === 'prog-beasiswa-tahfidz-dhuafa' || cleanS === 'beasiswa-tahfidz-dan-dhuafa' || (p.pillar === 'Berkah Juara' && cleanT.includes('tahfidz'))) {
+                        return false;
+                    }
+                    return true;
+                });
+                if (raw.length !== origRawLen) modified = true;
+
                 DEFAULT_PROGRAMS.forEach(def => {
                     if (!deletedSet.has(def.id) && !raw.find(r => (r.id === def.id || (r.title && r.title.toLowerCase() === def.title.toLowerCase())))) {
                         raw.push(def);
@@ -4434,6 +4483,13 @@
                         if (p.title !== 'Hadirkan Pencerah Umat, Dukung Perjuangan Dai') { p.title = 'Hadirkan Pencerah Umat, Dukung Perjuangan Dai'; modified = true; }
                         if (p.description !== "Mari berpartisipasi memfasilitasi operasional keberangkatan Dai pengabdian ke pelosok Bangka Belitung, serta dukung pendidikan syar'i calon Dai ke Makassar untuk mencetak generasi pendakwah masa depan.") { p.description = "Mari berpartisipasi memfasilitasi operasional keberangkatan Dai pengabdian ke pelosok Bangka Belitung, serta dukung pendidikan syar'i calon Dai ke Makassar untuk mencetak generasi pendakwah masa depan."; modified = true; }
                         if (p.imageUrl !== '/assets/images/keberangkatan-dai.png' || p.image_url !== '/assets/images/keberangkatan-dai.png') { p.imageUrl = '/assets/images/keberangkatan-dai.png'; p.image_url = '/assets/images/keberangkatan-dai.png'; modified = true; }
+                    }
+                    if (p.id === 'prog-tahfidz' || pSlug === 'tahfidz' || cleanTitle === 'tahfidz' || cleanTitle === 'tahfidz weekend') {
+                        if (p.title !== 'Tahfidz Weekend') { p.title = 'Tahfidz Weekend'; modified = true; }
+                        if (p.pillar !== 'Berkah Hidayah') { p.pillar = 'Berkah Hidayah'; modified = true; }
+                        if (p.category !== 'Dakwah & Pembinaan') { p.category = 'Dakwah & Pembinaan'; modified = true; }
+                        if (p.kategori_pilar !== 'Dakwah') { p.kategori_pilar = 'Dakwah'; modified = true; }
+                        if (p.imageUrl !== '/assets/images/tahfidz.png' || p.image_url !== '/assets/images/tahfidz.png') { p.imageUrl = '/assets/images/tahfidz.png'; p.image_url = '/assets/images/tahfidz.png'; modified = true; }
                     }
                     let targetImg = PROGRAM_IMAGE_RESOLVER[pSlug];
                     if (!targetImg) {

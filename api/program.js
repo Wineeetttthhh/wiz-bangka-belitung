@@ -291,13 +291,7 @@ const SPECIFIC_PROGRAMS_METADATA = {
         description: 'Program pembinaan dan beasiswa santri penghafal Al-Qur\'an pada akhir pekan di Masjid Kemas Adil.',
         imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/tahfidz.png'
     },
-    'beasiswa-tahfidz-dhuafa': {
-        title: 'Tahfidz Weekend',
-        pillar: 'Dakwah & Pembinaan',
-        target: 'Rp 30.000.000',
-        description: 'Program pembinaan dan beasiswa santri penghafal Al-Qur\'an pada akhir pekan di Masjid Kemas Adil.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/tahfidz.png'
-    },
+    // Removed legacy beasiswa-tahfidz-dhuafa
     'perlengkapan-belajar-yatim': {
         title: 'Perlengkapan Belajar Yatim',
         pillar: 'Pendidikan & Beasiswa',
