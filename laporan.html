@@ -305,7 +305,7 @@
             <span class="material-symbols-outlined text-primary">history_edu</span>
             <span>Riwayat Penyaluran Dana Terbaru</span>
         </h2>
-        <div id="disbursement-history-list" class="space-y-sm divide-y divide-outline-variant/20">
+        <div id="disbursement-history-list" class="space-y-2.5">
             <div class="py-3 space-y-2">
                 <div class="h-4 bg-slate-100 rounded-md w-3/4 animate-pulse"></div>
                 <div class="h-3 bg-slate-100 rounded-md w-1/2 animate-pulse"></div>
@@ -495,20 +495,68 @@
             if (disbList.length === 0) {
                 disbContainer.innerHTML = `<p class="font-caption text-on-surface-variant p-sm">Belum ada riwayat penyaluran terbaru${filterWilayah !== 'Semua' ? ' untuk ' + filterWilayah : ''}.</p>`;
             } else {
-                disbContainer.innerHTML = disbList.map(d => `
-                    <div class="pt-sm flex flex-col sm:flex-row justify-between sm:items-center gap-xs">
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <span class="font-caption text-caption font-bold text-tertiary-container uppercase">${d.program}</span>
-                                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">${d.wilayah || 'Pangkalpinang'}</span>
+                disbContainer.innerHTML = disbList.map(d => {
+                    let rawDesc = String(d.description || d.keterangan || '').trim();
+                    // 1. Bersihkan tag teknis internal [Meta: ...]
+                    rawDesc = rawDesc.replace(/\[Meta:[^\]]*\]/gi, '').trim();
+                    
+                    // 2. Ekstrak target program jika berasal dari subsidi silang
+                    let subsidiTarget = '';
+                    const subMatch = rawDesc.match(/\[Subsidi Silang untuk\s+([^\]]+)\]/i);
+                    if (subMatch) {
+                        subsidiTarget = subMatch[1].trim();
+                        rawDesc = rawDesc.replace(/\[Subsidi Silang untuk\s+[^\]]+\]/i, '').trim();
+                    }
+                    if (!subsidiTarget && d.metadata && d.metadata.targetProgram) {
+                        subsidiTarget = d.metadata.targetProgram;
+                    }
+
+                    let cleanDesc = rawDesc.replace(/^[-–—:\s]+/, '').trim();
+                    if (!cleanDesc) cleanDesc = 'Penyaluran bantuan dan program dakwah/sosial';
+
+                    const dateStr = (wizStore.utils && typeof wizStore.utils.formatDate === 'function')
+                        ? wizStore.utils.formatDate(d.tanggalPenyaluran || d.tanggal_penyaluran || d.disbursedAt)
+                        : (d.tanggalPenyaluran || d.tanggal_penyaluran || d.disbursedAt || '-');
+                    const wilayah = d.wilayah || 'Pangkalpinang';
+                    const isSubsidi = !!subsidiTarget || d.sourceType === 'subsidi_silang' || (d.metadata && d.metadata.role === 'subsidi_source');
+
+                    return `
+                    <div class="p-3 sm:p-3.5 bg-surface-container-lowest hover:bg-slate-50/90 rounded-xl border border-outline-variant/30 hover:border-emerald-200 transition-all flex flex-col sm:flex-row justify-between sm:items-center gap-3 group">
+                        <div class="flex items-start gap-3 min-w-0">
+                            <div class="w-8 h-8 rounded-lg ${isSubsidi ? 'bg-amber-50 text-amber-700 border border-amber-200/80' : 'bg-emerald-50 text-emerald-700 border border-emerald-200/80'} flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                                <span class="material-symbols-outlined text-base">${isSubsidi ? 'swap_horiz' : 'payments'}</span>
                             </div>
-                            <p class="font-body-md text-on-surface font-semibold">${d.description}</p>
-                            <p class="font-caption text-caption text-on-surface-variant">${wizStore.utils.formatDate(d.tanggalPenyaluran || d.tanggal_penyaluran || d.disbursedAt)}</p>
+                            <div class="min-w-0 space-y-1">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="font-bold text-xs sm:text-[13px] text-slate-800">${d.program}</span>
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200/80">${wilayah}</span>
+                                    ${isSubsidi && subsidiTarget ? `
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-900 border border-amber-200/80">
+                                            <span class="material-symbols-outlined text-[12px] text-amber-700">call_merge</span> Subsidi untuk: ${subsidiTarget}
+                                        </span>
+                                    ` : (isSubsidi ? `
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-900 border border-amber-200/80">
+                                            <span class="material-symbols-outlined text-[12px] text-amber-700">call_merge</span> Subsidi Silang
+                                        </span>
+                                    ` : '')}
+                                </div>
+                                <p class="text-xs text-slate-600 font-normal leading-relaxed">${cleanDesc}</p>
+                                <div class="flex items-center gap-2 text-[11px] text-slate-500 font-medium">
+                                    <span class="inline-flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[12px]">calendar_today</span>
+                                        <span>${dateStr}</span>
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="font-headline-md text-headline-md text-tertiary-container font-bold shrink-0">
-                            ${fmt(d.amount)}
+                        <div class="text-left sm:text-right shrink-0 sm:pl-3 border-t sm:border-t-0 pt-2 sm:pt-0 border-outline-variant/20 flex sm:flex-col justify-between sm:justify-center items-center sm:items-end">
+                            <span class="text-[10px] uppercase font-semibold text-slate-400 sm:text-slate-500 tracking-wider">Disalurkan</span>
+                            <span class="text-sm sm:text-base font-bold font-mono text-emerald-800 tracking-tight">
+                                ${fmt(d.amount)}
+                            </span>
                         </div>
-                    </div>`).join('');
+                    </div>`;
+                }).join('');
             }
         }
 

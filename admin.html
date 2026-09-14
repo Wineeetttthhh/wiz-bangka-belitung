@@ -5860,6 +5860,19 @@ Jazakumullahu khairan kepada para muhsinin. Semoga Allah senantiasa meneguhkan l
                     sourceBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-blue-100 text-blue-800 border border-blue-300/60"><span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span> Kas Terikat Program</span>';
                 }
 
+                let rawDesc = String(d.description || d.keterangan || '').trim();
+                rawDesc = rawDesc.replace(/\[Meta:[^\]]*\]/gi, '').trim();
+                let subTarget = '';
+                const subM = rawDesc.match(/\[Subsidi Silang untuk\s+([^\]]+)\]/i);
+                if (subM) {
+                    subTarget = subM[1].trim();
+                    rawDesc = rawDesc.replace(/\[Subsidi Silang untuk\s+[^\]]+\]/i, '').trim();
+                }
+                if (!subTarget && d.metadata && d.metadata.targetProgram) {
+                    subTarget = d.metadata.targetProgram;
+                }
+                let cleanDesc = rawDesc.replace(/^[-–—:\s]+/, '').trim() || '-';
+
                 return `
                 <tr class="hover:bg-surface-container-low transition-colors">
                     <td class="p-md text-on-surface-variant whitespace-nowrap">${formatDateSafe(d.disbursedAt)}</td>
@@ -5869,7 +5882,10 @@ Jazakumullahu khairan kepada para muhsinin. Semoga Allah senantiasa meneguhkan l
                         <div class="mt-1">${sourceBadge}</div>
                     </td>
                     <td class="p-md font-bold text-tertiary-container whitespace-nowrap">${fmt(d.amount)}</td>
-                    <td class="p-md text-on-surface-variant text-xs">${d.description || '-'}</td>
+                    <td class="p-md text-on-surface-variant text-xs">
+                        <div>${cleanDesc}</div>
+                        ${subTarget ? `<div class="mt-1"><span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-900 border border-amber-200"><span class="material-symbols-outlined text-[11px]">arrow_right_alt</span> Subsidi untuk: ${subTarget}</span></div>` : ''}
+                    </td>
                     <td class="p-md text-on-surface-variant text-caption">${d.recordedBy || 'Admin'}</td>
                     <td class="p-md text-right whitespace-nowrap">
                         <button onclick="editDisbursement('${d.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded border border-outline-variant text-caption font-semibold cursor-pointer">Edit</button>
