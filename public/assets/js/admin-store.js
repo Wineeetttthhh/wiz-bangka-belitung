@@ -1369,85 +1369,48 @@
     };
 
     // ─── Allocation Rules Manager ─────────────────────────
+    let _cachedRules = null;
     const allocationRulesManager = {
         getAll() {
+            if (_cachedRules) return _cachedRules;
             let saved = getStore(STORAGE_KEYS.ALLOCATION_RULES);
-            if (!saved) {
+            if (!saved || typeof saved !== 'object') {
                 saved = JSON.parse(JSON.stringify(ALLOCATION_RULES));
-            }
-            let modified = false;
-
-            // 1. Normalisasi Sub-Alokasi Berkah Hidayah KHUSUS Pangkalpinang (14 item tepat 100%, hapus duplikat 0%)
-            const targetPangkalpinangHidayah = [
-                { key: 'Pembangunan Markaz', percent: 5, image: 'assets/images/pembangunan-markaz-dakwah.png' },
-                { key: 'Pengadaan & Perbaikan Kendaraan', percent: 10, image: 'assets/images/pengadaan-perbaikan-kendaraan.png' },
-                { key: 'Santunan Mualaf', percent: 5, image: 'assets/images/santunan-mualaf.png' },
-                { key: 'Pengadaan Celengan Sedekah Subuh', percent: 10, image: 'assets/images/default-program-wiz.jpg' },
-                { key: 'Tahfidz Weekend', percent: 5, image: 'assets/images/tahfidz.png' },
-                { key: 'Pelatihan Public Speaking', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
-                { key: 'Tabligh Akbar Dzulhijjah', percent: 5, image: 'assets/images/foto-utama-wiz.jpg' },
-                { key: 'Pelatihan Guru Dirosa', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
-                { key: 'Pelatihan Penyelenggaraan Jenazah', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
-                { key: 'Pelatihan Volunteer Media Dakwah', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
-                { key: 'Lomba Desain Poster Dakwah', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
-                { key: 'Kantor DPW WI Babel & WIZ', percent: 15, image: 'assets/images/foto-utama-wiz.jpg' },
-                { key: 'Mukerwil/Mukernas/Muktamar', percent: 10, image: 'assets/images/foto-utama-wiz.jpg' },
-                { key: 'Hadirkan Pencerah Umat, Dukung Perjuangan Dai', percent: 10, image: 'assets/images/keberangkatan-dai.png' }
-            ];
-
-            if (saved['Pangkalpinang']) {
-                if (!saved['Pangkalpinang'].subAllocation) saved['Pangkalpinang'].subAllocation = {};
-                saved['Pangkalpinang'].subAllocation['Berkah Hidayah'] = { items: targetPangkalpinangHidayah };
-                modified = true;
+                setStore(STORAGE_KEYS.ALLOCATION_RULES, saved);
+                _cachedRules = saved;
+                return _cachedRules;
             }
 
-            // 2. Normalisasi Sub-Alokasi Berkah Hidayah KHUSUS Sungailiat (5 item tepat 100%)
-            const targetSungailiatHidayah = [
-                { key: 'Pembangunan Markaz', percent: 10, image: 'assets/images/pembangunan-markaz-dakwah.png' },
-                { key: 'Pengadaan & Perbaikan Kendaraan', percent: 25, image: 'assets/images/pengadaan-perbaikan-kendaraan.png' },
-                { key: 'Pengadaan Celengan Sedekah Subuh', percent: 30, image: 'assets/images/default-program-wiz.jpg' },
-                { key: 'Kantor DPW WI Babel & WIZ', percent: 20, image: 'assets/images/foto-utama-wiz.jpg' },
-                { key: 'Mukerwil/Mukernas/Muktamar', percent: 15, image: 'assets/images/foto-utama-wiz.jpg' }
-            ];
-
-            if (saved['Sungailiat']) {
-                if (!saved['Sungailiat'].subAllocation) saved['Sungailiat'].subAllocation = {};
-                saved['Sungailiat'].subAllocation['Berkah Hidayah'] = { items: targetSungailiatHidayah };
-                modified = true;
+            // Self-repair once only if legacy structure is incomplete
+            let needsRepair = false;
+            if (!saved['Pangkalpinang'] || !saved['Pangkalpinang'].subAllocation || !saved['Pangkalpinang'].subAllocation['Berkah Hidayah']) {
+                needsRepair = true;
+            } else if (!Array.isArray(saved['Pangkalpinang'].subAllocation['Berkah Hidayah'].items) || saved['Pangkalpinang'].subAllocation['Berkah Hidayah'].items.length < 14) {
+                needsRepair = true;
+            }
+            if (!saved['Sungailiat'] || !saved['Sungailiat'].subAllocation || !saved['Sungailiat'].subAllocation['Berkah Hidayah']) {
+                needsRepair = true;
             }
 
-            // 3. Normalisasi Berkah Juara (85% Beasiswa Pendidikan Juara, 15% Perlengkapan Belajar Yatim)
-            for (const [w, wData] of Object.entries(saved)) {
-                if (wData && wData.subAllocation) {
-                    wData.subAllocation['Berkah Juara'] = {
-                        items: [
-                            { key: 'Beasiswa Pendidikan Juara', percent: 85, image: 'assets/images/beasiswa-pendidikan-juara.png' },
-                            { key: 'Perlengkapan Belajar Yatim', percent: 15, image: 'assets/images/perlengkapan-belajar-yatim.png' }
-                        ]
-                    };
-                    // 4. Normalisasi Berkah Sehat (40% Khitanan Massal Dhuafa, 40% Layanan Pengobatan Gratis, 20% Ambulance Gratis Ummat)
-                    wData.subAllocation['Berkah Sehat'] = {
-                        items: [
-                            { key: 'Khitanan Massal Dhuafa', percent: 40, image: 'assets/images/khitanan-massal-dhuafa.png' },
-                            { key: 'Layanan Pengobatan Gratis', percent: 40, image: 'assets/images/layanan-pengobatan-gratis.png' },
-                            { key: 'Ambulance Gratis Ummat', percent: 20, image: 'assets/images/ambulance-gratis-ummat.png' }
-                        ]
-                    };
-                    modified = true;
-                }
-            }
-            if (modified) {
+            if (needsRepair) {
+                saved = JSON.parse(JSON.stringify(ALLOCATION_RULES));
                 setStore(STORAGE_KEYS.ALLOCATION_RULES, saved);
             }
-            return saved;
+
+            _cachedRules = saved;
+            return _cachedRules;
         },
         get(wilayah) {
             const all = this.getAll();
-            return all[wilayah] || ALLOCATION_RULES[wilayah] || null;
+            return (all && all[wilayah]) || ALLOCATION_RULES[wilayah] || null;
+        },
+        invalidateCache() {
+            _cachedRules = null;
         },
         async update(wilayah, data) {
             const all = this.getAll();
             all[wilayah] = data;
+            _cachedRules = all;
             setStore(STORAGE_KEYS.ALLOCATION_RULES, all);
             ALLOCATION_RULES[wilayah] = data;
 
@@ -7008,9 +6971,20 @@
         };
     } catch(e) {}
 
+    let _storageDebounceTimer = null;
     window.addEventListener('storage', (e) => {
+        if (e.key === 'wiz_allocation_rules') {
+            allocationRulesManager.invalidateCache();
+        }
+        // Filter out non-render internal tokens to avoid redundant renders
+        if (e.key && (e.key.includes('authenticated') || e.key.includes('_synced_at') || e.key.includes('wiz_admin_user'))) {
+            return;
+        }
         if (e.key && e.key.startsWith('wiz_')) {
-            window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+            clearTimeout(_storageDebounceTimer);
+            _storageDebounceTimer = setTimeout(() => {
+                window.dispatchEvent(new CustomEvent('wiz-sync-complete'));
+            }, 200);
         }
     });
 
@@ -7023,8 +6997,7 @@
             // Segera isi dari canonical snapshot dulu jika kosong
             const curDons = getStore(STORAGE_KEYS.DONATIONS) || [];
             const curRefs = getStore(STORAGE_KEYS.REFERRALS) || [];
-            const curNews = getStore(STORAGE_KEYS.NEWS) || [];
-            if (curDons.length === 0 || curRefs.length === 0 || curNews.length < 9) {
+            if (curDons.length === 0 || curRefs.length === 0) {
                 try {
                     const cRes = await fetch('/assets/data/canonical-store.json');
                     if (cRes.ok) {

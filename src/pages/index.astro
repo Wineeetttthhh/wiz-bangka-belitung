@@ -30,7 +30,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 </div>
             </div>
             <div class="lg:col-span-5 relative aspect-[4/5] sm:aspect-[4/5] lg:aspect-auto lg:h-[480px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl border-2 border-emerald-100 bg-slate-100 flex items-center justify-center">
-                <img id="main-hero-img" class="w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105" data-site-img="hero_card" data-alt="Relawan WIZ Bangka Belitung" src="/assets/images/foto-utama-wiz.jpg" onerror="this.src='/assets/images/sedekah-beras-dhuafa.jpg';" alt="Relawan WIZ Bangka Belitung Menyerahkan Sedekah Beras"/>
+                <img id="main-hero-img" class="w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105" data-site-img="hero_card" data-alt="Relawan WIZ Bangka Belitung" src="/assets/images/foto-utama-wiz.jpg" onerror="this.onerror=null; this.src='/assets/images/sedekah-beras-dhuafa.jpg';" alt="Relawan WIZ Bangka Belitung Menyerahkan Sedekah Beras"/>
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-900/25 via-transparent to-transparent pointer-events-none"></div>
             </div>
         </div>
@@ -603,7 +603,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 return `
                 <article class="bg-surface rounded-2xl overflow-hidden shadow-level-1 hover:shadow-level-2 hover:-translate-y-1 transition-all border border-surface-variant flex flex-col group">
                     <a href="${articleUrl}" class="relative aspect-[3/4] overflow-hidden bg-surface-container block w-full">
-                        <img src="${cardImg}" onerror="this.src='${defaultImg}'" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 block" style="object-fit: cover; width: 100%; height: 100%; display: block;" alt="${n.title}" loading="lazy">
+                        <img src="${cardImg}" onerror="this.onerror=null; this.src='${defaultImg}';" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 block" style="object-fit: cover; width: 100%; height: 100%; display: block;" alt="${n.title}" loading="lazy">
                         <span class="absolute top-3 left-3 bg-[#006834] text-white text-[11px] px-3 py-1 rounded-full font-bold shadow-sm">${n.category || 'Kegiatan & Penyaluran'}</span>
                         ${galCount > 0 ? `
                         <span class="absolute bottom-3 right-3 bg-black/75 backdrop-blur-xs text-white text-[11px] px-2.5 py-0.5 rounded-full font-bold shadow-sm flex items-center gap-1">
@@ -652,7 +652,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             const imgEl = document.getElementById('pub-modal-image');
             if (imgEl) {
                 imgEl.src = modalImg;
-                imgEl.onerror = () => { imgEl.src = defaultImg; };
+                imgEl.onerror = () => { imgEl.onerror = null; imgEl.src = defaultImg; };
             }
 
             const catEl = document.getElementById('pub-news-category');
@@ -835,7 +835,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                     const imgEl = card.querySelector('img');
                     if (imgEl) {
                         imgEl.src = customImg;
-                        imgEl.onerror = () => { imgEl.src = '/assets/images/default-program-wiz.jpg'; };
+                        imgEl.onerror = () => { imgEl.onerror = null; imgEl.src = '/assets/images/default-program-wiz.jpg'; };
                     }
                 }
             });
@@ -1343,17 +1343,28 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             }).join('');
         }
  
-        function renderAllHomeData() {
-            if (typeof initDynamicSiteImages === 'function') initDynamicSiteImages();
-            renderPublicNews();
-            renderHomeFeaturedPrograms();
-            if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
-            if (typeof renderVerifiedDonors === 'function') renderVerifiedDonors();
-            if (typeof renderInfakUmumDistributionWidget === 'function') renderInfakUmumDistributionWidget();
+        let _renderDebounceTimer = null;
+        function renderAllHomeData(immediate = false) {
+            const executeRender = () => {
+                if (typeof initDynamicSiteImages === 'function') initDynamicSiteImages();
+                renderPublicNews();
+                renderHomeFeaturedPrograms();
+                if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
+                if (typeof renderVerifiedDonors === 'function') renderVerifiedDonors();
+                if (typeof renderInfakUmumDistributionWidget === 'function') renderInfakUmumDistributionWidget();
+            };
+
+            if (immediate) {
+                clearTimeout(_renderDebounceTimer);
+                executeRender();
+            } else {
+                clearTimeout(_renderDebounceTimer);
+                _renderDebounceTimer = setTimeout(executeRender, 50);
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            renderAllHomeData();
+            renderAllHomeData(true);
             fetchFreshNewsDirectly();
 
             // Mobile-first: If wizStore hasn't initialized when DOMContentLoaded fires, poll rapidly (every 40ms) to render instantly!
@@ -1363,7 +1374,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                     attempts++;
                     if (window.wizStore) {
                         clearInterval(storeChecker);
-                        renderAllHomeData();
+                        renderAllHomeData(true);
                     } else if (attempts >= 60) {
                         clearInterval(storeChecker);
                     }
@@ -1378,7 +1389,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         });
 
         window.addEventListener('wiz-sync-complete', () => {
-            renderAllHomeData();
+            renderAllHomeData(false);
         });
 
         window.addEventListener('wiz-news-changed', () => {
@@ -1386,10 +1397,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         });
 
         window.addEventListener('wiz-programs-changed', () => {
-            if (typeof initDynamicSiteImages === 'function') initDynamicSiteImages();
-            renderHomeFeaturedPrograms();
-            if (typeof updateDynamicProgramCards === 'function') updateDynamicProgramCards();
-            if (typeof renderInfakUmumDistributionWidget === 'function') renderInfakUmumDistributionWidget();
+            renderAllHomeData(false);
         });
     </script>
 </BaseLayout>

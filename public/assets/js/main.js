@@ -555,18 +555,8 @@ window.addEventListener('wiz-site-settings-changed', () => {
     initHomeQuoteSection();
 });
 
-window.addEventListener('wiz-program-images-changed', () => {
-    initDynamicSiteImages();
-    initDynamicProgramImages();
-});
-
 window.addEventListener('wiz-site-images-changed', () => {
     initDynamicSiteImages();
-});
-
-window.addEventListener('wiz-sync-complete', () => {
-    initDynamicSiteImages();
-    initDynamicProgramImages();
 });
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -575,10 +565,14 @@ document.addEventListener('DOMContentLoaded', () => {
     initDynamicProgramImages();
 });
 
+let _mainStorageDebounce = null;
 window.addEventListener('storage', (e) => {
-    if (!e.key || e.key === 'wiz_site_images' || e.key === 'wiz_specific_prog_imgs' || e.key.startsWith('wiz_')) {
-        initDynamicSiteImages();
-        initDynamicProgramImages();
+    if (e.key === 'wiz_site_images' || e.key === 'wiz_specific_prog_imgs') {
+        clearTimeout(_mainStorageDebounce);
+        _mainStorageDebounce = setTimeout(() => {
+            initDynamicSiteImages();
+            initDynamicProgramImages();
+        }, 150);
     }
 });
 
@@ -642,24 +636,27 @@ function initDynamicSiteImages() {
  */
 function initDynamicProgramImages() {
     let getProgImg = null;
+    let flatMap = null;
+    try {
+        flatMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+    } catch(e) { flatMap = {}; }
+
     if (window.wizStore && window.wizStore.allocationRulesManager && window.wizStore.allocationRulesManager.getSpecificProgramImage) {
         getProgImg = (name) => window.wizStore.allocationRulesManager.getSpecificProgramImage(name);
     } else {
         getProgImg = (name) => {
-            try {
-                const flatMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
-                if (flatMap[name]) return flatMap[name];
-                const clean = (name || '').toLowerCase();
-                for (const [k, img] of Object.entries(flatMap)) {
-                    if (clean.includes(k.toLowerCase()) || k.toLowerCase().includes(clean)) return img;
-                }
-                return '';
-            } catch(e) { return ''; }
+            if (!name) return '';
+            if (flatMap[name]) return flatMap[name];
+            const clean = String(name).toLowerCase();
+            for (const [k, img] of Object.entries(flatMap)) {
+                if (clean.includes(k.toLowerCase()) || k.toLowerCase().includes(clean)) return img;
+            }
+            return '';
         };
     }
 
     // Update static & dynamic program cards by data-title or card header text
-    document.querySelectorAll('.program-card, article[data-title], article').forEach(card => {
+    document.querySelectorAll('.program-card, article[data-title]').forEach(card => {
         const titleAttr = card.getAttribute('data-title');
         const titleEl = card.querySelector('h3, h4, .card-title');
         const progTitle = titleAttr || (titleEl ? titleEl.textContent.trim() : '');
