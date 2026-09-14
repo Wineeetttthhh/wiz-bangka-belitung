@@ -58,11 +58,11 @@ const SPECIFIC_PROGRAMS_METADATA = {
         imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/default-program-wiz.jpg'
     },
     'keberangkatan-dan-kepulangan-dai': {
-        title: 'Keberangkatan & Kepulangan Dai',
+        title: 'Hadirkan Pencerah Umat, Dukung Perjuangan Dai',
         pillar: 'Dakwah & Pembinaan',
         target: 'Rp 30.000.000',
-        description: 'Dukungan akomodasi, transportasi, dan kafalah bagi para da\'i yang bertugas di provinsi Bangka Belitung.',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/keberangkatan-kepulangan-dai.jpg'
+        description: "Mari berpartisipasi memfasilitasi operasional keberangkatan Dai pengabdian ke pelosok Bangka Belitung, serta dukung pendidikan syar'i calon Dai ke Makassar untuk mencetak generasi pendakwah masa depan.",
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/keberangkatan-dai.png'
     },
     'keberangkatan-kepulangan-dai': {
         title: 'Hadirkan Pencerah Umat, Dukung Perjuangan Dai',
@@ -285,17 +285,17 @@ const SPECIFIC_PROGRAMS_METADATA = {
         imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/beasiswa-pendidikan-juara.png'
     },
     'beasiswa-tahfidz': {
-        title: 'Beasiswa Tahfidz & Dhuafa',
-        pillar: 'Pendidikan & Beasiswa',
-        target: 'Rp 35.000.000',
-        description: 'Bantuan biaya studi dan living cost santri penghafal Qur\'an di pesantren dan perguruan tinggi.',
+        title: 'Tahfidz Weekend',
+        pillar: 'Dakwah & Pembinaan',
+        target: 'Rp 30.000.000',
+        description: 'Program pembinaan dan beasiswa santri penghafal Al-Qur\'an pada akhir pekan di Masjid Kemas Adil.',
         imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/tahfidz.png'
     },
     'beasiswa-tahfidz-dhuafa': {
-        title: 'Beasiswa Tahfidz & Dhuafa',
-        pillar: 'Pendidikan & Beasiswa',
-        target: 'Rp 35.000.000',
-        description: 'Bantuan biaya studi dan living cost santri penghafal Qur\'an di pesantren dan perguruan tinggi.',
+        title: 'Tahfidz Weekend',
+        pillar: 'Dakwah & Pembinaan',
+        target: 'Rp 30.000.000',
+        description: 'Program pembinaan dan beasiswa santri penghafal Al-Qur\'an pada akhir pekan di Masjid Kemas Adil.',
         imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/tahfidz.png'
     },
     'perlengkapan-belajar-yatim': {

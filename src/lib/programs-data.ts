@@ -261,7 +261,7 @@ export const MASTER_PROGRAMS: ProgramItem[] = [
     {
         id: 'prog-tahfidz',
         slug: 'tahfidz',
-        title: 'Tahfidz',
+        title: 'Tahfidz Weekend',
         pillar: 'Berkah Hidayah',
         category: 'Dakwah & Pembinaan',
         target: 30000000,
@@ -429,7 +429,7 @@ export const MASTER_PROGRAMS: ProgramItem[] = [
     {
         id: 'prog-mukerwil',
         slug: 'mukerwil-mukernas-muktamar',
-        title: 'Mukerwil Mukernas Muktamar',
+        title: 'Mukerwil/Mukernas/Muktamar',
         pillar: 'Berkah Hidayah',
         category: 'Dakwah & Pembinaan',
         target: 25000000,

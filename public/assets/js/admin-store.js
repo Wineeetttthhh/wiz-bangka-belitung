@@ -92,6 +92,7 @@
         'Tebar Ifthar Nusantara': 'assets/images/tebar-iftar-nusantara.png',
         'Beasiswa Pendidikan Juara': 'assets/images/beasiswa-pendidikan-juara.png',
         'Beasiswa Juara': 'assets/images/beasiswa-pendidikan-juara.png',
+        'Tahfidz Weekend': 'assets/images/tahfidz.png',
         'Beasiswa Tahfidz & Dhuafa': 'assets/images/tahfidz.png',
         'Beasiswa Tahfidz': 'assets/images/tahfidz.png',
         'Tahfidz': 'assets/images/tahfidz.png',
@@ -540,14 +541,14 @@
                         { key: 'Pengadaan & Perbaikan Kendaraan', percent: 10 },
                         { key: 'Santunan Mualaf', percent: 5 },
                         { key: 'Pengadaan Celengan Sedekah Subuh', percent: 10 },
-                        { key: 'Tahfidz', percent: 5 },
+                        { key: 'Tahfidz Weekend', percent: 5 },
                         { key: 'Pelatihan Public Speaking', percent: 5 },
-                        { key: 'Tabligh Akbar Dzhulhijjah', percent: 5 },
+                        { key: 'Tabligh Akbar Dzulhijjah', percent: 5 },
                         { key: 'Pelatihan Guru Dirosa', percent: 5 },
                         { key: 'Pelatihan Penyelenggaraan Jenazah', percent: 5 },
                         { key: 'Pelatihan Volunteer Media Dakwah', percent: 5 },
                         { key: 'Lomba Desain Poster Dakwah', percent: 5 },
-                        { key: 'Kantor DPW WI Babel dan WIZ', percent: 15 },
+                        { key: 'Kantor DPW WI Babel & WIZ', percent: 15 },
                         { key: 'Mukerwil/Mukernas/Muktamar', percent: 10 },
                         { key: 'Hadirkan Pencerah Umat, Dukung Perjuangan Dai', percent: 10 }
                     ]
@@ -555,9 +556,8 @@
                 },
                 'Berkah Juara': {
                     items: [
-                        { key: 'Beasiswa Pendidikan Juara', percent: 80 },
-                        { key: 'Perlengkapan Belajar Yatim', percent: 15 },
-                        { key: 'Beasiswa Tahfidz & Dhuafa', percent: 5 }
+                        { key: 'Beasiswa Pendidikan Juara', percent: 85 },
+                        { key: 'Perlengkapan Belajar Yatim', percent: 15 }
                     ]
                     // Total = 100% → VALID
                 },
@@ -573,14 +573,18 @@
                 },
                 'Berkah Sehat': {
                     items: [
-                        { key: 'Khitanan Massal', percent: 40 },
+                        { key: 'Khitanan Massal Dhuafa', percent: 40 },
                         { key: 'Layanan Pengobatan Gratis', percent: 40 },
-                        { key: 'Layanan Ambulance Ummat', percent: 20 }
+                        { key: 'Ambulance Gratis Ummat', percent: 20 }
                     ]
                     // Total = 100% → VALID
                 },
                 'Berkah Mandiri': {
-                    items: null  // Belum dikonfigurasi — jangan mengarang
+                    items: [
+                        { key: 'Modal Usaha Dhuafa', percent: 50 },
+                        { key: 'Pelatihan Keterampilan Wirausaha', percent: 50 }
+                    ]
+                    // Total = 100% → VALID
                 }
             }
         },
@@ -599,17 +603,17 @@
                         { key: 'Pembangunan Markaz', percent: 10 },
                         { key: 'Pengadaan & Perbaikan Kendaraan', percent: 25 },
                         { key: 'Pengadaan Celengan Sedekah Subuh', percent: 30 },
-                        { key: 'Kantor', percent: 20 },
+                        { key: 'Kantor DPW WI Babel & WIZ', percent: 20 },
                         { key: 'Mukerwil/Mukernas/Muktamar', percent: 15 }
                     ]
                     // Total = 100% → VALID
                 },
                 'Berkah Juara': {
                     items: [
-                        { key: 'Beasiswa Pendidikan Juara', percent: 80 },
-                        { key: 'Perlengkapan Belajar Yatim', percent: 15 },
-                        { key: 'Beasiswa Tahfidz & Dhuafa', percent: 5 }
+                        { key: 'Beasiswa Pendidikan Juara', percent: 85 },
+                        { key: 'Perlengkapan Belajar Yatim', percent: 15 }
                     ]
+                    // Total = 100% → VALID
                 },
                 'Berkah Peduli': {
                     items: [
@@ -619,12 +623,22 @@
                         { key: 'Santunan Yatim', percent: 20 },
                         { key: 'Tebar Qur\'an Nusantara', percent: 20 }
                     ]
+                    // Total = 100% → VALID
                 },
                 'Berkah Sehat': {
-                    items: null  // Belum dikonfigurasi
+                    items: [
+                        { key: 'Khitanan Massal Dhuafa', percent: 40 },
+                        { key: 'Layanan Pengobatan Gratis', percent: 40 },
+                        { key: 'Ambulance Gratis Ummat', percent: 20 }
+                    ]
+                    // Total = 100% → VALID
                 },
                 'Berkah Mandiri': {
-                    items: null  // Belum dikonfigurasi
+                    items: [
+                        { key: 'Modal Usaha Dhuafa', percent: 50 },
+                        { key: 'Pelatihan Keterampilan Wirausaha', percent: 50 }
+                    ]
+                    // Total = 100% → VALID
                 }
             }
         }
@@ -1366,69 +1380,60 @@
             // 1. Normalisasi Sub-Alokasi Berkah Hidayah KHUSUS Pangkalpinang (14 item tepat 100%, hapus duplikat 0%)
             const targetPangkalpinangHidayah = [
                 { key: 'Pembangunan Markaz', percent: 5, image: 'assets/images/pembangunan-markaz-dakwah.png' },
-                { key: 'Pengadaan & Perbaikan Kendaraan', percent: 10, image: 'assets/images/default-program-wiz.jpg' },
-                { key: 'Santunan Mualaf', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
+                { key: 'Pengadaan & Perbaikan Kendaraan', percent: 10, image: 'assets/images/pengadaan-perbaikan-kendaraan.png' },
+                { key: 'Santunan Mualaf', percent: 5, image: 'assets/images/santunan-mualaf.png' },
                 { key: 'Pengadaan Celengan Sedekah Subuh', percent: 10, image: 'assets/images/default-program-wiz.jpg' },
-                { key: 'Tahfidz', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
+                { key: 'Tahfidz Weekend', percent: 5, image: 'assets/images/tahfidz.png' },
                 { key: 'Pelatihan Public Speaking', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
-                { key: 'Tabligh Akbar Dzhulhijjah', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
+                { key: 'Tabligh Akbar Dzulhijjah', percent: 5, image: 'assets/images/foto-utama-wiz.jpg' },
                 { key: 'Pelatihan Guru Dirosa', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
                 { key: 'Pelatihan Penyelenggaraan Jenazah', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
                 { key: 'Pelatihan Volunteer Media Dakwah', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
                 { key: 'Lomba Desain Poster Dakwah', percent: 5, image: 'assets/images/default-program-wiz.jpg' },
-                { key: 'Kantor DPW WI Babel dan WIZ', percent: 15, image: 'assets/images/default-program-wiz.jpg' },
-                { key: 'Mukerwil/Mukernas/Muktamar', percent: 10, image: 'assets/images/default-program-wiz.jpg' },
-                { key: 'Keberangkatan Kepulangan Dai', percent: 10, image: 'assets/images/default-program-wiz.jpg' }
+                { key: 'Kantor DPW WI Babel & WIZ', percent: 15, image: 'assets/images/foto-utama-wiz.jpg' },
+                { key: 'Mukerwil/Mukernas/Muktamar', percent: 10, image: 'assets/images/foto-utama-wiz.jpg' },
+                { key: 'Hadirkan Pencerah Umat, Dukung Perjuangan Dai', percent: 10, image: 'assets/images/keberangkatan-dai.png' }
             ];
 
             if (saved['Pangkalpinang']) {
                 if (!saved['Pangkalpinang'].subAllocation) saved['Pangkalpinang'].subAllocation = {};
-                const currentH = saved['Pangkalpinang'].subAllocation['Berkah Hidayah'];
-                let needsUpdate = false;
-                if (!currentH || !Array.isArray(currentH.items) || currentH.items.length !== targetPangkalpinangHidayah.length) {
-                    needsUpdate = true;
-                } else {
-                    for (let i = 0; i < targetPangkalpinangHidayah.length; i++) {
-                        if (currentH.items[i].key !== targetPangkalpinangHidayah[i].key || currentH.items[i].percent !== targetPangkalpinangHidayah[i].percent) {
-                            needsUpdate = true;
-                            break;
-                        }
-                    }
-                }
-                if (needsUpdate) {
-                    saved['Pangkalpinang'].subAllocation['Berkah Hidayah'] = { items: targetPangkalpinangHidayah };
-                    modified = true;
-                }
+                saved['Pangkalpinang'].subAllocation['Berkah Hidayah'] = { items: targetPangkalpinangHidayah };
+                modified = true;
             }
 
-            // 2. Normalize Berkah Juara subAllocation across all branches (Hanya 2 Program: Beasiswa Pendidikan Juara 85%, Perlengkapan Belajar Yatim 15%)
+            // 2. Normalisasi Sub-Alokasi Berkah Hidayah KHUSUS Sungailiat (5 item tepat 100%)
+            const targetSungailiatHidayah = [
+                { key: 'Pembangunan Markaz', percent: 10, image: 'assets/images/pembangunan-markaz-dakwah.png' },
+                { key: 'Pengadaan & Perbaikan Kendaraan', percent: 25, image: 'assets/images/pengadaan-perbaikan-kendaraan.png' },
+                { key: 'Pengadaan Celengan Sedekah Subuh', percent: 30, image: 'assets/images/default-program-wiz.jpg' },
+                { key: 'Kantor DPW WI Babel & WIZ', percent: 20, image: 'assets/images/foto-utama-wiz.jpg' },
+                { key: 'Mukerwil/Mukernas/Muktamar', percent: 15, image: 'assets/images/foto-utama-wiz.jpg' }
+            ];
+
+            if (saved['Sungailiat']) {
+                if (!saved['Sungailiat'].subAllocation) saved['Sungailiat'].subAllocation = {};
+                saved['Sungailiat'].subAllocation['Berkah Hidayah'] = { items: targetSungailiatHidayah };
+                modified = true;
+            }
+
+            // 3. Normalisasi Berkah Juara (85% Beasiswa Pendidikan Juara, 15% Perlengkapan Belajar Yatim)
             for (const [w, wData] of Object.entries(saved)) {
-                if (wData && wData.subAllocation && wData.subAllocation['Berkah Juara']) {
-                    const subJuara = wData.subAllocation['Berkah Juara'];
-                    if (subJuara.items && Array.isArray(subJuara.items)) {
-                        // Hapus program Beasiswa Tahfidz & Dhuafa dari Berkah Juara
-                        subJuara.items = subJuara.items.filter(item => {
-                            const k = (item.key || '').toLowerCase();
-                            return !k.includes('tahfidz') && !k.includes('yatim & dhuafa') && !k.includes('yatim dan dhuafa');
-                        });
-
-                        const itemJuara = subJuara.items.find(i => (i.key || '').toLowerCase().includes('pendidikan'));
-                        const itemYatim = subJuara.items.find(i => (i.key || '').toLowerCase().includes('perlengkapan'));
-
-                        if (itemJuara) {
-                            if (itemJuara.percent !== 85) { itemJuara.percent = 85; modified = true; }
-                        } else {
-                            subJuara.items.unshift({ key: 'Beasiswa Pendidikan Juara', percent: 85, image: 'assets/images/beasiswa-pendidikan-juara.png' });
-                            modified = true;
-                        }
-
-                        if (itemYatim) {
-                            if (itemYatim.percent !== 15) { itemYatim.percent = 15; modified = true; }
-                        } else {
-                            subJuara.items.push({ key: 'Perlengkapan Belajar Yatim', percent: 15, image: 'assets/images/perlengkapan-belajar-yatim.png' });
-                            modified = true;
-                        }
-                    }
+                if (wData && wData.subAllocation) {
+                    wData.subAllocation['Berkah Juara'] = {
+                        items: [
+                            { key: 'Beasiswa Pendidikan Juara', percent: 85, image: 'assets/images/beasiswa-pendidikan-juara.png' },
+                            { key: 'Perlengkapan Belajar Yatim', percent: 15, image: 'assets/images/perlengkapan-belajar-yatim.png' }
+                        ]
+                    };
+                    // 4. Normalisasi Berkah Sehat (40% Khitanan Massal Dhuafa, 40% Layanan Pengobatan Gratis, 20% Ambulance Gratis Ummat)
+                    wData.subAllocation['Berkah Sehat'] = {
+                        items: [
+                            { key: 'Khitanan Massal Dhuafa', percent: 40, image: 'assets/images/khitanan-massal-dhuafa.png' },
+                            { key: 'Layanan Pengobatan Gratis', percent: 40, image: 'assets/images/layanan-pengobatan-gratis.png' },
+                            { key: 'Ambulance Gratis Ummat', percent: 20, image: 'assets/images/ambulance-gratis-ummat.png' }
+                        ]
+                    };
+                    modified = true;
                 }
             }
             if (modified) {
@@ -3012,8 +3017,9 @@
 
     function isGeneralInfak(d) {
         if (!d) return false;
-        if (d.type === 'Infak Umum') return true;
-        const prog = (d.programSpesifik || d.program || '').trim();
+        const type = String(d.donation_type || d.type || '').trim().toLowerCase();
+        if (type === 'infak umum' || type === 'infak_umum' || type === 'sedekah umum') return true;
+        const prog = String(d.programSpesifik || d.program_spesifik || d.program || '').trim();
         if (!prog || prog === '-' || prog === '.' || prog.toLowerCase() === 'infak umum' || prog.toLowerCase() === 'sedekah umum' || prog.toLowerCase() === 'umum' || prog.toLowerCase() === 'infak' || prog.toLowerCase() === 'sedekah') {
             return true;
         }
@@ -4911,7 +4917,7 @@
             ['markaz', 'pembangunanmarkaz', 'progpembangunanmarkaz', 'markazdakwah'],
             ['kantor', 'kantordpw', 'kantordpwwibabeldanwiz', 'kantordpwwibabelwiz', 'progkantordpw'],
             ['mukerwil', 'mukernas', 'muktamar', 'mukerwilmukernasmuktamar', 'progmukerwil'],
-            ['tahfidz', 'beasiswatahfidz', 'progtahfidz'],
+            ['tahfidz', 'tahfidzweekend', 'beasiswatahfidz', 'beasiswatahfidzdhuafa', 'progtahfidz', 'tahfidzalquran', 'berkahuntukahlulquran'],
             ['mualaf', 'santunanmualaf', 'progsantunanmualaf'],
             ['publicspeaking', 'pelatihanpublicspeaking', 'progpublicspeaking'],
             ['dzulhijjah', 'dzhulhijjah', 'tablighakbar', 'tablighakbardzulhijjah', 'tablighakbardzhulhijjah', 'progtablighakbar'],
@@ -4921,7 +4927,9 @@
             ['posterdakwah', 'lombadesainposterdakwah', 'proglombaposter'],
             ['pendidikanjuara', 'beasiswapendidikanjuara', 'progbeasiswapendidikanjuara'],
             ['perlengkapanbelajar', 'perlengkapanbelajaryatim', 'progperlengkapanbelajaryatim'],
-            ['beasiswatahfidzdhuafa', 'beasiswayatimmualaf', 'beasiswayatimdhuafa', 'progbeasiswatahfidz']
+            ['ambulance', 'ambulancegratis', 'ambulancegratisummat', 'layananambulanceummat', 'ambulans', 'ambulansgratispeduli', 'progambulancegratis'],
+            ['khitan', 'khitanan', 'khitananmassal', 'khitananmassaldhuafa', 'progkhitananmassal'],
+            ['pengobatan', 'layananpengobatan', 'layananpengobatangratis', 'bantuankesehatandhuafa', 'bantuanpengobatan', 'progpengobatangratis', 'progbantuankesehatandhuafa']
         ];
 
         for (const group of aliasGroups) {
@@ -5145,9 +5153,10 @@
                             const pillarAmount = (Number(d.amount) || 0) * (mainItem.percent / 100);
                             const subRule = wRules.subAllocation && wRules.subAllocation[progPillar];
                             if (subRule && subRule.items && subRule.items.length > 0) {
-                                const subItem = subRule.items.find(si => isProgramMatching(si.key, pName));
+                                const subItem = subRule.items.find(si => isProgramMatching(si.key, pName) && (Number(si.percent) || 0) > 0) ||
+                                                subRule.items.find(si => isProgramMatching(si.key, pName));
                                 if (subItem) {
-                                    infakUmumMasuk += Math.round(pillarAmount * (subItem.percent / 100));
+                                    infakUmumMasuk += Math.round(pillarAmount * ((Number(subItem.percent) || 0) / 100));
                                     return;
                                 }
                             }
@@ -5158,8 +5167,8 @@
                     }
                 } else {
                     // Infak Terikat / Specific Program: 100% of the verified amount counts toward the program
-                    const dProg = d.programSpesifik || d.program || '';
-                    const dCat = d.programUtama || d.category || '';
+                    const dProg = d.programSpesifik || d.program_spesifik || d.program || '';
+                    const dCat = d.programUtama || d.program_utama || d.category || '';
                     if (dProg && isProgramMatching(dProg, pName)) {
                         infakTerikatMasuk += (Number(d.amount) || 0);
                     } else if (dCat && isProgramMatching(dCat, pName)) {

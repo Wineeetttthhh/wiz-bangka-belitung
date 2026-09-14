@@ -2725,7 +2725,7 @@
                         </button>
                     </div>
                 </div>
-                
+
                 <!-- Judul Berita -->
                 <div>
                     <label class="block font-label-md text-label-md text-on-surface font-bold mb-xs">Judul Berita / Kegiatan <span class="text-error">*</span></label>
@@ -5879,30 +5879,70 @@ Jazakumullahu khairan kepada para muhsinin. Semoga Allah senantiasa meneguhkan l
                 return [{ title: 'Dana Saving — Alokasi Kas Cadangan', pillar: 'Dana Saving', isSpecial: true }];
             }
 
-            // 1. From subAllocation rules
+            function mapToStandard(raw) {
+                if (!raw) return '';
+                const lower = raw.trim().toLowerCase();
+                if (lower.includes('dai') && (lower.includes('keberangkatan') || lower.includes('pencerah') || lower.includes('pelosok'))) {
+                    return 'Hadirkan Pencerah Umat, Dukung Perjuangan Dai';
+                }
+                if (lower.includes('markaz')) return 'Pembangunan Markaz';
+                if (lower.includes('kantor') && (lower.includes('dpw') || lower.includes('wi') || lower.includes('babel'))) return 'Kantor DPW WI Babel & WIZ';
+                if (lower.includes('mukerwil') || lower.includes('mukernas') || lower.includes('muktamar')) return 'Mukerwil/Mukernas/Muktamar';
+                if (lower.includes('celengan')) return 'Pengadaan Celengan Sedekah Subuh';
+                if (lower.includes('tahfidz')) return 'Tahfidz Weekend';
+                if (lower.includes('tabligh') || lower.includes('dzulhijjah')) return 'Tabligh Akbar Dzulhijjah';
+                if (lower.includes('ambulance') || lower.includes('ambulans')) return 'Ambulance Gratis Ummat';
+                if (lower.includes('khitan')) return 'Khitanan Massal Dhuafa';
+                if (lower.includes('pengobatan') || lower.includes('kesehatan dhuafa')) return 'Layanan Pengobatan Gratis';
+                if ((lower.includes('beasiswa') && lower.includes('juara')) || lower.includes('pendidikan juara')) return 'Beasiswa Pendidikan Juara';
+                return raw.trim();
+            }
+
+            // 1. From subAllocation rules of active branch
             const wObj = rules[activeW];
             if (wObj && wObj.subAllocation && wObj.subAllocation[pillar]) {
                 const subItems = wObj.subAllocation[pillar].items || [];
                 subItems.forEach(item => {
-                    if (item && item.key) programSet.add(item.key.trim());
+                    if (item && item.key) {
+                        const std = mapToStandard(item.key);
+                        if (std) programSet.add(std);
+                    }
                 });
             }
 
-            // 2. From custom programs / master programs
-            const customPrograms = (window.wizStore && wizStore.programs) ? wizStore.programs.getAll() : [];
-            customPrograms.forEach(cp => {
+            // 2. From standard master programs under this pillar
+            const masterProgs = (window.wizStore && wizStore.programs) ? wizStore.programs.getAll() : [];
+            masterProgs.forEach(cp => {
                 if (!cp || !cp.title) return;
                 if (cp.is_active === false || cp.active === false || cp.status === 'archived') return;
                 const cpPillar = cp.pillar || (window.wizStore && wizStore.utils ? wizStore.utils.mapProgramToPillar(cp.title) : '');
                 if (cpPillar === pillar) {
-                    programSet.add(cp.title.trim());
+                    const std = mapToStandard(cp.title);
+                    if (std) programSet.add(std);
                 }
             });
 
-            // 3. Remove old / deprecated name "Keberangkatan Kepulangan Dai"
+            // Blacklist any remaining legacy duplicates
+            const blacklist = new Set([
+                'keberangkatan kepulangan dai',
+                'keberangkatan & kepulangan dai',
+                'keberangkatan dan kepulangan dai',
+                'pembangunan markaz dakwah',
+                'kantor dpw wi babel dan wiz',
+                'tabligh akbar dzhulhijjah',
+                'mukerwil mukernas muktamar',
+                'pengadaan celengan besar',
+                'tahfidz',
+                'beasiswa tahfidz',
+                'beasiswa tahfidz & dhuafa',
+                'layanan ambulance ummat',
+                'khitanan massal',
+                'bantuan kesehatan dhuafa'
+            ]);
+
             const result = [];
             for (const title of programSet) {
-                if (title.toLowerCase() === 'keberangkatan kepulangan dai') continue;
+                if (blacklist.has(title.toLowerCase())) continue;
                 result.push({ title: title, pillar: pillar });
             }
 
