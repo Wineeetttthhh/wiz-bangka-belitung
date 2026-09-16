@@ -469,7 +469,7 @@
                 <span class="material-symbols-outlined">format_quote</span> Quote &amp; Inspirasi Harian
             </a>
             <a class="sidebar-link flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors"
-                href="#" data-section="finance" onclick="showSection('finance', this)">
+                id="nav-finance" href="#" data-section="finance" onclick="showSection('finance', this)">
                 <span class="material-symbols-outlined">account_balance_wallet</span> Laporan Keuangan
             </a>
         </nav>
@@ -988,26 +988,30 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════════ -->
-        <!-- SECTION: KEUANGAN (LAPORAN 5 PILAR UTAMA)           -->
+        <!-- SECTION: KEUANGAN (LAPORAN 5 PILAR & RINCIAN PROGRAM) -->
         <!-- ═══════════════════════════════════════════════════ -->
         <div id="section-finance" class="flex-1 p-margin-mobile md:p-gutter overflow-y-auto space-y-xl hidden">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
                 <div>
                     <h2 class="font-headline-md text-headline-md font-bold text-on-surface flex items-center gap-2">
                         <span class="material-symbols-outlined text-primary">analytics</span>
-                        <span>Laporan Keuangan 5 Pilar Utama WIZ</span>
+                        <span>Laporan Keuangan &amp; Alokasi Program WIZ</span>
                     </h2>
-                    <p class="font-caption text-caption text-on-surface-variant">Laporan konsolidasi &amp; per wilayah operasional (Dana Masuk Spesifik + Porsi Alokasi Infak Umum - Penyaluran).</p>
+                    <p class="font-caption text-caption text-on-surface-variant">Laporan rincian per-pilar dan per-program berdasarkan wilayah (Dana Awal + Donasi Terikat + Porsi Infak Umum - Penyaluran).</p>
                 </div>
                 <div class="flex items-center gap-sm flex-wrap">
-                    <select id="finance-wilayah-filter" onchange="renderFinanceSection()" class="bg-surface border border-outline-variant rounded-lg px-3 py-2 font-caption text-xs font-bold text-on-surface outline-none focus:border-primary cursor-pointer">
-                        <option value="Semua">Wilayah: Konsolidasi (Semua)</option>
-                        <option value="Pangkalpinang">Wilayah: Pangkalpinang</option>
-                        <option value="Sungailiat">Wilayah: Sungailiat</option>
-                    </select>
+                    <div class="flex items-center gap-1.5 bg-surface border border-outline-variant rounded-lg px-3 py-1.5 shadow-2xs">
+                        <span class="material-symbols-outlined text-base text-primary">location_on</span>
+                        <select id="finance-wilayah-filter" onchange="renderFinanceSection()" class="bg-transparent font-caption text-xs font-bold text-on-surface outline-none cursor-pointer">
+                            <option value="Semua">Wilayah: Konsolidasi (Semua Cabang)</option>
+                            <option value="Pangkalpinang">Wilayah: Pangkalpinang</option>
+                            <option value="Sungailiat">Wilayah: Sungailiat</option>
+                        </select>
+                    </div>
                     <button onclick="openBaselineModal()"
-                        class="flex items-center gap-sm bg-surface-container-high border border-outline-variant text-on-surface px-md py-2 rounded-lg font-label-md text-xs font-bold hover:bg-surface-variant transition-colors cursor-pointer">
-                        <span class="material-symbols-outlined size-[18px]">tune</span> Edit Baseline
+                        class="flex items-center gap-1.5 bg-surface-container-high border border-outline-variant text-on-surface px-md py-2 rounded-lg font-label-md text-xs font-bold hover:bg-surface-variant transition-colors cursor-pointer shadow-2xs">
+                        <span class="material-symbols-outlined size-[18px] text-primary">tune</span>
+                        <span>Edit Saldo Awal / Baseline</span>
                     </button>
                     <a href="laporan.html" target="_blank"
                         class="flex items-center gap-1 bg-primary text-on-primary px-md py-2 rounded-lg font-label-md text-xs font-bold hover:bg-primary-container transition-colors shadow-xs">
@@ -1020,18 +1024,38 @@
             <!-- KPI Cards Overview -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter" id="finance-kpi-grid"></div>
 
-            <!-- 5 Pilar Utama Financial Summary Table -->
+            <!-- 5 Pilar Utama & Program Detail Financial Summary Table -->
             <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden">
-                <div class="p-lg border-b border-outline-variant/30 flex justify-between items-center">
+                <div class="p-lg border-b border-outline-variant/30 flex flex-col md:flex-row md:items-center justify-between gap-md">
                     <div>
-                        <h3 class="font-headline-md text-headline-md text-primary font-bold flex items-center gap-2">
-                            <span class="material-symbols-outlined text-primary">pie_chart</span>
-                            <span>Ringkasan Keuangan 5 Pilar Utama Lembaga</span>
-                        </h3>
-                        <p class="font-caption text-caption text-on-surface-variant mt-1">Saldo akhir tiap pilar = (Dana Masuk Program Spesifik + Porsi Alokasi Infak Umum) - Total Penyaluran.</p>
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-2xl">account_tree</span>
+                            <h3 class="font-headline-md text-headline-md text-primary font-bold">
+                                Rincian Keuangan Per-Pilar &amp; Per-Program
+                            </h3>
+                            <span id="finance-active-wilayah-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+                                Konsolidasi
+                            </span>
+                        </div>
+                        <p class="font-caption text-caption text-on-surface-variant mt-1">
+                            Klik nama pilar untuk membuka/menutup daftar program di dalamnya. Anda dapat mengubah saldo awal (baseline) tiap program secara langsung agar sinkron dengan database spreadsheet.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+                            <input type="text" id="finance-program-search" placeholder="Cari program..." oninput="filterFinancePrograms(this.value)"
+                                class="bg-surface border border-outline-variant rounded-lg pl-8 pr-3 py-1.5 font-caption text-xs text-on-surface placeholder:text-outline outline-none focus:border-primary w-40 sm:w-56">
+                        </div>
+                        <button type="button" onclick="toggleAllFinancePillars(true)" class="px-2.5 py-1.5 bg-surface-container-high border border-outline-variant hover:bg-surface-variant text-on-surface rounded-lg text-xs font-semibold cursor-pointer">
+                            Buka Semua
+                        </button>
+                        <button type="button" onclick="toggleAllFinancePillars(false)" class="px-2.5 py-1.5 bg-surface-container-high border border-outline-variant hover:bg-surface-variant text-on-surface rounded-lg text-xs font-semibold cursor-pointer">
+                            Tutup Semua
+                        </button>
                     </div>
                 </div>
-                <div class="overflow-x-auto p-md" id="finance-breakdown-container">
+                <div class="overflow-x-auto p-0" id="finance-breakdown-container">
                     <!-- Rendered by JS -->
                 </div>
             </div>
@@ -1728,43 +1752,196 @@
     </main>
 
     <!-- ═══════════════════════════════════════════════════ -->
-    <!-- MODAL: BASELINE CONFIG (SALDO AWAL)                 -->
+    <!-- MODAL: BASELINE CONFIG (SALDO AWAL LENGKAP)         -->
     <!-- ═══════════════════════════════════════════════════ -->
     <div id="baseline-modal" class="modal-backdrop">
-        <div class="modal-dialog">
-            <div class="p-lg border-b border-surface-variant flex justify-between items-center">
-                <h3 class="font-headline-md text-body-lg font-bold text-primary">Edit Saldo Awal / Angka Baseline</h3>
+        <div class="modal-dialog max-w-4xl max-h-[90vh] flex flex-col">
+            <div class="p-lg border-b border-surface-variant flex justify-between items-center shrink-0">
+                <div>
+                    <h3 class="font-headline-md text-body-lg font-bold text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">tune</span>
+                        <span>Sinkronisasi Saldo Awal &amp; Baseline Database</span>
+                    </h3>
+                    <p class="font-caption text-caption text-on-surface-variant mt-0.5">
+                        Set saldo awal per 1 Januari 2027 (atau tanggal acuan) per-program dan per-wilayah agar sama persis dengan spreadsheet.
+                    </p>
+                </div>
                 <button type="button" onclick="closeBaselineModal()"
                     class="text-outline hover:text-on-surface p-1"><span
                         class="material-symbols-outlined">close</span></button>
             </div>
-            <form id="baseline-form" class="p-lg space-y-md" onsubmit="handleBaselineSave(event)">
-                <p class="font-caption text-caption text-on-surface-variant">Ubah angka baseline historis awal di bawah
-                    ini jika ada koreksi data sebelum transaksi realtime.</p>
+
+            <!-- Modal Sub-header / Region Selector & Tabs -->
+            <div class="px-lg py-sm bg-surface-container-low border-b border-outline-variant/30 flex flex-wrap items-center justify-between gap-md shrink-0">
+                <div class="flex items-center gap-2">
+                    <label class="text-xs font-bold text-on-surface flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm text-primary">location_on</span> Wilayah:
+                    </label>
+                    <select id="baseline-wilayah-select" onchange="handleBaselineWilayahSelectChange(this.value)"
+                        class="bg-surface border border-outline-variant rounded-lg px-3 py-1.5 text-xs font-bold text-on-surface outline-none focus:border-primary cursor-pointer">
+                        <option value="Pangkalpinang">Cabang Pangkalpinang</option>
+                        <option value="Sungailiat">Cabang Sungailiat</option>
+                        <option value="Konsolidasi">Konsolidasi (Semua Cabang)</option>
+                    </select>
+                </div>
+                <div class="flex gap-2">
+                    <button type="button" id="tab-btn-base-programs" onclick="switchBaselineModalTab('programs')"
+                        class="px-3 py-1.5 rounded-lg text-xs font-bold bg-primary text-on-primary transition-colors cursor-pointer">
+                        Per Program Rinci
+                    </button>
+                    <button type="button" id="tab-btn-base-summary" onclick="switchBaselineModalTab('summary')"
+                        class="px-3 py-1.5 rounded-lg text-xs font-bold bg-surface-container-high text-on-surface-variant hover:bg-surface-variant transition-colors cursor-pointer">
+                        Total &amp; Donatur Awal
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Body (Scrollable) -->
+            <div class="flex-1 overflow-y-auto p-lg space-y-md">
+                <!-- Live KPI Summary in Modal -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-sm bg-surface-container-lowest p-md rounded-xl border border-outline-variant/30">
+                    <div>
+                        <div class="text-[11px] text-on-surface-variant font-semibold">Total Baseline Masuk</div>
+                        <div id="modal-base-kpi-masuk" class="text-sm font-bold text-primary font-mono">Rp 0</div>
+                    </div>
+                    <div>
+                        <div class="text-[11px] text-on-surface-variant font-semibold">Total Baseline Terpakai</div>
+                        <div id="modal-base-kpi-salur" class="text-sm font-bold text-tertiary-container font-mono">Rp 0</div>
+                    </div>
+                    <div>
+                        <div class="text-[11px] text-on-surface-variant font-semibold">Sisa Saldo Awal</div>
+                        <div id="modal-base-kpi-saldo" class="text-sm font-bold text-emerald-800 font-mono">Rp 0</div>
+                    </div>
+                    <div>
+                        <div class="text-[11px] text-on-surface-variant font-semibold">Donatur Awal</div>
+                        <div id="modal-base-kpi-donatur" class="text-sm font-bold text-on-surface font-mono">0 orang</div>
+                    </div>
+                </div>
+
+                <!-- Tab 1: Per Program Table -->
+                <div id="tab-content-base-programs" class="space-y-sm">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-xs text-on-surface-variant">Isi dana awal masuk dan terpakai sesuai pembukuan spreadsheet:</span>
+                        <input type="text" id="modal-base-search" placeholder="Cari program..." oninput="filterModalBaselineTable(this.value)"
+                            class="bg-surface border border-outline-variant rounded-lg px-3 py-1 text-xs text-on-surface outline-none focus:border-primary w-48">
+                    </div>
+                    <div class="border border-outline-variant/30 rounded-xl overflow-hidden shadow-2xs">
+                        <div class="max-h-[360px] overflow-y-auto">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead class="sticky top-0 bg-surface-container-low border-b border-outline-variant/30 font-label-md text-on-surface-variant z-10">
+                                    <tr>
+                                        <th class="p-2.5">Program &amp; Pilar</th>
+                                        <th class="p-2.5 w-44 text-right">Dana Awal Masuk (Rp)</th>
+                                        <th class="p-2.5 w-44 text-right">Dana Awal Terpakai (Rp)</th>
+                                        <th class="p-2.5 w-32 text-right">Sisa Awal</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modal-base-programs-tbody" class="divide-y divide-outline-variant/20 bg-surface-container-lowest">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Total & Donatur Awal Form -->
+                <div id="tab-content-base-summary" class="space-y-md hidden">
+                    <p class="font-caption text-caption text-on-surface-variant">
+                        Jika Anda ingin mengatur angka baseline global langsung (misal Donatur Awal atau Total Masuk/Keluar global):
+                    </p>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Baseline Total Pemasukan Awal (Rp)</label>
+                        <input type="number" id="base-masuk" min="0"
+                            class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Baseline Total Pengeluaran Awal (Rp)</label>
+                        <input type="number" id="base-salur" min="0"
+                            class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Baseline Total Donatur Awal (Orang)</label>
+                        <input type="number" id="base-donatur" min="0"
+                            class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-lg border-t border-surface-variant flex justify-between items-center gap-md shrink-0 bg-surface-container-low">
+                <div class="text-[11px] text-on-surface-variant flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs text-primary">cloud_done</span>
+                    <span>Tersimpan otomatis ke memori lokal &amp; cloud database.</span>
+                </div>
+                <div class="flex gap-md">
+                    <button type="button" onclick="closeBaselineModal()"
+                        class="px-lg py-2.5 border border-outline-variant rounded-lg font-label-md text-xs font-bold text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer">
+                        Batal / Tutup
+                    </button>
+                    <button type="button" onclick="handleDetailedBaselineSave()"
+                        class="px-xl py-2.5 bg-primary text-on-primary rounded-lg font-label-md text-xs font-bold hover:bg-primary-container transition-colors shadow-xs cursor-pointer">
+                        Simpan Semua Saldo Awal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- MODAL: QUICK SINGLE PROGRAM BASELINE                -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div id="program-baseline-modal" class="modal-backdrop">
+        <div class="modal-dialog max-w-md">
+            <div class="p-lg border-b border-surface-variant flex justify-between items-center">
                 <div>
-                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Baseline Total
-                        Pemasukan Awal (Rp)</label>
-                    <input type="number" id="base-masuk" required
-                        class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
+                    <h3 class="font-headline-md text-body-lg font-bold text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">edit_note</span>
+                        <span>Edit Dana Awal Program</span>
+                    </h3>
+                    <p class="font-caption text-caption text-on-surface-variant mt-0.5">Koreksi saldo awal program dari spreadsheet</p>
+                </div>
+                <button type="button" onclick="closeProgramBaselineModal()"
+                    class="text-outline hover:text-on-surface p-1"><span
+                        class="material-symbols-outlined">close</span></button>
+            </div>
+            <form id="program-baseline-form" class="p-lg space-y-md" onsubmit="handleSingleProgramBaselineSave(event)">
+                <div class="p-md bg-surface-container-low rounded-lg border border-outline-variant/30 space-y-1">
+                    <div class="text-[11px] text-on-surface-variant font-semibold">Nama Program:</div>
+                    <div id="prog-base-title-display" class="text-sm font-bold text-on-surface">...</div>
+                    <input type="hidden" id="prog-base-title-hidden" value="">
+                    <div class="flex items-center gap-2 mt-2 pt-2 border-t border-outline-variant/20">
+                        <label class="text-xs text-on-surface-variant font-semibold">Wilayah Saldo:</label>
+                        <select id="prog-base-wilayah-select" onchange="loadSingleProgramBaselineData()" class="bg-surface border border-outline-variant rounded px-2.5 py-1 text-xs font-bold text-on-surface outline-none focus:border-primary">
+                            <option value="Pangkalpinang">Pangkalpinang</option>
+                            <option value="Sungailiat">Sungailiat</option>
+                        </select>
+                    </div>
                 </div>
                 <div>
-                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Baseline Total
-                        Pengeluaran Awal (Rp)</label>
-                    <input type="number" id="base-salur" required
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Dana Awal Masuk (Rp)</label>
+                    <input type="number" id="prog-base-masuk" min="0" required oninput="calcSingleProgramBaselineSaldo()"
                         class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
+                    <p class="text-[11px] text-on-surface-variant mt-1">Total donasi historis yang sudah masuk untuk program ini di spreadsheet.</p>
                 </div>
                 <div>
-                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Baseline Total
-                        Donatur Awal</label>
-                    <input type="number" id="base-donatur" required
+                    <label class="block font-label-md text-label-md text-on-surface font-semibold mb-xs">Dana Awal Terpakai / Penyaluran (Rp)</label>
+                    <input type="number" id="prog-base-salur" min="0" required oninput="calcSingleProgramBaselineSaldo()"
                         class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:border-primary outline-none">
+                    <p class="text-[11px] text-on-surface-variant mt-1">Total dana yang telah tersalurkan/terpakai sebelum sistem realtime.</p>
+                </div>
+                <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex justify-between items-center">
+                    <span class="text-xs font-semibold text-emerald-900">Sisa Saldo Awal:</span>
+                    <span id="prog-base-saldo-display" class="text-sm font-bold text-emerald-800 font-mono">Rp 0</span>
                 </div>
                 <div class="flex gap-md pt-sm">
                     <button type="submit"
-                        class="flex-1 bg-primary text-on-primary py-3 rounded-lg font-label-md text-label-md font-bold hover:bg-primary-container transition-colors">Simpan
-                        Saldo Awal</button>
-                    <button type="button" onclick="closeBaselineModal()"
-                        class="px-lg py-3 border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors">Batal</button>
+                        class="flex-1 bg-primary text-on-primary py-2.5 rounded-lg font-label-md text-xs font-bold hover:bg-primary-container transition-colors cursor-pointer">
+                        Simpan Dana Awal Program
+                    </button>
+                    <button type="button" onclick="closeProgramBaselineModal()"
+                        class="px-lg py-2.5 border border-outline-variant rounded-lg font-label-md text-xs text-on-surface-variant hover:bg-surface-container-low transition-colors cursor-pointer">
+                        Batal
+                    </button>
                 </div>
             </form>
         </div>
@@ -3760,8 +3937,8 @@
         });
 
         // ─── KPI Cards Render ────────────────────────────
-        function renderKPI(containerId) {
-            const activeWilayah = getEffectiveWilayah();
+        function renderKPI(containerId, overrideWilayah) {
+            const activeWilayah = overrideWilayah || getEffectiveWilayah();
             const stats = wizStore.finance.getOverviewStats(activeWilayah);
             const fmt = fmtCompact;
             const container = document.getElementById(containerId);
@@ -3782,7 +3959,7 @@
                     <div class="w-8 h-8 rounded-lg bg-tertiary-container/20 flex items-center justify-center text-tertiary-container"><span class="material-symbols-outlined size-[18px]">outbound</span></div>
                 </div>
                 <h2 class="font-headline-md text-headline-md text-on-surface font-bold">${fmt(stats.totalTersalurkan)}</h2>
-                <p class="font-caption text-caption text-tertiary-container font-semibold mt-sm">Penyaluran Aktif</p>
+                <p class="font-caption text-caption text-tertiary-container font-semibold mt-sm">Penyaluran Aktif ${activeWilayah !== 'Semua' ? '(' + activeWilayah + ')' : '(Konsolidasi)'}</p>
             </div>
             <div class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-outline-variant/20">
                 <div class="flex justify-between items-start mb-sm">
@@ -3798,7 +3975,7 @@
                     <div class="w-8 h-8 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary-container"><span class="material-symbols-outlined size-[18px]">group</span></div>
                 </div>
                 <h2 class="font-headline-md text-headline-md text-on-surface font-bold">${stats.totalDonatur.toLocaleString('id-ID')}</h2>
-                <p class="font-caption text-caption text-primary font-semibold mt-sm">Donatur Terverifikasi</p>
+                <p class="font-caption text-caption text-primary font-semibold mt-sm">Donatur Terverifikasi ${activeWilayah !== 'Semua' ? '(' + activeWilayah + ')' : '(Konsolidasi)'}</p>
             </div>`;
         }
 
@@ -6662,73 +6839,59 @@ Jazakumullahu khairan kepada para muhsinin. Semoga Allah senantiasa meneguhkan l
             refreshAll();
         }
 
-        function renderFinanceSection() {
-            renderKPI('finance-kpi-grid');
-            const activeWilayah = getEffectiveWilayah();
-            const programs = wizStore.finance.getPerProgram(activeWilayah);
-            const specificProgs = wizStore.finance.getPerSpecificProgram(activeWilayah);
-            const fmt = fmtCompact;
-            const container = document.getElementById('finance-program-table');
-            if (!container) return;
+        // ─── Saldo Awal / Baseline Manager Logic ─────────
+        let activeModalBaselineWilayah = 'Pangkalpinang';
+        let activeModalBaselineTab = 'programs';
 
-            const rowsMain = programs.map(p => `
-            <tr class="hover:bg-surface-container-low transition-colors">
-                <td class="p-md text-on-surface font-semibold">${p.label}</td>
-                <td class="p-md text-right text-primary font-bold">${fmt(p.masuk)}</td>
-                <td class="p-md text-right text-tertiary-container font-bold">${fmt(p.tersalurkan)}</td>
-                <td class="p-md text-right font-bold text-on-surface">${fmt(p.saldo)}</td>
-                <td class="p-md text-center"><span class="px-sm py-xs ${p.statusClass} rounded-full font-caption text-caption font-bold">${p.status}</span></td>
-            </tr>`).join('');
+        function switchBaselineModalTab(tab) {
+            activeModalBaselineTab = tab;
+            const btnProg = document.getElementById('tab-btn-base-programs');
+            const btnSumm = document.getElementById('tab-btn-base-summary');
+            const tabProg = document.getElementById('tab-content-base-programs');
+            const tabSumm = document.getElementById('tab-content-base-summary');
 
-            const rowsSpecific = specificProgs.map(sp => `
-            <tr class="hover:bg-surface-container-low transition-colors text-xs">
-                <td class="p-md text-on-surface font-bold">
-                    <div class="flex items-center gap-2">
-                        ${sp.image ? `<img src="${sp.image}" class="w-6 h-6 rounded object-cover" />` : ''}
-                        <span>${sp.displayLabel}</span>
-                    </div>
-                </td>
-                <td class="p-md text-right text-primary font-bold">${fmt(sp.masuk)}</td>
-                <td class="p-md text-right text-tertiary-container font-bold">${fmt(sp.tersalurkan)}</td>
-                <td class="p-md text-right font-bold text-on-surface">${fmt(sp.saldo)}</td>
-                <td class="p-md text-center"><span class="px-sm py-xs ${sp.statusClass} rounded-full font-caption text-caption font-bold">${sp.status}</span></td>
-            </tr>`).join('');
+            if (tab === 'programs') {
+                if (btnProg) btnProg.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-primary text-on-primary transition-colors cursor-pointer';
+                if (btnSumm) btnSumm.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-surface-container-high text-on-surface-variant hover:bg-surface-variant transition-colors cursor-pointer';
+                if (tabProg) tabProg.classList.remove('hidden');
+                if (tabSumm) tabSumm.classList.add('hidden');
+            } else {
+                if (btnProg) btnProg.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-surface-container-high text-on-surface-variant hover:bg-surface-variant transition-colors cursor-pointer';
+                if (btnSumm) btnSumm.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-primary text-on-primary transition-colors cursor-pointer';
+                if (tabProg) tabProg.classList.add('hidden');
+                if (tabSumm) tabSumm.classList.remove('hidden');
+            }
+        }
 
-            container.innerHTML = `
-            <div class="space-y-lg">
-                <div>
-                    <h4 class="font-label-md font-bold text-primary mb-xs uppercase tracking-wider text-xs">Summary Kategori 5 Berkah WIZ</h4>
-                    <table class="w-full text-left border-collapse">
-                    <thead><tr class="bg-surface-container text-on-surface font-label-md text-label-md border-b border-outline-variant/30">
-                        <th class="p-md font-bold">Nama Kategori</th>
-                        <th class="p-md font-bold text-right">Total Dana Masuk</th>
-                        <th class="p-md font-bold text-right">Total Dana Tersalurkan</th>
-                        <th class="p-md font-bold text-right">Saldo Sisa Dana</th>
-                        <th class="p-md font-bold text-center">Status</th>
-                    </tr></thead>
-                    <tbody class="font-body-md text-body-md divide-y divide-outline-variant/20">${rowsMain}</tbody></table>
-                </div>
-
-                <div class="pt-md border-t border-outline-variant/30">
-                    <h4 class="font-label-md font-bold text-primary mb-xs uppercase tracking-wider text-xs">Rincian Per Program Spesifik (Integrasi Pengeluaran Realtime)</h4>
-                    <table class="w-full text-left border-collapse">
-                    <thead><tr class="bg-surface-container-high text-on-surface font-label-md text-label-md border-b border-outline-variant/30">
-                        <th class="p-md font-bold">Nama Program Spesifik</th>
-                        <th class="p-md font-bold text-right">Dana Masuk</th>
-                        <th class="p-md font-bold text-right">Dana Tersalurkan</th>
-                        <th class="p-md font-bold text-right">Saldo Per Program</th>
-                        <th class="p-md font-bold text-center">Status</th>
-                    </tr></thead>
-                    <tbody class="font-body-md text-body-md divide-y divide-outline-variant/20">${rowsSpecific}</tbody></table>
-                </div>
-            </div>`;
+        function handleBaselineWilayahSelectChange(wilayah) {
+            activeModalBaselineWilayah = wilayah;
+            populateModalBaselinePrograms();
+            updateModalBaselineKPIs();
         }
 
         function openBaselineModal() {
+            const auth = getAdminAuthInfo();
+            if (!auth.isSuperAdmin && auth.assignedWilayah !== 'Semua') {
+                activeModalBaselineWilayah = auth.assignedWilayah;
+            } else {
+                const finFilter = document.getElementById('finance-wilayah-filter');
+                activeModalBaselineWilayah = (finFilter && finFilter.value && finFilter.value !== 'Semua') ? finFilter.value : 'Pangkalpinang';
+            }
+
+            const sel = document.getElementById('baseline-wilayah-select');
+            if (sel) sel.value = activeModalBaselineWilayah;
+
             const base = wizStore.baselines.get();
-            document.getElementById('base-masuk').value = base.baseMasuk;
-            document.getElementById('base-salur').value = base.baseTersalurkan;
-            document.getElementById('base-donatur').value = base.baseDonatur;
+            const inpMasuk = document.getElementById('base-masuk');
+            const inpSalur = document.getElementById('base-salur');
+            const inpDonatur = document.getElementById('base-donatur');
+            if (inpMasuk) inpMasuk.value = base.baseMasuk || 0;
+            if (inpSalur) inpSalur.value = base.baseTersalurkan || 0;
+            if (inpDonatur) inpDonatur.value = base.baseDonatur || 0;
+
+            switchBaselineModalTab('programs');
+            populateModalBaselinePrograms();
+            updateModalBaselineKPIs();
             showModal('baseline-modal');
         }
 
@@ -6736,15 +6899,209 @@ Jazakumullahu khairan kepada para muhsinin. Semoga Allah senantiasa meneguhkan l
             hideModal('baseline-modal');
         }
 
-        function handleBaselineSave(e) {
-            e.preventDefault();
-            wizStore.baselines.update({
-                baseMasuk: Number(document.getElementById('base-masuk').value),
-                baseTersalurkan: Number(document.getElementById('base-salur').value),
-                baseDonatur: Number(document.getElementById('base-donatur').value)
+        function updateModalBaselineKPIs() {
+            const base = wizStore.baselines.get();
+            const targetWil = activeModalBaselineWilayah;
+            const fmt = (typeof window.formatRupiah === 'function') ? window.formatRupiah : fmtCompact;
+
+            let masuk = 0;
+            let salur = 0;
+
+            if (targetWil === 'Konsolidasi') {
+                masuk = base.baseMasuk || 0;
+                salur = base.baseTersalurkan || 0;
+            } else if (base.wilayah && base.wilayah[targetWil]) {
+                masuk = base.wilayah[targetWil].baseMasuk || 0;
+                salur = base.wilayah[targetWil].baseTersalurkan || 0;
+            }
+
+            const saldo = Math.max(0, masuk - salur);
+            const donatur = base.baseDonatur || 0;
+
+            const elM = document.getElementById('modal-base-kpi-masuk');
+            const elS = document.getElementById('modal-base-kpi-salur');
+            const elSal = document.getElementById('modal-base-kpi-saldo');
+            const elD = document.getElementById('modal-base-kpi-donatur');
+
+            if (elM) elM.textContent = fmt(masuk);
+            if (elS) elS.textContent = fmt(salur);
+            if (elSal) elSal.textContent = fmt(saldo);
+            if (elD) elD.textContent = Number(donatur).toLocaleString('id-ID') + ' orang';
+        }
+
+        function populateModalBaselinePrograms(keyword = '') {
+            const tbody = document.getElementById('modal-base-programs-tbody');
+            if (!tbody) return;
+
+            const targetWil = (activeModalBaselineWilayah === 'Konsolidasi') ? 'Pangkalpinang' : activeModalBaselineWilayah;
+            const pillars = wizStore.finance.getPerProgramDetailed(targetWil);
+            const fmt = (typeof window.formatRupiah === 'function') ? window.formatRupiah : fmtCompact;
+            const kw = keyword.toLowerCase().trim();
+
+            let html = '';
+            pillars.forEach(p => {
+                const progs = (p.programs || []).filter(pr => !kw || pr.title.toLowerCase().includes(kw) || p.key.toLowerCase().includes(kw));
+                if (progs.length === 0) return;
+
+                html += `
+                <tr class="bg-surface-container/60 font-bold text-on-surface border-y border-outline-variant/30">
+                    <td colspan="4" class="p-2 text-xs text-primary flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm">bookmark</span>
+                        <span>${p.key} (${p.category})</span>
+                        <span class="text-[10px] text-on-surface-variant font-normal">• ${progs.length} Program</span>
+                    </td>
+                </tr>`;
+
+                progs.forEach(pr => {
+                    const prBase = wizStore.baselines.getProgramBaseline(pr.title, targetWil);
+                    const bMasuk = prBase.masuk || 0;
+                    const bSalur = prBase.salur || 0;
+                    const bSaldo = Math.max(0, bMasuk - bSalur);
+                    const safeTitle = pr.title.replace(/"/g, '&quot;');
+                    const safeId = pr.title.replace(/[^\w\s-]/g, '').replace(/[-\s]+/g, '-');
+
+                    html += `
+                    <tr class="hover:bg-surface-container-low transition-colors text-xs" data-program-title="${safeTitle}">
+                        <td class="p-2 pl-4">
+                            <div class="font-semibold text-on-surface">${pr.title}</div>
+                            <div class="text-[10px] text-on-surface-variant">${pr.category}</div>
+                        </td>
+                        <td class="p-2 text-right">
+                            <input type="number" min="0" value="${bMasuk}"
+                                data-prog-title="${safeTitle}" data-field="masuk"
+                                oninput="handleModalProgramInputChange(this)"
+                                class="w-36 text-right bg-surface border border-outline-variant rounded px-2 py-1 text-xs font-mono text-primary font-bold outline-none focus:border-primary">
+                        </td>
+                        <td class="p-2 text-right">
+                            <input type="number" min="0" value="${bSalur}"
+                                data-prog-title="${safeTitle}" data-field="salur"
+                                oninput="handleModalProgramInputChange(this)"
+                                class="w-36 text-right bg-surface border border-outline-variant rounded px-2 py-1 text-xs font-mono text-tertiary-container font-bold outline-none focus:border-primary">
+                        </td>
+                        <td class="p-2 text-right">
+                            <span class="font-mono font-bold ${bSaldo > 0 ? 'text-emerald-700' : 'text-slate-400'}" id="modal-saldo-${safeId}">
+                                ${fmt(bSaldo)}
+                            </span>
+                        </td>
+                    </tr>`;
+                });
             });
+
+            if (!html) {
+                html = `<tr><td colspan="4" class="p-4 text-center text-xs text-on-surface-variant">Tidak ada program yang cocok dengan filter pencarian.</td></tr>`;
+            }
+
+            tbody.innerHTML = html;
+        }
+
+        function handleModalProgramInputChange(input) {
+            const tr = input.closest('tr');
+            if (!tr) return;
+            const masukInp = tr.querySelector('input[data-field="masuk"]');
+            const salurInp = tr.querySelector('input[data-field="salur"]');
+            const masukVal = Number(masukInp ? masukInp.value : 0) || 0;
+            const salurVal = Number(salurInp ? salurInp.value : 0) || 0;
+            const saldo = Math.max(0, masukVal - salurVal);
+
+            const fmt = (typeof window.formatRupiah === 'function') ? window.formatRupiah : fmtCompact;
+            const saldoEl = tr.querySelector('span[id^="modal-saldo-"]');
+            if (saldoEl) {
+                saldoEl.textContent = fmt(saldo);
+                saldoEl.className = `font-mono font-bold ${saldo > 0 ? 'text-emerald-700' : 'text-slate-400'}`;
+            }
+        }
+
+        function filterModalBaselineTable(kw) {
+            populateModalBaselinePrograms(kw);
+        }
+
+        function handleDetailedBaselineSave() {
+            const targetWil = (activeModalBaselineWilayah === 'Konsolidasi') ? 'Pangkalpinang' : activeModalBaselineWilayah;
+            const rows = document.querySelectorAll('#modal-base-programs-tbody tr[data-program-title]');
+
+            rows.forEach(tr => {
+                const title = tr.getAttribute('data-program-title');
+                const masukInp = tr.querySelector('input[data-field="masuk"]');
+                const salurInp = tr.querySelector('input[data-field="salur"]');
+                if (title && masukInp && salurInp) {
+                    const masukVal = Number(masukInp.value) || 0;
+                    const salurVal = Number(salurInp.value) || 0;
+                    wizStore.baselines.setProgramBaseline(title, targetWil, masukVal, salurVal);
+                }
+            });
+
+            const inpDonatur = document.getElementById('base-donatur');
+            if (inpDonatur) {
+                wizStore.baselines.update({
+                    baseDonatur: Number(inpDonatur.value) || 0
+                });
+            }
+
             closeBaselineModal();
             refreshAll();
+            if (typeof showNotification === 'function') {
+                showNotification(`✅ Saldo awal baseline ${targetWil} berhasil disimpan & disinkronkan!`);
+            } else {
+                alert(`✅ Saldo awal baseline ${targetWil} berhasil disimpan & disinkronkan!`);
+            }
+        }
+
+        function handleBaselineSave(e) {
+            if (e) e.preventDefault();
+            handleDetailedBaselineSave();
+        }
+
+        // ─── Single Program Baseline Modal Logic ─────────
+        function openProgramBaselineModal(programTitle, targetWilayah) {
+            const wil = (targetWilayah && targetWilayah !== 'Semua') ? targetWilayah : 'Pangkalpinang';
+            document.getElementById('prog-base-title-display').textContent = programTitle;
+            document.getElementById('prog-base-title-hidden').value = programTitle;
+            const wilSel = document.getElementById('prog-base-wilayah-select');
+            if (wilSel) wilSel.value = wil;
+
+            loadSingleProgramBaselineData();
+            showModal('program-baseline-modal');
+        }
+
+        function closeProgramBaselineModal() {
+            hideModal('program-baseline-modal');
+        }
+
+        function loadSingleProgramBaselineData() {
+            const title = document.getElementById('prog-base-title-hidden').value;
+            const wilSel = document.getElementById('prog-base-wilayah-select');
+            const targetWil = wilSel ? wilSel.value : 'Pangkalpinang';
+
+            const base = wizStore.baselines.getProgramBaseline(title, targetWil);
+            document.getElementById('prog-base-masuk').value = base.masuk || 0;
+            document.getElementById('prog-base-salur').value = base.salur || 0;
+            calcSingleProgramBaselineSaldo();
+        }
+
+        function calcSingleProgramBaselineSaldo() {
+            const masuk = Number(document.getElementById('prog-base-masuk').value) || 0;
+            const salur = Number(document.getElementById('prog-base-salur').value) || 0;
+            const saldo = Math.max(0, masuk - salur);
+            const fmt = (typeof window.formatRupiah === 'function') ? window.formatRupiah : fmtCompact;
+            document.getElementById('prog-base-saldo-display').textContent = fmt(saldo);
+        }
+
+        function handleSingleProgramBaselineSave(e) {
+            e.preventDefault();
+            const title = document.getElementById('prog-base-title-hidden').value;
+            const targetWil = document.getElementById('prog-base-wilayah-select').value;
+            const masuk = Number(document.getElementById('prog-base-masuk').value) || 0;
+            const salur = Number(document.getElementById('prog-base-salur').value) || 0;
+
+            wizStore.baselines.setProgramBaseline(title, targetWil, masuk, salur);
+            closeProgramBaselineModal();
+            refreshAll();
+
+            if (typeof showNotification === 'function') {
+                showNotification(`✅ Saldo awal untuk ${title} (${targetWil}) berhasil diperbarui!`);
+            } else {
+                alert(`✅ Saldo awal untuk ${title} (${targetWil}) berhasil diperbarui!`);
+            }
         }
 
         function updateBadges() {
@@ -9786,104 +10143,289 @@ Jazakumullahu khairan kepada para muhsinin. Semoga Allah senantiasa meneguhkan l
             refreshAll();
         }
 
-        // ─── Finance Section (5 Pilar Utama Summary) ─────────
+        // ─── Finance Section (5 Pilar & Rincian Seluruh Program) ─────────
+        let financeExpandedPillars = new Set(['Berkah Hidayah', 'Berkah Juara', 'Berkah Peduli', 'Berkah Sehat', 'Berkah Mandiri']);
+        let financeSearchKeyword = '';
+
+        function toggleAllFinancePillars(expanded) {
+            const allPillars = ['Berkah Hidayah', 'Berkah Juara', 'Berkah Peduli', 'Berkah Sehat', 'Berkah Mandiri'];
+            if (expanded) {
+                financeExpandedPillars = new Set(allPillars);
+            } else {
+                financeExpandedPillars.clear();
+            }
+            renderFinanceSection();
+        }
+
+        function toggleFinancePillar(pillarKey) {
+            if (financeExpandedPillars.has(pillarKey)) {
+                financeExpandedPillars.delete(pillarKey);
+            } else {
+                financeExpandedPillars.add(pillarKey);
+            }
+            renderFinanceSection();
+        }
+
+        function filterFinancePrograms(kw) {
+            financeSearchKeyword = (kw || '').trim().toLowerCase();
+            renderFinanceSection();
+        }
+
+        function getFinanceEffectiveWilayah() {
+            const auth = getAdminAuthInfo();
+            if (!auth.isSuperAdmin && auth.assignedWilayah !== 'Semua') {
+                return auth.assignedWilayah;
+            }
+            if (CURRENT_ROLE === 'ADMIN_PANGKALPINANG') return 'Pangkalpinang';
+            if (CURRENT_ROLE === 'ADMIN_SUNGAILIAT') return 'Sungailiat';
+
+            const finFilter = document.getElementById('finance-wilayah-filter');
+            if (finFilter && finFilter.value) {
+                return finFilter.value;
+            }
+            return 'Semua';
+        }
+
         function renderFinanceSection() {
             if (!window.wizStore || !wizStore.finance) return;
 
-            const filterWilayah = getEffectiveWilayah();
-            const fmt = fmtCompact;
-            // Render Finance KPI Grid
-            renderKPI('finance-kpi-grid');
+            const filterWilayah = getFinanceEffectiveWilayah();
+            const finFilter = document.getElementById('finance-wilayah-filter');
+            if (finFilter && finFilter.value !== filterWilayah) {
+                finFilter.value = filterWilayah;
+            }
+
+            const activeBadge = document.getElementById('finance-active-wilayah-badge');
+            if (activeBadge) {
+                activeBadge.textContent = (filterWilayah === 'Semua') ? 'Konsolidasi (Semua Cabang)' : 'Wilayah: ' + filterWilayah;
+            }
+
+            // Render Finance KPI Grid for specific region
+            renderKPI('finance-kpi-grid', filterWilayah);
 
             const container = document.getElementById('finance-breakdown-container');
             if (!container) return;
 
-            const perPillars = wizStore.finance.getPerProgram(filterWilayah);
+            const perPillars = wizStore.finance.getPerProgramDetailed(filterWilayah);
             if (!perPillars || perPillars.length === 0) {
                 container.innerHTML = '<div class="p-lg text-center text-on-surface-variant font-body-md">Belum ada data keuangan untuk ditampilkan.</div>';
                 return;
             }
 
+            const fmt = fmtCompact;
             const pillarMeta = {
-                'Berkah Hidayah': { icon: 'menu_book', category: 'Dakwah & Pembinaan', color: 'text-emerald-700 bg-emerald-50 border-emerald-200', barColor: 'bg-emerald-600' },
-                'Berkah Juara': { icon: 'school', category: 'Pendidikan & Beasiswa', color: 'text-blue-700 bg-blue-50 border-blue-200', barColor: 'bg-blue-600' },
-                'Berkah Peduli': { icon: 'volunteer_activism', category: 'Sosial & Kemanusiaan', color: 'text-amber-700 bg-amber-50 border-amber-200', barColor: 'bg-amber-600' },
-                'Berkah Sehat': { icon: 'health_and_safety', category: 'Kesehatan & Ambulance', color: 'text-rose-700 bg-rose-50 border-rose-200', barColor: 'bg-rose-600' },
-                'Berkah Mandiri': { icon: 'storefront', category: 'Ekonomi & Pemberdayaan', color: 'text-purple-700 bg-purple-50 border-purple-200', barColor: 'bg-purple-600' }
+                'Berkah Hidayah': { icon: 'menu_book', category: 'Dakwah & Pembinaan', color: 'text-emerald-700 bg-emerald-50 border-emerald-200', barColor: 'bg-emerald-600', headerBg: 'bg-emerald-50/70 hover:bg-emerald-50' },
+                'Berkah Juara': { icon: 'school', category: 'Pendidikan & Beasiswa', color: 'text-blue-700 bg-blue-50 border-blue-200', barColor: 'bg-blue-600', headerBg: 'bg-blue-50/70 hover:bg-blue-50' },
+                'Berkah Peduli': { icon: 'volunteer_activism', category: 'Sosial & Kemanusiaan', color: 'text-amber-700 bg-amber-50 border-amber-200', barColor: 'bg-amber-600', headerBg: 'bg-amber-50/70 hover:bg-amber-50' },
+                'Berkah Sehat': { icon: 'health_and_safety', category: 'Kesehatan & Ambulance', color: 'text-rose-700 bg-rose-50 border-rose-200', barColor: 'bg-rose-600', headerBg: 'bg-rose-50/70 hover:bg-rose-50' },
+                'Berkah Mandiri': { icon: 'storefront', category: 'Ekonomi & Pemberdayaan', color: 'text-purple-700 bg-purple-50 border-purple-200', barColor: 'bg-purple-600', headerBg: 'bg-purple-50/70 hover:bg-purple-50' }
             };
 
-            let totalMasuk = 0;
-            let totalSalur = 0;
-            let totalSaldo = 0;
-            let totalTarget = 0;
+            let grandTarget = 0;
+            let grandMasuk = 0;
+            let grandSalur = 0;
+            let grandSaldo = 0;
 
-            const rows = perPillars.map(p => {
-                const meta = pillarMeta[p.key] || { icon: 'category', category: p.key, color: 'text-primary bg-primary/10 border-primary/20', barColor: 'bg-primary' };
-                totalMasuk += p.masuk;
-                totalSalur += p.tersalurkan;
-                totalSaldo += p.saldo;
-                totalTarget += (p.target || 0);
+            const kw = financeSearchKeyword;
+            let totalProgramsCount = 0;
+            let matchedProgramsCount = 0;
 
-                const percentTarget = p.target > 0 ? Math.min(100, Math.round((p.masuk / p.target) * 100)) : 0;
-                const percentSalur = p.masuk > 0 ? Math.min(100, Math.round((p.tersalurkan / p.masuk) * 100)) : 0;
+            let tbodyHtml = '';
 
-                return `
-                <tr class="hover:bg-surface-container-lowest/60 transition-colors">
-                    <td class="p-md">
-                        <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${meta.color}">
-                                <span class="material-symbols-outlined text-lg">${meta.icon}</span>
+            perPillars.forEach(p => {
+                const meta = pillarMeta[p.key] || { icon: 'category', category: p.key, color: 'text-primary bg-primary/10 border-primary/20', barColor: 'bg-primary', headerBg: 'bg-surface-container-low hover:bg-surface-container' };
+                grandTarget += (p.target || 0);
+                grandMasuk += (p.masuk || 0);
+                grandSalur += (p.tersalurkan || 0);
+                grandSaldo += (p.saldo || 0);
+
+                const allSubProgs = p.programs || [];
+                totalProgramsCount += allSubProgs.length;
+
+                // Check search filter
+                const filteredSubProgs = allSubProgs.filter(pr => {
+                    if (!kw) return true;
+                    return pr.title.toLowerCase().includes(kw) || p.key.toLowerCase().includes(kw) || pr.category.toLowerCase().includes(kw);
+                });
+
+                matchedProgramsCount += filteredSubProgs.length;
+
+                // Auto-expand if searching and match found
+                const isExpanded = kw ? (filteredSubProgs.length > 0) : financeExpandedPillars.has(p.key);
+
+                if (kw && filteredSubProgs.length === 0) {
+                    return; // Skip pillar if no match during search
+                }
+
+                const percentPillarTarget = p.target > 0 ? Math.min(100, Math.round((p.masuk / p.target) * 100)) : 0;
+                const percentPillarSalur = p.masuk > 0 ? Math.min(100, Math.round((p.tersalurkan / p.masuk) * 100)) : 0;
+
+                // 1. Master Pillar Row
+                tbodyHtml += `
+                <tr class="${meta.headerBg} border-t-2 border-outline-variant/40 transition-colors cursor-pointer select-none font-bold text-on-surface"
+                    onclick="toggleFinancePillar('${p.key}')">
+                    <td class="p-3">
+                        <div class="flex items-center gap-2.5">
+                            <span class="material-symbols-outlined text-lg text-on-surface-variant transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}">expand_more</span>
+                            <div class="w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 ${meta.color}">
+                                <span class="material-symbols-outlined text-base">${meta.icon}</span>
                             </div>
                             <div>
-                                <div class="font-bold text-on-surface text-sm flex items-center gap-1.5">
+                                <div class="text-sm font-bold text-on-surface flex items-center gap-1.5 flex-wrap">
                                     <span>${p.key}</span>
                                     <span class="px-2 py-0.5 rounded text-[10px] font-bold ${meta.color}">${meta.category}</span>
+                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-surface-container text-on-surface-variant border border-outline-variant/30">${allSubProgs.length} Program</span>
                                 </div>
                             </div>
                         </div>
                     </td>
-                    <td class="p-md text-center">
+                    <td class="p-3 text-center">
                         <div class="font-bold text-xs text-on-surface font-mono">${fmt(p.target)}</div>
-                        <div class="w-20 bg-surface-container rounded-full h-1.5 mx-auto mt-1 overflow-hidden">
-                            <div class="${meta.barColor} h-1.5 rounded-full" style="width: ${percentTarget}%"></div>
+                        <div class="w-16 bg-surface-container rounded-full h-1 mx-auto mt-1 overflow-hidden">
+                            <div class="${meta.barColor} h-1 rounded-full" style="width: ${percentPillarTarget}%"></div>
                         </div>
-                        <span class="text-[10px] text-on-surface-variant font-mono">${percentTarget}% target</span>
+                        <span class="text-[9px] text-on-surface-variant font-mono">${percentPillarTarget}% target</span>
                     </td>
-                    <td class="p-md text-right font-bold text-primary text-sm">${fmt(p.masuk)}</td>
-                    <td class="p-md text-right font-bold text-tertiary-container text-sm">${fmt(p.tersalurkan)}</td>
-                    <td class="p-md text-right font-bold text-on-surface text-sm">
-                        <span class="${p.saldo > 0 ? 'text-emerald-800 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200' : 'text-slate-400'}">${fmt(p.saldo)}</span>
+                    <td class="p-3 text-right">
+                        <div class="font-bold text-primary text-sm font-mono">${fmt(p.masuk)}</div>
+                        <div class="text-[10px] text-on-surface-variant font-mono font-normal">Total Penerimaan</div>
                     </td>
-                    <td class="p-md text-center">
-                        <span class="px-2.5 py-1 ${p.statusClass} rounded-full font-caption text-caption font-bold inline-block">${p.status}</span>
-                        <div class="text-[10px] text-outline mt-0.5 font-mono">${percentSalur}% tersalurkan</div>
+                    <td class="p-3 text-right">
+                        <div class="font-bold text-tertiary-container text-sm font-mono">${fmt(p.tersalurkan)}</div>
+                        <div class="text-[10px] text-outline font-mono font-normal">${percentPillarSalur}% tersalurkan</div>
+                    </td>
+                    <td class="p-3 text-right">
+                        <span class="inline-block px-2.5 py-1 rounded-lg text-xs font-bold font-mono ${p.saldo > 0 ? 'text-emerald-900 bg-emerald-100 border border-emerald-300' : 'text-slate-400 bg-slate-100'}">
+                            ${fmt(p.saldo)}
+                        </span>
+                    </td>
+                    <td class="p-3 text-center">
+                        <span class="px-2.5 py-1 ${p.statusClass} rounded-full font-caption text-[11px] font-bold inline-block shadow-2xs">
+                            ${p.status}
+                        </span>
+                    </td>
+                    <td class="p-3 text-center">
+                        <button type="button" onclick="event.stopPropagation(); toggleFinancePillar('${p.key}')"
+                            class="px-2 py-1 text-[11px] font-semibold text-primary hover:bg-primary/10 rounded transition-colors cursor-pointer">
+                            ${isExpanded ? 'Tutup Rincian' : 'Lihat ' + allSubProgs.length + ' Program'}
+                        </button>
                     </td>
                 </tr>`;
-            }).join('');
+
+                // 2. Sub-program Rows (Only if expanded)
+                if (isExpanded) {
+                    filteredSubProgs.forEach((pr) => {
+                        const prPercentTarget = pr.target > 0 ? Math.min(100, Math.round((pr.masuk / pr.target) * 100)) : 0;
+                        const prPercentSalur = pr.masuk > 0 ? Math.min(100, Math.round((pr.tersalurkan / pr.masuk) * 100)) : 0;
+                        const safeTitle = pr.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
+                        tbodyHtml += `
+                        <tr class="hover:bg-primary/5 transition-colors text-xs border-b border-outline-variant/20 bg-surface-container-lowest">
+                            <td class="py-2.5 px-3 pl-10">
+                                <div class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined text-outline text-sm shrink-0 mt-0.5">subdirectory_arrow_right</span>
+                                    <div>
+                                        <div class="font-semibold text-on-surface text-xs hover:text-primary transition-colors flex items-center gap-1.5 flex-wrap">
+                                            <span>${pr.title}</span>
+                                            ${pr.category !== meta.category ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-surface-container text-on-surface-variant">${pr.category}</span>` : ''}
+                                        </div>
+                                        <div class="text-[10px] text-on-surface-variant flex items-center gap-2 mt-0.5 font-mono">
+                                            <span>Target: ${fmt(pr.target)}</span>
+                                            <span>•</span>
+                                            <span class="text-primary">${prPercentTarget}% tercapai</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-2.5 px-3 text-center">
+                                <div class="font-mono text-xs text-on-surface">${fmt(pr.target)}</div>
+                                <div class="w-12 bg-surface-container rounded-full h-1 mx-auto mt-1 overflow-hidden">
+                                    <div class="${meta.barColor} h-1 rounded-full" style="width: ${prPercentTarget}%"></div>
+                                </div>
+                            </td>
+                            <td class="py-2.5 px-3 text-right">
+                                <div class="font-bold text-primary font-mono text-xs">${fmt(pr.masuk)}</div>
+                                <div class="text-[10px] text-on-surface-variant font-mono">
+                                    <span title="Saldo Awal Baseline">Awal: ${fmt(pr.baseMasuk)}</span> | 
+                                    <span title="Donasi Terikat">Terikat: ${fmt(pr.infakTerikat)}</span> | 
+                                    <span title="Porsi Infak Umum">Umum: ${fmt(pr.infakUmum)}</span>
+                                </div>
+                            </td>
+                            <td class="py-2.5 px-3 text-right">
+                                <div class="font-bold text-tertiary-container font-mono text-xs">${fmt(pr.tersalurkan)}</div>
+                                <div class="text-[10px] text-on-surface-variant font-mono">
+                                    <span title="Saldo Awal Keluar">Awal: ${fmt(pr.baseSalur)}</span> | 
+                                    <span title="Penyaluran Realtime">Salur: ${fmt(pr.realtimeSalur)}</span>
+                                </div>
+                            </td>
+                            <td class="py-2.5 px-3 text-right">
+                                <span class="inline-block px-2 py-0.5 rounded font-mono font-bold text-xs ${pr.saldo > 0 ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-slate-50 text-slate-400'}">
+                                    ${fmt(pr.saldo)}
+                                </span>
+                            </td>
+                            <td class="py-2.5 px-3 text-center">
+                                <span class="px-2 py-0.5 ${pr.statusClass} rounded-full font-caption text-[10px] font-bold inline-block">
+                                    ${pr.status}
+                                </span>
+                                <div class="text-[9px] text-outline mt-0.5 font-mono">${prPercentSalur}% tersalurkan</div>
+                            </td>
+                            <td class="py-2.5 px-3 text-center">
+                                <button type="button" onclick="openProgramBaselineModal('${safeTitle}', '${filterWilayah}')"
+                                    class="inline-flex items-center gap-1 px-2.5 py-1 bg-surface-container hover:bg-primary hover:text-on-primary rounded text-xs font-semibold text-primary transition-colors cursor-pointer border border-outline-variant/40 shadow-2xs"
+                                    title="Edit Saldo Awal program ini dari Spreadsheet">
+                                    <span class="material-symbols-outlined text-[14px]">edit_note</span>
+                                    <span>Dana Awal</span>
+                                </button>
+                            </td>
+                        </tr>`;
+                    });
+                }
+            });
+
+            if (!tbodyHtml) {
+                tbodyHtml = `<tr><td colspan="7" class="p-8 text-center text-on-surface-variant font-body-md">Tidak ada program yang sesuai dengan kata kunci "${kw}".</td></tr>`;
+            }
+
+            const wilayahLabel = (filterWilayah === 'Semua') ? 'TOTAL KONSOLIDASI (SEMUA CABANG)' : `TOTAL WILAYAH: ${filterWilayah.toUpperCase()}`;
 
             container.innerHTML = `
             <table class="w-full text-left border-collapse text-xs">
                 <thead>
                     <tr class="bg-surface-container-low border-b border-outline-variant/30 font-label-md text-caption text-on-surface-variant">
-                        <th class="p-md">Pilar Program Utama</th>
-                        <th class="p-md text-center">Target Tahunan</th>
-                        <th class="p-md text-right">Dana Masuk (Spesifik + Infak Umum)</th>
-                        <th class="p-md text-right">Dana Tersalurkan</th>
-                        <th class="p-md text-right">Sisa Saldo Amanah</th>
-                        <th class="p-md text-center">Realisasi &amp; Status</th>
+                        <th class="p-3">Pilar &amp; Program Utama WIZ</th>
+                        <th class="p-3 text-center w-28">Target Tahunan</th>
+                        <th class="p-3 text-right">Dana Masuk (Awal + Terikat + Infak Umum)</th>
+                        <th class="p-3 text-right">Dana Tersalurkan (Awal + Realtime)</th>
+                        <th class="p-3 text-right w-36">Sisa Saldo Amanah</th>
+                        <th class="p-3 text-center w-32">Realisasi &amp; Status</th>
+                        <th class="p-3 text-center w-28">Aksi Saldo Awal</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-outline-variant/20 font-body-md text-xs">
-                    ${rows}
+                <tbody class="font-body-md text-xs">
+                    ${tbodyHtml}
                 </tbody>
-                <tfoot class="bg-surface-container-low font-bold text-on-surface border-t-2 border-outline-variant/40">
+                <tfoot class="bg-surface-container-low font-bold text-on-surface border-t-2 border-outline-variant/50">
                     <tr>
-                        <td class="p-md font-bold text-xs">TOTAL KONSOLIDASI (5 PILAR)</td>
-                        <td class="p-md text-center text-xs font-mono">${fmt(totalTarget)}</td>
-                        <td class="p-md text-right text-primary font-bold text-sm">${fmt(totalMasuk)}</td>
-                        <td class="p-md text-right text-tertiary-container font-bold text-sm">${fmt(totalSalur)}</td>
-                        <td class="p-md text-right text-emerald-900 font-bold text-sm">${fmt(totalSaldo)}</td>
-                        <td class="p-md text-center text-xs font-semibold text-primary">Saldo Siap Salur</td>
+                        <td class="p-3 font-bold text-xs">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary text-base">verified</span>
+                                <span>${wilayahLabel}</span>
+                            </div>
+                        </td>
+                        <td class="p-3 text-center text-xs font-mono">${fmt(grandTarget)}</td>
+                        <td class="p-3 text-right text-primary font-bold text-sm font-mono">${fmt(grandMasuk)}</td>
+                        <td class="p-3 text-right text-tertiary-container font-bold text-sm font-mono">${fmt(grandSalur)}</td>
+                        <td class="p-3 text-right text-emerald-900 font-bold text-sm font-mono">
+                            <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-900 border border-emerald-300">
+                                ${fmt(grandSaldo)}
+                            </span>
+                        </td>
+                        <td class="p-3 text-center text-xs font-semibold text-primary">Saldo Siap Salur</td>
+                        <td class="p-3 text-center">
+                            <button type="button" onclick="openBaselineModal()" class="px-2 py-1 bg-primary text-on-primary rounded text-[11px] font-bold hover:bg-primary-container transition-colors cursor-pointer">
+                                Kelola Semua
+                            </button>
+                        </td>
                     </tr>
                 </tfoot>
             </table>`;
@@ -10404,7 +10946,6 @@ Jazakumullahu khairan kepada para muhsinin. Semoga Allah senantiasa meneguhkan l
             } else if (section === 'quotes') {
                 try { if (typeof renderQuotesSection === 'function') renderQuotesSection(); } catch(e) { console.error(e); }
             } else if (section === 'finance') {
-                try { if (typeof renderKPI === 'function') renderKPI('finance-kpi-grid'); } catch(e) { console.error(e); }
                 try { if (typeof renderFinanceSection === 'function') renderFinanceSection(); } catch(e) { console.error(e); }
             } else if (section === 'referrals') {
                 try { if (typeof renderReferralsSection === 'function') renderReferralsSection(); } catch(e) { console.error(e); }

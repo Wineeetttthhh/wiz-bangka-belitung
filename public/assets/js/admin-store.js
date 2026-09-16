@@ -442,7 +442,12 @@
     const DEFAULT_BASELINES = {
         baseMasuk: 0,
         baseTersalurkan: 0,
-        baseDonatur: 0
+        baseDonatur: 0,
+        wilayah: {
+            'Pangkalpinang': { baseMasuk: 0, baseTersalurkan: 0, baseDonatur: 0, programs: {} },
+            'Sungailiat': { baseMasuk: 0, baseTersalurkan: 0, baseDonatur: 0, programs: {} }
+        },
+        programs: {}
     };
 
     function getDeletedIds() {
@@ -2918,17 +2923,147 @@
                 setStore(STORAGE_KEYS.BASELINES, DEFAULT_BASELINES);
                 return DEFAULT_BASELINES;
             }
-            return saved ? { ...DEFAULT_BASELINES, ...saved } : DEFAULT_BASELINES;
+            if (!saved) return DEFAULT_BASELINES;
+            return {
+                ...DEFAULT_BASELINES,
+                ...saved,
+                wilayah: {
+                    ...DEFAULT_BASELINES.wilayah,
+                    ...(saved.wilayah || {})
+                },
+                programs: {
+                    ...(saved.programs || {})
+                }
+            };
+        },
+
+        getProgramBaseline(programName, targetWilayah) {
+            const base = this.get();
+            if (!programName) return { masuk: 0, salur: 0 };
+
+            if (targetWilayah && targetWilayah !== 'Semua') {
+                const wObj = base.wilayah && base.wilayah[targetWilayah];
+                if (wObj && wObj.programs) {
+                    for (const [pName, pVal] of Object.entries(wObj.programs)) {
+                        if (isProgramMatching(pName, programName)) {
+                            return {
+                                masuk: Number(pVal.masuk) || 0,
+                                salur: Number(pVal.salur) || 0
+                            };
+                        }
+                    }
+                }
+                return { masuk: 0, salur: 0 };
+            }
+
+            // If 'Semua' (Konsolidasi), sum across all wilayahs, or check top-level programs
+            let sumMasuk = 0;
+            let sumSalur = 0;
+            let foundInWilayah = false;
+
+            if (base.wilayah) {
+                for (const wKey of Object.keys(base.wilayah)) {
+                    const wProg = base.wilayah[wKey]?.programs;
+                    if (wProg) {
+                        for (const [pName, pVal] of Object.entries(wProg)) {
+                            if (isProgramMatching(pName, programName)) {
+                                sumMasuk += Number(pVal.masuk) || 0;
+                                sumSalur += Number(pVal.salur) || 0;
+                                foundInWilayah = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (foundInWilayah) {
+                return { masuk: sumMasuk, salur: sumSalur };
+            }
+
+            if (base.programs) {
+                for (const [pName, pVal] of Object.entries(base.programs)) {
+                    if (isProgramMatching(pName, programName)) {
+                        return {
+                            masuk: Number(pVal.masuk) || 0,
+                            salur: Number(pVal.salur) || 0
+                        };
+                    }
+                }
+            }
+
+            return { masuk: 0, salur: 0 };
+        },
+
+        setProgramBaseline(programName, targetWilayah, masuk, salur) {
+            const current = this.get();
+            const wil = (targetWilayah && targetWilayah !== 'Semua') ? targetWilayah : 'Pangkalpinang';
+
+            if (!current.wilayah) current.wilayah = {};
+            if (!current.wilayah[wil]) {
+                current.wilayah[wil] = { baseMasuk: 0, baseTersalurkan: 0, baseDonatur: 0, programs: {} };
+            }
+            if (!current.wilayah[wil].programs) {
+                current.wilayah[wil].programs = {};
+            }
+
+            current.wilayah[wil].programs[programName] = {
+                masuk: Number(masuk) || 0,
+                salur: Number(salur) || 0
+            };
+
+            if (!current.programs) current.programs = {};
+            current.programs[programName] = {
+                masuk: Number(masuk) || 0,
+                salur: Number(salur) || 0
+            };
+
+            this.recalculateTotals(current);
+            setStore(STORAGE_KEYS.BASELINES, current);
+            activityLog.add('baseline', `Saldo Awal program ${programName} (${wil}) diperbarui: Masuk Rp ${Number(masuk || 0).toLocaleString('id-ID')}, Keluar Rp ${Number(salur || 0).toLocaleString('id-ID')}.`, 'Admin');
+            return current;
+        },
+
+        recalculateTotals(baseObj) {
+            let totalMasuk = 0;
+            let totalSalur = 0;
+
+            if (baseObj.wilayah) {
+                for (const wKey of Object.keys(baseObj.wilayah)) {
+                    const wData = baseObj.wilayah[wKey];
+                    let wMasuk = 0;
+                    let wSalur = 0;
+                    if (wData && wData.programs) {
+                        for (const pVal of Object.values(wData.programs)) {
+                            wMasuk += Number(pVal.masuk) || 0;
+                            wSalur += Number(pVal.salur) || 0;
+                        }
+                    }
+                    wData.baseMasuk = wMasuk;
+                    wData.baseTersalurkan = wSalur;
+                    totalMasuk += wMasuk;
+                    totalSalur += wSalur;
+                }
+            }
+
+            baseObj.baseMasuk = Math.max(Number(baseObj.baseMasuk) || 0, totalMasuk);
+            baseObj.baseTersalurkan = Math.max(Number(baseObj.baseTersalurkan) || 0, totalSalur);
         },
 
         update(updates) {
             const current = this.get();
             const updated = {
                 ...current,
-                baseMasuk: Number(updates.baseMasuk) || current.baseMasuk,
-                baseTersalurkan: Number(updates.baseTersalurkan) || current.baseTersalurkan,
-                baseDonatur: Number(updates.baseDonatur) || current.baseDonatur
+                baseMasuk: updates.baseMasuk !== undefined ? Number(updates.baseMasuk) : current.baseMasuk,
+                baseTersalurkan: updates.baseTersalurkan !== undefined ? Number(updates.baseTersalurkan) : current.baseTersalurkan,
+                baseDonatur: updates.baseDonatur !== undefined ? Number(updates.baseDonatur) : current.baseDonatur
             };
+            if (updates.wilayah) {
+                updated.wilayah = { ...(current.wilayah || {}), ...updates.wilayah };
+            }
+            if (updates.programs) {
+                updated.programs = { ...(current.programs || {}), ...updates.programs };
+            }
+            this.recalculateTotals(updated);
             setStore(STORAGE_KEYS.BASELINES, updated);
             activityLog.add('baseline', `Angka Saldo Awal / Baseline Keuangan diperbarui.`, 'Admin');
             return updated;
@@ -4899,17 +5034,33 @@
     const finance = {
         getTotalDanaMasuk(wilayah) {
             let verified = donations.getVerified();
-            if (wilayah && wilayah !== 'Semua') verified = verified.filter(d => d.wilayah === wilayah);
-            const base = wilayah && wilayah !== 'Semua' ? 0 : baselines.get().baseMasuk;
+            if (wilayah && wilayah !== 'Semua') {
+                const wLower = wilayah.trim().toLowerCase();
+                verified = verified.filter(d => (d.wilayah || 'Pangkalpinang').trim().toLowerCase() === wLower);
+            }
+            const b = baselines.get();
+            let base = 0;
+            if (wilayah && wilayah !== 'Semua') {
+                base = (b.wilayah && b.wilayah[wilayah]) ? (Number(b.wilayah[wilayah].baseMasuk) || 0) : 0;
+            } else {
+                base = Number(b.baseMasuk) || 0;
+            }
             return base + verified.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
         },
 
         getTotalTersalurkan(wilayah) {
             let list = disbursements.getAll();
             if (wilayah && wilayah !== 'Semua') {
-                list = list.filter(d => (d.wilayah || 'Pangkalpinang') === wilayah);
+                const wLower = wilayah.trim().toLowerCase();
+                list = list.filter(d => (d.wilayah || 'Pangkalpinang').trim().toLowerCase() === wLower);
             }
-            const base = wilayah && wilayah !== 'Semua' ? 0 : baselines.get().baseTersalurkan;
+            const b = baselines.get();
+            let base = 0;
+            if (wilayah && wilayah !== 'Semua') {
+                base = (b.wilayah && b.wilayah[wilayah]) ? (Number(b.wilayah[wilayah].baseTersalurkan) || 0) : 0;
+            } else {
+                base = Number(b.baseTersalurkan) || 0;
+            }
             return base + list.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
         },
 
@@ -4919,7 +5070,10 @@
 
         getTotalDonatur(wilayah) {
             let verified = donations.getVerified();
-            if (wilayah && wilayah !== 'Semua') verified = verified.filter(d => (d.wilayah || 'Pangkalpinang') === wilayah);
+            if (wilayah && wilayah !== 'Semua') {
+                const wLower = wilayah.trim().toLowerCase();
+                verified = verified.filter(d => (d.wilayah || 'Pangkalpinang').trim().toLowerCase() === wLower);
+            }
 
             const isAnonymous = (name, d) => {
                 if (!name || typeof name !== 'string') return true;
@@ -4944,7 +5098,13 @@
             });
 
             const uniqueDonors = new Set(donorKeys);
-            const base = (wilayah && wilayah !== 'Semua') ? 0 : (Number(baselines.get().baseDonatur) || 0);
+            const b = baselines.get();
+            let base = 0;
+            if (wilayah && wilayah !== 'Semua') {
+                base = (b.wilayah && b.wilayah[wilayah]) ? (Number(b.wilayah[wilayah].baseDonatur) || 0) : 0;
+            } else {
+                base = Number(b.baseDonatur) || 0;
+            }
             return base + uniqueDonors.size;
         },
 
@@ -5350,106 +5510,270 @@
         },
 
         getPerProgram(wilayah) {
+            return this.getPerProgramDetailed(wilayah);
+        },
+
+        getPerProgramDetailed(wilayah) {
             let verified = donations.getVerified();
             const disbList = disbursements.getAll();
 
-            if (wilayah && wilayah !== 'Semua') {
-                verified = verified.filter(d => d.wilayah === wilayah);
+            const targetWilayah = (wilayah && wilayah !== 'Semua') ? wilayah.trim() : null;
+            if (targetWilayah) {
+                const twLower = targetWilayah.toLowerCase();
+                verified = verified.filter(d => (d.wilayah || 'Pangkalpinang').trim().toLowerCase() === twLower);
             }
 
-            const programConfigs = {
-                'Berkah Hidayah': { label: 'WIZ Berkah Hidayah (Dakwah & Pembinaan)', target: 2204700000, baseMasuk: 0, baseSalur: 0 },
-                'Berkah Peduli': { label: 'WIZ Berkah Peduli (Sosial & Kemanusiaan)', target: 227800000, baseMasuk: 0, baseSalur: 0 },
-                'Berkah Juara': { label: 'WIZ Berkah Juara (Pendidikan & Beasiswa)', target: 354390000, baseMasuk: 0, baseSalur: 0 },
-                'Berkah Sehat': { label: 'WIZ Berkah Sehat (Kesehatan & Ambulance)', target: 65450000, baseMasuk: 0, baseSalur: 0 },
-                'Berkah Mandiri': { label: 'WIZ Berkah Mandiri (Ekonomi & Pemberdayaan)', target: 100500000, baseMasuk: 0, baseSalur: 0 },
+            const ruleData = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.getAll)
+                ? allocationRulesManager.getAll()
+                : ALLOCATION_RULES;
+
+            // Base 5 Pillars Definition
+            const pillarConfigs = {
+                'Berkah Hidayah': { label: 'WIZ Berkah Hidayah (Dakwah & Pembinaan)', category: 'Dakwah & Pembinaan', defaultTarget: 2204700000 },
+                'Berkah Peduli': { label: 'WIZ Berkah Peduli (Sosial & Kemanusiaan)', category: 'Sosial & Kemanusiaan', defaultTarget: 227800000 },
+                'Berkah Juara': { label: 'WIZ Berkah Juara (Pendidikan & Beasiswa)', category: 'Pendidikan & Beasiswa', defaultTarget: 354390000 },
+                'Berkah Sehat': { label: 'WIZ Berkah Sehat (Kesehatan & Ambulance)', category: 'Kesehatan & Ambulance', defaultTarget: 65450000 },
+                'Berkah Mandiri': { label: 'WIZ Berkah Mandiri (Ekonomi & Pemberdayaan)', category: 'Ekonomi & Pemberdayaan', defaultTarget: 100500000 },
             };
 
-            const dynamicMasukTerikat = {};
-            const dynamicMasukUmum = {};
-            const dynamicSalurAlihFungsi = {};
-            const dynamicSalurSpesifik = {};
+            // Get all registered programs from store
+            const allStorePrograms = (typeof programs !== 'undefined' && programs.getAll) ? programs.getAll() : DEFAULT_PROGRAMS;
 
-            Object.keys(programConfigs).forEach(key => {
-                dynamicMasukTerikat[key] = 0;
-                dynamicMasukUmum[key] = 0;
-                dynamicSalurAlihFungsi[key] = 0;
-                dynamicSalurSpesifik[key] = 0;
+            // Map each pillar to its programs
+            const pillarProgramsMap = {};
+            Object.keys(pillarConfigs).forEach(pkey => {
+                pillarProgramsMap[pkey] = [];
             });
 
-            verified.forEach(d => {
-                const dWilayah = d.wilayah || 'Pangkalpinang';
-                const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get)
-                    ? (allocationRulesManager.get(dWilayah) || ALLOCATION_RULES[dWilayah])
-                    : ALLOCATION_RULES[dWilayah];
+            // Populate programs from store into pillarProgramsMap
+            const seenProgTitles = new Set();
+            allStorePrograms.forEach(p => {
+                if (!p || !p.title) return;
+                const pillar = p.pillar || mapProgramToPillar(p.title, p.category);
+                if (pillarProgramsMap[pillar]) {
+                    const normTitle = p.title.trim();
+                    if (!seenProgTitles.has(normTitle.toLowerCase())) {
+                        seenProgTitles.add(normTitle.toLowerCase());
+                        pillarProgramsMap[pillar].push({
+                            id: p.id || ('prog-' + p.slug),
+                            title: normTitle,
+                            slug: p.slug || '',
+                            target: Number(p.targetAmount || p.target) || 0,
+                            category: p.category || p.kategori_pilar || pillarConfigs[pillar].category,
+                            pillar: pillar,
+                            imageUrl: p.imageUrl || p.image_url || '/assets/images/default-program-wiz.jpg',
+                            baseMasuk: 0,
+                            baseSalur: 0,
+                            infakTerikat: 0,
+                            infakUmum: 0,
+                            realtimeSalur: 0,
+                            masuk: 0,
+                            tersalurkan: 0,
+                            saldo: 0
+                        });
+                    }
+                }
+            });
 
-                if (isGeneralInfak(d)) {
-                    if (wRules && wRules.mainAllocation) {
-                        wRules.mainAllocation.forEach(item => {
-                            if (dynamicMasukUmum[item.key] !== undefined) {
-                                dynamicMasukUmum[item.key] += (Number(d.amount) || 0) * (item.percent / 100);
+            // Ensure every sub-allocation item from ALLOCATION_RULES is represented in pillarProgramsMap
+            const activeRulesScope = targetWilayah ? [targetWilayah] : Object.keys(ruleData);
+            activeRulesScope.forEach(wKey => {
+                const wObj = ruleData[wKey];
+                if (!wObj || !wObj.subAllocation) return;
+                Object.entries(wObj.subAllocation).forEach(([pkey, subObj]) => {
+                    if (pillarProgramsMap[pkey] && subObj && Array.isArray(subObj.items)) {
+                        subObj.items.forEach(it => {
+                            const itTitle = (it.key || '').trim();
+                            if (itTitle && !seenProgTitles.has(itTitle.toLowerCase())) {
+                                seenProgTitles.add(itTitle.toLowerCase());
+                                pillarProgramsMap[pkey].push({
+                                    id: 'prog-' + itTitle.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[-\s]+/g, '-'),
+                                    title: itTitle,
+                                    slug: itTitle.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[-\s]+/g, '-'),
+                                    target: 25000000,
+                                    category: pillarConfigs[pkey].category,
+                                    pillar: pkey,
+                                    imageUrl: '/assets/images/default-program-wiz.jpg',
+                                    baseMasuk: 0,
+                                    baseSalur: 0,
+                                    infakTerikat: 0,
+                                    infakUmum: 0,
+                                    realtimeSalur: 0,
+                                    masuk: 0,
+                                    tersalurkan: 0,
+                                    saldo: 0
+                                });
                             }
                         });
                     }
+                });
+            });
+
+            // 1. Incorporate Baselines per program
+            Object.keys(pillarProgramsMap).forEach(pkey => {
+                pillarProgramsMap[pkey].forEach(prog => {
+                    const pBase = baselines.getProgramBaseline(prog.title, targetWilayah || 'Semua');
+                    prog.baseMasuk = Number(pBase.masuk) || 0;
+                    prog.baseSalur = Number(pBase.salur) || 0;
+                });
+            });
+
+            // 2. Distribute Infak Umum and Infak Terikat
+            verified.forEach(d => {
+                const dWilayah = d.wilayah || 'Pangkalpinang';
+                if (targetWilayah && dWilayah.trim().toLowerCase() !== targetWilayah.toLowerCase()) return;
+                const dAmount = Number(d.amount) || 0;
+
+                const wRules = (typeof allocationRulesManager !== 'undefined' && allocationRulesManager.get)
+                    ? (allocationRulesManager.get(dWilayah) || ALLOCATION_RULES[dWilayah] || ALLOCATION_RULES['Pangkalpinang'])
+                    : (ALLOCATION_RULES[dWilayah] || ALLOCATION_RULES['Pangkalpinang']);
+
+                if (isGeneralInfak(d)) {
+                    if (wRules && wRules.mainAllocation && wRules.subAllocation) {
+                        const mainAllocMap = {};
+                        wRules.mainAllocation.forEach(m => { mainAllocMap[m.key] = Number(m.percent) || 0; });
+
+                        Object.entries(wRules.subAllocation).forEach(([pkey, subObj]) => {
+                            const pMainPct = mainAllocMap[pkey] || 0;
+                            if (pMainPct <= 0 || !pillarProgramsMap[pkey]) return;
+
+                            const pAllocAmount = dAmount * (pMainPct / 100);
+                            const items = (subObj && subObj.items) ? subObj.items : [];
+
+                            items.forEach(it => {
+                                const itPercent = Number(it.percent) || 0;
+                                if (itPercent <= 0) return;
+                                const subAmount = pAllocAmount * (itPercent / 100);
+
+                                const matchedProg = pillarProgramsMap[pkey].find(pr => isProgramMatching(pr.title, it.key));
+                                if (matchedProg) {
+                                    matchedProg.infakUmum += subAmount;
+                                }
+                            });
+                        });
+                    }
                 } else {
-                    const pillar = mapProgramToPillar(d.programSpesifik || d.program, d.programUtama || d.category);
-                    if (dynamicMasukTerikat[pillar] !== undefined) {
-                        dynamicMasukTerikat[pillar] += Number(d.amount) || 0;
+                    const dProg = (d.programSpesifik || d.program || '').trim();
+                    const dPillar = mapProgramToPillar(dProg, d.programUtama || d.category);
+
+                    if (pillarProgramsMap[dPillar]) {
+                        const matchedProg = pillarProgramsMap[dPillar].find(pr => isProgramMatching(pr.title, dProg));
+                        if (matchedProg) {
+                            matchedProg.infakTerikat += dAmount;
+                        } else if (pillarProgramsMap[dPillar].length > 0) {
+                            pillarProgramsMap[dPillar][0].infakTerikat += dAmount;
+                        }
                     }
                 }
             });
 
+            // 3. Distribute Disbursements (Penyaluran)
             disbList.forEach(db => {
-                if (wilayah && wilayah !== 'Semua' && (db.wilayah || 'Pangkalpinang') !== wilayah) return;
-                const sType = db.sourceType || (db.program && (db.program.toLowerCase().includes('global') || db.program.toLowerCase().includes('alih fungsi')) ? 'infak_umum' : 'program_spesifik');
-                const tType = db.targetType || (db.program && (db.program.toLowerCase().includes('global') || db.program.toLowerCase().includes('alih fungsi')) ? 'global' : 'specific');
+                const dbWilayah = db.wilayah || 'Pangkalpinang';
+                if (targetWilayah && dbWilayah.trim().toLowerCase() !== targetWilayah.toLowerCase()) return;
                 const dbAmount = Number(db.amount) || 0;
+                const dbProg = (db.program || '').trim();
+                const dbPillar = db.pillar || mapProgramToPillar(dbProg, db.category);
 
-                if (sType === 'infak_umum' && tType === 'global') {
-                    // Ring-Fencing Intra-Pilar: HANYA mengurangi pilar sasaran alih fungsi!
-                    const targetPillar = db.pillar || mapProgramToPillar(db.program, db.category);
-                    if (dynamicSalurAlihFungsi[targetPillar] !== undefined) {
-                        dynamicSalurAlihFungsi[targetPillar] += dbAmount;
-                    }
-                } else {
-                    const pillar = db.pillar || mapProgramToPillar(db.program, db.category);
-                    if (dynamicSalurSpesifik[pillar] !== undefined) {
-                        dynamicSalurSpesifik[pillar] += dbAmount;
+                if (pillarProgramsMap[dbPillar]) {
+                    const matchedProg = pillarProgramsMap[dbPillar].find(pr => isProgramMatching(pr.title, dbProg));
+                    if (matchedProg) {
+                        matchedProg.realtimeSalur += dbAmount;
+                    } else if (pillarProgramsMap[dbPillar].length > 0) {
+                        pillarProgramsMap[dbPillar][0].realtimeSalur += dbAmount;
                     }
                 }
             });
 
-            return Object.entries(programConfigs).map(([key, cfg]) => {
-                const masukTerikat = dynamicMasukTerikat[key] || 0;
-                const masukUmum = dynamicMasukUmum[key] || 0;
-                const salurAlihFungsi = dynamicSalurAlihFungsi[key] || 0;
-                const salurSpesifik = dynamicSalurSpesifik[key] || 0;
+            // 4. Calculate Final Program Metrics and Roll up to Pillars
+            return Object.entries(pillarConfigs).map(([pkey, cfg]) => {
+                const progs = pillarProgramsMap[pkey] || [];
+                let pSumTarget = 0;
+                let pSumBaseMasuk = 0;
+                let pSumBaseSalur = 0;
+                let pSumInfakTerikat = 0;
+                let pSumInfakUmum = 0;
+                let pSumRealtimeSalur = 0;
+                let pSumMasuk = 0;
+                let pSumSalur = 0;
+                let pSumSaldo = 0;
 
-                const totalMasuk = cfg.baseMasuk + masukTerikat + masukUmum;
-                const totalSalur = cfg.baseSalur + salurAlihFungsi + salurSpesifik;
+                const formattedPrograms = progs.map(pr => {
+                    const prMasuk = Math.round(pr.baseMasuk + pr.infakTerikat + pr.infakUmum);
+                    const prSalur = Math.round(pr.baseSalur + pr.realtimeSalur);
+                    const prSaldo = Math.max(0, prMasuk - prSalur);
+                    const prTarget = pr.target || 25000000;
 
-                // Proteksi: Alih Fungsi Infak Umum HANYA menyusutkan porsi Infak Umum
-                const infakUmumBersih = Math.max(0, masukUmum - salurAlihFungsi);
-                const saldo = Math.max(0, cfg.baseMasuk + masukTerikat + infakUmumBersih - salurSpesifik);
-                const percent = cfg.target > 0 ? Math.min(100, Math.max(0, Math.round((saldo / cfg.target) * 100))) : 0;
+                    const prPercentTarget = prTarget > 0 ? Math.min(100, Math.round((prMasuk / prTarget) * 100)) : 0;
+                    const prPercentSalur = prMasuk > 0 ? Math.min(100, Math.round((prSalur / prMasuk) * 100)) : 0;
 
-                let status = 'Aktif Disalurkan';
-                let statusClass = 'bg-emerald-100 text-emerald-800';
-                if (saldo <= 0) {
-                    status = '100% Disalurkan';
-                    statusClass = 'bg-blue-100 text-blue-800';
+                    let prStatus = 'Aktif Disalurkan';
+                    let prStatusClass = 'bg-emerald-100 text-emerald-800';
+                    if (prSaldo <= 0 && prSalur > 0) {
+                        prStatus = '100% Disalurkan';
+                        prStatusClass = 'bg-blue-100 text-blue-800';
+                    } else if (prMasuk === 0 && prSalur === 0) {
+                        prStatus = 'Siap Salur';
+                        prStatusClass = 'bg-slate-100 text-slate-700';
+                    }
+
+                    pSumTarget += prTarget;
+                    pSumBaseMasuk += pr.baseMasuk;
+                    pSumBaseSalur += pr.baseSalur;
+                    pSumInfakTerikat += pr.infakTerikat;
+                    pSumInfakUmum += pr.infakUmum;
+                    pSumRealtimeSalur += pr.realtimeSalur;
+                    pSumMasuk += prMasuk;
+                    pSumSalur += prSalur;
+                    pSumSaldo += prSaldo;
+
+                    return {
+                        id: pr.id,
+                        title: pr.title,
+                        slug: pr.slug,
+                        pillar: pr.pillar,
+                        category: pr.category,
+                        imageUrl: pr.imageUrl,
+                        target: prTarget,
+                        baseMasuk: pr.baseMasuk,
+                        baseSalur: pr.baseSalur,
+                        infakTerikat: Math.round(pr.infakTerikat),
+                        infakUmum: Math.round(pr.infakUmum),
+                        realtimeSalur: Math.round(pr.realtimeSalur),
+                        masuk: prMasuk,
+                        tersalurkan: prSalur,
+                        saldo: prSaldo,
+                        percentTarget: prPercentTarget,
+                        percentSalur: prPercentSalur,
+                        status: prStatus,
+                        statusClass: prStatusClass
+                    };
+                });
+
+                const finalPillarTarget = pSumTarget > 0 ? pSumTarget : cfg.defaultTarget;
+                const percentTarget = finalPillarTarget > 0 ? Math.min(100, Math.round((pSumMasuk / finalPillarTarget) * 100)) : 0;
+                const percentSalur = pSumMasuk > 0 ? Math.min(100, Math.round((pSumSalur / pSumMasuk) * 100)) : 0;
+
+                let pStatus = 'Aktif Disalurkan';
+                let pStatusClass = 'bg-emerald-100 text-emerald-800';
+                if (pSumSaldo <= 0 && pSumSalur > 0) {
+                    pStatus = '100% Disalurkan';
+                    pStatusClass = 'bg-blue-100 text-blue-800';
                 }
 
                 return {
-                    key,
+                    key: pkey,
                     label: cfg.label,
-                    masuk: totalMasuk,
-                    tersalurkan: totalSalur,
-                    saldo: Math.max(0, saldo),
-                    target: cfg.target,
-                    percent,
-                    status,
-                    statusClass
+                    category: cfg.category,
+                    masuk: pSumMasuk,
+                    tersalurkan: pSumSalur,
+                    saldo: pSumSaldo,
+                    target: finalPillarTarget,
+                    percent: percentTarget,
+                    percentSalur: percentSalur,
+                    status: pStatus,
+                    statusClass: pStatusClass,
+                    programs: formattedPrograms
                 };
             });
         },
