@@ -322,7 +322,7 @@ import { MASTER_QUOTES } from '../lib/quotes-data';
                     </div>
                 </div>
                 <div class="relative w-full sm:w-auto min-w-[200px]">
-                    <select id="member-periode-filter" onchange="renderMemberDashboard()" class="w-full bg-slate-50 hover:bg-slate-100 text-slate-800 font-bold text-xs sm:text-sm px-3.5 py-2.5 pr-9 rounded-xl border border-slate-200 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 outline-none cursor-pointer transition-all appearance-none">
+                    <select id="member-periode-filter" onchange="this.setAttribute('data-user-selected', '1'); renderMemberDashboard()" class="w-full bg-slate-50 hover:bg-slate-100 text-slate-800 font-bold text-xs sm:text-sm px-3.5 py-2.5 pr-9 rounded-xl border border-slate-200 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 outline-none cursor-pointer transition-all appearance-none">
                         <!-- Populated dynamically by generatePeriods() -->
                     </select>
                     <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-base">expand_more</span>
@@ -769,7 +769,8 @@ import { MASTER_QUOTES } from '../lib/quotes-data';
         function populateMemberPeriodFilter() {
             const sel = document.getElementById('member-periode-filter');
             if (!sel) return;
-            const currentVal = sel.value;
+            const isUserSelected = sel.getAttribute('data-user-selected') === '1';
+            const currentVal = isUserSelected ? sel.value : '';
             const periods = (typeof generatePeriods === 'function') 
                 ? generatePeriods(12) 
                 : (window.wizStore && typeof window.wizStore.utils?.generatePeriods === 'function' ? window.wizStore.utils.generatePeriods(12) : []);
@@ -778,13 +779,18 @@ import { MASTER_QUOTES } from '../lib/quotes-data';
                 ? getCurrentPeriod()
                 : (window.wizStore && typeof window.wizStore.utils?.getCurrentPeriod === 'function' ? window.wizStore.utils.getCurrentPeriod() : new Date().toISOString().slice(0, 7));
 
-            let html = `<option value="ALL" class="text-slate-900 bg-white" style="color:#0f172a;background-color:#ffffff;">Semua Periode</option>`;
+            let html = '';
             periods.forEach(p => {
-                html += `<option value="${p.value}" class="text-slate-900 bg-white" style="color:#0f172a;background-color:#ffffff;" ${p.value === curMonth ? 'selected' : ''}>${p.label} ${p.isCurrent ? '(Bulan Ini)' : ''}</option>`;
+                const isCur = (p.value === curMonth);
+                html += `<option value="${p.value}" class="text-slate-900 bg-white" style="color:#0f172a;background-color:#ffffff;" ${isCur ? 'selected' : ''}>${p.label} ${isCur ? '(Bulan Ini)' : ''}</option>`;
             });
+            html += `<option value="ALL" class="text-slate-900 bg-white" style="color:#0f172a;background-color:#ffffff;">Semua Periode (Riwayat Lengkap)</option>`;
+            
             sel.innerHTML = html;
             if (currentVal && Array.from(sel.options).some(o => o.value === currentVal)) {
                 sel.value = currentVal;
+            } else {
+                sel.value = curMonth;
             }
         }
 
@@ -1069,7 +1075,7 @@ import { MASTER_QUOTES } from '../lib/quotes-data';
             alert('Anda telah keluar dari Portal Member Mitra Penghimpunan.');
         }
 
-        async function renderMemberDashboard() {
+        async function renderMemberDashboard(skipRemote = false) {
             if (!currentLoggedAffiliate) return;
             const mitra = currentLoggedAffiliate;
             const mitraId   = (mitra.id   || '').toLowerCase();
@@ -1081,17 +1087,43 @@ import { MASTER_QUOTES } from '../lib/quotes-data';
             if (periodSel && periodSel.options.length <= 1) {
                 populateMemberPeriodFilter();
             }
-            const selectedPeriod = periodSel ? periodSel.value : 'ALL';
             const curPeriod = (typeof getCurrentPeriod === 'function') 
                 ? getCurrentPeriod() 
                 : (window.wizStore && typeof window.wizStore.utils?.getCurrentPeriod === 'function' ? window.wizStore.utils.getCurrentPeriod() : new Date().toISOString().slice(0, 7));
-            const targetPeriod = (selectedPeriod === 'ALL') ? curPeriod : selectedPeriod;
+            const selectedPeriod = periodSel ? periodSel.value : curPeriod;
+            const targetPeriod = (!selectedPeriod || selectedPeriod === 'ALL') ? curPeriod : selectedPeriod;
+
+            // Direct instant Supabase fetch if available so new entries (e.g. meeting/rapat) appear with ZERO delay
+            if (!skipRemote && window.wizSupabase && typeof window.wizSupabase.getKpiMitra === 'function') {
+                try {
+                    const sbRes = await window.wizSupabase.getKpiMitra(targetPeriod);
+                    if (sbRes && Array.isArray(sbRes.data)) {
+                        const localList = (window.wizStore && window.wizStore.kpiMitra) ? window.wizStore.kpiMitra.getAll() : [];
+                        sbRes.data.forEach(item => {
+                            const inMid = String(item.mitraId || item.mitra_id || '').toLowerCase();
+                            const inP = String(item.periodeBulan || item.periode_bulan || '');
+                            const idx = localList.findIndex(k => 
+                                String(k.mitraId || k.mitra_id || '').toLowerCase() === inMid &&
+                                String(k.periodeBulan || k.periode_bulan || '') === inP
+                            );
+                            if (idx !== -1) {
+                                localList[idx] = { ...localList[idx], ...item };
+                            } else {
+                                localList.unshift(item);
+                            }
+                        });
+                        localStorage.setItem('wiz_kpi_mitra', JSON.stringify(localList));
+                    }
+                } catch(e) {
+                    console.warn('[Mitra Portal] Supabase getKpiMitra fetch warning:', e);
+                }
+            }
 
             // 1. Get Monthly KPI calculation from wizStore.referrals
             let mKpi = null;
             if (window.wizStore && window.wizStore.referrals && typeof window.wizStore.referrals.getMonthlyKPI === 'function') {
                 try {
-                    mKpi = await window.wizStore.referrals.getMonthlyKPI(mitra.id, targetPeriod);
+                    mKpi = await window.wizStore.referrals.getMonthlyKPI(mitra.id || mitra.code, targetPeriod);
                 } catch(e) {
                     console.warn('[Mitra Portal] getMonthlyKPI error:', e);
                 }
@@ -1974,7 +2006,28 @@ import { MASTER_QUOTES } from '../lib/quotes-data';
             renderAffiliateNewsGrid();
             renderAffiliateProgramsGrid();
             renderAffiliateQuotesGrid();
+            if (currentLoggedAffiliate) renderMemberDashboard(false);
         });
+        window.addEventListener('wiz-kpi-changed', () => {
+            if (currentLoggedAffiliate) renderMemberDashboard(true);
+        });
+        window.addEventListener('wiz-donations-changed', () => {
+            if (currentLoggedAffiliate) renderMemberDashboard(false);
+        });
+        window.addEventListener('wiz-referrals-changed', () => {
+            if (currentLoggedAffiliate) renderMemberDashboard(false);
+        });
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && currentLoggedAffiliate) {
+                renderMemberDashboard(true);
+            }
+        });
+        // Auto-poll every 12 seconds when logged in and tab is visible
+        setInterval(() => {
+            if (document.visibilityState === 'visible' && currentLoggedAffiliate) {
+                renderMemberDashboard(true);
+            }
+        }, 12000);
         window.addEventListener('wiz-news-changed', () => renderAffiliateNewsGrid());
         window.addEventListener('wiz-programs-changed', () => renderAffiliateProgramsGrid());
         window.addEventListener('wiz-quotes-changed', () => renderAffiliateQuotesGrid());

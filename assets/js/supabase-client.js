@@ -150,22 +150,28 @@ const SUPABASE_CONFIG = {
     }
 
     // ─── UPSERT ──────────────────────────────────────────
-    async function upsert(table, payload) {
+    async function upsert(table, payload, onConflict = null) {
         if (!isConfigured()) return { data: null, error: 'Not configured' };
 
         try {
-            const res = await fetch(endpoint(table), {
+            let url = endpoint(table);
+            if (onConflict) {
+                url += (url.includes('?') ? '&' : '?') + `on_conflict=${encodeURIComponent(onConflict)}`;
+            }
+            const res = await fetch(url, {
                 method: 'POST',
                 headers: headers({ 'Prefer': 'resolution=merge-duplicates,return=representation' }),
                 body: JSON.stringify(payload)
             });
             if (!res.ok) {
                 const err = await res.text();
+                console.warn(`[Supabase upsert ${table} failed]:`, err);
                 return { data: null, error: err };
             }
             const data = await res.json();
             return { data: Array.isArray(data) ? data[0] : data, error: null };
         } catch (e) {
+            console.warn(`[Supabase upsert ${table} error]:`, e.message);
             return { data: null, error: e.message };
         }
     }
@@ -375,7 +381,7 @@ const SUPABASE_CONFIG = {
             const pMonth = String(data.periode_bulan || data.periodeBulan).trim();
 
             const payload = {
-                id: (data.id && isUUID(data.id)) ? data.id : generateUUID(),
+                id: (data.id && isUUID(data.id)) ? data.id : undefined,
                 mitra_id: mId,
                 mitraId: mId,
                 periode_bulan: pMonth,
@@ -405,7 +411,6 @@ const SUPABASE_CONFIG = {
             let tableRes = null;
             try {
                 const dbPayload = {
-                    id: payload.id,
                     mitra_id: payload.mitra_id,
                     periode_bulan: payload.periode_bulan,
                     qty_rapat: payload.qty_rapat,
@@ -418,7 +423,13 @@ const SUPABASE_CONFIG = {
                     total_poin: payload.total_poin,
                     updated_at: payload.updated_at
                 };
+                if (payload.id) {
+                    dbPayload.id = payload.id;
+                }
                 tableRes = await upsert('kpi_mitra', dbPayload, 'mitra_id,periode_bulan');
+                if (tableRes && tableRes.data && tableRes.data.id) {
+                    payload.id = tableRes.data.id;
+                }
             } catch(e) {
                 console.warn('[saveKpiMitra table upsert exception]', e);
             }
@@ -447,26 +458,39 @@ const SUPABASE_CONFIG = {
                 if (idx !== -1) {
                     existingList[idx] = { ...existingList[idx], ...payload };
                 } else {
-                    existingList.push(payload);
+                    existingList.unshift(payload);
                 }
 
                 await upsert('site_settings', {
                     key: 'kpi_mitra',
                     value: existingList,
                     updated_at: new Date().toISOString()
-                });
+                }, 'key');
 
                 if (mbDoc && mbDoc.value && typeof mbDoc.value === 'object') {
                     mbDoc.value.kpi_mitra = existingList;
+                    mbDoc.value.updatedAt = new Date().toISOString();
                     await upsert('site_settings', {
                         key: 'master_bundle',
                         value: mbDoc.value,
                         updated_at: new Date().toISOString()
-                    });
+                    }, 'key');
                 }
             } catch(errSs) {
                 console.warn('[saveKpiMitra site_settings sync exception]', errSs);
             }
+
+            // Also notify /api/sync if online
+            try {
+                fetch('/api/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'save_kpi_mitra',
+                        kpi: payload
+                    })
+                }).catch(() => {});
+            } catch(e) {}
 
             if (tableRes && tableRes.data) {
                 return { data: { ...payload, ...tableRes.data }, error: null };

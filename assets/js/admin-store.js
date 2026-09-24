@@ -2314,6 +2314,10 @@
             window.location.pathname.includes('admin') || 
             window.location.pathname.includes('portal')
         );
+        const isMitraPortal = typeof window !== 'undefined' && (
+            window.location.pathname.includes('affiliate') || 
+            window.location.pathname.includes('mitra')
+        );
 
         try {
             let masterData = null;
@@ -2429,7 +2433,7 @@
             let directSbSettings = null;
             let directSbQuotes = null;
 
-            if (isAdminPortal && window.wizSupabase && window.wizSupabase.isConfigured()) {
+            if ((isAdminPortal || isMitraPortal) && window.wizSupabase && window.wizSupabase.isConfigured()) {
                 const [sbQResult, sbNewsResult, sbDonResult, sbDisbResult, sbRefResult, sbKpiResult, sbSetResult] = await Promise.allSettled([
                     window.wizSupabase.getQuotes().catch(() => null),
                     window.wizSupabase.select('news', { select: '*', order: 'created_at.desc' }).catch(() => null),
@@ -6731,20 +6735,33 @@
             return all.filter(k => (k.periodeBulan || k.periode_bulan) === periodeBulan);
         },
 
-        getByMitraAndPeriod(mitraId, periodeBulan) {
-            if (!mitraId) return null;
+        getByMitraAndPeriod(mitraIdentifier, periodeBulan) {
+            if (!mitraIdentifier) return null;
             const all = this.getAll();
-            const cleanId = String(mitraId).trim().toLowerCase();
-            const ref = (typeof referrals !== 'undefined' && referrals.getById) 
-                ? (referrals.getById(mitraId) || (referrals.getByCode ? referrals.getByCode(mitraId) : null))
-                : null;
-            const refId = ref ? String(ref.id || '').trim().toLowerCase() : cleanId;
-            const refCode = ref && ref.code ? String(ref.code || '').trim().toLowerCase() : cleanId;
+            let cleanId = '';
+            let cleanCode = '';
+
+            if (typeof mitraIdentifier === 'object') {
+                cleanId = String(mitraIdentifier.id || '').trim().toLowerCase();
+                cleanCode = String(mitraIdentifier.code || '').trim().toLowerCase();
+            } else {
+                cleanId = String(mitraIdentifier).trim().toLowerCase();
+                const ref = (typeof referrals !== 'undefined' && referrals.getById) 
+                    ? (referrals.getById(mitraIdentifier) || (referrals.getByCode ? referrals.getByCode(mitraIdentifier) : null))
+                    : null;
+                if (ref) {
+                    cleanId = String(ref.id || cleanId).trim().toLowerCase();
+                    cleanCode = String(ref.code || '').trim().toLowerCase();
+                }
+            }
 
             return all.find(k => {
                 const kMid = String(k.mitraId || k.mitra_id || '').trim().toLowerCase();
                 const kMonth = String(k.periodeBulan || k.periode_bulan || '').trim();
-                const matches = (kMid === cleanId) || (refId && kMid === refId) || (refCode && kMid === refCode);
+                const matches = (cleanId && kMid === cleanId) || 
+                                (cleanCode && kMid === cleanCode) ||
+                                (cleanId.length > 5 && kMid.includes(cleanId)) ||
+                                (cleanCode.length > 5 && kMid.includes(cleanCode));
                 return matches && (!periodeBulan || periodeBulan === 'Semua' || kMonth === periodeBulan);
             }) || null;
         },

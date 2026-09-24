@@ -213,8 +213,14 @@ const server = http.createServer((req, res) => {
         filePath = path.join(__dirname, 'affiliate.html');
     } else if (!path.extname(reqUrl)) {
         const tryHtml = path.join(__dirname, reqUrl + '.html');
+        const tryDist = path.join(__dirname, 'dist', 'client', reqUrl, 'index.html');
+        const tryVercel = path.join(__dirname, '.vercel', 'output', 'static', reqUrl, 'index.html');
         if (fs.existsSync(tryHtml)) {
             filePath = tryHtml;
+        } else if (fs.existsSync(tryDist)) {
+            filePath = tryDist;
+        } else if (fs.existsSync(tryVercel)) {
+            filePath = tryVercel;
         }
     }
 

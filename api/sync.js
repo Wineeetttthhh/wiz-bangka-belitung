@@ -36,7 +36,7 @@ function invalidateCache() {
 
 async function supabaseGetMaster() {
     try {
-        const [settingsRes, newsRes, referralsRes, donationsRes, disbRes] = await Promise.all([
+        const [settingsRes, newsRes, referralsRes, donationsRes, disbRes, kpiRes] = await Promise.all([
             fetch(`${SUPABASE_URL}/site_settings?select=*`, {
                 headers: {
                     'apikey': SUPABASE_KEY,
@@ -66,6 +66,13 @@ async function supabaseGetMaster() {
                 }
             }).catch(() => null),
             fetch(`${SUPABASE_URL}/disbursements?select=*&order=created_at.desc`, {
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': 'Bearer ' + SUPABASE_KEY,
+                    'Accept': 'application/json'
+                }
+            }).catch(() => null),
+            fetch(`${SUPABASE_URL}/kpi_mitra?select=*&order=created_at.desc`, {
                 headers: {
                     'apikey': SUPABASE_KEY,
                     'Authorization': 'Bearer ' + SUPABASE_KEY,
@@ -211,6 +218,39 @@ async function supabaseGetMaster() {
                     disbursedAt: s.disbursed_at || s.created_at,
                     recordedBy: s.recorded_by || 'Admin',
                     createdAt: s.created_at
+                }));
+            }
+        }
+
+        if (kpiRes && kpiRes.ok) {
+            const kpiList = await kpiRes.json();
+            if (Array.isArray(kpiList)) {
+                master.kpi_mitra = kpiList.map(k => ({
+                    id: k.id,
+                    mitraId: k.mitra_id || k.mitraId,
+                    mitra_id: k.mitra_id || k.mitraId,
+                    periodeBulan: k.periode_bulan || k.periodeBulan,
+                    periode_bulan: k.periode_bulan || k.periodeBulan,
+                    qtyRapat: Number(k.qty_rapat !== undefined ? k.qty_rapat : (k.qtyRapat || 0)),
+                    qty_rapat: Number(k.qty_rapat !== undefined ? k.qty_rapat : (k.qtyRapat || 0)),
+                    qtyAdmin: Number(k.qty_admin !== undefined ? k.qty_admin : (k.qtyAdmin || 0)),
+                    qty_admin: Number(k.qty_admin !== undefined ? k.qty_admin : (k.qtyAdmin || 0)),
+                    qtyDesain: Number(k.qty_desain !== undefined ? k.qty_desain : (k.qtyDesain || 0)),
+                    qty_desain: Number(k.qty_desain !== undefined ? k.qty_desain : (k.qtyDesain || 0)),
+                    qtyVideo: Number(k.qty_video !== undefined ? k.qty_video : (k.qtyVideo || 0)),
+                    qty_video: Number(k.qty_video !== undefined ? k.qty_video : (k.qtyVideo || 0)),
+                    qtyLapangan: Number(k.qty_lapangan !== undefined ? k.qty_lapangan : (k.qtyLapangan || 0)),
+                    qty_lapangan: Number(k.qty_lapangan !== undefined ? k.qty_lapangan : (k.qtyLapangan || 0)),
+                    keteranganLainnya: k.keterangan_lainnya || k.keteranganLainnya || '',
+                    keterangan_lainnya: k.keterangan_lainnya || k.keteranganLainnya || '',
+                    poinLainnya: Number(k.poin_lainnya !== undefined ? k.poin_lainnya : (k.poinLainnya || 0)),
+                    poin_lainnya: Number(k.poin_lainnya !== undefined ? k.poin_lainnya : (k.poinLainnya || 0)),
+                    totalPoin: Number(k.total_poin !== undefined ? k.total_poin : (k.totalPoin || 0)),
+                    total_poin: Number(k.total_poin !== undefined ? k.total_poin : (k.totalPoin || 0)),
+                    createdAt: k.created_at || k.createdAt,
+                    created_at: k.created_at || k.createdAt,
+                    updatedAt: k.updated_at || k.updatedAt,
+                    updated_at: k.updated_at || k.updatedAt
                 }));
             }
         }
@@ -791,25 +831,27 @@ export default async function handler(req, res) {
                 }
                 master.updatedAt = new Date().toISOString();
 
-                // Upsert to Supabase kpi_mitra table if available
-                fetch(`${SUPABASE_URL}/kpi_mitra`, {
+                // Upsert to Supabase kpi_mitra table if available with on_conflict
+                const kpiDbPayload = {
+                    mitra_id: mId,
+                    periode_bulan: pMonth,
+                    qty_rapat: Number(incomingKpi.qty_rapat || incomingKpi.qtyRapat || 0),
+                    qty_admin: Number(incomingKpi.qty_admin || incomingKpi.qtyAdmin || 0),
+                    qty_desain: Number(incomingKpi.qty_desain || incomingKpi.qtyDesain || 0),
+                    qty_video: Number(incomingKpi.qty_video || incomingKpi.qtyVideo || 0),
+                    qty_lapangan: Number(incomingKpi.qty_lapangan || incomingKpi.qtyLapangan || 0),
+                    keterangan_lainnya: incomingKpi.keterangan_lainnya || incomingKpi.keteranganLainnya || '',
+                    poin_lainnya: Number(incomingKpi.poin_lainnya || incomingKpi.poinLainnya || 0),
+                    total_poin: Number(incomingKpi.total_poin || incomingKpi.totalPoin || 0),
+                    updated_at: new Date().toISOString()
+                };
+                if (incomingKpi.id && typeof incomingKpi.id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(incomingKpi.id)) {
+                    kpiDbPayload.id = incomingKpi.id;
+                }
+                fetch(`${SUPABASE_URL}/kpi_mitra?on_conflict=mitra_id,periode_bulan`, {
                     method: 'POST',
                     headers: supabaseHeaders,
-                    body: JSON.stringify({
-                        id: incomingKpi.id,
-                        mitra_id: mId,
-                        periode_bulan: pMonth,
-                        qty_rapat: Number(incomingKpi.qty_rapat || incomingKpi.qtyRapat || 0),
-                        qty_admin: Number(incomingKpi.qty_admin || incomingKpi.qtyAdmin || 0),
-                        qty_desain: Number(incomingKpi.qty_desain || incomingKpi.qtyDesain || 0),
-                        qty_video: Number(incomingKpi.qty_video || incomingKpi.qtyVideo || 0),
-                        qty_lapangan: Number(incomingKpi.qty_lapangan || incomingKpi.qtyLapangan || 0),
-                        keterangan_lainnya: incomingKpi.keterangan_lainnya || incomingKpi.keteranganLainnya || '',
-                        poin_lainnya: Number(incomingKpi.poin_lainnya || incomingKpi.poinLainnya || 0),
-                        total_poin: Number(incomingKpi.total_poin || incomingKpi.totalPoin || 0),
-                        created_at: incomingKpi.created_at || incomingKpi.createdAt || new Date().toISOString(),
-                        updated_at: new Date().toISOString()
-                    })
+                    body: JSON.stringify(kpiDbPayload)
                 }).catch(() => {});
 
                 await supabaseSaveMaster(master);
@@ -884,6 +926,25 @@ export default async function handler(req, res) {
             }
             if (Array.isArray(incoming.admin_users) && incoming.admin_users.length > 0) {
                 master.admin_users = mergeArrays(master.admin_users, incoming.admin_users, deletedAdminIds);
+            }
+
+            if (Array.isArray(incoming.kpi_mitra)) {
+                if (!master.kpi_mitra) master.kpi_mitra = [];
+                incoming.kpi_mitra.forEach(ink => {
+                    if (!ink) return;
+                    const inMid = String(ink.mitraId || ink.mitra_id || '').toLowerCase();
+                    const inP = String(ink.periodeBulan || ink.periode_bulan || '');
+                    if (!inMid || !inP) return;
+                    const idx = master.kpi_mitra.findIndex(ex => 
+                        String(ex.mitraId || ex.mitra_id || '').toLowerCase() === inMid &&
+                        String(ex.periodeBulan || ex.periode_bulan || '') === inP
+                    );
+                    if (idx !== -1) {
+                        master.kpi_mitra[idx] = { ...master.kpi_mitra[idx], ...ink, updatedAt: new Date().toISOString() };
+                    } else {
+                        master.kpi_mitra.push({ ...ink, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+                    }
+                });
             }
 
             const syncTasks = [];
