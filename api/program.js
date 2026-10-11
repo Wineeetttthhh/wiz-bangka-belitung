@@ -166,8 +166,8 @@ const SPECIFIC_PROGRAMS_METADATA = {
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 50.000.000',
         location: 'Desa Serdang, Bangka Selatan',
-        beneficiaries: 'Warga & Penyintas Musibah di Dusun Serdang',
-        description: 'Salurkan kepedulian dan bantuan darurat bagi saudara-saudara kita terdampak musibah di Desa Serdang, Bangka Selatan.',
+        beneficiaries: 'Warga & Penyintas Terdampak Bencana di Dusun Serdang',
+        description: 'Salurkan kepedulian dan bantuan darurat bencana untuk saudara-saudara kita terdampak bencana di Dusun Serdang, Bangka Selatan.',
         imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/pray-for-dusun-serdang.jpg'
     },
     'pray-for-ntt': {
@@ -175,8 +175,8 @@ const SPECIFIC_PROGRAMS_METADATA = {
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 50.000.000',
         location: 'Desa Serdang, Bangka Selatan',
-        beneficiaries: 'Warga & Penyintas Musibah di Dusun Serdang',
-        description: 'Salurkan kepedulian dan bantuan darurat bagi saudara-saudara kita terdampak musibah di Desa Serdang, Bangka Selatan.',
+        beneficiaries: 'Warga & Penyintas Terdampak Bencana di Dusun Serdang',
+        description: 'Salurkan kepedulian dan bantuan darurat bencana untuk saudara-saudara kita terdampak bencana di Dusun Serdang, Bangka Selatan.',
         imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/pray-for-dusun-serdang.jpg'
     },
     'tebar-sembako': {

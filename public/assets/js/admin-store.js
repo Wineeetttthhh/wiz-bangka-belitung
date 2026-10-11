@@ -77,7 +77,7 @@
 
     const DEFAULT_SPECIFIC_PROGRAM_IMAGES = {
         'Pray For Dusun Serdang': '/assets/images/pray-for-dusun-serdang.jpg',
-        'Pray For NTT': '/assets/images/pray-for-dusun-serdang.jpg',
+        'Pray For Dusun Serdang': '/assets/images/pray-for-dusun-serdang.jpg',
         'Sedekah Beras Dhuafa': 'assets/images/sedekah-beras-dhuafa.png',
         'Sedekah Beras Dai': 'assets/images/sedekah-beras-dhuafa.png',
         'Sedekah Beras Dai Koba': 'assets/images/sedekah-beras-dhuafa.png',
@@ -2886,6 +2886,8 @@
                         p.title = 'Pray For Dusun Serdang';
                         p.status = 'published';
                         p.location = 'Desa Serdang, Bangka Selatan';
+                        p.beneficiaries = 'Warga & Penyintas Terdampak Bencana di Dusun Serdang';
+                        p.description = 'Salurkan kepedulian dan bantuan darurat bencana untuk saudara-saudara kita terdampak bencana di Dusun Serdang, Bangka Selatan.';
                         p.imageUrl = '/assets/images/pray-for-dusun-serdang.jpg';
                         p.image_url = '/assets/images/pray-for-dusun-serdang.jpg';
                         return true;

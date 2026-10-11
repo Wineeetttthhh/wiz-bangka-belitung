@@ -1586,7 +1586,7 @@ import { MASTER_QUOTES } from '../lib/quotes-data';
                 if (!p) return false;
                 const pSlug = (p.slug || '').toLowerCase();
                 const pTitle = (p.title || '').toLowerCase();
-                if (p.id === 'prog-pray-for-ntt' || pSlug === 'pray-for-ntt' || pTitle.includes('serdang') || pSlug.includes('serdang')) {
+                if (p.id === 'prog-pray-for-dusun-serdang' || pSlug === 'pray-for-dusun-serdang' || pTitle.includes('serdang') || pSlug.includes('serdang')) {
                     if (seenSerdangAff) return false;
                     seenSerdangAff = true;
                     p.id = 'prog-pray-for-dusun-serdang';
@@ -1693,6 +1693,8 @@ import { MASTER_QUOTES } from '../lib/quotes-data';
 
         // Khusus Status WA: Mengirim HANYA URL agar WhatsApp client memunculkan kartu preview poster & judul otomatis (seperti Foto 1)
         function shareProgramStatusWA(slug, title) {
+            if (slug && slug.includes('ntt')) slug = 'pray-for-dusun-serdang';
+            
             const activeRef = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || (sessionStorage.getItem('wiz_active_ref_id') || 'WIZ');
             const canonicalUrl = `https://www.wizbangkabelitung.or.id/program/${encodeURIComponent(slug)}?ref=${encodeURIComponent(activeRef)}`;
             showAffiliateShareToast("✨ Membuka WhatsApp... Pilih 'Status Saya' dan tunggu 1–2 detik hingga kartu poster muncul!");
@@ -1702,6 +1704,15 @@ import { MASTER_QUOTES } from '../lib/quotes-data';
 
         // Khusus Room Chat / Grup WA: Pesan rapi, terstruktur, sopan, dan inspiratif
         function shareProgramChatWA(slug, title, desc) {
+            if ((slug && slug.includes('ntt')) || (title && title.includes('NTT'))) {
+                slug = 'pray-for-dusun-serdang';
+                title = 'Pray For Dusun Serdang';
+                desc = 'Salurkan kepedulian dan bantuan darurat bencana untuk saudara-saudara kita terdampak musibah kebakaran di Dusun Serdang, Desa Jelutung 2, Kecamatan Simpang Rimba, Bangka Selatan.';
+            }
+            if (desc && /NTT|Nusa\s*Tenggara/i.test(desc)) {
+                desc = desc.replace(/Nusa\s*Tenggara\s*Timur\s*\(NTT\)/gi, 'Dusun Serdang, Bangka Selatan').replace(/NTT|Nusa\s*Tenggara/gi, 'Dusun Serdang');
+            }
+            
             const cleanTitle = (title || 'Program Kebaikan').replace(/&quot;/g, '"');
             const cleanDesc = (desc || 'Mari bersama alirkan kebaikan dan raih pahala jariyah melalui program ini.').replace(/&quot;/g, '"');
             const activeRef = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || (sessionStorage.getItem('wiz_active_ref_id') || 'WIZ');
@@ -1718,6 +1729,8 @@ import { MASTER_QUOTES } from '../lib/quotes-data';
         }
 
         function copyProgramDirectLink(slug, title) {
+            if (slug && slug.includes('ntt')) slug = 'pray-for-dusun-serdang';
+            
             const activeRef = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || (sessionStorage.getItem('wiz_active_ref_id') || 'WIZ');
             const canonicalUrl = `https://www.wizbangkabelitung.or.id/program/${encodeURIComponent(slug)}?ref=${encodeURIComponent(activeRef)}`;
             navigator.clipboard.writeText(canonicalUrl).then(() => {

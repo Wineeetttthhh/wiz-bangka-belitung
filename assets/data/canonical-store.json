@@ -269,15 +269,15 @@
       "description": "Pembuatan sumur bor, instalasi pipa, dan penampungan air bersih untuk daerah rawan kekeringan."
     },
     {
-      "id": "prog-pray-for-ntt",
-      "slug": "pray-for-ntt",
-      "title": "Pray For NTT",
+      "id": "prog-pray-for-dusun-serdang",
+      "slug": "pray-for-dusun-serdang",
+      "title": "Pray For Dusun Serdang",
       "pillar": "Berkah Peduli",
       "category": "Sosial & Kemanusiaan",
       "kategori_pilar": "Sosial",
       "targetAmount": 50000000,
       "imageUrl": "/assets/images/default-program-wiz.jpg",
-      "description": "Salurkan kepedulian dan bantuan darurat bencana untuk saudara-saudara kita terdampak bencana di Nusa Tenggara Timur (NTT)."
+      "description": "Salurkan kepedulian dan bantuan darurat bencana untuk saudara-saudara kita terdampak bencana di Dusun Serdang, Bangka Selatan."
     },
     {
       "id": "prog-khitanan-massal",
@@ -1378,7 +1378,7 @@
     "Tebar Iftar Nusantara": "/assets/images/tebar-iftar-nusantara.png",
     "Bahagiakan Guru Ngaji": "/assets/images/foto-utama-wiz.jpg",
     "Sedekah Air": "/assets/images/default-program-wiz.jpg",
-    "Pray For NTT": "/assets/images/default-program-wiz.jpg",
+    "Pray For Dusun Serdang": "/assets/images/pray-for-dusun-serdang.jpg",
     "Khitanan Massal Dhuafa": "/assets/images/khitanan-massal-dhuafa.png",
     "Layanan Pengobatan Gratis": "/assets/images/layanan-pengobatan-gratis.png",
     "Ambulance Gratis Ummat": "/assets/images/ambulance-gratis-ummat.png",
@@ -1405,7 +1405,7 @@
       "Tebar Iftar Nusantara",
       "Bahagiakan Guru Ngaji",
       "Sedekah Air",
-      "Pray For NTT"
+      "Pray For Dusun Serdang"
     ],
     "Berkah Hidayah": [
       "Pembangunan Markaz",
