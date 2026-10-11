@@ -293,10 +293,29 @@ import { MASTER_PROGRAMS } from '../../lib/programs-data';
 
             if (!published || published.length === 0) return;
 
-            // Purge any legacy 'Beasiswa Tahfidz & Dhuafa' or tahfidz in Berkah Juara
-            published = published.filter(p => p && p.id !== 'prog-beasiswa-tahfidz-dhuafa' && (p.slug || '') !== 'beasiswa-tahfidz-dan-dhuafa' && !(p.pillar === 'Berkah Juara' && (p.title || '').toLowerCase().includes('tahfidz')));
+            // Purge legacy programs and strictly deduplicate Serdang / NTT
+            let seenSerdang = false;
+            published = published.filter(p => {
+                if (!p) return false;
+                if (p.id === 'prog-beasiswa-tahfidz-dhuafa' || (p.slug || '') === 'beasiswa-tahfidz-dan-dhuafa') return false;
+                if (p.pillar === 'Berkah Juara' && (p.title || '').toLowerCase().includes('tahfidz')) return false;
 
-            // Enforce Dai program title and Tahfidz Weekend if stale in cache
+                const pSlug = (p.slug || '').toLowerCase();
+                const pTitle = (p.title || '').toLowerCase();
+                if (p.id === 'prog-pray-for-ntt' || pSlug === 'pray-for-ntt' || pTitle.includes('serdang') || pSlug.includes('serdang')) {
+                    if (seenSerdang) return false;
+                    seenSerdang = true;
+                    p.id = 'prog-pray-for-dusun-serdang';
+                    p.slug = 'pray-for-dusun-serdang';
+                    p.title = 'Pray For Dusun Serdang';
+                    p.location = 'Desa Serdang, Bangka Selatan';
+                    p.status = 'published';
+                    return true;
+                }
+                return true;
+            });
+
+            // Enforce Dai program title and Tahfidz Weekend
             published.forEach(p => {
                 if (!p) return;
                 const cleanTitle = (p.title || '').toLowerCase().trim();
@@ -409,7 +428,7 @@ import { MASTER_PROGRAMS } from '../../lib/programs-data';
                     return `
                     <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full cursor-pointer" data-category="${catKey}" data-title="${escapeHtml(p.title)}" data-target="${p.targetAmount || 15000000}">
                         <div class="relative overflow-hidden aspect-[3/4] bg-slate-100">
-                            <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="${escapeHtml(p.title)}" src="${escapeHtml(dynamicImg)}" onerror="this.onerror=null; this.src='/assets/images/default-program-wiz.jpg';" alt="${escapeHtml(p.title)}"/>
+                            <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="${escapeHtml(p.title)}" src="${escapeHtml(dynamicImg)}" onerror="this.onerror=null; this.src=(this.dataset.isSerdang==='1'?'/assets/images/pray-for-dusun-serdang.jpg':'/assets/images/default-program-wiz.jpg');" data-is-serdang="${isSerdangItem ? '1' : '0'}" alt="${escapeHtml(p.title)}"/>
                             <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">${escapeHtml(p.pillar)}</span>
                             ${p.urgent ? '<span class="absolute top-sm right-sm bg-error text-on-error font-caption text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider animate-pulse shadow-sm">Mendesak</span>' : ''}
                         </div>

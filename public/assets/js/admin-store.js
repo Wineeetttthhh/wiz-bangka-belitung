@@ -2870,7 +2870,29 @@
             }
             if (masterData.programs && Array.isArray(masterData.programs) && masterData.programs.length > 0) {
                 smartMerge(STORAGE_KEYS.PROGRAMS, masterData.programs, (a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0), getDeletedProgramIds());
-                const progs = getStore(STORAGE_KEYS.PROGRAMS) || [];
+                let progs = getStore(STORAGE_KEYS.PROGRAMS) || [];
+                
+                // Strictly deduplicate Serdang / NTT to keep only 1 published program
+                let seenSerdangAdmin = false;
+                progs = progs.filter(p => {
+                    if (!p) return false;
+                    const pSlug = (p.slug || '').toLowerCase();
+                    const pTitle = (p.title || '').toLowerCase();
+                    if (p.id === 'prog-pray-for-ntt' || pSlug === 'pray-for-ntt' || pTitle.includes('serdang') || pSlug.includes('serdang')) {
+                        if (seenSerdangAdmin) return false;
+                        seenSerdangAdmin = true;
+                        p.id = 'prog-pray-for-dusun-serdang';
+                        p.slug = 'pray-for-dusun-serdang';
+                        p.title = 'Pray For Dusun Serdang';
+                        p.status = 'published';
+                        p.location = 'Desa Serdang, Bangka Selatan';
+                        p.imageUrl = '/assets/images/pray-for-dusun-serdang.jpg';
+                        p.image_url = '/assets/images/pray-for-dusun-serdang.jpg';
+                        return true;
+                    }
+                    return true;
+                });
+                setStore(STORAGE_KEYS.PROGRAMS, progs);
                 let progsFixed = false;
                 progs.forEach(p => {
                     if (!p) return;

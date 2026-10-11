@@ -1581,21 +1581,24 @@ import { MASTER_QUOTES } from '../lib/quotes-data';
                 dynamicSpImgs = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
             } catch(e) {}
 
-            const progs = Array.from(programMap.values()).map(p => {
-                // Auto-migrate legacy Pray For NTT to Pray For Dusun Serdang
-                if (p.slug === 'pray-for-ntt' || p.title === 'Pray For NTT') {
-                    return {
-                        ...p,
-                        id: 'prog-pray-for-dusun-serdang',
-                        slug: 'pray-for-dusun-serdang',
-                        title: 'Pray For Dusun Serdang',
-                        imageUrl: '/assets/images/pray-for-dusun-serdang.jpg',
-                        location: 'Desa Serdang, Bangka Selatan',
-                        beneficiaries: 'Warga & Penyintas Musibah di Dusun Serdang',
-                        description: 'Salurkan kepedulian dan bantuan darurat bencana untuk saudara-saudara kita terdampak musibah di Dusun Serdang, Bangka Selatan.'
-                    };
+            let seenSerdangAff = false;
+            const progs = Array.from(programMap.values()).filter(p => {
+                if (!p) return false;
+                const pSlug = (p.slug || '').toLowerCase();
+                const pTitle = (p.title || '').toLowerCase();
+                if (p.id === 'prog-pray-for-ntt' || pSlug === 'pray-for-ntt' || pTitle.includes('serdang') || pSlug.includes('serdang')) {
+                    if (seenSerdangAff) return false;
+                    seenSerdangAff = true;
+                    p.id = 'prog-pray-for-dusun-serdang';
+                    p.slug = 'pray-for-dusun-serdang';
+                    p.title = 'Pray For Dusun Serdang';
+                    p.status = 'published';
+                    p.location = 'Desa Serdang, Bangka Selatan';
+                    p.imageUrl = '/assets/images/pray-for-dusun-serdang.jpg';
+                    p.image_url = '/assets/images/pray-for-dusun-serdang.jpg';
+                    return true;
                 }
-                return p;
+                return true;
             });
             const activeRef = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || (sessionStorage.getItem('wiz_active_ref_id') || 'WIZ');
             const defaultImg = '/assets/images/default-program-wiz.jpg';
