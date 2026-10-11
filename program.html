@@ -255,7 +255,7 @@
             <!-- Card 1 -->
             <article class="program-card bg-surface rounded-xl overflow-hidden shadow-ambient-1 hover:shadow-ambient-2 transition-all duration-300 border border-surface-variant flex flex-col h-full" data-category="dakwah" data-title="Pembangunan Markaz">
                 <div class="relative overflow-hidden aspect-[3/4] bg-slate-100">
-                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Pembangunan Markaz Dakwah" src="/assets/images/pembangunan-markaz-dakwah.png" onerror="this.onerror=null; this.src='/assets/images/default-program-wiz.jpg';" alt="Pembangunan Markaz"/>
+                    <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Pembangunan Markaz Dakwah" src="/assets/images/pembangunan-markaz-dakwah.png" onerror="this.onerror=null; if(this.src.indexOf('serdang')!==-1||this.alt.indexOf('Serdang')!==-1){this.src='/assets/images/pray-for-dusun-serdang.jpg';}else{this.src='/assets/images/default-program-wiz.jpg';}" alt="Pembangunan Markaz"/>
                     <span class="absolute top-sm left-sm bg-primary/90 text-on-primary font-caption text-caption px-sm py-xs rounded-full font-semibold">Dakwah</span>
                 </div>
                 <div class="p-lg flex flex-col flex-grow">
@@ -1419,6 +1419,26 @@
 
         if (!published || published.length === 0) return;
 
+        // Strictly deduplicate Serdang / NTT - KEEP ONLY ONE
+        let hasSerdang = false;
+        published = published.filter(p => {
+            if (!p) return false;
+            const pSlug = (p.slug || '').toLowerCase();
+            const pTitle = (p.title || '').toLowerCase();
+            if (p.id === 'prog-pray-for-ntt' || pSlug === 'pray-for-ntt' || pTitle.includes('serdang') || pSlug.includes('serdang')) {
+                if (hasSerdang) return false;
+                hasSerdang = true;
+                p.id = 'prog-pray-for-dusun-serdang';
+                p.slug = 'pray-for-dusun-serdang';
+                p.title = 'Pray For Dusun Serdang';
+                p.location = 'Desa Serdang, Bangka Selatan';
+                p.status = 'published';
+                p.imageUrl = '/assets/images/pray-for-dusun-serdang.jpg';
+                return true;
+            }
+            return true;
+        });
+
         // Purge any legacy 'Beasiswa Tahfidz & Dhuafa' or tahfidz in Berkah Juara
         published = published.filter(p => p && p.id !== 'prog-beasiswa-tahfidz-dhuafa' && (p.slug || '') !== 'beasiswa-tahfidz-dan-dhuafa' && !(p.pillar === 'Berkah Juara' && (p.title || '').toLowerCase().includes('tahfidz')));
 
@@ -1490,9 +1510,21 @@
                 const pSlug = (p.slug || (p.title ? p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : 'program')).toLowerCase();
                 const pCleanTitle = (p.title || '').toLowerCase().trim();
                 // Admin uploaded photo has HIGHEST priority
-                let dynamicImg = (p.imageUrl || p.image_url || '').trim();
-                if (!dynamicImg || dynamicImg.includes('default-program-wiz') || dynamicImg.includes('foto-utama-wiz')) {
-                    dynamicImg = PROGRAM_IMG_MAP[pSlug] || '';
+                let dynamicImg = '';
+                const isSerdangItem = pSlug.includes('serdang') || pCleanTitle.includes('serdang') || pSlug.includes('ntt') || pCleanTitle.includes('ntt');
+                
+                if (isSerdangItem) {
+                    dynamicImg = '/assets/images/pray-for-dusun-serdang.jpg';
+                    try {
+                        const spImgs = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+                        if (spImgs['Pray For Dusun Serdang']) dynamicImg = spImgs['Pray For Dusun Serdang'];
+                        else if (spImgs['Pray For NTT']) dynamicImg = spImgs['Pray For NTT'];
+                    } catch(e) {}
+                } else {
+                    dynamicImg = (p.imageUrl || p.image_url || '').trim();
+                    if (!dynamicImg || dynamicImg.includes('default-program-wiz') || dynamicImg.includes('foto-utama-wiz')) {
+                        dynamicImg = PROGRAM_IMG_MAP[pSlug] || '';
+                    }
                 }
                 if (!dynamicImg) {
                     const rawImg = (window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function')

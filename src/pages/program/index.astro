@@ -388,27 +388,18 @@ import { MASTER_PROGRAMS } from '../../lib/programs-data';
                     let dynamicImg = '';
                     const isSerdangItem = slug.includes('serdang') || pCleanTitle.includes('serdang') || slug.includes('ntt') || pCleanTitle.includes('ntt');
                     
-                    // 1. Direct check in localStorage wiz_specific_prog_imgs (uploaded base64)
-                    try {
-                        const spMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
-                        if (spMap[p.title]) dynamicImg = spMap[p.title];
-                        else if (isSerdangItem && spMap['Pray For Dusun Serdang']) dynamicImg = spMap['Pray For Dusun Serdang'];
-                        else if (isSerdangItem && spMap['Pray For NTT']) dynamicImg = spMap['Pray For NTT'];
-                    } catch(e) {}
-
-                    // 2. Program object imageUrl
-                    if (!dynamicImg) {
-                        dynamicImg = (p.imageUrl || p.image_url || '').trim();
-                    }
-
-                    // 3. Static mapped file
-                    if (!dynamicImg || dynamicImg.includes('default-program-wiz') || dynamicImg.includes('foto-utama-wiz')) {
-                        dynamicImg = PROGRAM_IMG_MAP[slug] || '';
-                    }
-
-                    // 4. Dusun Serdang fallback
-                    if (isSerdangItem && (!dynamicImg || dynamicImg.includes('default-program-wiz'))) {
+                    if (isSerdangItem) {
                         dynamicImg = '/assets/images/pray-for-dusun-serdang.jpg';
+                        try {
+                            const spMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+                            if (spMap['Pray For Dusun Serdang']) dynamicImg = spMap['Pray For Dusun Serdang'];
+                            else if (spMap['Pray For NTT']) dynamicImg = spMap['Pray For NTT'];
+                        } catch(e) {}
+                    } else {
+                        dynamicImg = (p.imageUrl || p.image_url || '').trim();
+                        if (!dynamicImg || dynamicImg.includes('default-program-wiz') || dynamicImg.includes('foto-utama-wiz')) {
+                            dynamicImg = PROGRAM_IMG_MAP[slug] || '';
+                        }
                     }
                     if (!dynamicImg) {
                         const rawImg = (window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function')
