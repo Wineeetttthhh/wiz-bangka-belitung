@@ -122,6 +122,7 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                                 var descEl = document.getElementById('locked-program-desc');
                                 var locEl = document.getElementById('locked-program-location');
                                 var benEl = document.getElementById('locked-program-beneficiary');
+                                var isSerdang = slugified.includes('serdang') || spacified.includes('serdang') || slugified.includes('ntt') || spacified.includes('ntt');
                                 
                                 var staticList = window.STATIC_MASTER_PROGRAMS || [];
                                 var found = staticList.find(function(p) {
@@ -130,27 +131,37 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                                     return pSlug === slugified || pTitle === spacified || pSlug.includes(slugified) || pTitle.includes(spacified);
                                 });
                                 
-                                if (found) {
-                                    if (titleEl) titleEl.textContent = found.title;
-                                    if (pillarEl) pillarEl.textContent = (found.pillar || found.category || 'BERKAH HIDAYAH').toUpperCase();
-                                    var targetImg = found.imageUrl || found.image_url;
-                                    if (slugified.includes('pembangunan-markaz') || spacified.includes('pembangunan markaz') || spacified.includes('markaz')) {
-                                        targetImg = '/assets/images/pembangunan-markaz-dakwah.png';
-                                    } else if (slugified.includes('perlengkapan-belajar') || spacified.includes('perlengkapan belajar')) {
-                                        targetImg = '/assets/images/perlengkapan-belajar-yatim.png';
-                                    }
-                                    if (imgEl && targetImg) imgEl.src = targetImg;
-                                    if (descEl) descEl.textContent = found.description || found.fullDescription || 'Salurkan donasi terbaik Anda untuk program kebaikan ini.';
-                                    if (locEl) locEl.textContent = 'Lokasi: ' + (found.location || 'Kepulauan Bangka Belitung');
-                                    if (benEl) benEl.textContent = found.beneficiaries || 'Mustahik & Santri';
-                                } else {
-                                    var formatted = raw.includes('-') ? raw.split('-').map(function(w){ return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ') : raw;
-                                    if (titleEl) titleEl.textContent = formatted;
-                                    if (slugified.includes('pembangunan-markaz') || spacified.includes('pembangunan markaz') || spacified.includes('markaz')) {
-                                        if (imgEl) imgEl.src = '/assets/images/pembangunan-markaz-dakwah.png';
-                                    } else if (slugified.includes('perlengkapan-belajar') || spacified.includes('perlengkapan belajar')) {
-                                        if (imgEl) imgEl.src = '/assets/images/perlengkapan-belajar-yatim.png';
-                                    }
+                                var targetTitle = found ? found.title : (isSerdang ? 'Pray For Dusun Serdang' : (raw.includes('-') ? raw.split('-').map(function(w){ return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ') : raw));
+                                var targetPillar = found ? (found.pillar || found.category || 'BERKAH PEDULI') : (isSerdang ? 'BERKAH PEDULI' : 'BERKAH HIDAYAH');
+                                var targetLoc = found ? ('Lokasi: ' + (found.location || 'Kepulauan Bangka Belitung')) : (isSerdang ? 'Lokasi: Desa Serdang, Bangka Selatan' : 'Lokasi: Kepulauan Bangka Belitung');
+                                var targetBen = found ? (found.beneficiaries || 'Mustahik & Santri') : (isSerdang ? 'Warga & Penyintas Musibah di Dusun Serdang' : 'Mustahik & Santri');
+                                var targetDesc = found ? (found.description || found.fullDescription) : (isSerdang ? 'Salurkan kepedulian dan bantuan darurat bencana untuk saudara-saudara kita terdampak musibah di Dusun Serdang, Bangka Selatan.' : 'Salurkan donasi terbaik Anda untuk program kebaikan ini.');
+
+                                if (titleEl) titleEl.textContent = targetTitle;
+                                if (pillarEl) pillarEl.textContent = String(targetPillar).toUpperCase();
+                                if (locEl) locEl.textContent = targetLoc;
+                                if (benEl) benEl.textContent = targetBen;
+                                if (descEl) descEl.textContent = targetDesc;
+
+                                var targetImg = found ? (found.imageUrl || found.image_url) : '';
+                                if (slugified.includes('pembangunan-markaz') || spacified.includes('pembangunan markaz') || spacified.includes('markaz')) {
+                                    targetImg = '/assets/images/pembangunan-markaz-dakwah.png';
+                                } else if (slugified.includes('perlengkapan-belajar') || spacified.includes('perlengkapan belajar')) {
+                                    targetImg = '/assets/images/perlengkapan-belajar-yatim.png';
+                                } else if (isSerdang) {
+                                    targetImg = '/assets/images/pray-for-dusun-serdang.jpg';
+                                }
+
+                                // Read authoritative custom uploaded base64 from localStorage
+                                try {
+                                    var spImgs = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+                                    if (spImgs[targetTitle]) targetImg = spImgs[targetTitle];
+                                    else if (isSerdang && spImgs['Pray For Dusun Serdang']) targetImg = spImgs['Pray For Dusun Serdang'];
+                                    else if (isSerdang && spImgs['Pray For NTT']) targetImg = spImgs['Pray For NTT'];
+                                } catch(e) {}
+
+                                if (imgEl && targetImg) {
+                                    imgEl.src = targetImg;
                                 }
                             }
                         } catch(e) {}
@@ -803,7 +814,7 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                 "Mukerwil/Mukernas/Muktamar", "Hadirkan Pencerah Umat, Dukung Perjuangan Dai"
             ],
             'Berkah Peduli': [
-                "Pray For NTT", "Tebar Sembako", "Sedekah Beras & Sembako Dhuafa", "Sedekah Beras Dhuafa",
+                "Pray For Dusun Serdang", "Tebar Sembako", "Sedekah Beras & Sembako Dhuafa", "Sedekah Beras Dhuafa",
                 "Sedekah Jumat", "Santunan Yatim", "Tebar Iftar Nusantara", "Tebar Qur'an Nusantara",
                 "Bahagiakan Guru Ngaji", "Sedekah Air Bersih", "Sedekah Air"
             ],
@@ -847,7 +858,26 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
             const lower = clean.toLowerCase();
             const slugified = lower.replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
             const spacified = lower.replace(/-/g, ' ').replace(/\s+/g, ' ');
+            const isSerdang = slugified.includes('serdang') || spacified.includes('serdang') || slugified.includes('ntt') || spacified.includes('ntt');
             
+            // Helper to get image from cloud / localStorage / presets
+            function getBestImage(title, defaultImg) {
+                try {
+                    const spImgs = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+                    if (spImgs[title]) return spImgs[title];
+                    if (isSerdang && spImgs['Pray For Dusun Serdang']) return spImgs['Pray For Dusun Serdang'];
+                    if (isSerdang && spImgs['Pray For NTT']) return spImgs['Pray For NTT'];
+                } catch(e) {}
+                if (window.wizStore && window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function') {
+                    const dynamic = window.wizStore.allocationRulesManager.getSpecificProgramImage(title);
+                    if (dynamic) return dynamic;
+                }
+                if (isSerdang) return '/assets/images/pray-for-dusun-serdang.jpg';
+                if (slugified.includes('pembangunan-markaz') || spacified.includes('pembangunan markaz') || spacified.includes('markaz')) return '/assets/images/pembangunan-markaz-dakwah.png';
+                if (slugified.includes('perlengkapan-belajar') || spacified.includes('perlengkapan belajar')) return '/assets/images/perlengkapan-belajar-yatim.png';
+                return defaultImg || '/assets/images/default-program-wiz.jpg';
+            }
+
             const staticList = (typeof window.STATIC_MASTER_PROGRAMS !== 'undefined' && Array.isArray(window.STATIC_MASTER_PROGRAMS))
                 ? window.STATIC_MASTER_PROGRAMS
                 : [];
@@ -859,7 +889,12 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                 const pTitleSlug = pTitle.replace(/[^a-z0-9]/g, '-');
                 return pSlug === lower || pSlug === slugified || pTitle === lower || pTitle === spacified || pTitleSlug === slugified;
             });
-            if (match) return match;
+            if (match) {
+                return {
+                    ...match,
+                    imageUrl: getBestImage(match.title, match.imageUrl || match.image_url)
+                };
+            }
 
             // 2. Check partial contains match in MASTER_PROGRAMS
             match = staticList.find(p => {
@@ -867,7 +902,29 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                 const pTitle = (p.title || '').toLowerCase();
                 return pSlug.includes(slugified) || slugified.includes(pSlug) || pTitle.includes(spacified) || spacified.includes(pTitle);
             });
-            if (match) return match;
+            if (match) {
+                return {
+                    ...match,
+                    imageUrl: getBestImage(match.title, match.imageUrl || match.image_url)
+                };
+            }
+
+            // If Serdang / NTT requested specifically
+            if (isSerdang) {
+                return {
+                    id: 'prog-pray-for-dusun-serdang',
+                    slug: 'pray-for-dusun-serdang',
+                    title: 'Pray For Dusun Serdang',
+                    pillar: 'Berkah Peduli',
+                    category: 'Sosial & Kemanusiaan',
+                    target: 'Rp 50.000.000',
+                    targetAmount: 50000000,
+                    location: 'Desa Serdang, Bangka Selatan',
+                    beneficiaries: 'Warga & Penyintas Musibah di Dusun Serdang',
+                    description: 'Salurkan kepedulian dan bantuan darurat bencana untuk saudara-saudara kita terdampak musibah di Dusun Serdang, Bangka Selatan.',
+                    imageUrl: getBestImage('Pray For Dusun Serdang', '/assets/images/pray-for-dusun-serdang.jpg')
+                };
+            }
 
             // 3. Check published programs in local wizStore
             try {
@@ -878,7 +935,12 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                         const pTitle = (p.title || '').toLowerCase();
                         return pSlug === lower || pSlug === slugified || pTitle === lower || pTitle === spacified;
                     });
-                    if (storeMatch) return storeMatch;
+                    if (storeMatch) {
+                        return {
+                            ...storeMatch,
+                            imageUrl: getBestImage(storeMatch.title, storeMatch.imageUrl || storeMatch.image_url)
+                        };
+                    }
                 }
             } catch(e) {}
 
@@ -889,18 +951,12 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                     const pLower = p.toLowerCase();
                     const pSlug = pLower.replace(/[^a-z0-9]/g, '-');
                     if (pLower === lower || pLower === spacified || pSlug === slugified || pLower.includes(spacified) || spacified.includes(pLower)) {
-                        let customImg = '/assets/images/foto-utama-wiz.jpg';
-                        if (pLower.includes('pembangunan markaz') || pSlug.includes('pembangunan-markaz') || pLower.includes('markaz')) {
-                            customImg = '/assets/images/pembangunan-markaz-dakwah.png';
-                        } else if (pLower.includes('perlengkapan belajar') || pSlug.includes('perlengkapan-belajar')) {
-                            customImg = '/assets/images/perlengkapan-belajar-yatim.png';
-                        }
                         return {
                             title: p,
                             pillar: cat,
                             category: cat,
                             description: `Program kebaikan ${p} dalam pilar ${cat} yang dikelola secara amanah dan transparan oleh WIZ Bangka Belitung.`,
-                            imageUrl: customImg,
+                            imageUrl: getBestImage(p, '/assets/images/foto-utama-wiz.jpg'),
                             location: 'Kepulauan Bangka Belitung',
                             beneficiaries: 'Mustahik & Santri'
                         };
@@ -913,19 +969,12 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                 ? clean.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
                 : clean;
 
-            let customImg = '/assets/images/foto-utama-wiz.jpg';
-            if (slugified.includes('pembangunan-markaz') || spacified.includes('pembangunan markaz') || spacified.includes('markaz')) {
-                customImg = '/assets/images/pembangunan-markaz-dakwah.png';
-            } else if (slugified.includes('perlengkapan-belajar') || spacified.includes('perlengkapan belajar')) {
-                customImg = '/assets/images/perlengkapan-belajar-yatim.png';
-            }
-
             return {
                 title: formatted,
                 pillar: 'Berkah Hidayah',
                 category: 'Dakwah & Syiar',
                 description: `Penyaluran donasi khusus program ${formatted} melalui Wahdah Inspirasi Zakat (WIZ) Bangka Belitung.`,
-                imageUrl: customImg,
+                imageUrl: getBestImage(formatted, '/assets/images/foto-utama-wiz.jpg'),
                 location: 'Kepulauan Bangka Belitung',
                 beneficiaries: 'Mustahik di Bangka Belitung'
             };
@@ -994,12 +1043,35 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                     const pSlug = (prog.slug || '').toLowerCase();
                     const pTitle = (prog.title || prog.name || '').toLowerCase();
                     let finalImg = prog.imageUrl || prog.image_url;
-                    if (pSlug.includes('pembangunan-markaz') || pTitle.includes('pembangunan markaz') || pTitle.includes('markaz')) {
-                        finalImg = '/assets/images/pembangunan-markaz-dakwah.png';
-                    } else if (pSlug.includes('perlengkapan-belajar') || pTitle.includes('perlengkapan belajar')) {
-                        finalImg = '/assets/images/perlengkapan-belajar-yatim.png';
+                    
+                    // Priority 1: Check localStorage specific_prog_imgs (uploaded base64/URL)
+                    try {
+                        const spImgs = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+                        if (spImgs[prog.title]) finalImg = spImgs[prog.title];
+                        else if (spImgs[pTitle]) finalImg = spImgs[pTitle];
+                        else if (pSlug.includes('serdang') || pTitle.includes('serdang')) {
+                            if (spImgs['Pray For Dusun Serdang']) finalImg = spImgs['Pray For Dusun Serdang'];
+                            else if (spImgs['Pray For NTT']) finalImg = spImgs['Pray For NTT'];
+                        }
+                    } catch(e) {}
+
+                    // Priority 2: Check allocationRulesManager
+                    if (!finalImg && window.wizStore && window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function') {
+                        finalImg = window.wizStore.allocationRulesManager.getSpecificProgramImage(prog.title);
                     }
-                    imgEl.src = finalImg || '/assets/images/foto-utama-wiz.jpg';
+
+                    // Priority 3: Fallback specific assets
+                    if (!finalImg || finalImg.includes('foto-utama-wiz') || finalImg.includes('default-program-wiz')) {
+                        if (pSlug.includes('pembangunan-markaz') || pTitle.includes('pembangunan markaz') || pTitle.includes('markaz')) {
+                            finalImg = '/assets/images/pembangunan-markaz-dakwah.png';
+                        } else if (pSlug.includes('perlengkapan-belajar') || pTitle.includes('perlengkapan belajar')) {
+                            finalImg = '/assets/images/perlengkapan-belajar-yatim.png';
+                        } else if (pSlug.includes('serdang') || pTitle.includes('serdang') || pSlug.includes('ntt')) {
+                            finalImg = '/assets/images/pray-for-dusun-serdang.jpg';
+                        }
+                    }
+
+                    imgEl.src = finalImg || '/assets/images/pray-for-dusun-serdang.jpg';
                     imgEl.alt = prog.title || 'Foto Program';
                 }
                 if (descEl) descEl.textContent = prog.description || prog.fullDescription || 'Salurkan donasi terbaik Anda untuk program kebaikan ini.';
@@ -1016,6 +1088,14 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
             updateSummary();
         }
         window.lockProgram = lockProgram;
+        window.addEventListener('wiz-sync-complete', () => {
+            const currentSp = new URLSearchParams(window.location.search);
+            const currentProg = currentSp.get('program') || currentSp.get('title') || currentSp.get('p') || currentSp.get('slug');
+            if (currentProg) {
+                const reFound = findProgramDetails(currentProg);
+                if (reFound) lockProgram(reFound);
+            }
+        });
 
         function unlockProgramSelection() {
             state.isProgramLocked = false;
@@ -1725,6 +1805,18 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
         });
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Background sync from cloud to ensure uploaded photos appear on all phones
+            if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
+                window.wizStore.syncFromCloud(true).then(() => {
+                    const currentSp = new URLSearchParams(window.location.search);
+                    const currentProg = currentSp.get('program') || currentSp.get('title') || currentSp.get('p') || currentSp.get('slug');
+                    if (currentProg) {
+                        const reFound = findProgramDetails(currentProg);
+                        if (reFound) lockProgram(reFound);
+                    }
+                }).catch(() => {});
+            }
+
             const urlParams = new URLSearchParams(window.location.search);
             const nominalParam = urlParams.get('nominal') || urlParams.get('amount');
             const programParam = urlParams.get('program') || urlParams.get('title') || urlParams.get('p') || urlParams.get('slug');

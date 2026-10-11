@@ -76,7 +76,8 @@
     };
 
     const DEFAULT_SPECIFIC_PROGRAM_IMAGES = {
-        'Pray For NTT': 'assets/images/foto-utama-wiz.jpg',
+        'Pray For Dusun Serdang': '/assets/images/pray-for-dusun-serdang.jpg',
+        'Pray For NTT': '/assets/images/pray-for-dusun-serdang.jpg',
         'Sedekah Beras Dhuafa': 'assets/images/sedekah-beras-dhuafa.png',
         'Sedekah Beras Dai': 'assets/images/sedekah-beras-dhuafa.png',
         'Sedekah Beras Dai Koba': 'assets/images/sedekah-beras-dhuafa.png',
@@ -1841,7 +1842,7 @@
 
             // 4. Check known specific program poster paths
             if (cleanQuery.includes('prayforntt') || cleanQuery.includes('ntt')) {
-                return 'assets/images/pray-for-ntt.jpg';
+                return '/assets/images/pray-for-dusun-serdang.jpg';
             }
 
             // 5. Default specific program images dictionary
@@ -3989,18 +3990,18 @@
     const DEFAULT_PROGRAMS = [
         // ── 1. Berkah Peduli (Sosial & Kemanusiaan) ──
         {
-            id: 'prog-pray-for-ntt',
-            title: 'Pray For NTT',
-            slug: 'pray-for-ntt',
+            id: 'prog-pray-for-dusun-serdang',
+            title: 'Pray For Dusun Serdang',
+            slug: 'pray-for-dusun-serdang',
             pillar: 'Berkah Peduli',
             kategori_pilar: 'Sosial',
             category: 'Sosial & Kemanusiaan',
             target: 'Rp 50.000.000',
             targetAmount: 50000000,
-            location: 'Nusa Tenggara Timur (NTT)',
-            beneficiaries: 'Warga & Penyintas Terdampak Bencana di NTT',
-            description: 'Salurkan kepedulian dan bantuan darurat bencana untuk saudara-saudara kita terdampak bencana di Nusa Tenggara Timur (NTT).',
-            imageUrl: '/assets/images/pray-for-ntt.jpg',
+            location: 'Desa Serdang, Bangka Selatan',
+            beneficiaries: 'Warga & Penyintas Musibah di Dusun Serdang',
+            description: 'Salurkan kepedulian dan bantuan darurat bencana untuk saudara-saudara kita terdampak musibah di Dusun Serdang, Bangka Selatan.',
+            imageUrl: '/assets/images/pray-for-dusun-serdang.jpg',
             status: 'published',
             createdAt: '2026-08-22T17:00:00.000Z',
             updatedAt: '2026-08-22T17:00:00.000Z',
@@ -4510,7 +4511,8 @@
     ];
 
     const PROGRAM_IMAGE_RESOLVER = {
-        'pray-for-ntt': '/assets/images/default-program-wiz.jpg',
+        'pray-for-dusun-serdang': '/assets/images/pray-for-dusun-serdang.jpg',
+        'pray-for-ntt': '/assets/images/pray-for-dusun-serdang.jpg',
         'tebar-sembako': '/assets/images/tebar-sembako.png',
         'sedekah-beras-dhuafa': '/assets/images/sedekah-beras-dhuafa.png',
         'sedekah-jumat': '/assets/images/sedekah-Jumat.png',

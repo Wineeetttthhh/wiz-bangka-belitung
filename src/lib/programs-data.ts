@@ -3,9 +3,9 @@ import type { ProgramItem } from './types';
 export const MASTER_PROGRAMS: ProgramItem[] = [
     // ── 1. PILAR BERKAH PEDULI (Sosial & Kemanusiaan) ──
     {
-        id: 'prog-pray-for-ntt',
-        slug: 'pray-for-ntt',
-        title: 'Pray For NTT',
+        id: 'prog-pray-for-dusun-serdang',
+        slug: 'pray-for-dusun-serdang',
+        title: 'Pray For Dusun Serdang',
         pillar: 'Berkah Peduli',
         category: 'Sosial & Kemanusiaan',
         target: 50000000,
@@ -14,12 +14,12 @@ export const MASTER_PROGRAMS: ProgramItem[] = [
         collectedFormatted: 'Rp 0',
         donorsCount: 0,
         daysLeft: 60,
-        description: 'Salurkan kepedulian dan bantuan darurat bencana untuk saudara-saudara kita terdampak bencana di Nusa Tenggara Timur (NTT).',
-        fullDescription: 'Program bantuan tanggap bencana darurat dan pemulihan bagi para penyintas bencana di NTT melalui penyediaan sembako, obat-obatan, tenda pengungsian, dan fasilitas ibadah.',
-        imageUrl: '/assets/images/default-program-wiz.jpg',
-        image_url: '/assets/images/default-program-wiz.jpg',
-        location: 'Nusa Tenggara Timur (NTT)',
-        beneficiaries: 'Warga & Penyintas Terdampak Bencana di NTT',
+        description: 'Salurkan kepedulian dan bantuan darurat bagi saudara-saudara kita terdampak musibah di Desa Serdang, Bangka Selatan.',
+        fullDescription: 'Program bantuan tanggap darurat dan pemulihan bagi para penyintas musibah di Dusun Serdang, Desa Serdang, Bangka Selatan melalui penyediaan sembako, tempat tinggal darurat, obat-obatan, dan pemenuhan kebutuhan primer warga terdampak.',
+        imageUrl: '/assets/images/pray-for-dusun-serdang.jpg',
+        image_url: '/assets/images/pray-for-dusun-serdang.jpg',
+        location: 'Desa Serdang, Bangka Selatan',
+        beneficiaries: 'Warga & Penyintas Musibah di Dusun Serdang',
         featured: true,
         urgent: true,
         active: true

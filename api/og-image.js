@@ -334,7 +334,8 @@ async function resolveQuoteRaw(quoteId) {
 
 // ─── Program Image Resolver ───────────────────────────────────
 const PROGRAM_IMAGE_MAP = {
-    'pray-for-ntt':                                 'assets/images/foto-utama-wiz.jpg',
+    'pray-for-dusun-serdang':                       'assets/images/pray-for-dusun-serdang.jpg',
+    'pray-for-ntt':                                 'assets/images/pray-for-dusun-serdang.jpg',
     'sedekah-beras-dhuafa':                         'assets/images/sedekah-beras-dhuafa.png',
     'sedekah-beras-dai':                            'assets/images/sedekah-beras-dhuafa.png',
     'sedekah-beras-dai-koba':                       'assets/images/sedekah-beras-dhuafa.png',

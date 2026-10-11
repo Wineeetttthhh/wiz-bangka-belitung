@@ -318,7 +318,8 @@ import { MASTER_PROGRAMS } from '../../lib/programs-data';
             const PROGRAM_IMG_MAP = {
                 'keberangkatan-kepulangan-dai': '/assets/images/keberangkatan-dai.png',
                 'hadirkan-pencerah-umat-dukung-perjuangan-dai': '/assets/images/keberangkatan-dai.png',
-                'pray-for-ntt': '/assets/images/default-program-wiz.jpg',
+                'pray-for-dusun-serdang': '/assets/images/pray-for-dusun-serdang.jpg',
+                'pray-for-ntt': '/assets/images/pray-for-dusun-serdang.jpg',
                 'tebar-sembako': '/assets/images/tebar-sembako.png',
                 'sedekah-beras-dhuafa': '/assets/images/sedekah-beras-dhuafa.png',
                 'sedekah-jumat': '/assets/images/sedekah-Jumat.png',
@@ -365,9 +366,30 @@ import { MASTER_PROGRAMS } from '../../lib/programs-data';
                     const slug = p.slug || (p.title ? p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : 'program');
                     const pCleanTitle = (p.title || '').toLowerCase().trim();
                     // Admin uploaded photo has HIGHEST priority
-                    let dynamicImg = (p.imageUrl || p.image_url || '').trim();
+                    let dynamicImg = '';
+                    const isSerdangItem = slug.includes('serdang') || pCleanTitle.includes('serdang') || slug.includes('ntt') || pCleanTitle.includes('ntt');
+                    
+                    // 1. Direct check in localStorage wiz_specific_prog_imgs (uploaded base64)
+                    try {
+                        const spMap = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+                        if (spMap[p.title]) dynamicImg = spMap[p.title];
+                        else if (isSerdangItem && spMap['Pray For Dusun Serdang']) dynamicImg = spMap['Pray For Dusun Serdang'];
+                        else if (isSerdangItem && spMap['Pray For NTT']) dynamicImg = spMap['Pray For NTT'];
+                    } catch(e) {}
+
+                    // 2. Program object imageUrl
+                    if (!dynamicImg) {
+                        dynamicImg = (p.imageUrl || p.image_url || '').trim();
+                    }
+
+                    // 3. Static mapped file
                     if (!dynamicImg || dynamicImg.includes('default-program-wiz') || dynamicImg.includes('foto-utama-wiz')) {
                         dynamicImg = PROGRAM_IMG_MAP[slug] || '';
+                    }
+
+                    // 4. Dusun Serdang fallback
+                    if (isSerdangItem && (!dynamicImg || dynamicImg.includes('default-program-wiz'))) {
+                        dynamicImg = '/assets/images/pray-for-dusun-serdang.jpg';
                     }
                     if (!dynamicImg) {
                         const rawImg = (window.wizStore.allocationRulesManager && typeof window.wizStore.allocationRulesManager.getSpecificProgramImage === 'function')
@@ -529,7 +551,13 @@ import { MASTER_PROGRAMS } from '../../lib/programs-data';
             renderCustomDynamicPrograms();
             setTimeout(renderCustomDynamicPrograms, 500);
             setTimeout(renderCustomDynamicPrograms, 1500);
+            if (window.wizStore && typeof window.wizStore.syncFromCloud === 'function') {
+                window.wizStore.syncFromCloud().then(() => renderCustomDynamicPrograms()).catch(() => {});
+            }
         });
+
+        window.addEventListener('wiz-sync-complete', renderCustomDynamicPrograms);
+        window.addEventListener('wiz-programs-changed', renderCustomDynamicPrograms);
 
         window.addEventListener('storage', (e) => {
             if (e.key && (e.key.includes('program') || e.key.includes('wiz_') || e.key.includes('image'))) {

@@ -1576,7 +1576,27 @@ import { MASTER_QUOTES } from '../lib/quotes-data';
                 }
             } catch(e) {}
 
-            const progs = Array.from(programMap.values());
+            let dynamicSpImgs = {};
+            try {
+                dynamicSpImgs = JSON.parse(localStorage.getItem('wiz_specific_prog_imgs') || '{}');
+            } catch(e) {}
+
+            const progs = Array.from(programMap.values()).map(p => {
+                // Auto-migrate legacy Pray For NTT to Pray For Dusun Serdang
+                if (p.slug === 'pray-for-ntt' || p.title === 'Pray For NTT') {
+                    return {
+                        ...p,
+                        id: 'prog-pray-for-dusun-serdang',
+                        slug: 'pray-for-dusun-serdang',
+                        title: 'Pray For Dusun Serdang',
+                        imageUrl: '/assets/images/pray-for-dusun-serdang.jpg',
+                        location: 'Desa Serdang, Bangka Selatan',
+                        beneficiaries: 'Warga & Penyintas Musibah di Dusun Serdang',
+                        description: 'Salurkan kepedulian dan bantuan darurat bencana untuk saudara-saudara kita terdampak musibah di Dusun Serdang, Bangka Selatan.'
+                    };
+                }
+                return p;
+            });
             const activeRef = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || (sessionStorage.getItem('wiz_active_ref_id') || 'WIZ');
             const defaultImg = '/assets/images/default-program-wiz.jpg';
 
@@ -1589,7 +1609,12 @@ import { MASTER_QUOTES } from '../lib/quotes-data';
                 const title = p.title || 'Program Kebaikan';
                 const slug = p.slug || (p.title ? p.title.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[-\s]+/g, '-') : 'program');
                 const pillar = p.pillar || p.category || 'Sosial & Kemanusiaan';
-                const img = p.imageUrl || p.image_url || defaultImg;
+                
+                // Authoritative photo resolution: specific_prog_imgs -> p.imageUrl -> default
+                let img = dynamicSpImgs[p.title] || (window.wizStore?.programs?.getSpecificImage ? window.wizStore.programs.getSpecificImage(p.title) : '') || p.imageUrl || p.image_url || defaultImg;
+                if (!img || img === defaultImg) {
+                    if (title.toLowerCase().includes('serdang')) img = '/assets/images/pray-for-dusun-serdang.jpg';
+                }
                 const desc = p.description || p.fullDescription || 'Salurkan donasi terbaik Anda melalui program kebaikan WIZ Bangka Belitung.';
                 const shortDesc = desc.length > 110 ? desc.slice(0, 110) + '...' : desc;
                 
@@ -2007,6 +2032,9 @@ import { MASTER_QUOTES } from '../lib/quotes-data';
             renderAffiliateProgramsGrid();
             renderAffiliateQuotesGrid();
             if (currentLoggedAffiliate) renderMemberDashboard(false);
+        });
+        window.addEventListener('wiz-programs-changed', () => {
+            renderAffiliateProgramsGrid();
         });
         window.addEventListener('wiz-kpi-changed', () => {
             if (currentLoggedAffiliate) renderMemberDashboard(true);

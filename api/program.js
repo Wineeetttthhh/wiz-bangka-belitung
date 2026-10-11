@@ -161,14 +161,23 @@ const SPECIFIC_PROGRAMS_METADATA = {
     },
 
     // ── 2. Sosial & Kemanusiaan (Berkah Peduli) ──
-    'pray-for-ntt': {
-        title: 'Pray For NTT',
+    'pray-for-dusun-serdang': {
+        title: 'Pray For Dusun Serdang',
         pillar: 'Sosial & Kemanusiaan',
         target: 'Rp 50.000.000',
-        location: 'Nusa Tenggara Timur (NTT)',
-        beneficiaries: 'Warga & Penyintas Bencana NTT',
-        description: 'Salurkan kepedulian dan bantuan darurat bencana untuk saudara-saudara kita terdampak bencana di Nusa Tenggara Timur (NTT).',
-        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/pray-for-ntt.jpg'
+        location: 'Desa Serdang, Bangka Selatan',
+        beneficiaries: 'Warga & Penyintas Musibah di Dusun Serdang',
+        description: 'Salurkan kepedulian dan bantuan darurat bagi saudara-saudara kita terdampak musibah di Desa Serdang, Bangka Selatan.',
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/pray-for-dusun-serdang.jpg'
+    },
+    'pray-for-ntt': {
+        title: 'Pray For Dusun Serdang',
+        pillar: 'Sosial & Kemanusiaan',
+        target: 'Rp 50.000.000',
+        location: 'Desa Serdang, Bangka Selatan',
+        beneficiaries: 'Warga & Penyintas Musibah di Dusun Serdang',
+        description: 'Salurkan kepedulian dan bantuan darurat bagi saudara-saudara kita terdampak musibah di Desa Serdang, Bangka Selatan.',
+        imageUrl: 'https://www.wizbangkabelitung.or.id/assets/images/pray-for-dusun-serdang.jpg'
     },
     'tebar-sembako': {
         title: 'Tebar Sembako Dhuafa',
@@ -557,7 +566,8 @@ export default async function handler(req, res) {
     }
 
 const PROGRAM_IMAGE_MAP = {
-    'pray-for-ntt':                                 'assets/images/pray-for-ntt.jpg',
+    'pray-for-dusun-serdang':                       'assets/images/pray-for-dusun-serdang.jpg',
+    'pray-for-ntt':                                 'assets/images/pray-for-dusun-serdang.jpg',
     'sedekah-beras-dhuafa':                         'assets/images/sedekah-beras-dhuafa.png',
     'sedekah-beras-dai':                            'assets/images/sedekah-beras-dai.jpg',
     'sedekah-beras-dai-koba':                       'assets/images/sedekah-beras-dai-koba.jpg',
@@ -699,11 +709,11 @@ const PROGRAM_IMAGE_MAP = {
     // ─── Related Programs List (Pilihan Program Kebaikan Lainnya) ───
     const RELATED_PROGRAM_CANDIDATES = [
         { 
-            slug: 'pray-for-ntt', 
-            title: 'Pray For NTT', 
+            slug: 'pray-for-dusun-serdang', 
+            title: 'Pray For Dusun Serdang', 
             pillar: 'Sosial & Kemanusiaan', 
             target: 'Rp 50.000.000', 
-            img: specificImgsMap['Pray For NTT'] || 'assets/images/pray-for-ntt.jpg' 
+            img: specificImgsMap['Pray For Dusun Serdang'] || 'assets/images/pray-for-dusun-serdang.jpg' 
         },
         { 
             slug: 'sedekah-beras-dhuafa', 
