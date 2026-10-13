@@ -131,11 +131,11 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                                     return pSlug === slugified || pTitle === spacified || pSlug.includes(slugified) || pTitle.includes(spacified);
                                 });
                                 
-                                var targetTitle = found ? found.title : (isSerdang ? 'Pray For Dusun Serdang' : (raw.includes('-') ? raw.split('-').map(function(w){ return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ') : raw));
+                                var targetTitle = found ? found.title : (isSerdang ? 'Pray For Dusun Serdang (Gelombang 2)' : (raw.includes('-') ? raw.split('-').map(function(w){ return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ') : raw));
                                 var targetPillar = found ? (found.pillar || found.category || 'BERKAH PEDULI') : (isSerdang ? 'BERKAH PEDULI' : 'BERKAH HIDAYAH');
-                                var targetLoc = found ? ('Lokasi: ' + (found.location || 'Kepulauan Bangka Belitung')) : (isSerdang ? 'Lokasi: Desa Serdang, Bangka Selatan' : 'Lokasi: Kepulauan Bangka Belitung');
-                                var targetBen = found ? (found.beneficiaries || 'Mustahik & Santri') : (isSerdang ? 'Warga & Penyintas Terdampak Bencana di Dusun Serdang' : 'Mustahik & Santri');
-                                var targetDesc = found ? (found.description || found.fullDescription) : (isSerdang ? 'Salurkan kepedulian dan bantuan darurat bencana untuk saudara-saudara kita terdampak musibah di Dusun Serdang, Bangka Selatan.' : 'Salurkan donasi terbaik Anda untuk program kebaikan ini.');
+                                var targetLoc = found ? ('Lokasi: ' + (found.location || 'Kepulauan Bangka Belitung')) : (isSerdang ? 'Lokasi: Dusun Serdang, Kab. Bangka Selatan' : 'Lokasi: Kepulauan Bangka Belitung');
+                                var targetBen = found ? (found.beneficiaries || 'Mustahik & Santri') : (isSerdang ? 'Warga & Penyintas Bencana Dusun Serdang' : 'Mustahik & Santri');
+                                var targetDesc = found ? (found.description || found.fullDescription) : (isSerdang ? 'Aksi Kemanusiaan Gelombang 2 Kolaborasi Bersama (WIZ, DEMA IAIN SAS, SBSI, BEM Polman Babel, PMI, Polman Babel) untuk pemenuhan 7 kebutuhan mendesak penyintas musibah Dusun Serdang, Bangka Selatan.' : 'Salurkan donasi terbaik Anda untuk program kebaikan ini.');
 
                                 if (titleEl) titleEl.textContent = targetTitle;
                                 if (pillarEl) pillarEl.textContent = String(targetPillar).toUpperCase();
@@ -914,14 +914,14 @@ import { MASTER_PROGRAMS } from '../lib/programs-data';
                 return {
                     id: 'prog-pray-for-dusun-serdang',
                     slug: 'pray-for-dusun-serdang',
-                    title: 'Pray For Dusun Serdang',
+                    title: 'Pray For Dusun Serdang (Gelombang 2)',
                     pillar: 'Berkah Peduli',
                     category: 'Sosial & Kemanusiaan',
                     target: 'Rp 50.000.000',
                     targetAmount: 50000000,
-                    location: 'Desa Serdang, Bangka Selatan',
-                    beneficiaries: 'Warga & Penyintas Terdampak Bencana di Dusun Serdang',
-                    description: 'Salurkan kepedulian dan bantuan darurat bencana untuk saudara-saudara kita terdampak musibah di Dusun Serdang, Bangka Selatan.',
+                    location: 'Dusun Serdang, Kab. Bangka Selatan',
+                    beneficiaries: 'Warga & Penyintas Bencana Dusun Serdang',
+                    description: 'Aksi Kemanusiaan Gelombang 2 Kolaborasi Bersama (WIZ, DEMA IAIN SAS, SBSI, BEM Polman Babel, PMI, Polman Babel) untuk pemenuhan 7 kebutuhan mendesak penyintas musibah Dusun Serdang, Bangka Selatan.',
                     imageUrl: getBestImage('Pray For Dusun Serdang', '/assets/images/pray-for-dusun-serdang.jpg')
                 };
             }

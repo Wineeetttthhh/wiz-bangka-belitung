@@ -361,7 +361,10 @@ function triggerSocialShare(platform) {
     if (platform === 'wa') {
         const shareUrlObj = new URL(url.startsWith('http') ? url : `https://www.wizbangkabelitung.or.id/${url.replace(/^\//, '')}`);
         const finalUrl = shareUrlObj.toString();
-        const text = `*${title}*\n\n${desc}\n\nSalurkan donasi terbaik Anda melalui tautan resmi berikut:\n👉 ${finalUrl}`;
+        let text = `*${title}*\n\n${desc}\n\nSalurkan donasi terbaik Anda melalui tautan resmi berikut:\n👉 ${finalUrl}`;
+        if (title.toLowerCase().includes('serdang') || finalUrl.includes('serdang')) {
+            text = `🚨 *PRAY FOR DUSUN SERDANG — GELOMBANG 2* 🚨\n_Kolaborasi Kemanusiaan Lintas Lembaga & Relawan Bangka Belitung_\n\nInnalillahi wa inna ilaihi raji'un. Aksi kemanusiaan *GELOMBANG 2* kini resmi dibuka untuk pemenuhan kebutuhan darurat dan pemulihan penyintas musibah kebakaran di Dusun Serdang, Kab. Bangka Selatan.\n\n🤝 *ALIANSI LEMBAGA KOLABORATOR:*\n• Wahdah Inspirasi Zakat (WIZ) Bangka Belitung\n• DEMA IAIN Syaikh Abdurrahman Siddik Bangka Belitung\n• DPW Serikat Buruh Sejahtera Indonesia (SBSI) Bangka Belitung\n• BEM Politeknik Manufaktur Negeri Bangka Belitung\n• Palang Merah Indonesia (PMI) Bangka Belitung\n• Politeknik Manufaktur Negeri Bangka Belitung\n\n📦 *7 KEBUTUHAN MENDESAK (GELOMBANG 2):*\n1. 🌾 Sembako / Makanan Kering\n2. 💵 Donasi Tunai / Transfer\n3. 🛁 Handuk Bersih\n4. 🛏️ Selimut Hangat\n5. 🎒 Perlengkapan Sekolah (SD, SMP, SMA)\n6. 👕 Pakaian Dalam Baru (Pria & Wanita)\n7. 🍼 Susu Balita (0 s.d. 3 Tahun)\n\n💳 *REKENING SEDEKAH RESMI:*\nBank Syariah Indonesia (BSI)\nNo. Rekening: *716-800-800-1*\nA.n: *WIZ Bangka Belitung*\n\n📲 *LAYANAN INFORMASI & KONFIRMASI:*\nWhatsApp / SMS: *0823-8083-0808*\n\n🌐 *SALURKAN DONASI ONLINE RESMI:*\n👉 ${finalUrl}\n\n_Semoga Allah membalas setiap amal kebaikan dengan rezeki berlimpah dan penuh berkah. Aamiin._`;
+        }
         window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     } else if (platform === 'wa_status') {
         const shareUrlObj = new URL(url.startsWith('http') ? url : `https://www.wizbangkabelitung.or.id/${url.replace(/^\//, '')}`);

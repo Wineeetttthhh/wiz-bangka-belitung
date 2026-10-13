@@ -512,6 +512,59 @@ import { MASTER_QUOTES } from '../lib/quotes-data';
                     <p class="text-xs text-slate-500 mt-1">Pilih program di bawah untuk langsung membagikan link donasi publik dengan Kode Mitra Anda!</p>
                 </div>
 
+                <!-- Spotlight Campaign: Pray For Dusun Serdang Gelombang 2 -->
+                <div class="rounded-3xl bg-gradient-to-br from-[#004d26] via-[#006834] to-slate-900 text-white p-5 sm:p-7 shadow-xl border border-emerald-500/40 relative overflow-hidden flex flex-col md:flex-row gap-6 items-center">
+                    <div class="w-full md:w-56 aspect-[3/4] max-w-[200px] md:max-w-none rounded-2xl overflow-hidden bg-slate-950 shrink-0 border border-white/20 shadow-lg relative group">
+                        <img src="/assets/images/pray-for-dusun-serdang.jpg" alt="Pray For Dusun Serdang Gelombang 2" class="w-full h-full object-cover">
+                        <div class="absolute top-2.5 right-2.5">
+                            <span class="px-2.5 py-1 rounded-full bg-amber-500 text-slate-950 text-[10px] font-black uppercase shadow-md flex items-center gap-1">
+                                <span class="material-symbols-outlined text-xs font-bold">bolt</span> Gelombang 2
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex-1 space-y-3 w-full">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-black uppercase tracking-wider shadow-xs">
+                                <span class="material-symbols-outlined text-sm font-black">emergency</span> Program Prioritas Mitra
+                            </span>
+                            <span class="text-xs text-emerald-200 font-bold bg-white/10 px-2.5 py-1 rounded-full border border-white/15">
+                                Kolaborasi 6 Lembaga Resmi
+                            </span>
+                        </div>
+                        <h3 class="text-xl sm:text-2xl font-black text-white leading-tight">
+                            Pray For Dusun Serdang — Gelombang 2
+                        </h3>
+                        <p class="text-xs sm:text-sm text-emerald-100/90 leading-relaxed">
+                            Aksi kemanusiaan terpadu WIZ Babel bersama DEMA IAIN SAS, SBSI Babel, BEM Polman Babel, PMI, dan Polman Babel. Bagikan materi terverifikasi ini untuk memfasilitasi donasi masyarakat secara amanah dan profesional.
+                        </p>
+                        <div class="p-3 bg-white/10 rounded-xl border border-white/15 text-[11px] text-emerald-200">
+                            <strong>7 Kebutuhan Mendesak:</strong> Sembako, Uang Tunai/Transfer, Handuk, Selimut, Perlengkapan Sekolah SD/SMP/SMA, Pakaian Dalam Baru, &amp; Susu Balita (0–3 th).
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2 pt-1">
+                            <button type="button" onclick="shareProgramChatWA('pray-for-dusun-serdang', 'Pray For Dusun Serdang (Gelombang 2)', 'Aksi Kemanusiaan Gelombang 2')" class="bg-[#25D366] hover:bg-[#1ebd5a] text-white px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md transition-transform hover:scale-102 cursor-pointer">
+                                <span class="material-symbols-outlined text-base">chat</span>
+                                <span>Bagikan Broadcast WA</span>
+                            </button>
+                            <button type="button" onclick="shareProgramStatusWA('pray-for-dusun-serdang', 'Pray For Dusun Serdang')" class="bg-emerald-800 hover:bg-emerald-700 text-white px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 border border-emerald-600/40 transition-colors cursor-pointer" title="Buat Status WA">
+                                <span class="material-symbols-outlined text-base">history_toggle_off</span>
+                                <span>Status WA</span>
+                            </button>
+                            <a href="/assets/images/pray-for-dusun-serdang.jpg" download="Poster-Pray-For-Dusun-Serdang-Gelombang-2-WIZ.jpg" class="bg-amber-400 hover:bg-amber-300 text-slate-950 px-3.5 py-2.5 rounded-xl font-black text-xs flex items-center gap-1.5 transition-colors no-underline cursor-pointer" title="Unduh Poster HD">
+                                <span class="material-symbols-outlined text-base">download</span>
+                                <span>Unduh Poster HD</span>
+                            </a>
+                            <button type="button" onclick="copyProgramDirectLink('pray-for-dusun-serdang', 'Pray For Dusun Serdang (Gelombang 2)')" class="bg-white/15 hover:bg-white/25 text-white px-3 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer" title="Salin Link Donasi">
+                                <span class="material-symbols-outlined text-base">content_copy</span>
+                                <span>Salin Link</span>
+                            </button>
+                            <a href="/program/pray-for-dusun-serdang" target="_blank" class="bg-white/10 hover:bg-white/20 text-emerald-200 px-3 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-colors no-underline">
+                                <span class="material-symbols-outlined text-base">open_in_new</span>
+                                <span>Lihat Halaman</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="affiliate-programs-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full">
                 </div>
             </div>
@@ -1630,14 +1683,18 @@ import { MASTER_QUOTES } from '../lib/quotes-data';
                 const escapedDesc = shortDesc.replace(/"/g, '&quot;').replace(/'/g, "\\'");
                 const escapedSlug = slug.replace(/'/g, "\\'");
 
+                const isSerdangItem = title.toLowerCase().includes('serdang') || slug.includes('serdang');
+                const cardBorder = isSerdangItem ? 'border-amber-400 ring-2 ring-amber-400/20 shadow-md' : 'border-slate-200 shadow-xs hover:shadow-md';
+
                 return `
-                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between group">
+                <div class="bg-white rounded-2xl border ${cardBorder} overflow-hidden transition-all flex flex-col justify-between group">
                     <div class="relative overflow-hidden">
                         <img src="${img}" alt="${title}" class="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-300 bg-slate-100" onerror="this.src='${defaultImg}'">
-                        <div class="absolute top-3 left-3">
+                        <div class="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap">
                             <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/95 text-primary backdrop-blur-xs shadow-xs border border-primary/20">
                                 ${pillar}
                             </span>
+                            ${isSerdangItem ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-black bg-amber-500 text-slate-950 shadow-xs flex items-center gap-1"><span class="material-symbols-outlined text-xs font-bold">bolt</span> Gelombang 2</span>` : ''}
                         </div>
                     </div>
                     <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
@@ -1654,14 +1711,18 @@ import { MASTER_QUOTES } from '../lib/quotes-data';
                             </div>
                         </div>
                         <div class="pt-2 border-t border-slate-100 flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
-                            <button type="button" onclick="shareProgramStatusWA('${escapedSlug}', '${escapedTitle}')" class="flex-1 min-w-[95px] bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-2 px-2 rounded-xl flex items-center justify-center gap-1 shadow-xs transition-all active:scale-95 cursor-pointer" title="Buat Status WhatsApp (Kartu Poster Otomatis Muncul)">
+                            <button type="button" onclick="shareProgramStatusWA('${escapedSlug}', '${escapedTitle}')" class="flex-1 min-w-[90px] bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-2 px-2 rounded-xl flex items-center justify-center gap-1 shadow-xs transition-all active:scale-95 cursor-pointer" title="Buat Status WhatsApp (Kartu Poster Otomatis Muncul)">
                                 <span class="material-symbols-outlined text-[16px]">history_toggle_off</span>
                                 <span>Status WA</span>
                             </button>
-                            <button type="button" onclick="shareProgramChatWA('${escapedSlug}', '${escapedTitle}', '${escapedDesc}')" class="flex-1 min-w-[95px] bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold text-xs py-2 px-2 rounded-xl flex items-center justify-center gap-1 shadow-xs transition-all active:scale-95 cursor-pointer" title="Kirim Pesan Rapi ke Chat Pribadi / Grup WhatsApp">
+                            <button type="button" onclick="shareProgramChatWA('${escapedSlug}', '${escapedTitle}', '${escapedDesc}')" class="flex-1 min-w-[90px] bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold text-xs py-2 px-2 rounded-xl flex items-center justify-center gap-1 shadow-xs transition-all active:scale-95 cursor-pointer" title="Kirim Pesan Rapi ke Chat Pribadi / Grup WhatsApp">
                                 <span class="material-symbols-outlined text-[16px]">chat</span>
                                 <span>Chat WA</span>
                             </button>
+                            ${isSerdangItem ? `
+                            <a href="/assets/images/pray-for-dusun-serdang.jpg" download="Poster-Pray-For-Dusun-Serdang-Gelombang-2-WIZ.jpg" class="p-2 bg-amber-100 hover:bg-amber-200 text-amber-950 rounded-xl font-bold text-xs flex items-center justify-center transition-colors cursor-pointer" title="Unduh Poster Resmi HD (Siap Sebar)">
+                                <span class="material-symbols-outlined text-[17px]">download</span>
+                            </a>` : ''}
                             <button type="button" onclick="copyProgramDirectLink('${escapedSlug}', '${escapedTitle}')" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs flex items-center justify-center transition-colors cursor-pointer" title="Salin Link Program">
                                 <span class="material-symbols-outlined text-[17px]">content_copy</span>
                             </button>
@@ -1704,20 +1765,19 @@ import { MASTER_QUOTES } from '../lib/quotes-data';
 
         // Khusus Room Chat / Grup WA: Pesan rapi, terstruktur, sopan, dan inspiratif
         function shareProgramChatWA(slug, title, desc) {
-            if ((slug && slug.includes('ntt')) || (title && title.includes('NTT'))) {
-                slug = 'pray-for-dusun-serdang';
-                title = 'Pray For Dusun Serdang';
-                desc = 'Salurkan kepedulian dan bantuan darurat bencana untuk saudara-saudara kita terdampak musibah kebakaran di Dusun Serdang, Desa Jelutung 2, Kecamatan Simpang Rimba, Bangka Selatan.';
-            }
-            if (desc && /NTT|Nusa\s*Tenggara/i.test(desc)) {
-                desc = desc.replace(/Nusa\s*Tenggara\s*Timur\s*\(NTT\)/gi, 'Dusun Serdang, Bangka Selatan').replace(/NTT|Nusa\s*Tenggara/gi, 'Dusun Serdang');
+            const isSerdangItem = (slug && (slug.includes('serdang') || slug.includes('ntt'))) || (title && title.toLowerCase().includes('serdang'));
+            const activeRef = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || (sessionStorage.getItem('wiz_active_ref_id') || 'WIZ');
+            const canonicalUrl = `https://www.wizbangkabelitung.or.id/program/${encodeURIComponent(isSerdangItem ? 'pray-for-dusun-serdang' : slug)}?ref=${encodeURIComponent(activeRef)}`;
+            
+            if (isSerdangItem) {
+                const waText = `🚨 *PRAY FOR DUSUN SERDANG — GELOMBANG 2* 🚨\n_Kolaborasi Kemanusiaan Lintas Lembaga & Relawan Bangka Belitung_\n\nInnalillahi wa inna ilaihi raji'un. Duka saudara-saudara kita penyintas musibah kebakaran di Dusun Serdang, Kab. Bangka Selatan adalah duka kita bersama. Aksi kemanusiaan *GELOMBANG 2* kini resmi dibuka untuk pemenuhan kebutuhan darurat dan fase pemulihan.\n\n🤝 *ALIANSI LEMBAGA KOLABORATOR:*\n• Wahdah Inspirasi Zakat (WIZ) Bangka Belitung\n• DEMA IAIN Syaikh Abdurrahman Siddik Bangka Belitung\n• DPW Serikat Buruh Sejahtera Indonesia (SBSI) Bangka Belitung\n• BEM Politeknik Manufaktur Negeri Bangka Belitung\n• Palang Merah Indonesia (PMI) Bangka Belitung\n• Politeknik Manufaktur Negeri Bangka Belitung\n\n📦 *7 KEBUTUHAN MENDESAK (GELOMBANG 2):*\n1. 🌾 Sembako / Makanan Kering\n2. 💵 Donasi Tunai / Transfer\n3. 🛁 Handuk Bersih\n4. 🛏️ Selimut Hangat\n5. 🎒 Perlengkapan Sekolah (SD, SMP, dan SMA)\n6. 👕 Pakaian Dalam Baru (Pria & Wanita)\n7. 🍼 Susu Balita (0 s.d. 3 Tahun)\n\n💳 *REKENING SEDEKAH RESMI:*\nBank Syariah Indonesia (BSI)\nNo. Rekening: *716-800-800-1*\nA.n: *WIZ Bangka Belitung*\n\n📲 *LAYANAN INFORMASI & KONFIRMASI:*\nWhatsApp / SMS: *0823-8083-0808*\n\n🌐 *SALURKAN DONASI ONLINE RESMI:*\n👇👇👇\n${canonicalUrl}\n\n_Penyaluran terverifikasi melalui ID Mitra: ${activeRef}. Semoga Allah membalas setiap kebaikan dengan rezeki berlimpah dan pahala jariyah terbaik. Aamiin._`;
+                const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(waText)}`;
+                window.open(waUrl, '_blank');
+                return;
             }
             
             const cleanTitle = (title || 'Program Kebaikan').replace(/&quot;/g, '"');
             const cleanDesc = (desc || 'Mari bersama alirkan kebaikan dan raih pahala jariyah melalui program ini.').replace(/&quot;/g, '"');
-            const activeRef = (currentLoggedAffiliate ? (currentLoggedAffiliate.code || currentLoggedAffiliate.id) : '') || (sessionStorage.getItem('wiz_active_ref_id') || 'WIZ');
-            const canonicalUrl = `https://www.wizbangkabelitung.or.id/program/${encodeURIComponent(slug)}?ref=${encodeURIComponent(activeRef)}`;
-            
             const waText = `*Program Kebaikan: ${cleanTitle}*\n_Wahdah Inspirasi Zakat (WIZ) Bangka Belitung_\n\nBismillah. ${cleanDesc}\n\nMari bersama alirkan kebaikan dan raih pahala jariyah terbaik melalui tautan resmi:\n👇👇👇\n${canonicalUrl}\n\n_Semoga Allah membalas setiap amal kebaikan dengan rezeki berlimpah dan penuh berkah. Aamiin._`;
             
             const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(waText)}`;
