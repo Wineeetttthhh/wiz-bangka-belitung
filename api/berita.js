@@ -26,7 +26,7 @@ let cachedNewsAll = null;
 let cachedNewsTime = 0;
 const CACHE_TTL_MS = 5000; // 5s for fast fresh updates
 
-async function fetchWithTimeout(url, options = {}, timeoutMs = 1200) {
+async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
     try {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), timeoutMs);
@@ -60,7 +60,7 @@ async function supabaseGetNews(newsId) {
                 'Authorization': 'Bearer ' + SUPABASE_KEY,
                 'Accept': 'application/json'
             }
-        }, 1200);
+        }, 8000);
         if (!res || !res.ok) return null;
         const data = await res.json();
         if (Array.isArray(data)) {

@@ -50,7 +50,7 @@ function slugify(str = '') {
         .replace(/[-\s]+/g, '-');
 }
 
-async function fetchWithTimeout(url, options = {}, timeoutMs = 1200) {
+async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
     try {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), timeoutMs);

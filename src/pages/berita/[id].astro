@@ -40,22 +40,61 @@ function formatDate(dateStr: string) {
 const displayDate = formatDate(news.eventDate || news.createdAt);
 
 // Absolute Open Graph Image URL for WhatsApp & Social Media crawlers
-const rawImg = news.imageUrl || (Array.isArray(news.gallery) && news.gallery.length > 0 ? news.gallery[0] : '') || '/assets/images/foto-utama-wiz.jpg';
-const ogImage = rawImg.startsWith('http://') || rawImg.startsWith('https://')
-    ? rawImg
-    : `https://www.wizbangkabelitung.or.id${rawImg.startsWith('/') ? '' : '/'}${rawImg}`;
+const origin = 'https://www.wizbangkabelitung.or.id';
+let cleanImg = (news.imageUrl || (Array.isArray(news.gallery) && news.gallery.length > 0 && typeof news.gallery[0] === 'string' && !news.gallery[0].startsWith('data:image/') ? news.gallery[0] : '') || '').trim();
+if (!cleanImg || cleanImg.startsWith('data:image/')) {
+    cleanImg = `${origin}/assets/images/foto-utama-wiz.jpg`;
+}
+const absoluteImg = cleanImg.startsWith('http://') || cleanImg.startsWith('https://')
+    ? cleanImg
+    : `${origin}${cleanImg.startsWith('/') ? '' : '/'}${cleanImg}`;
+
+// High-speed WhatsApp-compliant 1200x630 OG image (< 300KB)
+const ogImage = `${origin}/api/og-image?type=news&id=${encodeURIComponent(news.id)}&src=${encodeURIComponent(absoluteImg)}`;
+
+const metaDescription = news.content
+    ? news.content.replace(/<[^>]*>/g, '').replace(/\r?\n|\r/g, ' ').substring(0, 160).trim() + '...'
+    : 'Dokumentasi kegiatan dan berita Laznas WIZ Bangka Belitung.';
+
+const primaryFeaturedImg = news.imageUrl || (Array.isArray(news.gallery) && news.gallery.length > 0 ? news.gallery[0] : '') || '/assets/images/foto-utama-wiz.jpg';
 ---
 
 <BaseLayout
     title={`${news.title} | WIZ Bangka Belitung`}
-    description={news.content ? news.content.replace(/<[^>]*>/g, '').substring(0, 160) : ''}
+    description={metaDescription}
     image={ogImage}
     url={canonicalUrl}
     type="article"
 >
-    <!-- No-cache header for this SSR page -->
-    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
+    <Fragment slot="head">
+        <!-- WhatsApp & Social Media Open Graph Tags -->
+        <meta property="og:type" content="article" />
+        <meta property="og:site_name" content="Wahdah Inspirasi Zakat (WIZ) Bangka Belitung" />
+        <meta property="og:locale" content="id_ID" />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:title" content={`${news.title} | WIZ Bangka Belitung`} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:image:secure_url" content={ogImage} />
+        <meta property="og:image:type" content="image/jpeg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={news.title} />
+        <link rel="image_src" href={ogImage} />
+        <meta name="thumbnail" content={ogImage} />
+        <meta itemprop="image" content={ogImage} />
+
+        <!-- Twitter / X Cards -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@wizbangkabelitung" />
+        <meta name="twitter:title" content={`${news.title} | WIZ Bangka Belitung`} />
+        <meta name="twitter:description" content={metaDescription} />
+        <meta name="twitter:image" content={ogImage} />
+
+        <!-- Cache control -->
+        <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+        <meta http-equiv="Pragma" content="no-cache" />
+    </Fragment>
 
     <!-- Breadcrumb -->
     <div class="bg-slate-100 py-3 border-b border-slate-200">
@@ -96,10 +135,10 @@ const ogImage = rawImg.startsWith('http://') || rawImg.startsWith('https://')
                 </div>
 
                 <!-- Featured Image -->
-                {news.imageUrl && (
+                {primaryFeaturedImg && (
                     <div class="relative aspect-video rounded-2xl overflow-hidden bg-slate-900 shadow-md">
                         <img
-                            src={news.imageUrl}
+                            src={primaryFeaturedImg}
                             alt={news.title}
                             class="w-full h-full object-cover"
                             onerror="this.src='/assets/images/foto-utama-wiz.jpg'"

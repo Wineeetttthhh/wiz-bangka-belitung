@@ -3,13 +3,13 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/api/og-image", "destination": "/api/og-image.js" },
-    { "source": "/program-image/:slug.jpg", "destination": "/api/og-image.js?type=program&id=:slug" },
-    { "source": "/quote-image/:id.jpg", "destination": "/api/og-image.js?type=quote&id=:id" },
-    { "source": "/news-image/:id.jpg", "destination": "/api/og-image.js?type=news&id=:id" },
-    { "source": "/program/:slug", "destination": "/api/program.js?name=:slug" },
-    { "source": "/quote/:id", "destination": "/api/quote.js?id=:id" },
-    { "source": "/flyer/:id", "destination": "/api/quote.js?id=:id" },
-    { "source": "/berita/:id", "destination": "/api/berita.js?id=:id" }
+    { "source": "/api/og-image", "destination": "/api/og-image" },
+    { "source": "/program-image/:slug.jpg", "destination": "/api/og-image?type=program&id=:slug" },
+    { "source": "/quote-image/:id.jpg", "destination": "/api/og-image?type=quote&id=:id" },
+    { "source": "/news-image/:id.jpg", "destination": "/api/og-image?type=news&id=:id" },
+    { "source": "/berita-image/:id.jpg", "destination": "/api/og-image?type=news&id=:id" },
+    { "source": "/program/:slug", "destination": "/api/program?slug=:slug" },
+    { "source": "/quote/:id", "destination": "/api/quote?id=:id" },
+    { "source": "/flyer/:id", "destination": "/api/quote?id=:id" }
   ]
 }
